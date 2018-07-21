@@ -40,4 +40,6 @@
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>
+
+    <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 210" textcolor="Black" texthovercolor="White"/>
 </window>

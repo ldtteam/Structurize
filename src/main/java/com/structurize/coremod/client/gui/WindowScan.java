@@ -15,6 +15,7 @@ import com.structurize.coremod.Structurize;
 import com.structurize.coremod.network.messages.RemoveBlockMessage;
 import com.structurize.coremod.network.messages.RemoveEntityMessage;
 import com.structurize.coremod.network.messages.ScanOnServerMessage;
+import com.structurize.coremod.network.messages.UndoMessage;
 import com.structurize.structures.helpers.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -132,6 +133,15 @@ public class WindowScan extends AbstractWindowSkeleton
 
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         entityList = findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class);
+        registerButton(UNDO_BUTTON, this::undoClicked);
+    }
+
+    /**
+     * Undo the last change.
+     */
+    private void undoClicked()
+    {
+        Structurize.getNetwork().sendToServer(new UndoMessage());
     }
 
     /**
@@ -221,6 +231,8 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2z.setText(String.valueOf(pos2.getZ()));
 
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
+
+        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
     /**

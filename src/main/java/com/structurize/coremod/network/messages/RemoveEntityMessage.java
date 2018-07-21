@@ -90,8 +90,8 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
                 for (int z = Math.min(message.from.getZ(), message.to.getZ()); z <= Math.max(message.from.getZ(), message.to.getZ()); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
-                    storage.addEntity(here, world);
                     final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
+                    storage.addEntities(list);
 
                     for(final Entity entity: list)
                     {

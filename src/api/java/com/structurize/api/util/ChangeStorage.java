@@ -85,14 +85,12 @@ public class ChangeStorage
     }
 
     /**
-     * Add a entity storage to the list.
-     * @param place the place.
-     * @param world the world.
+     * Add entities to list to be readded.
+     * @param list the list of entities.
      */
-    public void addEntity(final BlockPos place, final World world)
+    public void addEntities(final List<Entity> list)
     {
-        final List<Entity> tempEntities = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(place, place));
-        entities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
+        entities.addAll(list.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
     /**
@@ -119,7 +117,7 @@ public class ChangeStorage
             }
         }
 
-        entities.forEach(entity -> EntityList.createEntityFromNBT(entity, world));
+        entities.forEach(entity -> world.spawnEntity(EntityList.createEntityFromNBT(entity, world)));
         entitiesToKill.forEach(Entity::setDead);
     }
 
