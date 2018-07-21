@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "down": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "up": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "north": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "east": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "south": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr",
+    "west": "copypaste:blocks/timberframe/jungle/blockonecrossedsidelr"
+  }
+}

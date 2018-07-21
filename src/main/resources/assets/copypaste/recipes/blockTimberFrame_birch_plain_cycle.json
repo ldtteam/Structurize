@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "copypaste:blocktimberframe_birch_horizontalnocap"
+    }
+  ],
+  "result": {
+    "item": "copypaste:blocktimberframe_birch_plain",
+    "count": 1
+  }
+}

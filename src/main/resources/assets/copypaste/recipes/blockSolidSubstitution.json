@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "XTX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "logWood"
+    },
+    "T": {
+      "item": "copypaste:sceptersteel"
+    }
+  },
+  "result": {
+    "item": "copypaste:blocksolidsubstitution",
+    "count": 16
+  }
+}

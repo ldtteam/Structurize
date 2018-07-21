@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "blocks/planks_oak",
+    "down": "blocks/planks_oak",
+    "up": "copypaste:blocks/blockHutBakerTop",
+    "north": "copypaste:blocks/sideChest",
+    "east": "copypaste:blocks/sideChest",
+    "south": "copypaste:blocks/sideChest",
+    "west": "copypaste:blocks/sideChest"
+  }
+}

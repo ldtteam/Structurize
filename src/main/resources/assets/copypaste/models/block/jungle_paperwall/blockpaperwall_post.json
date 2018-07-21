@@ -1,0 +1,7 @@
+{
+  "parent": "block/pane_post",
+  "textures": {
+    "edge": "copypaste:blocks/paperwall/paperwall_jungle_top",
+    "pane": "copypaste:blocks/paperwall/paperwall_jungle_white"
+  }
+}

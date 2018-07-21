@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "copypaste:blocktimberframe_oak_onecrossedlr"
+    }
+  ],
+  "result": {
+    "item": "copypaste:blocktimberframe_oak_onecrossedrl",
+    "count": 1
+  }
+}

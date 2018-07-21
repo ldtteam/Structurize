@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "copypaste:blocks/timberframe/acacia/blockhorizontalplain",
+    "down": "copypaste:blocks/timberframe/acacia/blockframedside",
+    "up": "copypaste:blocks/timberframe/acacia/blockframedside",
+    "north": "copypaste:blocks/timberframe/acacia/blockhorizontalplain",
+    "east": "copypaste:blocks/timberframe/acacia/blockhorizontalplain",
+    "south": "copypaste:blocks/timberframe/acacia/blockhorizontalplain",
+    "west": "copypaste:blocks/timberframe/acacia/blockhorizontalplain"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "copypaste:blocktimberframe_acacia_plain"
+    }
+  ],
+  "result": {
+    "item": "copypaste:blocktimberframe_acacia_doublecrossed",
+    "count": 1
+  }
+}

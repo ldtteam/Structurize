@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "copypaste:blocks/blockPlainframeside",
+    "down": "copypaste:blocks/blockPlainframetop",
+    "up": "copypaste:blocks/blockPlainframetop",
+    "north": "copypaste:blocks/blockPlainframeside",
+    "east": "copypaste:blocks/blockPlainframeside",
+    "south": "copypaste:blocks/blockPlainframeside",
+    "west": "copypaste:blocks/blockPlainframeside"
+  }
+}

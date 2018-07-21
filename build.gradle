@@ -1,0 +1,268 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.0.9"
+}
+repositories {
+    maven {
+        name 'DVS1 Maven FS'
+        url 'http://dvs1.progwml6.com/files/maven'
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "modmaven.k-4u.nl"
+    }
+    maven {
+        url 'http://dogforce-games.com/maven'
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'jacoco'
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+sourceSets {
+    api {
+        java {
+            srcDir 'src/api/java'
+        }
+        resources {
+            srcDir 'src/api/resources'
+        }
+    }
+    blockOut {
+        java {
+            srcDir 'src/blockout/java'
+        }
+        resources {
+            srcDir 'src/blockout/resources'
+        }
+        compileClasspath += sourceSets.api.compileClasspath
+    }
+    structures {
+        java {
+            srcDir 'src/structures/java'
+        }
+        resources {
+            srcDir 'src/structures/resources'
+        }
+        compileClasspath += sourceSets.api.compileClasspath
+    }
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+        compileClasspath += sourceSets.structures.output
+        compileClasspath += sourceSets.blockOut.output
+        compileClasspath += sourceSets.api.output
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
+
+ext.configFile = file "build.properties"
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
+
+dependencies {
+    compile "mod.chiselsandbits:chiselsandbits:${config.c_b_version}"
+
+    structuresCompile sourceSets.api.output
+    //blockOutCompile sourceSets.api.output
+    testCompile sourceSets.structures.output
+    testCompile sourceSets.blockOut.output
+
+    testCompile 'junit:junit:4.11'
+    testCompile "org.mockito:mockito-core:1.+"
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
+
+    testCompile 'org.assertj:assertj-core:3.9.0'
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+
+    compile 'com.intellij:annotations:+@jar'
+}
+
+group = "com.copypaste"
+version = config.minecraft_version.toString() + "-" + System.getenv()["Version"]
+archivesBaseName = "copypaste"
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+minecraft {
+
+    version = config.minecraft_version + "-" + config.forge_version
+    runDir = "run"
+	
+	mappings = "${config.mappings}"
+	
+    replace "@VERSION@", project.version
+    replaceIn "util/constant/Constants.java"
+    if (project.hasProperty("signature"))
+        replace "@FINGERPRINT@", signature
+}
+
+processResources {
+
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.api.output
+    classifier 'api'
+}
+
+task blockOutJar(type: Jar) {
+    from sourceSets.blockOut.output
+    classifier 'blockOut'
+}
+
+task structuresJar(type: Jar){
+    from sourceSets.structures.output
+    classifier 'structures'
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+}
+
+jar {
+    from sourceSets.api.output
+    from sourceSets.blockOut.output
+    from sourceSets.structures.output
+    from sourceSets.main.output
+    
+    classifier = 'universal'
+
+    manifest {
+        attributes 'FMLAT': "CopyPaste_at.cfg"
+    }
+}
+
+javadoc {
+    source += sourceSets.api.allSource
+    source += sourceSets.blockOut.allSource
+    source += sourceSets.structures.allSource
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf { // Skip the task if our secret data isn't available
+        project.hasProperty('keyStore')
+    }
+
+    if (project.hasProperty('keyStore')) {
+        keyStore = project.keyStore // This needs to be a path to the keystore file
+        alias = project.keyStoreAlias
+        storePass = project.keyStorePass
+        keyPass = project.keyStoreKeyPass
+        inputFile = jar.archivePath
+        outputFile = jar.archivePath
+    }
+}
+
+build.dependsOn signJar
+
+curseforge {
+    if (System.getenv().CURSEAPIKEY != null && System.getenv().CURSERELEASETYPE != null)
+    {
+        apiKey = System.getenv().CURSEAPIKEY
+
+        project {
+            id = '245506'
+
+            changelog = file('build/changelog.md')
+            changelogType = 'markdown'
+            releaseType = System.getenv().CURSERELEASETYPE
+
+            addArtifact deobfJar
+            addArtifact apiJar
+            addArtifact blockOutJar
+            addArtifact structuresJar
+        }
+    }
+    else
+    {
+        logger.lifecycle("Cannot run the CurseUpload sequence. No API-Key or release type has been provided.")
+    }
+}
+
+task("createChangelog") {
+    group = 'upload'
+
+    doLast {
+        def teamCityURL = "https://teamcity.copypaste.com/"
+        def file = new FileOutputStream("build/changelog.md")
+        def out = new BufferedOutputStream(file)
+        def changesXML = new XmlSlurper().parse(teamCityURL + "guestAuth/app/rest/changes?locator=build:(id:" + teamcity["teamcity.build.id"] + ")")
+
+        def changes = changesXML.change
+        println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
+
+        out << "# CopyPaste Changelog \n"
+        out << "## Version: _" + version + "_ \n"
+
+        if (changes.size() > 0) {
+            for (int i = 0; i < changes.size(); i++) {
+                def changeDetailsURL = teamCityURL + "guestAuth/app/rest/changes/id:" + changes[i].@id.text()
+                def changeDetailsXml = new XmlSlurper().parse(changeDetailsURL)
+                def changeComment = changeDetailsXml.comment.text().trim()
+
+                out << "* " + changeComment + "\n"
+            }
+        } else {
+            out << "No Changes detected!"
+        }
+
+        out.close()
+    }
+}

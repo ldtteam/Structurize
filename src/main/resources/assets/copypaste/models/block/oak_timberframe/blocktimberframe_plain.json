@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "copypaste:blocks/timberframe/oak/blockplainframeside",
+    "down": "copypaste:blocks/timberframe/oak/blocktimberframetop",
+    "up": "copypaste:blocks/timberframe/oak/blocktimberframetop",
+    "north": "copypaste:blocks/timberframe/oak/blockplainframeside",
+    "east": "copypaste:blocks/timberframe/oak/blockplainframeside",
+    "south": "copypaste:blocks/timberframe/oak/blockplainframeside",
+    "west": "copypaste:blocks/timberframe/oak/blockplainframeside"
+  }
+}

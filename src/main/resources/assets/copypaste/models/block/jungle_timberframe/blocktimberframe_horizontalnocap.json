@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "copypaste:blocks/timberframe/jungle/blockhorizontalnocapside",
+    "down": "copypaste:blocks/timberframe/jungle/blocktimberframetopbottom",
+    "up": "copypaste:blocks/timberframe/jungle/blocktimberframetopbottom",
+    "north": "copypaste:blocks/timberframe/jungle/blockhorizontalnocapside",
+    "east": "copypaste:blocks/timberframe/jungle/blockhorizontalnocapside",
+    "south": "copypaste:blocks/timberframe/jungle/blockhorizontalnocapside",
+    "west": "copypaste:blocks/timberframe/jungle/blockhorizontalnocapside"
+  }
+}

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "copy_paste",
+  "name": "Copy-Paste",
+  "description": "Copy, Paste structures, replace blocks, remove blocks and scan blocks, all with a nice GUI",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "http://minecolonies.com",
+  "updateUrl": "",
+  "authorList": ["Let's Dev Together"],
+  "credits": "Lunatrius",
+  "logoFile": "assets/copy_paste/Logo.jpg",
+  "screenshots": [],
+  "dependencies": []
+}
+]

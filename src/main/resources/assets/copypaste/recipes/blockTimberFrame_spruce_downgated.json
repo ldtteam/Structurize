@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "copypaste:blocktimberframe_spruce_onecrossedrl"
+    }
+  ],
+  "result": {
+    "item": "copypaste:blocktimberframe_spruce_downgated",
+    "count": 1
+  }
+}
