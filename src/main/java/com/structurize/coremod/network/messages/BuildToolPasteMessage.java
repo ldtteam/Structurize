@@ -1,5 +1,7 @@
 package com.structurize.coremod.network.messages;
 
+import com.structurize.api.util.ChangeStorage;
+import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.util.StructureWrapper;
@@ -119,7 +121,7 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
         if (player.capabilities.isCreativeMode)
         {
             StructureWrapper.loadAndPlaceStructureWithRotation(player.world, message.structureName,
-              message.pos, message.rotation, message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete);
+              message.pos, message.rotation, message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
         }
     }
 }

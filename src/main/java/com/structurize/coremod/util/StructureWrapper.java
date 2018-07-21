@@ -1,10 +1,8 @@
 package com.structurize.coremod.util;
 
-import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ItemStackUtils;
-import com.structurize.api.util.Log;
+import com.structurize.api.util.*;
 import com.structurize.coremod.blocks.ModBlocks;
+import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.placementhandlers.IPlacementHandler;
 import com.structurize.coremod.placementhandlers.PlacementHandlers;
 import com.structurize.structures.helpers.StructureProxy;
@@ -14,6 +12,7 @@ import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -89,25 +88,25 @@ public final class StructureWrapper
     /**
      * Load a structure into this world
      * and place it in the right position and rotation.
-     *
-     * @param worldObj  the world to load it in
+     *  @param worldObj  the world to load it in
      * @param name      the structures name
      * @param pos       coordinates
      * @param rotations number of times rotated
      * @param mirror    the mirror used.
      * @param complete  paste it complete (with structure blocks) or without
+     * @param player the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
-                                                          final World worldObj, @NotNull final String name,
-                                                          @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror,
-                                                          final boolean complete)
+      final World worldObj, @NotNull final String name,
+      @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror,
+      final boolean complete, final EntityPlayerMP player)
     {
         try
         {
             @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, name);
             structureWrapper.position = pos;
             structureWrapper.rotate(rotations, worldObj, pos, mirror);
-            structureWrapper.placeStructure(pos.subtract(structureWrapper.getOffset()), complete);
+            structureWrapper.placeStructure(pos.subtract(structureWrapper.getOffset()), complete, player);
         }
         catch (final IllegalStateException e)
         {
@@ -130,13 +129,14 @@ public final class StructureWrapper
 
     /**
      * Place a structure into the world.
-     *
-     * @param pos      coordinates
+     *  @param pos      coordinates
      * @param complete paste it complete (with structure blocks) or without
+     * @param player the placing player.
      */
-    private void placeStructure(@NotNull final BlockPos pos, final boolean complete)
+    private void placeStructure(@NotNull final BlockPos pos, final boolean complete, final EntityPlayerMP player)
     {
         setLocalPosition(pos);
+        final ChangeStorage storage = new ChangeStorage(player);
 
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
 
@@ -158,6 +158,8 @@ public final class StructureWrapper
                         continue;
                     }
 
+                    storage.addPositionStorage(worldPos, world);
+
                     if (localState.getMaterial().isSolid())
                     {
                         handleBlockPlacement(worldPos, localState, complete, this.structure.getBlockInfo(localPos).tileentityData);
@@ -174,7 +176,7 @@ public final class StructureWrapper
         {
             final IBlockState localState = this.structure.getBlockState(coords);
             final BlockPos newWorldPos = pos.add(coords);
-
+            storage.addPositionStorage(coords, world);
             handleBlockPlacement(newWorldPos, localState, complete, this.structure.getBlockInfo(coords).tileentityData);
         }
 
@@ -194,6 +196,7 @@ public final class StructureWrapper
                             final Entity entity = EntityList.createEntityFromNBT(info.entityData, world);
                             entity.setUniqueId(UUID.randomUUID());
                             world.spawnEntity(entity);
+                            storage.addToBeKilledEntity(entity);
                         }
                         catch (final RuntimeException e)
                         {
@@ -203,6 +206,8 @@ public final class StructureWrapper
                 }
             }
         }
+
+        Manager.addToQueue(storage);
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.structurize.coremod.network.messages;
 
 import com.structurize.api.util.BlockPosUtil;
+import com.structurize.api.util.ChangeStorage;
+import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -80,6 +82,7 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
         }
 
         final World world = player.getServerWorld();
+        final ChangeStorage storage = new ChangeStorage(player);
         for(int x = Math.min(message.from.getX(), message.to.getX()); x <= Math.max(message.from.getX(), message.to.getX()); x++)
         {
             for (int y = Math.min(message.from.getY(), message.to.getY()); y <= Math.max(message.from.getY(), message.to.getY()); y++)
@@ -87,6 +90,7 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
                 for (int z = Math.min(message.from.getZ(), message.to.getZ()); z <= Math.max(message.from.getZ(), message.to.getZ()); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
+                    storage.addEntity(here, world);
                     final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
 
                     for(final Entity entity: list)
@@ -99,5 +103,6 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
                 }
             }
         }
+        Manager.addToQueue(storage);
     }
 }

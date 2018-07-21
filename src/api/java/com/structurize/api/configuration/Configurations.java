@@ -20,5 +20,8 @@ public class Configurations
 
         @Config.Comment("Max amount of schematics to be cached on the server")
         public int maxCachedSchematics = 100;
+
+        @Config.Comment("Max amount of changes cached to be able to undo")
+        public int maxCachedChanges = 10;
      }
 }

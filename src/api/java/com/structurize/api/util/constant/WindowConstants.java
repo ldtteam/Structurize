@@ -170,6 +170,11 @@ public final class WindowConstants
     public static final String INPUT_RANGE_NAME = "range";
 
     /**
+     * Name of the input range field.
+     */
+    public static final String UNDO_BUTTON = "undo";
+
+    /**
      * Resource suffix of the multiblock GUI.
      */
     public static final String MULTI_BLOCK_RESOURCE_SUFFIX = ":gui/windowmultiblock.xml";
@@ -218,21 +223,6 @@ public final class WindowConstants
      * The filter field of the scan tool window.
      */
     public static final String FILTER_NAME = "filter";
-
-    /**
-     * Id of the input for height.
-     */
-    public static final String INPUT_HEIGHT = "height";
-
-    /**
-     * Id of the input for width.
-     */
-    public static final String INPUT_WIDTH = "width";
-
-    /**
-     * Id of the input for depth.
-     */
-    public static final String INPUT_DEPTH = "depth";
 
     /**
      * public constructor to hide implicit public one.

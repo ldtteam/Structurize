@@ -3,6 +3,8 @@ package com.structurize.coremod.network.messages;
 import com.structurize.api.util.BlockPosUtil;
 import com.structurize.api.util.BlockUtils;
 import com.mojang.authlib.GameProfile;
+import com.structurize.api.util.ChangeStorage;
+import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
@@ -99,6 +101,8 @@ public class ReplaceBlockMessage extends AbstractMessage<ReplaceBlockMessage, IM
             return;
         }
 
+        final ChangeStorage storage = new ChangeStorage(player);
+
         final World world = player.getServerWorld();
         final FakePlayer fakePlayer = new FakePlayer(player.getServerWorld(), new GameProfile(player.getUniqueID(), "placeStuffForMePl0x"));
         for(int x = Math.min(message.from.getX(), message.to.getX()); x <= Math.max(message.from.getX(), message.to.getX()); x++)
@@ -118,6 +122,7 @@ public class ReplaceBlockMessage extends AbstractMessage<ReplaceBlockMessage, IM
                             continue;
                         }
 
+                        storage.addPositionStorage(here, world);
                         world.setBlockToAir(here);
                         final ItemStack stackToPlace = message.blockTo.copy();
                         stackToPlace.setCount(stackToPlace.getMaxStackSize());
@@ -198,6 +203,7 @@ public class ReplaceBlockMessage extends AbstractMessage<ReplaceBlockMessage, IM
                 }
             }
         }
+        Manager.addToQueue(storage);
     }
 
     /**

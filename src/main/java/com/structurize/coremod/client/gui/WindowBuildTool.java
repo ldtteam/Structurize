@@ -14,6 +14,7 @@ import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.BuildToolPasteMessage;
 import com.structurize.coremod.network.messages.SchematicRequestMessage;
 import com.structurize.coremod.network.messages.SchematicSaveMessage;
+import com.structurize.coremod.network.messages.UndoMessage;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
@@ -181,6 +182,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
+        registerButton(UNDO_BUTTON, this::undoClicked);
+    }
+
+    /**
+     * Undo the last change.
+     */
+    private void undoClicked()
+    {
+        Structurize.getNetwork().sendToServer(new UndoMessage());
     }
 
     private void pasteNice()
@@ -229,9 +239,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
               Settings.instance.getMirror(),
               complete));
         }
-
-        Settings.instance.reset();
-        close();
     }
 
     /**
@@ -349,28 +356,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             close();
         }
 
-        if (Settings.instance.isStaticSchematicMode())
-        {
-            sections.add(Structures.SCHEMATICS_PREFIX);
-            setStructureName(staticSchematicName);
-        }
-        else
-        {
-            Structures.loadScannedStyleMaps();
+        Structures.loadScannedStyleMaps();
 
-            sections.clear();
-            final List<String> allSections = Structures.getSections();
-            for (final String section : allSections)
+        sections.clear();
+        final List<String> allSections = Structures.getSections();
+        for (final String section : allSections)
+        {
+            if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN))
             {
-                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN))
-                {
-                    sections.add(section);
-                }
+                sections.add(section);
             }
-
-            findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
-            setStructureName(Settings.instance.getStructureName());
         }
+
+        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
+        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+
+        setStructureName(Settings.instance.getStructureName());
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.structurize.coremod.network.messages;
 
 import com.structurize.api.util.BlockPosUtil;
 import com.structurize.api.util.BlockUtils;
+import com.structurize.api.util.ChangeStorage;
+import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -77,7 +79,8 @@ public class RemoveBlockMessage extends AbstractMessage<RemoveBlockMessage, IMes
         {
             return;
         }
-        
+
+        final ChangeStorage storage = new ChangeStorage(player);
         final World world = player.getServerWorld();
         for(int x = Math.min(message.from.getX(), message.to.getX()); x <= Math.max(message.from.getX(), message.to.getX()); x++)
         {
@@ -90,10 +93,12 @@ public class RemoveBlockMessage extends AbstractMessage<RemoveBlockMessage, IMes
                     final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
                     if (ReplaceBlockMessage.correctBlockToRemoveOrReplace(stack, blockState, message.block))
                     {
+                        storage.addPositionStorage(here, world);
                         world.setBlockToAir(here);
                     }
                 }
             }
         }
+        Manager.addToQueue(storage);
     }
 }

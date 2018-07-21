@@ -1,10 +1,15 @@
 package com.structurize.coremod.management;
 
+import com.structurize.api.configuration.Configurations;
+import com.structurize.api.util.ChangeStorage;
 import com.structurize.api.util.Log;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Singleton class that links colonies to minecraft.
@@ -18,6 +23,11 @@ public final class Manager
     private static          boolean schematicDownloaded = false;
 
     /**
+     * List of the last changes to the world.
+     */
+    private static LinkedList<ChangeStorage> changeQueue = new LinkedList<>();
+
+    /**
      * Pseudo unique id for the server
      */
     private static volatile UUID    serverUUID          = null;
@@ -25,6 +35,35 @@ public final class Manager
     private Manager()
     {
         //Hides default constructor.
+    }
+
+    /**
+     * Add a new item to the queue.
+     * @param storage the storage to add.
+     */
+    public static void addToQueue(final ChangeStorage storage)
+    {
+        if (changeQueue.size() >= Configurations.gameplay.maxCachedChanges)
+        {
+            changeQueue.pop();
+        }
+        changeQueue.push(storage);
+    }
+
+    /**
+     * Undo a change to the world made by a player.
+     * @param player the player who made it.
+     */
+    public static void undo(final EntityPlayer player)
+    {
+        final Iterable<ChangeStorage> iterable = () -> changeQueue.descendingIterator();
+        final Stream<ChangeStorage> storageStream = StreamSupport.stream(iterable.spliterator(), false);
+        final Optional<ChangeStorage> theStorage = storageStream.filter(storage -> storage.isOwner(player)).findFirst();
+        if (theStorage.isPresent())
+        {
+            theStorage.get().undo(player.getEntityWorld());
+            changeQueue.remove(theStorage.get());
+        }
     }
 
     /**
@@ -41,6 +80,10 @@ public final class Manager
         return serverUUID;
     }
 
+    /**
+     * Generate or retrieve the UUID of the server.
+     * @return the UUID.
+     */
     private static UUID generateOrRetrieveUUID()
     {
         final MapStorage storage = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getMapStorage();
