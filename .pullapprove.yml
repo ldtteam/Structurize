@@ -1,2 +1,2 @@
 version: 2
-extends: copypaste
+extends: structurize

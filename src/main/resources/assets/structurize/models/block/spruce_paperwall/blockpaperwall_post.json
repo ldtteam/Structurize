@@ -1,0 +1,7 @@
+{
+  "parent": "block/pane_post",
+  "textures": {
+    "edge": "structurize:blocks/paperwall/paperwall_spruce_top",
+    "pane": "structurize:blocks/paperwall/paperwall_spruce_white"
+  }
+}

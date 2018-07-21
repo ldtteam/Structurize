@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:blocktimberframe_spruce_framed"
+    }
+  ],
+  "result": {
+    "item": "structurize:blocktimberframe_spruce_sideframed",
+    "count": 1
+  }
+}

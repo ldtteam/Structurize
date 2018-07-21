@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "blocks/planks_oak",
+    "down": "blocks/planks_oak",
+    "up": "structurize:blocks/blockhutchickenherdertop",
+    "north": "structurize:blocks/sideChest",
+    "east": "structurize:blocks/sideChest",
+    "south": "structurize:blocks/sideChest",
+    "west": "structurize:blocks/sideChest"
+  }
+}

@@ -4,7 +4,7 @@ phraseapp:
   file_format: "properties"
   push:
     sources:
-    - file: "src/main/resources/assets/copypaste/lang/*.lang"
+    - file: "src/main/resources/assets/structurize/lang/*.lang"
   pull:
     targets:
-    - file: "src/main/resources/assets/copypaste/lang/en_UK.lang"
+    - file: "src/main/resources/assets/structurize/lang/en_UK.lang"

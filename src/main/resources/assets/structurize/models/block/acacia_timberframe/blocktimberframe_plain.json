@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/timberframe/acacia/blockplainframeside",
+    "down": "structurize:blocks/timberframe/acacia/blocktimberframetop",
+    "up": "structurize:blocks/timberframe/acacia/blocktimberframetop",
+    "north": "structurize:blocks/timberframe/acacia/blockplainframeside",
+    "east": "structurize:blocks/timberframe/acacia/blockplainframeside",
+    "south": "structurize:blocks/timberframe/acacia/blockplainframeside",
+    "west": "structurize:blocks/timberframe/acacia/blockplainframeside"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/blockPlainframeside",
+    "down": "structurize:blocks/blockPlainframetop",
+    "up": "structurize:blocks/blockPlainframetop",
+    "north": "structurize:blocks/blockPlainframeside",
+    "east": "structurize:blocks/blockPlainframeside",
+    "south": "structurize:blocks/blockPlainframeside",
+    "west": "structurize:blocks/blockPlainframeside"
+  }
+}

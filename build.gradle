@@ -115,9 +115,9 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
 }
 
-group = "com.copypaste"
+group = "com.structurize"
 version = config.minecraft_version.toString() + "-" + System.getenv()["Version"]
-archivesBaseName = "copypaste"
+archivesBaseName = "structurize"
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -240,7 +240,7 @@ task("createChangelog") {
     group = 'upload'
 
     doLast {
-        def teamCityURL = "https://teamcity.copypaste.com/"
+        def teamCityURL = "https://teamcity.structurize.com/"
         def file = new FileOutputStream("build/changelog.md")
         def out = new BufferedOutputStream(file)
         def changesXML = new XmlSlurper().parse(teamCityURL + "guestAuth/app/rest/changes?locator=build:(id:" + teamcity["teamcity.build.id"] + ")")

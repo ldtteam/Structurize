@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "down": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "up": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "north": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "east": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "south": "structurize:blocks/timberframe/birch/blockonecrossedsidelr",
+    "west": "structurize:blocks/timberframe/birch/blockonecrossedsidelr"
+  }
+}

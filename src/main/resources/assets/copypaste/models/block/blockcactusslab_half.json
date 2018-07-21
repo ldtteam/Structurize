@@ -1,8 +1,0 @@
-{
-  "parent": "block/half_slab",
-  "textures": {
-    "bottom": "copypaste:blocks/blockcactusplank",
-    "top": "copypaste:blocks/blockcactusplank",
-    "side": "copypaste:blocks/blockcactusplank"
-  }
-}

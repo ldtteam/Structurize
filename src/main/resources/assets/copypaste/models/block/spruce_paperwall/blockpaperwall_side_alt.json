@@ -1,7 +1,0 @@
-{
-  "parent": "block/pane_side_alt",
-  "textures": {
-    "edge": "copypaste:blocks/paperwall/paperwall_spruce_top",
-    "pane": "copypaste:blocks/paperwall/paperwall_spruce_white"
-  }
-}

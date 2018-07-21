@@ -1,0 +1,7 @@
+{
+  "parent": "block/pane_side_alt",
+  "textures": {
+    "edge": "structurize:blocks/paperwall/paperwall_cactus_top",
+    "pane": "structurize:blocks/paperwall/paperwall_cactus_white"
+  }
+}

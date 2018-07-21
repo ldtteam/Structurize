@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:blocktimberframe_dark_oak_horizontalplain"
+    }
+  ],
+  "result": {
+    "item": "structurize:blocktimberframe_dark_oak_horizontalnocap",
+    "count": 1
+  }
+}
