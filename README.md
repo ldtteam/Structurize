@@ -12,9 +12,9 @@
 
 ### About the mod ###
 
-   **copy_paste** is a mod for the famous game *Minecraft* from Mojang. This mod allows the user to generate many structures like ships, town halls, farms and even NPC's which are called workers. These workers can be assigned by the player to do various things ranging from building structures, gathering resources and even protecting existing buildings! Workers also have an experience and leveling system: the more they work, the more experience they'll get, allowing them to complete their tasks a lot faster.
-    The freedom and convenience given by this mod allows anyone to build many different cities: they can be small, specialized villages or big and vibrant metropolis. The possibilities are endless!
-
+   **copy_paste** is a mod for the famous game *Minecraft* from Mojang. This Mod allows the player to save structures with a scan tool, manipulate regions with functions as remove, replace and delete entities.
+   As well as paste these structures in the world. Additionally this mod adds a bunch of decorative blocks as shingles, timberframes and paperwalls.
+   
 ##### Website:
 https://www.copy_paste.com/
 
