@@ -1,3 +1,5 @@
+import net.minecraftforge.gradle.user.TaskSingleReobf
+
 buildscript {
     repositories {
         jcenter()
@@ -48,24 +50,6 @@ sourceSets {
             srcDir 'src/api/resources'
         }
     }
-    blockOut {
-        java {
-            srcDir 'src/blockout/java'
-        }
-        resources {
-            srcDir 'src/blockout/resources'
-        }
-        compileClasspath += sourceSets.api.compileClasspath
-    }
-    structures {
-        java {
-            srcDir 'src/structures/java'
-        }
-        resources {
-            srcDir 'src/structures/resources'
-        }
-        compileClasspath += sourceSets.api.compileClasspath
-    }
     main {
         java {
             srcDir 'src/main/java'
@@ -73,8 +57,6 @@ sourceSets {
         resources {
             srcDir 'src/main/resources'
         }
-        compileClasspath += sourceSets.structures.output
-        compileClasspath += sourceSets.blockOut.output
         compileClasspath += sourceSets.api.output
     }
     test {
@@ -96,11 +78,6 @@ configFile.withReader {
 
 dependencies {
     compile "mod.chiselsandbits:chiselsandbits:${config.c_b_version}"
-
-    structuresCompile sourceSets.api.output
-    //blockOutCompile sourceSets.api.output
-    testCompile sourceSets.structures.output
-    testCompile sourceSets.blockOut.output
 
     testCompile 'junit:junit:4.11'
     testCompile "org.mockito:mockito-core:1.+"
@@ -155,16 +132,6 @@ task apiJar(type: Jar) {
     classifier 'api'
 }
 
-task blockOutJar(type: Jar) {
-    from sourceSets.blockOut.output
-    classifier 'blockOut'
-}
-
-task structuresJar(type: Jar){
-    from sourceSets.structures.output
-    classifier 'structures'
-}
-
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'deobf'
@@ -172,21 +139,27 @@ task deobfJar(type: Jar) {
 
 jar {
     from sourceSets.api.output
-    from sourceSets.blockOut.output
-    from sourceSets.structures.output
     from sourceSets.main.output
     
     classifier = 'universal'
 
     manifest {
-        attributes 'FMLAT': "CopyPaste_at.cfg"
+        attributes 'FMLAT': "structurize_at.cfg"
     }
+}
+
+task reobfApiJar(type: TaskSingleReobf) {
+    dependsOn tasks.apiJar
+    setJar tasks.apiJar
+}
+
+task reobfMainJar(type: TaskSingleReobf) {
+    dependsOn tasks.jar
+    setJar tasks.jar
 }
 
 javadoc {
     source += sourceSets.api.allSource
-    source += sourceSets.blockOut.allSource
-    source += sourceSets.structures.allSource
 }
 
 idea {
@@ -218,7 +191,7 @@ curseforge {
         apiKey = System.getenv().CURSEAPIKEY
 
         project {
-            id = '245506'
+            id = '298744'
 
             changelog = file('build/changelog.md')
             changelogType = 'markdown'
@@ -226,8 +199,6 @@ curseforge {
 
             addArtifact deobfJar
             addArtifact apiJar
-            addArtifact blockOutJar
-            addArtifact structuresJar
         }
     }
     else
@@ -248,7 +219,7 @@ task("createChangelog") {
         def changes = changesXML.change
         println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
 
-        out << "# CopyPaste Changelog \n"
+        out << "# Structurize Changelog \n"
         out << "## Version: _" + version + "_ \n"
 
         if (changes.size() > 0) {
