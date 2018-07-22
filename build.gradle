@@ -132,11 +132,6 @@ task apiJar(type: Jar) {
     classifier 'api'
 }
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
-
 jar {
     from sourceSets.api.output
     from sourceSets.main.output
