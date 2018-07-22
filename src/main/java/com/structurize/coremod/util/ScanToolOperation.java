@@ -1,10 +1,13 @@
-package com.structurize.api.util;
+package com.structurize.coremod.util;
 
 import com.mojang.authlib.GameProfile;
 import com.structurize.api.configuration.Configurations;
+import com.structurize.api.util.BlockUtils;
+import com.structurize.api.util.ChangeStorage;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -25,7 +28,9 @@ public class ScanToolOperation
         REMOVE_BLOCK,
         REPLACE_BLOCK,
         REMOVE_ENTITY,
-        SCAN
+        SCAN,
+        PLACE_STRUCTURE,
+        UNDO
     }
 
     /**
@@ -69,6 +74,11 @@ public class ScanToolOperation
     private final ItemStack secondBlock;
 
     /**
+     * The structure wrapper if structure place.
+     */
+    private final StructureWrapper wrapper;
+
+    /**
      * Create a ScanToolOperation.
      *
      * @param type        the type.
@@ -94,6 +104,43 @@ public class ScanToolOperation
         this.firstBlock = firstBlock;
         this.secondBlock = secondBlock;
         this.storage = new ChangeStorage(player);
+        this.wrapper = null;
+    }
+
+    /**
+     * Create a ScanToolOperation for an UNDO.
+     * @param storage the storage for the UNDO.
+     * @param player the player.
+     */
+    public ScanToolOperation(final ChangeStorage storage, final EntityPlayer player)
+    {
+        this.operation = OperationType.UNDO;
+        this.startPos = BlockPos.ORIGIN;
+        this.currentPos = BlockPos.ORIGIN;
+        this.endPos = BlockPos.ORIGIN;
+        this.player = player;
+        this.firstBlock = ItemStack.EMPTY;
+        this.secondBlock = ItemStack.EMPTY;
+        this.storage = storage;
+        this.wrapper = null;
+    }
+
+    /**
+     * Create a ScanToolOperation for an structure placement.
+     * @param wrapper the structure wrapper for the placement..
+     * @param player the player.
+     */
+    public ScanToolOperation(final StructureWrapper wrapper, final EntityPlayer player)
+    {
+        this.operation = OperationType.PLACE_STRUCTURE;
+        this.startPos = BlockPos.ORIGIN;
+        this.currentPos = BlockPos.ORIGIN;
+        this.endPos = BlockPos.ORIGIN;
+        this.player = player;
+        this.firstBlock = ItemStack.EMPTY;
+        this.secondBlock = ItemStack.EMPTY;
+        this.storage = new ChangeStorage(player);
+        this.wrapper = wrapper;
     }
 
     /**
@@ -107,6 +154,17 @@ public class ScanToolOperation
         if (player.dimension != world.provider.getDimension())
         {
             return false;
+        }
+
+        if (operation == OperationType.UNDO)
+        {
+            return storage.undo(world, Configurations.gameplay.maxOperationsPerTick);
+        }
+
+        if (operation == OperationType.PLACE_STRUCTURE)
+        {
+            currentPos = wrapper.placeStructure(world, storage, currentPos);
+            return currentPos == null;
         }
 
         return run(world);
@@ -147,16 +205,16 @@ public class ScanToolOperation
                             BlockUtils.handleCorrectBlockPlacement(world, fakePlayer, secondBlock, blockState, here);
                         }
 
-                        if (count >= 10)
+                        if (count >= Configurations.gameplay.maxOperationsPerTick)
                         {
                             currentPos = new BlockPos(x, y, z);
                             return false;
                         }
                     }
                 }
-                currentPos = new BlockPos(currentPos.getX(), currentPos.getY(), startPos.getZ());
+                currentPos = new BlockPos(x, y, startPos.getZ());
             }
-            currentPos = new BlockPos(startPos.getX(), currentPos.getY(), startPos.getZ());
+            currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
         }
         return true;
     }

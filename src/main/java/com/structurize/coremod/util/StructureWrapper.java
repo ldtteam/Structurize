@@ -1,5 +1,6 @@
 package com.structurize.coremod.util;
 
+import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.*;
 import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.management.Manager;
@@ -61,6 +62,11 @@ public final class StructureWrapper
     private       BlockPos       position;
 
     /**
+     * If complete placement or not.
+     */
+    private boolean complete = false;
+
+    /**
      * Load a structure into this world.
      *
      * @param worldObj the world to load in
@@ -106,7 +112,7 @@ public final class StructureWrapper
             @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, name);
             structureWrapper.position = pos;
             structureWrapper.rotate(rotations, worldObj, pos, mirror);
-            structureWrapper.placeStructure(pos.subtract(structureWrapper.getOffset()), complete, player);
+            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), complete, player);
         }
         catch (final IllegalStateException e)
         {
@@ -128,65 +134,78 @@ public final class StructureWrapper
     }
 
     /**
-     * Place a structure into the world.
-     *  @param pos      coordinates
-     * @param complete paste it complete (with structure blocks) or without
-     * @param player the placing player.
+     * Setup the structure placement and add to buffer.
+     * @param pos the world anchor.
+     * @param complete if complete or not.
+     * @param player the issuing player.
      */
-    private void placeStructure(@NotNull final BlockPos pos, final boolean complete, final EntityPlayerMP player)
+    public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final EntityPlayerMP player)
     {
         setLocalPosition(pos);
-        final ChangeStorage storage = new ChangeStorage(player);
+        this.complete = complete;
+        this.position = pos;
+        Manager.addToQueue(new ScanToolOperation(this, player));
+    }
 
+    /**
+     * Place a structure into the world.
+     * @param world the placing player.
+     */
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
+    {
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
+        final BlockPos endPos = new BlockPos(structure.getWidth(), structure.getHeight(), structure.getLength());
+        BlockPos currentPos = inputPos;
+        int count = 0;
 
-        //structure.getBlockInfo()[0].pos
-        for (int j = 0; j < structure.getHeight(); j++)
+        for (int y = currentPos.getY(); y < endPos.getY(); y++)
         {
-            for (int k = 0; k < structure.getLength(); k++)
+            for (int x = currentPos.getX(); x < endPos.getX(); x++)
             {
-                for (int i = 0; i < structure.getWidth(); i++)
+                for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
-                    @NotNull final BlockPos localPos = new BlockPos(i, j, k);
+                    @NotNull final BlockPos localPos = new BlockPos(x, y, z);
                     final IBlockState localState = this.structure.getBlockState(localPos);
                     final Block localBlock = localState.getBlock();
 
-                    final BlockPos worldPos = pos.add(localPos);
+                    final BlockPos worldPos = position.add(localPos);
 
                     if ((localBlock == ModBlocks.blockSubstitution && !complete))
                     {
                         continue;
                     }
+                    count++;
 
                     storage.addPositionStorage(worldPos, world);
 
                     if (localState.getMaterial().isSolid())
                     {
-                        handleBlockPlacement(worldPos, localState, complete, this.structure.getBlockInfo(localPos).tileentityData);
+                        handleBlockPlacement(world, worldPos, localState, complete, this.structure.getBlockInfo(localPos).tileentityData);
                     }
                     else
                     {
                         delayedBlocks.add(localPos);
                     }
+
+                    if (count >= Configurations.gameplay.maxOperationsPerTick)
+                    {
+                        this.handleDelayedBlocks(delayedBlocks, storage, world);
+                        return new BlockPos(x, y, z);
+                    }
                 }
+                currentPos = new BlockPos(x, y, 0);
             }
+            currentPos = new BlockPos(0, y, 0);
         }
+        currentPos = new BlockPos(0, 0, 0);
 
-        for (@NotNull final BlockPos coords : delayedBlocks)
+        for (int y = currentPos.getY(); y < endPos.getY(); y++)
         {
-            final IBlockState localState = this.structure.getBlockState(coords);
-            final BlockPos newWorldPos = pos.add(coords);
-            storage.addPositionStorage(coords, world);
-            handleBlockPlacement(newWorldPos, localState, complete, this.structure.getBlockInfo(coords).tileentityData);
-        }
-
-        for (int j = 0; j < structure.getHeight(); j++)
-        {
-            for (int k = 0; k < structure.getLength(); k++)
+            for (int x = currentPos.getX(); x < endPos.getX(); x++)
             {
-                for (int i = 0; i < structure.getWidth(); i++)
+                for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
-                    @NotNull final BlockPos localPos = new BlockPos(i, j, k);
+                    @NotNull final BlockPos localPos = new BlockPos(x, y, z);
                     final Template.EntityInfo info = this.structure.getEntityinfo(localPos);
 
                     if (info != null)
@@ -203,11 +222,34 @@ public final class StructureWrapper
                             Log.getLogger().info("Couldn't restore entitiy", e);
                         }
                     }
+                    if (count >= Configurations.gameplay.maxOperationsPerTick)
+                    {
+                        return new BlockPos(x, y, z);
+                    }
                 }
+                currentPos = new BlockPos(x, y, 0);
             }
+            currentPos = new BlockPos(0, y, 0);
         }
 
-        Manager.addToUndoCache(storage);
+        return null;
+    }
+
+    /**
+     * Handle the delayed blocks (non solid blocks)
+     * @param delayedBlocks the delayed block list.
+     * @param storage the changeStorage.
+     * @param world the world.
+     */
+    private void handleDelayedBlocks(final List<BlockPos> delayedBlocks, final ChangeStorage storage, final World world)
+    {
+        for (@NotNull final BlockPos coords : delayedBlocks)
+        {
+            final IBlockState localState = this.structure.getBlockState(coords);
+            final BlockPos newWorldPos = position.add(coords);
+            storage.addPositionStorage(coords, world);
+            handleBlockPlacement(world, newWorldPos, localState, complete, this.structure.getBlockInfo(coords).tileentityData);
+        }
     }
 
     /**
@@ -222,12 +264,13 @@ public final class StructureWrapper
      * This method handles the block placement.
      * When we extract this into another mod, we have to override the method.
      *
+     * @param world the world.
      * @param pos the world position.
      * @param localState the local state.
      * @param complete if complete with it.
      * @param tileEntityData the tileEntity.
      */
-    private void handleBlockPlacement(final BlockPos pos, final IBlockState localState, final boolean complete, final NBTTagCompound tileEntityData)
+    private void handleBlockPlacement(final World world, final BlockPos pos, final IBlockState localState, final boolean complete, final NBTTagCompound tileEntityData)
     {
         for (final IPlacementHandler handlers : PlacementHandlers.handlers)
         {

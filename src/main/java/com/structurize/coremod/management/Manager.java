@@ -3,7 +3,7 @@ package com.structurize.coremod.management;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.ChangeStorage;
 import com.structurize.api.util.Log;
-import com.structurize.api.util.ScanToolOperation;
+import com.structurize.coremod.util.ScanToolOperation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapStorage;
@@ -85,7 +85,7 @@ public final class Manager
         final Optional<ChangeStorage> theStorage = storageStream.filter(storage -> storage.isOwner(player)).findFirst();
         if (theStorage.isPresent())
         {
-            theStorage.get().undo(player.getEntityWorld());
+            addToQueue(new ScanToolOperation(theStorage.get(), player));
             changeQueue.remove(theStorage.get());
         }
     }

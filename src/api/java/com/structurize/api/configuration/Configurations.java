@@ -25,6 +25,6 @@ public class Configurations
         public int maxCachedChanges = 10;
 
         @Config.Comment("Max world operations per tick (Max blocks to place, remove or replace)")
-        public int maxOperationsPerTick = 1000;
+        public int maxOperationsPerTick = 100;
      }
 }

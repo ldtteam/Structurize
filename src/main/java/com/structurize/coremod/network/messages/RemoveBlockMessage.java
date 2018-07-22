@@ -1,7 +1,7 @@
 package com.structurize.coremod.network.messages;
 
 import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.ScanToolOperation;
+import com.structurize.coremod.util.ScanToolOperation;
 import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;

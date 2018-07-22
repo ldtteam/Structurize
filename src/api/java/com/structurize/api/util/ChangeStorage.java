@@ -1,5 +1,6 @@
 package com.structurize.api.util;
 
+import com.structurize.api.configuration.Configurations;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
@@ -106,19 +107,29 @@ public class ChangeStorage
      * Reload the previous state of the positions.
      * @param world the world to manipulate.
      */
-    public void undo(final World world)
+    public boolean undo(final World world, final int maxCount)
     {
-        for (final Map.Entry<BlockPos, PositionStorage> entry : blocks.entrySet())
+        int count = 0;
+        for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
         {
             world.setBlockState(entry.getKey(), entry.getValue().getState());
             if (entry.getValue().getEntity() != null)
             {
                 world.setTileEntity(entry.getKey(), entry.getValue().getEntity());
             }
+            blocks.remove(entry.getKey());
+            count++;
+
+            if (count >= Configurations.gameplay.maxOperationsPerTick)
+            {
+                return false;
+            }
         }
 
         entities.forEach(entity -> world.spawnEntity(EntityList.createEntityFromNBT(entity, world)));
         entitiesToKill.forEach(Entity::setDead);
+
+        return true;
     }
 
     /**
