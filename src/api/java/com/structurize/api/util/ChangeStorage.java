@@ -82,7 +82,10 @@ public class ChangeStorage
      */
     public void addPositionStorage(final BlockPos place, final World world)
     {
-        blocks.put(place, new PositionStorage(world.getBlockState(place), world.getTileEntity(place)));
+        if (!blocks.containsKey(place))
+        {
+            blocks.put(place, new PositionStorage(world.getBlockState(place), world.getTileEntity(place)));
+        }
     }
 
     /**
