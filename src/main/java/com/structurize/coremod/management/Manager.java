@@ -46,9 +46,17 @@ public final class Manager
 
     public static void onWorldTick(final WorldServer world)
     {
-        if (!scanToolOperationPool.isEmpty() && scanToolOperationPool.peek().apply(world))
+        if (!scanToolOperationPool.isEmpty())
         {
-            addToUndoCache(scanToolOperationPool.pop().getChangeStorage());
+            final ScanToolOperation operation = scanToolOperationPool.peek();
+            if (operation != null && operation.apply(world))
+            {
+                scanToolOperationPool.pop();
+                if (!operation.isUndo())
+                {
+                    addToUndoCache(operation.getChangeStorage());
+                }
+            }
         }
     }
 
@@ -80,7 +88,7 @@ public final class Manager
      */
     public static void undo(final EntityPlayer player)
     {
-        final Iterable<ChangeStorage> iterable = () -> changeQueue.descendingIterator();
+        final Iterable<ChangeStorage> iterable = () -> changeQueue.iterator();
         final Stream<ChangeStorage> storageStream = StreamSupport.stream(iterable.spliterator(), false);
         final Optional<ChangeStorage> theStorage = storageStream.filter(storage -> storage.isOwner(player)).findFirst();
         if (theStorage.isPresent())

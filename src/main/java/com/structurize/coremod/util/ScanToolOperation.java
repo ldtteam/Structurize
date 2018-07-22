@@ -244,4 +244,13 @@ public class ScanToolOperation
     {
         return this.storage;
     }
+
+    /**
+     * Check if operation is an undo already.
+     * @return true if so.
+     */
+    public boolean isUndo()
+    {
+        return operation == OperationType.UNDO;
+    }
 }
