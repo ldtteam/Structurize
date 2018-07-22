@@ -7,15 +7,17 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -94,78 +96,6 @@ public final class BlockUtils
     }
 
     /**
-     * Checks if this block type should be destroyed.
-     * <p>
-     * The builder uses this to check if he should clear this block.
-     *
-     * @param block the block type to check
-     * @return true if you should back away
-     */
-    public static boolean shouldNeverBeMessedWith(final Block block)
-    {
-        return Objects.equals(block, Blocks.BEDROCK);
-    }
-
-    /**
-     * Gets a rotation from a block facing.
-     *
-     * @param facing the block facing.
-     * @return the int rotation.
-     */
-    public static int getRotationFromFacing(final EnumFacing facing)
-    {
-        switch (facing)
-        {
-            case SOUTH:
-                return 2;
-            case EAST:
-                return 1;
-            case WEST:
-                return 3;
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * Checks if this block type is something we can place for free.
-     * <p>
-     * The builder uses this to determine if he need resources for the block.
-     *
-     * @param block the block to check.
-     * @return true if we can just place it.
-     */
-    public static boolean freeToPlace(final Block block)
-    {
-        return freeToPlace(block, null);
-    }
-
-    /**
-     * Checks if this block type is something we can place for free.
-     * <p>
-     * The builder uses this to determine if he need resources for the block.
-     *
-     * @param block      the block to check.
-     * @param blockState the state this block has.
-     * @return true if we can just place it.
-     */
-    public static boolean freeToPlace(@Nullable final Block block, final IBlockState blockState)
-    {
-        if (block == null)
-        {
-            return true;
-        }
-        for (@NotNull final BiPredicate<Block, IBlockState> predicate : freeToPlaceBlocks)
-        {
-            if (predicate.test(block, blockState))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Checks if the block is water.
      *
      * @param iBlockState block state to be checked.
@@ -175,18 +105,6 @@ public final class BlockUtils
     {
         return Objects.equals(iBlockState, Blocks.WATER.getDefaultState())
                  || Objects.equals(iBlockState, Blocks.FLOWING_WATER.getDefaultState());
-    }
-
-    /**
-     * Checks if a certain block returns a seed as the item.
-     *
-     * @param world the world the block is in.
-     * @param pos   the position the block is at.
-     * @return true if is a seed.
-     */
-    public static boolean isBlockSeed(@NotNull final World world, @NotNull final BlockPos pos)
-    {
-        return BlockUtils.getItem(world.getBlockState(pos.up())) instanceof ItemSeeds;
     }
 
     private static Item getItem(@NotNull final IBlockState blockState)
@@ -313,7 +231,7 @@ public final class BlockUtils
         else if (blockState.getBlock() instanceof BlockStem)
         {
             final ItemStack stack = ((BlockStem) blockState.getBlock()).getItem(null, null, blockState);
-            if (stack != null)
+            if (!ItemStackUtils.isEmpty(stack))
             {
                 return stack.getItem();
             }
@@ -432,6 +350,93 @@ public final class BlockUtils
     }
 
     /**
+     * Handle the placement of a specific block for a blockState at a certain position with a fakePlayer.
+     * @param world the world object.
+     * @param fakePlayer the fake player to place.
+     * @param itemStack the describing itemStack.
+     * @param blockState the blockState in the world.
+     * @param here the position.
+     */
+    public static void handleCorrectBlockPlacement(final World world, final FakePlayer fakePlayer, final ItemStack itemStack, final IBlockState blockState, final BlockPos here)
+    {
+        final ItemStack stackToPlace = itemStack.copy();
+        stackToPlace.setCount(stackToPlace.getMaxStackSize());
+        fakePlayer.setHeldItem(EnumHand.MAIN_HAND, stackToPlace);
+
+        if (itemStack.getItem() instanceof ItemBed)
+        {
+            fakePlayer.rotationYaw = blockState.getValue(BlockBed.FACING).getHorizontalIndex() * 90;
+        }
+        final EnumFacing facing = (itemStack.getItem() instanceof ItemDoor
+                                     || itemStack.getItem() instanceof ItemBed
+                                     || itemStack.getItem() instanceof ItemSlab)? EnumFacing.UP : EnumFacing.NORTH;
+        ForgeHooks.onPlaceItemIntoWorld(stackToPlace, fakePlayer, world, here, facing, 0, 0, 0, EnumHand.MAIN_HAND);
+
+        final IBlockState newBlockState= world.getBlockState(here);
+        if (newBlockState.getBlock() instanceof BlockStairs && blockState.getBlock() instanceof BlockStairs)
+        {
+            IBlockState transformation = newBlockState.withProperty(BlockStairs.FACING, blockState.getValue(BlockStairs.FACING));
+            transformation = transformation.withProperty(BlockStairs.HALF, blockState.getValue(BlockStairs.HALF));
+            transformation = transformation.withProperty(BlockStairs.SHAPE, blockState.getValue(BlockStairs.SHAPE));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockHorizontal && blockState.getBlock() instanceof BlockHorizontal
+                  && !(blockState.getBlock() instanceof BlockBed))
+        {
+            final IBlockState transformation = newBlockState.withProperty(BlockHorizontal.FACING, blockState.getValue(BlockHorizontal.FACING));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockDirectional && blockState.getBlock() instanceof BlockDirectional)
+        {
+            final IBlockState transformation = newBlockState.withProperty(BlockDirectional.FACING, blockState.getValue(BlockDirectional.FACING));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockSlab && blockState.getBlock() instanceof BlockSlab)
+        {
+            final IBlockState transformation;
+            if (blockState.getBlock() instanceof BlockDoubleStoneSlab || blockState.getBlock() instanceof BlockDoubleStoneSlabNew)
+            {
+                transformation = blockState.withProperty(BlockDoubleStoneSlab.VARIANT, newBlockState.getValue(BlockDoubleStoneSlab.VARIANT));
+            }
+            else
+            {
+                transformation = newBlockState.withProperty(BlockSlab.HALF, blockState.getValue(BlockSlab.HALF));
+            }
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockLog && blockState.getBlock() instanceof BlockLog)
+        {
+            final IBlockState transformation = newBlockState.withProperty(BlockLog.LOG_AXIS, blockState.getValue(BlockLog.LOG_AXIS));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockRotatedPillar && blockState.getBlock() instanceof BlockRotatedPillar)
+        {
+            final IBlockState transformation = newBlockState.withProperty(BlockRotatedPillar.AXIS, blockState.getValue(BlockRotatedPillar.AXIS));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockTrapDoor && blockState.getBlock() instanceof BlockTrapDoor)
+        {
+            IBlockState transformation = newBlockState.withProperty(BlockTrapDoor.HALF, blockState.getValue(BlockTrapDoor.HALF));
+            transformation = transformation.withProperty(BlockTrapDoor.FACING, blockState.getValue(BlockTrapDoor.FACING));
+            transformation = transformation.withProperty(BlockTrapDoor.OPEN, blockState.getValue(BlockTrapDoor.OPEN));
+            world.setBlockState(here, transformation);
+        }
+        else if(newBlockState.getBlock() instanceof BlockDoor && blockState.getBlock() instanceof BlockDoor)
+        {
+            final IBlockState transformation = newBlockState.withProperty(BlockDoor.FACING, blockState.getValue(BlockDoor.FACING));
+            world.setBlockState(here, transformation);
+        }
+        else if (stackToPlace.getItem() == Items.LAVA_BUCKET)
+        {
+            world.setBlockState(here, Blocks.LAVA.getDefaultState());
+        }
+        else if (stackToPlace.getItem() == Items.WATER_BUCKET)
+        {
+            world.setBlockState(here, Blocks.WATER.getDefaultState());
+        }
+    }
+
+    /**
      * Compares two blocks and checks if they are equally dirt.
      * Meaning dirt and grass are equal. But podzol and coarse dirt not.
      *
@@ -459,16 +464,5 @@ public final class BlockUtils
                            && worldMetadata.getValue(BlockDirt.VARIANT) != BlockDirt.DirtType.PODZOL);
         }
         return false;
-    }
-
-    /**
-     * Checks if a certain block is a pathBlock (roadBlock).
-     *
-     * @param block the block to analyze.
-     * @return true if is so.
-     */
-    public static boolean isPathBlock(final Block block)
-    {
-        return block == Blocks.GRAVEL || block == Blocks.STONEBRICK || block == Blocks.GRASS_PATH;
     }
 }

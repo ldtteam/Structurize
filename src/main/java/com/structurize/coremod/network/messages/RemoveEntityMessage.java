@@ -103,6 +103,6 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
                 }
             }
         }
-        Manager.addToQueue(storage);
+        Manager.addToUndoCache(storage);
     }
 }

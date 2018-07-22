@@ -1,7 +1,6 @@
 package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
-import com.structurize.coremod.event.EventHandler;
 import com.structurize.coremod.event.FMLEventHandler;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
@@ -43,7 +42,6 @@ public class Structurize
 
     static
     {
-        MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new FMLEventHandler());
     }
 

@@ -3,7 +3,9 @@ package com.structurize.coremod.management;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.ChangeStorage;
 import com.structurize.api.util.Log;
+import com.structurize.api.util.ScanToolOperation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -28,6 +30,11 @@ public final class Manager
     private static LinkedList<ChangeStorage> changeQueue = new LinkedList<>();
 
     /**
+     * List of scanTool operations.
+     */
+    private static LinkedList<ScanToolOperation> scanToolOperationPool = new LinkedList<ScanToolOperation>();
+
+    /**
      * Pseudo unique id for the server
      */
     private static volatile UUID    serverUUID          = null;
@@ -37,11 +44,28 @@ public final class Manager
         //Hides default constructor.
     }
 
+    public static void onWorldTick(final WorldServer world)
+    {
+        if (!scanToolOperationPool.isEmpty() && scanToolOperationPool.peek().apply(world))
+        {
+            addToUndoCache(scanToolOperationPool.pop().getChangeStorage());
+        }
+    }
+
+    /**
+     * Add a new item to the scanTool operation queue.
+     * @param operation the operation to add.
+     */
+    public static void addToQueue(final ScanToolOperation operation)
+    {
+        scanToolOperationPool.push(operation);
+    }
+
     /**
      * Add a new item to the queue.
      * @param storage the storage to add.
      */
-    public static void addToQueue(final ChangeStorage storage)
+    public static void addToUndoCache(final ChangeStorage storage)
     {
         if (changeQueue.size() >= Configurations.gameplay.maxCachedChanges)
         {

@@ -207,7 +207,7 @@ public final class StructureWrapper
             }
         }
 
-        Manager.addToQueue(storage);
+        Manager.addToUndoCache(storage);
     }
 
     /**

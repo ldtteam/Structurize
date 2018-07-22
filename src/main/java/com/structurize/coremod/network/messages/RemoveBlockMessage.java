@@ -1,15 +1,12 @@
 package com.structurize.coremod.network.messages;
 
 import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ChangeStorage;
+import com.structurize.api.util.ScanToolOperation;
 import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
@@ -79,26 +76,6 @@ public class RemoveBlockMessage extends AbstractMessage<RemoveBlockMessage, IMes
         {
             return;
         }
-
-        final ChangeStorage storage = new ChangeStorage(player);
-        final World world = player.getServerWorld();
-        for(int x = Math.min(message.from.getX(), message.to.getX()); x <= Math.max(message.from.getX(), message.to.getX()); x++)
-        {
-            for (int y = Math.min(message.from.getY(), message.to.getY()); y <= Math.max(message.from.getY(), message.to.getY()); y++)
-            {
-                for (int z = Math.min(message.from.getZ(), message.to.getZ()); z <= Math.max(message.from.getZ(), message.to.getZ()); z++)
-                {
-                    final BlockPos here = new BlockPos(x, y, z);
-                    final IBlockState blockState = world.getBlockState(here);
-                    final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
-                    if (ReplaceBlockMessage.correctBlockToRemoveOrReplace(stack, blockState, message.block))
-                    {
-                        storage.addPositionStorage(here, world);
-                        world.setBlockToAir(here);
-                    }
-                }
-            }
-        }
-        Manager.addToQueue(storage);
+        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REMOVE_BLOCK, message.from, message.to, player, message.block, ItemStack.EMPTY));
     }
 }
