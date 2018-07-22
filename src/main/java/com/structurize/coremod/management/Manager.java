@@ -44,6 +44,10 @@ public final class Manager
         //Hides default constructor.
     }
 
+    /**
+     * Method called on world tick to run cached operations.
+     * @param world the world which is ticking.
+     */
     public static void onWorldTick(final WorldServer world)
     {
         if (!scanToolOperationPool.isEmpty())

@@ -158,7 +158,7 @@ public class ScanToolOperation
 
         if (operation == OperationType.UNDO)
         {
-            return storage.undo(world, Configurations.gameplay.maxOperationsPerTick);
+            return storage.undo(world);
         }
 
         if (operation == OperationType.PLACE_STRUCTURE)

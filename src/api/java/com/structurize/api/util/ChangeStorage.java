@@ -110,7 +110,7 @@ public class ChangeStorage
      * Reload the previous state of the positions.
      * @param world the world to manipulate.
      */
-    public boolean undo(final World world, final int maxCount)
+    public boolean undo(final World world)
     {
         int count = 0;
         for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
