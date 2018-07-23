@@ -2,46 +2,47 @@ package com.structurize.coremod.network.messages;
 
 import com.structurize.api.util.Log;
 import com.structurize.coremod.util.ClientStructureWrapper;
+import com.structurize.structures.helpers.Settings;
+import com.structurize.structures.helpers.Structure;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-/**
- * Handles sendScanMessages.
- */
-public class SaveScanMessage extends AbstractMessage<SaveScanMessage, IMessage>
-{
-    private static final String TAG_MILLIS    = "millies";
-    public static final  String TAG_SCHEMATIC = "schematic";
+import static com.structurize.coremod.network.messages.SaveScanMessage.TAG_SCHEMATIC;
 
+/**
+ * Handles a structure message to the client..
+ */
+public class SendStructureMessage extends AbstractMessage<SendStructureMessage, IMessage>
+{
     private NBTTagCompound nbttagcompound;
-    private String           fileName;
 
     /**
      * Public standard constructor.
      */
-    public SaveScanMessage()
+    public SendStructureMessage()
     {
         super();
     }
 
     /**
-     * Send a scan compound to the client.
+     * Send a template to the client..
      *
      * @param nbttagcompound the stream.
-     * @param fileName  String with the name of the file.
      */
-    public SaveScanMessage(final NBTTagCompound nbttagcompound, final String fileName)
+    public SendStructureMessage(final NBTTagCompound nbttagcompound)
     {
-        this.fileName = fileName;
         this.nbttagcompound = nbttagcompound;
     }
 
@@ -53,7 +54,6 @@ public class SaveScanMessage extends AbstractMessage<SaveScanMessage, IMessage>
         {
             final NBTTagCompound wrapperCompound = CompressedStreamTools.readCompressed(stream);
             nbttagcompound = wrapperCompound.getCompoundTag(TAG_SCHEMATIC);
-            fileName = wrapperCompound.getString(TAG_MILLIS);
         }
         catch (final RuntimeException e)
         {
@@ -69,7 +69,6 @@ public class SaveScanMessage extends AbstractMessage<SaveScanMessage, IMessage>
     public void toBytes(@NotNull final ByteBuf buf)
     {
         final NBTTagCompound wrapperCompound = new NBTTagCompound();
-        wrapperCompound.setString(TAG_MILLIS, fileName);
         wrapperCompound.setTag(TAG_SCHEMATIC, nbttagcompound);
 
         final PacketBuffer buffer = new PacketBuffer(buf);
@@ -84,11 +83,14 @@ public class SaveScanMessage extends AbstractMessage<SaveScanMessage, IMessage>
     }
 
     @Override
-    protected void messageOnClientThread(final SaveScanMessage message, final MessageContext ctx)
+    protected void messageOnClientThread(final SendStructureMessage message, final MessageContext ctx)
     {
-        if (message.nbttagcompound != null)
-        {
-            ClientStructureWrapper.handleSaveScanMessage(message.nbttagcompound, message.fileName);
-        }
+
+
+        final Template template = new Template();
+        template.read(DataFixesManager.createFixer().process(FixTypes.STRUCTURE, message.nbttagcompound));
+        final Structure structure = new Structure(ctx.getClientHandler().world);
+        structure.setTemplate(template);
+        Settings.instance.setActiveSchematic(structure);
     }
 }

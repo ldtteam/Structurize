@@ -3,9 +3,19 @@ package com.structurize.coremod.management;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.ChangeStorage;
 import com.structurize.api.util.Log;
+import com.structurize.coremod.Structurize;
+import com.structurize.coremod.network.messages.SendStructureMessage;
 import com.structurize.coremod.util.ScanToolOperation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.gen.structure.template.TemplateManager;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -86,6 +96,31 @@ public final class Manager
         changeQueue.push(storage);
     }
 
+    /**
+     * Just returns a cube for now, I can tinker this later.
+     * @param worldServer
+     * @param width
+     * @param length
+     * @param height
+     */
+    public static void getStructureFromFormula(final WorldServer worldServer, final int width, final int length, final int height, final EntityPlayer player)
+    {
+        final TemplateManager templatemanager = worldServer.getStructureTemplateManager();
+        final Template template = templatemanager.getTemplate(worldServer.getMinecraftServer(), new ResourceLocation("shape.nbt"));
+
+        for (int y = 0; y <= height; y++)
+        {
+            for (int x = 0; x <= width; x++)
+            {
+                for (int z = 0; z <= length; z++)
+                {
+                    template.blocks.add(new Template.BlockInfo(new BlockPos(x,y,z), Blocks.GOLD_BLOCK.getDefaultState(),null));
+                }
+            }
+        }
+
+        Structurize.getNetwork().sendTo(new SendStructureMessage(template.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
+    }
     /**
      * Undo a change to the world made by a player.
      * @param player the player who made it.

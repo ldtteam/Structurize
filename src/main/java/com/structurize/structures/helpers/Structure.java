@@ -408,6 +408,15 @@ public class Structure
     }
 
     /**
+     * Set the template externally.
+     * @param template the template to set.
+     */
+    public void setTemplate(final Template template)
+    {
+        this.template = template;
+    }
+
+    /**
      * Compare the md5 from the structure with an other md5 hash.
      *
      * @param otherMD5 to compare with
