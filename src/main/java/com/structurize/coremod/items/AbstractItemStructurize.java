@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 /**
  * Handles simple things that all items need.
  */
-public abstract class AbstractItemCopyPaste extends Item
+public abstract class AbstractItemStructurize extends Item
 {
     /**
      * The name of the item.
@@ -18,7 +18,7 @@ public abstract class AbstractItemCopyPaste extends Item
      *
      * @param name The name of this item
      */
-    public AbstractItemCopyPaste(final String name)
+    public AbstractItemStructurize(final String name)
     {
         super();
         this.name = name;

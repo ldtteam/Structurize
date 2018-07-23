@@ -150,6 +150,7 @@ public class ClientProxy extends CommonProxy
         createCustomModel(ModBlocks.blockSolidSubstitution);
 
         createCustomModel(ModItems.buildTool);
+        createCustomModel(ModItems.shapeTool);
         createCustomModel(ModItems.caliper);
         createCustomModel(ModItems.scanTool);
 

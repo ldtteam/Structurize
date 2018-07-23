@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
  */
 public final class ModCreativeTabs
 {
-    public static final CreativeTabs COPY_PASTE = new CreativeTabs(Constants.MOD_ID)
+    public static final CreativeTabs STRUCTURIZE = new CreativeTabs(Constants.MOD_ID)
     {
 
         @Override

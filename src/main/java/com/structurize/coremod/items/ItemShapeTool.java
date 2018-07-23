@@ -13,17 +13,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Class handling the buildTool item.
- */
-public class ItemBuildTool extends AbstractItemStructurize
+public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
-     * Instantiates the buildTool on load.
+     * Sets the name, creative tab, and registers the item.
      */
-    public ItemBuildTool()
+    public ItemShapeTool()
     {
-        super("scepterGold");
+        super("shapeTool");
 
         super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setMaxStackSize(1);
@@ -32,14 +29,14 @@ public class ItemBuildTool extends AbstractItemStructurize
     @NotNull
     @Override
     public EnumActionResult onItemUse(
-                                       final EntityPlayer playerIn,
-                                       final World worldIn,
-                                       final BlockPos pos,
-                                       final EnumHand hand,
-                                       final EnumFacing facing,
-                                       final float hitX,
-                                       final float hitY,
-                                       final float hitZ)
+      final EntityPlayer playerIn,
+      final World worldIn,
+      final BlockPos pos,
+      final EnumHand hand,
+      final EnumFacing facing,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
     {
         //playerIn.addStat(ModAchievements.achievementWandOfbuilding);
         if (worldIn.isRemote)

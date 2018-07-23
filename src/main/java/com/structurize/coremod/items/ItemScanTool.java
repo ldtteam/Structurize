@@ -31,7 +31,7 @@ import static com.structurize.api.util.constant.TranslationConstants.MAX_SCHEMAT
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemCopyPaste
+public class ItemScanTool extends AbstractItemStructurize
 {
     /**
      * Creates instance of item.
@@ -40,7 +40,7 @@ public class ItemScanTool extends AbstractItemCopyPaste
     {
         super("scepterSteel");
 
-        super.setCreativeTab(ModCreativeTabs.COPY_PASTE);
+        super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setMaxStackSize(1);
     }
 

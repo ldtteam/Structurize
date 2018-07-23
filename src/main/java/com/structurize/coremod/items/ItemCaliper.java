@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
  */
-public class ItemCaliper extends AbstractItemCopyPaste
+public class ItemCaliper extends AbstractItemStructurize
 {
     private static final RangedAttribute ATTRIBUTE_CALIPER_USE = new RangedAttribute((IAttribute) null, "player.caliperUse", 0.0, 0.0, 1.0);
 
@@ -35,7 +35,7 @@ public class ItemCaliper extends AbstractItemCopyPaste
     {
         super("caliper");
 
-        super.setCreativeTab(ModCreativeTabs.COPY_PASTE);
+        super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         maxStackSize = 1;
     }
 

@@ -58,7 +58,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     {
         setRegistryName(BLOCK_NAME);
         setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.ENGLISH), BLOCK_NAME));
-        setCreativeTab(ModCreativeTabs.COPY_PASTE);
+        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);
     }
