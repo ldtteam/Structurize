@@ -106,13 +106,14 @@ public final class Manager
     public static void getStructureFromFormula(final WorldServer worldServer, final int width, final int length, final int height, final EntityPlayer player)
     {
         final TemplateManager templatemanager = worldServer.getStructureTemplateManager();
+        templatemanager.remove(new ResourceLocation("shape.nbt"));
         final Template template = templatemanager.getTemplate(worldServer.getMinecraftServer(), new ResourceLocation("shape.nbt"));
 
-        for (int y = 0; y <= height; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x <= width; x++)
+            for (int x = 0; x < width; x++)
             {
-                for (int z = 0; z <= length; z++)
+                for (int z = 0; z < length; z++)
                 {
                     template.blocks.add(new Template.BlockInfo(new BlockPos(x,y,z), Blocks.GOLD_BLOCK.getDefaultState(),null));
                 }
