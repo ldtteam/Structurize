@@ -10,8 +10,11 @@ import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -85,12 +88,11 @@ public class SendStructureMessage extends AbstractMessage<SendStructureMessage, 
     @Override
     protected void messageOnClientThread(final SendStructureMessage message, final MessageContext ctx)
     {
-
-
         final Template template = new Template();
         template.read(DataFixesManager.createFixer().process(FixTypes.STRUCTURE, message.nbttagcompound));
         final Structure structure = new Structure(ctx.getClientHandler().world);
         structure.setTemplate(template);
+        structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
         Settings.instance.setActiveSchematic(structure);
     }
 }
