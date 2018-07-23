@@ -38,10 +38,9 @@ public class ItemShapeTool extends AbstractItemStructurize
       final float hitY,
       final float hitZ)
     {
-        //playerIn.addStat(ModAchievements.achievementWandOfbuilding);
         if (worldIn.isRemote)
         {
-            Structurize.proxy.openBuildToolWindow(pos.offset(facing));
+            Structurize.proxy.openShapeToolWindow(pos.offset(facing));
         }
 
         return EnumActionResult.SUCCESS;
@@ -55,7 +54,7 @@ public class ItemShapeTool extends AbstractItemStructurize
 
         if (worldIn.isRemote)
         {
-            Structurize.proxy.openBuildToolWindow(null);
+            Structurize.proxy.openShapeToolWindow(null);
         }
 
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -64,7 +63,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     @Override
     public ItemStack getContainerItem(final ItemStack itemStack)
     {
-        //we want to return the build tool when use for crafting
+        //we want to return the shape tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
             return ItemStackUtils.EMPTY;
@@ -75,7 +74,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     @Override
     public boolean hasContainerItem(final ItemStack itemStack)
     {
-        //we want to return the build tool when use for crafting
+        //we want to return the shape tool when use for crafting
         return !ItemStackUtils.isEmpty(itemStack);
     }
 }

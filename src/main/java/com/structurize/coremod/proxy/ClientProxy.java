@@ -82,6 +82,18 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
+    public void openShapeToolWindow(@Nullable final BlockPos pos)
+    {
+        if (pos == null && Settings.instance.getActiveStructure() == null)
+        {
+            return;
+        }
+
+        @Nullable final WindowShapeTool window = new WindowShapeTool(pos);
+        window.open();
+    }
+
+    @Override
     public void openScanToolWindow(@Nullable final BlockPos pos1, @Nullable final BlockPos pos2)
     {
         if (pos1 == null || pos2 == null)
