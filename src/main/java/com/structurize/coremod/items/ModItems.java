@@ -12,6 +12,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public final class ModItems
 {
     public static Item buildTool;
+    public static Item shapeTool;
     public static Item scanTool;
     public static Item caliper;
 
@@ -31,10 +32,12 @@ public final class ModItems
     public static void init(final IForgeRegistry<Item> registry)
     {
         buildTool = new ItemBuildTool();
+        shapeTool = new ItemShapeTool();
         scanTool = new ItemScanTool();
         caliper = new ItemCaliper();
 
         registry.register(buildTool);
+        registry.register(shapeTool);
         registry.register(scanTool);
         registry.register(caliper);
     }

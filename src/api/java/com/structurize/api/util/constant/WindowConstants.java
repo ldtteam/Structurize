@@ -148,7 +148,8 @@ public final class WindowConstants
     /**
      * Resource suffix.
      */
-    public static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuilldtool.xml";
+    public static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuildtool.xml";
+    public static final String SHAPE_TOOL_RESOURCE_SUFFIX = ":gui/windowshapetool.xml";
 
     /**
      * Hut prefix.

@@ -50,7 +50,7 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
     {
         setRegistryName(name);
         setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
-        setCreativeTab(ModCreativeTabs.COPY_PASTE);
+        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);
     }

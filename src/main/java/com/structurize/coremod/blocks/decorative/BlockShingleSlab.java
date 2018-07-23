@@ -72,7 +72,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     {
         setRegistryName(BLOCK_NAME);
         setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.ENGLISH), BLOCK_NAME));
-        setCreativeTab(ModCreativeTabs.COPY_PASTE);
+        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);
         this.setLightOpacity(255);

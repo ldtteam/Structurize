@@ -56,6 +56,13 @@ public interface IProxy
     void openBuildToolWindow(final BlockPos pos);
 
     /**
+     * Opens a shape tool window.
+     *
+     * @param pos coordinates.
+     */
+    void openShapeToolWindow(final BlockPos pos);
+
+    /**
      * Opens a scan tool window.
      * @param pos1 first pos.
      * @param pos2 second pos.

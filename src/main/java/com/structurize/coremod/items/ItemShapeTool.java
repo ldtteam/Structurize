@@ -13,17 +13,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Class handling the buildTool item.
- */
-public class ItemBuildTool extends AbstractItemStructurize
+public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
-     * Instantiates the buildTool on load.
+     * Sets the name, creative tab, and registers the item.
      */
-    public ItemBuildTool()
+    public ItemShapeTool()
     {
-        super("scepterGold");
+        super("shapeTool");
 
         super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setMaxStackSize(1);
@@ -32,19 +29,18 @@ public class ItemBuildTool extends AbstractItemStructurize
     @NotNull
     @Override
     public EnumActionResult onItemUse(
-                                       final EntityPlayer playerIn,
-                                       final World worldIn,
-                                       final BlockPos pos,
-                                       final EnumHand hand,
-                                       final EnumFacing facing,
-                                       final float hitX,
-                                       final float hitY,
-                                       final float hitZ)
+      final EntityPlayer playerIn,
+      final World worldIn,
+      final BlockPos pos,
+      final EnumHand hand,
+      final EnumFacing facing,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
     {
-        //playerIn.addStat(ModAchievements.achievementWandOfbuilding);
         if (worldIn.isRemote)
         {
-            Structurize.proxy.openBuildToolWindow(pos.offset(facing));
+            Structurize.proxy.openShapeToolWindow(pos.offset(facing));
         }
 
         return EnumActionResult.SUCCESS;
@@ -58,7 +54,7 @@ public class ItemBuildTool extends AbstractItemStructurize
 
         if (worldIn.isRemote)
         {
-            Structurize.proxy.openBuildToolWindow(null);
+            Structurize.proxy.openShapeToolWindow(null);
         }
 
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -67,7 +63,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     @Override
     public ItemStack getContainerItem(final ItemStack itemStack)
     {
-        //we want to return the build tool when use for crafting
+        //we want to return the shape tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
             return ItemStackUtils.EMPTY;
@@ -78,7 +74,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     @Override
     public boolean hasContainerItem(final ItemStack itemStack)
     {
-        //we want to return the build tool when use for crafting
+        //we want to return the shape tool when use for crafting
         return !ItemStackUtils.isEmpty(itemStack);
     }
 }

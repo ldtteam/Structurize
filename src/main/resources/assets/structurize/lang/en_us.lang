@@ -7,6 +7,7 @@ item.structurize.ancienttome.name=Ancient Tome
 item.structurize.chiefsword.name=Chief Sword
 item.structurize.scepterGold.name=Building Tool
 item.structurize.scepterSteel.name=Scan Tool
+item.structurize.shapeTool.name=Shape Tool
 item.structurize.caliper.name=Caliper
 
 item.scepterSteel.point=Point one saved: %d %d %d
