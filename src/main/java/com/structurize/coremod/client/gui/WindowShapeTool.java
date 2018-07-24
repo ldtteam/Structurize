@@ -1,5 +1,6 @@
 package com.structurize.coremod.client.gui;
 
+import com.structurize.api.util.LanguageHandler;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.blockout.controls.Button;
 import com.structurize.blockout.controls.TextField;
@@ -52,7 +53,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * Current Width/Length/Height of the shape
      */
     @NotNull
-    private int shapeWidth  = 1;
+    private int shapeWidth = 1;
     private int shapeLength = 1;
     private int shapeHeight = 1;
 
@@ -99,6 +100,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PASTE, this::pasteComplete);
 
+        registerButton(BUTTON_REPLACE, this::replaceBlocksToggle);
+        registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
+
         registerButton(UNDO_BUTTON, this::undoClicked);
 
         final TextField inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
@@ -110,6 +114,38 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputHeight.setText(Integer.toString(this.shapeHeight));
 
         Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, this.shapeWidth, this.shapeLength, this.shapeHeight));
+    }
+
+    /**
+     * Ignore the blocks already in the world
+     */
+    private void replaceBlocksToggle()
+    {
+        final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
+        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.replace")))
+        {
+            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.ignore"));
+        }
+        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.ignore")))
+        {
+            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.replace"));
+        }
+    }
+
+    /**
+     * Toggle the hollow or solid shape
+     */
+    private void hollowShapeToggle()
+    {
+        final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
+        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow")))
+        {
+            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid"));
+        }
+        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid")))
+        {
+            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow"));
+        }
     }
 
     /**

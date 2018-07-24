@@ -153,6 +153,16 @@ public final class WindowConstants
     public static final String INPUT_HEIGHT = "height";
 
     /**
+     * The shapeTool Replace Blocks toggle.
+     */
+    public static final String BUTTON_REPLACE = "replaceBlocks";
+
+    /**
+     * The shapeTool Hollow toggle.
+     */
+    public static final String BUTTON_HOLLOW = "hollowShape";
+
+    /**
      * Resource suffix.
      */
     public static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuildtool.xml";

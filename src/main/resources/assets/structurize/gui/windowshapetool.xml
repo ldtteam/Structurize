@@ -7,6 +7,12 @@
 
     <itemicon id="resourceIcon" item="minecraft:gold_block" size="17 17" pos="84 18"/>
 
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.ignore)" id="replaceBlocks" pos="49 45" size="86 17"
+                 source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.hollow)" id="hollowShape" pos="49 73" size="86 17"
+                 source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+
     <buttonimage id="previousShape" size="14 15" pos="140 0" label="&lt;"
                  source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
     <dropdown id="style" size="129 17" pos="155 0" maxContentHeight="75" dropDownSize="140 75" source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black">

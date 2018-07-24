@@ -10,6 +10,10 @@ item.structurize.scepterSteel.name=Scan Tool
 item.structurize.shapeTool.name=Shape Tool
 item.structurize.caliper.name=Caliper
 com.structurize.coremod.gui.shapeTool.pickblock=Pick Main Block
+com.structurize.coremod.gui.shapeTool.replace=Replace Blocks
+com.structurize.coremod.gui.shapeTool.ignore=Ignore Blocks
+com.structurize.coremod.gui.shapeTool.hollow=Hollow
+com.structurize.coremod.gui.shapeTool.solid=Solid
 
 item.scepterSteel.point=Point one saved: %d %d %d
 item.scepterSteel.point2=Point two saved: %d %d %d.
