@@ -52,10 +52,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * Current Width/Length/Height of the shape
      */
-    @NotNull
-    private int shapeWidth = 1;
-    private int shapeLength = 1;
-    private int shapeHeight = 1;
+    //@NotNull
+    //private int shapeWidth = 1;
+    //private int shapeLength = 1;
+    //private int shapeHeight = 1;
 
     /**
      * Creates a window build tool.
@@ -109,11 +109,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         final TextField inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
         final TextField inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
 
-        inputWidth.setText(Integer.toString(this.shapeWidth));
-        inputLength.setText(Integer.toString(this.shapeLength));
-        inputHeight.setText(Integer.toString(this.shapeHeight));
+        inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
+        inputLength.setText(Integer.toString(Settings.instance.getLength()));
+        inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
 
-        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, this.shapeWidth, this.shapeLength, this.shapeHeight));
+        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
     }
 
     /**
@@ -231,16 +231,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             try
             {
-                this.shapeWidth = Integer.parseInt(widthText);
-                this.shapeLength = Integer.parseInt(lengthText);
-                this.shapeHeight = Integer.parseInt(heightText);
-                Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, this.shapeLength, this.shapeWidth, this.shapeHeight));
+                Settings.instance.setWidth(Integer.parseInt(widthText));
+                Settings.instance.setLength(Integer.parseInt(lengthText));
+                Settings.instance.setHeight(Integer.parseInt(heightText));
+                Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
             }
             catch (NumberFormatException e)
             {
-                inputWidth.setText(Integer.toString(this.shapeWidth));
-                inputLength.setText(Integer.toString(this.shapeLength));
-                inputHeight.setText(Integer.toString(this.shapeHeight));
+                inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
+                inputLength.setText(Integer.toString(Settings.instance.getLength()));
+                inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
             }
         }
         return result;

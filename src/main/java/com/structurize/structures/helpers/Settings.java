@@ -26,6 +26,9 @@ public final class Settings
     private             int                      rotation       = 0;
     private             String                   structureName  = null;
     private             boolean                  isPendingReset = false;
+    private             int                      width          = 1;
+    private             int                      height         = 1;
+    private             int                      length         = 1;
 
     /**
      * Possible box.
@@ -55,7 +58,7 @@ public final class Settings
     /**
      * Set up the static mode.
      *
-     * @param name     the name of the schematic.
+     * @param name the name of the schematic.
      */
     public void setupStaticMode(final String name)
     {
@@ -75,6 +78,7 @@ public final class Settings
 
     /**
      * Get a possibly existing box.
+     *
      * @return a blockpos tuple.
      */
     @Nullable
@@ -85,7 +89,6 @@ public final class Settings
 
     /**
      * Set a possible box.
-     * @param box
      */
     @NotNull
     public void setBox(final Tuple<BlockPos, BlockPos> box)
@@ -101,6 +104,65 @@ public final class Settings
     public void setPosition(final BlockPos position)
     {
         pos = position;
+    }
+
+    /**
+     * set the width.
+     *
+     * @param width the width
+     */
+    public void setWidth(final int width)
+    {
+        this.width = width;
+    }
+
+    /**
+     * set the length.
+     *
+     * @param length the length
+     */
+    public void setLength(final int length)
+    {
+        this.length = length;
+    }
+
+    /**
+     * set the height.
+     *
+     * @param height the height
+     */
+    public void setHeight(final int height)
+    {
+        this.height = height;
+    }
+
+    /**
+     * get the width.
+     * @return the width
+     */
+    public int getWidth()
+    {
+        return this.width;
+    }
+
+    /**
+     * get the length.
+     *
+     * @return the length
+     */
+    public int getLength()
+    {
+        return this.length;
+    }
+
+    /**
+     * get the height.
+     *
+     * @return the height
+     */
+    public int getHeight()
+    {
+        return this.height;
     }
 
     /**
