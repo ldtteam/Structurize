@@ -1,34 +1,22 @@
 package com.structurize.coremod.client.gui;
 
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.Log;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.blockout.controls.Button;
-import com.structurize.blockout.views.DropDownList;
+import com.structurize.blockout.controls.TextField;
 import com.structurize.coremod.Structurize;
-import com.structurize.coremod.management.Manager;
-import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
-import com.structurize.coremod.network.messages.BuildToolPasteMessage;
-import com.structurize.coremod.network.messages.SchematicRequestMessage;
-import com.structurize.coremod.network.messages.SchematicSaveMessage;
-import com.structurize.coremod.network.messages.UndoMessage;
+import com.structurize.coremod.network.messages.*;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import scala.Array;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.structurize.api.util.constant.Constants.*;
 import static com.structurize.api.util.constant.WindowConstants.*;
@@ -59,6 +47,14 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     @NotNull
     private BlockPos pos = new BlockPos(0, 0, 0);
+
+    /**
+     * Current Width/Length/Height of the shape
+     */
+    @NotNull
+    private int shapeWidth  = 1;
+    private int shapeLength = 1;
+    private int shapeHeight = 1;
 
     /**
      * Creates a window build tool.
@@ -104,6 +100,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_PASTE, this::pasteComplete);
 
         registerButton(UNDO_BUTTON, this::undoClicked);
+
+        final TextField inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
+        final TextField inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
+        final TextField inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
+
+        inputWidth.setText(Integer.toString(this.shapeWidth));
+        inputLength.setText(Integer.toString(this.shapeLength));
+        inputHeight.setText(Integer.toString(this.shapeHeight));
+
+        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, this.shapeWidth, this.shapeLength, this.shapeHeight));
     }
 
     /**
@@ -169,6 +175,39 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
         findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+    }
+
+    /*
+     * ---------------- Input Handling -----------------
+     */
+
+    @Override
+    public boolean onKeyTyped(final char ch, final int key)
+    {
+        final boolean result = super.onKeyTyped(ch, key);
+        final TextField inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
+        final TextField inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
+        final TextField inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
+        final String widthText = inputWidth.getText();
+        final String lengthText = inputLength.getText();
+        final String heightText = inputHeight.getText();
+        if (!widthText.isEmpty() && !lengthText.isEmpty() && !heightText.isEmpty())
+        {
+            try
+            {
+                this.shapeWidth = Integer.parseInt(widthText);
+                this.shapeLength = Integer.parseInt(lengthText);
+                this.shapeHeight = Integer.parseInt(heightText);
+                Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, this.shapeLength, this.shapeWidth, this.shapeHeight));
+            }
+            catch (NumberFormatException e)
+            {
+                inputWidth.setText(Integer.toString(this.shapeWidth));
+                inputLength.setText(Integer.toString(this.shapeLength));
+                inputHeight.setText(Integer.toString(this.shapeHeight));
+            }
+        }
+        return result;
     }
 
     /*

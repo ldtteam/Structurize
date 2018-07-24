@@ -146,6 +146,13 @@ public final class WindowConstants
     public static final String BUTTON_MIRROR = "mirror";
 
     /**
+     * The shapeTool width/length/height inputs.
+     */
+    public static final String INPUT_WIDTH = "width";
+    public static final String INPUT_LENGTH = "length";
+    public static final String INPUT_HEIGHT = "height";
+
+    /**
      * Resource suffix.
      */
     public static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuildtool.xml";
