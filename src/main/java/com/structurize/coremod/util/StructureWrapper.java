@@ -286,7 +286,7 @@ public final class StructureWrapper
             final IBlockState localState = this.structure.getBlockState(coords);
             final BlockPos newWorldPos = position.add(coords);
             storage.addPositionStorage(coords, world);
-            handleBlockPlacement(world, newWorldPos, localState, complete, this.structure.getBlockInfo(coords).tileentityData);
+            handleBlockPlacement(world, newWorldPos, localState, complete, this.structure.getBlockInfo(coords) == null ? null : this.structure.getBlockInfo(coords).tileentityData);
         }
     }
 

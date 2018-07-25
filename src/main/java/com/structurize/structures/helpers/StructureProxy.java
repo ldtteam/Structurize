@@ -1,6 +1,7 @@
 package com.structurize.structures.helpers;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
@@ -138,7 +139,12 @@ public class StructureProxy
      */
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        return blocks[pos.getX()][pos.getY()][pos.getZ()].blockState;
+        final Template.BlockInfo state = blocks[pos.getX()][pos.getY()][pos.getZ()];
+        if (state == null)
+        {
+            return Blocks.AIR.getDefaultState();
+        }
+        return state.blockState;
     }
 
     /**

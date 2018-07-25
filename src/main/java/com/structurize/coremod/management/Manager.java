@@ -1,18 +1,19 @@
 package com.structurize.coremod.management;
 
 import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.BlockPosUtil;
 import com.structurize.api.util.ChangeStorage;
 import com.structurize.api.util.Log;
+import com.structurize.api.util.Shape;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.network.messages.SendStructureMessage;
 import com.structurize.coremod.util.ScanToolOperation;
-import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
@@ -28,7 +29,6 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
 
 /**
  * Singleton class that links colonies to minecraft.
@@ -109,47 +109,164 @@ public final class Manager
      * @param width
      * @param length
      * @param height
+     * @param shape
+     * @param inputBlock
      */
     //todo we gotta call this same method again when pushing the template into the world =)
-    public static void getStructureFromFormula(final WorldServer worldServer, final int width, final int length, final int height, final EntityPlayer player)
+    public static void getStructureFromFormula(
+      final WorldServer worldServer,
+      final int width,
+      final int length,
+      final int height,
+      final Shape shape,
+      final ItemStack inputBlock, final EntityPlayer player)
     {
         final TemplateManager templatemanager = worldServer.getStructureTemplateManager();
         templatemanager.remove(new ResourceLocation("shape" + player.getName() + ".nbt"));
         final Template template = templatemanager.getTemplate(worldServer.getMinecraftServer(), new ResourceLocation("shape" + player.getName() + ".nbt"));
-        template.size = new BlockPos(width,height,length);
-        if (false)
+
+        final IBlockState block = inputBlock.getItem() instanceof ItemBlock ?  ((ItemBlock) inputBlock.getItem()).getBlock().getStateFromMeta(inputBlock.getItemDamage()) : Blocks.GOLD_BLOCK.getDefaultState();
+
+        if (shape == Shape.SPHERE)
         {
-            getSphere(template);
+            generateSphere(template, height/2, block, false, true);
         }
-        else
+        else if (shape == Shape.HOLLOW_SPHERE)
+        {
+            generateSphere(template, height/2, block, true, true);
+        }
+        else if (shape == Shape.HALF_SPHERE)
+        {
+            generateSphere(template, height/2, block, false, false);
+        }
+        else if (shape == Shape.HOLLOW_HALF_SPHERE)
+        {
+            generateSphere(template, height/2, block, true, false);
+        }
+        else if (shape == Shape.CUBE)
+        {
+            generateCube(template, height, width, length, block, false);
+        }
+        else if (shape == Shape.WAVE)
+        {
+            generateWave(template, height, width, length, block);
+        }
+        else if (shape == Shape.WAVE_3D)
         {
 
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    for (int z = 0; z < length; z++)
-                    {
-                        template.blocks.add(new Template.BlockInfo(new BlockPos(x, y, z), Blocks.GOLD_BLOCK.getDefaultState(), null));
-                    }
-                }
-            }
         }
         Structurize.getNetwork().sendTo(new SendStructureMessage(template.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
     }
 
-    public static void getSphere(final Template template)
+    /**
+     * Generates a cube with the specific size and adds it to the template provided.
+     * @param template the provided template.
+     * @param height the height.
+     * @param width the width.
+     * @param length the length.
+     * @param block the block to use.
+     * @param full if full.
+     */
+    private static void generateCube(final Template template, final int height, final int width, final int length, final IBlockState block, final boolean full)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int z = 0; z < length; z++)
+                {
+                    if (full || ((x == 0 || x == width-1) || (y == 0 || y == height-1) || (z == 0 || z == length-1)))
+                    {
+                        template.blocks.add(new Template.BlockInfo(new BlockPos(x, y, z), block, null));
+                    }
+                }
+            }
+        }
+        template.size = new BlockPos(width,height,length);
+    }
+
+    /**
+     * Generates a hollow sphere with the specific size and adds it to the template provided.
+     * @param template the provided template.
+     * @param height the height.
+     * @param block the block to use.
+     * @param full if hollow.
+     * @param half if half.
+     */
+    private static void generateSphere(final Template template, final int height, final IBlockState block, final boolean full, final boolean half)
+    {
+        final List<BlockPos> posList = new ArrayList<>();
+        for (int y = 0; y <= height+1; y++)
+        {
+            for (int x = 0; x <= height+1; x++)
+            {
+                for (int z = 0; z <= height+1; z++)
+                {
+                    int sum = x * x + z * z + y * y;
+                    if (sum < height * height && (full || sum > height * height - 2* height))
+                    {
+                        addPosToList(new BlockPos(x, y, z), posList);
+                        addPosToList(new BlockPos(x, y, -z), posList);
+                        addPosToList(new BlockPos(-x, y, z), posList);
+                        addPosToList(new BlockPos(-x, y, -z), posList);
+                        if (half)
+                        {
+                            addPosToList(new BlockPos(x, -y, z), posList);
+                            addPosToList(new BlockPos(x, -y, -z), posList);
+                            addPosToList(new BlockPos(-x, -y, z), posList);
+                            addPosToList(new BlockPos(-x, -y, -z), posList);
+                        }
+                    }
+                }
+            }
+        }
+        template.size = new BlockPos(height*2+2,height*2+2,height*2+2);
+        template.blocks.addAll(posList.stream().map(pos -> new Template.BlockInfo(pos, block, null)).collect(Collectors.toList()));
+    }
+
+
+    /**
+     * Generates a wave with the specific size and adds it to the template provided.
+     * @param template the provided template.
+     * @param inHeight the height.
+     * @param width the width.
+     * @param length the length.
+     * @param block the block to use.
+     */
+    private static void generateWave(final Template template, final int inHeight, final int width, final int length, final IBlockState block)
+    {
+        final List<BlockPos> posList = new ArrayList<>();
+        final double height = inHeight;
+        //for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int z = 0; z < length; z++)
+                {
+                    final double yVal = z+height*Math.sin(x/height);
+                    addPosToList(new BlockPos(x, yVal, z), posList);
+                    addPosToList(new BlockPos(x, yVal, -z), posList);
+                    addPosToList(new BlockPos(x, yVal+length-1, z-length+1), posList);
+                    addPosToList(new BlockPos(x, yVal+length-1, -z+length-1), posList);
+                }
+            }
+        }
+        template.size = new BlockPos(width,height,length);
+        template.blocks.addAll(posList.stream().map(pos -> new Template.BlockInfo(pos, block, null)).collect(Collectors.toList()));
+    }
+
+    public static void generatSphere(final Template template, final int height, final int width, final int length)
     {
         final double radiusX = 20;
         final double radiusY = 26;
         final double radiusZ = 5;
         final List<BlockPos> posList = new ArrayList<>();
 
-        for (double runY = 0 ; runY <= radiusX; runY++)
+        for (double x = 0 ; x <= radiusX; x++)
         {
-            for (double runX = 0; runX <= radiusY; runX++)
+            for (double y = 0; y <= radiusY; y++)
             {
-                for (double runZ = 0; runZ <= radiusZ; runZ++)
+                for (double z = 0; z <= radiusZ; z++)
                 {
                     //int sum = (int) x * x + z * z  + y * y;
 
@@ -161,14 +278,11 @@ public final class Manager
                         //final double xVal = Math.pow(1.2,radius)*(Math.pow(Math.sin(radius),2) *Math.sin(radius));
                         //final double yVal = Math.pow(1.2,radius)*(Math.pow(Math.sin(radius),2) *Math.cos(radius));
                         //final double zVal = Math.pow(1.2,radius)*(Math.sin(radius) *Math.sin(radius));
-                        final double x = runX/radiusX;
-                        final double y = runY/radiusY;
-                        final double z = runZ/radiusZ;
                         //int sum = -radius*radius -radius*radius -radius*radius +1;
                         //if (Math.pow((z/2.0),2.0)+x*x+Math.pow((5.0*y/4.0-sqrt(abs(x))),2.0)<0.6)
                         if (sin(x*5.0)/2.0>y)
                         {
-                            addPosToList(new BlockPos(runX,runY,runZ), posList);
+                            addPosToList(new BlockPos(x,y,z), posList);
                             //addPosToList(new BlockPos(-x, y, -z), posList);
                             //addPosToList(new BlockPos(-x, y, z), posList);
                             //addPosToList(new BlockPos(x, y, -z), posList);
@@ -197,39 +311,12 @@ public final class Manager
     /*
 
         //y and z only go until 3, so the 3 can be the max y and z values as well.
-      final double yVal = z+5*Math.sin(x/5.0);
-                        addPosToList(new BlockPos(x, yVal, z), posList);
-                        addPosToList(new BlockPos(x, yVal, -z), posList);
-                        addPosToList(new BlockPos(x, yVal-3, z+3), posList);
-                        addPosToList(new BlockPos(x, yVal-3, -z-3), posList);
+
 
      */
 
     //addPosToList(new BlockPos(x, y+10*Math.sin(x/5.0), z+10*Math.sin(x/5.0)), posList);
 
-    /*
-    for (int y = -radius ; y <= 0; y++)
-    {
-        for (int x = -radius; x <= 0; x++)
-        {
-            for (int z = -radius; z <= 0; z++)
-            {
-                int sum = (int) x * x + z * z  + y * y;
-                if (sum < radius * radius && sum > radius * radius - radius - 2)
-                {
-
-                      addPosToList(new BlockPos(x, y, z), posList);
-                    //addPosToList(new BlockPos(x, y, -z), posList);
-                    //addPosToList(new BlockPos(-x, y, z), posList);
-                    //addPosToList(new BlockPos(-x, y, -z), posList);
-                    //addPosToList(new BlockPos(x, -y, z), posList);
-                    //addPosToList(new BlockPos(x, -y, -z), posList);
-                    //addPosToList(new BlockPos(-x, -y, z), posList);
-                    //addPosToList(new BlockPos(-x, -y, -z), posList);
-                }
-            }
-        }
-    }8?
 
 
     /**
@@ -244,64 +331,6 @@ public final class Manager
             posList.add(blockPos);
         }
     }
-
-
-    /*for (int y = 0 - radius ; y <= 0; y++)
-    {
-        for (int x = 0 - radius; x <= 0; x++)
-        {
-            for (int z = 0 - radius; z <= 0; z++)
-            {
-                // we don't have to take the square root, it's slow
-                if ((x - 0) * (x - 0) + (z - 0) * (z - 0)  + (y - 0) * (y - 0) <= radius * radius * radius)
-                {
-                    int xSym = 0 - (x - 0);
-                    int zSym = 0 - (z - 0);
-                    int ySym = 0 - (y - 0);
-                    final BlockPos pos1 = new BlockPos(x, y, z);
-                    final BlockPos pos2 = new BlockPos(x, y, zSym);
-                    final BlockPos pos3 = new BlockPos(xSym, y, z);
-                    final BlockPos pos4 = new BlockPos(xSym, y, zSym);
-                    final BlockPos pos5 = new BlockPos(x, ySym, z);
-                    final BlockPos pos6 = new BlockPos(x, ySym, zSym);
-                    final BlockPos pos7 = new BlockPos(xSym, ySym, z);
-                    final BlockPos pos8 = new BlockPos(xSym, ySym, zSym);
-                    if (!posList.contains(pos1))
-                    {
-                        posList.add(pos1);
-                    }
-                    if (!posList.contains(pos2))
-                    {
-                        posList.add(pos2);
-                    }
-                    if (!posList.contains(pos3))
-                    {
-                        posList.add(pos3);
-                    }
-                    if (!posList.contains(pos4))
-                    {
-                        posList.add(pos4);
-                    }
-                    if (!posList.contains(pos5))
-                    {
-                        posList.add(pos5);
-                    }
-                    if (!posList.contains(pos6))
-                    {
-                        posList.add(pos6);
-                    }
-                    if (!posList.contains(pos7))
-                    {
-                        posList.add(pos7);
-                    }
-                    if (!posList.contains(pos8))
-                    {
-                        posList.add(pos8);
-                    }
-                }
-            }
-            */
-
 
     /**
      * Undo a change to the world made by a player.

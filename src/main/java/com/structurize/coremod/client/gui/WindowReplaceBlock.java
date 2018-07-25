@@ -11,6 +11,7 @@ import com.structurize.blockout.views.ScrollingList;
 import com.structurize.blockout.views.Window;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.network.messages.ReplaceBlockMessage;
+import com.structurize.structures.helpers.Settings;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -73,6 +74,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private String filter = "";
 
     /**
+     * If this is being opened from scan or shape tool window.
+     */
+    private final boolean shapeCall;
+
+    /**
      * Create the replacement GUI.
      * @param initialStack the initial stack.
      * @param pos1 the start pos.
@@ -84,6 +90,22 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         this.from = initialStack;
         this.pos1 = pos1;
         this.pos2 = pos2;
+        this.shapeCall = false;
+        resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
+    }
+
+    /**
+     * Create the replacement GUI.
+     * @param initialStack the initial stack.
+     * @param pos the central pos.
+     */
+    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos)
+    {
+        super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
+        this.from = initialStack;
+        this.pos1 = pos;
+        this.pos2 = BlockPos.ORIGIN;
+        this.shapeCall = true;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
     }
 
@@ -147,13 +169,28 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
             if (!ItemStackUtils.isEmpty(to))
             {
-                Structurize.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
-                new WindowScan(pos1, pos2).open();
+                if (shapeCall)
+                {
+                    Settings.instance.setBlock(to);
+                    new WindowShapeTool(pos1).open();
+                }
+                else
+                {
+                    Structurize.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
+                    new WindowScan(pos1, pos2).open();
+                }
             }
         }
         else if (button.getID().equals(BUTTON_CANCEL))
         {
-            new WindowScan(pos1, pos2).open();
+            if (shapeCall)
+            {
+                new WindowShapeTool(pos1).open();
+            }
+            else
+            {
+                new WindowScan(pos1, pos2).open();
+            }
         }
         else if(button.getID().equals(BUTTON_SELECT))
         {

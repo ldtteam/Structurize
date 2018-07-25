@@ -1,5 +1,8 @@
 package com.structurize.structures.helpers;
 
+import com.structurize.api.util.Shape;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +34,11 @@ public final class Settings
     private             int                      length         = 1;
 
     /**
+     * The default shape to use.
+     */
+    private Shape shape = Shape.CUBE;
+
+    /**
      * Possible box.
      */
     private Tuple<BlockPos, BlockPos> box = null;
@@ -44,6 +52,11 @@ public final class Settings
      * Name of the static schematic if existent.
      */
     private String staticSchematicName = "";
+
+    /**
+     * The stack used to present blocks.
+     */
+    private ItemStack stack = new ItemStack(Blocks.GOLD_BLOCK);
 
     /**
      * Private constructor to hide implicit one.
@@ -332,5 +345,41 @@ public final class Settings
     public String getStaticSchematicName()
     {
         return staticSchematicName;
+    }
+
+    /**
+     * Sets the current shape.
+     * @param s the name of the shape.
+     */
+    public void setShape(final String s)
+    {
+        shape = Shape.valueOf(s);
+    }
+
+    /**
+     * Get the current shape.
+     * @return the shape.
+     */
+    public Shape getShape()
+    {
+        return shape;
+    }
+
+    /**
+     * Sets the current block.
+     * @param s the itemStack.
+     */
+    public void setBlock(final ItemStack s)
+    {
+        this.stack = s;
+    }
+
+    /**
+     * Get the current block.
+     * @return the shape.
+     */
+    public ItemStack getBlock()
+    {
+        return stack;
     }
 }

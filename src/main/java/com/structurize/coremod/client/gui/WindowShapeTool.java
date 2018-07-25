@@ -1,11 +1,13 @@
 package com.structurize.coremod.client.gui;
 
 import com.structurize.api.util.LanguageHandler;
+import com.structurize.api.util.Shape;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.blockout.controls.Button;
+import com.structurize.blockout.controls.ItemIcon;
 import com.structurize.blockout.controls.TextField;
+import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
-import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
@@ -17,7 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.structurize.api.util.constant.Constants.*;
 import static com.structurize.api.util.constant.WindowConstants.*;
@@ -37,6 +41,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     @NotNull
     private final List<String> sections = new ArrayList<>();
+
+    /**
+     * Drop down list for section.
+     */
+    private DropDownList sectionsDropDownList;
 
     /**
      * The width.
@@ -65,7 +74,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private BlockPos pos = new BlockPos(0, 0, 0);
 
     /**
-     * Creates a window build tool.
+     * Creates a window shape tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
@@ -99,6 +108,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             Settings.instance.setRotation(0);
         }
 
+        findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(Settings.instance.getBlock());
+
         //Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::paste);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
@@ -111,6 +122,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_DOWN, WindowShapeTool::moveDownClicked);
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
+        registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
 
         registerButton(BUTTON_REPLACE, this::replaceBlocksToggle);
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
@@ -125,9 +137,45 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputLength.setText(Integer.toString(Settings.instance.getLength()));
         inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
 
+        sections.clear();
+        sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
+
+        sectionsDropDownList = findPaneOfTypeByID(DROPDOWN_STYLE_ID, DropDownList.class);
+        sectionsDropDownList.setHandler(this::onDropDownListChanged);
+        sectionsDropDownList.setDataProvider(new SectionDropDownList());
+        sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
+
         if (structure == null)
         {
-            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
+              Settings.instance.getLength(),
+              Settings.instance.getWidth(),
+              Settings.instance.getHeight(),
+              Settings.instance.getShape(),
+              Settings.instance.getBlock()));
+        }
+    }
+
+    private void pickMainBlock()
+    {
+        new WindowReplaceBlock(Settings.instance.getBlock(), Settings.instance.getPosition()).open();
+    }
+
+    /**
+     * Drop down class for sections.
+     */
+    private class SectionDropDownList implements DropDownList.DataProvider
+    {
+        @Override
+        public int getElementCount()
+        {
+            return sections.size();
+        }
+
+        @Override
+        public String getLabel(final int index)
+        {
+            return sections.get(index);
         }
     }
 
@@ -199,22 +247,43 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             close();
         }
 
-        sections.clear();
-        final List<String> allSections = Structures.getSections();
-        for (final String section : allSections)
-        {
-            if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN))
-            {
-                sections.add(section);
-            }
-        }
-
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
     /*
      * ---------------- Input Handling -----------------
      */
+
+    /**
+     * called every time one of the dropdownlist changed.
+     *
+     * @param list the dropdown list which change
+     */
+    private void onDropDownListChanged(final DropDownList list)
+    {
+        if (list.isEnabled())
+        {
+            if (list == sectionsDropDownList)
+            {
+                updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()));
+            }
+        }
+    }
+
+    /**
+     * Update the style after change.
+     * @param s the style to use.
+     */
+    private void updateStyle(final String s)
+    {
+        Settings.instance.setShape(s);
+        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
+          Settings.instance.getLength(),
+          Settings.instance.getWidth(),
+          Settings.instance.getHeight(),
+          Settings.instance.getShape(),
+          Settings.instance.getBlock()));
+    }
 
     @Override
     public boolean onKeyTyped(final char ch, final int key)
@@ -243,7 +312,12 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                     Settings.instance.setLength(localLength);
                     Settings.instance.setHeight(localHeight);
                     Structurize.getNetwork()
-                      .sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+                      .sendToServer(new GetShapeMessage(this.pos,
+                        Settings.instance.getLength(),
+                        Settings.instance.getWidth(),
+                        Settings.instance.getHeight(),
+                        Settings.instance.getShape(),
+                        Settings.instance.getBlock()));
                 }
             }
             catch (NumberFormatException e)

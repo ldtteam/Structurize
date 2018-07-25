@@ -243,6 +243,11 @@ public final class WindowConstants
     public static final String FILTER_NAME = "filter";
 
     /**
+     * Button to pick the main block to use.
+     */
+    public static final String BUTTON_PICK_MAIN_BLOCK = "pickMainBlock";
+
+    /**
      * public constructor to hide implicit public one.
      */
     private WindowConstants()
