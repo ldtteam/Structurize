@@ -1,5 +1,6 @@
 package com.structurize.structures.helpers;
 
+import com.structurize.coremod.blocks.ModBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -142,7 +143,7 @@ public class StructureProxy
         final Template.BlockInfo state = blocks[pos.getX()][pos.getY()][pos.getZ()];
         if (state == null)
         {
-            return Blocks.AIR.getDefaultState();
+            return ModBlocks.blockSubstitution.getDefaultState();
         }
         return state.blockState;
     }
@@ -155,7 +156,12 @@ public class StructureProxy
      */
     public Template.BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        return blocks[pos.getX()][pos.getY()][pos.getZ()];
+        final Template.BlockInfo info = blocks[pos.getX()][pos.getY()][pos.getZ()];
+        if (info == null)
+        {
+            return new Template.BlockInfo(pos, ModBlocks.blockSubstitution.getDefaultState(), null);
+        }
+        return info;
     }
 
     /**

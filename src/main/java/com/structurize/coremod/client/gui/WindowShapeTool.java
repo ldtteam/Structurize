@@ -95,7 +95,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             rotation = Settings.instance.getRotation();
 
-            updateRotation(rotation);
             this.shapeWidth = Settings.instance.getWidth();
             this.shapeLength = Settings.instance.getLength();
             this.shapeHeight = Settings.instance.getHeight();
@@ -246,7 +245,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             close();
         }
-
+        updateRotation(rotation);
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
@@ -276,13 +275,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void updateStyle(final String s)
     {
-        Settings.instance.setShape(s);
-        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
-          Settings.instance.getLength(),
-          Settings.instance.getWidth(),
-          Settings.instance.getHeight(),
-          Settings.instance.getShape(),
-          Settings.instance.getBlock()));
+        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != Settings.instance.getShape())
+        {
+            Settings.instance.setShape(s);
+            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
+              Settings.instance.getLength(),
+              Settings.instance.getWidth(),
+              Settings.instance.getHeight(),
+              Settings.instance.getShape(),
+              Settings.instance.getBlock()));
+        }
     }
 
     @Override

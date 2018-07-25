@@ -228,30 +228,28 @@ public final class Manager
     /**
      * Generates a wave with the specific size and adds it to the template provided.
      * @param template the provided template.
-     * @param inHeight the height.
+     * @param height the height.
      * @param width the width.
      * @param length the length.
      * @param block the block to use.
      */
-    private static void generateWave(final Template template, final int inHeight, final int width, final int length, final IBlockState block)
+    private static void generateWave(final Template template, final int height, final int width, final int length, final IBlockState block)
     {
         final List<BlockPos> posList = new ArrayList<>();
-        final double height = inHeight;
-        //for (int y = 0; y < height; y++)
+
+        for (int x = 0; x < length; x++)
         {
-            for (int x = 0; x < width; x++)
+            for (int z = 0; z < width; z++)
             {
-                for (int z = 0; z < length; z++)
-                {
-                    final double yVal = z+height*Math.sin(x/height);
-                    addPosToList(new BlockPos(x, yVal, z), posList);
-                    addPosToList(new BlockPos(x, yVal, -z), posList);
-                    addPosToList(new BlockPos(x, yVal+length-1, z-length+1), posList);
-                    addPosToList(new BlockPos(x, yVal+length-1, -z+length-1), posList);
-                }
+                final double yVal = z+(double)height*Math.sin(x/(double)height);
+                addPosToList(new BlockPos(x, yVal, z), posList);
+                addPosToList(new BlockPos(x, yVal, -z), posList);
+                addPosToList(new BlockPos(x, yVal+width-1, z-width+1), posList);
+                addPosToList(new BlockPos(x, yVal+width-1, -z+width-1), posList);
             }
         }
-        template.size = new BlockPos(width,height,length);
+
+        template.size = new BlockPos(length,height*length+1,width*2+1);
         template.blocks.addAll(posList.stream().map(pos -> new Template.BlockInfo(pos, block, null)).collect(Collectors.toList()));
     }
 
