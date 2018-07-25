@@ -46,6 +46,5 @@
         <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
     </view>
 
-    <buttonimage id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
     <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 210" textcolor="Black" texthovercolor="White"/>
 </window>

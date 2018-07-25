@@ -6,6 +6,7 @@ import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.placementhandlers.IPlacementHandler;
 import com.structurize.coremod.placementhandlers.PlacementHandlers;
+import com.structurize.structures.helpers.Structure;
 import com.structurize.structures.helpers.StructureProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
@@ -19,9 +20,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.gen.structure.template.TemplateManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,6 +95,38 @@ public final class StructureWrapper
         world = worldObj;
         this.structure = structure;
         this.name = name;
+    }
+
+    /**
+     * Load a structure into this world
+     * and place it in the right position and rotation.
+     *  @param worldObj  the world to load it in
+     * @param pos       coordinates
+     * @param rotations number of times rotated
+     * @param mirror    the mirror used.
+     * @param player the placing player.
+     */
+    public static void loadAndPlaceShapeWithRotation(
+      final WorldServer worldObj,
+      @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror, final EntityPlayerMP player)
+    {
+        try
+        {
+            final TemplateManager templatemanager = worldObj.getStructureTemplateManager();
+            final Template template = templatemanager.getTemplate(worldObj.getMinecraftServer(), new ResourceLocation("shape" + player.getName() + ".nbt"));
+            final Structure structure = new Structure(worldObj);
+            StructureProxy proxy = new StructureProxy(structure);
+            structure.setTemplate(template);
+            structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
+            @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, proxy, "shape" + player.getName() + ".nbt");
+            structureWrapper.position = pos;
+            structureWrapper.rotate(rotations, worldObj, pos, mirror);
+            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), true, player);
+        }
+        catch (final IllegalStateException e)
+        {
+            Log.getLogger().warn("Could not load structure!", e);
+        }
     }
 
     /**

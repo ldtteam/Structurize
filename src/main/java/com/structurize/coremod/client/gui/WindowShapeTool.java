@@ -50,14 +50,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private BlockPos pos = new BlockPos(0, 0, 0);
 
     /**
-     * Current Width/Length/Height of the shape
-     */
-    //@NotNull
-    //private int shapeWidth = 1;
-    //private int shapeLength = 1;
-    //private int shapeHeight = 1;
-
-    /**
      * Creates a window build tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
@@ -87,7 +79,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
 
         //Register all necessary buttons with the window.
-        registerButton(BUTTON_CONFIRM, this::pasteNice);
+        registerButton(BUTTON_CONFIRM, this::paste);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
         registerButton(BUTTON_MIRROR, WindowShapeTool::mirror);
@@ -98,7 +90,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_DOWN, WindowShapeTool::moveDownClicked);
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
-        registerButton(BUTTON_PASTE, this::pasteComplete);
 
         registerButton(BUTTON_REPLACE, this::replaceBlocksToggle);
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
@@ -156,26 +147,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         Structurize.getNetwork().sendToServer(new UndoMessage());
     }
 
-    private void pasteNice()
-    {
-        paste(false);
-    }
-
     /**
      * Paste a schematic in the world.
      */
-    private void pasteComplete()
+    private void paste()
     {
-        paste(true);
-    }
+        Structurize.getNetwork().sendToServer(new ShapeToolPasteMessage(
+          Settings.instance.getPosition(),
+          Settings.instance.getRotation(),
+          Settings.instance.getMirror()));
 
-    /**
-     * Paste a schematic in the world.
-     *
-     * @param complete if complete paste or partial.
-     */
-    private void paste(final boolean complete)
-    {
         //** TODO: Ray adds stuff here **//
     }
 
@@ -209,7 +190,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             }
         }
 
-        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 

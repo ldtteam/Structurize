@@ -30,12 +30,48 @@ public class StructureProxy
     private       BlockPos                  offset;
 
     /**
+     * Create a structure proxy with world and name.
      * @param worldObj the world.
      * @param name     the string where the structure is saved at.
      */
     public StructureProxy(final World worldObj, final String name)
     {
         this.structure = new Structure(worldObj, name, new PlacementSettings());
+
+        if (structure.isTemplateMissing())
+        {
+            return;
+        }
+        final BlockPos size = structure.getSize(Rotation.NONE);
+
+        this.width = size.getX();
+        this.height = size.getY();
+        this.length = size.getZ();
+
+        this.blocks = new Template.BlockInfo[width][height][length];
+        this.entities = new Template.EntityInfo[width][height][length];
+
+        for (final Template.BlockInfo info : structure.getBlockInfo())
+        {
+            final BlockPos tempPos = info.pos;
+            blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
+        }
+
+        for (final Template.EntityInfo info : structure.getTileEntities())
+        {
+            final BlockPos tempPos = info.blockPos;
+            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+        }
+    }
+
+    /**
+     * Create a structure proxy directly.
+     * @param structure the structure.
+     */
+    public StructureProxy(final Structure structure)
+    {
+        this.structure = structure;
 
         if (structure.isTemplateMissing())
         {
