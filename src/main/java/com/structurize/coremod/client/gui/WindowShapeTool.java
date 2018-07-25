@@ -39,6 +39,21 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private final List<String> sections = new ArrayList<>();
 
     /**
+     * The width.
+     */
+    private int shapeWidth = 1;
+
+    /**
+     * The length.
+     */
+    private int shapeLength = 1;
+
+    /**
+     * The height
+     */
+    private int shapeHeight = 1;
+
+    /**
      * Current rotation of the hut/decoration.
      */
     private int rotation = 0;
@@ -70,6 +85,12 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (structure != null)
         {
             rotation = Settings.instance.getRotation();
+
+            updateRotation(rotation);
+            this.shapeWidth = Settings.instance.getWidth();
+            this.shapeLength = Settings.instance.getLength();
+            this.shapeHeight = Settings.instance.getHeight();
+
         }
         else if (pos != null)
         {
@@ -104,7 +125,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputLength.setText(Integer.toString(Settings.instance.getLength()));
         inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
 
-        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+        if (structure == null)
+        {
+            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+        }
     }
 
     /**
@@ -152,12 +176,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void paste()
     {
-        Structurize.getNetwork().sendToServer(new ShapeToolPasteMessage(
-          Settings.instance.getPosition(),
-          Settings.instance.getRotation(),
-          Settings.instance.getMirror()));
-
-        //** TODO: Ray adds stuff here **//
+        Structurize.getNetwork().sendToServer(new ShapeToolPasteMessage(Settings.instance.getPosition(), Settings.instance.getRotation(), Settings.instance.getMirror()));
     }
 
     /**
@@ -211,10 +230,21 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             try
             {
-                Settings.instance.setWidth(Integer.parseInt(widthText));
-                Settings.instance.setLength(Integer.parseInt(lengthText));
-                Settings.instance.setHeight(Integer.parseInt(heightText));
-                Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+                final int localWidth = Integer.parseInt(widthText);
+                final int localHeight = Integer.parseInt(heightText);
+                final int localLength = Integer.parseInt(lengthText);
+
+                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth)
+                {
+                    this.shapeWidth = localWidth;
+                    this.shapeLength = localLength;
+                    this.shapeHeight = localHeight;
+                    Settings.instance.setWidth(localWidth);
+                    Settings.instance.setLength(localLength);
+                    Settings.instance.setHeight(localHeight);
+                    Structurize.getNetwork()
+                      .sendToServer(new GetShapeMessage(this.pos, Settings.instance.getLength(), Settings.instance.getWidth(), Settings.instance.getHeight()));
+                }
             }
             catch (NumberFormatException e)
             {
