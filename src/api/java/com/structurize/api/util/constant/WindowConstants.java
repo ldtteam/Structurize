@@ -148,17 +148,17 @@ public final class WindowConstants
     /**
      * The shapeTool width/length/height inputs.
      */
-    public static final String INPUT_WIDTH = "width";
-    public static final String INPUT_LENGTH = "length";
-    public static final String INPUT_HEIGHT = "height";
+    public static final String INPUT_WIDTH     = "width";
+    public static final String INPUT_LENGTH    = "length";
+    public static final String INPUT_HEIGHT    = "height";
     public static final String INPUT_FREQUENCY = "frequency";
 
     /**
      * The labels of the width, length, etc.
      */
-    public static final String HEIGHT_LABEL = "heightLabel";
-    public static final String WIDTH_LABEL = "widthLabel";
-    public static final String LENGTH_LABEL = "lengthLabel";
+    public static final String HEIGHT_LABEL    = "heightLabel";
+    public static final String WIDTH_LABEL     = "widthLabel";
+    public static final String LENGTH_LABEL    = "lengthLabel";
     public static final String FREQUENCY_LABEL = "frequencyLabel";
 
     /**
@@ -185,11 +185,13 @@ public final class WindowConstants
     /**
      * The builders gui file.
      */
-    public static final String LIST_RESOURCES              = "resources";
-    public static final String LIST_ENTITIES               = "entities";
-    public static final String RESOURCE_NAME               = "resourceName";
-    public static final String RESOURCE_QUANTITY_MISSING   = "resourceQuantity";
-    public static final String RESOURCE_ICON               = "resourceIcon";
+    public static final String LIST_RESOURCES            = "resources";
+    public static final String LIST_ENTITIES             = "entities";
+    public static final String RESOURCE_NAME             = "resourceName";
+    public static final String RESOURCE_ICON             = "resourceIcon";
+    public static final String RESOURCE_QUANTITY_MISSING = "resourceQuantity";
+    public static final String RESOURCE_ICON_FILL        = "resourceIconFill";
+    public static final String RESOURCE_ICON_MAIN        = "resourceIconMain";
 
     /**
      * Name of the input range field.
@@ -255,6 +257,11 @@ public final class WindowConstants
      * Button to pick the main block to use.
      */
     public static final String BUTTON_PICK_MAIN_BLOCK = "pickMainBlock";
+
+    /**
+     * Button to pick the fill block to use.
+     */
+    public static final String BUTTON_PICK_FILL_BLOCK = "pickFillBlock";
 
     /**
      * public constructor to hide implicit public one.

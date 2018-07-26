@@ -11,5 +11,9 @@ public enum Shape
     BOWL,
     WAVE,
     WAVE_3D,
+    DIAMOND,
+    PYRAMID,
+    UPSIDE_DOWN_PYRAMID,
+    CYLINDER,
     RANDOM
 }

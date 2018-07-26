@@ -350,6 +350,31 @@ public final class BlockUtils
     }
 
     /**
+     * Get a blockState from an itemStack.
+     * @param stack the stack to analyze.
+     * @return the IBlockState.
+     */
+    public static IBlockState getBlockStateFromStack(final ItemStack stack)
+    {
+        if (stack.getItem() == Items.AIR )
+        {
+            return Blocks.AIR.getDefaultState();
+        }
+
+        if (stack.getItem() == Items.WATER_BUCKET)
+        {
+            return Blocks.WATER.getDefaultState();
+        }
+
+        if (stack.getItem() == Items.LAVA_BUCKET)
+        {
+            return Blocks.LAVA.getDefaultState();
+        }
+
+        return stack.getItem() instanceof ItemBlock ? ((ItemBlock) stack.getItem()).getBlock().getStateFromMeta(stack.getItemDamage()) : Blocks.GOLD_BLOCK.getDefaultState();
+    }
+
+    /**
      * Handle the placement of a specific block for a blockState at a certain position with a fakePlayer.
      * @param world the world object.
      * @param fakePlayer the fake player to place.

@@ -133,8 +133,7 @@ public class Structurize
         getNetwork().registerMessage(RemoveBlockMessage.class, RemoveBlockMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(RemoveEntityMessage.class, RemoveEntityMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(ReplaceBlockMessage.class, ReplaceBlockMessage.class, ++id, Side.SERVER);
-        getNetwork().registerMessage(GetShapeMessage.class, GetShapeMessage.class, ++id, Side.SERVER);
-        getNetwork().registerMessage(ShapeToolPasteMessage.class, ShapeToolPasteMessage.class, ++id, Side.SERVER);
+        getNetwork().registerMessage(GenerateAndPasteMessage.class, GenerateAndPasteMessage.class, ++id, Side.SERVER);
 
         // Schematic transfer messages
         getNetwork().registerMessage(SchematicRequestMessage.class, SchematicRequestMessage.class, ++id, Side.SERVER);
@@ -143,9 +142,7 @@ public class Structurize
 
         // Client side only
         getNetwork().registerMessage(SaveScanMessage.class, SaveScanMessage.class, ++id, Side.CLIENT);
-        getNetwork().registerMessage(SendStructureMessage.class, SendStructureMessage.class, ++id, Side.CLIENT);
         getNetwork().registerMessage(SchematicSaveMessage.class, SchematicSaveMessage.class, ++id, Side.CLIENT);
-
     }
 
     public static SimpleNetworkWrapper getNetwork()

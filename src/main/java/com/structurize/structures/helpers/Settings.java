@@ -64,7 +64,7 @@ public final class Settings
     /**
      * The stack used to present blocks.
      */
-    private ItemStack stack = new ItemStack(Blocks.GOLD_BLOCK);
+    private Tuple<ItemStack, ItemStack> stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
 
     /**
      * Private constructor to hide implicit one.
@@ -310,22 +310,6 @@ public final class Settings
     }
 
     /**
-     * Call reset next tick.
-     */
-    public void markDirty()
-    {
-        isPendingReset = true;
-    }
-
-    /**
-     * @return true if Settings should be reset.
-     */
-    public boolean isDirty()
-    {
-        return isPendingReset;
-    }
-
-    /**
      * Makes the building mirror.
      */
     public void mirror()
@@ -400,20 +384,28 @@ public final class Settings
      * Sets the current block.
      *
      * @param s the itemStack.
+     * @param mainBlock the main block.
      */
-    public void setBlock(final ItemStack s)
+    public void setBlock(final ItemStack s, final boolean mainBlock)
     {
-        this.stack = s;
+        if (mainBlock)
+        {
+            this.stack = new Tuple<>(s, this.stack.getSecond());
+        }
+        else
+        {
+            this.stack = new Tuple<>(this.stack.getFirst(), s);
+        }
     }
 
     /**
      * Get the current block.
-     *
+     * @param main if main block or fill block.
      * @return the shape.
      */
-    public ItemStack getBlock()
+    public ItemStack getBlock(final boolean main)
     {
-        return stack;
+        return main ? this.stack.getFirst() : this.stack.getSecond();
     }
 
     /**

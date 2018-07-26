@@ -13,6 +13,7 @@ import com.structurize.coremod.Structurize;
 import com.structurize.coremod.network.messages.ReplaceBlockMessage;
 import com.structurize.structures.helpers.Settings;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -79,6 +80,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private final boolean shapeCall;
 
     /**
+     * If this is to choose the main or the replace block.
+     */
+    private final boolean mainBlock;
+
+    /**
      * Create the replacement GUI.
      * @param initialStack the initial stack.
      * @param pos1 the start pos.
@@ -91,6 +97,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.shapeCall = false;
+        this.mainBlock = false;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
     }
 
@@ -98,14 +105,16 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * Create the replacement GUI.
      * @param initialStack the initial stack.
      * @param pos the central pos.
+     * @param main main block or fill block.
      */
-    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos)
+    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
         this.pos1 = pos;
         this.pos2 = BlockPos.ORIGIN;
         this.shapeCall = true;
+        this.mainBlock = main;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
     }
 
@@ -114,6 +123,8 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
         findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText(from.getUnlocalizedName());
+        findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
+        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(new ItemStack(Blocks.AIR).getUnlocalizedName());
         updateResources();
     }
 
@@ -167,11 +178,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         if (button.getID().equals(BUTTON_DONE))
         {
             final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
-            if (!ItemStackUtils.isEmpty(to))
+            if (shapeCall || !ItemStackUtils.isEmpty(to))
             {
                 if (shapeCall)
                 {
-                    new WindowShapeTool(pos1, to).open();
+                    new WindowShapeTool(pos1, to, mainBlock).open();
                 }
                 else
                 {

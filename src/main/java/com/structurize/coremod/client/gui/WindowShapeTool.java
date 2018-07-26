@@ -9,11 +9,13 @@ import com.structurize.blockout.controls.Label;
 import com.structurize.blockout.controls.TextField;
 import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
+import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
@@ -109,12 +111,12 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * Otherwise the given parameters are used.
      *
      * @param pos coordinate.
+     * @param mainBlock if main or fill block.
      */
-    public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack)
+    public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        Settings.instance.setBlock(stack);
-
+        Settings.instance.setBlock(stack, mainBlock);
         this.init(pos, true);
     }
 
@@ -138,7 +140,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             Settings.instance.setRotation(0);
         }
 
-        findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(Settings.instance.getBlock());
+        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
+        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
 
         //Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::paste);
@@ -153,6 +156,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
+        registerButton(BUTTON_PICK_FILL_BLOCK, this::pickFillBlock);
 
         registerButton(BUTTON_REPLACE, this::replaceBlocksToggle);
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
@@ -180,14 +184,30 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
         if (structure == null || shouldUpdate)
         {
-            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
-              Settings.instance.getLength(),
-              Settings.instance.getWidth(),
-              Settings.instance.getHeight(),
-              Settings.instance.getFrequency(),
-              Settings.instance.getShape(),
-              Settings.instance.getBlock(), Settings.instance.isHollow()));
+            genShape();
         }
+
+        final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
+        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow() ? LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow") : LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid"));
+    }
+
+    /**
+     * Generate the shape depending on the variables on the client.
+     */
+    private void genShape()
+    {
+        final Structure structure = new Structure(Minecraft.getMinecraft().world);
+        structure.setTemplate(Manager.getStructureFromFormula(
+          Settings.instance.getWidth(),
+          Settings.instance.getLength(),
+          Settings.instance.getHeight(),
+          Settings.instance.getFrequency(),
+          Settings.instance.getShape(),
+          Settings.instance.getBlock(true),
+          Settings.instance.getBlock(false),
+          Settings.instance.isHollow()));
+        structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
+        Settings.instance.setActiveSchematic(structure);
     }
 
     private void disableInputIfNecessary()
@@ -198,7 +218,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         final Label lengthLabel = findPaneOfTypeByID(LENGTH_LABEL, Label.class);
         final Label frequencyLabel = findPaneOfTypeByID(FREQUENCY_LABEL, Label.class);
 
-
         inputHeight.show();
         inputWidth.show();
         inputLength.show();
@@ -208,13 +227,20 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         lengthLabel.show();
         frequencyLabel.show();
 
-        if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
+        if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
         {
             inputWidth.hide();
             inputLength.hide();
             inputFrequency.hide();
             widthLabel.hide();
             lengthLabel.hide();
+            frequencyLabel.hide();
+        }
+        else if (shape == Shape.CYLINDER)
+        {
+            inputLength.hide();
+            lengthLabel.hide();
+            inputFrequency.hide();
             frequencyLabel.hide();
         }
         else if (shape != Shape.WAVE && shape != Shape.WAVE_3D)
@@ -224,9 +250,20 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
     }
 
+    /**
+     * Opens the block picker window.
+     */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(Settings.instance.getBlock(), Settings.instance.getPosition()).open();
+        new WindowReplaceBlock(Settings.instance.getBlock(true), Settings.instance.getPosition(), true).open();
+    }
+
+    /**
+     * Opens the block picker window.
+     */
+    private void pickFillBlock()
+    {
+        new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false).open();
     }
 
     /**
@@ -280,14 +317,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             Settings.instance.setHollow(true);
         }
 
-        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
-          Settings.instance.getLength(),
-          Settings.instance.getWidth(),
-          Settings.instance.getHeight(),
-          Settings.instance.getFrequency(),
-          Settings.instance.getShape(),
-          Settings.instance.getBlock(),
-          Settings.instance.isHollow()));
+        genShape();
     }
 
     /**
@@ -303,7 +333,17 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void paste()
     {
-        Structurize.getNetwork().sendToServer(new ShapeToolPasteMessage(Settings.instance.getPosition(), Settings.instance.getRotation(), Settings.instance.getMirror()));
+        Structurize.getNetwork().sendToServer(new GenerateAndPasteMessage(Settings.instance.getPosition(),
+          Settings.instance.getLength(),
+          Settings.instance.getWidth(),
+          Settings.instance.getHeight(),
+          Settings.instance.getFrequency(),
+          Settings.instance.getShape(),
+          Settings.instance.getBlock(true),
+          Settings.instance.getBlock(false),
+          Settings.instance.isHollow(),
+          Settings.instance.getRotation(),
+          Settings.instance.getMirror()));
     }
 
     /**
@@ -358,13 +398,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != Settings.instance.getShape())
         {
             Settings.instance.setShape(s);
-            Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
-              Settings.instance.getLength(),
-              Settings.instance.getWidth(),
-              Settings.instance.getHeight(),
-              Settings.instance.getFrequency(),
-              Settings.instance.getShape(),
-              Settings.instance.getBlock(), Settings.instance.isHollow()));
+            genShape();
         }
         disableInputIfNecessary();
     }
@@ -397,14 +431,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                     Settings.instance.setLength(localLength);
                     Settings.instance.setHeight(localHeight);
                     Settings.instance.setFrequency(localFrequency);
-                    Structurize.getNetwork()
-                      .sendToServer(new GetShapeMessage(this.pos,
-                        Settings.instance.getLength(),
-                        Settings.instance.getWidth(),
-                        Settings.instance.getHeight(),
-                        Settings.instance.getFrequency(),
-                        Settings.instance.getShape(),
-                        Settings.instance.getBlock(), Settings.instance.isHollow()));
+                    genShape();
                 }
             }
             catch (NumberFormatException e)
