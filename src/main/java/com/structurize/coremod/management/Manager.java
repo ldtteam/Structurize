@@ -212,7 +212,7 @@ public final class Manager
                 }
             }
         }
-        template.size = new BlockPos(height*2+2,height*2+2,height*2+2);
+        template.size = new BlockPos(height*2,height*2,height*2);
         template.blocks.addAll(posList.stream().map(pos -> new Template.BlockInfo(pos, block, null)).collect(Collectors.toList()));
     }
 

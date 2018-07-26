@@ -311,7 +311,14 @@ public class StructureProxy
         BlockPos temp;
         if (mirror.equals(Mirror.FRONT_BACK))
         {
-            temp = new BlockPos(minX > 0 ? -size.getX() : size.getX(), size.getY(), minZ > 0 ? -size.getZ() : size.getZ());
+            if (minX == minZ)
+            {
+                temp = new BlockPos(size.getX(), size.getY(), minZ > 0 ? -size.getZ() : size.getZ());
+            }
+            else
+            {
+                temp = new BlockPos(minX > 0 ? -size.getX() : size.getX(), size.getY(), minZ > 0 ? -size.getZ() : size.getZ());
+            }
             temp = temp.rotate(rotation);
         }
         else
