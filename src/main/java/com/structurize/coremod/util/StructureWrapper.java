@@ -108,12 +108,11 @@ public final class StructureWrapper
      */
     public static void loadAndPlaceShapeWithRotation(
       final WorldServer worldObj,
+      final Template template,
       @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror, final EntityPlayerMP player)
     {
         try
         {
-            final TemplateManager templatemanager = worldObj.getStructureTemplateManager();
-            final Template template = templatemanager.getTemplate(worldObj.getMinecraftServer(), new ResourceLocation("shape" + player.getName() + ".nbt"));
             final Structure structure = new Structure(worldObj);
             StructureProxy proxy = new StructureProxy(structure);
             structure.setTemplate(template);

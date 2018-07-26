@@ -2,34 +2,37 @@
         lightbox="false"
         xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.pickblock)" id="pickMainBlock" pos="49 0" size="86 17"
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.pickmainblock)" id="pickMainBlock" pos="24 3" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <itemicon id="resourceIcon" item="minecraft:gold_block" size="17 17" pos="84 18"/>
+    <itemicon id="resourceIconMain" item="minecraft:gold_block" size="17 17" pos="59 20"/>
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.ignore)" id="replaceBlocks" pos="49 45" size="86 17"
+
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.pickfillblock)" id="pickFillBlock" pos="24 43" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.solid)" id="hollowShape" pos="49 73" size="86 17"
+    <itemicon id="resourceIconFill" item="minecraft:gold_block" size="17 17" pos="59 60"/>
+
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.solid)" id="hollowShape" pos="24 83" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <buttonimage id="previousShape" size="14 15" pos="140 0" label="&lt;"
+    <buttonimage id="previousShape" size="14 15" pos="140 3" label="&lt;"
                  source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <dropdown id="style" size="129 17" pos="155 0" maxContentHeight="75" dropDownSize="140 75" source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black">
+    <dropdown id="style" size="129 17" pos="155 3" maxContentHeight="75" dropDownSize="140 75" source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black">
         <view size="100% 15">
             <label id="id" size="100% 100%" label="" pos="0 0"/>
             <button id="button" size="100% 100%" label="" pos="0 0"/>
         </view>
     </dropdown>
-    <buttonimage id="nextShape" size="14 15" pos="285 0" label="&gt;"
+    <buttonimage id="nextShape" size="14 15" pos="285 3" label="&gt;"
             source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <label label="Height" id="heightLabel" size="20 20" pos="306 0"/>
+    <label label="Height" id="heightLabel" size="20 20" pos="306 1"/>
     <label label="Width" id="widthLabel" size="20 20" pos="310 25"/>
     <label label="Length" id="lengthLabel" size="20 20" pos="304 50"/>
     <label label="Frequency" id="frequencyLabel" size="20 20" pos="306 75"/>
 
-    <input id="height" size="20 20" pos="340 0" maxlength="3"/>
+    <input id="height" size="20 20" pos="340 1" maxlength="3"/>
     <input id="width" size="20 20" pos="340 25" maxlength="3"/>
     <input id="length" size="20 20" pos="340 50" maxlength="3"/>
     <input id="frequency" size="20 20" pos="340 75" maxlength="3"/>

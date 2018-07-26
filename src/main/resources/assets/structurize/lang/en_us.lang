@@ -9,7 +9,9 @@ item.structurize.scepterGold.name=Building Tool
 item.structurize.scepterSteel.name=Scan Tool
 item.structurize.shapeTool.name=Shape Tool
 item.structurize.caliper.name=Caliper
-com.structurize.coremod.gui.shapeTool.pickblock=Pick Main Block
+com.structurize.coremod.gui.shapeTool.pickmainblock=Pick Main Block
+com.structurize.coremod.gui.shapeTool.pickfillblock=Pick Fill Block
+
 com.structurize.coremod.gui.shapeTool.replace=Replace Blocks
 com.structurize.coremod.gui.shapeTool.ignore=Ignore Blocks
 com.structurize.coremod.gui.shapeTool.hollow=Hollow

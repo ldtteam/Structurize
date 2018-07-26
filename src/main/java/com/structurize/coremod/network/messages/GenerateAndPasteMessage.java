@@ -6,6 +6,7 @@ import com.structurize.coremod.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Message to request a shape from the server.
  */
-public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
+public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMessage, IMessage>
 {
     /**
      * If hollow or not.
@@ -25,6 +26,11 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
      * The block to use for the schem.
      */
     private ItemStack block;
+
+    /**
+     * The fill block to use for the schem.
+     */
+    private ItemStack block2;
 
     /**
      * The shape to get.
@@ -57,25 +63,45 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
     private int frequency;
 
     /**
+     * The rotation.
+     */
+    private int rotation;
+
+    /**
+     * The mirror.
+     */
+    private boolean mirror;
+
+    /**
      * Empty constructor used when registering the message.
      */
-    public GetShapeMessage()
+    public GenerateAndPasteMessage()
     {
         super();
     }
 
     /**
      * Creates a shape on serverside and sends it back.
-     * @param pos the start pos.
-     * @param length the length.
-     * @param width the width.
-     * @param height the height.
+     *
+     * @param pos       the start pos.
+     * @param length    the length.
+     * @param width     the width.
+     * @param height    the height.
      * @param frequency the frequency.
-     * @param shape the shape.
-     * @param block the block to set.
-     * @param hollow if hollow or not.
+     * @param shape     the shape.
+     * @param block     the block to set.
+     * @param hollow    if hollow or not.
      */
-    public GetShapeMessage(@NotNull final BlockPos pos, final int length, final int width, final int height, final int frequency, final Shape shape, final ItemStack block, final boolean hollow)
+    public GenerateAndPasteMessage(
+      @NotNull final BlockPos pos,
+      final int length,
+      final int width,
+      final int height,
+      final int frequency,
+      final Shape shape,
+      final ItemStack block,
+      final ItemStack block2,
+      final boolean hollow, final int rotation, final Mirror mirror)
     {
         super();
         this.pos = pos;
@@ -85,7 +111,10 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
         this.frequency = frequency;
         this.shape = shape;
         this.block = block;
+        this.block2 = block2;
         this.hollow = hollow;
+        this.mirror = mirror != Mirror.NONE;
+        this.rotation = rotation;
     }
 
     @Override
@@ -98,7 +127,10 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
         frequency = buf.readInt();
         shape = Shape.values()[buf.readInt()];
         block = ByteBufUtils.readItemStack(buf);
+        block2 = ByteBufUtils.readItemStack(buf);
         hollow = buf.readBoolean();
+        rotation = buf.readInt();
+        mirror = buf.readBoolean();
     }
 
     @Override
@@ -111,17 +143,32 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
         buf.writeInt(frequency);
         buf.writeInt(shape.ordinal());
         ByteBufUtils.writeItemStack(buf, block);
+        ByteBufUtils.writeItemStack(buf, block2);
         buf.writeBoolean(hollow);
+        buf.writeInt(rotation);
+        buf.writeBoolean(mirror);
     }
 
     @Override
-    public void messageOnServerThread(final GetShapeMessage message, final EntityPlayerMP player)
+    public void messageOnServerThread(final GenerateAndPasteMessage message, final EntityPlayerMP player)
     {
         if (!player.capabilities.isCreativeMode)
         {
             return;
         }
 
-        Manager.getStructureFromFormula(player.getServerWorld(), message.width, message.length, message.height, message.frequency, message.shape, message.block, message.hollow, player);
+        Manager.pasteStructure(player.getServerWorld(),
+          message.pos,
+          message.width,
+          message.length,
+          message.height,
+          message.frequency,
+          message.shape,
+          message.block,
+          message.block2,
+          message.hollow,
+          player,
+          message.mirror ? Mirror.FRONT_BACK : Mirror.NONE,
+          message.rotation);
     }
 }
