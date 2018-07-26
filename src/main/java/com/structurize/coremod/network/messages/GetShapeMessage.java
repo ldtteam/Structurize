@@ -17,6 +17,11 @@ import org.jetbrains.annotations.NotNull;
 public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
 {
     /**
+     * If hollow or not.
+     */
+    private boolean hollow;
+
+    /**
      * The block to use for the schem.
      */
     private ItemStack block;
@@ -47,6 +52,11 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
     private int height;
 
     /**
+     * The frequency of a wave for example.
+     */
+    private int frequency;
+
+    /**
      * Empty constructor used when registering the message.
      */
     public GetShapeMessage()
@@ -55,22 +65,27 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
     }
 
     /**
-     * Get shape message creation.
-     * @param pos the pos to center it around.
+     * Creates a shape on serverside and sends it back.
+     * @param pos the start pos.
      * @param length the length.
      * @param width the width.
      * @param height the height.
-     * @param block the block to use.
+     * @param frequency the frequency.
+     * @param shape the shape.
+     * @param block the block to set.
+     * @param hollow if hollow or not.
      */
-    public GetShapeMessage(@NotNull final BlockPos pos, final int length, final int width, final int height, final Shape shape, final ItemStack block)
+    public GetShapeMessage(@NotNull final BlockPos pos, final int length, final int width, final int height, final int frequency, final Shape shape, final ItemStack block, final boolean hollow)
     {
         super();
         this.pos = pos;
         this.length = length;
         this.width = width;
         this.height = height;
+        this.frequency = frequency;
         this.shape = shape;
         this.block = block;
+        this.hollow = hollow;
     }
 
     @Override
@@ -80,8 +95,10 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
         length = buf.readInt();
         width = buf.readInt();
         height = buf.readInt();
+        frequency = buf.readInt();
         shape = Shape.values()[buf.readInt()];
         block = ByteBufUtils.readItemStack(buf);
+        hollow = buf.readBoolean();
     }
 
     @Override
@@ -91,8 +108,10 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
         buf.writeInt(length);
         buf.writeInt(width);
         buf.writeInt(height);
+        buf.writeInt(frequency);
         buf.writeInt(shape.ordinal());
         ByteBufUtils.writeItemStack(buf, block);
+        buf.writeBoolean(hollow);
     }
 
     @Override
@@ -103,6 +122,6 @@ public class GetShapeMessage extends AbstractMessage<GetShapeMessage, IMessage>
             return;
         }
 
-        Manager.getStructureFromFormula(player.getServerWorld(), message.width, message.length, message.height, message.shape, message.block, player);
+        Manager.getStructureFromFormula(player.getServerWorld(), message.width, message.length, message.height, message.frequency, message.shape, message.block, message.hollow, player);
     }
 }

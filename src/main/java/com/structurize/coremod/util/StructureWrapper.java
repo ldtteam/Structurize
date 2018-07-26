@@ -121,7 +121,7 @@ public final class StructureWrapper
             @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, proxy, "shape" + player.getName() + ".nbt");
             structureWrapper.position = pos;
             structureWrapper.rotate(rotations, worldObj, pos, mirror);
-            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), true, player);
+            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), false, player);
         }
         catch (final IllegalStateException e)
         {

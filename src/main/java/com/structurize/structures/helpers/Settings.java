@@ -17,21 +17,29 @@ public final class Settings
     /**
      * Single instance of this class.
      */
-    public static final Settings                 instance       = new Settings();
-    private final       BlockPos.MutableBlockPos offset         = new BlockPos.MutableBlockPos();
+    public static final Settings                 instance = new Settings();
+    private final       BlockPos.MutableBlockPos offset   = new BlockPos.MutableBlockPos();
+
     /**
      * The position of the structure.
      */
-    private             BlockPos                 pos            = null;
-    private             boolean                  isMirrored     = false;
+    private BlockPos  pos            = null;
+    private boolean   isMirrored     = false;
     @Nullable
-    private             Structure                structure      = null;
-    private             int                      rotation       = 0;
-    private             String                   structureName  = null;
-    private             boolean                  isPendingReset = false;
-    private             int                      width          = 1;
-    private             int                      height         = 1;
-    private             int                      length         = 1;
+    private Structure structure      = null;
+    private int       rotation       = 0;
+    private String    structureName  = null;
+    private boolean   isPendingReset = false;
+
+    /**
+     * Shape variables.
+     */
+    private int     width  = 1;
+    private int     height = 1;
+    private int     length = 1;
+    private int     frequency = 1;
+
+    private boolean hollow = false;
 
     /**
      * The default shape to use.
@@ -150,7 +158,18 @@ public final class Settings
     }
 
     /**
+     * set the frequency.
+     *
+     * @param frequency the height
+     */
+    public void setFrequency(final int frequency)
+    {
+        this.frequency = frequency;
+    }
+
+    /**
      * get the width.
+     *
      * @return the width
      */
     public int getWidth()
@@ -176,6 +195,16 @@ public final class Settings
     public int getHeight()
     {
         return this.height;
+    }
+
+    /**
+     * get the frequency.
+     *
+     * @return the height
+     */
+    public int getFrequency()
+    {
+        return this.frequency;
     }
 
     /**
@@ -349,6 +378,7 @@ public final class Settings
 
     /**
      * Sets the current shape.
+     *
      * @param s the name of the shape.
      */
     public void setShape(final String s)
@@ -358,6 +388,7 @@ public final class Settings
 
     /**
      * Get the current shape.
+     *
      * @return the shape.
      */
     public Shape getShape()
@@ -367,6 +398,7 @@ public final class Settings
 
     /**
      * Sets the current block.
+     *
      * @param s the itemStack.
      */
     public void setBlock(final ItemStack s)
@@ -376,10 +408,29 @@ public final class Settings
 
     /**
      * Get the current block.
+     *
      * @return the shape.
      */
     public ItemStack getBlock()
     {
         return stack;
+    }
+
+    /**
+     * Check if the shape should be hollow.
+     * @return true if so.
+     */
+    public boolean isHollow()
+    {
+        return hollow;
+    }
+
+    /**
+     * Set the structure to be hollow or full.
+     * @param hollow true if hollow.
+     */
+    public void setHollow(final boolean hollow)
+    {
+        this.hollow = hollow;
     }
 }

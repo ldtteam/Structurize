@@ -10,7 +10,7 @@
     <buttonimage label="$(com.structurize.coremod.gui.shapeTool.ignore)" id="replaceBlocks" pos="49 45" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.hollow)" id="hollowShape" pos="49 73" size="86 17"
+    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.solid)" id="hollowShape" pos="49 73" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
     <buttonimage id="previousShape" size="14 15" pos="140 0" label="&lt;"
@@ -24,13 +24,15 @@
     <buttonimage id="nextShape" size="14 15" pos="285 0" label="&gt;"
             source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
-    <label label="Width" id="widthLabel" size="20 20" pos="310 0"/>
-    <label label="Length" id="lengthLabel" size="20 20" pos="304 25"/>
-    <label label="Height" id="heightLabel" size="20 20" pos="306 50"/>
+    <label label="Height" id="heightLabel" size="20 20" pos="306 0"/>
+    <label label="Width" id="widthLabel" size="20 20" pos="310 25"/>
+    <label label="Length" id="lengthLabel" size="20 20" pos="304 50"/>
+    <label label="Frequency" id="frequencyLabel" size="20 20" pos="306 75"/>
 
-    <input id="width" size="20 20" pos="340 0" maxlength="3"/>
-    <input id="length" size="20 20" pos="340 25" maxlength="3"/>
-    <input id="height" size="20 20" pos="340 50" maxlength="3"/>
+    <input id="height" size="20 20" pos="340 0" maxlength="3"/>
+    <input id="width" size="20 20" pos="340 25" maxlength="3"/>
+    <input id="length" size="20 20" pos="340 50" maxlength="3"/>
+    <input id="frequency" size="20 20" pos="340 75" maxlength="3"/>
 
     <view size="120 112" pos="160 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>

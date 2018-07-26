@@ -171,8 +171,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 if (shapeCall)
                 {
-                    Settings.instance.setBlock(to);
-                    new WindowShapeTool(pos1).open();
+                    new WindowShapeTool(pos1, to).open();
                 }
                 else
                 {

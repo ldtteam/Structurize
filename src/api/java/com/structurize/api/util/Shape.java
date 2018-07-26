@@ -7,9 +7,9 @@ public enum Shape
 {
     CUBE,
     SPHERE,
-    HOLLOW_SPHERE,
     HALF_SPHERE,
-    HOLLOW_HALF_SPHERE,
+    BOWL,
     WAVE,
-    WAVE_3D
+    WAVE_3D,
+    RANDOM
 }

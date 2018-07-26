@@ -5,6 +5,7 @@ import com.structurize.api.util.Shape;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.blockout.controls.Button;
 import com.structurize.blockout.controls.ItemIcon;
+import com.structurize.blockout.controls.Label;
 import com.structurize.blockout.controls.TextField;
 import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
@@ -12,6 +13,7 @@ import com.structurize.coremod.network.messages.*;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
@@ -48,6 +50,14 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private DropDownList sectionsDropDownList;
 
     /**
+     * Input fields for length, width, height and frequency.
+     */
+    private TextField inputWidth;
+    private TextField inputLength;
+    private TextField inputHeight;
+    private TextField inputFrequency;
+
+    /**
      * The width.
      */
     private int shapeWidth = 1;
@@ -61,6 +71,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * The height
      */
     private int shapeHeight = 1;
+
+    /**
+     * The height
+     */
+    private int shapeFrequency = 1;
 
     /**
      * Current rotation of the hut/decoration.
@@ -84,10 +99,26 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        this.init(pos);
+        this.init(pos, false);
     }
 
-    private void init(final BlockPos pos)
+    /**
+     * Creates a window shape tool.
+     * This requires X, Y and Z coordinates.
+     * If a structure is active, recalculates the X Y Z with offset.
+     * Otherwise the given parameters are used.
+     *
+     * @param pos coordinate.
+     */
+    public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack)
+    {
+        super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
+        Settings.instance.setBlock(stack);
+
+        this.init(pos, true);
+    }
+
+    private void init(final BlockPos pos, final boolean shouldUpdate)
     {
         @Nullable final Structure structure = Settings.instance.getActiveStructure();
 
@@ -98,7 +129,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             this.shapeWidth = Settings.instance.getWidth();
             this.shapeLength = Settings.instance.getLength();
             this.shapeHeight = Settings.instance.getHeight();
-
+            this.shapeFrequency = Settings.instance.getFrequency();
         }
         else if (pos != null)
         {
@@ -128,13 +159,15 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
         registerButton(UNDO_BUTTON, this::undoClicked);
 
-        final TextField inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
-        final TextField inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
-        final TextField inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
+        inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
+        inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
+        inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
+        inputFrequency = findPaneOfTypeByID(INPUT_FREQUENCY, TextField.class);
 
         inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
         inputLength.setText(Integer.toString(Settings.instance.getLength()));
         inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
+        inputFrequency.setText(Integer.toString(Settings.instance.getFrequency()));
 
         sections.clear();
         sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
@@ -143,15 +176,51 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
         sectionsDropDownList.setDataProvider(new SectionDropDownList());
         sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
+        disableInputIfNecessary();
 
-        if (structure == null)
+        if (structure == null || shouldUpdate)
         {
             Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
               Settings.instance.getLength(),
               Settings.instance.getWidth(),
               Settings.instance.getHeight(),
+              Settings.instance.getFrequency(),
               Settings.instance.getShape(),
-              Settings.instance.getBlock()));
+              Settings.instance.getBlock(), Settings.instance.isHollow()));
+        }
+    }
+
+    private void disableInputIfNecessary()
+    {
+        final Shape shape = Settings.instance.getShape();
+        final Label heightLabel = findPaneOfTypeByID(HEIGHT_LABEL, Label.class);
+        final Label widthLabel = findPaneOfTypeByID(WIDTH_LABEL, Label.class);
+        final Label lengthLabel = findPaneOfTypeByID(LENGTH_LABEL, Label.class);
+        final Label frequencyLabel = findPaneOfTypeByID(FREQUENCY_LABEL, Label.class);
+
+
+        inputHeight.show();
+        inputWidth.show();
+        inputLength.show();
+        inputFrequency.show();
+        heightLabel.show();
+        widthLabel.show();
+        lengthLabel.show();
+        frequencyLabel.show();
+
+        if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
+        {
+            inputWidth.hide();
+            inputLength.hide();
+            inputFrequency.hide();
+            widthLabel.hide();
+            lengthLabel.hide();
+            frequencyLabel.hide();
+        }
+        else if (shape != Shape.WAVE && shape != Shape.WAVE_3D)
+        {
+            inputFrequency.hide();
+            frequencyLabel.hide();
         }
     }
 
@@ -203,11 +272,22 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow")))
         {
             replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid"));
+            Settings.instance.setHollow(false);
         }
         else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid")))
         {
             replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow"));
+            Settings.instance.setHollow(true);
         }
+
+        Structurize.getNetwork().sendToServer(new GetShapeMessage(this.pos,
+          Settings.instance.getLength(),
+          Settings.instance.getWidth(),
+          Settings.instance.getHeight(),
+          Settings.instance.getFrequency(),
+          Settings.instance.getShape(),
+          Settings.instance.getBlock(),
+          Settings.instance.isHollow()));
     }
 
     /**
@@ -282,21 +362,22 @@ public class WindowShapeTool extends AbstractWindowSkeleton
               Settings.instance.getLength(),
               Settings.instance.getWidth(),
               Settings.instance.getHeight(),
+              Settings.instance.getFrequency(),
               Settings.instance.getShape(),
-              Settings.instance.getBlock()));
+              Settings.instance.getBlock(), Settings.instance.isHollow()));
         }
+        disableInputIfNecessary();
     }
 
     @Override
     public boolean onKeyTyped(final char ch, final int key)
     {
         final boolean result = super.onKeyTyped(ch, key);
-        final TextField inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
-        final TextField inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
-        final TextField inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
         final String widthText = inputWidth.getText();
         final String lengthText = inputLength.getText();
         final String heightText = inputHeight.getText();
+        final String frequencyText = inputFrequency.getText();
+
         if (!widthText.isEmpty() && !lengthText.isEmpty() && !heightText.isEmpty())
         {
             try
@@ -304,22 +385,26 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 final int localWidth = Integer.parseInt(widthText);
                 final int localHeight = Integer.parseInt(heightText);
                 final int localLength = Integer.parseInt(lengthText);
+                final int localFrequency = Integer.parseInt(frequencyText);
 
-                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth)
+                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency)
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;
                     this.shapeHeight = localHeight;
+                    this.shapeFrequency = localFrequency;
                     Settings.instance.setWidth(localWidth);
                     Settings.instance.setLength(localLength);
                     Settings.instance.setHeight(localHeight);
+                    Settings.instance.setFrequency(localFrequency);
                     Structurize.getNetwork()
                       .sendToServer(new GetShapeMessage(this.pos,
                         Settings.instance.getLength(),
                         Settings.instance.getWidth(),
                         Settings.instance.getHeight(),
+                        Settings.instance.getFrequency(),
                         Settings.instance.getShape(),
-                        Settings.instance.getBlock()));
+                        Settings.instance.getBlock(), Settings.instance.isHollow()));
                 }
             }
             catch (NumberFormatException e)
