@@ -188,21 +188,20 @@ public final class Manager
         }
         else if (shape == Shape.DIAMOND || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID)
         {
-            generatePyramid(template, height, width, length, mainBlock, fillBlock, hollow, shape);
+            generatePyramid(template, height, mainBlock, fillBlock, hollow, shape);
         }
         return template;
     }
 
     private static void generatePyramid(
       final Template template,
-      final int height,
-      final int width,
-      final int length,
+      final int inputHeight,
       final IBlockState block,
       final IBlockState fillBlock,
       final boolean hollow,
       final Shape shape)
     {
+        final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final Map<BlockPos, IBlockState> posList = new HashMap<>();
         for (int y = 0; y < height / 2; y++)
         {
@@ -232,7 +231,8 @@ public final class Manager
                 }
             }
         }
-        template.size = new BlockPos(width, height, length);
+
+        template.size = new BlockPos(height, height, height);
         template.blocks.addAll(posList.entrySet().stream().map(pos -> new Template.BlockInfo(pos.getKey(), pos.getValue(), null)).collect(Collectors.toList()));
     }
 

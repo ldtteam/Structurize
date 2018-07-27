@@ -235,6 +235,7 @@ public final class StructureWrapper
             currentPos = new BlockPos(0, y, 0);
         }
         currentPos = new BlockPos(0, 0, 0);
+        this.handleDelayedBlocks(delayedBlocks, storage, world);
 
         for (int y = currentPos.getY(); y < endPos.getY(); y++)
         {
