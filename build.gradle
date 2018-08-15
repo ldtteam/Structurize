@@ -143,14 +143,9 @@ jar {
     }
 }
 
-task reobfApiJar(type: TaskSingleReobf) {
-    dependsOn tasks.apiJar
-    setJar tasks.apiJar
-}
-
-task reobfMainJar(type: TaskSingleReobf) {
-    dependsOn tasks.jar
-    setJar tasks.jar
+reobf {
+    jar {}
+    apiJar{}
 }
 
 javadoc {
