@@ -187,7 +187,6 @@ curseforge {
             changelogType = 'markdown'
             releaseType = System.getenv().CURSERELEASETYPE
 
-            addArtifact deobfJar
             addArtifact apiJar
         }
     }
