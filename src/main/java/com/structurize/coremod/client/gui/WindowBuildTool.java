@@ -5,7 +5,6 @@ import com.structurize.api.util.LanguageHandler;
 import com.structurize.api.util.Log;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.blockout.controls.Button;
-import com.structurize.blockout.controls.TextField;
 import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.management.Manager;
@@ -91,12 +90,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Button to rename a scanned schematic.
      */
-    private final Button renameButton;
+    private Button renameButton;
 
     /**
      * Button to delete a scanned schematic.
      */
-    private final Button deleteButton;
+    private Button deleteButton;
 
     /**
      * Confirmation dialog when deleting a scanned schematic.
@@ -142,9 +141,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public WindowBuildTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
-        this.init(pos);
-        renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
-        deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
+        if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+        {
+            this.init(pos);
+            renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
+            deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
+        }
     }
 
     private void init(final BlockPos pos)
@@ -354,6 +356,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (!Minecraft.getMinecraft().player.capabilities.isCreativeMode)
         {
             close();
+            return;
         }
 
         Structures.loadScannedStyleMaps();

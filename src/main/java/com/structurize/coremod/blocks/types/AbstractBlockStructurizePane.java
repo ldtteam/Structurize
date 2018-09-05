@@ -1,23 +1,18 @@
-package com.structurize.coremod.blocks;
+package com.structurize.coremod.blocks.types;
 
 import com.structurize.coremod.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
+import net.minecraft.block.BlockPane;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class AbstractBlockStructurize<B extends AbstractBlockStructurize<B>> extends Block implements IBlockStructurize<B>
+public class AbstractBlockStructurizePane<B extends AbstractBlockStructurizePane<B>> extends BlockPane implements IBlockStructurize<B>
 {
-    public AbstractBlockStructurize(final Material blockMaterialIn, final MapColor blockMapColorIn)
+    protected AbstractBlockStructurizePane(final Material materialIn, final boolean canDrop)
     {
-        super(blockMaterialIn, blockMapColorIn);
-    }
-
-    public AbstractBlockStructurize(final Material materialIn)
-    {
-        super(materialIn);
+        super(materialIn, canDrop);
     }
 
     /**
@@ -32,6 +27,7 @@ public abstract class AbstractBlockStructurize<B extends AbstractBlockStructuriz
         registry.register(this);
         return (B) this;
     }
+
     /**
      * Registery block at gameregistry.
      *

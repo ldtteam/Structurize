@@ -2,11 +2,11 @@
   "parent": "block/cube_all",
   "textures": {
     "particle": "blocks/planks_big_oak",
-    "down": "structurize:blocks/blockSolidSubstitution",
-    "up": "structurize:blocks/blockSolidSubstitution",
-    "north": "structurize:blocks/blockSolidSubstitution",
-    "east": "structurize:blocks/blockSolidSubstitution",
-    "south": "structurize:blocks/blockSolidSubstitution",
-    "west": "structurize:blocks/blockSolidSubstitution"
+    "down": "structurize:blocks/blocksolidsubstitution",
+    "up": "structurize:blocks/blocksolidsubstitution",
+    "north": "structurize:blocks/blocksolidsubstitution",
+    "east": "structurize:blocks/blocksolidsubstitution",
+    "south": "structurize:blocks/blocksolidsubstitution",
+    "west": "structurize:blocks/blocksolidsubstitution"
   }
 }

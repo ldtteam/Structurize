@@ -2,6 +2,7 @@ package com.structurize.coremod.blocks.decorative;
 
 import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.blocks.AbstractBlockStructurize;
+import com.structurize.coremod.blocks.types.AbstractBlockStructurizePane;
 import com.structurize.coremod.blocks.types.PaperwallType;
 import com.structurize.coremod.creativetab.ModCreativeTabs;
 import net.minecraft.block.material.MapColor;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 
 
-public class BlockPaperwall extends AbstractBlockStructurize<BlockPaperwall>
+public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
 {
     public static final PropertyEnum<PaperwallType> VARIANT        = PropertyEnum.create("variant", PaperwallType.class);
     /**

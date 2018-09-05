@@ -46,7 +46,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
      */
     public MultiBlock()
     {
-        super(Material.WOOD, true);
+        super(Material.WOOD);
         initBlock();
     }
 

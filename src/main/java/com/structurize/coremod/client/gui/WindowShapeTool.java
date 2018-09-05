@@ -101,7 +101,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        this.init(pos, false);
+        if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+        {
+            this.init(pos, false);
+        }
     }
 
     /**
@@ -116,8 +119,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        Settings.instance.setBlock(stack, mainBlock);
-        this.init(pos, true);
+        if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+        {
+            Settings.instance.setBlock(stack, mainBlock);
+            this.init(pos, true);
+        }
     }
 
     private void init(final BlockPos pos, final boolean shouldUpdate)

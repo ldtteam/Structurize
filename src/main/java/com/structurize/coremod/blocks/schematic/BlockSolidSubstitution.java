@@ -37,7 +37,7 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
      */
     public BlockSolidSubstitution()
     {
-        super(Material.WOOD, true);
+        super(Material.WOOD);
         initBlock();
     }
 
