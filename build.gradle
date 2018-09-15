@@ -144,6 +144,17 @@ jar {
     }
 }
 
+javadoc {
+    source += sourceSets.api.allSource
+    source += sourceSets.main.allSource
+}
+
+// add a javadoc jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
 reobf {
     jar {}
     apiJar{}
