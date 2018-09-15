@@ -146,7 +146,6 @@ jar {
 
 javadoc {
     source += sourceSets.api.allSource
-    source += sourceSets.main.allSource
 }
 
 // add a javadoc jar
