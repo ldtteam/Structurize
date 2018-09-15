@@ -34,6 +34,7 @@ repositories {
 apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'jacoco'
+apply plugin: 'maven'
 
 jacocoTestReport {
     reports {
@@ -148,6 +149,13 @@ reobf {
     apiJar{}
 }
 
+artifacts {
+    archives jar
+    archives javadocJar
+    archives apiJar
+    archives sourceJar
+}
+
 javadoc {
     source += sourceSets.api.allSource
 }
@@ -188,6 +196,7 @@ curseforge {
             releaseType = System.getenv().CURSERELEASETYPE
 
             addArtifact apiJar
+            addArtifact sourceJar
         }
     }
     else
