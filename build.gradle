@@ -42,34 +42,6 @@ jacocoTestReport {
     }
 }
 
-sourceSets {
-    api {
-        java {
-            srcDir 'src/api/java'
-        }
-        resources {
-            srcDir 'src/api/resources'
-        }
-    }
-    main {
-        java {
-            srcDir 'src/main/java'
-        }
-        resources {
-            srcDir 'src/main/resources'
-        }
-        compileClasspath += sourceSets.api.output
-    }
-    test {
-        java {
-            srcDir 'src/test/java'
-        }
-        resources {
-            srcDir 'src/test/resources'
-        }
-    }
-}
-
 ext.configFile = file "build.properties"
 configFile.withReader {
     def prop = new Properties()
@@ -146,7 +118,7 @@ jar {
 
 javadoc {
     source += sourceSets.api.allSource
-    source += sourceSets.main.allSource
+    source += sourceSets.main.allJava
 }
 
 // add a javadoc jar
