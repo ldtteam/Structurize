@@ -39,6 +39,15 @@ import static com.structurize.api.util.constant.Constants.*;
 public class WindowBuildTool extends AbstractWindowSkeleton
 {
     /**
+     * Enum of possibly free blocks for the normal player.
+     */
+    public enum FreeMode
+    {
+        SUPPLYSHIP,
+        SUPPLYCAMP
+    }
+
+    /**
      * All possible rotations.
      */
     private static final int POSSIBLE_ROTATIONS = 4;

@@ -1,6 +1,7 @@
 package com.structurize.structures.helpers;
 
 import com.structurize.api.util.Shape;
+import com.structurize.coremod.client.gui.WindowBuildTool;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
@@ -67,6 +68,11 @@ public final class Settings
     private Tuple<ItemStack, ItemStack> stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
 
     /**
+     * Possible free to place structure.
+     */
+    private WindowBuildTool.FreeMode freeMode;
+
+    /**
      * Private constructor to hide implicit one.
      */
     private Settings()
@@ -74,6 +80,19 @@ public final class Settings
         /*
          * Intentionally left empty.
          */
+    }
+
+    /**
+     * Set up the static mode.
+     *
+     * @param name     the name of the schematic.
+     * @param freeMode the mode.
+     */
+    public void setupStaticMode(final String name, final WindowBuildTool.FreeMode freeMode)
+    {
+        this.staticSchematicMode = true;
+        this.staticSchematicName = name;
+        this.freeMode = freeMode;
     }
 
     /**
@@ -358,6 +377,16 @@ public final class Settings
     public String getStaticSchematicName()
     {
         return staticSchematicName;
+    }
+
+    /**
+     * Getter of the mode in static mode.
+     *
+     * @return the FreeMode (enum).
+     */
+    public WindowBuildTool.FreeMode getFreeMode()
+    {
+        return freeMode;
     }
 
     /**
