@@ -35,13 +35,14 @@ public final class ClientStructureWrapper
      * Handles the save message of scans.
      *
      * @param nbttagcompound compound to store.
-     * @param fileName  milli seconds for fileName.
+     * @param fileName       milli seconds for fileName.
      */
     public static void handleSaveScanMessage(final NBTTagCompound nbttagcompound, final String fileName)
     {
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
-        final File file = new File(Structure.getClientSchematicsFolder(), structureName.toString() + Structures.SCHEMATIC_EXTENSION);
+
+        final File file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION);
         Utils.checkDirectory(file.getParentFile());
 
         try (OutputStream outputstream = new FileOutputStream(file))

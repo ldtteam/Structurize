@@ -2,9 +2,11 @@ package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.event.FMLEventHandler;
+import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
+import com.structurize.structures.helpers.Structure;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -83,6 +85,7 @@ public class Structurize
     @Mod.EventHandler
     public void preInit(@NotNull final FMLPreInitializationEvent event)
     {
+        Structure.originFolders.add(Constants.MOD_ID);
         proxy.registerEntities();
         proxy.registerEntityRendering();
         proxy.registerEvents();

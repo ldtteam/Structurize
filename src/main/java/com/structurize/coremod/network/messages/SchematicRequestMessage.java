@@ -58,7 +58,7 @@ public class SchematicRequestMessage extends AbstractMessage<SchematicRequestMes
     @Override
     public void messageOnServerThread(final SchematicRequestMessage message, final EntityPlayerMP player)
     {
-        final InputStream stream = Structure.getStream(message.filename, Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder());
+        final InputStream stream = Structure.getStream(message.filename);
 
         if (stream == null)
         {

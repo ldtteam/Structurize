@@ -4,7 +4,6 @@ import com.structurize.coremod.management.Manager;
 import com.google.common.collect.ImmutableList;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.Log;
-import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
@@ -34,6 +33,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -61,9 +61,15 @@ public class Structure
     private final DataFixer fixer;
 
     /**
+     * The list of origin folders.
+     */
+    public static List<String> originFolders = new ArrayList<>();
+
+    /**
      * Template of the structure.
      */
     private Template          template;
+    private Minecraft         mc;
     private PlacementSettings settings;
     private String            md5;
 
@@ -73,21 +79,15 @@ public class Structure
      * @param world         with world.
      * @param structureName name of the structure (at stored location).
      * @param settings      it's settings.
-     * @param cachedSchematics the cached schem folder.
-     * @param clientSchematics the clients schem folder.
-     * @param schematicsFolder the schem folder.
      */
-    public Structure(@Nullable final World world, final String structureName, final PlacementSettings settings,
-      @NotNull final File cachedSchematics,
-      @NotNull final File clientSchematics,
-      @NotNull final File schematicsFolder)
+    public Structure(@Nullable final World world, final String structureName, final PlacementSettings settings)
     {
         String correctStructureName = structureName;
         if (world == null || world.isRemote)
         {
             this.settings = settings;
+            this.mc = Minecraft.getMinecraft();
         }
-
         this.fixer = DataFixesManager.createFixer();
 
         InputStream inputStream = null;
@@ -97,7 +97,7 @@ public class Structure
             //Try the cache first
             if (Structures.hasMD5(correctStructureName))
             {
-                inputStream = Structure.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName), cachedSchematics, clientSchematics, schematicsFolder);
+                inputStream = Structure.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
                 if (inputStream != null)
                 {
                     correctStructureName = Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName);
@@ -106,7 +106,7 @@ public class Structure
 
             if (inputStream == null)
             {
-                inputStream = Structure.getStream(correctStructureName, cachedSchematics, clientSchematics, schematicsFolder);
+                inputStream = Structure.getStream(correctStructureName);
             }
 
             if (inputStream == null)
@@ -116,7 +116,7 @@ public class Structure
 
             try
             {
-                this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName, cachedSchematics, clientSchematics, schematicsFolder));
+                this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
                 this.template = readTemplateFromStream(inputStream, fixer);
             }
             catch (final IOException e)
@@ -150,20 +150,31 @@ public class Structure
      */
     @SuppressWarnings(RESOURCES_SHOULD_BE_CLOSED)
     @Nullable
-    public static InputStream getStream(final String structureName,
-      @NotNull final File cachedSchematics,
-      @NotNull final File clientSchematics,
-      @NotNull final File schematicsFolder)
+    public static InputStream getStream(final String structureName)
     {
         final StructureName sn = new StructureName(structureName);
         InputStream inputstream = null;
         if (Structures.SCHEMATICS_CACHE.equals(sn.getPrefix()))
         {
-            return Structure.getStreamFromFolder(cachedSchematics, structureName);
+            for (final File cachedFile : Structure.getCachedSchematicsFolders())
+            {
+                final InputStream stream = Structure.getStreamFromFolder(cachedFile, structureName);
+                if (stream != null)
+                {
+                    return stream;
+                }
+            }
         }
         else if (Structures.SCHEMATICS_SCAN.equals(sn.getPrefix()))
         {
-            return Structure.getStreamFromFolder(clientSchematics, structureName);
+            for (final File cachedFile : Structure.getClientSchematicsFolders())
+            {
+                final InputStream stream = Structure.getStreamFromFolder(cachedFile, structureName);
+                if (stream != null)
+                {
+                    return stream;
+                }
+            }
         }
         else if (!Structures.SCHEMATICS_PREFIX.equals(sn.getPrefix()))
         {
@@ -172,10 +183,16 @@ public class Structure
         else
         {
             //Look in the folder first
-            inputstream = Structure.getStreamFromFolder(schematicsFolder, structureName);
+            inputstream = Structure.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
             if (inputstream == null && !Configurations.gameplay.ignoreSchematicsFromJar)
             {
-                inputstream = Structure.getStreamFromJar(structureName);
+                for (final InputStream stream : Structure.getStreamsFromJar(structureName))
+                {
+                    if (stream != null)
+                    {
+                        inputstream = stream;
+                    }
+                }
             }
         }
 
@@ -259,23 +276,26 @@ public class Structure
      *
      * @return the folder for the cached schematics
      */
-    @Nullable
-    public static File getCachedSchematicsFolder()
+    public static List<File> getCachedSchematicsFolders()
     {
-        if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+        final List<File> cachedSchems = new ArrayList<>();
+        for (final String origin : originFolders)
         {
-            if (Manager.getServerUUID() != null)
+            if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
             {
-                return new File(Minecraft.getMinecraft().mcDataDir, Constants.MOD_ID + "/" + Manager.getServerUUID());
+                if (Manager.getServerUUID() != null)
+                {
+                    cachedSchems.add(new File(Minecraft.getMinecraft().mcDataDir, origin + "/" + Manager.getServerUUID()));
+                }
+                else
+                {
+                    Log.getLogger().error("Manager.getServerUUID() => null this should not happen");
+                    return null;
+                }
             }
-            else
-            {
-                Log.getLogger().error("Manager.getServerUUID() => null this should not happen");
-                return null;
-            }
+            cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getSaveHandler().getWorldDirectory() + "/" + origin));
         }
-        return new File(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getSaveHandler().getWorldDirectory()
-                          + "/" + Constants.MOD_ID);
+        return cachedSchems;
     }
 
     /**
@@ -283,9 +303,14 @@ public class Structure
      *
      * @return the client folder.
      */
-    public static File getClientSchematicsFolder()
+    public static List<File> getClientSchematicsFolders()
     {
-        return new File(Minecraft.getMinecraft().mcDataDir, Constants.MOD_ID);
+        final List<File> clientSchems = new ArrayList<>();
+        for (final String origin : originFolders)
+        {
+            clientSchems.add(new File(Minecraft.getMinecraft().mcDataDir, origin));
+        }
+        return clientSchems;
     }
 
     /**
@@ -294,10 +319,14 @@ public class Structure
      * @param structureName name of the structure to load from the jar.
      * @return the input stream or null
      */
-    @Nullable
-    private static InputStream getStreamFromJar(final String structureName)
+    private static List<InputStream> getStreamsFromJar(final String structureName)
     {
-        return MinecraftServer.class.getResourceAsStream("/assets/" + Constants.MOD_ID + '/' + structureName + ".nbt");
+        final List<InputStream> streamsFromJar = new ArrayList<>();
+        for (final String origin : originFolders)
+        {
+            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + ".nbt"));
+        }
+        return streamsFromJar;
     }
 
     /**
@@ -365,6 +394,7 @@ public class Structure
         if (world == null || world.isRemote)
         {
             this.settings = settings;
+            this.mc = Minecraft.getMinecraft();
         }
         this.fixer = DataFixesManager.createFixer();
     }

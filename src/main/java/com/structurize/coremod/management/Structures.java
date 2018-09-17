@@ -137,13 +137,15 @@ public final class Structures
             loadSchematicsForPrefix(schematicsFolder.toPath(), SCHEMATICS_PREFIX);
         }
 
-        final File cacheSchematicFolder = Structure.getCachedSchematicsFolder();
-        if (cacheSchematicFolder != null)
+        for (final File cachedSchems : Structure.getCachedSchematicsFolders())
         {
-            checkDirectory(cacheSchematicFolder);
-            Log.getLogger().info("Load cached schematic from " + cacheSchematicFolder + SCHEMATICS_SEPARATOR + SCHEMATICS_CACHE);
-            checkDirectory(cacheSchematicFolder.toPath().resolve(SCHEMATICS_CACHE).toFile());
-            loadSchematicsForPrefix(cacheSchematicFolder.toPath(), SCHEMATICS_CACHE);
+            if (cachedSchems != null)
+            {
+                checkDirectory(cachedSchems);
+                Log.getLogger().info("Load cached schematic from " + cachedSchems + SCHEMATICS_SEPARATOR + SCHEMATICS_CACHE);
+                checkDirectory(cachedSchems.toPath().resolve(SCHEMATICS_CACHE).toFile());
+                loadSchematicsForPrefix(cachedSchems.toPath(), SCHEMATICS_CACHE);
+            }
         }
 
         if (md5Map.size() == 0)
@@ -211,9 +213,12 @@ public final class Structures
 
 
         schematicsMap.remove(SCHEMATICS_SCAN);
-        final File schematicsFolder = Structure.getClientSchematicsFolder();
-        checkDirectory(schematicsFolder.toPath().resolve(SCHEMATICS_SCAN).toFile());
-        loadSchematicsForPrefix(schematicsFolder.toPath(), SCHEMATICS_SCAN);
+
+        for (final File clientSchems : Structure.getClientSchematicsFolders())
+        {
+            checkDirectory(clientSchems.toPath().resolve(SCHEMATICS_SCAN).toFile());
+            loadSchematicsForPrefix(clientSchems.toPath(), SCHEMATICS_SCAN);
+        }
     }
 
     /**
@@ -258,7 +263,7 @@ public final class Structures
                     }
 
                     final StructureName structureName = new StructureName(relativePath);
-                    final String md5 = Structure.calculateMD5(Structure.getStream(relativePath, Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder()));
+                    final String md5 = Structure.calculateMD5(Structure.getStream(relativePath));
                     if (md5 == null)
                     {
                         Log.getLogger().error("Structures: " + structureName + " with md5 null.");
@@ -289,7 +294,7 @@ public final class Structures
     private static boolean isSchematicSizeValid(@NotNull final String structureName)
     {
         final int maxSize = MAX_TOTAL_SIZE - Integer.SIZE / Byte.SIZE;
-        final byte[] data = Structure.getStreamAsByteArray(Structure.getStream(structureName, Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder()));
+        final byte[] data = Structure.getStreamAsByteArray(Structure.getStream(structureName));
         final byte[] compressed = Structure.compress(data);
 
         if (compressed == null)
@@ -399,21 +404,25 @@ public final class Structures
             return null;
         }
 
-        final File structureFile = Structure.getClientSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
-        final File newStructureFile = Structure.getClientSchematicsFolder().toPath().resolve(newStructureName.toString() + SCHEMATIC_EXTENSION).toFile();
-        checkDirectory(newStructureFile.getParentFile());
-        if (structureFile.renameTo(newStructureFile))
+
+        for (final File clientSchems : Structure.getClientSchematicsFolders())
         {
-            final String md5 = getMD5(structureName.toString());
-            md5Map.put(newStructureName.toString(), md5);
-            md5Map.remove(structureName.toString());
-            Log.getLogger().info("Structure " + structureName + " have been renamed " + newStructureName);
-            return newStructureName;
-        }
-        else
-        {
-            Log.getLogger().warn("Failed to rename structure from " + structureName + " to " + newStructureName);
-            Log.getLogger().warn("Failed to rename structure from " + structureFile + " to " + newStructureFile);
+            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            checkDirectory(newStructureFile.getParentFile());
+            if (structureFile.renameTo(newStructureFile))
+            {
+                final String md5 = getMD5(structureName.toString());
+                md5Map.put(newStructureName.toString(), md5);
+                md5Map.remove(structureName.toString());
+                Log.getLogger().info("Structure " + structureName + " have been renamed " + newStructureName);
+                return newStructureName;
+            }
+            else
+            {
+                Log.getLogger().warn("Failed to rename structure from " + structureName + " to " + newStructureName);
+                Log.getLogger().warn("Failed to rename structure from " + structureFile + " to " + newStructureFile);
+            }
         }
         return null;
     }
@@ -472,16 +481,19 @@ public final class Structures
             return false;
         }
 
-        final File structureFile = Structure.getClientSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
-        if (structureFile.delete())
+        for (final File clientSchems : Structure.getClientSchematicsFolders())
         {
-            md5Map.remove(structureName.toString());
-            Log.getLogger().info("Structures: " + structureName + " deleted successfully");
-            return true;
-        }
-        else
-        {
-            Log.getLogger().warn("Failed to delete structure " + structureName);
+            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            if (structureFile.delete())
+            {
+                md5Map.remove(structureName.toString());
+                Log.getLogger().info("Structures: " + structureName + " deleted successfully");
+                return true;
+            }
+            else
+            {
+                Log.getLogger().warn("Failed to delete structure " + structureName);
+            }
         }
         return false;
     }
@@ -708,18 +720,21 @@ public final class Structures
         if (md5 != null)
         {
             Log.getLogger().info("Structures.handleSaveSchematicMessage: received new schematic md5:" + md5);
-            final File schematicsFolder = Structure.getCachedSchematicsFolder();
-            final File schematicFile = schematicsFolder.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION).toFile();
-            checkDirectory(schematicFile.getParentFile());
-            try (OutputStream outputstream = new FileOutputStream(schematicFile))
+            for (final File cachedSchems : Structure.getCachedSchematicsFolders())
             {
-                outputstream.write(bytes);
-                Structures.addMD5ToCache(md5);
-            }
-            catch (@NotNull final IOException e)
-            {
-                Log.getLogger().warn("Exception while trying to save a schematic.", e);
-                return false;
+                final File schematicFile = cachedSchems.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION).toFile();
+                checkDirectory(schematicFile.getParentFile());
+                try (OutputStream outputstream = new FileOutputStream(schematicFile))
+                {
+                    outputstream.write(bytes);
+                    Structures.addMD5ToCache(md5);
+                    Manager.setSchematicDownloaded(true);
+                    return true;
+                }
+                catch (@NotNull final IOException e)
+                {
+                    Log.getLogger().warn("Exception while trying to save a schematic.", e);
+                }
             }
         }
         else
@@ -728,9 +743,7 @@ public final class Structures
             return false;
         }
 
-        //Let the gui know we just save a schematic
-        Manager.setSchematicDownloaded(true);
-        return true;
+        return false;
     }
 
     /**
