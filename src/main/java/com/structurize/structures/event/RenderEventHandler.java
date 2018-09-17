@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class RenderEventHandler
 {
-
     /**
      * Event used to render the schematics. Only render the schematic if there is one in the settings.
      *
@@ -24,7 +23,7 @@ public class RenderEventHandler
 
         if (structure != null)
         {
-            StructureClientHandler.renderStructure(structure, event.getPartialTicks());
+            StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition());
         }
     }
 }
