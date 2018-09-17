@@ -18,6 +18,8 @@ public final class Constants
     public static final int    SECONDS_A_MINUTE                 = 60;
     public static final int    UPDATE_FLAG                      = 0x03;
     public static final double HALF_BLOCK                       = 0.5D;
+    public static final String MINECOLONIES_MOD_ID              = "minecolonies";
+
 
     /**
      * Maximum message size from client to server (Leaving some extra space).

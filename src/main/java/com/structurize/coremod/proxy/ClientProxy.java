@@ -120,7 +120,7 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        @Nullable final WindowBuildTool window = new WindowBuildTool(pos, structureName, rotation);
+        @Nullable final WindowBuildTool window = new WindowBuildTool(pos, structureName, rotation, null);
         window.open();
     }
 

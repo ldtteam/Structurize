@@ -2,8 +2,8 @@ package com.structurize.coremod.client.gui;
 
 import com.structurize.api.util.BlockUtils;
 import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.Log;
 import com.structurize.api.util.constant.Constants;
+import com.structurize.blockout.Log;
 import com.structurize.blockout.controls.Button;
 import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
@@ -13,10 +13,13 @@ import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.BuildToolPasteMessage;
 import com.structurize.coremod.network.messages.SchematicRequestMessage;
 import com.structurize.coremod.network.messages.SchematicSaveMessage;
-import com.structurize.coremod.network.messages.UndoMessage;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
@@ -30,8 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.structurize.api.util.constant.Constants.MAX_MESSAGE_SIZE;
 import static com.structurize.api.util.constant.WindowConstants.*;
-import static com.structurize.api.util.constant.Constants.*;
 
 /**
  * BuildTool window.
@@ -51,6 +54,31 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * All possible rotations.
      */
     private static final int POSSIBLE_ROTATIONS = 4;
+
+    /**
+     * Rotation to rotateWithMirror right.
+     */
+    private static final int ROTATE_RIGHT = 1;
+
+    /**
+     * Rotation to rotateWithMirror 180 degree.
+     */
+    private static final int ROTATE_180 = 2;
+
+    /**
+     * Rotation to rotateWithMirror left.
+     */
+    private static final int ROTATE_LEFT = 3;
+
+    /**
+     * Id of the paste button.
+     */
+    private static final String BUTTON_PASTE = "pastecomplete";
+
+    /**
+     * Id of the paste nice button.
+     */
+    private static final String BUTTON_PASTE_NICE = "pastenice";
 
     /**
      * List of section.
@@ -122,14 +150,21 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param pos           the position.
      * @param structureName the structure name.
      * @param rotation      the rotation.
+     * @param mode          the mode.
      */
-    public WindowBuildTool(@Nullable final BlockPos pos, final String structureName, final int rotation)
+    public WindowBuildTool(@Nullable final BlockPos pos, final String structureName, final int rotation, final WindowBuildTool.FreeMode mode)
     {
         super(Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
+
+        if (!hasPermission())
+        {
+            return;
+        }
+
         this.init(pos);
         if (pos != null)
         {
-            Settings.instance.setupStaticMode(structureName);
+            Settings.instance.setupStaticMode(structureName, mode);
             staticSchematicName = structureName;
             Settings.instance.setRotation(rotation);
             this.rotation = rotation;
@@ -150,12 +185,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public WindowBuildTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
-        if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+
+        if (!hasPermission())
         {
-            this.init(pos);
-            renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
-            deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
+            return;
         }
+
+        this.init(pos);
+        renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
+        deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
     }
 
     private void init(final BlockPos pos)
@@ -178,7 +216,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         initSchematicNavigation();
 
         //Register all necessary buttons with the window.
-        registerButton(BUTTON_CONFIRM, this::pasteNice);
+        registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
         registerButton(BUTTON_MIRROR, WindowBuildTool::mirror);
@@ -190,21 +228,13 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PASTE, this::pasteComplete);
+        registerButton(BUTTON_PASTE_NICE, this::pasteNice);
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
-        registerButton(UNDO_BUTTON, this::undoClicked);
     }
 
-    /**
-     * Undo the last change.
-     */
-    private void undoClicked()
-    {
-        Structurize.getNetwork().sendToServer(new UndoMessage());
-    }
-
-    private void pasteNice()
+    public void pasteNice()
     {
         paste(false);
     }
@@ -237,19 +267,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && FMLCommonHandler.instance().getMinecraftServerInstance() == null)
         {
             //We need to check that the server have it too using the md5
-            requestScannedSchematic(structureName, complete);
+            requestScannedSchematic(structureName, true, complete);
         }
         else
         {
-            Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
-              structureName.toString(),
-              structureName.toString(),
-              Settings.instance.getPosition(),
-              Settings.instance.getRotation(),
-              structureName.isHut(),
-              Settings.instance.getMirror(),
-              complete));
+            paste(structureName);
         }
+
+        Settings.instance.reset();
+        close();
     }
 
     /**
@@ -362,28 +388,45 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        if (!Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+        if (!hasPermission())
         {
             close();
             return;
         }
 
-        Structures.loadScannedStyleMaps();
-
-        sections.clear();
-        final List<String> allSections = Structures.getSections();
-        for (final String section : allSections)
+        if (Settings.instance.isStaticSchematicMode())
         {
-            if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN))
-            {
-                sections.add(section);
-            }
+            sections.add(Structures.SCHEMATICS_PREFIX);
+            setStructureName(staticSchematicName);
         }
+        else
+        {
+            Structures.loadScannedStyleMaps();
 
-        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
-        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+            sections.clear();
+            final InventoryPlayer inventory = this.mc.player.inventory;
+            final List<String> allSections = Structures.getSections();
+            for (final String section : allSections)
+            {
+                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || inventoryHasHut(inventory, section))
+                {
+                    sections.add(section);
+                }
+            }
 
-        setStructureName(Settings.instance.getStructureName());
+            if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+            {
+                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
+                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
+            }
+            else
+            {
+                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(false);
+                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(false);
+            }
+
+            setStructureName(Settings.instance.getStructureName());
+        }
     }
 
     @Override
@@ -412,7 +455,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
 
-    /*
+    /**
      * ---------------- Schematic Navigation Handling -----------------
      */
 
@@ -626,6 +669,18 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         schematicsDropDownList.setSelectedIndex(0);
     }
 
+    /**
+     * Check if the player inventory has a certain hut.
+     *
+     * @param inventory the player inventory.
+     * @param hut       the hut.
+     * @return true if so.
+     */
+    private static boolean inventoryHasHut(@NotNull final InventoryPlayer inventory, final String hut)
+    {
+        return inventory.hasItemStack(new ItemStack(Block.getBlockFromName(Constants.MINECOLONIES_MOD_ID + HUT_PREFIX + hut)));
+    }
+
     /*
      * ---------------- Button Handling -----------------
      */
@@ -683,7 +738,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void rotateRightClicked()
     {
-        rotation = (rotation + ROTATE_ONCE) % POSSIBLE_ROTATIONS;
+        rotation = (rotation + ROTATE_RIGHT) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
     }
 
@@ -692,7 +747,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void rotateLeftClicked()
     {
-        rotation = (rotation + ROTATE_THREE_TIMES) % POSSIBLE_ROTATIONS;
+        rotation = (rotation + ROTATE_LEFT) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
     }
 
@@ -758,10 +813,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Request to build a player scan.
      *
+     * @param paste         if it should be pasted.
      * @param complete      if pasted, should it be complete.
      * @param structureName of the scan to be built.
      */
-    private static void requestScannedSchematic(@NotNull final StructureName structureName, final boolean complete)
+    public void requestScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
     {
         if (!Structures.isPlayerSchematicsAllowed())
         {
@@ -817,15 +873,14 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 Log.getLogger().warn("BuilderTool: server does not have " + serverSideName);
             }
 
-
-            Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
-              serverSideName,
-              structureName.toString(),
-              Settings.instance.getPosition(),
-              Settings.instance.getRotation(),
-              false,
-              Settings.instance.getMirror(),
-              complete));
+            if (paste)
+            {
+                paste(new StructureName(serverSideName));
+            }
+            else
+            {
+                place(structureName);
+            }
         }
         else
         {
@@ -834,9 +889,93 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
+     * Override if place without paste is required.
+     * @param structureName
+     */
+    public void place(final StructureName structureName)
+    {
+
+    }
+
+    /**
+     * Override if check and place without paste is required.
+     */
+    public void checkAndPlace()
+    {
+
+    }
+
+    /**
+     * Defines if a player has permission to use this.
+     *
+     * @return true if so.
+     */
+    public boolean hasPermission()
+    {
+        return Minecraft.getMinecraft().player.capabilities.isCreativeMode;
+    }
+
+    /**
+     * If a schematic should be pasted instantly.
+     * @return true if so.
+     */
+    public boolean pasteDirectly()
+    {
+        return true;
+    }
+
+    /**
+     * Method to directly paste a structure.
+     */
+    public void paste(final StructureName name)
+    {
+        Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
+          name.getLocalizedName(),
+          name.toString(),
+          Settings.instance.getPosition(),
+          Settings.instance.getRotation(),
+          false,
+          Settings.instance.getMirror(),
+          false, Settings.instance.getFreeMode()));
+    }
+
+    /**
+     * Send a packet telling the server to place the current structure.
+     */
+    private void confirmClicked()
+    {
+        if (Settings.instance.isStaticSchematicMode() && Settings.instance.getActiveStructure() != null)
+        {
+            checkAndPlace();
+        }
+        else
+        {
+            final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
+            if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+            {
+                //We need to check that the server have it too using the md5
+                requestScannedSchematic(structureName, false, false);
+            }
+            else if (pasteDirectly())
+            {
+                paste(structureName);
+            }
+            else
+            {
+                place(structureName);
+            }
+
+            if (!GuiScreen.isShiftKeyDown())
+            {
+                cancelClicked();
+            }
+        }
+    }
+
+    /**
      * Cancel the current structure.
      */
-    private void cancelClicked()
+    public void cancelClicked()
     {
         Settings.instance.reset();
         close();
@@ -852,13 +991,13 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final PlacementSettings settings = new PlacementSettings();
         switch (rotation)
         {
-            case ROTATE_ONCE:
+            case ROTATE_RIGHT:
                 settings.setRotation(Rotation.CLOCKWISE_90);
                 break;
-            case ROTATE_TWICE:
+            case ROTATE_180:
                 settings.setRotation(Rotation.CLOCKWISE_180);
                 break;
-            case ROTATE_THREE_TIMES:
+            case ROTATE_LEFT:
                 settings.setRotation(Rotation.COUNTERCLOCKWISE_90);
                 break;
             default:
@@ -890,8 +1029,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         confirmDeleteDialog = new DialogDoneCancel(getWindow());
         confirmDeleteDialog.setHandler(this::onDialogClosed);
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        confirmDeleteDialog.setTitle(LanguageHandler.format("com.structurize.coremod.gui.structure.delete.title"));
-        confirmDeleteDialog.setTextContent(LanguageHandler.format("com.structurize.coremod.gui.structure.delete.body", structureName.toString()));
+        confirmDeleteDialog.setTitle(LanguageHandler.format("com.minecolonies.coremod.gui.structure.delete.title"));
+        confirmDeleteDialog.setTextContent(LanguageHandler.format("com.minecolonies.coremod.gui.structure.delete.body", structureName.toString()));
         confirmDeleteDialog.open();
     }
 
@@ -901,7 +1040,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param dialog   which is being closed.
      * @param buttonId is the id of the button used to close the dialog.
      */
-    private void onDialogClosed(final DialogDoneCancel dialog, final int buttonId)
+    public void onDialogClosed(final DialogDoneCancel dialog, final int buttonId)
     {
         if (dialog == confirmDeleteDialog && buttonId == DialogDoneCancel.DONE)
         {

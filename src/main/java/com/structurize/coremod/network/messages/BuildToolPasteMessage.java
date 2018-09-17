@@ -1,7 +1,6 @@
 package com.structurize.coremod.network.messages;
 
-import com.structurize.api.util.ChangeStorage;
-import com.structurize.coremod.management.Manager;
+import com.structurize.coremod.client.gui.WindowBuildTool;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.util.StructureWrapper;
@@ -38,19 +37,20 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
     /**
      * Create the building that was made with the build tool.
      * Item in inventory required
-     *
-     * @param structureName String representation of a structure
+     *  @param structureName String representation of a structure
      * @param workOrderName String name of the work order
      * @param pos           BlockPos
      * @param rotation      int representation of the rotation
      * @param isHut         true if hut, false if decoration
      * @param mirror        the mirror of the building or decoration.
      * @param complete      paste it complete (with structure blocks) or without.
+     * @param freeMode
      */
-    public BuildToolPasteMessage(final String structureName,
-            final String workOrderName, final BlockPos pos,
-            final int rotation, final boolean isHut,
-            final Mirror mirror, final boolean complete)
+    public BuildToolPasteMessage(
+      final String structureName,
+      final String workOrderName, final BlockPos pos,
+      final int rotation, final boolean isHut,
+      final Mirror mirror, final boolean complete, final WindowBuildTool.FreeMode freeMode)
     {
         super();
         this.structureName = structureName;
