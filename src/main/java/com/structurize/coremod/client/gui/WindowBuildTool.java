@@ -720,7 +720,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final StructureName structureName = new StructureName(sname);
         final Structure structure = new Structure(null,
           structureName.toString(),
-          new PlacementSettings().setRotation(BlockUtils.getRotation(Settings.instance.getRotation())).setMirror(Settings.instance.getMirror()));
+          new PlacementSettings().setRotation(BlockUtils.getRotation(Settings.instance.getRotation())).setMirror(Settings.instance.getMirror()), Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder());
 
         final String md5 = Structures.getMD5(structureName.toString());
         if (structure.isTemplateMissing() || !structure.isCorrectMD5(md5))
@@ -774,7 +774,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String serverSideName = Structures.SCHEMATICS_CACHE + '/' + md5;
             if (!Structures.hasMD5(new StructureName(serverSideName)))
             {
-                final InputStream stream = Structure.getStream(structureName.toString());
+                final InputStream stream = Structure.getStream(structureName.toString(), Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder());
                 if (stream != null)
                 {
                     final UUID id = UUID.randomUUID();

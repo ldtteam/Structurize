@@ -1,5 +1,6 @@
 package com.structurize.structures.helpers;
 
+import com.structurize.coremod.Structurize;
 import com.structurize.coremod.blocks.ModBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -38,7 +39,7 @@ public class StructureProxy
      */
     public StructureProxy(final World worldObj, final String name)
     {
-        this.structure = new Structure(worldObj, name, new PlacementSettings());
+        this.structure = new Structure(worldObj, name, new PlacementSettings(), Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder());
 
         if (structure.isTemplateMissing())
         {

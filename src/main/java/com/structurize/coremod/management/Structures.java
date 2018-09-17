@@ -258,7 +258,7 @@ public final class Structures
                     }
 
                     final StructureName structureName = new StructureName(relativePath);
-                    final String md5 = Structure.calculateMD5(Structure.getStream(relativePath));
+                    final String md5 = Structure.calculateMD5(Structure.getStream(relativePath, Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder()));
                     if (md5 == null)
                     {
                         Log.getLogger().error("Structures: " + structureName + " with md5 null.");
@@ -289,7 +289,7 @@ public final class Structures
     private static boolean isSchematicSizeValid(@NotNull final String structureName)
     {
         final int maxSize = MAX_TOTAL_SIZE - Integer.SIZE / Byte.SIZE;
-        final byte[] data = Structure.getStreamAsByteArray(Structure.getStream(structureName));
+        final byte[] data = Structure.getStreamAsByteArray(Structure.getStream(structureName, Structure.getCachedSchematicsFolder(), Structure.getClientSchematicsFolder(), Structurize.proxy.getSchematicsFolder()));
         final byte[] compressed = Structure.compress(data);
 
         if (compressed == null)

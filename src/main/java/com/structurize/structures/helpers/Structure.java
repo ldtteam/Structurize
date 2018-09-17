@@ -64,7 +64,6 @@ public class Structure
      * Template of the structure.
      */
     private Template          template;
-    private Minecraft         mc;
     private PlacementSettings settings;
     private String            md5;
 
@@ -74,15 +73,21 @@ public class Structure
      * @param world         with world.
      * @param structureName name of the structure (at stored location).
      * @param settings      it's settings.
+     * @param cachedSchematics the cached schem folder.
+     * @param clientSchematics the clients schem folder.
+     * @param schematicsFolder the schem folder.
      */
-    public Structure(@Nullable final World world, final String structureName, final PlacementSettings settings)
+    public Structure(@Nullable final World world, final String structureName, final PlacementSettings settings,
+      @NotNull final File cachedSchematics,
+      @NotNull final File clientSchematics,
+      @NotNull final File schematicsFolder)
     {
         String correctStructureName = structureName;
         if (world == null || world.isRemote)
         {
             this.settings = settings;
-            this.mc = Minecraft.getMinecraft();
         }
+
         this.fixer = DataFixesManager.createFixer();
 
         InputStream inputStream = null;
@@ -92,7 +97,7 @@ public class Structure
             //Try the cache first
             if (Structures.hasMD5(correctStructureName))
             {
-                inputStream = Structure.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
+                inputStream = Structure.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName), cachedSchematics, clientSchematics, schematicsFolder);
                 if (inputStream != null)
                 {
                     correctStructureName = Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName);
@@ -101,7 +106,7 @@ public class Structure
 
             if (inputStream == null)
             {
-                inputStream = Structure.getStream(correctStructureName);
+                inputStream = Structure.getStream(correctStructureName, cachedSchematics, clientSchematics, schematicsFolder);
             }
 
             if (inputStream == null)
@@ -111,7 +116,7 @@ public class Structure
 
             try
             {
-                this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
+                this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName, cachedSchematics, clientSchematics, schematicsFolder));
                 this.template = readTemplateFromStream(inputStream, fixer);
             }
             catch (final IOException e)
@@ -145,17 +150,20 @@ public class Structure
      */
     @SuppressWarnings(RESOURCES_SHOULD_BE_CLOSED)
     @Nullable
-    public static InputStream getStream(final String structureName)
+    public static InputStream getStream(final String structureName,
+      @NotNull final File cachedSchematics,
+      @NotNull final File clientSchematics,
+      @NotNull final File schematicsFolder)
     {
         final StructureName sn = new StructureName(structureName);
         InputStream inputstream = null;
         if (Structures.SCHEMATICS_CACHE.equals(sn.getPrefix()))
         {
-            return Structure.getStreamFromFolder(Structure.getCachedSchematicsFolder(), structureName);
+            return Structure.getStreamFromFolder(cachedSchematics, structureName);
         }
         else if (Structures.SCHEMATICS_SCAN.equals(sn.getPrefix()))
         {
-            return Structure.getStreamFromFolder(Structure.getClientSchematicsFolder(), structureName);
+            return Structure.getStreamFromFolder(clientSchematics, structureName);
         }
         else if (!Structures.SCHEMATICS_PREFIX.equals(sn.getPrefix()))
         {
@@ -164,7 +172,7 @@ public class Structure
         else
         {
             //Look in the folder first
-            inputstream = Structure.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
+            inputstream = Structure.getStreamFromFolder(schematicsFolder, structureName);
             if (inputstream == null && !Configurations.gameplay.ignoreSchematicsFromJar)
             {
                 inputstream = Structure.getStreamFromJar(structureName);
@@ -357,7 +365,6 @@ public class Structure
         if (world == null || world.isRemote)
         {
             this.settings = settings;
-            this.mc = Minecraft.getMinecraft();
         }
         this.fixer = DataFixesManager.createFixer();
     }
