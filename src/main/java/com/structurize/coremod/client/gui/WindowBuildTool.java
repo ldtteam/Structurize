@@ -817,7 +817,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param complete      if pasted, should it be complete.
      * @param structureName of the scan to be built.
      */
-    public void requestScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
+    public static void requestScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
     {
         if (!Structures.isPlayerSchematicsAllowed())
         {
@@ -892,7 +892,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Override if place without paste is required.
      * @param structureName
      */
-    public void place(final StructureName structureName)
+    public static void place(final StructureName structureName)
     {
 
     }
@@ -927,7 +927,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Method to directly paste a structure.
      */
-    public void paste(final StructureName name)
+    public static void paste(final StructureName name)
     {
         Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
           name.toString(),
