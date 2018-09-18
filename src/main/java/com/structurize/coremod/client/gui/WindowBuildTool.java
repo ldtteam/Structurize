@@ -455,7 +455,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
 
-    /**
+    /*
      * ---------------- Schematic Navigation Handling -----------------
      */
 
@@ -930,7 +930,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void paste(final StructureName name)
     {
         Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
-          name.getLocalizedName(),
+          name.toString(),
           name.toString(),
           Settings.instance.getPosition(),
           Settings.instance.getRotation(),

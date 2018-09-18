@@ -69,7 +69,6 @@ public class Structure
      * Template of the structure.
      */
     private Template          template;
-    private Minecraft         mc;
     private PlacementSettings settings;
     private String            md5;
 
@@ -86,7 +85,6 @@ public class Structure
         if (world == null || world.isRemote)
         {
             this.settings = settings;
-            this.mc = Minecraft.getMinecraft();
         }
         this.fixer = DataFixesManager.createFixer();
 
@@ -391,11 +389,6 @@ public class Structure
      */
     public Structure(@Nullable final World world)
     {
-        if (world == null || world.isRemote)
-        {
-            this.settings = settings;
-            this.mc = Minecraft.getMinecraft();
-        }
         this.fixer = DataFixesManager.createFixer();
     }
 
