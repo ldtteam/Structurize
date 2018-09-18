@@ -270,7 +270,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             requestScannedSchematic(structureName, true, complete);
         }
 
-        paste(structureName);
+        paste(structureName, complete);
         Settings.instance.reset();
         close();
     }
@@ -926,7 +926,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Method to directly paste a structure.
      */
-    public void paste(final StructureName name)
+    public void paste(final StructureName name, final boolean complete)
     {
         Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
           name.toString(),
@@ -935,7 +935,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
           Settings.instance.getRotation(),
           false,
           Settings.instance.getMirror(),
-          false, Settings.instance.getFreeMode()));
+          complete, Settings.instance.getFreeMode()));
     }
 
     /**
@@ -958,7 +958,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             
             if (pasteDirectly())
             {
-                paste(structureName);
+                paste(structureName, false);
             }
             else
             {
