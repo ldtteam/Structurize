@@ -16,7 +16,7 @@ public class Configurations
         public boolean ignoreSchematicsFromJar = false;
 
         @Config.Comment("Should player made schematics be allowed")
-        public boolean allowPlayerSchematics = false;
+        public boolean allowPlayerSchematics = true;
 
         @Config.Comment("Max amount of schematics to be cached on the server")
         public int maxCachedSchematics = 100;

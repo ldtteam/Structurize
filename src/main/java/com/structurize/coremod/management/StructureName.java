@@ -101,7 +101,7 @@ public class StructureName
             hut = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
 
-            if (Block.getBlockFromName(Constants.MOD_ID + ":blockHut" + hut) != null)
+            if (Block.getBlockFromName(Constants.MINECOLONIES_MOD_ID + ":blockHut" + hut) != null)
             {
                 section = hut;
             }

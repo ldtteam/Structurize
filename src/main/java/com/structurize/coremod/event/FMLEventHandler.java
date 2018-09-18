@@ -6,6 +6,7 @@ import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.coremod.management.Manager;
+import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.StructurizeStylesMessage;
 import com.structurize.coremod.network.messages.ServerUUIDMessage;
 import net.minecraft.block.Block;
@@ -18,6 +19,7 @@ import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -45,6 +47,19 @@ public class FMLEventHandler
         {
             Structurize.getNetwork().sendTo(new ServerUUIDMessage(), (EntityPlayerMP) event.player);
             Structurize.getNetwork().sendTo(new StructurizeStylesMessage(), (EntityPlayerMP) event.player);
+        }
+    }
+
+    /**
+     * World load event.
+     * @param event the event params.
+     */
+    @SubscribeEvent
+    public void onWorldLoad(@NotNull final WorldEvent.Load event)
+    {
+        if (!event.getWorld().isRemote)
+        {
+            Structures.init();
         }
     }
 

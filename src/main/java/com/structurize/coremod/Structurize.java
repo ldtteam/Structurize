@@ -128,7 +128,7 @@ public class Structurize
             @Override
             public int getFixVersion()
             {
-                return 1;
+                return 2;
             }
 
             @Override
