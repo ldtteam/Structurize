@@ -19,6 +19,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -87,6 +88,20 @@ public class Structure
             this.settings = settings;
         }
         this.fixer = DataFixesManager.createFixer();
+        this.fixer.registerFix(FixTypes.BLOCK_ENTITY, new IFixableData()
+        {
+            @Override
+            public int getFixVersion()
+            {
+                return 1;
+            }
+
+            @Override
+            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+            {
+                return compound;
+            }
+        });
 
         InputStream inputStream = null;
         try
