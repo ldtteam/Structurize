@@ -298,9 +298,20 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             {
                 return LanguageHandler.format("com.structurize.coremod.gui.buildtool.decorations");
             }
-            //should be a hut
-            return LanguageHandler.format("tile.structurize.blockHut" + name + ".name");
+            //should be a something else.
+            return getSectionName(name);
         }
+    }
+
+    /**
+     * Get the correct name for the section.
+     * Mods which need this should override this.
+     * @param name the initial name.
+     * @return the formatted name.
+     */
+    public String getSectionName(final String name)
+    {
+        return name;
     }
 
     /**
