@@ -88,7 +88,7 @@ public class Structure
             this.settings = settings;
         }
         this.fixer = DataFixesManager.createFixer();
-        this.fixer.registerFix(FixTypes.BLOCK_ENTITY, new IFixableData()
+        this.fixer.registerFix(FixTypes.CHUNK, new IFixableData()
         {
             @Override
             public int getFixVersion()
