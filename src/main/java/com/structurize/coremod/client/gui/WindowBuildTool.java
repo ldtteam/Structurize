@@ -269,11 +269,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             //We need to check that the server have it too using the md5
             requestScannedSchematic(structureName, true, complete);
         }
-        else
-        {
-            paste(structureName);
-        }
 
+        paste(structureName);
         Settings.instance.reset();
         close();
     }
@@ -872,15 +869,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             {
                 Log.getLogger().warn("BuilderTool: server does not have " + serverSideName);
             }
-
-            if (paste)
-            {
-                paste(new StructureName(serverSideName));
-            }
-            else
-            {
-                place(structureName);
-            }
         }
         else
         {
@@ -892,7 +880,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Override if place without paste is required.
      * @param structureName
      */
-    public static void place(final StructureName structureName)
+    public void place(final StructureName structureName)
     {
 
     }
@@ -927,7 +915,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Method to directly paste a structure.
      */
-    public static void paste(final StructureName name)
+    public void paste(final StructureName name)
     {
         Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
           name.toString(),
@@ -956,7 +944,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 //We need to check that the server have it too using the md5
                 requestScannedSchematic(structureName, false, false);
             }
-            else if (pasteDirectly())
+            
+            if (pasteDirectly())
             {
                 paste(structureName);
             }
