@@ -12,9 +12,8 @@ public final class ModCreativeTabs
 {
     public static final CreativeTabs STRUCTURIZE = new CreativeTabs(Constants.MOD_ID)
     {
-
         @Override
-        public ItemStack getTabIconItem()
+        public ItemStack createIcon()
         {
             return new ItemStack(ModItems.buildTool);
         }

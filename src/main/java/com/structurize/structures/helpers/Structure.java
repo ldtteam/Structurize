@@ -298,7 +298,7 @@ public class Structure
             {
                 if (Manager.getServerUUID() != null)
                 {
-                    cachedSchems.add(new File(Minecraft.getMinecraft().mcDataDir, origin + "/" + Manager.getServerUUID()));
+                    cachedSchems.add(new File(Minecraft.getMinecraft().gameDir, origin + "/" + Manager.getServerUUID()));
                 }
                 else
                 {
@@ -321,7 +321,7 @@ public class Structure
         final List<File> clientSchems = new ArrayList<>();
         for (final String origin : originFolders)
         {
-            clientSchems.add(new File(Minecraft.getMinecraft().mcDataDir, origin));
+            clientSchems.add(new File(Minecraft.getMinecraft().gameDir, origin));
         }
         return clientSchems;
     }

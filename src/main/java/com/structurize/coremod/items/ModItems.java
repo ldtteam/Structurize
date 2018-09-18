@@ -1,5 +1,6 @@
 package com.structurize.coremod.items;
 
+import com.structurize.coremod.blocks.ModBlocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -15,6 +16,7 @@ public final class ModItems
     public static Item shapeTool;
     public static Item scanTool;
     public static Item caliper;
+    public static Item itemCactusDoor;
 
     /**
      * Private constructor to hide the implicit public one.
@@ -35,10 +37,12 @@ public final class ModItems
         shapeTool = new ItemShapeTool();
         scanTool = new ItemScanTool();
         caliper = new ItemCaliper();
+        itemCactusDoor = new ItemCactusDoor(ModBlocks.blockCactusDoor, "cactusdoor");
 
         registry.register(buildTool);
         registry.register(shapeTool);
         registry.register(scanTool);
+        registry.register(itemCactusDoor);
         registry.register(caliper);
     }
 }

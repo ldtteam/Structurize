@@ -1,0 +1,17 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "ugh":{
+      "true": {},
+      "false": {}
+    },
+    "half":{
+      "bottom": {"model": "structurize:blockcactusslab_half" },
+      "top": {"model": "structurize:blockcactusslab_upper" }
+    },
+    "normal": { "model": "structurize:blockcactusplank" },
+    "inventory": {
+      "model": "structurize:blockcactusslab_half"
+    }
+  }
+}

@@ -48,7 +48,7 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
     private void initBlock()
     {
         setRegistryName(BLOCK_NAME);
-        setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
+        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);

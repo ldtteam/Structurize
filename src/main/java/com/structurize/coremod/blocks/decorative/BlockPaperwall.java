@@ -1,13 +1,11 @@
 package com.structurize.coremod.blocks.decorative;
 
 import com.structurize.api.util.constant.Constants;
-import com.structurize.coremod.blocks.AbstractBlockStructurize;
 import com.structurize.coremod.blocks.types.AbstractBlockStructurizePane;
 import com.structurize.coremod.blocks.types.PaperwallType;
 import com.structurize.coremod.creativetab.ModCreativeTabs;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -18,10 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
-
+import org.jetbrains.annotations.NotNull;
 
 public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
 {
@@ -30,10 +26,12 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
      * This blocks name.
      */
     public static final String                      BLOCK_NAME     = "blockPaperwall";
+
     /**
      * The hardness this block has.
      */
     private static final float                      BLOCK_HARDNESS = 3F;
+
     /**
      * The resistance this block has.
      */
@@ -49,7 +47,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     private void initBlock()
     {
         setRegistryName(BLOCK_NAME);
-        setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
+        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);
@@ -69,6 +67,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     /**
      * Get the MapColor for this Block and the given BlockState
      */
+    @NotNull
     @Override
     public MapColor getMapColor(final IBlockState state, final IBlockAccess worldIn, final BlockPos pos)
     {
@@ -78,6 +77,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     /**
      * Convert the given metadata into a BlockState for this Block
      */
+    @NotNull
     @Override
     public IBlockState getStateFromMeta(final int meta)
     {
@@ -94,8 +94,9 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         return state.getValue(VARIANT).getMetadata();
     }
 
+    @NotNull
     @Override
-    protected ItemStack getSilkTouchDrop(final IBlockState state)
+    protected ItemStack getSilkTouchDrop(@NotNull final IBlockState state)
     {
         return new ItemStack(Item.getItemFromBlock(this), 1, state.getValue(VARIANT).getMetadata());
     }
@@ -112,9 +113,9 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         }
     }
 
+    @NotNull
     @Override
-    @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
@@ -132,8 +133,9 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
      */
+    @NotNull
     @Override
-    public IBlockState withRotation(final IBlockState state, final Rotation rot)
+    public IBlockState withRotation(@NotNull final IBlockState state, final Rotation rot)
     {
         switch (rot)
         {
@@ -158,8 +160,9 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
      */
+    @NotNull
     @Override
-    public IBlockState withMirror(final IBlockState state, final Mirror mirrorIn)
+    public IBlockState withMirror(@NotNull final IBlockState state, final Mirror mirrorIn)
     {
         switch (mirrorIn)
         {
@@ -172,10 +175,11 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         }
     }
 
+    @NotNull
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] {NORTH, EAST, WEST, SOUTH, VARIANT});
+        return new BlockStateContainer(this, NORTH, EAST, WEST, SOUTH, VARIANT);
     }
 
     @Override

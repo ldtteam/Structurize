@@ -60,7 +60,7 @@ public class FMLEventHandler
         event.getAllMappings().forEach((mapping) -> {
             if(mapping.key.toString().contains(Constants.MINECOLONIES_MOD_ID))
             {
-                final Block newBlock = Block.getBlockFromName(Constants.MOD_ID + ":" + mapping.key.getResourcePath());
+                final Block newBlock = Block.getBlockFromName(Constants.MOD_ID + ":" + mapping.key.getPath());
                 if (newBlock != null)
                 {
                     mapping.remap(newBlock);

@@ -23,7 +23,7 @@ public abstract class AbstractItemStructurize extends Item
         super();
         this.name = name;
 
-        super.setUnlocalizedName(Constants.MOD_ID.toLowerCase() + "." + this.name);
+        super.setTranslationKey(Constants.MOD_ID.toLowerCase() + "." + this.name);
         setRegistryName(this.name);
     }
 

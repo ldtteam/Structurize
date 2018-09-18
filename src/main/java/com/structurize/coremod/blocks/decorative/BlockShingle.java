@@ -38,7 +38,7 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
     private void init(final String name)
     {
         setRegistryName(name);
-        setUnlocalizedName(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
+        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);

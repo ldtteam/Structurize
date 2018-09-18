@@ -1,5 +1,6 @@
 package com.structurize.coremod.blocks;
 
+import com.structurize.coremod.blocks.cactus.*;
 import com.structurize.coremod.blocks.decorative.*;
 import com.structurize.coremod.blocks.schematic.BlockSolidSubstitution;
 import com.structurize.coremod.blocks.schematic.BlockSubstitution;
@@ -7,6 +8,7 @@ import com.structurize.coremod.blocks.types.TimberFrameType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemSlab;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.ArrayList;
@@ -45,6 +47,13 @@ public final class ModBlocks
     public static BlockShingleSlab            blockShingleSlab;
     public static MultiBlock                  multiBlock;
 
+    public static        BlockCactusPlank               blockCactusPlank;
+    public static        BlockCactusDoor                blockCactusDoor;
+    public static        BlockCactusTrapdoor            blockCactusTrapdoor;
+    public static        BlockCactusStair               blockCactusStair;
+    public static        BlockCactusSlabHalf            blockCactusSlabHalf;
+    public static        BlockCactusSlabDouble          blockCactusSlabDouble;
+
     public static List<BlockTimberFrame> getTimberFrames()
     {
         return new ArrayList<>(timberFrames);
@@ -65,6 +74,13 @@ public final class ModBlocks
      */
     public static void init(final IForgeRegistry<Block> registry)
     {
+        blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
+        blockCactusDoor = new BlockCactusDoor(blockCactusDoor).registerBlock(registry);
+        blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
+        blockCactusSlabHalf = new BlockCactusSlabHalf().registerBlock(registry);
+        blockCactusSlabDouble = new BlockCactusSlabDouble().registerBlock(registry);
+
+        blockCactusStair = new BlockCactusStair(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)).registerBlock(registry);
 
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
@@ -107,6 +123,11 @@ public final class ModBlocks
         blockShingleAcacia.registerItemBlock(registry);
         blockShingleSlab.registerItemBlock(registry);
         multiBlock.registerItemBlock(registry);
+
+        blockCactusPlank.registerItemBlock(registry);
+        blockCactusTrapdoor.registerItemBlock(registry);
+        blockCactusStair.registerItemBlock(registry);
+        registry.register(new ItemSlab(blockCactusSlabHalf, blockCactusSlabHalf, blockCactusSlabDouble).setRegistryName(blockCactusSlabHalf.getRegistryName()));
 
         for (final BlockTimberFrame frame: timberFrames)
         {
