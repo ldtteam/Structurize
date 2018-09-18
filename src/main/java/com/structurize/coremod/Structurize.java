@@ -6,12 +6,8 @@ import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
 import com.structurize.structures.helpers.Structure;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -121,24 +117,6 @@ public class Structurize
         proxy.registerRenderer();
 
         CopyPastePlacementHandlers.initHandlers();
-
-        ModFixs fixes = FMLCommonHandler.instance().getDataFixer().init(Constants.MOD_ID, 1);
-        fixes.registerFix(FixTypes.STRUCTURE, new IFixableData()
-        {
-            @Override
-            public int getFixVersion()
-            {
-                return 2;
-            }
-
-            @Override
-            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
-            {
-                return compound;
-            }
-        });
-
-        //Register Vanilla items with tags
     }
 
     private static synchronized void initializeNetwork()

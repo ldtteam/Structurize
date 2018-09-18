@@ -1,5 +1,6 @@
 package com.structurize.structures.helpers;
 
+import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.management.Manager;
 import com.google.common.collect.ImmutableList;
 import com.structurize.api.configuration.Configurations;
@@ -7,24 +8,26 @@ import com.structurize.api.util.Log;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.datafix.DataFixesManager;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
+import net.minecraft.util.datafix.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.common.util.CompoundDataFixer;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +38,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -226,6 +230,41 @@ public class Structure
         }
 
         final Template template = new Template();
+        ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
+        fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
+        {
+            @Override
+            public int getFixVersion()
+            {
+                return 1;
+            }
+
+            @Override
+            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+            {
+                if (compound.hasKey("palette"))
+                {
+                    NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
+                    final Iterator<NBTBase> listIt = list.iterator();
+                    while (listIt.hasNext())
+                    {
+                        NBTBase listCompound = listIt.next();
+                        if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
+                        {
+                            String name = ((NBTTagCompound) listCompound).getString("Name");
+                            if (name.contains("minecolonies"))
+                            {
+                                if (Block.getBlockFromName(name) == null)
+                                {
+                                    ((NBTTagCompound) listCompound).setString("Name", "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length()));
+                                }
+                            }
+                        }
+                    }
+                }
+                return compound;
+            }
+        });
         template.read(fixer.process(FixTypes.STRUCTURE, nbttagcompound));
         return template;
     }
