@@ -6,6 +6,7 @@ import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.coremod.management.Manager;
+import com.structurize.coremod.network.messages.StructurizeStylesMessage;
 import com.structurize.coremod.network.messages.ServerUUIDMessage;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,13 +18,11 @@ import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import static com.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
@@ -45,6 +44,7 @@ public class FMLEventHandler
         if (event.player instanceof EntityPlayerMP)
         {
             Structurize.getNetwork().sendTo(new ServerUUIDMessage(), (EntityPlayerMP) event.player);
+            Structurize.getNetwork().sendTo(new StructurizeStylesMessage(), (EntityPlayerMP) event.player);
         }
     }
 

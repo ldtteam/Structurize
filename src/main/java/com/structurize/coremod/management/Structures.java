@@ -594,7 +594,7 @@ public final class Structures
     }
 
     /**
-     * For use on client side by the ColonyStylesMessage.
+     * For use on client side by the StructurizeStylesMessage.
      *
      * @param md5s new md5Map.
      */

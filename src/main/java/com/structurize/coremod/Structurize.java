@@ -2,13 +2,16 @@ package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.event.FMLEventHandler;
-import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
 import com.structurize.structures.helpers.Structure;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -119,6 +122,22 @@ public class Structurize
 
         CopyPastePlacementHandlers.initHandlers();
 
+        ModFixs fixes = FMLCommonHandler.instance().getDataFixer().init(Constants.MOD_ID, 1);
+        fixes.registerFix(FixTypes.STRUCTURE, new IFixableData()
+        {
+            @Override
+            public int getFixVersion()
+            {
+                return 1;
+            }
+
+            @Override
+            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+            {
+                return compound;
+            }
+        });
+
         //Register Vanilla items with tags
     }
 
@@ -142,6 +161,7 @@ public class Structurize
         getNetwork().registerMessage(SchematicRequestMessage.class, SchematicRequestMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(SchematicSaveMessage.class, SchematicSaveMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(UndoMessage.class, UndoMessage.class, ++id, Side.SERVER);
+        getNetwork().registerMessage(StructurizeStylesMessage.class, StructurizeStylesMessage.class, ++id, Side.CLIENT);
 
         // Client side only
         getNetwork().registerMessage(SaveScanMessage.class, SaveScanMessage.class, ++id, Side.CLIENT);

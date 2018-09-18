@@ -88,21 +88,6 @@ public class Structure
             this.settings = settings;
         }
         this.fixer = DataFixesManager.createFixer();
-        this.fixer.registerFix(FixTypes.STRUCTURE, new IFixableData()
-        {
-            @Override
-            public int getFixVersion()
-            {
-                return 1;
-            }
-
-            @Override
-            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
-            {
-                return compound;
-            }
-        });
-
         InputStream inputStream = null;
         try
         {
