@@ -7,6 +7,7 @@ import com.structurize.coremod.Structurize;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.network.messages.ServerUUIDMessage;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,12 +15,15 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import static com.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
@@ -50,10 +54,33 @@ public class FMLEventHandler
      * @param event the on config changed event.
      */
     @SubscribeEvent
+    public void missingMapping(@NotNull final RegistryEvent.MissingMappings<Block> event)
+    {
+        final IForgeRegistry registry = event.getRegistry();
+        event.getAllMappings().forEach((mapping) -> {
+            if(mapping.key.toString().contains(Constants.MINECOLONIES_MOD_ID))
+            {
+                final Block newBlock = Block.getBlockFromName(Constants.MOD_ID + ":" + mapping.key.toString().substring(Constants.MINECOLONIES_MOD_ID.length()));
+                if (newBlock != null)
+                {
+                    mapping.remap(newBlock);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Called when the config is changed, used to synch between file and game.
+     *
+     * @param event the on config changed event.
+     */
+    @SubscribeEvent
     public void onConfigChanged(@NotNull final ConfigChangedEvent.OnConfigChangedEvent event)
     {
         ConfigManager.sync(Constants.MOD_ID, Config.Type.INSTANCE);
     }
+
 
     /**
      * Event when a block is broken.
