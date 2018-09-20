@@ -204,11 +204,6 @@ public final class WindowConstants
     public static final String UNDO_BUTTON = "undo";
 
     /**
-     * Resource suffix of the multiblock GUI.
-     */
-    public static final String MULTI_BLOCK_RESOURCE_SUFFIX = ":gui/windowmultiblock.xml";
-
-    /**
      * Id of the speed input field.
      */
     public static final String INPUT_SPEED = "speed";

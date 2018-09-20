@@ -317,9 +317,6 @@ tile.structurize.blockcactuspdoor.name=Cactus Trapdoor
 item.structurize.cactusdoor.name=Cactus Door
 tile.structurize.blockcactusslab_half.name=Cactus Slab
 
-
-tile.structurize.multiBlock.name=MultiBlock
-
 com.structurize.coremod.tooClose=Too close to world spawn, needs to be at least %d blocks away.
 com.structurize.coremod.tooFar=Too far away from the world spawn, needs to be max %d blocks away.
 

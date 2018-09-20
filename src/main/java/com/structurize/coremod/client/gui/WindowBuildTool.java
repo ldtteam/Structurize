@@ -396,6 +396,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
+        super.onOpened();
         if (!hasPermission())
         {
             close();

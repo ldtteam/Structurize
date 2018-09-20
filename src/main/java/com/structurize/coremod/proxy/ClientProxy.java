@@ -107,13 +107,6 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void openMultiBlockWindow(@Nullable final BlockPos pos)
-    {
-        @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
-        window.open();
-    }
-
-    @Override
     public void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation)
     {
         if (pos == null && Settings.instance.getActiveStructure() == null)
@@ -176,7 +169,6 @@ public class ClientProxy extends CommonProxy
 
         // Achievement proxy Items
         createCustomModel(ModBlocks.blockShingleSlab);
-        createCustomModel(ModBlocks.multiBlock);
 
         ModelLoader.setCustomStateMapper(ModBlocks.blockCactusDoor, new StateMap.Builder().ignore(BlockCactusDoor.POWERED).build());
         ModelLoader.setCustomStateMapper(ModBlocks.blockPaperWall, new StateMap.Builder().withName(BlockPaperwall.VARIANT).withSuffix("_blockPaperwall").build());

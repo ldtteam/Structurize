@@ -1,9 +1,7 @@
 package com.structurize.coremod.proxy;
 
-import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.items.ModItems;
-import com.structurize.coremod.tileentities.*;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,7 +15,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,7 +99,7 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, Constants.MOD_ID + ".MultiBlock");
+
     }
 
     @Override
@@ -143,14 +140,6 @@ public class CommonProxy implements IProxy
 
     @Override
     public void openScanToolWindow(final BlockPos pos1, final BlockPos pos2)
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
-    public void openMultiBlockWindow(final BlockPos pos)
     {
         /*
          * Intentionally left empty.

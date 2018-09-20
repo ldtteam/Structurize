@@ -45,7 +45,6 @@ public final class ModBlocks
     public static BlockShingle                blockShingleDarkOak;
     public static BlockShingle                blockShingleAcacia;
     public static BlockShingleSlab            blockShingleSlab;
-    public static MultiBlock                  multiBlock;
 
     public static        BlockCactusPlank               blockCactusPlank;
     public static        BlockCactusDoor                blockCactusDoor;
@@ -99,7 +98,6 @@ public final class ModBlocks
         blockShingleAcacia = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.ACACIA),
           BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.ACACIA.getName()).registerBlock(registry);
         blockShingleSlab = new BlockShingleSlab().registerBlock(registry);
-        multiBlock = new MultiBlock().registerBlock(registry);
 
         for (final BlockPlanks.EnumType type : BlockPlanks.EnumType.values())
         {
@@ -122,7 +120,6 @@ public final class ModBlocks
         blockShingleDarkOak.registerItemBlock(registry);
         blockShingleAcacia.registerItemBlock(registry);
         blockShingleSlab.registerItemBlock(registry);
-        multiBlock.registerItemBlock(registry);
 
         blockCactusPlank.registerItemBlock(registry);
         blockCactusTrapdoor.registerItemBlock(registry);

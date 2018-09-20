@@ -70,13 +70,6 @@ public interface IProxy
     void openScanToolWindow(final BlockPos pos1, final BlockPos pos2);
 
     /**
-     * Opens a build tool window.
-     *
-     * @param pos coordinates.
-     */
-    void openMultiBlockWindow(final BlockPos pos);
-
-    /**
      * Opens a build tool window for a specific structure.
      * @param pos the position.
      * @param structureName the structure name.
