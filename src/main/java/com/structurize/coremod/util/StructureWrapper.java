@@ -3,6 +3,7 @@ package com.structurize.coremod.util;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.*;
 import com.structurize.coremod.blocks.ModBlocks;
+import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
 import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.placementhandlers.IPlacementHandler;
 import com.structurize.coremod.placementhandlers.PlacementHandlers;
@@ -207,7 +208,7 @@ public final class StructureWrapper
 
                     final BlockPos worldPos = position.add(localPos);
 
-                    if ((localBlock == ModBlocks.blockSubstitution && !complete))
+                    if ((localBlock == ModBlocks.blockSubstitution && !complete) || localBlock instanceof IAnchorBlock)
                     {
                         continue;
                     }

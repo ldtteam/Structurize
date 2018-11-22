@@ -1,6 +1,7 @@
 package com.structurize.structures.helpers;
 
 import com.structurize.coremod.blocks.ModBlocks;
+import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,6 +34,7 @@ public class StructureProxy
 
     /**
      * Create a structure proxy with world and name.
+     *
      * @param worldObj the world.
      * @param name     the string where the structure is saved at.
      */
@@ -58,6 +60,11 @@ public class StructureProxy
             final BlockPos tempPos = info.pos;
             blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
             entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
+
+            if (info.blockState.getBlock() instanceof IAnchorBlock)
+            {
+                offset = info.pos;
+            }
         }
 
         for (final Template.EntityInfo info : structure.getTileEntities())
@@ -75,6 +82,7 @@ public class StructureProxy
 
     /**
      * Create a structure proxy directly.
+     *
      * @param structure the structure.
      */
     public StructureProxy(final Structure structure)
@@ -294,6 +302,7 @@ public class StructureProxy
         minX = Math.abs(minX);
         minY = Math.abs(minY);
         minZ = Math.abs(minZ);
+        boolean foundAnchor = false;
         final PlacementSettings settings = new PlacementSettings().setRotation(rotation).setMirror(mirror);
 
         for (final Template.BlockInfo info : structure.getBlockInfoWithSettings(settings))
@@ -305,6 +314,12 @@ public class StructureProxy
 
             this.blocks[x][y][z] = info;
             this.entities[x][y][z] = null;
+
+            if (info.blockState.getBlock() instanceof IAnchorBlock)
+            {
+                foundAnchor = true;
+                offset = info.pos.add(minX, minY, minZ);
+            }
 
             if (info.tileentityData != null)
             {
@@ -336,7 +351,10 @@ public class StructureProxy
             temp = size;
         }
 
-        updateOffSetIfDecoration(temp, times, minX, minY, minZ);
+        if (!foundAnchor)
+        {
+            updateOffSetIfDecoration(temp, times, minX, minY, minZ);
+        }
 
         for (final Template.EntityInfo info : structure.getTileEntities())
         {
@@ -358,11 +376,12 @@ public class StructureProxy
 
     /**
      * Updates the offset if the structure is a decoration.
-     * @param size the size.
+     *
+     * @param size     the size.
      * @param rotation the rotation.
-     * @param minX the min x value.
-     * @param minY the min y value.
-     * @param minZ the min z value.
+     * @param minX     the min x value.
+     * @param minY     the min y value.
+     * @param minZ     the min z value.
      */
     private void updateOffSetIfDecoration(final BlockPos size, final int rotation, final int minX, final int minY, final int minZ)
     {

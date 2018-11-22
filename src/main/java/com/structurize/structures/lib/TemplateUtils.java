@@ -4,6 +4,7 @@ import com.google.common.base.Functions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.structurize.blockout.Log;
+import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
 import com.structurize.structures.client.TemplateBlockAccessTransformHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -57,6 +58,11 @@ public final class TemplateUtils
 
     public static BlockPos getPrimaryBlockOffset(@NotNull final Template template)
     {
-        return new BlockPos(template.getSize().getX() / 2, 0, template.getSize().getZ() / 2);
+        return template.blocks.stream()
+                 .filter(blockInfo -> blockInfo.blockState.getBlock() instanceof IAnchorBlock)
+                 .findFirst()
+                 .map(blockInfo -> TemplateBlockAccessTransformHandler.getInstance().Transform(blockInfo))
+                 .map(blockInfo -> blockInfo.pos)
+                 .orElse(new BlockPos(template.getSize().getX() / 2, 0, template.getSize().getZ() / 2));
     }
 }
