@@ -48,7 +48,7 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
      */
     private void initBlock(final String name)
     {
-        setRegistryName(name);
+        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + name);
         setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
@@ -86,15 +86,15 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
         final boolean back = isConnectable(backState);
 
         if(!isConnectable(state) || state.getBlock().getTranslationKey().contains(TimberFrameType.HORIZONTALNOCAP.getName())
-                || (state.getValue(AXIS) == EnumFacing.Axis.Y && !up && !down)
-                || (state.getValue(AXIS) == EnumFacing.Axis.X && !left && !right)
-                || (state.getValue(AXIS) == EnumFacing.Axis.Z && !straight && !back))
+             || (state.getValue(AXIS) == EnumFacing.Axis.Y && !up && !down)
+             || (state.getValue(AXIS) == EnumFacing.Axis.X && !left && !right)
+             || (state.getValue(AXIS) == EnumFacing.Axis.Z && !straight && !back))
         {
             return state;
         }
 
         String name = getRegistryName().toString();
-        final int underline = name.indexOf('_', name.indexOf('_') + 1);
+        final int underline = name.lastIndexOf('_');
         name = name.substring(0, underline + 1);
 
         if(state.getValue(AXIS) == EnumFacing.Axis.Y)

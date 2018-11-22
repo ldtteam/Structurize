@@ -62,6 +62,12 @@ public class StructureProxy
 
         for (final Template.EntityInfo info : structure.getTileEntities())
         {
+            // Don't load item entities
+            if (info.entityData.getString("id").equals("minecraft:item"))
+            {
+                continue;
+            }
+
             final BlockPos tempPos = info.blockPos;
             entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
         }
@@ -97,6 +103,12 @@ public class StructureProxy
 
         for (final Template.EntityInfo info : structure.getTileEntities())
         {
+            // Don't load item entities
+            if (info.entityData.getString("id").equals("minecraft:item"))
+            {
+                continue;
+            }
+
             final BlockPos tempPos = info.blockPos;
             entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
         }
@@ -140,12 +152,11 @@ public class StructureProxy
      */
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        final Template.BlockInfo state = blocks[pos.getX()][pos.getY()][pos.getZ()];
-        if (state == null)
+        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
         {
-            return ModBlocks.blockSubstitution.getDefaultState();
+            return null;
         }
-        return state.blockState;
+        return blocks[pos.getX()][pos.getY()][pos.getZ()].blockState;
     }
 
     /**
@@ -156,12 +167,11 @@ public class StructureProxy
      */
     public Template.BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        final Template.BlockInfo info = blocks[pos.getX()][pos.getY()][pos.getZ()];
-        if (info == null)
+        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
         {
-            return new Template.BlockInfo(pos, ModBlocks.blockSubstitution.getDefaultState(), null);
+            return null;
         }
-        return info;
+        return blocks[pos.getX()][pos.getY()][pos.getZ()];
     }
 
     /**
@@ -183,7 +193,7 @@ public class StructureProxy
     @Nullable
     public Template.EntityInfo getEntityinfo(@NotNull final BlockPos pos)
     {
-        if (entities[pos.getX()][pos.getY()].length == 0)
+        if (entities.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
         {
             return null;
         }
@@ -330,6 +340,12 @@ public class StructureProxy
 
         for (final Template.EntityInfo info : structure.getTileEntities())
         {
+            // Don't load item entities
+            if (info.entityData.getString("id").equals("minecraft:item"))
+            {
+                continue;
+            }
+
             final Template.EntityInfo newInfo = structure.transformEntityInfoWithSettings(info, world, rotatePos.subtract(offset).add(new BlockPos(minX, minY, minZ)), settings);
             //289 74 157 - 289.9 76.5, 157.5
             final BlockPos tempPos = Template.transformedBlockPos(settings, info.blockPos);

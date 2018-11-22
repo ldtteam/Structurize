@@ -330,7 +330,7 @@ public class Structure
                     return null;
                 }
             }
-            cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getSaveHandler().getWorldDirectory() + "/" + origin));
+            cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID));
         }
         return cachedSchems;
     }

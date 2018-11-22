@@ -7,6 +7,9 @@ import net.minecraft.block.state.IBlockState;
 
 import java.util.Locale;
 
+/**
+ * Class defining the general shingle.
+ */
 public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
 {
     /**
@@ -37,7 +40,7 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
 
     private void init(final String name)
     {
-        setRegistryName(name);
+        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + name);
         setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);

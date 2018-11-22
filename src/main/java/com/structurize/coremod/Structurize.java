@@ -2,6 +2,7 @@ package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.event.FMLEventHandler;
+import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -143,6 +145,12 @@ public class Structurize
         // Client side only
         getNetwork().registerMessage(SaveScanMessage.class, SaveScanMessage.class, ++id, Side.CLIENT);
         getNetwork().registerMessage(SchematicSaveMessage.class, SchematicSaveMessage.class, ++id, Side.CLIENT);
+    }
+
+    @Mod.EventHandler
+    public void serverAboutLoad(final FMLServerAboutToStartEvent event)
+    {
+        Structures.init();
     }
 
     public static SimpleNetworkWrapper getNetwork()

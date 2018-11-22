@@ -19,9 +19,16 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * The paperwall block class defining the paperwall.
+ */
 public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
 {
+    /**
+     * The variants for the paperwall.
+     */
     public static final PropertyEnum<PaperwallType> VARIANT        = PropertyEnum.create("variant", PaperwallType.class);
+
     /**
      * This blocks name.
      */
@@ -46,27 +53,19 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
 
     private void initBlock()
     {
-        setRegistryName(BLOCK_NAME);
+        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
         setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
         setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         setHardness(BLOCK_HARDNESS);
         setResistance(RESISTANCE);
     }
 
-    /**
-     * Registery block at gameregistry.
-     *
-     * @param registry the registry to use.
-     */
     @Override
     public void registerItemBlock(final IForgeRegistry<Item> registry)
     {
         registry.register((new ItemColored(this, true)).setRegistryName(this.getRegistryName()));
     }
 
-    /**
-     * Get the MapColor for this Block and the given BlockState
-     */
     @NotNull
     @Override
     public MapColor getMapColor(final IBlockState state, final IBlockAccess worldIn, final BlockPos pos)
@@ -74,9 +73,6 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         return  state.getValue(VARIANT).getMapColor();
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     @NotNull
     @Override
     public IBlockState getStateFromMeta(final int meta)
@@ -84,10 +80,6 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         return this.getDefaultState().withProperty(VARIANT, PaperwallType.byMetadata(meta));
     }
 
-    /**
-     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
-     * returns the metadata of the dropped item based on the old metadata of the block.
-     */
     @Override
     public int damageDropped(final IBlockState state)
     {
@@ -101,9 +93,6 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         return new ItemStack(Item.getItemFromBlock(this), 1, state.getValue(VARIANT).getMetadata());
     }
 
-    /**
-     * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
-     */
     @Override
     public void getSubBlocks(final CreativeTabs itemIn, final NonNullList<ItemStack> items)
     {
@@ -120,19 +109,12 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         return BlockRenderLayer.TRANSLUCENT;
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     @Override
     public int getMetaFromState(final IBlockState state)
     {
         return state.getValue(VARIANT).getMetadata();
     }
 
-    /**
-     * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
-     * blockstate.
-     */
     @NotNull
     @Override
     public IBlockState withRotation(@NotNull final IBlockState state, final Rotation rot)
@@ -156,10 +138,6 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
         }
     }
 
-    /**
-     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
-     * blockstate.
-     */
     @NotNull
     @Override
     public IBlockState withMirror(@NotNull final IBlockState state, final Mirror mirrorIn)

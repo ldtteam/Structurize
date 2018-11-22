@@ -234,8 +234,7 @@ public class ClientProxy extends CommonProxy
 
         // if the world schematics folder exists we use it
         // otherwise we use the minecraft folder  /structurize/schematics if on the physical client on the logical server
-        final File worldSchematicFolder = new File(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getSaveHandler().getWorldDirectory()
-                                                     + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
+        final File worldSchematicFolder = new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
 
         if (!worldSchematicFolder.exists())
         {

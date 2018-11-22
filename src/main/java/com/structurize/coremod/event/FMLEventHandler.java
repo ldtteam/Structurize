@@ -51,19 +51,6 @@ public class FMLEventHandler
     }
 
     /**
-     * World load event.
-     * @param event the event params.
-     */
-    @SubscribeEvent
-    public void onWorldLoad(@NotNull final WorldEvent.Load event)
-    {
-        if (!event.getWorld().isRemote)
-        {
-            Structures.init();
-        }
-    }
-
-    /**
      * Called when the config is changed, used to synch between file and game.
      *
      * @param event the on config changed event.
