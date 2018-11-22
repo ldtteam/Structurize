@@ -256,7 +256,11 @@ public class Structure
                             {
                                 if (Block.getBlockFromName(name) == null)
                                 {
-                                    ((NBTTagCompound) listCompound).setString("Name", "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length()));
+                                    final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
+                                    if (Block.getBlockFromName(structurizeName) != null)
+                                    {
+                                        ((NBTTagCompound) listCompound).setString("Name", structurizeName);
+                                    }
                                 }
                             }
                         }

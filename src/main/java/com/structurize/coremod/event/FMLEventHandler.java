@@ -58,7 +58,6 @@ public class FMLEventHandler
     @SubscribeEvent
     public void missingMapping(@NotNull final RegistryEvent.MissingMappings<Block> event)
     {
-        final IForgeRegistry registry = event.getRegistry();
         event.getAllMappings().forEach((mapping) -> {
             if(mapping.key.toString().contains(Constants.MINECOLONIES_MOD_ID))
             {
