@@ -119,4 +119,11 @@ public interface IProxy
      */
     @NotNull
     RecipeBook getRecipeBookFromPlayer(@NotNull final EntityPlayer player);
+
+    /**
+     * Opens a build tool window.
+     *
+     * @param pos coordinates.
+     */
+    void openMultiBlockWindow(final BlockPos pos);
 }

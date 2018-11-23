@@ -53,6 +53,8 @@ public final class ModBlocks
     public static        BlockCactusSlabHalf            blockCactusSlabHalf;
     public static        BlockCactusSlabDouble          blockCactusSlabDouble;
 
+    public static MultiBlock                  multiBlock;
+
     public static List<BlockTimberFrame> getTimberFrames()
     {
         return new ArrayList<>(timberFrames);
@@ -106,6 +108,8 @@ public final class ModBlocks
                 timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + type.getName() + "_" + frameType).registerBlock(registry));
             }
         }
+
+        multiBlock = new MultiBlock().registerBlock(registry);
     }
 
     public static void registerItemBlock(final IForgeRegistry<Item> registry)
@@ -130,5 +134,7 @@ public final class ModBlocks
         {
             frame.registerItemBlock(registry);
         }
+
+        multiBlock.registerItemBlock(registry);
     }
 }

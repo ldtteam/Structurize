@@ -142,6 +142,9 @@ public class Structurize
         getNetwork().registerMessage(UndoMessage.class, UndoMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(StructurizeStylesMessage.class, StructurizeStylesMessage.class, ++id, Side.CLIENT);
 
+        // Multiblock message
+        getNetwork().registerMessage(MultiBlockChangeMessage.class, MultiBlockChangeMessage.class, ++id, Side.SERVER);
+
         // Client side only
         getNetwork().registerMessage(SaveScanMessage.class, SaveScanMessage.class, ++id, Side.CLIENT);
         getNetwork().registerMessage(SchematicSaveMessage.class, SchematicSaveMessage.class, ++id, Side.CLIENT);

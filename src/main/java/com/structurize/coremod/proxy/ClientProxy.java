@@ -209,6 +209,8 @@ public class ClientProxy extends CommonProxy
                         new ModelResourceLocation(frame.getRegistryName(), INVENTORY));
         }
 
+        createCustomModel(ModBlocks.multiBlock);
+
         //Additionally we register an exclusion handler here;
         TemplateBlockAccessTransformHandler.getInstance().AddTransformHandler(
           (b) -> b.blockState.getBlock() instanceof BlockSubstitution,
@@ -272,5 +274,12 @@ public class ClientProxy extends CommonProxy
         }
 
         return super.getRecipeBookFromPlayer(player);
+    }
+
+    @Override
+    public void openMultiBlockWindow(@Nullable final BlockPos pos)
+    {
+        @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
+        window.open();
     }
 }

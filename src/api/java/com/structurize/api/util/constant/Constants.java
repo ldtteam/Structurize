@@ -20,6 +20,15 @@ public final class Constants
     public static final double HALF_BLOCK                       = 0.5D;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
 
+    /**
+     * Volume to play at.
+     */
+    public static final double VOLUME = 0.5D;
+
+    /**
+     * The base pitch, add more to this to change the sound.
+     */
+    public static final double PITCH = 0.8D;
 
     /**
      * Maximum message size from client to server (Leaving some extra space).
