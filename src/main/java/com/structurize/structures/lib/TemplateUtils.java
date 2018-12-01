@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.structurize.blockout.Log;
 import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
+import com.structurize.structures.client.TemplateBlockAccess;
 import com.structurize.structures.client.TemplateBlockAccessTransformHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -17,9 +18,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Utility functions for templates.
+ */
 public final class TemplateUtils
 {
-
     private static final Cache<Template, Map<BlockPos, Template.BlockInfo>> templateBlockInfoCache = CacheBuilder.newBuilder().maximumSize(50).build();
 
     private TemplateUtils()
@@ -27,15 +30,20 @@ public final class TemplateUtils
         throw new IllegalArgumentException("Utils class");
     }
 
-    public static TileEntity getTileEntityFromPos(final Template template, final BlockPos pos)
+    /**
+     * Get the tileEntity from a certain position.
+     * @param template the template they are in.
+     * @param pos the position they are at.
+     * @param access the world access to assign them to.
+     * @return the tileEntity or null.
+     */
+    public static TileEntity getTileEntityFromPos(final Template template, final BlockPos pos, final TemplateBlockAccess access)
     {
         final Template.BlockInfo blockInfo = getBlockInfoFromPos(template, pos);
         if (blockInfo.tileentityData != null)
         {
-            //TODO: Figure out if this world = null thing does not harm anyone for rendering purposes.
-            return TileEntity.create(null, blockInfo.tileentityData);
+            return TileEntity.create(access, blockInfo.tileentityData);
         }
-
         return null;
     }
 

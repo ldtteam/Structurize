@@ -7,60 +7,88 @@ import net.minecraft.init.Biomes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.storage.WorldInfo;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class TemplateBlockAccess implements IBlockAccess
+/**
+ * Our world/blockAccess dummy.
+ */
+public class TemplateBlockAccess extends World implements IBlockAccess
 {
-
+    /**
+     * The template with the info we need.
+     */
     private final Template template;
 
+    /**
+     * Constructor to create a new world/blockAccess
+     * @param template the template to create it from.
+     */
     public TemplateBlockAccess(final Template template)
     {
+        super(null, null, new WorldProviderSurface(), null, true);
         this.template = template;
     }
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(final BlockPos pos)
+    public TileEntity getTileEntity(@NotNull final BlockPos pos)
     {
-        return TemplateUtils.getTileEntityFromPos(template, pos);
+        return TemplateUtils.getTileEntityFromPos(template, pos, this);
     }
 
     @Override
-    public int getCombinedLight(final BlockPos pos, final int lightValue)
+    public int getCombinedLight(@NotNull final BlockPos pos, final int lightValue)
     {
         return lightValue;
     }
 
+    @NotNull
     @Override
-    public IBlockState getBlockState(final BlockPos pos)
+    public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
         return TemplateUtils.getBlockInfoFromPos(template, pos).blockState;
     }
 
     @Override
-    public boolean isAirBlock(final BlockPos pos)
+    public boolean isAirBlock(@NotNull final BlockPos pos)
     {
         return getBlockState(pos).getBlock() instanceof BlockAir;
     }
 
     @Override
-    public Biome getBiome(final BlockPos pos)
+    protected boolean isChunkLoaded(final int x, final int z, final boolean allowEmpty)
+    {
+        return false;
+    }
+
+    @NotNull
+    @Override
+    public Biome getBiome(@NotNull final BlockPos pos)
     {
         return Biomes.PLAINS;
     }
 
     @Override
-    public int getStrongPower(final BlockPos pos, final EnumFacing direction)
+    protected IChunkProvider createChunkProvider()
+    {
+        return null;
+    }
+
+    @Override
+    public int getStrongPower(@NotNull final BlockPos pos, @NotNull final EnumFacing direction)
     {
         return 0;
     }
 
+    @NotNull
     @Override
     public WorldType getWorldType()
     {
@@ -68,7 +96,7 @@ public class TemplateBlockAccess implements IBlockAccess
     }
 
     @Override
-    public boolean isSideSolid(final BlockPos pos, final EnumFacing side, final boolean def)
+    public boolean isSideSolid(@NotNull final BlockPos pos, @NotNull final EnumFacing side, final boolean def)
     {
         return getBlockState(pos).isSideSolid(this, pos, side);
     }

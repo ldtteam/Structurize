@@ -7,9 +7,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+
+import static com.structurize.api.util.constant.Constants.*;
 
 /**
  * Utility methods for BlockPos.
@@ -196,5 +199,25 @@ public final class BlockPosUtil
     public static boolean isEqual(@NotNull final BlockPos coords, final int x, final int y, final int z)
     {
         return coords.getX() == x && coords.getY() == y && coords.getZ() == z;
+    }
+
+    /**
+     * Get the rotation enum value from the amount of rotations.
+     * @param rotations the amount of rotations.
+     * @return the enum Rotation.
+     */
+    public static Rotation getRotationFromRotations(final int rotations)
+    {
+        switch (rotations)
+        {
+            case ROTATE_ONCE:
+                return Rotation.CLOCKWISE_90;
+            case ROTATE_TWICE:
+                return Rotation.CLOCKWISE_180;
+            case ROTATE_THREE_TIMES:
+                return Rotation.COUNTERCLOCKWISE_90;
+            default:
+                return Rotation.NONE;
+        }
     }
 }

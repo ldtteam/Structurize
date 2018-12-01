@@ -102,7 +102,7 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, Constants.MOD_ID + ":MultiBlock");
+        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, Constants.MOD_ID + ":multiblock");
     }
 
     @Override
