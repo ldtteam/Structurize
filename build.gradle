@@ -50,7 +50,8 @@ configFile.withReader {
 }
 
 dependencies {
-    compile "mod.chiselsandbits:chiselsandbits:${config.c_b_version}"
+    compile "mod.chiselsandbits:chiselsandbits:${config.c_b_version}:api"
+    runtime "mod.chiselsandbits:chiselsandbits:${config.c_b_version}"
 
     testCompile 'junit:junit:4.11'
     testCompile "org.mockito:mockito-core:1.+"
