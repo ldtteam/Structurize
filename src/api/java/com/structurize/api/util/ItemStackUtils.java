@@ -1,6 +1,5 @@
 package com.structurize.api.util;
 
-import com.structurize.api.compatibility.candb.ChiselAndBitsCheck;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
@@ -58,10 +57,6 @@ public final class ItemStackUtils
                     items.add(stack);
                 }
             }
-        }
-        else if(tileEntity != null && ChiselAndBitsCheck.isChiselAndBitsTileEntity(tileEntity))
-        {
-            items.addAll(ChiselAndBitsCheck.getBitStacks(tileEntity));
         }
         else if(tileEntity instanceof TileEntityBed)
         {
