@@ -4,8 +4,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.storage.WorldSavedData;
 import org.jetbrains.annotations.NotNull;
 
+import static com.structurize.api.util.constant.Constants.MOD_ID;
 import static com.structurize.api.util.constant.NbtTagConstants.TAG_UUID;
-import static mod.chiselsandbits.core.ChiselsAndBits.MODID;
 
 /**
  * The UUID storage class.
@@ -15,7 +15,7 @@ public class UUIDStorage extends WorldSavedData
     /**
      * The data description.
      */
-    public static final String DATA_NAME = MODID + "_UUID";
+    public static final String DATA_NAME = MOD_ID + "_UUID";
 
     /**
      * Required constructor.
