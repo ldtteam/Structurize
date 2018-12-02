@@ -1,5 +1,6 @@
 package com.structurize.coremod.placementhandlers;
 
+import com.structurize.api.compatibility.candb.ChiselAndBitsCheck;
 import com.structurize.api.util.BlockUtils;
 import com.structurize.api.util.ItemStackUtils;
 import net.minecraft.block.*;
@@ -499,9 +500,14 @@ public final class PlacementHandlers
         @Override
         public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final NBTTagCompound tileEntityData, final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            final List<ItemStack> itemList = new ArrayList<>();
+            if (!ChiselAndBitsCheck.isChiselAndBitsBlock(blockState))
+            {
+                itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            }
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, world));
             itemList.removeIf(ItemStackUtils::isEmpty);
+
             return itemList;
         }
     }
