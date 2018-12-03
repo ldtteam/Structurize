@@ -106,12 +106,10 @@ task apiJar(type: Jar) {
 jar {
     from sourceSets.api.output
     from sourceSets.main.output
-    
-    classifier = 'universal'
 
     manifest {
         attributes 'FMLAT': "structurize_at.cfg",
-        'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}:universal"
+        'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}"
     }
 }
 
