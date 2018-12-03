@@ -110,7 +110,8 @@ jar {
     classifier = 'universal'
 
     manifest {
-        attributes 'FMLAT': "structurize_at.cfg"
+        attributes 'FMLAT': "structurize_at.cfg",
+        'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}:universal"
     }
 }
 
