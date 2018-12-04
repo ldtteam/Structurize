@@ -334,7 +334,10 @@ public class Structure
                     return null;
                 }
             }
-            cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID));
+            else
+            {
+                cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID));
+            }
         }
         return cachedSchems;
     }
