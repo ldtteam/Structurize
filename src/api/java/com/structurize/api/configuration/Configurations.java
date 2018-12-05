@@ -26,5 +26,8 @@ public class Configurations
 
         @Config.Comment("Max amount of schematics to be cached on the server")
         public int maxCachedSchematics = 100;
-     }
+
+        @Config.Comment("Max amount of blocks checked by a possible worker.")
+        public int maxBlocksChecked = 1000;
+    }
 }

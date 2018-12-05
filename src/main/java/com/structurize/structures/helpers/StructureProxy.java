@@ -202,7 +202,7 @@ public class StructureProxy
     @Nullable
     public Template.EntityInfo getEntityinfo(@NotNull final BlockPos pos)
     {
-        if (entities.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (entities.length <= pos.getX() || entities[pos.getX()].length <= pos.getY() || entities[pos.getX()][pos.getY()].length <= pos.getZ())
         {
             return null;
         }
