@@ -228,8 +228,9 @@ public class StructureWrapper
      * Place a structure into the world.
      * @param world the placing player.
      */
-    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, final boolean complete)
     {
+        setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
         final BlockPos endPos = new BlockPos(structure.getWidth(), structure.getHeight(), structure.getLength());
         BlockPos currentPos = inputPos;
@@ -348,7 +349,7 @@ public class StructureWrapper
      * @param complete if complete with it.
      * @param tileEntityData the tileEntity.
      */
-    private void handleBlockPlacement(final World world, final BlockPos pos, final IBlockState localState, final boolean complete, final NBTTagCompound tileEntityData)
+    public void handleBlockPlacement(final World world, final BlockPos pos, final IBlockState localState, final boolean complete, final NBTTagCompound tileEntityData)
     {
         for (final IPlacementHandler handlers : PlacementHandlers.handlers)
         {

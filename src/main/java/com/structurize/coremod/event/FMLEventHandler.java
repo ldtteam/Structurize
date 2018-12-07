@@ -4,28 +4,35 @@ import com.structurize.api.util.BlockPosUtil;
 import com.structurize.api.util.LanguageHandler;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
+import com.structurize.coremod.blocks.decorative.BlockTimberFrame;
+import com.structurize.coremod.blocks.types.TimberFrameType;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.coremod.management.Manager;
-import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.StructurizeStylesMessage;
 import com.structurize.coremod.network.messages.ServerUUIDMessage;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 
@@ -50,26 +57,33 @@ public class FMLEventHandler
         }
     }
 
-    /**
-     * Called when the config is changed, used to synch between file and game.
-     *
-     * @param event the on config changed event.
-     */
     @SubscribeEvent
-    public void missingMapping(@NotNull final RegistryEvent.MissingMappings<Block> event)
+    public void onItemRegistryMissingMappings(final RegistryEvent.MissingMappings<Item> event)
     {
-        event.getAllMappings().forEach((mapping) -> {
-            if(mapping.key.toString().contains(Constants.MINECOLONIES_MOD_ID))
+        onRegistryMissingMappings(event);
+    }
+
+    @SubscribeEvent
+    public void onBlockRegistryMissingMappings(final RegistryEvent.MissingMappings<Block> event)
+    {
+        onRegistryMissingMappings(event);
+    }
+
+    private static <T extends IForgeRegistryEntry<T>> void onRegistryMissingMappings(final RegistryEvent.MissingMappings<T> event)
+    {
+        event.getAllMappings().forEach(missingMapping -> {
+            if (missingMapping.key.getNamespace().equals(Constants.MINECOLONIES_MOD_ID))
             {
-                final Block newBlock = Block.getBlockFromName(Constants.MOD_ID + ":" + mapping.key.getPath());
-                if (newBlock != null)
+                final String path = missingMapping.key.getPath();
+                final ResourceLocation remappedTargetId = new ResourceLocation(Constants.MOD_ID.toLowerCase() + ":" + path);
+                @Nullable final T target = missingMapping.registry.getValue(remappedTargetId);
+                if (target != null && target != Blocks.AIR && target != Items.AIR)
                 {
-                    mapping.remap(newBlock);
+                    missingMapping.remap(target);
                 }
             }
         });
     }
-
 
     /**
      * Called when the config is changed, used to synch between file and game.
