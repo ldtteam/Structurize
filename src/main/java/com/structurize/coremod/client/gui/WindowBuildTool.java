@@ -269,8 +269,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             //We need to check that the server have it too using the md5
             requestScannedSchematic(structureName, true, complete);
         }
-
-        paste(structureName, complete);
+        else
+        {
+            paste(structureName, complete);
+        }
         Settings.instance.reset();
         close();
     }
@@ -826,7 +828,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param complete      if pasted, should it be complete.
      * @param structureName of the scan to be built.
      */
-    public static void requestScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
+    public void requestScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
     {
         if (!Structures.isPlayerSchematicsAllowed())
         {
@@ -880,6 +882,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             else
             {
                 Log.getLogger().warn("BuilderTool: server does not have " + serverSideName);
+            }
+
+            if (paste)
+            {
+                Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
+                  serverSideName,
+                  structureName.toString(),
+                  Settings.instance.getPosition(),
+                  Settings.instance.getRotation(),
+                  false,
+                  Settings.instance.getMirror(),
+                  complete, null));
+            }
+            else
+            {
+                place(new StructureName(serverSideName));
             }
         }
         else
