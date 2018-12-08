@@ -43,11 +43,6 @@ public class Structurize
 
     private static SimpleNetworkWrapper network;
 
-    static
-    {
-        MinecraftForge.EVENT_BUS.register(new FMLEventHandler());
-    }
-
     /**
      * Returns whether the side is client or not
      *
@@ -111,8 +106,6 @@ public class Structurize
         initializeNetwork();
 
         proxy.registerTileEntities();
-
-        proxy.registerEvents();
 
         proxy.registerTileEntityRendering();
 
