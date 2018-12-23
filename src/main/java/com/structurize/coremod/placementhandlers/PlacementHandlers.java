@@ -380,17 +380,20 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-
-            final List<Entity> entityList = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof EntityLiving || entity instanceof EntityItem));
-            if (!entityList.isEmpty())
+            if (!world.isAirBlock(pos))
             {
-                for (final Entity entity : entityList)
+                final List<Entity> entityList =
+                  world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof EntityLiving || entity instanceof EntityItem));
+                if (!entityList.isEmpty())
                 {
-                    entity.setDead();
+                    for (final Entity entity : entityList)
+                    {
+                        entity.setDead();
+                    }
                 }
-            }
 
-            world.setBlockToAir(pos);
+                world.setBlockToAir(pos);
+            }
             return ActionProcessingResult.ACCEPT;
         }
 
