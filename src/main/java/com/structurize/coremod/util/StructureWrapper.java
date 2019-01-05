@@ -244,6 +244,10 @@ public class StructureWrapper
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
                     final IBlockState localState = this.structure.getBlockState(localPos);
+                    if (localState == null)
+                    {
+                        continue;
+                    }
                     final Block localBlock = localState.getBlock();
 
                     final BlockPos worldPos = position.add(localPos);

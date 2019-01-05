@@ -161,7 +161,7 @@ public class StructureProxy
      */
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ() || blocks[pos.getX()][pos.getY()][pos.getZ()] == null)
         {
             return null;
         }

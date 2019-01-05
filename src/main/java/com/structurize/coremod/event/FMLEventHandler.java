@@ -95,7 +95,7 @@ public class FMLEventHandler
     }
 
     @SubscribeEvent
-    public void onBlockBreak(@NotNull final TickEvent.WorldTickEvent event)
+    public void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
         if (event.world.isRemote)
         {
