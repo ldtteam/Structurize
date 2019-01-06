@@ -2,6 +2,7 @@ package com.structurize.structures.helpers;
 
 import com.structurize.api.util.Shape;
 import com.structurize.coremod.client.gui.WindowBuildTool;
+import com.structurize.structures.client.TemplateRenderHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
@@ -268,6 +269,7 @@ public final class Settings
         else
         {
             this.structure = structure;
+            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate());
         }
     }
 
@@ -283,6 +285,8 @@ public final class Settings
         isMirrored = false;
         staticSchematicMode = false;
         staticSchematicName = "";
+
+        TemplateRenderHandler.getInstance().reset();
     }
 
     /**
