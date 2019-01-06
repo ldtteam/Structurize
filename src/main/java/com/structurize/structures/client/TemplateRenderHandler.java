@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_QUADS;
 
@@ -54,6 +55,21 @@ public final class TemplateRenderHandler
      * Cached entity renderer.
      */
     private RenderManager entityRenderer;
+
+    /**
+     * Pregenerated Tile entities
+     */
+    private List<TileEntity> tileList;
+
+    /**
+     * Pregenerated tessellator
+     */
+    private TemplateTessellator tessellator;
+
+    /**
+     * The offset of the anchor for the current template
+     */
+    private BlockPos anchorBlockOffset;
 
     /**
      * Private constructor to hide public one.
@@ -94,12 +110,53 @@ public final class TemplateRenderHandler
             entityRenderer = Minecraft.getMinecraft().getRenderManager();
         }
 
-        final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
+        // Should not happen, but generate again when missing
+        if (tileList == null || tessellator == null)
+        {
+            pregenerateEntries(template);
+        }
 
+        tessellator.draw(rotation, mirror, drawingOffset, anchorBlockOffset);
+        tileList.forEach(tileEntity -> {
+            tileEntity.setPos(pos.subtract(anchorBlockOffset));
+            TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, 0);
+        });
+    }
+
+    /**
+     * Pregenerates the tileEntity list and the Tessellator for this template.
+     *
+     * @param template The template to use
+     */
+    public void pregenerateEntries(final Template template)
+    {
+        if (template == null)
+        {
+            return;
+        }
+
+        if (rendererDispatcher == null)
+        {
+            rendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        }
+
+        // Calculate the anchor offset
+        anchorBlockOffset = TemplateUtils.getPrimaryBlockOffset(template);
+
+        // generate tileEntities
+        tileList = template.blocks.stream()
+                     .filter(blockInfo -> blockInfo.tileentityData != null)
+                     .map(this::constructTileEntities)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
+
+        // generate tessellator
+        tessellator = new TemplateTessellator();
+        final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
         try
         {
             templateBufferBuilderCache.get(template, () -> {
-                final TemplateTessellator tessellator = new TemplateTessellator();
+
                 tessellator.getBuilder().begin(GL_QUADS, DefaultVertexFormats.BLOCK);
 
                 template.blocks.stream()
@@ -107,10 +164,7 @@ public final class TemplateRenderHandler
                   .forEach(b -> rendererDispatcher.renderBlock(b.blockState, b.pos, blockAccess, tessellator.getBuilder()));
 
                 return tessellator;
-            }).draw(rotation, mirror, drawingOffset, TemplateUtils.getPrimaryBlockOffset(template));
-
-
-            template.blocks.stream().filter(blockInfo -> blockInfo.tileentityData != null).map(b -> constructTileEntities(b, pos.subtract(TemplateUtils.getPrimaryBlockOffset(template)))).filter(Objects::nonNull).forEach(tileEntity -> TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, 0));
+            });
         }
         catch (ExecutionException e)
         {
@@ -119,15 +173,13 @@ public final class TemplateRenderHandler
     }
 
     @Nullable
-    private TileEntity constructTileEntities(final Template.BlockInfo info, final BlockPos pos)
+    private TileEntity constructTileEntities(final Template.BlockInfo info)
     {
         final TileEntity entity = TileEntity.create(null, info.tileentityData);
         if (!(entity instanceof TileEntityBanner))
         {
             return null;
         }
-
-        entity.setPos(pos.add(info.pos));
         return entity;
     }
 
@@ -136,7 +188,7 @@ public final class TemplateRenderHandler
      *
      * @param points       the points to render it at.
      * @param partialTicks the partial ticks.
-     * @param template the template.
+     * @param template     the template.
      */
     public void drawTemplateAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Template template)
     {
@@ -162,5 +214,15 @@ public final class TemplateRenderHandler
 
             draw(template, Rotation.NONE, Mirror.NONE, renderOffset, partialTicks, coord);
         }
+    }
+
+    /**
+     * Reset pregenerated entries
+     */
+    public void reset()
+    {
+        tileList = null;
+        tessellator = null;
+        anchorBlockOffset = null;
     }
 }
