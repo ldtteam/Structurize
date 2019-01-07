@@ -33,6 +33,11 @@ import static org.lwjgl.opengl.GL11.GL_QUADS;
 public final class TemplateRenderHandler
 {
     /**
+     * A static instance on the client.
+     */
+    private static final TemplateRenderHandler ourInstance = new TemplateRenderHandler();
+
+    /**
      * The builder cache.
      */
     private final Cache<Template, TemplateTessellator> templateBufferBuilderCache =
@@ -65,6 +70,26 @@ public final class TemplateRenderHandler
      * The offset of the anchor for the current template
      */
     private BlockPos anchorBlockOffset;
+
+    /**
+     * Private constructor to hide public one.
+     */
+    private TemplateRenderHandler()
+    {
+        /*
+         * Intentionally left empty.
+         */
+    }
+
+    /**
+     * Get the static instance.
+     *
+     * @return a static instance of this class.
+     */
+    public static TemplateRenderHandler getInstance()
+    {
+        return ourInstance;
+    }
 
     /**
      * Draw a wayPointTemplate with a rotation, mirror and offset.
