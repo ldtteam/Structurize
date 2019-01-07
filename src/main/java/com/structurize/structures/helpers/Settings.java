@@ -74,6 +74,11 @@ public final class Settings
     private WindowBuildTool.FreeMode freeMode;
 
     /**
+     * The renderer to use
+     */
+    public static TemplateRenderHandler renderHandler = new TemplateRenderHandler();
+
+    /**
      * Private constructor to hide implicit one.
      */
     private Settings()
@@ -269,7 +274,7 @@ public final class Settings
         else
         {
             this.structure = structure;
-            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate());
+            renderHandler.pregenerateEntries(structure.getTemplate());
         }
     }
 
@@ -286,7 +291,7 @@ public final class Settings
         staticSchematicMode = false;
         staticSchematicName = "";
 
-        TemplateRenderHandler.getInstance().reset();
+        renderHandler.reset();
     }
 
     /**
