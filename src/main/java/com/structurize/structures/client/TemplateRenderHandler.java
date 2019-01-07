@@ -171,8 +171,12 @@ public final class TemplateRenderHandler
      */
     public void reset()
     {
-        tileList = null;
-        tessellator = null;
-        anchorBlockOffset = null;
+        if (tessellator != null)
+        {
+            tileList = null;
+            tessellator.getBuffer().deleteGlBuffers();
+            tessellator = null;
+            anchorBlockOffset = null;
+        }
     }
 }
