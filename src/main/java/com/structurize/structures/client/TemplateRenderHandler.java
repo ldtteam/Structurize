@@ -1,5 +1,9 @@
 package com.structurize.structures.client;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.structurize.api.util.Log;
 import com.structurize.structures.lib.TemplateUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -18,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_QUADS;
@@ -27,6 +32,20 @@ import static org.lwjgl.opengl.GL11.GL_QUADS;
  */
 public final class TemplateRenderHandler
 {
+    /**
+     * A static instance on the client.
+     */
+    private static final TemplateRenderHandler ourInstance = new TemplateRenderHandler();
+
+    /**
+     * The builder cache.
+     */
+    private final Cache<Template, TemplateTessellator> templateBufferBuilderCache =
+      CacheBuilder.newBuilder()
+        .maximumSize(50)
+        .removalListener((RemovalListener<Template, TemplateTessellator>) notification -> notification.getValue().getBuffer().deleteGlBuffers())
+        .build();
+
     /**
      * The dispatcher.
      */
@@ -51,6 +70,26 @@ public final class TemplateRenderHandler
      * The offset of the anchor for the current template
      */
     private BlockPos anchorBlockOffset;
+
+    /**
+     * Private constructor to hide public one.
+     */
+    private TemplateRenderHandler()
+    {
+        /*
+         * Intentionally left empty.
+         */
+    }
+
+    /**
+     * Get the static instance.
+     *
+     * @return a static instance of this class.
+     */
+    public static TemplateRenderHandler getInstance()
+    {
+        return ourInstance;
+    }
 
     /**
      * Draw a wayPointTemplate with a rotation, mirror and offset.
@@ -114,12 +153,23 @@ public final class TemplateRenderHandler
         // generate tessellator
         tessellator = new TemplateTessellator();
         final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
+        try
+        {
+            templateBufferBuilderCache.get(template, () -> {
 
-        tessellator.getBuilder().begin(GL_QUADS, DefaultVertexFormats.BLOCK);
+                tessellator.getBuilder().begin(GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        template.blocks.stream()
-          .map(b -> TemplateBlockAccessTransformHandler.getInstance().Transform(b))
-          .forEach(b -> rendererDispatcher.renderBlock(b.blockState, b.pos, blockAccess, tessellator.getBuilder()));
+                template.blocks.stream()
+                  .map(b -> TemplateBlockAccessTransformHandler.getInstance().Transform(b))
+                  .forEach(b -> rendererDispatcher.renderBlock(b.blockState, b.pos, blockAccess, tessellator.getBuilder()));
+
+                return tessellator;
+            });
+        }
+        catch (ExecutionException e)
+        {
+            Log.getLogger().error(e);
+        }
     }
 
     @Nullable
@@ -171,12 +221,8 @@ public final class TemplateRenderHandler
      */
     public void reset()
     {
-        if (tessellator != null)
-        {
-            tileList = null;
-            tessellator.getBuffer().deleteGlBuffers();
-            tessellator = null;
-            anchorBlockOffset = null;
-        }
+        tileList = null;
+        tessellator = null;
+        anchorBlockOffset = null;
     }
 }
