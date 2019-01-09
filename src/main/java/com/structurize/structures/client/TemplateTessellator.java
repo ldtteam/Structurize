@@ -48,6 +48,7 @@ public class TemplateTessellator
         if (!isReadOnly)
         {
             this.builder.finishDrawing();
+            OptifineCompat.getInstance().beforeBuilderUpload(this);
             this.vboUploader.draw(this.builder);
             this.isReadOnly = true;
         }
@@ -57,6 +58,8 @@ public class TemplateTessellator
         this.buffer.bindBuffer();
 
         preTemplateDraw();
+
+        GlStateManager.bindTexture(Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId());
 
         this.buffer.drawArrays(GL_QUADS);
 

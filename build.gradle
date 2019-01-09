@@ -29,6 +29,9 @@ repositories {
     maven {
         url 'http://dogforce-games.com/maven'
     }
+    flatDir {
+        dirs './optifine'
+    }
 }
 
 apply plugin: 'idea'
@@ -50,6 +53,8 @@ configFile.withReader {
 }
 
 dependencies {
+    //provided (name: "OptiFine_1.12.2_HD_U_E3-dev")
+
     testCompile 'junit:junit:4.11'
     testCompile "org.mockito:mockito-core:1.+"
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
