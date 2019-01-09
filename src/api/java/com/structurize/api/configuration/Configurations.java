@@ -19,7 +19,7 @@ public class Configurations
         public boolean allowPlayerSchematics = true;
 
         @Config.Comment("Max world operations per tick (Max blocks to place, remove or replace)")
-        public static int maxOperationsPerTick = 1000;
+        public int maxOperationsPerTick = 1000;
 
         @Config.Comment("Max amount of changes cached to be able to undo")
         public int maxCachedChanges = 10;
