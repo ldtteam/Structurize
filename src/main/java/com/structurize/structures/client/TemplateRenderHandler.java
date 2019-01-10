@@ -156,17 +156,14 @@ public final class TemplateRenderHandler
         final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
         try
         {
-            templateBufferBuilderCache.get(template, () -> {
-
-                if (first)
-                {
-                    wrapper.tessellator.getBuilder().begin(GL_QUADS, DefaultVertexFormats.BLOCK);
-                }
+            wrapper.tessellator = templateBufferBuilderCache.get(template, () -> {
+                final TemplateTessellator tessellator = new TemplateTessellator();
+                tessellator.getBuilder().begin(GL_QUADS, DefaultVertexFormats.BLOCK);
                 template.blocks.stream()
                   .map(b -> TemplateBlockAccessTransformHandler.getInstance().Transform(b))
-                  .forEach(b -> rendererDispatcher.renderBlock(b.blockState, b.pos, blockAccess, wrapper.tessellator.getBuilder()));
+                  .forEach(b -> rendererDispatcher.renderBlock(b.blockState, b.pos, blockAccess, tessellator.getBuilder()));
 
-                return wrapper.tessellator;
+                return tessellator;
             });
         }
         catch (ExecutionException e)
