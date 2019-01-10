@@ -269,7 +269,7 @@ public final class Settings
         else
         {
             this.structure = structure;
-            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate());
+            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate(), false, "settings");
         }
     }
 
@@ -286,7 +286,7 @@ public final class Settings
         staticSchematicMode = false;
         staticSchematicName = "";
 
-        TemplateRenderHandler.getInstance().reset();
+        TemplateRenderHandler.getInstance().reset("settings");
     }
 
     /**
