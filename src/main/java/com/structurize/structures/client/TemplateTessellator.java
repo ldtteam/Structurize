@@ -123,7 +123,10 @@ public class TemplateTessellator
         OptifineCompat.getInstance().postTemplateDraw();
     }
 
-
+    /**
+     * Method to start the building of the template VBO.
+     * Can only be called once.
+     */
     public void startBuilding()
     {
         if (isReadOnly)
@@ -134,6 +137,10 @@ public class TemplateTessellator
         builder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
     }
 
+    /**
+     * Method to end the building of the template VBO.
+     * Can only be called once.
+     */
     public void finishBuilding()
     {
         if (!isReadOnly)
