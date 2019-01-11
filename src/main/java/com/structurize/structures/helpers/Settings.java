@@ -269,7 +269,7 @@ public final class Settings
         else
         {
             this.structure = structure;
-            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate(), false, "settings");
+            TemplateRenderHandler.getInstance().pregenerateEntries(structure.getTemplate(), "settings");
         }
     }
 

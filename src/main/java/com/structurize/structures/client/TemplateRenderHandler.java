@@ -87,8 +87,18 @@ public final class TemplateRenderHandler
      * @param rotation      its rotation.
      * @param mirror        its mirror.
      * @param drawingOffset its offset.
+     * @param partialTicks  the partial ticks passing.
+     * @param pos           the position.
+     * @param identifier    the unique identifier.
      */
-    public void draw(final Template template, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final float partialTicks, final BlockPos pos, final String identifier, final boolean add)
+    public void draw(
+      final Template template,
+      final Rotation rotation,
+      final Mirror mirror,
+      final Vector3d drawingOffset,
+      final float partialTicks,
+      final BlockPos pos,
+      final String identifier)
     {
         if (rendererDispatcher == null)
         {
@@ -99,9 +109,9 @@ public final class TemplateRenderHandler
             entityRenderer = Minecraft.getMinecraft().getRenderManager();
         }
 
-        if (!templateMap.containsKey(identifier) || add)
+        if (!templateMap.containsKey(identifier))
         {
-            pregenerateEntries(template, add, identifier);
+            pregenerateEntries(template, identifier);
         }
         final TemplateRenderWrapper wrapper = templateMap.get(identifier);
         wrapper.tessellator.draw(rotation, mirror, drawingOffset, wrapper.anchorBlockOffset);
@@ -115,9 +125,9 @@ public final class TemplateRenderHandler
      * Pregenerates the tileEntity list and the Tessellator for this template.
      *
      * @param template The template to use
-     * @param add if should add to existing wrapper.
+     * @param identifier the identifier to add to the map.
      */
-    public void pregenerateEntries(final Template template, final boolean add, final String identifier)
+    public void pregenerateEntries(final Template template, final String identifier)
     {
         if (template == null)
         {
@@ -129,28 +139,17 @@ public final class TemplateRenderHandler
             rendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         }
 
-        final TemplateRenderWrapper wrapper;
-        final boolean first;
-        if (templateMap.containsKey(identifier) && add)
-        {
-            wrapper = templateMap.get(identifier);
-            first = false;
-        }
-        else
-        {
-            first = true;
-            wrapper = new TemplateRenderWrapper();
-        }
+        final TemplateRenderWrapper wrapper = new TemplateRenderWrapper();
 
         // Calculate the anchor offset
         wrapper.anchorBlockOffset = TemplateUtils.getPrimaryBlockOffset(template);
 
         // generate tileEntities
         wrapper.tileList.addAll(template.blocks.stream()
-                     .filter(blockInfo -> blockInfo.tileentityData != null)
-                     .map(this::constructTileEntities)
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.toList()));
+                                  .filter(blockInfo -> blockInfo.tileentityData != null)
+                                  .map(this::constructTileEntities)
+                                  .filter(Objects::nonNull)
+                                  .collect(Collectors.toList()));
 
         // generate tessellator
         final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
@@ -213,7 +212,7 @@ public final class TemplateRenderHandler
             renderOffset.y = renderOffsetY;
             renderOffset.z = renderOffsetZ;
 
-            draw(template, Rotation.NONE, Mirror.NONE, renderOffset, partialTicks, coord, identifier, true);
+            draw(template, Rotation.NONE, Mirror.NONE, renderOffset, partialTicks, coord, identifier + coord.toString());
         }
     }
 
