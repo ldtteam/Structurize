@@ -53,7 +53,19 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     public int getCombinedLight(@NotNull final BlockPos pos, final int lightValue)
     {
-        return lightValue;
+        return 15 << 20 | 15 << 4;
+    }
+
+    @Override
+    public int getLight(final BlockPos pos)
+    {
+        return 15;
+    }
+
+    @Override
+    public float getLightBrightness(final BlockPos pos)
+    {
+        return 1f;
     }
 
     @NotNull
@@ -72,7 +84,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     protected boolean isChunkLoaded(final int x, final int z, final boolean allowEmpty)
     {
-        return false;
+        return true;
     }
 
     @NotNull
@@ -85,7 +97,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     protected IChunkProvider createChunkProvider()
     {
-        return null;
+        return Minecraft.getMinecraft().world.getChunkProvider();
     }
 
     @Override

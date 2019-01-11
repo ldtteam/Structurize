@@ -5,6 +5,8 @@ import com.structurize.structures.lib.RenderUtil;
 import com.structurize.structures.lib.TemplateUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -97,13 +99,45 @@ public class TemplateRenderer
         //Draw normal blocks.
         tessellator.draw();
 
+        RenderHelper.enableStandardItemLighting();
+
         //Draw tile entities.
-        tileEntities.forEach(tileEntity -> TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, 0));
+        tileEntities.forEach(tileEntity -> {
+            GlStateManager.pushMatrix();
+            int combinedLight = tileEntity.getWorld().getCombinedLight(tileEntity.getPos(), 0);
+            int lightMapX = combinedLight % 65536;
+            int lightMapY = combinedLight / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)lightMapX, (float)lightMapY);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 0, 1f);
+            GlStateManager.popMatrix();
+        });
+
+        RenderHelper.disableStandardItemLighting();
 
         //Draw entities
-        entities.forEach(entity -> Minecraft.getMinecraft().getRenderManager().renderEntityStatic(entity, partialTicks, true));
+        entities.forEach(entity -> {
+            GlStateManager.pushMatrix();
+            int brightnessForRender = entity.getBrightnessForRender();
+
+            if (entity.isBurning())
+            {
+                brightnessForRender = 15728880;
+            }
+
+            int lightMapX = brightnessForRender % 65536;
+            int lightMapY = brightnessForRender / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)lightMapX, (float)lightMapY);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+            Minecraft.getMinecraft().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, 0f, 0, true);
+
+            GlStateManager.popMatrix();
+        });
 
         postTemplateDraw();
+
     }
 
     private static void preTemplateDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inTemplateOffset)

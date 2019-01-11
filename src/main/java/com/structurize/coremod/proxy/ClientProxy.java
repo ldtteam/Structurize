@@ -16,6 +16,7 @@ import com.structurize.coremod.event.ClientEventHandler;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.structures.client.TemplateBlockAccess;
 import com.structurize.structures.client.TemplateBlockInfoTransformHandler;
+import com.structurize.structures.client.TemplateEntityInfoTransformHandler;
 import com.structurize.structures.event.RenderEventHandler;
 import com.structurize.structures.helpers.Settings;
 import net.minecraft.block.Block;
@@ -28,6 +29,7 @@ import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -224,6 +226,8 @@ public class ClientProxy extends CommonProxy
           (b) -> b.blockState.getBlock() == ModBlocks.blockSolidSubstitution,
           (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
         );
+
+
     }
 
     @Override

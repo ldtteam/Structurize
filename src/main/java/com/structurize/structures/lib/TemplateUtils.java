@@ -146,7 +146,10 @@ public final class TemplateUtils
             compound.setInteger("y", info.pos.getY());
             compound.setInteger("z", info.pos.getZ());
 
-            return TileEntity.create(blockAccess, compound);
+            final TileEntity entity = TileEntity.create(blockAccess, compound);
+            entity.setWorld(blockAccess);
+
+            return entity;
         }
         catch (Exception ex)
         {
@@ -179,6 +182,9 @@ public final class TemplateUtils
             nbttaglist.appendTag(new NBTTagDouble(vec3d1.z));
             compound.setTag("Pos", nbttaglist);
             compound.setUniqueId("UUID", UUID.randomUUID());
+            compound.setInteger("TileX", (int) vec3d1.x);
+            compound.setInteger("TileY", (int) vec3d1.y);
+            compound.setInteger("TileZ", (int) vec3d1.z);
 
             return EntityList.createEntityFromNBT(compound, blockAccess);
         }
