@@ -88,10 +88,8 @@ public class TemplateRenderer
      * @param rotation The rotation.
      * @param mirror The mirroring.
      * @param drawingOffset The drawing offset.
-     * @param partialTicks The partial tick time.
-     * @param pos The position.
      */
-    public void draw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final float partialTicks, final BlockPos pos)
+    public void draw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
         //Handle things like mirror, rotation and offset.
         preTemplateDraw(rotation, mirror, drawingOffset, primaryBlockOffset);

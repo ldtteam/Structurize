@@ -68,11 +68,11 @@ public final class TemplateRenderHandler
      * @param mirror        its mirror.
      * @param drawingOffset its offset.
      */
-    public void draw(final Template template, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final float partialTicks, final BlockPos pos)
+    public void draw(final Template template, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
         try
         {
-            templateBufferBuilderCache.get(template, () -> TemplateRenderer.buildRendererForTemplate(template)).draw(rotation, mirror, drawingOffset, partialTicks, pos);
+            templateBufferBuilderCache.get(template, () -> TemplateRenderer.buildRendererForTemplate(template)).draw(rotation, mirror, drawingOffset);
         }
         catch (ExecutionException e)
         {
@@ -110,7 +110,7 @@ public final class TemplateRenderHandler
             renderOffset.y = renderOffsetY;
             renderOffset.z = renderOffsetZ;
 
-            draw(template, Rotation.NONE, Mirror.NONE, renderOffset, partialTicks, coord);
+            draw(template, Rotation.NONE, Mirror.NONE, renderOffset);
         }
     }
 }
