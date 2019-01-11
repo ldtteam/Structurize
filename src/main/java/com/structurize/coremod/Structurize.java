@@ -1,6 +1,7 @@
 package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
+import com.structurize.compat.optifine.OptifineCompat;
 import com.structurize.coremod.event.FMLEventHandler;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
@@ -112,6 +113,7 @@ public class Structurize
         proxy.registerRenderer();
 
         CopyPastePlacementHandlers.initHandlers();
+        OptifineCompat.getInstance().intialize();
     }
 
     private static synchronized void initializeNetwork()

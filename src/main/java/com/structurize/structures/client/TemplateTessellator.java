@@ -1,5 +1,6 @@
 package com.structurize.structures.client;
 
+import com.structurize.compat.optifine.OptifineCompat;
 import com.structurize.structures.lib.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
@@ -47,6 +48,10 @@ public class TemplateTessellator
         if (!isReadOnly)
         {
             this.builder.finishDrawing();
+
+            //Tell optifine that we are loading a new instance into the GPU.
+            //This ensures that normals are calculated so that we know in which direction a face is facing. (Aka what is outside and what inside)
+            OptifineCompat.getInstance().beforeBuilderUpload(this);
             this.vboUploader.draw(this.builder);
             this.isReadOnly = true;
         }
@@ -56,6 +61,8 @@ public class TemplateTessellator
         this.buffer.bindBuffer();
 
         preTemplateDraw();
+
+        GlStateManager.bindTexture(Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId());
 
         this.buffer.drawArrays(GL_QUADS);
 
@@ -89,6 +96,8 @@ public class TemplateTessellator
 
     private static void preTemplateDraw()
     {
+        OptifineCompat.getInstance().preTemplateDraw();
+
         GlStateManager.glEnableClientState(GL_VERTEX_ARRAY);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
         GlStateManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -96,6 +105,11 @@ public class TemplateTessellator
         GlStateManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
         GlStateManager.glEnableClientState(GL_COLOR_ARRAY);
+
+        //Optifine uses its one vertexformats.
+        //It handles the setting of the pointers itself.
+        if (OptifineCompat.getInstance().setupArrayPointers())
+            return;
 
         GlStateManager.glVertexPointer(VERTEX_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, VERTEX_COMPONENT_OFFSET);
         GlStateManager.glColorPointer(COLOR_COMPONENT_SIZE, GL_UNSIGNED_BYTE, VERTEX_SIZE, COLOR_COMPONENT_OFFSET);
@@ -135,6 +149,9 @@ public class TemplateTessellator
                     break;
             }
         }
+
+        //Disable the pointers again.
+        OptifineCompat.getInstance().postTemplateDraw();
     }
 
     private void postTemplateBufferUnbinding()
