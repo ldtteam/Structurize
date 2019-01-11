@@ -48,6 +48,9 @@ public class TemplateTessellator
         if (!isReadOnly)
         {
             this.builder.finishDrawing();
+
+            //Tell optifine that we are loading a new instance into the GPU.
+            //This ensures that normals are calculated so that we know in which direction a face is facing. (Aka what is outside and what inside)
             OptifineCompat.getInstance().beforeBuilderUpload(this);
             this.vboUploader.draw(this.builder);
             this.isReadOnly = true;
@@ -103,6 +106,8 @@ public class TemplateTessellator
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
         GlStateManager.glEnableClientState(GL_COLOR_ARRAY);
 
+        //Optifine uses its one vertexformats.
+        //It handles the setting of the pointers itself.
         if (OptifineCompat.getInstance().setupArrayPointers())
             return;
 
@@ -145,6 +150,7 @@ public class TemplateTessellator
             }
         }
 
+        //Disable the pointers again.
         OptifineCompat.getInstance().postTemplateDraw();
     }
 

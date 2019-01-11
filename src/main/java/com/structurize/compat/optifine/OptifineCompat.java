@@ -9,6 +9,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * The optifine compat layer.
+ * Allows shaders to work somewhat.
+ */
 public class OptifineCompat
 {
     private static OptifineCompat ourInstance = new OptifineCompat();
@@ -35,18 +39,20 @@ public class OptifineCompat
     {
     }
 
+    /**
+     * Initializes the compat layer.
+     * Makes sure that all relevant classes are available as well as all required methods.
+     *
+     * Will disable compat if either a class is missing, or a method is missing.
+     * This ensures that if, optifines structure changes we do not crash and just disable the compat.
+     */
     public void intialize()
     {
         try
         {
-            Class.forName("Config");
-            Class.forName("net.optifine.shaders.ShadersRender");
-            Class.forName("net.optifine.shaders.SVertexBuilder");
-            Class.forName("net.optifine.shaders.Shaders");
-            Structurize.getLogger().info("Optifine found. Enabling compat.");
-
             setupReflectedMethodReferences();
 
+            Structurize.getLogger().info("Optifine found. Enabling compat.");
             enableOptifine = true;
         }
         catch (ClassNotFoundException e)
@@ -66,6 +72,13 @@ public class OptifineCompat
         }
     }
 
+    /**
+     * Performs the reflective access to the Optifine related methods.
+     *
+     * @throws ClassNotFoundException Thrown when a optifine class is missing.
+     * @throws NoSuchMethodException Thrown when a optifine method is missing.
+     * @throws NoSuchFieldException Thrown when a optifine field is missing.
+     */
     private void setupReflectedMethodReferences() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException
     {
         final Class<?> configClass = Class.forName("Config");
@@ -98,6 +111,10 @@ public class OptifineCompat
         isShadowPassField.setAccessible(true);
     }
 
+    /**
+     * Call to setup the shader in Optifine.
+     * Checks if the compat is enabled or not.
+     */
     public void preTemplateDraw()
     {
         if (!enableOptifine)
@@ -130,6 +147,10 @@ public class OptifineCompat
         }
     }
 
+    /**
+     * Call to disable the shader
+     * Checks if the compat is enabled or not.
+     */
     public void postTemplateDraw()
     {
         if (!enableOptifine)
@@ -161,6 +182,11 @@ public class OptifineCompat
         }
     }
 
+    /**
+     * Called to setup the pointers in the arrays.
+     *
+     * @return True when optifine is enabled and setup completed, false when not.
+     */
     public boolean setupArrayPointers()
     {
         if (!enableOptifine)
@@ -173,9 +199,8 @@ public class OptifineCompat
             if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
                 setupArrayPointersVboMethod.invoke(null);
+                return true;
             }
-
-            return true;
         }
         catch (IllegalAccessException e)
         {
@@ -193,6 +218,12 @@ public class OptifineCompat
         return false;
     }
 
+    /**
+     * Called to handle the buffer information for optifine.
+     * Calculates the normals of the faces.
+     *
+     * @param tessellator The tessellator that is about to be uploaded to the GPU.
+     */
     public void beforeBuilderUpload(TemplateTessellator tessellator)
     {
         if (!enableOptifine)
