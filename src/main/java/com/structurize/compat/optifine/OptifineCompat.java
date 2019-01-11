@@ -9,7 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class OptifineCompat {
+public class OptifineCompat
+{
     private static OptifineCompat ourInstance = new OptifineCompat();
 
     private Method isShadersEnabledMethod;
@@ -21,20 +22,23 @@ public class OptifineCompat {
     private Method endUpdateChunksMethod;
 
     private boolean currentShadowPassFieldValue = false;
-    private Field isShadowPassField;
+    private Field   isShadowPassField;
 
-    public static OptifineCompat getInstance() {
+    public static OptifineCompat getInstance()
+    {
         return ourInstance;
     }
 
     private boolean enableOptifine = false;
 
-    private OptifineCompat() {
+    private OptifineCompat()
+    {
     }
 
     public void intialize()
     {
-        try {
+        try
+        {
             Class.forName("Config");
             Class.forName("net.optifine.shaders.ShadersRender");
             Class.forName("net.optifine.shaders.SVertexBuilder");
@@ -44,19 +48,26 @@ public class OptifineCompat {
             setupReflectedMethodReferences();
 
             enableOptifine = true;
-        } catch (ClassNotFoundException e) {
+        }
+        catch (ClassNotFoundException e)
+        {
             Structurize.getLogger().info("Optifine not found. Disabling compat.");
             enableOptifine = false;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             Structurize.getLogger().error("Optifine found. But could not access related methods.", e);
             enableOptifine = false;
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             Structurize.getLogger().error("Optifine found. But could not access related fields", e);
             enableOptifine = false;
         }
     }
 
-    private void setupReflectedMethodReferences() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
+    private void setupReflectedMethodReferences() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException
+    {
         final Class<?> configClass = Class.forName("Config");
         final Class<?> shaderRenderClass = Class.forName("net.optifine.shaders.ShadersRender");
         final Class<?> sVertexBuilderClass = Class.forName("net.optifine.shaders.SVertexBuilder");
@@ -85,17 +96,18 @@ public class OptifineCompat {
 
         isShadowPassField = shadersClass.getField("isShadowPass");
         isShadowPassField.setAccessible(true);
-
-
     }
 
     public void preTemplateDraw()
     {
         if (!enableOptifine)
+        {
             return;
+        }
 
-        try {
-            if((Boolean) isShadersEnabledMethod.invoke(null))
+        try
+        {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
                 currentShadowPassFieldValue = (boolean) isShadowPassField.get(null);
                 isShadowPassField.set(null, false);
@@ -103,11 +115,15 @@ public class OptifineCompat {
                 beginUpdateChunksMethod.invoke(null);
                 preRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
             }
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e)
+        {
             Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
@@ -117,21 +133,28 @@ public class OptifineCompat {
     public void postTemplateDraw()
     {
         if (!enableOptifine)
+        {
             return;
+        }
 
-        try {
-            if((Boolean) isShadersEnabledMethod.invoke(null))
+        try
+        {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
                 postRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
                 endUpdateChunksMethod.invoke(null);
 
                 isShadowPassField.set(null, currentShadowPassFieldValue);
             }
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e)
+        {
             Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
@@ -141,20 +164,27 @@ public class OptifineCompat {
     public boolean setupArrayPointers()
     {
         if (!enableOptifine)
+        {
             return false;
+        }
 
-        try {
-            if((Boolean) isShadersEnabledMethod.invoke(null))
+        try
+        {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
                 setupArrayPointersVboMethod.invoke(null);
             }
 
             return true;
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e)
+        {
             Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
@@ -166,23 +196,29 @@ public class OptifineCompat {
     public void beforeBuilderUpload(TemplateTessellator tessellator)
     {
         if (!enableOptifine)
+        {
             return;
+        }
 
-        try {
-            if((Boolean) isShadersEnabledMethod.invoke(null))
+        try
+        {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
                 Structurize.getLogger().info("Recalculating normals in Optifine mode.");
                 calcNormalForLayerMethod.invoke(null, tessellator.getBuilder());
             }
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e)
+        {
             Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
             Structurize.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
     }
-
 }
