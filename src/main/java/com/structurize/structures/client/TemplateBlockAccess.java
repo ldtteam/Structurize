@@ -37,6 +37,11 @@ public class TemplateBlockAccess extends World implements IBlockAccess
         this.template = template;
     }
 
+    public Template getTemplate()
+    {
+        return template;
+    }
+
     @Nullable
     @Override
     public TileEntity getTileEntity(@NotNull final BlockPos pos)

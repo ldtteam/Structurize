@@ -8,18 +8,18 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class TemplateBlockAccessTransformHandler
+public class TemplateBlockInfoTransformHandler
 {
-    private static TemplateBlockAccessTransformHandler ourInstance = new TemplateBlockAccessTransformHandler();
+    private static TemplateBlockInfoTransformHandler ourInstance = new TemplateBlockInfoTransformHandler();
 
-    public static TemplateBlockAccessTransformHandler getInstance()
+    public static TemplateBlockInfoTransformHandler getInstance()
     {
         return ourInstance;
     }
 
     private Map<Predicate<Template.BlockInfo>, Function<Template.BlockInfo, Template.BlockInfo>> blockInfoTransformHandler = new HashMap<>();
 
-    private TemplateBlockAccessTransformHandler()
+    private TemplateBlockInfoTransformHandler()
     {
     }
 
