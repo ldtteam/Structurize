@@ -150,7 +150,7 @@ public final class TemplateUtils
         }
         catch (Exception ex)
         {
-            Structurize.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.tileentityData.toString());
+            Structurize.getLogger().error("Could not create tile entity: " + entityId + " with nbt: " + info.tileentityData.toString(), ex);
             blackListedTileEntityIds.add(entityId);
             return null;
         }
@@ -184,7 +184,7 @@ public final class TemplateUtils
         }
         catch (Exception ex)
         {
-            Structurize.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.entityData.toString());
+            Structurize.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.entityData.toString(), ex);
             blackListedEntityIds.add(entityId);
             return null;
         }
