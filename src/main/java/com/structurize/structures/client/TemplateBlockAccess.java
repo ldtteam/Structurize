@@ -34,7 +34,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
      */
     public TemplateBlockAccess(final Template template)
     {
-        super(Minecraft.getMinecraft().world.getSaveHandler(), Minecraft.getMinecraft().world.getWorldInfo(), new WorldProviderSurface(), Minecraft.getMinecraft().world.profiler, true);
+        super(Minecraft.getMinecraft().world.getSaveHandler(), Minecraft.getMinecraft().world.getWorldInfo(), Minecraft.getMinecraft().world.provider, Minecraft.getMinecraft().world.profiler, true);
         this.template = template;
     }
 
