@@ -218,12 +218,6 @@ public class ClientProxy extends CommonProxy
           (b) -> b.blockState.getBlock() instanceof BlockSubstitution,
           (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
         );
-
-        //We disable rendering of the Banner Block
-        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          blockInfo -> blockInfo.blockState.getBlock() instanceof BlockBanner,
-          blockInfo -> new Template.BlockInfo(blockInfo.pos, Blocks.AIR.getDefaultState(), null)
-        );
     }
 
     @Override
