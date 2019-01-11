@@ -2,7 +2,6 @@ package com.structurize.structures.helpers;
 
 import com.structurize.api.util.Shape;
 import com.structurize.coremod.client.gui.WindowBuildTool;
-import com.structurize.structures.client.TemplateRenderHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
@@ -72,11 +71,6 @@ public final class Settings
      * Possible free to place structure.
      */
     private WindowBuildTool.FreeMode freeMode;
-
-    /**
-     * The renderer to use
-     */
-    public static TemplateRenderHandler renderHandler = new TemplateRenderHandler();
 
     /**
      * Private constructor to hide implicit one.
@@ -274,7 +268,6 @@ public final class Settings
         else
         {
             this.structure = structure;
-            renderHandler.pregenerateEntries(structure.getTemplate());
         }
     }
 
@@ -290,8 +283,6 @@ public final class Settings
         isMirrored = false;
         staticSchematicMode = false;
         staticSchematicName = "";
-
-        renderHandler.reset();
     }
 
     /**

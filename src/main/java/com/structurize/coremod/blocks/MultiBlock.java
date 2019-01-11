@@ -80,6 +80,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(final IBlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos)
     {

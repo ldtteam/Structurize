@@ -3,6 +3,7 @@ package com.structurize.structures.client;
 import com.structurize.structures.lib.TemplateUtils;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.Biomes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -33,8 +34,13 @@ public class TemplateBlockAccess extends World implements IBlockAccess
      */
     public TemplateBlockAccess(final Template template)
     {
-        super(null, null, new WorldProviderSurface(), null, true);
+        super(Minecraft.getMinecraft().world.getSaveHandler(), Minecraft.getMinecraft().world.getWorldInfo(), new WorldProviderSurface(), Minecraft.getMinecraft().world.profiler, true);
         this.template = template;
+    }
+
+    public Template getTemplate()
+    {
+        return template;
     }
 
     @Nullable
@@ -47,7 +53,19 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     public int getCombinedLight(@NotNull final BlockPos pos, final int lightValue)
     {
-        return lightValue;
+        return 15 << 20 | 15 << 4;
+    }
+
+    @Override
+    public int getLight(final BlockPos pos)
+    {
+        return 15;
+    }
+
+    @Override
+    public float getLightBrightness(final BlockPos pos)
+    {
+        return 1f;
     }
 
     @NotNull
@@ -66,7 +84,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     protected boolean isChunkLoaded(final int x, final int z, final boolean allowEmpty)
     {
-        return false;
+        return true;
     }
 
     @NotNull
@@ -79,7 +97,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     protected IChunkProvider createChunkProvider()
     {
-        return null;
+        return Minecraft.getMinecraft().world.getChunkProvider();
     }
 
     @Override

@@ -39,7 +39,7 @@ public final class StructureClientHandler
             renderOffset.y = renderOffsetY;
             renderOffset.z = renderOffsetZ;
 
-            Settings.renderHandler.draw(structure.getTemplate(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset, partialTicks, pos);
+            TemplateRenderHandler.getInstance().draw(structure.getTemplate(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
         }
     }
 }
