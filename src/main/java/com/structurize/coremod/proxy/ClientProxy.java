@@ -215,7 +215,13 @@ public class ClientProxy extends CommonProxy
 
         //Additionally we register an exclusion handler here;
         TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          (b) -> b.blockState.getBlock() instanceof BlockSubstitution,
+          (b) -> b.blockState.getBlock() == ModBlocks.blockSubstitution,
+          (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
+        );
+
+        //Additionally we register an exclusion handler here;
+        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
+          (b) -> b.blockState.getBlock() == ModBlocks.blockSolidSubstitution,
           (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
         );
     }

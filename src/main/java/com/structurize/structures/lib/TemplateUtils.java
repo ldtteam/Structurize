@@ -150,8 +150,8 @@ public final class TemplateUtils
         }
         catch (Exception ex)
         {
-            Structurize.getLogger().error("Could not create entity: " + entityId);
-            blackListedEntityIds.add(entityId);
+            Structurize.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.tileentityData.toString());
+            blackListedTileEntityIds.add(entityId);
             return null;
         }
     }
@@ -184,7 +184,7 @@ public final class TemplateUtils
         }
         catch (Exception ex)
         {
-            Structurize.getLogger().error("Could not create entity: " + entityId);
+            Structurize.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.entityData.toString());
             blackListedEntityIds.add(entityId);
             return null;
         }
