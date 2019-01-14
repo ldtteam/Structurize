@@ -4,6 +4,8 @@ import com.structurize.coremod.Structurize;
 import com.structurize.structures.client.TemplateTessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -115,6 +117,7 @@ public class OptifineCompat
      * Call to setup the shader in Optifine.
      * Checks if the compat is enabled or not.
      */
+    @SideOnly(Side.CLIENT)
     public void preTemplateDraw()
     {
         if (!enableOptifine)
@@ -151,6 +154,7 @@ public class OptifineCompat
      * Call to disable the shader
      * Checks if the compat is enabled or not.
      */
+    @SideOnly(Side.CLIENT)
     public void postTemplateDraw()
     {
         if (!enableOptifine)
@@ -187,6 +191,7 @@ public class OptifineCompat
      *
      * @return True when optifine is enabled and setup completed, false when not.
      */
+    @SideOnly(Side.CLIENT)
     public boolean setupArrayPointers()
     {
         if (!enableOptifine)
@@ -224,6 +229,7 @@ public class OptifineCompat
      *
      * @param tessellator The tessellator that is about to be uploaded to the GPU.
      */
+    @SideOnly(Side.CLIENT)
     public void beforeBuilderUpload(TemplateTessellator tessellator)
     {
         if (!enableOptifine)
