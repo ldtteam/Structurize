@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XX ",
+    "XX ",
+    "XX "
+  ],
+  "key": {
+    "X": {
+      "item": "structurize:blockcactusplank"
+    },
+    "result": {
+      "item": "structurize:cactusdoor",
+      "count": 4
+    }
+  }
+}
