@@ -1,5 +1,7 @@
 package com.structurize.api.util.constant;
 
+import static com.structurize.api.util.constant.Constants.MOD_ID;
+
 /**
  * Some constants needed to store things to NBT.
  */
@@ -27,6 +29,26 @@ public final class NbtTagConstants
     public static final String TAG_PROGRESS         = "progress";
     public static final String TAG_OUTPUT_DIRECTION = "outputDirection";
     public static final String TAG_SPEED            = "speed";
+
+    /**
+     * Ids and names for the base scanning steps in structurize.
+     */
+    public static final String TAG_NAME_STEP = MOD_ID + ":name";
+    public static final String TAG_POSITION_STEP = MOD_ID + ":position";
+    public static final String TAG_REPLACE_VALUES_STEP = MOD_ID + ":replace";
+
+    /**
+     * Tag Data relevant for naming step
+     */
+    public static final String TAG_NAME_STEP_NAME = "name";
+
+    /**
+     * Tag Data relevant for the position step
+     */
+    public static final String TAG_POSITION_STEP_FROM = "from";
+    public static final String TAG_POSITION_STEP_TO = "to";
+    public static final String TAG_POSITION_STEP_DIM = "dim";
+
 
     /**
      * Private constructor to hide the implicit one.

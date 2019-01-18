@@ -4,6 +4,8 @@ import com.structurize.api.util.BlockPosUtil;
 import com.structurize.coremod.items.ItemScanTool;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -15,19 +17,9 @@ import org.jetbrains.annotations.NotNull;
 public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IMessage>
 {
     /**
-     * Position to scan from.
+     * The additional data collected by the wizard during construction.
      */
-    private BlockPos from;
-
-    /**
-     * Position to scan to.
-     */
-    private BlockPos to;
-
-    /**
-     * Name of the file.
-     */
-    private String name;
+    private NBTTagCompound coreData;
 
     /**
      * Empty public constructor.
@@ -38,33 +30,28 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
     }
 
 
-    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name)
+    public ScanOnServerMessage(@NotNull final NBTTagCompound coreData)
     {
         super();
-        this.from = from;
-        this.to = to;
-        this.name = name;
+        this.coreData = coreData;
     }
 
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        name = ByteBufUtils.readUTF8String(buf);
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
+        coreData = ByteBufUtils.readTag(buf);
     }
 
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        ByteBufUtils.writeUTF8String(buf, name);
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
+        ByteBufUtils.writeTag(buf, coreData);
     }
 
     @Override
     public void messageOnServerThread(final ScanOnServerMessage message, final EntityPlayerMP player)
     {
-        ItemScanTool.saveStructure(player.getEntityWorld(), message.from, message.to, player, message.name);
+        //TODO: Handle via scan wizard handling.
+        //ItemScanTool.saveStructure(player.getEntityWorld(), message.from, message.to, player, message.name);
     }
 }

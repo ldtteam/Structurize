@@ -1,6 +1,6 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         inherit="structurize:gui/windowBase.xml"
-        xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+        xsi:noNamespaceSchemaLocation="file:../../../../../api/java/com/structurize/blockout/blockOut.xsd">
     <label id="title"
            size="100% 11" pos="0 9"
            textalign="TOP_MIDDLE"

@@ -1,4 +1,4 @@
-<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../../../../../api/java/com/structurize/blockout/blockOut.xsd">
     <layout source="structurize:gui/windowBase.xml"/>
 
 
