@@ -273,7 +273,7 @@ public final class BlockUtils
      */
     public static ItemStack getItemStackFromBlockState(@NotNull final IBlockState blockState)
     {
-        if(blockState.getBlock() instanceof IFluidBlock)
+        if (blockState.getBlock() instanceof IFluidBlock)
         {
             return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
         }
@@ -351,12 +351,13 @@ public final class BlockUtils
 
     /**
      * Get a blockState from an itemStack.
+     *
      * @param stack the stack to analyze.
      * @return the IBlockState.
      */
     public static IBlockState getBlockStateFromStack(final ItemStack stack)
     {
-        if (stack.getItem() == Items.AIR )
+        if (stack.getItem() == Items.AIR)
         {
             return Blocks.AIR.getDefaultState();
         }
@@ -376,11 +377,12 @@ public final class BlockUtils
 
     /**
      * Handle the placement of a specific block for a blockState at a certain position with a fakePlayer.
-     * @param world the world object.
+     *
+     * @param world      the world object.
      * @param fakePlayer the fake player to place.
-     * @param itemStack the describing itemStack.
+     * @param itemStack  the describing itemStack.
      * @param blockState the blockState in the world.
-     * @param here the position.
+     * @param here       the position.
      */
     public static void handleCorrectBlockPlacement(final World world, final FakePlayer fakePlayer, final ItemStack itemStack, final IBlockState blockState, final BlockPos here)
     {
@@ -394,10 +396,10 @@ public final class BlockUtils
         }
         final EnumFacing facing = (itemStack.getItem() instanceof ItemDoor
                                      || itemStack.getItem() instanceof ItemBed
-                                     || itemStack.getItem() instanceof ItemSlab)? EnumFacing.UP : EnumFacing.NORTH;
+                                     || itemStack.getItem() instanceof ItemSlab) ? EnumFacing.UP : EnumFacing.NORTH;
         ForgeHooks.onPlaceItemIntoWorld(stackToPlace, fakePlayer, world, here, facing, 0, 0, 0, EnumHand.MAIN_HAND);
 
-        final IBlockState newBlockState= world.getBlockState(here);
+        final IBlockState newBlockState = world.getBlockState(here);
         if (newBlockState.getBlock() instanceof BlockStairs && blockState.getBlock() instanceof BlockStairs)
         {
             IBlockState transformation = newBlockState.withProperty(BlockStairs.FACING, blockState.getValue(BlockStairs.FACING));
@@ -405,23 +407,40 @@ public final class BlockUtils
             transformation = transformation.withProperty(BlockStairs.SHAPE, blockState.getValue(BlockStairs.SHAPE));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockHorizontal && blockState.getBlock() instanceof BlockHorizontal
-                  && !(blockState.getBlock() instanceof BlockBed))
+        else if (newBlockState.getBlock() instanceof BlockHorizontal && blockState.getBlock() instanceof BlockHorizontal
+                   && !(blockState.getBlock() instanceof BlockBed))
         {
             final IBlockState transformation = newBlockState.withProperty(BlockHorizontal.FACING, blockState.getValue(BlockHorizontal.FACING));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockDirectional && blockState.getBlock() instanceof BlockDirectional)
+        else if (newBlockState.getBlock() instanceof BlockDirectional && blockState.getBlock() instanceof BlockDirectional)
         {
             final IBlockState transformation = newBlockState.withProperty(BlockDirectional.FACING, blockState.getValue(BlockDirectional.FACING));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockSlab && blockState.getBlock() instanceof BlockSlab)
+        else if (newBlockState.getBlock() instanceof BlockSlab && blockState.getBlock() instanceof BlockSlab)
         {
             final IBlockState transformation;
-            if (blockState.getBlock() instanceof BlockDoubleStoneSlab || blockState.getBlock() instanceof BlockDoubleStoneSlabNew)
+            if (blockState.getBlock() instanceof BlockDoubleStoneSlab || blockState.getBlock() instanceof BlockDoubleStoneSlabNew
+                  || blockState.getBlock() instanceof BlockDoubleWoodSlab || blockState.getBlock() instanceof BlockPurpurSlab.Double)
             {
-                transformation = blockState.withProperty(BlockDoubleStoneSlab.VARIANT, newBlockState.getValue(BlockDoubleStoneSlab.VARIANT));
+                if (newBlockState.getBlock() instanceof BlockWoodSlab)
+                {
+                    transformation = Blocks.DOUBLE_WOODEN_SLAB.getDefaultState().withProperty(BlockWoodSlab.VARIANT, newBlockState.getValue(BlockWoodSlab.VARIANT));
+                }
+                else if (newBlockState.getBlock() instanceof BlockStoneSlab)
+                {
+                    transformation = Blocks.DOUBLE_STONE_SLAB.getDefaultState().withProperty(BlockStoneSlab.VARIANT, newBlockState.getValue(BlockStoneSlab.VARIANT));
+                }
+                else if (newBlockState.getBlock() instanceof BlockPurpurSlab)
+                {
+                    transformation = Blocks.PURPUR_DOUBLE_SLAB.getDefaultState().withProperty(BlockPurpurSlab.VARIANT, newBlockState.getValue(BlockPurpurSlab.VARIANT));
+                }
+                else
+                {
+                    transformation = Blocks.DOUBLE_STONE_SLAB2.getDefaultState().withProperty(BlockStoneSlabNew.VARIANT, newBlockState.getValue(BlockStoneSlabNew.VARIANT));
+                }
+
             }
             else
             {
@@ -429,24 +448,24 @@ public final class BlockUtils
             }
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockLog && blockState.getBlock() instanceof BlockLog)
+        else if (newBlockState.getBlock() instanceof BlockLog && blockState.getBlock() instanceof BlockLog)
         {
             final IBlockState transformation = newBlockState.withProperty(BlockLog.LOG_AXIS, blockState.getValue(BlockLog.LOG_AXIS));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockRotatedPillar && blockState.getBlock() instanceof BlockRotatedPillar)
+        else if (newBlockState.getBlock() instanceof BlockRotatedPillar && blockState.getBlock() instanceof BlockRotatedPillar)
         {
             final IBlockState transformation = newBlockState.withProperty(BlockRotatedPillar.AXIS, blockState.getValue(BlockRotatedPillar.AXIS));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockTrapDoor && blockState.getBlock() instanceof BlockTrapDoor)
+        else if (newBlockState.getBlock() instanceof BlockTrapDoor && blockState.getBlock() instanceof BlockTrapDoor)
         {
             IBlockState transformation = newBlockState.withProperty(BlockTrapDoor.HALF, blockState.getValue(BlockTrapDoor.HALF));
             transformation = transformation.withProperty(BlockTrapDoor.FACING, blockState.getValue(BlockTrapDoor.FACING));
             transformation = transformation.withProperty(BlockTrapDoor.OPEN, blockState.getValue(BlockTrapDoor.OPEN));
             world.setBlockState(here, transformation);
         }
-        else if(newBlockState.getBlock() instanceof BlockDoor && blockState.getBlock() instanceof BlockDoor)
+        else if (newBlockState.getBlock() instanceof BlockDoor && blockState.getBlock() instanceof BlockDoor)
         {
             final IBlockState transformation = newBlockState.withProperty(BlockDoor.FACING, blockState.getValue(BlockDoor.FACING));
             world.setBlockState(here, transformation);
@@ -472,8 +491,8 @@ public final class BlockUtils
      * @return true if equal.
      */
     public static boolean isGrassOrDirt(
-                                         @NotNull final Block structureBlock, @NotNull final Block worldBlock,
-                                         @NotNull final IBlockState structureMetaData, @NotNull final IBlockState worldMetadata)
+      @NotNull final Block structureBlock, @NotNull final Block worldBlock,
+      @NotNull final IBlockState structureMetaData, @NotNull final IBlockState worldMetadata)
     {
         if ((structureBlock == Blocks.DIRT || structureBlock == Blocks.GRASS) && (worldBlock == Blocks.DIRT || worldBlock == Blocks.GRASS))
         {
