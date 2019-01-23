@@ -2,12 +2,14 @@ package com.structurize.coremod;
 
 import com.structurize.api.util.constant.Constants;
 import com.structurize.compat.optifine.OptifineCompat;
+import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.event.FMLEventHandler;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
 import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
 import com.structurize.structures.helpers.Structure;
+import net.minecraft.init.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -19,6 +21,7 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -111,6 +114,15 @@ public class Structurize
         proxy.registerTileEntityRendering();
 
         proxy.registerRenderer();
+
+        OreDictionary.registerOre("plankWood", ModBlocks.blockCactusPlank);
+        OreDictionary.registerOre("slabWood", ModBlocks.blockCactusSlabHalf);
+        OreDictionary.registerOre("slabWood", ModBlocks.blockCactusSlabDouble);
+        OreDictionary.registerOre("stairWood", ModBlocks.blockCactusStair);
+        OreDictionary.registerOre("doorWood", ModBlocks.blockCactusDoor);
+
+        OreDictionary.registerOre("fenceWood", ModBlocks.blockCactusFence);
+        OreDictionary.registerOre("fenceGateWood", ModBlocks.blockCactusFenceGate);
 
         CopyPastePlacementHandlers.initHandlers();
         OptifineCompat.getInstance().intialize();

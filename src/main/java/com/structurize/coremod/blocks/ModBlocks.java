@@ -52,6 +52,8 @@ public final class ModBlocks
     public static        BlockCactusStair               blockCactusStair;
     public static        BlockCactusSlabHalf            blockCactusSlabHalf;
     public static        BlockCactusSlabDouble          blockCactusSlabDouble;
+    public static        BlockCactusFence               blockCactusFence;
+    public static        BlockCactusFenceGate           blockCactusFenceGate;
 
     public static MultiBlock                  multiBlock;
 
@@ -82,6 +84,8 @@ public final class ModBlocks
         blockCactusSlabDouble = new BlockCactusSlabDouble().registerBlock(registry);
 
         blockCactusStair = new BlockCactusStair(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)).registerBlock(registry);
+        blockCactusFence = new BlockCactusFence().registerBlock(registry);
+        blockCactusFenceGate = new BlockCactusFenceGate(BlockPlanks.EnumType.OAK).registerBlock(registry);
 
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
@@ -129,6 +133,8 @@ public final class ModBlocks
         blockCactusTrapdoor.registerItemBlock(registry);
         blockCactusStair.registerItemBlock(registry);
         registry.register(new ItemSlab(blockCactusSlabHalf, blockCactusSlabHalf, blockCactusSlabDouble).setRegistryName(blockCactusSlabHalf.getRegistryName()));
+        blockCactusFence.registerItemBlock(registry);
+        blockCactusFenceGate.registerItemBlock(registry);
 
         for (final BlockTimberFrame frame: timberFrames)
         {

@@ -170,6 +170,8 @@ public class ClientProxy extends CommonProxy
         createCustomModel(ModBlocks.blockCactusSlabHalf);
         createCustomModel(ModBlocks.blockCactusSlabDouble);
         createCustomModel(ModItems.itemCactusDoor);
+        createCustomModel(ModBlocks.blockCactusFence);
+        createCustomModel(ModBlocks.blockCactusFenceGate);
 
         // Achievement proxy Items
         createCustomModel(ModBlocks.blockShingleSlab);
