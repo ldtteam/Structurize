@@ -2,17 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "group": "minecraft:wooden_stairs",
   "pattern": [
-    "X",
-    "XX",
+    "  X",
+    " XX",
     "XXX"
   ],
   "key": {
     "X": {
       "item": "structurize:blockcactusplank"
-    },
-    "result": {
-      "item": "structurize:blockcactusstair",
-      "count": 6
     }
+  },
+  "result": {
+    "item": "structurize:blockcactusstair",
+    "count": 6
   }
 }

@@ -1,17 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "minecraft:wooden_slab",
   "pattern": [
-    "XXX"
+    "XXX",
+    "XBX"
   ],
   "key": {
     "X": {
       "item": "structurize:blockcactusplank"
+    },
+    "B": {
+      "item": "structurize:sceptergold"
     }
   },
   "result": {
-    "item": "structurize:blockcactusslab_half",
-    "data": 0,
-    "count": 6
+    "item": "structurize:blockcactustrapdoor",
+    "count": 2
   }
 }

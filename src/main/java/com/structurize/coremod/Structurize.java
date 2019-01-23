@@ -117,9 +117,7 @@ public class Structurize
 
         OreDictionary.registerOre("plankWood", ModBlocks.blockCactusPlank);
         OreDictionary.registerOre("slabWood", ModBlocks.blockCactusSlabHalf);
-        OreDictionary.registerOre("slabWood", ModBlocks.blockCactusSlabDouble);
         OreDictionary.registerOre("stairWood", ModBlocks.blockCactusStair);
-        OreDictionary.registerOre("doorWood", ModBlocks.blockCactusDoor);
 
         OreDictionary.registerOre("fenceWood", ModBlocks.blockCactusFence);
         OreDictionary.registerOre("fenceGateWood", ModBlocks.blockCactusFenceGate);

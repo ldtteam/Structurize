@@ -140,3 +140,9 @@ com.structurize.coremod.gui.scanTool.replace=Replace
 com.structurize.coremod.gui.scan.replace.title=Block Replacement GUI
 com.structurize.coremod.gui.scanTool.select=Select
 tile.structurize.multiBlock.name=MultiBlock
+
+tile.structurize.blockcactusfence.name=Cactus Fence
+tile.structurize.blockcactusfencegate.name=Cactus Fence Gate
+tile.structurize.blocksolidsubstitution.name=Solid Placeholderblock
+tile.structurize.blockcactustrapdoor.name=Cactus Trapdoor
+
