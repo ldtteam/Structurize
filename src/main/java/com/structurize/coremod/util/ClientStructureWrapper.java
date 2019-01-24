@@ -1,5 +1,10 @@
 package com.structurize.coremod.util;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import com.structurize.api.util.LanguageHandler;
 import com.structurize.api.util.Log;
 import com.structurize.api.util.Utils;
@@ -7,14 +12,10 @@ import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Client only structure wrapper methods.
@@ -42,7 +43,7 @@ public final class ClientStructureWrapper
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
 
-        final File file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION);
+        final File file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());
 
         try (OutputStream outputstream = new FileOutputStream(file))

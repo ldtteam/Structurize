@@ -1,7 +1,18 @@
 package com.structurize.coremod.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.*;
+import com.structurize.api.util.BlockPosUtil;
+import com.structurize.api.util.BlockUtils;
+import com.structurize.api.util.ChangeStorage;
+import com.structurize.api.util.ItemStackUtils;
+import com.structurize.api.util.Log;
 import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
 import com.structurize.coremod.management.Manager;
@@ -9,6 +20,7 @@ import com.structurize.coremod.placementhandlers.IPlacementHandler;
 import com.structurize.coremod.placementhandlers.PlacementHandlers;
 import com.structurize.structures.helpers.Structure;
 import com.structurize.structures.helpers.StructureProxy;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockStairs;
@@ -27,12 +39,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Interface for using the structure codebase.
@@ -91,7 +97,7 @@ public class StructureWrapper
      */
     protected StructureWrapper(final World worldObj, final StructureProxy structure, final String name)
     {
-        world = worldObj;
+        this.world = worldObj;
         this.structure = structure;
         this.name = name;
     }
@@ -119,18 +125,18 @@ public class StructureWrapper
      */
     private void removeStructure(@NotNull final BlockPos pos)
     {
-        setLocalPosition(pos);
-        for (int j = 0; j < structure.getHeight(); j++)
+        this.setLocalPosition(pos);
+        for (int j = 0; j < this.structure.getHeight(); j++)
         {
-            for (int k = 0; k < structure.getLength(); k++)
+            for (int k = 0; k < this.structure.getLength(); k++)
             {
-                for (int i = 0; i < structure.getWidth(); i++)
+                for (int i = 0; i < this.structure.getWidth(); i++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(i, j, k);
                     final BlockPos worldPos = pos.add(localPos);
-                    if (!world.isAirBlock(worldPos))
+                    if (!this.world.isAirBlock(worldPos))
                     {
-                        world.setBlockToAir(worldPos);
+                        this.world.setBlockToAir(worldPos);
                     }
                 }
             }
@@ -207,7 +213,7 @@ public class StructureWrapper
      */
     public void rotate(final int times, @NotNull final World world, @NotNull final BlockPos rotatePos, @NotNull final Mirror mirror)
     {
-        structure.rotateWithMirror(times, world, rotatePos, mirror);
+        this.structure.rotateWithMirror(times, world, rotatePos, mirror);
     }
 
     /**
@@ -218,7 +224,7 @@ public class StructureWrapper
      */
     public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final EntityPlayerMP player)
     {
-        setLocalPosition(pos);
+        this.setLocalPosition(pos);
         this.complete = complete;
         this.position = pos;
         Manager.addToQueue(new ScanToolOperation(this, player));
@@ -230,9 +236,9 @@ public class StructureWrapper
      */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, final boolean complete)
     {
-        setLocalPosition(inputPos);
+        this.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
-        final BlockPos endPos = new BlockPos(structure.getWidth(), structure.getHeight(), structure.getLength());
+        final BlockPos endPos = new BlockPos(this.structure.getWidth(), this.structure.getHeight(), this.structure.getLength());
         BlockPos currentPos = inputPos;
         int count = 0;
 
@@ -250,7 +256,7 @@ public class StructureWrapper
                     }
                     final Block localBlock = localState.getBlock();
 
-                    final BlockPos worldPos = position.add(localPos);
+                    final BlockPos worldPos = this.position.add(localPos);
 
                     if ((localBlock == ModBlocks.blockSubstitution && !complete) || localBlock instanceof IAnchorBlock)
                     {
@@ -262,7 +268,7 @@ public class StructureWrapper
 
                     if (localState.getMaterial().isSolid())
                     {
-                        handleBlockPlacement(world, worldPos, localState, complete, this.structure.getBlockInfo(localPos).tileentityData);
+                        this.handleBlockPlacement(world, worldPos, localState, complete, this.structure.getBlockInfo(localPos).tileentityData);
                     }
                     else
                     {
@@ -329,9 +335,9 @@ public class StructureWrapper
         for (@NotNull final BlockPos coords : delayedBlocks)
         {
             final IBlockState localState = this.structure.getBlockState(coords);
-            final BlockPos newWorldPos = position.add(coords);
+            final BlockPos newWorldPos = this.position.add(coords);
             storage.addPositionStorage(coords, world);
-            handleBlockPlacement(world, newWorldPos, localState, complete, this.structure.getBlockInfo(coords) == null ? null : this.structure.getBlockInfo(coords).tileentityData);
+            this.handleBlockPlacement(world, newWorldPos, localState, this.complete, this.structure.getBlockInfo(coords) == null ? null : this.structure.getBlockInfo(coords).tileentityData);
         }
     }
 
@@ -340,7 +346,7 @@ public class StructureWrapper
      */
     public BlockPos getOffset()
     {
-        return structure.getOffset();
+        return this.structure.getOffset();
     }
 
     /**
@@ -359,7 +365,7 @@ public class StructureWrapper
         {
             if (handlers.canHandle(world, pos, localState))
             {
-                handlers.handle(world, pos, localState, tileEntityData, complete, position);
+                handlers.handle(world, pos, localState, tileEntityData, complete, this.position);
                 return;
             }
         }
@@ -378,15 +384,15 @@ public class StructureWrapper
         }
 
         this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() == structure.getWidth())
+        if (this.progressPos.getX() == this.structure.getWidth())
         {
             this.progressPos.setPos(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
-            if (this.progressPos.getZ() == structure.getLength())
+            if (this.progressPos.getZ() == this.structure.getLength())
             {
                 this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
-                if (this.progressPos.getY() == structure.getHeight())
+                if (this.progressPos.getY() == this.structure.getHeight())
                 {
-                    reset();
+                    this.reset();
                     return false;
                 }
             }
@@ -402,7 +408,7 @@ public class StructureWrapper
      */
     public boolean isStructureBlockEqualWorldBlock()
     {
-        final IBlockState structureBlockState = structure.getBlockState(this.getLocalPosition());
+        final IBlockState structureBlockState = this.structure.getBlockState(this.getLocalPosition());
         final Block structureBlock = structureBlockState.getBlock();
 
         //All worldBlocks are equal the substitution block
@@ -413,7 +419,7 @@ public class StructureWrapper
 
         final BlockPos worldPos = this.getBlockPosition();
 
-        final IBlockState worldBlockState = world.getBlockState(worldPos);
+        final IBlockState worldBlockState = this.world.getBlockState(worldPos);
 
         if (structureBlock == ModBlocks.blockSolidSubstitution && worldBlockState.getMaterial().isSolid())
         {
@@ -434,7 +440,7 @@ public class StructureWrapper
             return true;
         }
 
-        final Template.EntityInfo entityInfo = structure.getEntityinfo(this.getLocalPosition());
+        final Template.EntityInfo entityInfo = this.structure.getEntityinfo(this.getLocalPosition());
         if (entityInfo != null)
         {
             return false;
@@ -478,7 +484,7 @@ public class StructureWrapper
      */
     public BlockPos getBlockPosition()
     {
-        return this.progressPos.add(getOffsetPosition());
+        return this.progressPos.add(this.getOffsetPosition());
     }
 
     /**
@@ -486,7 +492,7 @@ public class StructureWrapper
      */
     public BlockPos getOffsetPosition()
     {
-        return position.subtract(getOffset());
+        return this.position.subtract(this.getOffset());
     }
 
     /**
@@ -510,7 +516,7 @@ public class StructureWrapper
     @NotNull
     public List<Template.EntityInfo> getEntities()
     {
-        return structure.getTileEntities();
+        return this.structure.getTileEntities();
     }
 
     /**
@@ -520,11 +526,11 @@ public class StructureWrapper
      */
     public BlockPos getPosition()
     {
-        if (position == null)
+        if (this.position == null)
         {
             return new BlockPos(0, 0, 0);
         }
-        return position;
+        return this.position;
     }
 
     /**
@@ -570,7 +576,7 @@ public class StructureWrapper
     @Nullable
     public Block getBlock()
     {
-        @Nullable final IBlockState state = getBlockState();
+        @Nullable final IBlockState state = this.getBlockState();
         if (state == null)
         {
             return null;
@@ -589,12 +595,12 @@ public class StructureWrapper
         do
         {
             count++;
-            if (!incrementBlock())
+            if (!this.incrementBlock())
             {
                 return false;
             }
         }
-        while (isStructureBlockEqualWorldBlock() && count < Configurations.gameplay.maxBlocksChecked);
+        while (this.isStructureBlockEqualWorldBlock() && count < Configurations.gameplay.maxBlocksChecked);
 
         return true;
     }
@@ -606,23 +612,23 @@ public class StructureWrapper
      */
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {
-        setLocalPosition(pos);
-        for (int j = 0; j < structure.getHeight(); j++)
+        this.setLocalPosition(pos);
+        for (int j = 0; j < this.structure.getHeight(); j++)
         {
-            for (int k = 0; k < structure.getLength(); k++)
+            for (int k = 0; k < this.structure.getLength(); k++)
             {
-                for (int i = 0; i < structure.getWidth(); i++)
+                for (int i = 0; i < this.structure.getWidth(); i++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(i, j, k);
 
                     final BlockPos worldPos = pos.add(localPos);
 
-                    if (worldPos.getY() <= pos.getY() && !world.getBlockState(worldPos.down()).getMaterial().isSolid())
+                    if (worldPos.getY() <= pos.getY() && !this.world.getBlockState(worldPos.down()).getMaterial().isSolid())
                     {
                         return false;
                     }
 
-                    final IBlockState worldState = world.getBlockState(worldPos);
+                    final IBlockState worldState = this.world.getBlockState(worldPos);
                     if (worldState.getBlock() == Blocks.BEDROCK)
                     {
                         return false;
@@ -647,19 +653,19 @@ public class StructureWrapper
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(structure.getWidth(), structure.getHeight() - 1, structure.getLength() - 1);
+            this.progressPos.setPos(this.structure.getWidth(), this.structure.getHeight() - 1, this.structure.getLength() - 1);
         }
 
         this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
         if (this.progressPos.getX() == -1)
         {
-            this.progressPos.setPos(structure.getWidth() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
+            this.progressPos.setPos(this.structure.getWidth() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
             if (this.progressPos.getZ() == -1)
             {
-                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, structure.getLength() - 1);
+                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, this.structure.getLength() - 1);
                 if (this.progressPos.getY() == -1)
                 {
-                    reset();
+                    this.reset();
                     return false;
                 }
             }
@@ -673,7 +679,7 @@ public class StructureWrapper
      */
     public String getName()
     {
-        return name;
+        return this.name;
     }
 
     /**
@@ -681,7 +687,7 @@ public class StructureWrapper
      */
     public int getHeight()
     {
-        return structure.getHeight();
+        return this.structure.getHeight();
     }
 
     /**
@@ -689,7 +695,7 @@ public class StructureWrapper
      */
     public int getWidth()
     {
-        return structure.getWidth();
+        return this.structure.getWidth();
     }
 
     /**
@@ -697,7 +703,7 @@ public class StructureWrapper
      */
     public int getLength()
     {
-        return structure.getLength();
+        return this.structure.getLength();
     }
 
     /**
@@ -705,7 +711,7 @@ public class StructureWrapper
      */
     public StructureProxy getStructure()
     {
-        return structure;
+        return this.structure;
     }
 
     /**

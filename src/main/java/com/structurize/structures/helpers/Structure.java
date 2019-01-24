@@ -1,13 +1,38 @@
 package com.structurize.structures.helpers;
 
-import com.structurize.api.util.constant.Constants;
-import com.structurize.coremod.management.Manager;
+import static com.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.annotation.Nullable;
+import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.Log;
+import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
+import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
+import com.structurize.structures.blueprints.v1.BlueprintUtil;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -20,7 +45,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.datafix.*;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -29,21 +57,6 @@ import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.util.CompoundDataFixer;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
-import javax.xml.bind.DatatypeConverter;
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import static com.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
 
 /**
  * Structure class, used to store, create, get structures.
@@ -119,7 +132,12 @@ public class Structure
             try
             {
                 this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
-                this.template = readTemplateFromStream(inputStream, fixer);
+                String ending = Structures.getFileExtension(correctStructureName);
+                if(ending != null)
+	                if(ending.endsWith(Structures.SCHEMATIC_EXTENSION))
+	                	this.template = readTemplateFromStream(inputStream, this.fixer);
+	                else if(ending.endsWith(Structures.SCHEMATIC_EXTENSION_NEW))
+	                	this.template = BlueprintUtil.toTemplate(BlueprintUtil.readFromFile(inputStream));
             }
             catch (final IOException e)
             {
@@ -287,7 +305,7 @@ public class Structure
         {
             return null;
         }
-        final File nbtFile = new File(folder.getPath() + "/" + structureName + ".nbt");
+        final File nbtFile = new File(folder.getPath() + "/" + structureName + Structures.getFileExtension(structureName));
         try
         {
             if (folder.exists())
@@ -500,12 +518,12 @@ public class Structure
      */
     public boolean isCorrectMD5(final String otherMD5)
     {
-        Log.getLogger().info("isCorrectMD5: md5:" + md5 + " other:" + otherMD5);
-        if (md5 == null || otherMD5 == null)
+        Log.getLogger().info("isCorrectMD5: md5:" + this.md5 + " other:" + otherMD5);
+        if (this.md5 == null || otherMD5 == null)
         {
             return false;
         }
-        return md5.compareTo(otherMD5) == 0;
+        return this.md5.compareTo(otherMD5) == 0;
     }
 
     /**
@@ -515,13 +533,13 @@ public class Structure
      */
     public boolean isTemplateMissing()
     {
-        return template == null;
+        return this.template == null;
     }
 
     public Template.BlockInfo[] getBlockInfo()
     {
-        Template.BlockInfo[] blockList = new Template.BlockInfo[template.blocks.size()];
-        blockList = template.blocks.toArray(blockList);
+        Template.BlockInfo[] blockList = new Template.BlockInfo[this.template.blocks.size()];
+        blockList = this.template.blocks.toArray(blockList);
         return blockList;
     }
 
@@ -534,8 +552,8 @@ public class Structure
      */
     public Entity[] getEntityInfo(final World world, final BlockPos pos)
     {
-        Template.EntityInfo[] entityInfoList = new Template.EntityInfo[template.entities.size()];
-        entityInfoList = template.blocks.toArray(entityInfoList);
+        Template.EntityInfo[] entityInfoList = new Template.EntityInfo[this.template.entities.size()];
+        entityInfoList = this.template.blocks.toArray(entityInfoList);
 
         final Entity[] entityList = null;
 
@@ -575,7 +593,7 @@ public class Structure
     {
         final ImmutableList.Builder<Template.BlockInfo> builder = ImmutableList.builder();
 
-        template.blocks.forEach(blockInfo -> {
+        this.template.blocks.forEach(blockInfo -> {
             final IBlockState finalState = blockInfo.blockState.withMirror(settings.getMirror()).withRotation(settings.getRotation());
             final BlockPos finalPos = Template.transformedBlockPos(settings, blockInfo.pos);
             final Template.BlockInfo finalInfo = new Template.BlockInfo(finalPos, finalState, blockInfo.tileentityData);
@@ -605,7 +623,7 @@ public class Structure
         {
             finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(settings.getMirror()) - NINETY_DEGREES);
             final double rotationYaw
-              = (double) finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - (double) finalEntity.getRotatedYaw(settings.getRotation()));
+              = finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - (double) finalEntity.getRotatedYaw(settings.getRotation()));
 
             finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
               (float) rotationYaw, finalEntity.rotationPitch);
@@ -666,7 +684,7 @@ public class Structure
      */
     public List<Template.EntityInfo> getTileEntities()
     {
-        return template.entities;
+        return this.template.entities;
     }
 
     /**
@@ -676,6 +694,6 @@ public class Structure
      */
     public PlacementSettings getSettings()
     {
-        return settings;
+        return this.settings;
     }
 }
