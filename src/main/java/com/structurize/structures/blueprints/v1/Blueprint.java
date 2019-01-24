@@ -92,6 +92,23 @@ public class Blueprint {
 	}
 
 	/**
+	 * @return an array of serialized TileEntities (the Pos tag has
+	 *         been localized to coordinates within the structure)
+	 */
+	public NBTTagCompound[] getEntities() {
+		return this.entities;
+	}
+
+	/**
+	 * @param entities an array of serialized TileEntities (the Pos tag need to
+	 *          be localized to coordinates within the structure)
+	 */
+	public void setEntities(NBTTagCompound[] entities) {
+		this.entities = entities;
+	}
+
+
+	/**
 	 * @return a list of all required mods as modid's
 	 */
 	public List<String> getRequiredMods() {
@@ -278,6 +295,9 @@ public class Blueprint {
 				}
 			}
 		}
+
+
+		//TODO Entities aren't spawned, not required though.
 
 		if (this.getTileEntities() != null) {
 			for (NBTTagCompound tag : this.getTileEntities()) {

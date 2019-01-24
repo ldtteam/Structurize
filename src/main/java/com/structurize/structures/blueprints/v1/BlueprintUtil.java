@@ -26,6 +26,8 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.gen.structure.template.Template.EntityInfo;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.Loader;
 
 /**
@@ -127,6 +129,7 @@ public class BlueprintUtil {
 
 		Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (byte) pallete.size(), states, structure, tes,
 				requiredMods);
+		schem.setEntities(entitiesTag.toArray(new NBTTagCompound[entitiesTag.size()]));
 
 		if (name != null)
 			schem.setName(name);
@@ -175,6 +178,14 @@ public class BlueprintUtil {
 			finishedTes.appendTag(tes[i]);
 		}
 		tag.setTag("tile_entities", finishedTes);
+
+		// Adding Entities
+		NBTTagList finishedEntities = new NBTTagList();
+		NBTTagCompound[] entities = schem.getEntities();
+		for (int i = 0; i < entities.length; i++) {
+			finishedEntities.appendTag(entities[i]);
+		}
+		tag.setTag("entities", finishedEntities);
 
 		// Adding Required Mods
 		List<String> requiredMods = schem.getRequiredMods();
@@ -246,8 +257,17 @@ public class BlueprintUtil {
 				tileEntities[i] = teTag.getCompoundTagAt(i);
 			}
 
+			// Reading Entities
+			NBTTagList entitiesTag = (NBTTagList) tag.getTag("entities");
+			NBTTagCompound[] entities = new NBTTagCompound[entitiesTag.tagCount()];
+			for (short i = 0; i < entities.length; i++) {
+				entities[i] = entitiesTag.getCompoundTagAt(i);
+			}
+
 			Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, paletteSize, palette, blocks, tileEntities,
 					requiredMods).setMissingMods(missingMods.toArray(new String[missingMods.size()]));
+
+			schem.setEntities(entities);
 
 			if (tag.hasKey("name")) {
 				schem.setName(tag.getString("name"));
@@ -402,6 +422,14 @@ public class BlueprintUtil {
 					temp.blocks.add(new Template.BlockInfo(pos, pallete[structure[y][z][x]] ,te));
 				}
 			}
+		}
+
+		NBTTagCompound[] entities = bp.getEntities();
+		for(NBTTagCompound entity : entities) {
+			NBTTagList posTag = entity.getTagList("Pos", NBT.TAG_DOUBLE);
+			Vec3d vec = new Vec3d(posTag.getDoubleAt(0), posTag.getDoubleAt(1), posTag.getDoubleAt(2));
+			BlockPos pos = new BlockPos(vec);
+			temp.entities.add(new EntityInfo(vec, pos, entity));
 		}
 
 //		bp.

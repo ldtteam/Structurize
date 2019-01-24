@@ -1,26 +1,32 @@
 package com.structurize.coremod.proxy;
 
+import java.io.File;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.structurize.api.util.Log;
 import com.structurize.api.util.constant.Constants;
-import com.structurize.coremod.blocks.*;
+import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.blocks.cactus.BlockCactusDoor;
 import com.structurize.coremod.blocks.decorative.BlockPaperwall;
 import com.structurize.coremod.blocks.decorative.BlockShingle;
 import com.structurize.coremod.blocks.decorative.BlockTimberFrame;
-import com.structurize.coremod.blocks.schematic.BlockSubstitution;
 import com.structurize.coremod.blocks.types.PaperwallType;
-import com.structurize.coremod.client.gui.*;
-import com.structurize.coremod.management.Manager;
-import com.structurize.coremod.management.Structures;
+import com.structurize.coremod.client.gui.WindowBuildTool;
+import com.structurize.coremod.client.gui.WindowMultiBlock;
+import com.structurize.coremod.client.gui.WindowScan;
+import com.structurize.coremod.client.gui.WindowShapeTool;
+import com.structurize.coremod.commands.UpdateSchematics;
 import com.structurize.coremod.event.ClientEventHandler;
 import com.structurize.coremod.items.ModItems;
-import com.structurize.structures.client.TemplateBlockAccess;
+import com.structurize.coremod.management.Manager;
+import com.structurize.coremod.management.Structures;
 import com.structurize.structures.client.TemplateBlockInfoTransformHandler;
-import com.structurize.structures.client.TemplateEntityInfoTransformHandler;
 import com.structurize.structures.event.RenderEventHandler;
 import com.structurize.structures.helpers.Settings;
+
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -29,12 +35,12 @@ import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,10 +49,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 /**
  * Client side proxy.
@@ -72,6 +74,8 @@ public class ClientProxy extends CommonProxy
 
         MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+
+        ClientCommandHandler.instance.registerCommand(new UpdateSchematics());
     }
 
     @Override
