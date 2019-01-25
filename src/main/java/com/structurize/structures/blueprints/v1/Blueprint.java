@@ -16,11 +16,17 @@ public class Blueprint {
 	private List<String> requiredMods;
 	private short sizeX, sizeY, sizeZ;
 	private short palleteSize;
-	private IBlockState[] pallete;
+	private IBlockState[] palette;
 	private String name;
 	private String[] architects;
+	/**
+	 * A list of missing modids that were missing while this schematic was loaded
+	 */
 	private String[] missingMods;
 
+	/**
+	 * The Schematic Data, each short represents an entry in the {@link Blueprint#palette}
+	 */
 	private short[][][] structure;
 	private NBTTagCompound[] tileEntities;
 	private NBTTagCompound[] entities;
@@ -31,7 +37,7 @@ public class Blueprint {
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 		this.palleteSize = palleteSize;
-		this.pallete = pallete;
+		this.palette = pallete;
 		this.structure = structure;
 		this.tileEntities = tileEntities;
 		this.requiredMods = requiredMods;
@@ -72,7 +78,7 @@ public class Blueprint {
 	 * @return the pallete (without rotation and/or mirroring)
 	 */
 	public IBlockState[] getPallete() {
-		return this.pallete;
+		return this.palette;
 	}
 
 	/**
@@ -254,9 +260,9 @@ public class Blueprint {
 	 *            The Mirroring with which the structure should be generated
 	 */
 	public void build(World world, BlockPos pos, Rotation rotation, Mirror mirror) {
-		IBlockState[] pallete = new IBlockState[this.pallete.length];
+		IBlockState[] pallete = new IBlockState[this.palette.length];
 		for (int i = 0; i < pallete.length; i++) {
-			pallete[i] = this.pallete[i].withRotation(rotation).withMirror(mirror);
+			pallete[i] = this.palette[i].withRotation(rotation).withMirror(mirror);
 		}
 		this.build(world, pos, pallete, this.structure, rotation, mirror);
 	}
@@ -315,15 +321,15 @@ public class Blueprint {
 	}
 
 	public void destroy(World world, BlockPos pos, Rotation rotation) {
-		this.destroy(world, pos, this.pallete, this.structure, rotation, Mirror.NONE);
+		this.destroy(world, pos, this.palette, this.structure, rotation, Mirror.NONE);
 	}
 
 	public void destroy(World world, BlockPos pos, Mirror mirror) {
-		this.destroy(world, pos, this.pallete, this.structure, Rotation.NONE, mirror);
+		this.destroy(world, pos, this.palette, this.structure, Rotation.NONE, mirror);
 	}
 
 	public void destroy(World world, BlockPos pos, Rotation rotation, Mirror mirror) {
-		this.destroy(world, pos, this.pallete, this.structure, rotation, mirror);
+		this.destroy(world, pos, this.palette, this.structure, rotation, mirror);
 	}
 
 	public void destroy(World world, BlockPos pos, IBlockState[] pallete, short[][][] structure, Rotation rotation,

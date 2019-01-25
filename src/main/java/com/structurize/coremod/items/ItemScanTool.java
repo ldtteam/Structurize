@@ -150,9 +150,6 @@ public class ItemScanTool extends AbstractItemStructurize
             LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, MAX_SCHEMATIC_SIZE);
             return;
         }
-//        final WorldServer worldserver = (WorldServer) world;
-//        final MinecraftServer minecraftserver = world.getMinecraftServer();
-//        final TemplateManager templatemanager = worldserver.getStructureTemplateManager();
 
         final long currentMillis = System.currentTimeMillis();
         final String currentMillisString = Long.toString(currentMillis);
@@ -168,11 +165,6 @@ public class ItemScanTool extends AbstractItemStructurize
         }
 
         Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
-//        final Template template = templatemanager.getTemplate(minecraftserver, new ResourceLocation(prefix + fileName + ".nbt"));
-//        template.takeBlocksFromWorld(world, blockpos, size, true, Blocks.STRUCTURE_VOID);
-//        template.setAuthor(Constants.MOD_ID);
-//        Structurize.getNetwork().sendTo(
-//          new SaveScanMessage(template.writeToNBT(new NBTTagCompound()), fileName), (EntityPlayerMP) player);
         Structurize.getNetwork().sendTo(
           new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (EntityPlayerMP) player);
     }
@@ -188,9 +180,6 @@ public class ItemScanTool extends AbstractItemStructurize
         {
             Log.getLogger().warn("Saving too large schematic for:" + name);
         }
-//        final WorldServer worldserver = (WorldServer) world;
-//        final MinecraftServer minecraftserver = world.getMinecraftServer();
-//        final TemplateManager templatemanager = worldserver.getStructureTemplateManager();
 
         final String prefix = "cache";
         final String fileName;
@@ -212,12 +201,6 @@ public class ItemScanTool extends AbstractItemStructurize
             return false;
         }
 
-//        final Template template = templatemanager.getTemplate(minecraftserver,
-//          new ResourceLocation(folder.get(0) + "/" + structureName.toString() + Structures.SCHEMATIC_EXTENSION));
-
-//        template.takeBlocksFromWorld(world, blockpos, size, false, Blocks.STRUCTURE_VOID);
-//        template.setAuthor(Constants.MOD_ID);
-
         Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
 
 
@@ -226,7 +209,6 @@ public class ItemScanTool extends AbstractItemStructurize
 
         try (OutputStream outputstream = new FileOutputStream(file))
         {
-//            CompressedStreamTools.writeCompressed(template.writeToNBT(new NBTTagCompound()), outputstream);
         	CompressedStreamTools.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
         }
         catch (Exception e)
