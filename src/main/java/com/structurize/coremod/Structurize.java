@@ -3,14 +3,11 @@ package com.structurize.coremod;
 import com.structurize.api.util.constant.Constants;
 import com.structurize.compat.optifine.OptifineCompat;
 import com.structurize.coremod.blocks.ModBlocks;
-import com.structurize.coremod.event.FMLEventHandler;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
-import com.structurize.coremod.placementhandlers.CopyPastePlacementHandlers;
+import com.structurize.coremod.placementhandlers.PlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
 import com.structurize.structures.helpers.Structure;
-import net.minecraft.init.Items;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -122,7 +119,6 @@ public class Structurize
         OreDictionary.registerOre("fenceWood", ModBlocks.blockCactusFence);
         OreDictionary.registerOre("fenceGateWood", ModBlocks.blockCactusFenceGate);
 
-        CopyPastePlacementHandlers.initHandlers();
         OptifineCompat.getInstance().intialize();
     }
 

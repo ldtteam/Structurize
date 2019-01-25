@@ -2,6 +2,7 @@ package com.structurize.coremod.placementhandlers;
 
 import com.structurize.api.util.BlockUtils;
 import com.structurize.api.util.ItemStackUtils;
+import com.structurize.coremod.blocks.schematic.BlockSolidSubstitution;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -52,6 +53,7 @@ public final class PlacementHandlers
         handlers.add(new ChestPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
+        handlers.add(new BlockSolidSubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
@@ -63,6 +65,52 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
+    }
+
+    public static class BlockSolidSubstitutionPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        {
+            return blockState.getBlock() instanceof BlockSolidSubstitution;
+        }
+
+        @Override
+        public Object handle(
+          @NotNull final World world,
+          @NotNull final BlockPos pos,
+          @NotNull final IBlockState blockState,
+          @Nullable final NBTTagCompound tileEntityData,
+          final boolean complete,
+          final BlockPos centerPos)
+        {
+            final IBlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
+            if (complete)
+            {
+                if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+                {
+                    return ActionProcessingResult.DENY;
+                }
+            }
+            else
+            {
+                if (!world.setBlockState(pos, newBlockState, UPDATE_FLAG))
+                {
+                    return ActionProcessingResult.DENY;
+                }
+            }
+
+            return newBlockState;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final NBTTagCompound tileEntityData, final boolean complete)
+        {
+            final IBlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
+            final List<ItemStack> itemList = new ArrayList<>();
+            itemList.add(BlockUtils.getItemStackFromBlockState(newBlockState));
+            return itemList;
+        }
     }
 
     public static class FirePlacementHandler implements IPlacementHandler

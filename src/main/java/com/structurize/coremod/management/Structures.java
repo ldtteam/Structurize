@@ -79,11 +79,6 @@ public final class Structures
     public static final String SCHEMATICS_SEPARATOR = "/";
 
     /**
-     * Maximum size for a compressed schematic.
-     */
-    private static final int MAX_TOTAL_SIZE = 32_767;
-
-    /**
      * Hashmap of schematic pieces by UUID.
      */
     private static final Map<UUID, Tuple<Long, Map<Integer, byte[]>>> schematicPieces = new HashMap<>();
@@ -186,7 +181,7 @@ public final class Structures
      */
     private static void loadStyleMapsJar()
     {
-        URI uri = null;
+        URI uri;
 
         for (final String origin : Structure.originFolders)
         {
@@ -281,7 +276,7 @@ public final class Structures
             while (it.hasNext())
             {
                 final Path path = it.next();
-                String fileExtension = path.toString().endsWith(SCHEMATIC_EXTENSION_NEW) ? SCHEMATIC_EXTENSION_NEW : SCHEMATIC_EXTENSION;
+                final String fileExtension = path.toString().endsWith(SCHEMATIC_EXTENSION_NEW) ? SCHEMATIC_EXTENSION_NEW : SCHEMATIC_EXTENSION;
                 if (path.toString().endsWith(SCHEMATIC_EXTENSION) || path.toString().endsWith(SCHEMATIC_EXTENSION_NEW))
                 {
                     String relativePath = path.toString().substring(basePath.toString().length()).split("\\" + fileExtension)[0];
@@ -620,8 +615,9 @@ public final class Structures
      * @param structureName identifying the structure
      * @return the file extension ('.nbt' or '.blueprint')
      */
-    public static String getFileExtension(final String structureName) {
-    	if (!fileMap.containsKey(structureName))
+    public static String getFileExtension(final String structureName)
+    {
+        if (!fileMap.containsKey(structureName))
         {
             return null;
         }

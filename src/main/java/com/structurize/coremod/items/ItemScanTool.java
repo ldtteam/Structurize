@@ -61,8 +61,9 @@ public class ItemScanTool extends AbstractItemStructurize
         return Float.MAX_VALUE;
     }
 
+    @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final EntityPlayer playerIn, final EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final EntityPlayer playerIn, @NotNull final EnumHand hand)
     {
         final ItemStack stack = playerIn.getHeldItem(hand);
         if (!stack.hasTagCompound())
@@ -139,7 +140,6 @@ public class ItemScanTool extends AbstractItemStructurize
      */
     public static void saveStructure(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final EntityPlayer player, final String name)
     {
-
         final BlockPos blockpos =
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
@@ -153,7 +153,6 @@ public class ItemScanTool extends AbstractItemStructurize
 
         final long currentMillis = System.currentTimeMillis();
         final String currentMillisString = Long.toString(currentMillis);
-        final String prefix = "/minecolonies/scans/";
         final String fileName;
         if (name == null || name.isEmpty())
         {
@@ -164,11 +163,19 @@ public class ItemScanTool extends AbstractItemStructurize
             fileName = name;
         }
 
-        Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
         Structurize.getNetwork().sendTo(
           new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (EntityPlayerMP) player);
     }
 
+    /**
+     * Save a structure on the server.
+     * @param world the world.
+     * @param from the start position.
+     * @param to the end position.
+     * @param name the name.
+     * @return true if succesful.
+     */
     public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name)
     {
         final BlockPos blockpos =
@@ -201,7 +208,7 @@ public class ItemScanTool extends AbstractItemStructurize
             return false;
         }
 
-        Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
 
 
         final File file = new File(folder.get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
