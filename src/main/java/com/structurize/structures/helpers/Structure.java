@@ -105,6 +105,47 @@ public class Structure
             this.settings = settings;
         }
         this.fixer = DataFixesManager.createFixer();
+
+        ModFixs fixs = ((CompoundDataFixer) this.fixer).init(Constants.MOD_ID, 1);
+        fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
+        {
+            @Override
+            public int getFixVersion()
+            {
+                return 1;
+            }
+
+            @Override
+            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+            {
+                if (compound.hasKey("palette"))
+                {
+                    NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
+                    final Iterator<NBTBase> listIt = list.iterator();
+                    while (listIt.hasNext())
+                    {
+                        NBTBase listCompound = listIt.next();
+                        if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
+                        {
+                            String name = ((NBTTagCompound) listCompound).getString("Name");
+                            if (name.contains("minecolonies"))
+                            {
+                                if (Block.getBlockFromName(name) == null)
+                                {
+                                    final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
+                                    if (Block.getBlockFromName(structurizeName) != null)
+                                    {
+                                        ((NBTTagCompound) listCompound).setString("Name", structurizeName);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return compound;
+            }
+        });
+
         InputStream inputStream = null;
         try
         {
@@ -137,7 +178,7 @@ public class Structure
 	                if(ending.endsWith(Structures.SCHEMATIC_EXTENSION))
 	                	this.template = readTemplateFromStream(inputStream, this.fixer);
 	                else if(ending.endsWith(Structures.SCHEMATIC_EXTENSION_NEW))
-	                	this.template = BlueprintUtil.toTemplate(BlueprintUtil.readFromFile(inputStream));
+	                	this.template = BlueprintUtil.toTemplate(BlueprintUtil.readFromFile(inputStream, this.fixer));
             }
             catch (final IOException e)
             {
@@ -248,45 +289,45 @@ public class Structure
         }
 
         final Template template = new Template();
-        ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
-        fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
-        {
-            @Override
-            public int getFixVersion()
-            {
-                return 1;
-            }
-
-            @Override
-            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
-            {
-                if (compound.hasKey("palette"))
-                {
-                    NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
-                    final Iterator<NBTBase> listIt = list.iterator();
-                    while (listIt.hasNext())
-                    {
-                        NBTBase listCompound = listIt.next();
-                        if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
-                        {
-                            String name = ((NBTTagCompound) listCompound).getString("Name");
-                            if (name.contains("minecolonies"))
-                            {
-                                if (Block.getBlockFromName(name) == null)
-                                {
-                                    final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
-                                    if (Block.getBlockFromName(structurizeName) != null)
-                                    {
-                                        ((NBTTagCompound) listCompound).setString("Name", structurizeName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return compound;
-            }
-        });
+//        ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
+//        fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
+//        {
+//            @Override
+//            public int getFixVersion()
+//            {
+//                return 1;
+//            }
+//
+//            @Override
+//            public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+//            {
+//                if (compound.hasKey("palette"))
+//                {
+//                    NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
+//                    final Iterator<NBTBase> listIt = list.iterator();
+//                    while (listIt.hasNext())
+//                    {
+//                        NBTBase listCompound = listIt.next();
+//                        if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
+//                        {
+//                            String name = ((NBTTagCompound) listCompound).getString("Name");
+//                            if (name.contains("minecolonies"))
+//                            {
+//                                if (Block.getBlockFromName(name) == null)
+//                                {
+//                                    final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
+//                                    if (Block.getBlockFromName(structurizeName) != null)
+//                                    {
+//                                        ((NBTTagCompound) listCompound).setString("Name", structurizeName);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                return compound;
+//            }
+//        });
         template.read(fixer.process(FixTypes.STRUCTURE, nbttagcompound));
         return template;
     }

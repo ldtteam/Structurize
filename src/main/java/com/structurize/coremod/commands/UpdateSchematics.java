@@ -5,27 +5,84 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.structurize.api.util.constant.Constants;
 import com.structurize.coremod.Structurize;
 
+import net.minecraft.block.Block;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraftforge.common.util.CompoundDataFixer;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.common.util.ModFixs;
 
 public class UpdateSchematics implements ICommand{
+
+
+    private static final DataFixer fixer;
+
+    static{
+    	fixer = DataFixesManager.createFixer();
+
+    	 ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
+    	    fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
+    	    {
+    	        @Override
+    	        public int getFixVersion()
+    	        {
+    	            return 1;
+    	        }
+
+    	        @Override
+    	        public NBTTagCompound fixTagCompound(final NBTTagCompound compound)
+    	        {
+    	            if (compound.hasKey("palette"))
+    	            {
+    	                NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
+    	                final Iterator<NBTBase> listIt = list.iterator();
+    	                while (listIt.hasNext())
+    	                {
+    	                    NBTBase listCompound = listIt.next();
+    	                    if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
+    	                    {
+    	                        String name = ((NBTTagCompound) listCompound).getString("Name");
+    	                        if (name.contains("minecolonies"))
+    	                        {
+    	                            if (Block.getBlockFromName(name) == null)
+    	                            {
+    	                                final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
+    	                                if (Block.getBlockFromName(structurizeName) != null)
+    	                                {
+    	                                    ((NBTTagCompound) listCompound).setString("Name", structurizeName);
+    	                                }
+    	                            }
+    	                        }
+    	                    }
+    	                }
+    	            }
+    	            return compound;
+    	        }
+    	    });
+    }
 
 	@Override
 	public int compareTo(ICommand o) {
@@ -73,6 +130,8 @@ public class UpdateSchematics implements ICommand{
 			NBTTagCompound template = CompressedStreamTools.readCompressed(Files.newInputStream(input.toPath()));
 			if(template == null || template.isEmpty())
 				return;
+
+			template = fixer.process(FixTypes.STRUCTURE, template);
 
 			NBTTagList blocks = template.getTagList("blocks", NBT.TAG_COMPOUND);
 			NBTTagList pallete = template.getTagList("palette", NBT.TAG_COMPOUND);

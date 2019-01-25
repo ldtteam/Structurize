@@ -20,6 +20,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
@@ -300,6 +302,27 @@ public class BlueprintUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Attempts to read a Blueprint from an Input Stream
+	 *
+	 * @param is
+	 *            The Input Stream from which to read the Blueprint
+	 * @param fixer
+	 * 			  A Data fixer to update old data.
+	 * @return the Blueprting that was read from the InputStream
+	 */
+	public static Blueprint readFromFile(InputStream is, DataFixer fixer) {
+		NBTTagCompound tag;
+		try {
+			tag = CompressedStreamTools.readCompressed(is);
+			tag = fixer.process(FixTypes.STRUCTURE, tag);
+			return readBlueprintFromNBT(tag);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
