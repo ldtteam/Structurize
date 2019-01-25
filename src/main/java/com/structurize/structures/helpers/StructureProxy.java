@@ -1,10 +1,18 @@
 package com.structurize.structures.helpers;
 
+import static com.structurize.api.util.constant.Constants.ROTATE_ONCE;
+import static com.structurize.api.util.constant.Constants.ROTATE_THREE_TIMES;
+import static com.structurize.api.util.constant.Constants.ROTATE_TWICE;
+
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.structurize.api.util.BlockPosUtil;
-import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
+
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
@@ -13,12 +21,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-
-import static com.structurize.api.util.constant.Constants.*;
 
 /**
  * Proxy class translating the structures method to something we can use.
@@ -43,32 +45,32 @@ public class StructureProxy
     {
         this.structure = new Structure(worldObj, name, new PlacementSettings());
 
-        if (structure.isTemplateMissing())
+        if (this.structure.isTemplateMissing())
         {
             return;
         }
-        final BlockPos size = structure.getSize(Rotation.NONE);
+        final BlockPos size = this.structure.getSize(Rotation.NONE);
 
         this.width = size.getX();
         this.height = size.getY();
         this.length = size.getZ();
 
-        this.blocks = new Template.BlockInfo[width][height][length];
-        this.entities = new Template.EntityInfo[width][height][length];
+        this.blocks = new Template.BlockInfo[this.width][this.height][this.length];
+        this.entities = new Template.EntityInfo[this.width][this.height][this.length];
 
-        for (final Template.BlockInfo info : structure.getBlockInfo())
+        for (final Template.BlockInfo info : this.structure.getBlockInfo())
         {
             final BlockPos tempPos = info.pos;
-            blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
-            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
+            this.blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+            this.entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
 
             if (info.blockState.getBlock() instanceof IAnchorBlock)
             {
-                offset = info.pos;
+                this.offset = info.pos;
             }
         }
 
-        for (final Template.EntityInfo info : structure.getTileEntities())
+        for (final Template.EntityInfo info : this.structure.getTileEntities())
         {
             // Don't load item entities
             if (info.entityData.getString("id").equals("minecraft:item"))
@@ -77,7 +79,7 @@ public class StructureProxy
             }
 
             final BlockPos tempPos = info.blockPos;
-            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+            this.entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
         }
     }
 
@@ -100,14 +102,14 @@ public class StructureProxy
         this.height = size.getY();
         this.length = size.getZ();
 
-        this.blocks = new Template.BlockInfo[width][height][length];
-        this.entities = new Template.EntityInfo[width][height][length];
+        this.blocks = new Template.BlockInfo[this.width][this.height][this.length];
+        this.entities = new Template.EntityInfo[this.width][this.height][this.length];
 
         for (final Template.BlockInfo info : structure.getBlockInfo())
         {
             final BlockPos tempPos = info.pos;
-            blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
-            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
+            this.blocks[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+            this.entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = null;
         }
 
         for (final Template.EntityInfo info : structure.getTileEntities())
@@ -119,7 +121,7 @@ public class StructureProxy
             }
 
             final BlockPos tempPos = info.blockPos;
-            entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
+            this.entities[tempPos.getX()][tempPos.getY()][tempPos.getZ()] = info;
         }
     }
 
@@ -130,7 +132,7 @@ public class StructureProxy
      */
     public BlockPos getOffset()
     {
-        return offset;
+        return this.offset;
     }
 
     /**
@@ -140,7 +142,7 @@ public class StructureProxy
      */
     public void setOffset(final BlockPos pos)
     {
-        offset = pos;
+        this.offset = pos;
     }
 
     /**
@@ -150,7 +152,7 @@ public class StructureProxy
      */
     public Structure getStructure()
     {
-        return structure;
+        return this.structure;
     }
 
     /**
@@ -161,11 +163,11 @@ public class StructureProxy
      */
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ() || blocks[pos.getX()][pos.getY()][pos.getZ()] == null)
+        if (this.blocks.length <= pos.getX() || this.blocks[pos.getX()].length <= pos.getY() || this.blocks[pos.getX()][pos.getY()].length <= pos.getZ() || this.blocks[pos.getX()][pos.getY()][pos.getZ()] == null)
         {
             return null;
         }
-        return blocks[pos.getX()][pos.getY()][pos.getZ()].blockState;
+        return this.blocks[pos.getX()][pos.getY()][pos.getZ()].blockState;
     }
 
     /**
@@ -176,11 +178,11 @@ public class StructureProxy
      */
     public Template.BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        if (blocks.length <= pos.getX() || blocks[pos.getX()].length <= pos.getY() || blocks[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (this.blocks.length <= pos.getX() || this.blocks[pos.getX()].length <= pos.getY() || this.blocks[pos.getX()][pos.getY()].length <= pos.getZ())
         {
             return null;
         }
-        return blocks[pos.getX()][pos.getY()][pos.getZ()];
+        return this.blocks[pos.getX()][pos.getY()][pos.getZ()];
     }
 
     /**
@@ -202,11 +204,11 @@ public class StructureProxy
     @Nullable
     public Template.EntityInfo getEntityinfo(@NotNull final BlockPos pos)
     {
-        if (entities.length <= pos.getX() || entities[pos.getX()].length <= pos.getY() || entities[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (this.entities.length <= pos.getX() || this.entities[pos.getX()].length <= pos.getY() || this.entities[pos.getX()][pos.getY()].length <= pos.getZ())
         {
             return null;
         }
-        return entities[pos.getX()][pos.getY()][pos.getZ()];
+        return this.entities[pos.getX()][pos.getY()][pos.getZ()];
     }
 
     /**
@@ -250,21 +252,21 @@ public class StructureProxy
     public void rotateWithMirror(final int times, final World world, final BlockPos rotatePos, final Mirror mirror)
     {
         final Rotation rotation = BlockPosUtil.getRotationFromRotations(times);
-        structure.setPlacementSettings(new PlacementSettings().setRotation(rotation).setMirror(mirror));
+        this.structure.setPlacementSettings(new PlacementSettings().setRotation(rotation).setMirror(mirror));
 
-        final BlockPos size = structure.getSize(rotation);
+        final BlockPos size = this.structure.getSize(rotation);
         this.width = size.getX();
         this.height = size.getY();
         this.length = size.getZ();
 
-        this.blocks = new Template.BlockInfo[width][height][length];
-        this.entities = new Template.EntityInfo[width][height][length];
+        this.blocks = new Template.BlockInfo[this.width][this.height][this.length];
+        this.entities = new Template.EntityInfo[this.width][this.height][this.length];
 
         int minX = 0;
         int minY = 0;
         int minZ = 0;
 
-        for (final Template.BlockInfo info : structure.getBlockInfoWithSettings(new PlacementSettings().setRotation(rotation).setMirror(mirror)))
+        for (final Template.BlockInfo info : this.structure.getBlockInfoWithSettings(new PlacementSettings().setRotation(rotation).setMirror(mirror)))
         {
             final BlockPos tempPos = info.pos;
             final int x = tempPos.getX();
@@ -292,7 +294,7 @@ public class StructureProxy
         boolean foundAnchor = false;
         final PlacementSettings settings = new PlacementSettings().setRotation(rotation).setMirror(mirror);
 
-        for (final Template.BlockInfo info : structure.getBlockInfoWithSettings(settings))
+        for (final Template.BlockInfo info : this.structure.getBlockInfoWithSettings(settings))
         {
             final BlockPos tempPos = info.pos;
             final int x = tempPos.getX() + minX;
@@ -305,7 +307,7 @@ public class StructureProxy
             if (info.blockState.getBlock() instanceof IAnchorBlock)
             {
                 foundAnchor = true;
-                offset = info.pos.add(minX, minY, minZ);
+                this.offset = info.pos.add(minX, minY, minZ);
             }
 
             if (info.tileentityData != null)
@@ -340,10 +342,10 @@ public class StructureProxy
 
         if (!foundAnchor)
         {
-            updateOffSetIfDecoration(temp, times, minX, minY, minZ);
+            this.updateOffSetIfDecoration(temp, times, minX, minY, minZ);
         }
 
-        for (final Template.EntityInfo info : structure.getTileEntities())
+        for (final Template.EntityInfo info : this.structure.getTileEntities())
         {
             // Don't load item entities
             if (info.entityData.getString("id").equals("minecraft:item"))
@@ -351,7 +353,7 @@ public class StructureProxy
                 continue;
             }
 
-            final Template.EntityInfo newInfo = structure.transformEntityInfoWithSettings(info, world, rotatePos.subtract(offset).add(new BlockPos(minX, minY, minZ)), settings);
+            final Template.EntityInfo newInfo = this.structure.transformEntityInfoWithSettings(info, world, rotatePos.subtract(this.offset).add(new BlockPos(minX, minY, minZ)), settings);
             //289 74 157 - 289.9 76.5, 157.5
             final BlockPos tempPos = Template.transformedBlockPos(settings, info.blockPos);
             final int x = tempPos.getX() + minX;
@@ -386,6 +388,6 @@ public class StructureProxy
             tempSize = new BlockPos(size.getX(), size.getY(), -size.getZ());
         }
 
-        offset = new BlockPos(tempSize.getX() / 2, 0, tempSize.getZ() / 2).add(minX, minY, minZ);
+        this.offset = new BlockPos(tempSize.getX() / 2, 0, tempSize.getZ() / 2).add(minX, minY, minZ);
     }
 }
