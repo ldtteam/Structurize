@@ -118,7 +118,7 @@ public class BlueprintUtil {
 
 		List<NBTTagCompound> entitiesTag = new ArrayList<NBTTagCompound>();
 
-		List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX - 1, pos.getY() + sizeX - 1, pos.getZ() + sizeX - 1));
+		List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
 
 		for(Entity entity : entities) {
 			Vec3d oldPos = entity.getPositionVector();
@@ -127,7 +127,7 @@ public class BlueprintUtil {
 			entity.setPosition(oldPos.x, oldPos.y, oldPos.z);
 		}
 
-		Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (byte) pallete.size(), states, structure, tes,
+		Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) states.length, states, structure, tes,
 				requiredMods);
 		schem.setEntities(entitiesTag.toArray(new NBTTagCompound[entitiesTag.size()]));
 

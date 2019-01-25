@@ -440,14 +440,16 @@ public final class Structures
 
         for (final File clientSchems : Structure.getClientSchematicsFolders())
         {
-            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
-            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + getFileExtension(structureName.toString())).toFile();
+            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + getFileExtension(structureName.toString())).toFile();
             checkDirectory(newStructureFile.getParentFile());
             if (structureFile.renameTo(newStructureFile))
             {
                 final String md5 = getMD5(structureName.toString());
                 md5Map.put(newStructureName.toString(), md5);
                 md5Map.remove(structureName.toString());
+                fileMap.put(newStructureName.toString(), fileMap.get(structureName.toString()));
+                fileMap.remove(structureName.toString());
                 Log.getLogger().info("Structure " + structureName + " have been renamed " + newStructureName);
                 return newStructureName;
             }
