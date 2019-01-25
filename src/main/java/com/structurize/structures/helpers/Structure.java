@@ -1,6 +1,8 @@
 package com.structurize.structures.helpers;
 
 import static com.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
+import static com.structurize.coremod.management.Structures.SCHEMATIC_EXTENSION;
+import static com.structurize.coremod.management.Structures.SCHEMATIC_EXTENSION_NEW;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -134,11 +136,11 @@ public class Structure
                 final String ending = Structures.getFileExtension(correctStructureName);
                 if(ending != null)
                 {
-                    if (ending.endsWith(Structures.SCHEMATIC_EXTENSION))
+                    if (ending.endsWith(SCHEMATIC_EXTENSION))
                     {
                         this.template = readTemplateFromStream(inputStream, getFixer());
                     }
-                    else if (ending.endsWith(Structures.SCHEMATIC_EXTENSION_NEW))
+                    else if (ending.endsWith(SCHEMATIC_EXTENSION_NEW))
                     {
                         this.template = BlueprintUtil.toTemplate(BlueprintUtil.readFromFile(inputStream, getFixer()));
                     }
@@ -403,7 +405,8 @@ public class Structure
         final List<InputStream> streamsFromJar = new ArrayList<>();
         for (final String origin : originFolders)
         {
-            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + ".nbt"));
+            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + SCHEMATIC_EXTENSION));
+            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + SCHEMATIC_EXTENSION_NEW));
         }
         return streamsFromJar;
     }
