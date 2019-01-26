@@ -1,26 +1,45 @@
 package com.structurize.coremod.management;
 
+import static com.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
+import static com.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.structurize.api.configuration.Configurations;
 import com.structurize.api.util.Log;
 import com.structurize.api.util.MathUtils;
 import com.structurize.coremod.Structurize;
 import com.structurize.structures.helpers.Structure;
+
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Stream;
-
-import static com.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
-import static com.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
 
 /**
  * StructureProxy class.
@@ -30,6 +49,7 @@ public final class Structures
     /**
      * Extension used by the schematic files.
      */
+    public static final String SCHEMATIC_EXTENSION_NEW = ".blueprint";
     public static final String SCHEMATIC_EXTENSION = ".nbt";
 
     /**
@@ -59,11 +79,6 @@ public final class Structures
     public static final String SCHEMATICS_SEPARATOR = "/";
 
     /**
-     * Maximum size for a compressed schematic.
-     */
-    private static final int MAX_TOTAL_SIZE = 32_767;
-
-    /**
      * Hashmap of schematic pieces by UUID.
      */
     private static final Map<UUID, Tuple<Long, Map<Integer, byte[]>>> schematicPieces = new HashMap<>();
@@ -89,6 +104,13 @@ public final class Structures
      */
     @NotNull
     private static final Map<String, String> md5Map = new HashMap<>();
+
+    /**
+     * file extension for the schematics
+     */
+    @NotNull
+    private static final Map<String, String> fileMap = new HashMap<>();
+
 
     /**
      * Whether or not the schematics list have changed.
@@ -159,7 +181,7 @@ public final class Structures
      */
     private static void loadStyleMapsJar()
     {
-        URI uri = null;
+        URI uri;
 
         for (final String origin : Structure.originFolders)
         {
@@ -254,9 +276,10 @@ public final class Structures
             while (it.hasNext())
             {
                 final Path path = it.next();
-                if (path.toString().endsWith(SCHEMATIC_EXTENSION))
+                final String fileExtension = path.toString().endsWith(SCHEMATIC_EXTENSION_NEW) ? SCHEMATIC_EXTENSION_NEW : SCHEMATIC_EXTENSION;
+                if (path.toString().endsWith(SCHEMATIC_EXTENSION) || path.toString().endsWith(SCHEMATIC_EXTENSION_NEW))
                 {
-                    String relativePath = path.toString().substring(basePath.toString().length()).split("\\" + SCHEMATIC_EXTENSION)[0];
+                    String relativePath = path.toString().substring(basePath.toString().length()).split("\\" + fileExtension)[0];
                     if (!SCHEMATICS_SEPARATOR.equals(path.getFileSystem().getSeparator()))
                     {
                         relativePath = relativePath.replace(path.getFileSystem().getSeparator(), SCHEMATICS_SEPARATOR);
@@ -267,9 +290,11 @@ public final class Structures
                     }
 
                     final StructureName structureName = new StructureName(relativePath);
+                	fileMap.put(structureName.toString(), fileExtension);
                     final String md5 = Structure.calculateMD5(Structure.getStream(relativePath));
                     if (md5 == null)
                     {
+                    	fileMap.remove(structureName.toString());
                         Log.getLogger().error("Structures: " + structureName + " with md5 null.");
                     }
                     else if (isSchematicSizeValid(structureName.toString()))
@@ -410,14 +435,16 @@ public final class Structures
 
         for (final File clientSchems : Structure.getClientSchematicsFolders())
         {
-            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
-            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + getFileExtension(structureName.toString())).toFile();
+            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + getFileExtension(structureName.toString())).toFile();
             checkDirectory(newStructureFile.getParentFile());
             if (structureFile.renameTo(newStructureFile))
             {
                 final String md5 = getMD5(structureName.toString());
                 md5Map.put(newStructureName.toString(), md5);
                 md5Map.remove(structureName.toString());
+                fileMap.put(newStructureName.toString(), fileMap.get(structureName.toString()));
+                fileMap.remove(structureName.toString());
                 Log.getLogger().info("Structure " + structureName + " have been renamed " + newStructureName);
                 return newStructureName;
             }
@@ -583,6 +610,22 @@ public final class Structures
     }
 
     /**
+     * Get the file type of a corresponding structure name
+     *
+     * @param structureName identifying the structure
+     * @return the file extension ('.nbt' or '.blueprint')
+     */
+    public static String getFileExtension(final String structureName)
+    {
+        if (!fileMap.containsKey(structureName))
+        {
+            return null;
+        }
+
+        return fileMap.get(structureName);
+    }
+
+    /**
      * Returns a map of all the structures.
      *
      * @return List of structure with their md5 hash.
@@ -725,7 +768,7 @@ public final class Structures
             Log.getLogger().info("Structures.handleSaveSchematicMessage: received new schematic md5:" + md5);
             for (final File cachedSchems : Structure.getCachedSchematicsFolders())
             {
-                final File schematicFile = cachedSchems.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION).toFile();
+                final File schematicFile = cachedSchems.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION_NEW).toFile();
                 checkDirectory(schematicFile.getParentFile());
                 try (OutputStream outputstream = new FileOutputStream(schematicFile))
                 {
