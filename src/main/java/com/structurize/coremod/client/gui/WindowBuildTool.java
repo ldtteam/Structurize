@@ -902,6 +902,14 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         else
         {
+            if (pasteDirectly())
+            {
+                paste(structureName, complete);
+            }
+            else
+            {
+                place(structureName);
+            }
             Log.getLogger().warn("BuilderTool: Can not send schematic without md5: " + structureName);
         }
     }
@@ -1042,14 +1050,16 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 //We need to check that the server have it too using the md5
                 requestAndPlaceScannedSchematic(structureName, false, false);
             }
-            
-            if (pasteDirectly())
-            {
-                paste(structureName, false);
-            }
             else
             {
-                place(structureName);
+                if (pasteDirectly())
+                {
+                    paste(structureName, false);
+                }
+                else
+                {
+                    place(structureName);
+                }
             }
 
             if (!GuiScreen.isShiftKeyDown())
