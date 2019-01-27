@@ -324,7 +324,8 @@ public class Structure
         {
             return null;
         }
-        final File nbtFile = new File(folder.getPath() + "/" + structureName + Structures.getFileExtension(structureName));
+        final File nbtFile = new File(folder.getPath() + "/" + structureName + SCHEMATIC_EXTENSION);
+        final File blueprintFile = new File(folder.getPath() + "/" + structureName + SCHEMATIC_EXTENSION_NEW);
         try
         {
             if (folder.exists())
@@ -338,6 +339,10 @@ public class Structure
                 if (nbtFile.exists())
                 {
                     return new FileInputStream(nbtFile);
+                }
+                else if (blueprintFile.exists())
+                {
+                    return new FileInputStream(blueprintFile);
                 }
             }
         }

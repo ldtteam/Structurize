@@ -876,15 +876,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 }
                 else
                 {
-                    Log.getLogger().warn("BuilderTool: Can not load " + structureName);
+                    Log.getLogger().warn("BuildTool: Can not load " + structureName);
                 }
             }
             else
             {
-                Log.getLogger().warn("BuilderTool: server does not have " + serverSideName);
+                Log.getLogger().warn("BuildTool: server does not have " + serverSideName);
             }
 
-            if (paste)
+            if (paste || pasteDirectly())
             {
                 Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
                   serverSideName,

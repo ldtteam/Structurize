@@ -775,6 +775,7 @@ public final class Structures
                     outputstream.write(bytes);
                     Structures.addMD5ToCache(md5);
                     Manager.setSchematicDownloaded(true);
+                    fileMap.put(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR  + md5, SCHEMATIC_EXTENSION_NEW);
                     return true;
                 }
                 catch (@NotNull final IOException e)
@@ -878,16 +879,19 @@ public final class Structures
             return false;
         }
 
-        final File structureFile = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
-        if (structureFile.delete())
+        final File structureFileNBT = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
+        final File structureFileBlueprint = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION_NEW).toFile();
+        if (structureFileNBT.delete() || structureFileBlueprint.delete())
         {
             md5Map.remove(structureName.toString());
+            fileMap.remove(structureName.toString());
             return true;
         }
         else
         {
             Log.getLogger().warn("Failed to delete structure " + structureName);
         }
+
         return false;
     }
 

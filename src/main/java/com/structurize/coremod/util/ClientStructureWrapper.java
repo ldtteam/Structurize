@@ -43,7 +43,15 @@ public final class ClientStructureWrapper
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
 
-        final File file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
+        final File file;
+        if (nbttagcompound.hasKey("required_mods"))
+        {
+            file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
+        }
+        else
+        {
+            file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION);
+        }
         Utils.checkDirectory(file.getParentFile());
 
         try (OutputStream outputstream = new FileOutputStream(file))
