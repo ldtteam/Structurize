@@ -897,7 +897,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             }
             else
             {
-                place(new StructureName(serverSideName), serverSideName);
+                place(new StructureName(serverSideName));
             }
         }
         else
@@ -908,7 +908,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             }
             else
             {
-                place(structureName, structureName.toString());
+                place(structureName);
             }
             Log.getLogger().warn("BuilderTool: Can not send schematic without md5: " + structureName);
         }
@@ -986,7 +986,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Override if place without paste is required.
      * @param structureName
      */
-    public void place(final StructureName structureName, final String serverSideName)
+    public void place(final StructureName structureName)
     {
 
     }
@@ -1058,7 +1058,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 }
                 else
                 {
-                    place(structureName, structureName.toString());
+                    place(structureName);
                 }
             }
 
