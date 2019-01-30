@@ -9,8 +9,8 @@ public final class Constants
     public static final String MOD_NAME                         = "Structurize";
     public static final String VERSION                          = "@VERSION@";
     public static final String MC_VERSION                       = "[1.12,1.13]";
-    public static final String CLIENT_PROXY_LOCATION            = "com.structurize.coremod.proxy.ClientProxy";
-    public static final String SERVER_PROXY_LOCATION            = "com.structurize.coremod.proxy.ServerProxy";
+    public static final String CLIENT_PROXY_LOCATION            = "com.ldtteam.structurize.proxy.ClientProxy";
+    public static final String SERVER_PROXY_LOCATION            = "com.ldtteam.structurize.proxy.ServerProxy";
     public static final int    ROTATE_ONCE                      = 1;
     public static final int    ROTATE_TWICE                     = 2;
     public static final int    ROTATE_THREE_TIMES               = 3;

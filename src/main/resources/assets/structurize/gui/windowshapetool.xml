@@ -2,18 +2,18 @@
         lightbox="false"
         xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.pickmainblock)" id="pickMainBlock" pos="24 3" size="86 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.shapeTool.pickmainblock)" id="pickMainBlock" pos="24 3" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
     <itemicon id="resourceIconMain" item="minecraft:gold_block" size="17 17" pos="59 20"/>
 
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.pickfillblock)" id="pickFillBlock" pos="24 43" size="86 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.shapeTool.pickfillblock)" id="pickFillBlock" pos="24 43" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
     <itemicon id="resourceIconFill" item="minecraft:gold_block" size="17 17" pos="59 60"/>
 
-    <buttonimage label="$(com.structurize.coremod.gui.shapeTool.solid)" id="hollowShape" pos="24 83" size="86 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.shapeTool.solid)" id="hollowShape" pos="24 83" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
     <buttonimage id="previousShape" size="14 15" pos="140 3" label="&lt;"
