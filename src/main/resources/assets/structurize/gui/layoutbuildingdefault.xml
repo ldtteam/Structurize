@@ -10,10 +10,10 @@
                    textalign="MIDDLE" color="red"/>
             <buttonimage id="build" align="TOP_MIDDLE" size="129 17" pos="0 114"
                          source="structurize:textures/gui/builderhut/builder_button_medium_large.png"
-                         label="$(com.structurize.coremod.gui.workerHuts.upgrade)" textcolor="black"/>
+                         label="$(com.ldtteam.structurize.gui.workerHuts.upgrade)" textcolor="black"/>
             <buttonimage id="repair" align="TOP_MIDDLE" size="129 17" pos="0 132"
                          source="structurize:textures/gui/builderhut/builder_button_medium_large.png"
-                         label="$(com.structurize.coremod.gui.workerHuts.repair)" textcolor="black"/>
+                         label="$(com.ldtteam.structurize.gui.workerHuts.repair)" textcolor="black"/>
 
 
     <buttonimage id="inventory"

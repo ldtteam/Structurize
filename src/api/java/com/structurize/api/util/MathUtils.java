@@ -1,8 +1,5 @@
 package com.structurize.api.util;
 
-import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Useful math stuff to use statically.
  */
