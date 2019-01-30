@@ -70,6 +70,12 @@ public final class TemplateRenderHandler
      */
     public void draw(final Template template, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
+        if (template == null)
+        {
+            Log.getLogger().warn("Trying to draw null template!");
+            return;
+        }
+
         try
         {
             templateBufferBuilderCache.get(template, () -> TemplateRenderer.buildRendererForTemplate(template)).draw(rotation, mirror, drawingOffset);
