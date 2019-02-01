@@ -32,21 +32,6 @@ public interface IProxy
      */
     void registerEvents();
 
-    /**
-     * Method to register Entities in.
-     */
-    void registerEntities();
-
-    /**
-     * Method to register entity rendering in.
-     */
-    void registerEntityRendering();
-
-    /**
-     * Method to register tile entity rendering in.
-     */
-    void registerTileEntityRendering();
-
 
     /**
      * Opens a build tool window.
@@ -83,11 +68,6 @@ public interface IProxy
      * @param colonyId the management id.
      */
     void openClipBoardWindow(int colonyId);
-
-    /**
-     * Registers all block and item renderer.
-     */
-    void registerRenderer();
 
     /**
      * Get the file representation of the additional schematics' folder.

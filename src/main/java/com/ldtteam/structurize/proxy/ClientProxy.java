@@ -210,13 +210,13 @@ public class ClientProxy extends CommonProxy
         for (final PaperwallType type : PaperwallType.values())
         {
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockPaperWall), type.getMetadata(),
-              new ModelResourceLocation(ModBlocks.blockPaperWall.getRegistryName() + "_" + type.getName(), INVENTORY));
+                    new ModelResourceLocation(ModBlocks.blockPaperWall.getRegistryName() + "_" + type.getName(), INVENTORY));
         }
 
         for (final BlockTimberFrame frame : ModBlocks.getTimberFrames())
         {
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(frame), 0,
-                        new ModelResourceLocation(frame.getRegistryName(), INVENTORY));
+                    new ModelResourceLocation(frame.getRegistryName(), INVENTORY));
         }
 
         createCustomModel(ModBlocks.multiBlock);

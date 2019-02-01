@@ -31,7 +31,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     /**
      * This blocks name.
      */
-    private static final String BLOCK_NAME = "multiBlock";
+    private static final String BLOCK_NAME = "multiblock";
 
     /**
      * The resistance this block has.
@@ -137,5 +137,10 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     public boolean doesSideBlockRendering(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face)
     {
         return false;
+    }
+
+    public static String getName()
+    {
+        return BLOCK_NAME;
     }
 }

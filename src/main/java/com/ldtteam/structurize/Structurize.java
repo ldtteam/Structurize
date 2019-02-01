@@ -82,8 +82,6 @@ public class Structurize
     public void preInit(@NotNull final FMLPreInitializationEvent event)
     {
         Structure.originFolders.add(Constants.MOD_ID);
-        proxy.registerEntities();
-        proxy.registerEntityRendering();
         proxy.registerEvents();
 
         @NotNull final Configuration configuration = new Configuration(event.getSuggestedConfigurationFile());
@@ -107,14 +105,9 @@ public class Structurize
 
         proxy.registerTileEntities();
 
-        proxy.registerTileEntityRendering();
-
-        proxy.registerRenderer();
-
         OreDictionary.registerOre("plankWood", ModBlocks.blockCactusPlank);
         OreDictionary.registerOre("slabWood", ModBlocks.blockCactusSlabHalf);
         OreDictionary.registerOre("stairWood", ModBlocks.blockCactusStair);
-
         OreDictionary.registerOre("fenceWood", ModBlocks.blockCactusFence);
         OreDictionary.registerOre("fenceGateWood", ModBlocks.blockCactusFenceGate);
 

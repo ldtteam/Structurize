@@ -63,7 +63,7 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
 }
 
-group = "com.structurize"
+group = "com.ldtteam"
 version = config.minecraft_version.toString() + "-" + System.getenv()["Version"]
 archivesBaseName = "structurize"
 
@@ -134,10 +134,6 @@ artifacts {
     archives javadocJar
     archives apiJar
     archives sourceJar
-}
-
-javadoc {
-    source += sourceSets.api.allSource
 }
 
 idea {

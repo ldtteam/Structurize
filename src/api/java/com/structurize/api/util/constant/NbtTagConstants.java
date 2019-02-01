@@ -5,7 +5,7 @@ package com.structurize.api.util.constant;
  */
 public final class NbtTagConstants
 {
-    public static final String TAG_UUID                   = "uuid";
+    public static final String TAG_UUID = "uuid";
 
     /**
      * Var for first pos string.

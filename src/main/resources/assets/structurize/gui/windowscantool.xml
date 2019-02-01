@@ -17,8 +17,7 @@
     <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="145 50"/>
     <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="235 50"/>
 
-    <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.showRes)" id="showRes" pos="140 80" size="129 17"
-                 source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black"/>
+    <button label="$(com.ldtteam.structurize.gui.scanTool.showRes)" id="showRes" pos="140 80" size="129 17" textcolor="black"/>
     <input id="filter" size="129 17" pos="140 80" maxlength="25" visible="false"/>
 
     <list id="resources" size="200 120" pos="10 100">
@@ -26,18 +25,15 @@
             <itemicon id="resourceIcon" size="17 17" pos="1 1"/>
             <label id="resourceName" size="140 12" pos="30 1" color="white"/>
             <label id="resourceQuantity" size="12 12" pos="170 1" color="white"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeBlock" pos="20 13" size="86 17"
-                         source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.replace)" id="replaceBlock" pos="105 13" size="86 17"
-                         source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+            <button label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeBlock" pos="20 13" size="86 17" textcolor="black"/>
+            <button label="$(com.ldtteam.structurize.gui.scanTool.replace)" id="replaceBlock" pos="105 13" size="86 17" textcolor="black"/>
         </box>
     </list>
 
     <list id="entities" size="200 100" pos="220 100">
         <box size="100% 30" linewidth="2">
             <label id="resourceName" size="140 12" pos="30 1" color="white"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeEntity" pos="40 13" size="86 17"
-                         source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+            <button label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeEntity" pos="40 13" size="86 17" textcolor="black"/>
         </box>
     </list>
 

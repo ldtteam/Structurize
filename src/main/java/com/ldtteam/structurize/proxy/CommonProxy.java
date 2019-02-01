@@ -2,6 +2,7 @@ package com.ldtteam.structurize.proxy;
 
 import com.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.blocks.MultiBlock;
 import com.ldtteam.structurize.event.FMLEventHandler;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
@@ -11,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,16 +37,9 @@ import java.util.Map;
 public class CommonProxy implements IProxy
 {
     /**
-     * feel free to change the following if you want different colored spawn eggs
-     */
-    //private static final int PRIMARY_COLOR   = 5;
-    //private static final int SECONDARY_COLOR = 700;
-
-    /**
      * Used to store IExtendedEntityProperties data temporarily between player death and respawn.
      */
     private static final Map<String, NBTTagCompound> playerPropertiesData = new HashMap<>();
-    //private              int                         nextEntityId         = 0;
 
     /**
      * Adds an entity's custom data to the map for temporary storage.
@@ -104,35 +99,13 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, Constants.MOD_ID + ":multiblock");
+        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, new ResourceLocation(Constants.MOD_ID, MultiBlock.getName()));
     }
 
     @Override
     public void registerEvents()
     {
         MinecraftForge.EVENT_BUS.register(new FMLEventHandler());
-    }
-
-    @Override
-    public void registerEntities()
-    {
-
-    }
-
-    @Override
-    public void registerEntityRendering()
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
-    public void registerTileEntityRendering()
-    {
-        /*
-         * Intentionally left empty.
-         */
     }
 
     @Override
@@ -169,14 +142,6 @@ public class CommonProxy implements IProxy
 
     @Override
     public void openClipBoardWindow(final int colonyId)
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
-    public void registerRenderer()
     {
         /*
          * Intentionally left empty.
