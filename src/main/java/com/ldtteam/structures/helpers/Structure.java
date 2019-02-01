@@ -21,6 +21,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 
+import com.structurize.structures.blueprints.v1.Blueprint;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -134,7 +135,7 @@ public class Structure
             {
                 this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
                 final String ending = Structures.getFileExtension(correctStructureName);
-                if(ending != null)
+                if (ending != null)
                 {
                     if (ending.endsWith(SCHEMATIC_EXTENSION))
                     {
@@ -142,7 +143,23 @@ public class Structure
                     }
                     else if (ending.endsWith(SCHEMATIC_EXTENSION_NEW))
                     {
-                        this.template = BlueprintUtil.toTemplate(BlueprintUtil.readFromFile(inputStream, getFixer()));
+                        final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(inputStream);
+                        final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, getFixer());
+                        if (blueprint != null)
+                        {
+                            this.template = BlueprintUtil.toTemplate(blueprint);
+                        }
+                        else
+                        {
+                            if (!nbttagcompound.hasKey("DataVersion", 99))
+                            {
+                                nbttagcompound.setInteger("DataVersion", 500);
+                            }
+
+                            final Template template = new Template();
+                            template.read(getFixer().process(FixTypes.STRUCTURE, nbttagcompound));
+                            this.template = template;
+                        }
                     }
                 }
             }
