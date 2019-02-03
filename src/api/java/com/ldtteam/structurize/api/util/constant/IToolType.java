@@ -1,4 +1,4 @@
-package com.structurize.api.util.constant;
+package com.ldtteam.structurize.api.util.constant;
 
 import net.minecraft.util.text.ITextComponent;
 

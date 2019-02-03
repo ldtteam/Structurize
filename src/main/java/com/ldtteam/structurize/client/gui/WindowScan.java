@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ItemStackUtils;
-import com.structurize.api.util.ItemStorage;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.ItemStorage;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.Button;
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
-import static com.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * Window for finishing a scan.

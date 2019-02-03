@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.ChangeStorage;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.management.Manager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;

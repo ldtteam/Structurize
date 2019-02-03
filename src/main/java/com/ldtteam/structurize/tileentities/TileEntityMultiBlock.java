@@ -19,8 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.structurize.api.util.constant.Constants.*;
-import static com.structurize.api.util.constant.NbtTagConstants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.*;
 import static net.minecraft.util.EnumFacing.*;
 
 /**

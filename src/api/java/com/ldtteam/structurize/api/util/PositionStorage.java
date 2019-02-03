@@ -1,4 +1,4 @@
-package com.structurize.api.util;
+package com.ldtteam.structurize.api.util;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;

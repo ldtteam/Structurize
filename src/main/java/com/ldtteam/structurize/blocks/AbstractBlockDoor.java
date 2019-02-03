@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.structurize.api.util.constant.Suppression;
+import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;

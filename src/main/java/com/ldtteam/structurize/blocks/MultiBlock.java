@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;

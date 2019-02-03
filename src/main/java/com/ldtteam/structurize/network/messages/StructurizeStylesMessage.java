@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.management.Structures;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;

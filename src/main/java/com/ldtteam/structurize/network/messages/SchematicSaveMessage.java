@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.Log;
+import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structures.helpers.Structure;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-import static com.structurize.api.util.constant.Constants.MAX_AMOUNT_OF_PIECES;
+import static com.ldtteam.structurize.api.util.constant.Constants.MAX_AMOUNT_OF_PIECES;
 
 /**
  * Save Schematic Message.

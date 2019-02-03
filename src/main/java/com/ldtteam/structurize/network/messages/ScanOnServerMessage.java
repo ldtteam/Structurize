@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.items.ItemScanTool;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;

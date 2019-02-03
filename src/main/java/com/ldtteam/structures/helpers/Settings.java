@@ -1,6 +1,6 @@
 package com.ldtteam.structures.helpers;
 
-import com.structurize.api.util.Shape;
+import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;

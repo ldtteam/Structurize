@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placementhandlers;
 
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.structurize.api.util.constant.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 
 /**
  * Class containing all placement handler implementations.

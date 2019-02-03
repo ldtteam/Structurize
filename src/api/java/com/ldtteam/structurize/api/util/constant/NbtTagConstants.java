@@ -1,4 +1,4 @@
-package com.structurize.api.util.constant;
+package com.ldtteam.structurize.api.util.constant;
 
 /**
  * Some constants needed to store things to NBT.

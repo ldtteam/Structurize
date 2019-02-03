@@ -5,9 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.Log;
-import com.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structures.helpers.Settings;

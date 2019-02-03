@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.ButtonImage;
@@ -16,7 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import static com.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 import static com.ldtteam.structurize.tileentities.TileEntityMultiBlock.DEFAULT_RANGE;
 import static com.ldtteam.structurize.tileentities.TileEntityMultiBlock.DEFAULT_SPEED;
 import static net.minecraft.util.EnumFacing.*;

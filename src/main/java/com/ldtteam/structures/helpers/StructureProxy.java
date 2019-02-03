@@ -1,15 +1,15 @@
 package com.ldtteam.structures.helpers;
 
-import static com.structurize.api.util.constant.Constants.ROTATE_ONCE;
-import static com.structurize.api.util.constant.Constants.ROTATE_THREE_TIMES;
-import static com.structurize.api.util.constant.Constants.ROTATE_TWICE;
+import static com.ldtteam.structurize.api.util.constant.Constants.ROTATE_ONCE;
+import static com.ldtteam.structurize.api.util.constant.Constants.ROTATE_THREE_TIMES;
+import static com.ldtteam.structurize.api.util.constant.Constants.ROTATE_TWICE;
 
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 
 import net.minecraft.block.state.IBlockState;

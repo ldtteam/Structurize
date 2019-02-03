@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizePillar;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-import static com.structurize.api.util.constant.Suppression.DEPRECATION;
+import static com.ldtteam.structurize.api.util.constant.Suppression.DEPRECATION;
 
 /**
  * Decorative block

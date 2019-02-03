@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structures.helpers.Structure;
 import io.netty.buffer.ByteBuf;

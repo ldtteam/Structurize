@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.item.Item;
 
 /**

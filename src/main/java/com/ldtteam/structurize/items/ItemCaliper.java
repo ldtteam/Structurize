@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;

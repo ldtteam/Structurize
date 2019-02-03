@@ -1,8 +1,8 @@
-package com.structurize.api.configuration;
+package com.ldtteam.structurize.api.configuration;
 
 import net.minecraftforge.common.config.Config;
 
-import static com.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 @Config(modid = MOD_ID)
 public class Configurations

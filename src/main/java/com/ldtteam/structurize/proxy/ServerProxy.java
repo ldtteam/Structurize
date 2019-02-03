@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.proxy;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.io.File;

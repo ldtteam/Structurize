@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management;
 
-import static com.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
-import static com.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
+import static com.ldtteam.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
+import static com.ldtteam.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,9 +30,9 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.Log;
-import com.structurize.api.util.MathUtils;
+import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.MathUtils;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structures.helpers.Structure;
 

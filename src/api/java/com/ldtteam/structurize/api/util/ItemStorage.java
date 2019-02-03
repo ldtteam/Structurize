@@ -1,4 +1,4 @@
-package com.structurize.api.util;
+package com.ldtteam.structurize.api.util;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

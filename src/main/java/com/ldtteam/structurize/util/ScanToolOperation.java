@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.util;
 
 import com.mojang.authlib.GameProfile;
-import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ChangeStorage;
+import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ChangeStorage;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

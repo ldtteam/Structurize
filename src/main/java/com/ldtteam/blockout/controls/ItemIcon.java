@@ -1,6 +1,6 @@
 package com.ldtteam.blockout.controls;
 
-import com.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.gui.FontRenderer;

@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.common.collect.ImmutableList;
-import com.structurize.api.util.ItemStackUtils;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * Window for the replace block GUI.

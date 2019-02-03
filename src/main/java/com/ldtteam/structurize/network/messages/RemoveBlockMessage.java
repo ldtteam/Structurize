@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.ScanToolOperation;
 import com.ldtteam.structurize.management.Manager;
 import io.netty.buffer.ByteBuf;

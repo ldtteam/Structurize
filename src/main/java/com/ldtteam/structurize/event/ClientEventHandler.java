@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.event;
 
-import com.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.TemplateUtils;

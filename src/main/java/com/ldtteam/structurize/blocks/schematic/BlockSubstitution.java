@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.blocks.schematic;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 
-import static com.structurize.api.util.constant.Suppression.DEPRECATION;
+import static com.ldtteam.structurize.api.util.constant.Suppression.DEPRECATION;
 
 /**
  * This block is used as a substitution block for the Builder.
