@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.cactus;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockDoor;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;

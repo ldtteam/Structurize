@@ -1,4 +1,4 @@
-package com.structurize.api.util;
+package com.ldtteam.structurize.api.util;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-import static com.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Utility methods for BlockPos.

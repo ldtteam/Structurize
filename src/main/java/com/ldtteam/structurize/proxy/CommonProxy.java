@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.proxy;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.event.FMLEventHandler;
 import com.ldtteam.structurize.items.ModItems;

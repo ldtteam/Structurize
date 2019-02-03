@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
@@ -33,8 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.structurize.api.util.constant.Constants.MAX_MESSAGE_SIZE;
-import static com.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.MAX_MESSAGE_SIZE;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * BuildTool window.

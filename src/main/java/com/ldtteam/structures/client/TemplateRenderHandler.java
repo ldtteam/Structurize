@@ -3,7 +3,7 @@ package com.ldtteam.structures.client;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
-import com.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.player.EntityPlayer;

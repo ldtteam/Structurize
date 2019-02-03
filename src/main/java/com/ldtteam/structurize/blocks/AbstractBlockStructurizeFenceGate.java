@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.structurize.api.util.constant.Suppression;
+import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;

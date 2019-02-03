@@ -1,6 +1,6 @@
-package com.structurize.api.util;
+package com.ldtteam.structurize.api.util;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

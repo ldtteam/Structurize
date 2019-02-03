@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;

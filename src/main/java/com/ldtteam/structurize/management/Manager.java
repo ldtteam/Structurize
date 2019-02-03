@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.management;
 
-import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.BlockUtils;
-import com.structurize.api.util.ChangeStorage;
-import com.structurize.api.util.Log;
-import com.structurize.api.util.Shape;
+import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ChangeStorage;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.ScanToolOperation;
 import com.ldtteam.structurize.util.StructureWrapper;
 import net.minecraft.block.state.IBlockState;

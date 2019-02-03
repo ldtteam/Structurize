@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.event;
 
-import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 
-import static com.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 
 /**
  * Event handler used to catch various forge events.

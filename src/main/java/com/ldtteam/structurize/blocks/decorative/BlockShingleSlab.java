@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeDirectional;
 import com.ldtteam.structurize.blocks.types.ShingleSlabType;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;

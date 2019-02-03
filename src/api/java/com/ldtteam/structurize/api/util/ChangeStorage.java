@@ -1,6 +1,6 @@
-package com.structurize.api.util;
+package com.ldtteam.structurize.api.util;
 
-import com.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.configuration.Configurations;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;

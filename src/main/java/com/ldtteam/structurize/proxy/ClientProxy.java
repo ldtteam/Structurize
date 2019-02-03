@@ -5,8 +5,8 @@ import java.io.File;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.structurize.api.util.Log;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.cactus.BlockCactusDoor;
 import com.ldtteam.structurize.blocks.decorative.BlockPaperwall;

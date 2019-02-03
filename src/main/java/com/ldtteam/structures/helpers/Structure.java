@@ -1,6 +1,6 @@
 package com.ldtteam.structures.helpers;
 
-import static com.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
+import static com.ldtteam.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
 import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION;
 import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_NEW;
 
@@ -21,13 +21,14 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.structurize.api.configuration.Configurations;
-import com.structurize.api.util.Log;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;

@@ -4,8 +4,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.storage.WorldSavedData;
 import org.jetbrains.annotations.NotNull;
 
-import static com.structurize.api.util.constant.Constants.MOD_ID;
-import static com.structurize.api.util.constant.NbtTagConstants.TAG_UUID;
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.TAG_UUID;
 
 /**
  * The UUID storage class.

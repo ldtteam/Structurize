@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.items;
 
-import static com.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
-import static com.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
-import static com.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
+import static com.ldtteam.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,10 +12,10 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.structurize.api.util.BlockPosUtil;
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.Log;
-import com.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;

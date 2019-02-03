@@ -1,6 +1,6 @@
 package com.ldtteam.structurize;
 
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.compat.optifine.OptifineCompat;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.management.Structures;

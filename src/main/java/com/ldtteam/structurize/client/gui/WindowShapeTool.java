@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.structurize.api.util.LanguageHandler;
-import com.structurize.api.util.Shape;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ItemIcon;
 import com.ldtteam.blockout.controls.Label;
@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.structurize.api.util.constant.Constants.*;
-import static com.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * BuildTool window.

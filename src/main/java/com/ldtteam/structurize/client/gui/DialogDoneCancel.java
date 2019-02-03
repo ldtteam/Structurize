@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.structurize.api.util.Log;
-import com.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
