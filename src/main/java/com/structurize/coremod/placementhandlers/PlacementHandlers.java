@@ -178,7 +178,10 @@ public final class PlacementHandlers
                 return ActionProcessingResult.ACCEPT;
             }
 
-            world.setBlockState(pos.down(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
+            if (!world.getBlockState(pos.down()).getMaterial().isSolid())
+            {
+                world.setBlockState(pos.down(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
+            }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
