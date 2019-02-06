@@ -3,10 +3,14 @@ package com.ldtteam.structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.compat.optifine.OptifineCompat;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.commands.StructurizeCommand;
 import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.proxy.IProxy;
+import com.ldtteam.structurize.util.BackUpHelper;
 import com.ldtteam.structures.helpers.Structure;
+
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -14,6 +18,8 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,21 +33,27 @@ import org.jetbrains.annotations.NotNull;
   /*dependencies = Constants.FORGE_VERSION,*/ acceptedMinecraftVersions = Constants.MC_VERSION)
 public class Structurize
 {
-    private static final Logger      logger = LogManager.getLogger(Constants.MOD_ID);
+    /**
+     * Instance for {@link LinkSessionManager}
+     */
+    public static        LinkSessionManager linkSessionManager;
+
+    private static final Logger logger = LogManager.getLogger(Constants.MOD_ID);
+
     /**
      * Forge created instance of the Mod.
      */
     @Mod.Instance(Constants.MOD_ID)
     public static        Structurize instance;
+
     /**
      * Access to the proxy associated with your current side. Variable updated
      * by forge.
      */
     @SidedProxy(clientSide = Constants.CLIENT_PROXY_LOCATION, serverSide = Constants.SERVER_PROXY_LOCATION)
+    public static        IProxy proxy;
 
-    public static        IProxy      proxy;
-
-    private static SimpleNetworkWrapper network;
+    private static       SimpleNetworkWrapper network;
 
     /**
      * Returns whether the side is client or not
@@ -83,6 +95,7 @@ public class Structurize
     {
         Structure.originFolders.add(Constants.MOD_ID);
         proxy.registerEvents();
+        linkSessionManager = new LinkSessionManager();
 
         @NotNull final Configuration configuration = new Configuration(event.getSuggestedConfigurationFile());
         configuration.load();
@@ -138,6 +151,10 @@ public class Structurize
         // Multiblock message
         getNetwork().registerMessage(MultiBlockChangeMessage.class, MultiBlockChangeMessage.class, ++id, Side.SERVER);
 
+        // Link session
+        getNetwork().registerMessage(LSStructureDisplayerMessage.class, LSStructureDisplayerMessage.class, ++id, Side.SERVER);
+        getNetwork().registerMessage(LSStructureDisplayerMessage.class, LSStructureDisplayerMessage.class, ++id, Side.CLIENT);
+
         // Client side only
         getNetwork().registerMessage(SaveScanMessage.class, SaveScanMessage.class, ++id, Side.CLIENT);
         getNetwork().registerMessage(SchematicSaveMessage.class, SchematicSaveMessage.class, ++id, Side.CLIENT);
@@ -152,5 +169,20 @@ public class Structurize
     public static SimpleNetworkWrapper getNetwork()
     {
         return network;
+    }
+    
+    @Mod.EventHandler
+    public void serverStarting(final FMLServerStartingEvent event)
+    {
+        // register server commands
+        event.registerServerCommand(new StructurizeCommand());
+
+        BackUpHelper.loadLinkSessionManager();
+    }
+    
+    @Mod.EventHandler
+    public void serverStopping(final FMLServerStoppingEvent event)
+    {
+        BackUpHelper.saveLinkSessionManager();
     }
 }

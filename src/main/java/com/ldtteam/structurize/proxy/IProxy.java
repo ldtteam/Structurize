@@ -32,7 +32,6 @@ public interface IProxy
      */
     void registerEvents();
 
-
     /**
      * Opens a build tool window.
      *
@@ -60,7 +59,7 @@ public interface IProxy
      * @param structureName the structure name.
      * @param rotation the rotation.
      */
-    void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation);
+    //void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation);
 
     /**
      * Opens a clipboard window.

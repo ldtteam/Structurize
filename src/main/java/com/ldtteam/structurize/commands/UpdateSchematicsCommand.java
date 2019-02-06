@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
-import com.google.common.collect.Lists;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structures.helpers.Structure;
+
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,7 +20,6 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
@@ -27,38 +27,44 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Command to update all schematics in structurize/updater/input to the blueprint format to structurize/updater/output.
  */
-public class UpdateSchematics implements ICommand
+public class UpdateSchematicsCommand extends CommandBase
 {
-    @Override
-    public int compareTo(@NotNull final ICommand o)
-    {
-        return 0;
-    }
+    protected final static String NAME = "updateschematics";
 
     @NotNull
     @Override
     public String getName()
     {
-        return "updateschematics";
-    }
-
-    @NotNull
-    @Override
-    public List<String> getAliases()
-    {
-        return Lists.newArrayList();
+        return NAME;
     }
 
     @NotNull
     @Override
     public String getUsage(@NotNull final ICommandSender sender)
     {
-        return "/updateschematics";
+        return "/" + StructurizeCommand.NAME + " " + NAME;
+    }
+
+    @Override
+    public int getRequiredPermissionLevel()
+    {
+        return 0;
+    }
+    
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+    {
+        return true;
     }
 
     @Override
     public void execute(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender, @NotNull final String[] args) throws CommandException
     {
+        if (args.length > 0)
+        {
+            throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+        }
+
         File updaterInput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/input");
         File updaterOutput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/output");
 
@@ -246,24 +252,5 @@ public class UpdateSchematics implements ICommand
             ints[ints.length - 1] = currentInt;
         }
         return ints;
-    }
-
-    @Override
-    public boolean checkPermission(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender)
-    {
-        return true;
-    }
-
-    @NotNull
-    @Override
-    public List<String> getTabCompletions(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender, @NotNull final String[] args, final BlockPos targetPos)
-    {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean isUsernameIndex(@NotNull final String[] args, final int index)
-    {
-        return false;
     }
 }

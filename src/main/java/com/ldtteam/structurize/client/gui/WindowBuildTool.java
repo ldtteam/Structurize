@@ -11,6 +11,7 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
 import com.ldtteam.structures.helpers.Settings;
@@ -26,6 +27,9 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import scala.Array;
 
 import java.io.InputStream;
@@ -145,6 +149,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private String staticSchematicName = "";
 
     /**
+     * Broadcast buildtool via {@link LSStructureDisplayerMessage}
+     */
+    private boolean broadcastSession = false;
+    private static final String BUTTON_SESSION = "session";
+
+    /**
      * Creates a window build tool for a specific structure.
      *
      * @param pos           the position.
@@ -229,9 +239,23 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PASTE, this::pasteComplete);
         registerButton(BUTTON_PASTE_NICE, this::pasteNice);
+        registerButton(BUTTON_SESSION, this::sessionClicked);
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
+    }
+
+    private void sessionClicked()
+    {
+        broadcastSession = !broadcastSession;
+        if (broadcastSession)
+        {
+            findPaneOfTypeByID(BUTTON_SESSION, Button.class).setLabel("Make private");
+        }
+        else
+        {
+            findPaneOfTypeByID(BUTTON_SESSION, Button.class).setLabel("Make public");
+        }
     }
 
     public void pasteNice()
@@ -455,13 +479,25 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Called when the window is closed.
      * If there is a current structure, its information is stored in {@link Settings}.
+     * Also updates state of {@link LSStructureDisplayerMessage}
      */
     @Override
     public void onClosed()
     {
+        ByteBuf buffer = Unpooled.buffer();
+
         if (Settings.instance.getActiveStructure() != null)
         {
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
+            if (broadcastSession)
+            {
+                Settings.instance.toBytes(buffer);
+                Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
+            }
+        }
+        else if (!broadcastSession)
+        {
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
     }
 

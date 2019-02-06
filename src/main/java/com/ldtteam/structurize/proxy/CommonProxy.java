@@ -29,7 +29,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * CommonProxy of the structurize mod (Server and Client).
  */
@@ -124,13 +123,15 @@ public class CommonProxy implements IProxy
          */
     }
 
+    /*
     @Override
     public void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation)
     {
         /*
          * Intentionally left empty.
-         */
+         *
     }
+    */
 
     @Override
     public void openShapeToolWindow(final BlockPos pos)
