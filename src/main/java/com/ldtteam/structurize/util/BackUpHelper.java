@@ -50,7 +50,6 @@ public final class BackUpHelper
         saveNBTToPath(file, data);
     }
 
-
     /**
      * Load all LinkSessions if found
      */

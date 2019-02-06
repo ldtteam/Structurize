@@ -495,7 +495,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
             }
         }
-        else if (!broadcastSession)
+        else if (broadcastSession)
         {
             Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
