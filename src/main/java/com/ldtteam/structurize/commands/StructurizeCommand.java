@@ -64,9 +64,9 @@ public class StructurizeCommand extends CommandTreeBase
         for(final String sub : super.getCommandMap().keySet())
         {
             usage.append(sub);
-            usage.append("|");
+            usage.append(" | ");
         }
-        usage.deleteCharAt(usage.length() - 1);
+        usage.delete(usage.length() - 3, usage.length());
         usage.append(">");
         return usage.toString();
     }

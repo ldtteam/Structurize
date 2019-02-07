@@ -3,8 +3,11 @@ package com.ldtteam.structurize.commands;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,12 +35,13 @@ public class LinkSessionCommand extends CommandTreeBase
 
     public LinkSessionCommand()
     {
+        super.addSubcommand(new AboutMe());
+        super.addSubcommand(new AddPlayer());
         super.addSubcommand(new Create());
         super.addSubcommand(new Destroy());
-        super.addSubcommand(new AddPlayer());
+        super.addSubcommand(new MuteChannel());
         super.addSubcommand(new RemovePlayer());
         super.addSubcommand(new SendMessage());
-        super.addSubcommand(new AboutMe());
     }
 
     @NotNull
@@ -59,9 +63,9 @@ public class LinkSessionCommand extends CommandTreeBase
         for (final String sub : super.getCommandMap().keySet())
         {
             usage.append(sub);
-            usage.append("|");
+            usage.append(" | ");
         }
-        usage.deleteCharAt(usage.length() - 1);
+        usage.delete(usage.length() - 3, usage.length());
         usage.append(">");
         return usage.toString();
     }
@@ -362,12 +366,6 @@ public class LinkSessionCommand extends CommandTreeBase
         }
 
         @Override
-        public boolean isUsernameIndex(String[] args, int index)
-        {
-            return false;
-        }
-
-        @Override
         public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
         {
             if (args.length < 1)
@@ -376,10 +374,14 @@ public class LinkSessionCommand extends CommandTreeBase
             }
             
             final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
-            final Set<UUID> uniqueMembers = linkSessionManager.getUniquePlayersInSessionsOf(senderUUID);
+            final Set<UUID> uniqueMembers = linkSessionManager.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
             final TextComponentTranslation msgWithHead = new TextComponentTranslation("commands.message.display.incoming",
                 new Object[] {Constants.MOD_NAME + " Session Message " + sender.getName(), getChatComponentFromNthArg(sender, args, 0, true)});
 
+            if (uniqueMembers.isEmpty() && linkSessionManager.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
+            {
+                throw new CommandException("You (and every other possible player) have messages muted.");
+            }
             if (uniqueMembers.isEmpty())
             {
                 throw new CommandException("You are not a part of any session.");
@@ -428,12 +430,6 @@ public class LinkSessionCommand extends CommandTreeBase
         }
 
         @Override
-        public boolean isUsernameIndex(String[] args, int index)
-        {
-            return false;
-        }
-
-        @Override
         public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
         {
             if (args.length > 0)
@@ -478,6 +474,79 @@ public class LinkSessionCommand extends CommandTreeBase
                 for(String name : ownerSession)
                 {
                     sender.sendMessage(new TextComponentString("    §7" + name));
+                }
+            }
+
+            // channels
+            sender.sendMessage(new TextComponentString("  §aChannels:"));
+            for(ChannelsEnum ch : ChannelsEnum.values())
+            {
+                if(linkSessionManager.getMuteState(senderUUID, ch))
+                {
+                    sender.sendMessage(new TextComponentString(String.format("    §7%s:§r §c%s", ch.getCommandName(), "muted")));
+                }
+                else
+                {
+                    sender.sendMessage(new TextComponentString(String.format("    §7%s:§r §a%s", ch.getCommandName(), "unmuted")));
+                }
+            }
+        }
+    }
+
+    /**
+     * Command for (un)muting a channel for sender
+     */
+    private class MuteChannel extends CommandBase
+    {
+        protected final static String NAME = "mutechannel";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+        
+        @Override
+        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
+        {
+            return Stream.of(ChannelsEnum.values()).map(ch -> ch.getCommandName()).collect(Collectors.toList());
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length < 1)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
+
+            for(String arg : args)
+            {
+                final ChannelsEnum ch = ChannelsEnum.getEnumByCommandName(arg);
+                if(ch != null)
+                {
+                    linkSessionManager.setMuteState(senderUUID, ch, !linkSessionManager.getMuteState(senderUUID, ch));
                 }
             }
         }

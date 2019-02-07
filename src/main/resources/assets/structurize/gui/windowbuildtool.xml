@@ -29,7 +29,6 @@
     </dropdown>
     <button id="nextSchematic" size="15 15" pos="405 0" label="&gt;"/>
 
-    <button id="session" size="114 15" pos="293 0" label="Make public">
     <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
     <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
 

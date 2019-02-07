@@ -16,6 +16,7 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 
 import java.util.Set;
 import java.util.UUID;
@@ -134,7 +135,12 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
     @Override
     public void messageOnServerThread(final LSStructureDisplayerMessage message, final EntityPlayerMP player)
     {
-        final Set<UUID> targets = Structurize.linkSessionManager.getUniquePlayersInSessionsOf(player.getUniqueID());
+        if (Structurize.linkSessionManager.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
+        {
+            return;
+        }
+        
+        final Set<UUID> targets = Structurize.linkSessionManager.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
         targets.remove(player.getUniqueID()); // TODO: remove this to ensure no desync will appear?
         for(UUID target : targets)
         {
