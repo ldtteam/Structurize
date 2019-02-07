@@ -133,7 +133,9 @@ public class BlueprintUtil
         {
             Vec3d oldPos = entity.getPositionVector();
             entity.setPosition(oldPos.x - pos.getX(), oldPos.y - pos.getY(), oldPos.z - pos.getZ());
-            entitiesTag.add(entity.writeToNBT(new NBTTagCompound()));
+            NBTTagCompound entityTag = new NBTTagCompound();
+            if(entity.writeToNBTOptional(entityTag))
+            	entitiesTag.add(entityTag);
             entity.setPosition(oldPos.x, oldPos.y, oldPos.z);
         }
 
