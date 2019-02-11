@@ -20,6 +20,7 @@ public class StructurizeCommand extends CommandTreeBase
     public StructurizeCommand()
     {
         super.addSubcommand(new LinkSessionCommand());
+        super.addSubcommand(new ScanCommand());
         super.addSubcommand(new UpdateSchematicsCommand());
     }
 
