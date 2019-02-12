@@ -18,11 +18,13 @@ public final class ModCreativeTabs
             return new ItemStack(ModItems.buildTool);
         }
 
+        /*
         @Override
         public boolean hasSearchBar()
         {
             return true;
         }
+        */
     };
 
     /**

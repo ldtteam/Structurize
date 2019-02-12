@@ -21,6 +21,11 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
     private static final String CHANNELS_TAG = "channels";
 
     /**
+     * Instance
+     */
+    public  static final LinkSessionManager INSTANCE = new LinkSessionManager();
+
+    /**
      * Storage of sessions by ownerUUID
      */
     private static final HashMap<UUID, LinkSession> sessions = new HashMap<UUID, LinkSession>();
@@ -216,13 +221,13 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
             final NBTTagCompound channelz = in.getCompoundTag(CHANNELS_TAG);
             for (String key : channelz.getKeySet())
             {
-                final NBTTagCompound player = channelz.getCompoundTag(key);
+                final NBTTagCompound playerTag = channelz.getCompoundTag(key);
                 final UUID playerUUID = UUID.fromString(key);
 
                 channels.put(playerUUID, new HashMap<Integer, Boolean>());
-                for (String id : player.getKeySet())
+                for (String id : playerTag.getKeySet())
                 {
-                    channels.get(playerUUID).put(new Integer(id), player.getBoolean(id));
+                    channels.get(playerUUID).put(new Integer(id), playerTag.getBoolean(id));
                 }
             }
             in.removeTag(CHANNELS_TAG);

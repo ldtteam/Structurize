@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.DimensionManager;
@@ -14,8 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import static com.ldtteam.structurize.Structurize.linkSessionManager;
 
 /**
  * Utils for saving data not saved into capabilities
@@ -43,7 +42,7 @@ public final class BackUpHelper
      */
     public static void saveLinkSessionManager()
     {
-        @NotNull final NBTTagCompound data = linkSessionManager.serializeNBT();
+        @NotNull final NBTTagCompound data = LinkSessionManager.INSTANCE.serializeNBT();
         @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
 
         cycleNewBackup(FILENAME_LINKSESSION, 2);  // TODO: make configurable
@@ -60,7 +59,7 @@ public final class BackUpHelper
 
         if(data != null)
         {
-            linkSessionManager.deserializeNBT(data);
+            LinkSessionManager.INSTANCE.deserializeNBT(data);
         }
     }
 

@@ -9,14 +9,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockUtils;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
+import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 
 import java.util.Set;
 import java.util.UUID;
@@ -135,12 +136,12 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
     @Override
     public void messageOnServerThread(final LSStructureDisplayerMessage message, final EntityPlayerMP player)
     {
-        if (Structurize.linkSessionManager.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
+        if (LinkSessionManager.INSTANCE.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
         {
             return;
         }
         
-        final Set<UUID> targets = Structurize.linkSessionManager.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
+        final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
         targets.remove(player.getUniqueID()); // TODO: remove this to ensure no desync will appear?
         for(UUID target : targets)
         {

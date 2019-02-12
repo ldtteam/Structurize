@@ -5,7 +5,6 @@ import com.ldtteam.structurize.compat.optifine.OptifineCompat;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.commands.StructurizeCommand;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.util.BackUpHelper;
@@ -29,15 +28,10 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber
-@Mod(modid = Constants.MOD_ID, name = Constants.MOD_NAME, version = Constants.VERSION, dependencies="after:gbook",
+@Mod(modid = Constants.MOD_ID, name = Constants.MOD_NAME, version = Constants.VERSION,
   /*dependencies = Constants.FORGE_VERSION,*/ acceptedMinecraftVersions = Constants.MC_VERSION)
 public class Structurize
 {
-    /**
-     * Instance for {@link LinkSessionManager}
-     */
-    public static        LinkSessionManager linkSessionManager;
-
     private static final Logger logger = LogManager.getLogger(Constants.MOD_ID);
 
     /**
@@ -95,7 +89,6 @@ public class Structurize
     {
         Structure.originFolders.add(Constants.MOD_ID);
         proxy.registerEvents();
-        linkSessionManager = new LinkSessionManager();
 
         @NotNull final Configuration configuration = new Configuration(event.getSuggestedConfigurationFile());
         configuration.load();

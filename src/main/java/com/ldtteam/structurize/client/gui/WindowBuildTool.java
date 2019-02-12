@@ -915,6 +915,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         else
         {
+            // why do we try to place when it's not synced?
             if (pasteDirectly())
             {
                 paste(structureName, complete);

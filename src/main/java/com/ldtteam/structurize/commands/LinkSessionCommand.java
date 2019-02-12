@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
+import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +24,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.command.CommandTreeBase;
-
-import static com.ldtteam.structurize.Structurize.linkSessionManager;
 
 /**
  * Complete management of /structurize linksession
@@ -137,13 +136,13 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            if (linkSessionManager.getMembersOf(ownerUUID) != null)
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) != null)
             {
                 throw new CommandException("You have already created a session.");
             }
 
-            linkSessionManager.createSession(ownerUUID);
-            linkSessionManager.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getName());
+            LinkSessionManager.INSTANCE.createSession(ownerUUID);
+            LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getName());
             sender.sendMessage(new TextComponentString("Created session for player: " + sender.getName()));
         }
     }
@@ -190,7 +189,7 @@ public class LinkSessionCommand extends CommandTreeBase
 
             final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
 
-            if (linkSessionManager.destroySession(ownerUUID))
+            if (LinkSessionManager.INSTANCE.destroySession(ownerUUID))
             {
                 sender.sendMessage(new TextComponentString("Destroying session of player: " + sender.getName())); 
             }
@@ -254,14 +253,14 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            if (linkSessionManager.getMembersOf(ownerUUID) == null)
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
             {
                 throw new CommandException("You don't have a session created.");
             }
 
             for (String name : args)
             {
-                linkSessionManager.addOrUpdateMemberInSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID(), name);
+                LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID(), name);
                 sender.sendMessage(new TextComponentString("Adding player \"" + name + "\" to " + sender.getName() + "'s session."));
             }
         }
@@ -320,14 +319,14 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            if (linkSessionManager.getMembersOf(ownerUUID) == null)
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
             {
                 throw new CommandException("You don't have a session created.");
             }
 
             for (String name : args)
             {
-                linkSessionManager.removeMemberOfSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID());
+                LinkSessionManager.INSTANCE.removeMemberOfSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID());
                 sender.sendMessage(new TextComponentString("Removing player \"" + name + "\" of " + sender.getName() + "'s session."));
             }
         }
@@ -374,11 +373,11 @@ public class LinkSessionCommand extends CommandTreeBase
             }
             
             final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
-            final Set<UUID> uniqueMembers = linkSessionManager.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
+            final Set<UUID> uniqueMembers = LinkSessionManager.INSTANCE.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
             final TextComponentTranslation msgWithHead = new TextComponentTranslation("commands.message.display.incoming",
                 new Object[] {Constants.MOD_NAME + " Session Message " + sender.getName(), getChatComponentFromNthArg(sender, args, 0, true)});
 
-            if (uniqueMembers.isEmpty() && linkSessionManager.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
+            if (uniqueMembers.isEmpty() && LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
             {
                 throw new CommandException("You (and every other possible player) have messages muted.");
             }
@@ -438,7 +437,7 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
-            List<String> ownerSession = linkSessionManager.getMembersNamesOf(senderUUID);
+            List<String> ownerSession = LinkSessionManager.INSTANCE.getMembersNamesOf(senderUUID);
             sender.sendMessage(new TextComponentString("Info about \"" + sender.getName() + "\":"));
 
             // is owner?
@@ -463,7 +462,7 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             // is member?
-            ownerSession = linkSessionManager.getSessionNamesOf(senderUUID);
+            ownerSession = LinkSessionManager.INSTANCE.getSessionNamesOf(senderUUID);
             if(ownerSession == null)
             {
                 sender.sendMessage(new TextComponentString("  §cYou are not a part of other sessions."));
@@ -481,7 +480,7 @@ public class LinkSessionCommand extends CommandTreeBase
             sender.sendMessage(new TextComponentString("  §aChannels:"));
             for(ChannelsEnum ch : ChannelsEnum.values())
             {
-                if(linkSessionManager.getMuteState(senderUUID, ch))
+                if(LinkSessionManager.INSTANCE.getMuteState(senderUUID, ch))
                 {
                     sender.sendMessage(new TextComponentString(String.format("    §7%s:§r §c%s", ch.getCommandName(), "muted")));
                 }
@@ -546,7 +545,7 @@ public class LinkSessionCommand extends CommandTreeBase
                 final ChannelsEnum ch = ChannelsEnum.getEnumByCommandName(arg);
                 if(ch != null)
                 {
-                    linkSessionManager.setMuteState(senderUUID, ch, !linkSessionManager.getMuteState(senderUUID, ch));
+                    LinkSessionManager.INSTANCE.setMuteState(senderUUID, ch, !LinkSessionManager.INSTANCE.getMuteState(senderUUID, ch));
                 }
             }
         }
