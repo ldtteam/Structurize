@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.placementhandlers;
 
-import com.ldtteam.structurize.api.registerevent.interfaces.IPlacementHandler;
 import com.ldtteam.structurize.api.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
