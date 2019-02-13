@@ -70,7 +70,7 @@ public class UpdateSchematics implements ICommand
         }
     }
 
-    private void update(File input, File globalInputFolder, File globalOutputFolder)
+    private void update(@NotNull final File input, @NotNull final File globalInputFolder, @NotNull final File globalOutputFolder)
     {
         if (input.isDirectory())
         {
@@ -80,6 +80,12 @@ public class UpdateSchematics implements ICommand
             }
             return;
         }
+
+        if (input.getPath().endsWith(".blueprint"))
+        {
+            return;
+        }
+
         try
         {
             File output = new File(globalOutputFolder, input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
@@ -93,18 +99,18 @@ public class UpdateSchematics implements ICommand
 
             template = Structure.getFixer().process(FixTypes.STRUCTURE, template);
 
-            NBTTagList blocks = template.getTagList("blocks", NBT.TAG_COMPOUND);
-            NBTTagList pallete = template.getTagList("palette", NBT.TAG_COMPOUND);
+            final NBTTagList blocks = template.getTagList("blocks", NBT.TAG_COMPOUND);
+            final NBTTagList pallete = template.getTagList("palette", NBT.TAG_COMPOUND);
 
-            NBTTagCompound blueprint = new NBTTagCompound();
+            final NBTTagCompound blueprint = new NBTTagCompound();
 
-            NBTTagList list = template.getTagList("size", NBT.TAG_INT);
-            int[] size = new int[] {list.getIntAt(0), list.getIntAt(1), list.getIntAt(2)};
+            final NBTTagList list = template.getTagList("size", NBT.TAG_INT);
+            final int[] size = new int[] {list.getIntAt(0), list.getIntAt(1), list.getIntAt(2)};
             blueprint.setShort("size_x", (short) size[0]);
             blueprint.setShort("size_y", (short) size[1]);
             blueprint.setShort("size_z", (short) size[2]);
 
-            boolean addStructureVoid = blocks.tagCount() != size[0] * size[1] * size[2];
+            final boolean addStructureVoid = blocks.tagCount() != size[0] * size[1] * size[2];
             short structureVoidID = 0;
             if (addStructureVoid)
             {
@@ -113,7 +119,7 @@ public class UpdateSchematics implements ICommand
             }
 
 
-            Set<String> mods = new HashSet<String>();
+            final Set<String> mods = new HashSet<String>();
             for (int i = 0; i < pallete.tagCount(); i++)
             {
                 NBTTagCompound blockState = (NBTTagCompound) pallete.get(i);
@@ -121,7 +127,7 @@ public class UpdateSchematics implements ICommand
                 mods.add(modid);
             }
 
-            NBTTagList requiredMods = new NBTTagList();
+            final NBTTagList requiredMods = new NBTTagList();
             for (String str : mods)
             {
                 requiredMods.appendTag(new NBTTagString(str));
@@ -130,8 +136,8 @@ public class UpdateSchematics implements ICommand
             blueprint.setTag("palette", pallete);
             blueprint.setTag("required_mods", requiredMods);
 
-            MutableBlockPos pos = new MutableBlockPos();
-            short[][][] dataArray = new short[size[1]][size[2]][size[0]];
+            final MutableBlockPos pos = new MutableBlockPos();
+            final short[][][] dataArray = new short[size[1]][size[2]][size[0]];
 
             if (addStructureVoid)
             {
@@ -147,10 +153,10 @@ public class UpdateSchematics implements ICommand
                 }
             }
 
-            NBTTagList tileEntities = new NBTTagList();
+            final NBTTagList tileEntities = new NBTTagList();
             for (int i = 0; i < blocks.tagCount(); i++)
             {
-                NBTTagCompound comp = blocks.getCompoundTagAt(i);
+                final NBTTagCompound comp = blocks.getCompoundTagAt(i);
                 updatePos(pos, comp);
                 dataArray[pos.getY()][pos.getZ()][pos.getX()] = (short) comp.getInteger("state");
                 if (comp.hasKey("nbt"))
@@ -169,10 +175,10 @@ public class UpdateSchematics implements ICommand
             blueprint.setTag("name", new NBTTagString(input.getName().replaceAll("\\.nbt", "")));
             blueprint.setInteger("version", 1);
 
-            NBTTagList newEntities = new NBTTagList();
+            final NBTTagList newEntities = new NBTTagList();
             if (template.hasKey("entities"))
             {
-                NBTTagList entities = template.getTagList("entities", NBT.TAG_COMPOUND);
+                final NBTTagList entities = template.getTagList("entities", NBT.TAG_COMPOUND);
                 for (int i = 0; i < entities.tagCount(); i++)
                 {
                     NBTTagCompound entityData = entities.getCompoundTagAt(i);
@@ -186,15 +192,15 @@ public class UpdateSchematics implements ICommand
             output.createNewFile();
             CompressedStreamTools.writeCompressed(blueprint, Files.newOutputStream(output.toPath()));
         }
-        catch (IOException e)
+        catch (final IOException e)
         {
             e.printStackTrace();
         }
     }
 
-    private static void updatePos(MutableBlockPos pos, NBTTagCompound comp)
+    private static void updatePos(final MutableBlockPos pos ,final NBTTagCompound comp)
     {
-        NBTTagList list = comp.getTagList("pos", NBT.TAG_INT);
+        final NBTTagList list = comp.getTagList("pos", NBT.TAG_INT);
         pos.setPos(list.getIntAt(0), list.getIntAt(1), list.getIntAt(2));
     }
 
@@ -210,7 +216,7 @@ public class UpdateSchematics implements ICommand
     private static int[] convertBlocksToSaveData(short[][][] multDimArray, short sizeX, short sizeY, short sizeZ)
     {
         // Converting 3 Dimensional Array to One DImensional
-        short[] oneDimArray = new short[sizeX * sizeY * sizeZ];
+        final short[] oneDimArray = new short[sizeX * sizeY * sizeZ];
 
         int j = 0;
         for (short y = 0; y < sizeY; y++)
@@ -225,7 +231,7 @@ public class UpdateSchematics implements ICommand
         }
 
         // Converting short Array to int Array
-        int[] ints = new int[(int) Math.ceil(oneDimArray.length / 2f)];
+        final int[] ints = new int[(int) Math.ceil(oneDimArray.length / 2f)];
 
         int currentInt;
         for (int i = 1; i < oneDimArray.length; i += 2)

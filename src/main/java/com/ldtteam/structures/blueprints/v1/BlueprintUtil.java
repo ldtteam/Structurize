@@ -133,7 +133,9 @@ public class BlueprintUtil
         {
             Vec3d oldPos = entity.getPositionVector();
             entity.setPosition(oldPos.x - pos.getX(), oldPos.y - pos.getY(), oldPos.z - pos.getZ());
-            entitiesTag.add(entity.writeToNBT(new NBTTagCompound()));
+            NBTTagCompound entityTag = new NBTTagCompound();
+            if(entity.writeToNBTOptional(entityTag))
+            	entitiesTag.add(entityTag);
             entity.setPosition(oldPos.x, oldPos.y, oldPos.z);
         }
 
@@ -237,11 +239,13 @@ public class BlueprintUtil
     /**
      * Deserializes a Blueprint form the Given NBTTagCompound
      *
-     * @param tag The NBTTagCompound containing the Blueprint Data
+     * @param nbtTag The NBTTagCompound containing the Blueprint Data
+     * @param fixer the data fixer.
      * @return A desserialized Blueprint
      */
-    public static Blueprint readBlueprintFromNBT(NBTTagCompound tag)
+    public static Blueprint readBlueprintFromNBT(final NBTTagCompound nbtTag, final DataFixer fixer)
     {
+        final NBTTagCompound tag = fixer.process(FixTypes.STRUCTURE, nbtTag);
         byte version = tag.getByte("version");
         if (version == 1)
         {
@@ -335,50 +339,6 @@ public class BlueprintUtil
     }
 
     /**
-     * Attempts to read a Blueprint from an Input Stream
-     *
-     * @param is    The Input Stream from which to read the Blueprint
-     * @param fixer A Data fixer to update old data.
-     * @return the Blueprting that was read from the InputStream
-     */
-    public static Blueprint readFromFile(InputStream is, DataFixer fixer)
-    {
-        NBTTagCompound tag;
-        try
-        {
-            tag = CompressedStreamTools.readCompressed(is);
-            tag = fixer.process(FixTypes.STRUCTURE, tag);
-            return readBlueprintFromNBT(tag);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Attempts to read a Blueprint from an Input Stream
-     *
-     * @param is The Input Stream from which to read the Blueprint
-     * @return the Blueprting that was read from the InputStream
-     */
-    public static Blueprint readFromFile(InputStream is)
-    {
-        NBTTagCompound tag;
-        try
-        {
-            tag = CompressedStreamTools.readCompressed(is);
-            return readBlueprintFromNBT(tag);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * Converts a 3 Dimensional short Array to a one Dimensional int Array
      *
      * @param multDimArray 3 Dimensional short Array
@@ -460,6 +420,11 @@ public class BlueprintUtil
         return multDimArray;
     }
 
+    /**
+     * Converts a blueprint to a template.
+     * @param bp the blueprint to convert.
+     * @return a new template.
+     */
     public static Template toTemplate(Blueprint bp)
     {
         Template temp = new Template();
