@@ -9,13 +9,13 @@ item.structurize.scepterGold.name=Building Tool
 item.structurize.scepterSteel.name=Scan Tool
 item.structurize.shapeTool.name=Shape Tool
 item.structurize.caliper.name=Caliper
-com.structurize.coremod.gui.shapeTool.pickmainblock=Pick Main Block
-com.structurize.coremod.gui.shapeTool.pickfillblock=Pick Fill Block
+com.ldtteam.structurize.gui.shapeTool.pickmainblock=Pick Main Block
+com.ldtteam.structurize.gui.shapeTool.pickfillblock=Pick Fill Block
 
-com.structurize.coremod.gui.shapeTool.replace=Replace Blocks
-com.structurize.coremod.gui.shapeTool.ignore=Ignore Blocks
-com.structurize.coremod.gui.shapeTool.hollow=Hollow
-com.structurize.coremod.gui.shapeTool.solid=Solid
+com.ldtteam.structurize.gui.shapeTool.replace=Replace Blocks
+com.ldtteam.structurize.gui.shapeTool.ignore=Ignore Blocks
+com.ldtteam.structurize.gui.shapeTool.hollow=Hollow
+com.ldtteam.structurize.gui.shapeTool.solid=Solid
 
 item.scepterSteel.point=Point one saved: %d %d %d
 item.scepterSteel.point2=Point two saved: %d %d %d.
@@ -30,21 +30,21 @@ item.caliper.message.cube=That's a %d by %d by %d cube.
 itemGroup.structurize=Structurize
 com.structurize.configgui.title=structurize Config
 
-com.structurize.coremod.gui.buildtool.hut=Huts
+com.ldtteam.structurize.gui.buildtool.hut=Huts
 
 
-com.structurize.coremod.gui.buildtool.hut.level=Level %s
-com.structurize.coremod.network.messages.schematicsavemassage.toobig=Schematic size is too big, can not be bigger than %s bytes
-com.structurize.coremod.gui.buildtool.decorations=Decorations
-com.structurize.coremod.gui.buildtool.scans=My schematics
-com.structurize.coremod.gui.structure.edit.title=Edit Structure
-com.structurize.coremod.gui.structure.rename=Rename Structure
-com.structurize.coremod.gui.structure.delete=Delete Structure
-com.structurize.coremod.gui.structure.delete.title=Delete Structure
-com.structurize.coremod.gui.structure.delete.body=Do you want to delete %s?
+com.ldtteam.structurize.gui.buildtool.hut.level=Level %s
+com.ldtteam.structurize.network.messages.schematicsavemassage.toobig=Schematic size is too big, can not be bigger than %s bytes
+com.ldtteam.structurize.gui.buildtool.decorations=Decorations
+com.ldtteam.structurize.gui.buildtool.scans=My schematics
+com.ldtteam.structurize.gui.structure.edit.title=Edit Structure
+com.ldtteam.structurize.gui.structure.rename=Rename Structure
+com.ldtteam.structurize.gui.structure.delete=Delete Structure
+com.ldtteam.structurize.gui.structure.delete.title=Delete Structure
+com.ldtteam.structurize.gui.structure.delete.body=Do you want to delete %s?
 
 
-com.structurize.coremod.general.and=and
+com.ldtteam.structurize.general.and=and
 tile.structurize.blockPaperwall.name=Paper wall
 
 tile.structurize.blockshingle_oak.name=Oak Shingle
@@ -128,17 +128,17 @@ tile.structurize.blockcactuspdoor.name=Cactus Trapdoor
 item.structurize.cactusdoor.name=Cactus Door
 tile.structurize.blockcactusslab_half.name=Cactus Slab
 
-com.structurize.coremod.tooClose=Too close to world spawn, needs to be at least %d blocks away.
-com.structurize.coremod.tooFar=Too far away from the world spawn, needs to be max %d blocks away.
+com.ldtteam.structurize.tooClose=Too close to world spawn, needs to be at least %d blocks away.
+com.ldtteam.structurize.tooFar=Too far away from the world spawn, needs to be max %d blocks away.
 
-com.structurize.coremod.gui.scanTool.showRes=Show Resources
-com.structurize.coremod.gui.scanTool.to=To:
-com.structurize.coremod.gui.scanTool.from=From:
-com.structurize.coremod.gui.scanTool.name=Scan Name:
-com.structurize.coremod.gui.scanTool.remove=Remove
-com.structurize.coremod.gui.scanTool.replace=Replace
-com.structurize.coremod.gui.scan.replace.title=Block Replacement GUI
-com.structurize.coremod.gui.scanTool.select=Select
+com.ldtteam.structurize.gui.scanTool.showRes=Show Resources
+com.ldtteam.structurize.gui.scanTool.to=To:
+com.ldtteam.structurize.gui.scanTool.from=From:
+com.ldtteam.structurize.gui.scanTool.name=Scan Name:
+com.ldtteam.structurize.gui.scanTool.remove=Remove
+com.ldtteam.structurize.gui.scanTool.replace=Replace
+com.ldtteam.structurize.gui.scan.replace.title=Block Replacement GUI
+com.ldtteam.structurize.gui.scanTool.select=Select
 tile.structurize.multiBlock.name=MultiBlock
 
 tile.structurize.blockcactusfence.name=Cactus Fence

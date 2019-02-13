@@ -1,7 +1,7 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" pause="false"
         lightbox="true" xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
     <label size="100% 11" pos="0 25" textalign="TOP_MIDDLE" color="white"
-           label="$(com.structurize.coremod.gui.scan.replace.title)"/>
+           label="$(com.ldtteam.structurize.gui.scan.replace.title)"/>
     <input id="name" size="150 18" pos="135 40" maxlength="25"/>
 
     <itemicon id="resourceIconFrom" size="17 17" pos="0 1"/>
@@ -17,7 +17,7 @@
         <box size="100% 17" linewidth="2">
             <itemicon id="resourceIcon" size="17 17" pos="1 1"/>
             <label id="resourceName" size="140 12" pos="30 1" color="white"/>
-            <buttonimage label="$(com.structurize.coremod.gui.scanTool.select)" id="select" pos="160 1" size="86 17"
+            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.select)" id="select" pos="160 1" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>

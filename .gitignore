@@ -1,5 +1,6 @@
 .idea/
 .gradle/
+.vscode/
 classes/
 build/
 eclipse/
@@ -31,14 +32,11 @@ README.txt
 /.project
 /.classpath
 /.checkstyle
-/CopyPaste_Client.launch
-/CopyPaste_Server.launch
-
-# Old launcher (different case)
-/CopyPaste_Client.launch
-/CopyPaste_Server.launch
+/Structurize_Client.launch
+/Structurize_Server.launch
 
 tools/export_lang/.api_key
 tools/fix_model_angle/*.class
 
 run2/
+runServer/
