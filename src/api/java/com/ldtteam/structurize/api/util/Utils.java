@@ -159,8 +159,7 @@ public final class Utils
             yHolder++;
         }
         while (!world.getBlockState(new BlockPos(x, yHolder, z)).isOpaqueCube()
-                 || arrayContains(new Block[] {Blocks.AIR, Blocks.LEAVES, Blocks.LEAVES2}
-          , world.getBlockState(new BlockPos(x, yHolder, z)).getBlock()))
+            || arrayContains(new Block[] {Blocks.AIR, Blocks.LEAVES, Blocks.LEAVES2}, world.getBlockState(new BlockPos(x, yHolder, z)).getBlock()))
         {
             yHolder--;
         }

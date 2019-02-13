@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.registerevent.interfaces.IPlacementHandler;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ChangeStorage;
@@ -16,7 +17,6 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.placementhandlers.IPlacementHandler;
 import com.ldtteam.structurize.placementhandlers.PlacementHandlers;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.helpers.StructureProxy;

@@ -459,7 +459,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Called when the window is closed.
      * If there is a current structure, its information is stored in {@link Settings}.
-     * Also updates state of {@link LSStructureDisplayerMessage}
+     * Also updates state via {@link LSStructureDisplayerMessage}
      */
     @Override
     public void onClosed()
