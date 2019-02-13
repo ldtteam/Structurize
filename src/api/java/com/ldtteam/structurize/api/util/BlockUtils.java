@@ -376,7 +376,7 @@ public final class BlockUtils
             return Blocks.LAVA.getDefaultState();
         }
 
-        return stack.getItem() instanceof ItemBlock ? ((ItemBlock) stack.getItem()).getBlock().getDefaultState() : Blocks.GOLD_BLOCK.getDefaultState();
+        return stack.getItem() instanceof ItemBlock ? ((ItemBlock) stack.getItem()).getBlock().getStateFromMeta(stack.getItemDamage()) : Blocks.GOLD_BLOCK.getDefaultState();
     }
 
     /**
