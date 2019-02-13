@@ -67,7 +67,7 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * Getter for members of a session identified by owner
      * 
      * @param ownerUUID {@link EntityPlayer#getUniqueID()}
-     * @return List<UUID>: list of UUIDs of session members
+     * @return List UUID: list of UUIDs of session members
      * <p>     null:       if ownerUUID was not found
      */
     @Nullable
@@ -80,7 +80,7 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * Getter for members of a session identified by owner
      * 
      * @param ownerUUID {@link EntityPlayer#getUniqueID()}
-     * @return List<String>: list of player's name (nickname) of session members
+     * @return List String: list of player's name (nickname) of session members
      * <p>     null:         if ownerUUID was not found
      */
     @Nullable
@@ -93,7 +93,7 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * Getter for session names of all sessions identified by member
      * 
      * @param memberUUID {@link EntityPlayer#getUniqueID()}
-     * @return List<String>: list of player's name (nickname) of session members
+     * @return List String: list of player's name (nickname) of session members
      * <p>     null: if ownerUUID was not found
      */
     @Nullable
@@ -111,7 +111,8 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * Old name: <code>getUniquePlayersInSessionsOf</code>
      * 
      * @param memberUUID {@link EntityPlayer#getUniqueID()}
-     * @return Set<UUID>: list of UUIDs of session members
+     * @param channel {@link ChannelsEnum}
+     * @return Set UUID: list of UUIDs of session members
      */
     public Set<UUID> execute(@NotNull final UUID memberUUID, @NotNull final ChannelsEnum channel)
     {
@@ -178,6 +179,7 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * 
      * @param playerUUID {@link EntityPlayer#getUniqueID()}
      * @param channel    {@link ChannelsEnum}
+     * @return boolean:  mute state, true = muted, false = unmuted
      */
     public boolean getMuteState(@NotNull final UUID playerUUID, @NotNull final ChannelsEnum channel)
     {

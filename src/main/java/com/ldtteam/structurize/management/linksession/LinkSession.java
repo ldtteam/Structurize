@@ -83,7 +83,7 @@ public class LinkSession
     /**
      * Getter for all players of this session by UUID
      * 
-     * @return List<UUID>: list of UUIDs of session members
+     * @return List UUID: list of UUIDs of session members
      */
     protected List<UUID> getMembersUUID()
     {
@@ -93,7 +93,7 @@ public class LinkSession
     /**
      * Getter for all players of this session by player's name
      * 
-     * @return List<String>: list of player's name (nickname) of session members
+     * @return List String: list of player's name (nickname) of session members
      */
     protected List<String> getMembersDisplayNames()
     {
