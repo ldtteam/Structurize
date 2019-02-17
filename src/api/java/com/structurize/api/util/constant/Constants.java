@@ -46,6 +46,16 @@ public final class Constants
     public static final int MAX_SCHEMATIC_SIZE = 100_000;
 
     /**
+     * Rotation by 90°.
+     */
+    public static final double NINETY_DEGREES = 90D;
+
+    /**
+     * Size of the buffer.
+     */
+    public static final int BUFFER_SIZE = 1024;
+
+    /**
      * Private constructor to hide implicit public one.
      */
     private Constants()

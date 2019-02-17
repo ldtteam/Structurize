@@ -203,7 +203,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void genShape()
     {
         final Structure structure = new Structure(Minecraft.getMinecraft().world);
-        structure.setTemplate(Manager.getStructureFromFormula(
+        structure.setBluePrint(Manager.getStructureFromFormula(
           Settings.instance.getWidth(),
           Settings.instance.getLength(),
           Settings.instance.getHeight(),

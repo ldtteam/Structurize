@@ -50,7 +50,6 @@ public final class Structures
      * Extension used by the schematic files.
      */
     public static final String SCHEMATIC_EXTENSION_NEW = ".blueprint";
-    public static final String SCHEMATIC_EXTENSION = ".nbt";
 
     /**
      * Storage location for the "normal" schematics.

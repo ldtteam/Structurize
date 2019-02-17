@@ -45,37 +45,7 @@ import net.minecraft.world.gen.structure.template.Template;
  */
 public class StructureWrapper
 {
-    /**
-     * The position we use as our uninitialized value.
-     */
-    protected static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
 
-    /**
-     * The Structure position we are at. Defaulted to NULL_POS.
-     */
-    protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
-    /**
-     * The minecraft world this struture is displayed in.
-     */
-    protected final World          world;
-    /**
-     * The structure this structure comes from.
-     */
-    protected final StructureProxy structure;
-    /**
-     * The name this structure has.
-     */
-    protected final String         name;
-    /**
-     * The anchor position this structure will be
-     * placed on in the minecraft world.
-     */
-    protected       BlockPos       position;
-
-    /**
-     * If complete placement or not.
-     */
-    private boolean complete = false;
 
     /**
      * Load a structure into this world.
@@ -102,28 +72,13 @@ public class StructureWrapper
         this.name = name;
     }
 
-    /**
-     * Unload a structure at a certain location.
-     * @param world the world.
-     * @param pos the position.
-     * @param first the name.
-     * @param rotation the rotation.
-     * @param mirror the mirror.
-     */
-    public static void unloadStructure(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final String first, final int rotation, @NotNull final Mirror mirror)
-    {
-        @NotNull final StructureWrapper structureWrapper = new StructureWrapper(world, first);
-        structureWrapper.position = pos;
-        structureWrapper.rotate(rotation, world, pos, mirror);
-        structureWrapper.removeStructure(pos.subtract(structureWrapper.getOffset()));
-    }
 
     /**
      * Remove a structure from the world.
      *
-     * @param pos      coordinates
+     * @param pos coordinates
      */
-    private void removeStructure(@NotNull final BlockPos pos)
+    public void removeStructure(@NotNull final BlockPos pos)
     {
         this.setLocalPosition(pos);
         for (int j = 0; j < this.structure.getHeight(); j++)
@@ -143,65 +98,7 @@ public class StructureWrapper
         }
     }
 
-    /**
-     * Load a structure into this world
-     * and place it in the right position and rotation.
-     *  @param worldObj  the world to load it in
-     * @param pos       coordinates
-     * @param rotations number of times rotated
-     * @param mirror    the mirror used.
-     * @param player the placing player.
-     */
-    public static void loadAndPlaceShapeWithRotation(
-      final WorldServer worldObj,
-      final Template template,
-      @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror, final EntityPlayerMP player)
-    {
-        try
-        {
-            final Structure structure = new Structure(worldObj);
-            StructureProxy proxy = new StructureProxy(structure);
-            structure.setTemplate(template);
-            structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
-            @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, proxy, "shape" + player.getName() + ".nbt");
-            structureWrapper.position = pos;
-            structureWrapper.rotate(rotations, worldObj, pos, mirror);
-            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), false, player);
-        }
-        catch (final IllegalStateException e)
-        {
-            Log.getLogger().warn("Could not load structure!", e);
-        }
-    }
 
-    /**
-     * Load a structure into this world
-     * and place it in the right position and rotation.
-     *  @param worldObj  the world to load it in
-     * @param name      the structures name
-     * @param pos       coordinates
-     * @param rotations number of times rotated
-     * @param mirror    the mirror used.
-     * @param complete  paste it complete (with structure blocks) or without
-     * @param player the placing player.
-     */
-    public static void loadAndPlaceStructureWithRotation(
-      final World worldObj, @NotNull final String name,
-      @NotNull final BlockPos pos, final int rotations, @NotNull final Mirror mirror,
-      final boolean complete, final EntityPlayerMP player)
-    {
-        try
-        {
-            @NotNull final StructureWrapper structureWrapper = new StructureWrapper(worldObj, name);
-            structureWrapper.position = pos;
-            structureWrapper.rotate(rotations, worldObj, pos, mirror);
-            structureWrapper.setupStructurePlacement(pos.subtract(structureWrapper.getOffset()), complete, player);
-        }
-        catch (final IllegalStateException e)
-        {
-            Log.getLogger().warn("Could not load structure!", e);
-        }
-    }
 
     /**
      * Rotates the structure x times.
@@ -218,9 +115,10 @@ public class StructureWrapper
 
     /**
      * Setup the structure placement and add to buffer.
-     * @param pos the world anchor.
+     *
+     * @param pos      the world anchor.
      * @param complete if complete or not.
-     * @param player the issuing player.
+     * @param player   the issuing player.
      */
     public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final EntityPlayerMP player)
     {
@@ -232,6 +130,7 @@ public class StructureWrapper
 
     /**
      * Place a structure into the world.
+     *
      * @param world the placing player.
      */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, final boolean complete)
@@ -326,9 +225,10 @@ public class StructureWrapper
 
     /**
      * Handle the delayed blocks (non solid blocks)
+     *
      * @param delayedBlocks the delayed block list.
-     * @param storage the changeStorage.
-     * @param world the world.
+     * @param storage       the changeStorage.
+     * @param world         the world.
      */
     private void handleDelayedBlocks(final List<BlockPos> delayedBlocks, final ChangeStorage storage, final World world)
     {
@@ -337,7 +237,11 @@ public class StructureWrapper
             final IBlockState localState = this.structure.getBlockState(coords);
             final BlockPos newWorldPos = this.position.add(coords);
             storage.addPositionStorage(coords, world);
-            this.handleBlockPlacement(world, newWorldPos, localState, this.complete, this.structure.getBlockInfo(coords) == null ? null : this.structure.getBlockInfo(coords).tileentityData);
+            this.handleBlockPlacement(world,
+              newWorldPos,
+              localState,
+              this.complete,
+              this.structure.getBlockInfo(coords) == null ? null : this.structure.getBlockInfo(coords).tileentityData);
         }
     }
 
@@ -353,10 +257,10 @@ public class StructureWrapper
      * This method handles the block placement.
      * When we extract this into another mod, we have to override the method.
      *
-     * @param world the world.
-     * @param pos the world position.
-     * @param localState the local state.
-     * @param complete if complete with it.
+     * @param world          the world.
+     * @param pos            the world position.
+     * @param localState     the local state.
+     * @param complete       if complete with it.
      * @param tileEntityData the tileEntity.
      */
     public void handleBlockPlacement(final World world, final BlockPos pos, final IBlockState localState, final boolean complete, final NBTTagCompound tileEntityData)
@@ -672,75 +576,5 @@ public class StructureWrapper
         }
 
         return true;
-    }
-
-    /**
-     * @return The name of the structure.
-     */
-    public String getName()
-    {
-        return this.name;
-    }
-
-    /**
-     * @return The height of the structure.
-     */
-    public int getHeight()
-    {
-        return this.structure.getHeight();
-    }
-
-    /**
-     * @return The width of the structure.
-     */
-    public int getWidth()
-    {
-        return this.structure.getWidth();
-    }
-
-    /**
-     * @return The length of the structure.
-     */
-    public int getLength()
-    {
-        return this.structure.getLength();
-    }
-
-    /**
-     * @return The StructureProxy that houses all the info about what is stored in a structure.
-     */
-    public StructureProxy getStructure()
-    {
-        return this.structure;
-    }
-
-    /**
-     * Calculate the current block in the structure.
-     *
-     * @return the current block or null if not initialized.
-     */
-    @Nullable
-    public Template.BlockInfo getBlockInfo()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            return null;
-        }
-        return this.structure.getBlockInfo(this.progressPos);
-    }
-
-    /**
-     * Calculate the current entity in the structure.
-     *
-     * @return the entityInfo.
-     */
-    @Nullable
-    public Template.EntityInfo getEntityinfo()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            return null;
-        }
-        return this.structure.getEntityinfo(this.progressPos);
     }
 }

@@ -1,13 +1,9 @@
 package com.structurize.structures.blueprints.v1;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 
@@ -27,9 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.template.Template;
-import net.minecraft.world.gen.structure.template.Template.EntityInfo;
-import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.Loader;
 
 /**
@@ -160,7 +153,7 @@ public class BlueprintUtil
      * @param schem The Blueprint to serialize
      * @return An NBTTagCompound containing the Blueprint Data
      */
-    public static NBTTagCompound writeBlueprintToNBT(Blueprint schem)
+    public static NBTTagCompound writeBlueprintToNBT(final Blueprint schem)
     {
         NBTTagCompound tag = new NBTTagCompound();
         // Set Blueprint Version
@@ -171,7 +164,7 @@ public class BlueprintUtil
         tag.setShort("size_z", schem.getSizeZ());
 
         // Create Pallete
-        IBlockState[] palette = schem.getPallete();
+        IBlockState[] palette = schem.getPalette();
         NBTTagList paletteTag = new NBTTagList();
         for (short i = 0; i < schem.getPalleteSize(); i++)
         {
@@ -188,7 +181,7 @@ public class BlueprintUtil
 
         // Adding Tile Entities
         NBTTagList finishedTes = new NBTTagList();
-        NBTTagCompound[] tes = schem.getTileEntities();
+        NBTTagCompound[] tes = Arrays.stream(schem.getTileEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).toArray(new NBTTagCompound[0]);
         for (int i = 0; i < tes.length; i++)
         {
             finishedTes.appendTag(tes[i]);
@@ -238,7 +231,7 @@ public class BlueprintUtil
      * Deserializes a Blueprint form the Given NBTTagCompound
      *
      * @param nbtTag The NBTTagCompound containing the Blueprint Data
-     * @param fixer the data fixer.
+     * @param fixer  the data fixer.
      * @return A desserialized Blueprint
      */
     public static Blueprint readBlueprintFromNBT(final NBTTagCompound nbtTag, final DataFixer fixer)
@@ -416,54 +409,5 @@ public class BlueprintUtil
             }
         }
         return multDimArray;
-    }
-
-    /**
-     * Converts a blueprint to a template.
-     * @param bp the blueprint to convert.
-     * @return a new template.
-     */
-    public static Template toTemplate(Blueprint bp)
-    {
-        Template temp = new Template();
-        temp.size = new BlockPos(bp.getSizeX(), bp.getSizeY(), bp.getSizeZ());
-
-        NBTTagCompound[] tes = bp.getTileEntities();
-
-        Map<Long, NBTTagCompound> blockPosTes = new HashMap<Long, NBTTagCompound>();
-
-        for (NBTTagCompound te : tes)
-        {
-            BlockPos pos = new BlockPos(te.getShort("x"), te.getShort("y"), te.getShort("z"));
-            blockPosTes.put(pos.toLong(), te);
-        }
-
-        IBlockState[] pallete = bp.getPallete();
-        short[][][] structure = bp.getStructure();
-        for (int y = 0; y < bp.getSizeY(); y++)
-        {
-            for (int z = 0; z < bp.getSizeZ(); z++)
-            {
-                for (int x = 0; x < bp.getSizeX(); x++)
-                {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    NBTTagCompound te = blockPosTes.get(pos.toLong());
-                    temp.blocks.add(new Template.BlockInfo(pos, pallete[structure[y][z][x]], te));
-                }
-            }
-        }
-
-        NBTTagCompound[] entities = bp.getEntities();
-        for (NBTTagCompound entity : entities)
-        {
-            NBTTagList posTag = entity.getTagList("Pos", NBT.TAG_DOUBLE);
-            Vec3d vec = new Vec3d(posTag.getDoubleAt(0), posTag.getDoubleAt(1), posTag.getDoubleAt(2));
-            BlockPos pos = new BlockPos(vec);
-            temp.entities.add(new EntityInfo(vec, pos, entity));
-        }
-
-//		bp.
-
-        return temp;
     }
 }

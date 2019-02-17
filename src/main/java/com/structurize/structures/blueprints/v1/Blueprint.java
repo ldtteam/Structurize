@@ -2,11 +2,14 @@ package com.structurize.structures.blueprints.v1;
 
 import java.util.List;
 
+import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -56,12 +59,12 @@ public class Blueprint
     /**
      * The tileentities.
      */
-    private NBTTagCompound[] tileEntities;
+    private NBTTagCompound[][][] tileEntities;
 
     /**
      * The entities.
      */
-    private NBTTagCompound[] entities;
+    private NBTTagCompound[][][] entities;
 
     /**
      * Constructor of a new Blueprint.
@@ -76,8 +79,14 @@ public class Blueprint
      * @param requiredMods the required mods.
      */
     protected Blueprint(
-      short sizeX, short sizeY, short sizeZ, short palleteSize, IBlockState[] pallete,
-      short[][][] structure, NBTTagCompound[] tileEntities, List<String> requiredMods)
+      short sizeX,
+      short sizeY,
+      short sizeZ,
+      short palleteSize,
+      IBlockState[] pallete,
+      short[][][] structure,
+      NBTTagCompound[] tileEntities,
+      List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -85,7 +94,15 @@ public class Blueprint
         this.palleteSize = palleteSize;
         this.palette = pallete;
         this.structure = structure;
-        this.tileEntities = tileEntities;
+        this.tileEntities = new NBTTagCompound[sizeX][sizeY][sizeZ];
+
+        for (final NBTTagCompound te : tileEntities)
+        {
+            if (te != null)
+            {
+                this.tileEntities[te.getShort("y")][te.getShort("z")][te.getShort("x")] = te;
+            }
+        }
         this.requiredMods = requiredMods;
     }
 
@@ -127,7 +144,7 @@ public class Blueprint
     /**
      * @return the pallete (without rotation and/or mirroring)
      */
-    public IBlockState[] getPallete()
+    public IBlockState[] getPalette()
     {
         return this.palette;
     }
@@ -145,7 +162,7 @@ public class Blueprint
      * @return an array of serialized TileEntities (posX, posY and posZ tags have
      * been localized to coordinates within the structure)
      */
-    public NBTTagCompound[] getTileEntities()
+    public NBTTagCompound[][][] getTileEntities()
     {
         return this.tileEntities;
     }
@@ -154,7 +171,7 @@ public class Blueprint
      * @return an array of serialized TileEntities (the Pos tag has
      * been localized to coordinates within the structure)
      */
-    public NBTTagCompound[] getEntities()
+    public NBTTagCompound[][][] getEntities()
     {
         return this.entities;
     }
@@ -165,7 +182,14 @@ public class Blueprint
      */
     public void setEntities(NBTTagCompound[] entities)
     {
-        this.entities = entities;
+        this.entities = new NBTTagCompound[sizeX][sizeY][sizeZ];
+        for (final NBTTagCompound te : entities)
+        {
+            if (te != null)
+            {
+                this.entities[te.getShort("y")][te.getShort("z")][te.getShort("x")] = te;
+            }
+        }
     }
 
     /**
@@ -229,23 +253,107 @@ public class Blueprint
     }
 
     /**
-     * Transforms a BlockPos corresponding to a rotation and mirror value
+     * Rotate the structure depending on the direction it's facing.
      *
-     * @param mirror   The value of mirroring
-     * @param rotation The value to rotate the blockstate
-     * @return a Tranformed BlockPos
+     * @param rotation  times to rotateWithMirror.
+     * @param world     the world to rotateWithMirror it in.
+     * @param pos the pos to rotateWithMirror it around.
+     * @param mirror    the mirror.
      */
-    protected static BlockPos transformedBlockPos(int x, int y, int z, Mirror mirror, Rotation rotation)
+    public BlockPos rotateWithMirror(final Rotation rotation, final World world, final BlockPos pos, final Mirror mirror)
     {
+        final BlockPos resultSize = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
+        final short newSizeX = (short) resultSize.getX();
+        final short newSizeY = (short) resultSize.getY();
+        final short newSizeZ = (short) resultSize.getZ();
+
+        final short[][][] newStructure = new short[newSizeX][newSizeY][newSizeZ];
+        final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
+        final NBTTagCompound[][][] newTileEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
+
+        final IBlockState[] palette = new IBlockState[this.palette.length];
+        for (int i = 0; i < palette.length; i++)
+        {
+            palette[i] = this.palette[i].withRotation(rotation).withMirror(mirror);
+        }
+
+        this.palette = palette;
+
+        boolean foundAnchor = false;
+        BlockPos offset = pos;
+
+        for (short x = 0; x < this.sizeX; x++)
+        {
+            for (short y = 0; y < this.sizeY; y++)
+            {
+                for (short z = 0; z < this.sizeZ; z++)
+                {
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation);
+                    final short value = structure[y][z][x];
+                    final IBlockState state = palette[value & 0xFFFF];
+                    if (state.getBlock() == Blocks.STRUCTURE_VOID)
+                    {
+                        continue;
+                    }
+                    if (state.getBlock() instanceof IAnchorBlock)
+                    {
+                        offset = tempPos;
+                        foundAnchor = true;
+                    }
+                    newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
+
+                    final NBTTagCompound compound = tileEntities[y][z][x];
+                    if (compound != null)
+                    {
+                        compound.setInteger("x", tempPos.getX());
+                        compound.setInteger("y", tempPos.getY());
+                        compound.setInteger("z", tempPos.getZ());
+                    }
+                    newTileEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = compound;
+
+                    final NBTTagCompound entitiesCompound = entities[y][z][x];
+                    if (compound != null)
+                    {
+                        compound.setInteger("x", tempPos.getX());
+                        compound.setInteger("y", tempPos.getY());
+                        compound.setInteger("z", tempPos.getZ());
+                    }
+                    newEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = entitiesCompound;
+                }
+            }
+        }
+
+        this.structure = newStructure;
+        this.entities = newEntities;
+        this.tileEntities = newTileEntities;
+
+        return foundAnchor ? offset : new BlockPos(resultSize.getX() / 2, 0, resultSize.getZ() / 2);
+    }
+
+    /**
+     * Transforms a blockpos with mirror and rotation.
+     *
+     * @param xIn      the x input.
+     * @param y        the y input.
+     * @param zIn      the z input.
+     * @param mirror   the mirror.
+     * @param rotation the rotation.
+     * @return the resulting position.
+     */
+    private static BlockPos transformedBlockPos(final int xIn, final int y, final int zIn, final Mirror mirror, final Rotation rotation)
+    {
+        int x = xIn;
+        int z = zIn;
+
         boolean flag = true;
 
         switch (mirror)
         {
             case LEFT_RIGHT:
-                z = -z;
+                z = -zIn;
                 break;
             case FRONT_BACK:
-                x = -x;
+                x = -xIn;
                 break;
             default:
                 flag = false;

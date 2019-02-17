@@ -789,9 +789,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
           new PlacementSettings().setRotation(BlockUtils.getRotation(Settings.instance.getRotation())).setMirror(Settings.instance.getMirror()));
 
         final String md5 = Structures.getMD5(structureName.toString());
-        if (structure.isTemplateMissing() || !structure.isCorrectMD5(md5))
+        if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
         {
-            if (structure.isTemplateMissing())
+            if (structure.isBluePrintMissing())
             {
                 Log.getLogger().info("Template structure " + structureName + " missing");
             }

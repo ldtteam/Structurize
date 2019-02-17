@@ -246,7 +246,7 @@ public final class Settings
     @Nullable
     public Structure getActiveStructure()
     {
-        if (structure != null && structure.isTemplateMissing())
+        if (structure != null && structure.isBluePrintMissing())
         {
             this.structure = null;
         }

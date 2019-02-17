@@ -1,6 +1,5 @@
 package com.structurize.structures.client;
 
-import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3d;
@@ -39,7 +38,7 @@ public final class StructureClientHandler
             renderOffset.y = renderOffsetY;
             renderOffset.z = renderOffsetZ;
 
-            TemplateRenderHandler.getInstance().draw(structure.getTemplate(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
+            TemplateRenderHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
         }
     }
 }
