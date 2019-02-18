@@ -295,11 +295,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String name = sections.get(index);
             if (Structures.SCHEMATICS_SCAN.equals(name))
             {
-                return LanguageHandler.format("com.structurize.coremod.gui.buildtool.scans");
+                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.scans");
             }
             else if (Structures.SCHEMATICS_PREFIX.equals(name))
             {
-                return LanguageHandler.format("com.structurize.coremod.gui.buildtool.decorations");
+                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.decorations");
             }
             //should be a something else.
             return getSectionName(name);
@@ -1127,8 +1127,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         confirmDeleteDialog = new DialogDoneCancel(getWindow());
         confirmDeleteDialog.setHandler(this::onDialogClosed);
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        confirmDeleteDialog.setTitle(LanguageHandler.format("com.minecolonies.coremod.gui.structure.delete.title"));
-        confirmDeleteDialog.setTextContent(LanguageHandler.format("com.minecolonies.coremod.gui.structure.delete.body", structureName.toString()));
+        confirmDeleteDialog.setTitle(LanguageHandler.format("com.minecolonies.gui.structure.delete.title"));
+        confirmDeleteDialog.setTextContent(LanguageHandler.format("com.minecolonies.gui.structure.delete.body", structureName.toString()));
         confirmDeleteDialog.open();
     }
 

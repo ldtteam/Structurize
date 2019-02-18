@@ -195,7 +195,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
 
         final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
-        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow() ? LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow") : LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid"));
+        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow() ? LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow") : LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid"));
     }
 
     /**
@@ -297,13 +297,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void replaceBlocksToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
-        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.replace")))
+        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.replace")))
         {
-            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.ignore"));
+            replaceButton.setLabel(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.ignore"));
         }
-        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.ignore")))
+        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.ignore")))
         {
-            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.replace"));
+            replaceButton.setLabel(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.replace"));
         }
     }
 
@@ -313,14 +313,14 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void hollowShapeToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
-        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow")))
+        if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow")))
         {
-            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid"));
+            replaceButton.setLabel(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid"));
             Settings.instance.setHollow(false);
         }
-        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.solid")))
+        else if (replaceButton.getLabel().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid")))
         {
-            replaceButton.setLabel(LanguageHandler.format("com.structurize.coremod.gui.shapeTool.hollow"));
+            replaceButton.setLabel(LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow"));
             Settings.instance.setHollow(true);
         }
 

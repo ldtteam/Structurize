@@ -11,6 +11,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -253,10 +254,13 @@ public final class Manager
             {
                 for (int z = 0; z < length; z++)
                 {
-                    if (!hollow || ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1)))
+                    if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1))
                     {
-                        final IBlockState blockToUse = ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1)) ? block : fillBlock;
-                        posList.put(new BlockPos(x, y, z), blockToUse);
+                        posList.put(new BlockPos(x, y, z), block);
+                    }
+                    else
+                    {
+                        posList.put(new BlockPos(x, y, z), hollow ? Blocks.AIR.getDefaultState() : fillBlock);
                     }
                 }
             }
@@ -294,17 +298,17 @@ public final class Manager
                         final IBlockState blockToUse = (sum > height * height - 2 * height) ? block : fillBlock;
                         if (shape == Shape.HALF_SPHERE || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(x * 2, y * 2, z), blockToUse, posList);
+                            addPosToList(new BlockPos(x * 2, y * 2, z), blockToUse, posList);
+                            addPosToList(new BlockPos(x, y * 2, z * 2), blockToUse, posList);
+                            addPosToList(new BlockPos(x, y * 2, z), blockToUse, posList);
                         }
                         if (shape == Shape.BOWL || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x, -y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, -y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(x * 2, y, z * 2), blockToUse, posList);
+                            addPosToList(new BlockPos(x * 2, y, z), blockToUse, posList);
+                            addPosToList(new BlockPos(x, y, z * 2), blockToUse, posList);
+                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
                         }
                     }
                 }

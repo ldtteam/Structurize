@@ -28,7 +28,7 @@ item.caliper.message.line=That's a %d block line.
 item.caliper.message.square=That's a %d by %d square.
 item.caliper.message.cube=That's a %d by %d by %d cube.
 itemGroup.structurize=Structurize
-com.structurize.configgui.title=structurize Config
+com.ldtteam.structurize.configgui.title=structurize Config
 
 com.ldtteam.structurize.gui.buildtool.hut=Huts
 

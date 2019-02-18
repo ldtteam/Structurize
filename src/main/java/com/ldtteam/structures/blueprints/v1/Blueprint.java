@@ -121,7 +121,11 @@ public class Blueprint
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
         this.structure = new short[sizeY][sizeZ][sizeX];
+        this.tileEntities = new NBTTagCompound[sizeY][sizeZ][sizeX];
+        this.entities = new NBTTagCompound[sizeY][sizeZ][sizeX];
+
         this.requiredMods = new ArrayList<>();
+        this.palette = new ArrayList<>();
     }
 
     /**
@@ -167,7 +171,11 @@ public class Blueprint
         return this.palette.toArray(new IBlockState[0]);
     }
 
-
+    /**
+     * Add a blockstate to the structure.
+     * @param pos the position to add it to.
+     * @param state the state to add.
+     */
     public void addBlockState(final BlockPos pos, final IBlockState state)
     {
         int index = -1;

@@ -67,6 +67,6 @@ public final class ClientStructureWrapper
      */
     public static void sendMessageSchematicTooBig(final int maxSize)
     {
-        LanguageHandler.sendPlayerMessage(Minecraft.getMinecraft().player, "com.structurize.coremod.network.messages.schematicsavemessage.toobig", maxSize);
+        LanguageHandler.sendPlayerMessage(Minecraft.getMinecraft().player, "com.ldtteam.structurize.network.messages.schematicsavemessage.toobig", maxSize);
     }
 }
