@@ -162,7 +162,7 @@ public class ScanToolOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            currentPos = wrapper.placeStructure(world, storage, currentPos, true);
+            currentPos = wrapper.placeStructure(world, storage, currentPos);
             return currentPos == null;
         }
 

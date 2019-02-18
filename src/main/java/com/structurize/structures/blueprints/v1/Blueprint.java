@@ -98,7 +98,7 @@ public class Blueprint
         this.palleteSize = palleteSize;
         this.palette = pallete;
         this.structure = structure;
-        this.tileEntities = new NBTTagCompound[sizeX][sizeY][sizeZ];
+        this.tileEntities = new NBTTagCompound[sizeY][sizeZ][sizeX];
 
         for (final NBTTagCompound te : tileEntities)
         {
@@ -225,7 +225,7 @@ public class Blueprint
      */
     public void setEntities(NBTTagCompound[] entities)
     {
-        this.entities = new NBTTagCompound[sizeX][sizeY][sizeZ];
+        this.entities = new NBTTagCompound[sizeY][sizeZ][sizeX];
         for (final NBTTagCompound te : entities)
         {
             if (te != null)
@@ -352,9 +352,9 @@ public class Blueprint
         final short newSizeY = (short) resultSize.getY();
         final short newSizeZ = (short) resultSize.getZ();
 
-        final short[][][] newStructure = new short[newSizeX][newSizeY][newSizeZ];
-        final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
-        final NBTTagCompound[][][] newTileEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
+        final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
+        final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
+        final NBTTagCompound[][][] newTileEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
 
         final List<IBlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)

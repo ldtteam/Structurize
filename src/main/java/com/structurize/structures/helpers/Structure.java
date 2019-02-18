@@ -221,11 +221,11 @@ public class Structure
     @Nullable
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getStructure().length <= pos.getX() || this.blueprint.getStructure()[pos.getX()].length <= pos.getY() || this.blueprint.getStructure()[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() || this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
-        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getX()][pos.getY()][pos.getZ()] & 0xFFFF];
+        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getY()][pos.getZ()][pos.getX()] & 0xFFFF];
     }
 
     /**
@@ -251,11 +251,11 @@ public class Structure
     @Nullable
     public NBTTagCompound getTileEntityData(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getTileEntities().length <= pos.getX() || this.blueprint.getTileEntities()[pos.getX()].length <= pos.getY() || this.blueprint.getTileEntities()[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (this.blueprint.getTileEntities().length <= pos.getY() || this.blueprint.getTileEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getTileEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
-        return this.blueprint.getTileEntities()[pos.getX()][pos.getY()][pos.getZ()];
+        return this.blueprint.getTileEntities()[pos.getY()][pos.getZ()][pos.getX()];
     }
 
     /**
@@ -267,11 +267,11 @@ public class Structure
     @Nullable
     public NBTTagCompound getEntityData(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getEntities().length <= pos.getX() || this.blueprint.getEntities()[pos.getX()].length <= pos.getY() || this.blueprint.getEntities()[pos.getX()][pos.getY()].length <= pos.getZ())
+        if (this.blueprint.getEntities().length <= pos.getY() || this.blueprint.getEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
-        return this.blueprint.getEntities()[pos.getX()][pos.getY()][pos.getZ()];
+        return this.blueprint.getEntities()[pos.getY()][pos.getZ()][pos.getX()];
     }
 
     /**
@@ -555,6 +555,6 @@ public class Structure
      */
     public BlockPos getSize(final Rotation rotation, final Mirror mirror)
     {
-        return Blueprint.transformedBlockPos(blueprint.getSizeY(), blueprint.getSizeZ(), blueprint.getSizeX(), mirror, rotation);
+        return Blueprint.transformedBlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ(), mirror, rotation);
     }
 }

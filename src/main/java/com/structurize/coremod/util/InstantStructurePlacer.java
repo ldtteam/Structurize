@@ -93,7 +93,7 @@ public class InstantStructurePlacer
      *
      * @param world the placing player.
      */
-    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, final boolean complete)
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
     {
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
@@ -117,7 +117,7 @@ public class InstantStructurePlacer
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
-                    if ((localBlock == ModBlocks.blockSubstitution && !complete) || localBlock instanceof IAnchorBlock)
+                    if ((localBlock == ModBlocks.blockSubstitution && !this.complete) || localBlock instanceof IAnchorBlock)
                     {
                         continue;
                     }
@@ -127,7 +127,7 @@ public class InstantStructurePlacer
 
                     if (localState.getMaterial().isSolid())
                     {
-                        this.handleBlockPlacement(world, worldPos, localState, complete, this.structure.getTileEntityData(localPos));
+                        this.handleBlockPlacement(world, worldPos, localState, this.complete, this.structure.getTileEntityData(localPos));
                     }
                     else
                     {

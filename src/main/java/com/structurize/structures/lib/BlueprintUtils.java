@@ -163,7 +163,7 @@ public final class BlueprintUtils
     @Nullable
     private static Entity constructEntity(@Nullable final Tuple<BlockPos, NBTTagCompound> info, @NotNull final BluePrintBlockAccess blockAccess)
     {
-        if (info == null)
+        if (info.getSecond() == null)
             return null;
 
         final String entityId = info.getSecond().getString("id");
