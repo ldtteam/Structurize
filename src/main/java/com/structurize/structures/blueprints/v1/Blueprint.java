@@ -1,13 +1,17 @@
 package com.structurize.structures.blueprints.v1;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.structurize.coremod.blocks.interfaces.IAnchorBlock;
+import com.structurize.coremod.util.BlockInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -19,7 +23,7 @@ public class Blueprint
     /**
      * The list of required mods.
      */
-    private List<String> requiredMods;
+    private final List<String> requiredMods;
 
     /**
      * The size of the blueprint.
@@ -34,7 +38,7 @@ public class Blueprint
     /**
      * The palette of different blocks.
      */
-    private IBlockState[] palette;
+    private List<IBlockState> palette;
 
     /**
      * The name of the blueprint.
@@ -83,7 +87,7 @@ public class Blueprint
       short sizeY,
       short sizeZ,
       short palleteSize,
-      IBlockState[] pallete,
+      List<IBlockState> pallete,
       short[][][] structure,
       NBTTagCompound[] tileEntities,
       List<String> requiredMods)
@@ -104,6 +108,22 @@ public class Blueprint
             }
         }
         this.requiredMods = requiredMods;
+    }
+
+    /**
+     * Constructor of a new Blueprint.
+     *
+     * @param sizeX        the x size.
+     * @param sizeY        the y size.
+     * @param sizeZ        the z size.
+     */
+    public Blueprint(short sizeX, short sizeY, short sizeZ)
+    {
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.sizeZ = sizeZ;
+        this.structure = new short[sizeY][sizeZ][sizeX];
+        this.requiredMods = new ArrayList<>();
     }
 
     /**
@@ -146,7 +166,30 @@ public class Blueprint
      */
     public IBlockState[] getPalette()
     {
-        return this.palette;
+        return this.palette.toArray(new IBlockState[0]);
+    }
+
+
+    public void addBlockState(final BlockPos pos, final IBlockState state)
+    {
+        int index = -1;
+        for (int i = 0; i < this.palette.size(); i++)
+        {
+            if (this.palette.get(i).equals(state))
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+        {
+            index = this.palleteSize;
+            this.palleteSize++;
+            this.palette.add(state);
+        }
+
+        this.structure[pos.getY()][pos.getZ()][pos.getX()] = (short) index;
     }
 
     /**
@@ -253,14 +296,56 @@ public class Blueprint
     }
 
     /**
+     * Get a list of all entities in the blueprint as a list.
+     * @return the list of nbttagcompounds.
+     */
+    public final List<Tuple<BlockPos, NBTTagCompound>> getEntitiesAsList()
+    {
+        final List<Tuple<BlockPos, NBTTagCompound>> list = new ArrayList<>();
+        for (short x = 0; x < this.sizeX; x++)
+        {
+            for (short y = 0; y < this.sizeY; y++)
+            {
+                for (short z = 0; z < this.sizeZ; z++)
+                {
+                    list.add(new Tuple<>(new BlockPos(x,y,z), entities[y][z][x]));
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Get a list of all blockInfo objects in the blueprint.
+     * @return a list of all blockinfo (position, blockState, tileEntityData).
+     */
+    public final List<BlockInfo> getBlockInfoAsList()
+    {
+        final List<BlockInfo> list = new ArrayList<>();
+        for (short x = 0; x < this.sizeX; x++)
+        {
+            for (short y = 0; y < this.sizeY; y++)
+            {
+                for (short z = 0; z < this.sizeZ; z++)
+                {
+                    final BlockPos tempPos = new BlockPos(x, y, z);
+                    final short value = structure[y][z][x];
+                    final IBlockState state = palette.get(value & 0xFFFF);
+                    list.add(new BlockInfo(tempPos, state, tileEntities[y][z][x]));
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
      * Rotate the structure depending on the direction it's facing.
      *
      * @param rotation  times to rotateWithMirror.
-     * @param world     the world to rotateWithMirror it in.
      * @param pos the pos to rotateWithMirror it around.
      * @param mirror    the mirror.
      */
-    public BlockPos rotateWithMirror(final Rotation rotation, final World world, final BlockPos pos, final Mirror mirror)
+    public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror)
     {
         final BlockPos resultSize = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
         final short newSizeX = (short) resultSize.getX();
@@ -271,10 +356,10 @@ public class Blueprint
         final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
         final NBTTagCompound[][][] newTileEntities = new NBTTagCompound[newSizeX][newSizeY][newSizeZ];
 
-        final IBlockState[] palette = new IBlockState[this.palette.length];
-        for (int i = 0; i < palette.length; i++)
+        final List<IBlockState> palette = new ArrayList<>();
+        for (int i = 0; i < this.palette.size(); i++)
         {
-            palette[i] = this.palette[i].withRotation(rotation).withMirror(mirror);
+            palette.add(i, this.palette.get(i).withRotation(rotation).withMirror(mirror));
         }
 
         this.palette = palette;
@@ -290,7 +375,7 @@ public class Blueprint
                 {
                     final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation);
                     final short value = structure[y][z][x];
-                    final IBlockState state = palette[value & 0xFFFF];
+                    final IBlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;
@@ -323,6 +408,11 @@ public class Blueprint
             }
         }
 
+        sizeX = newSizeX;
+        sizeY = newSizeY;
+        sizeZ = newSizeZ;
+
+
         this.structure = newStructure;
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
@@ -340,7 +430,7 @@ public class Blueprint
      * @param rotation the rotation.
      * @return the resulting position.
      */
-    private static BlockPos transformedBlockPos(final int xIn, final int y, final int zIn, final Mirror mirror, final Rotation rotation)
+    public static BlockPos transformedBlockPos(final int xIn, final int y, final int zIn, final Mirror mirror, final Rotation rotation)
     {
         int x = xIn;
         int z = zIn;

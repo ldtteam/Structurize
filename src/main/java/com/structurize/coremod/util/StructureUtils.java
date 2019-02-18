@@ -13,7 +13,6 @@ import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.util.CompoundDataFixer;
 import net.minecraftforge.common.util.ModFixs;
 import org.jetbrains.annotations.NotNull;
@@ -104,7 +103,7 @@ public final class StructureUtils
     }
 
     /**
-     * Calculate the MD5 hash for a template from an inputstream.
+     * Calculate the MD5 hash for a blueprint from an inputstream.
      *
      * @param stream to which we want the MD5 hash
      * @return the MD5 hash string or null

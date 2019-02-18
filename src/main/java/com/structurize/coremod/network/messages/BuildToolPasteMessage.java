@@ -3,10 +3,11 @@ package com.structurize.coremod.network.messages;
 import com.structurize.coremod.client.gui.WindowBuildTool;
 import com.structurize.coremod.management.StructureName;
 import com.structurize.coremod.management.Structures;
-import com.structurize.coremod.util.StructureWrapper;
+import com.structurize.coremod.util.StructurePlacementUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -49,14 +50,14 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
     public BuildToolPasteMessage(
       final String structureName,
       final String workOrderName, final BlockPos pos,
-      final int rotation, final boolean isHut,
+      final Rotation rotation, final boolean isHut,
       final Mirror mirror, final boolean complete, final WindowBuildTool.FreeMode freeMode)
     {
         super();
         this.structureName = structureName;
         this.workOrderName = workOrderName;
         this.pos = pos;
-        this.rotation = rotation;
+        this.rotation = rotation.ordinal();
         this.isHut = isHut;
         this.mirror = mirror == Mirror.FRONT_BACK;
         this.complete = complete;
@@ -120,8 +121,8 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
 
         if (player.capabilities.isCreativeMode)
         {
-            StructureWrapper.loadAndPlaceStructureWithRotation(player.world, message.structureName,
-              message.pos, message.rotation, message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(player.world, message.structureName,
+              message.pos, Rotation.values()[message.rotation], message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
         }
     }
 }

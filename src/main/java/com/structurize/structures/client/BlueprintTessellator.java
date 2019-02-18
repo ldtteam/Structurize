@@ -1,20 +1,15 @@
 package com.structurize.structures.client;
 
 import com.structurize.compat.optifine.OptifineCompat;
-import com.structurize.structures.lib.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class TemplateTessellator
+public class BlueprintTessellator
 {
 
     private static final int   VERTEX_COMPONENT_SIZE             = 3;
@@ -33,7 +28,7 @@ public class TemplateTessellator
     private final VertexBufferUploader vboUploader = new VertexBufferUploader();
     private       boolean              isReadOnly  = false;
 
-    public TemplateTessellator()
+    public BlueprintTessellator()
     {
         this.builder = new BufferBuilder(DEFAULT_BUFFER_SIZE);
         this.vboUploader.setVertexBuffer(buffer);
@@ -48,22 +43,22 @@ public class TemplateTessellator
 
         this.buffer.bindBuffer();
 
-        preTemplateDraw();
+        preBlueprintDraw();
 
         GlStateManager.bindTexture(Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId());
 
         this.buffer.drawArrays(GL_QUADS);
 
-        postTemplateDraw();
+        postBlueprintDraw();
 
         this.buffer.unbindBuffer();
 
         GlStateManager.popMatrix();
     }
 
-    private static void preTemplateDraw()
+    private static void preBlueprintDraw()
     {
-        OptifineCompat.getInstance().preTemplateDraw();
+        OptifineCompat.getInstance().preBlueprintDraw();
 
         GlStateManager.glEnableClientState(GL_VERTEX_ARRAY);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
@@ -90,7 +85,7 @@ public class TemplateTessellator
         GlStateManager.disableCull();
     }
 
-    private void postTemplateDraw()
+    private void postBlueprintDraw()
     {
         GlStateManager.enableCull();
 
@@ -120,11 +115,11 @@ public class TemplateTessellator
         }
 
         //Disable the pointers again.
-        OptifineCompat.getInstance().postTemplateDraw();
+        OptifineCompat.getInstance().postBlueprintDraw();
     }
 
     /**
-     * Method to start the building of the template VBO.
+     * Method to start the building of the blueprint VBO.
      * Can only be called once.
      */
     public void startBuilding()
@@ -138,7 +133,7 @@ public class TemplateTessellator
     }
 
     /**
-     * Method to end the building of the template VBO.
+     * Method to end the building of the blueprint VBO.
      * Can only be called once.
      */
     public void finishBuilding()

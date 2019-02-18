@@ -3,7 +3,7 @@ package com.structurize.coremod.event;
 import com.structurize.api.util.BlockPosUtil;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
-import com.structurize.structures.lib.TemplateUtils;
+import com.structurize.structures.lib.BlueprintUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -34,11 +34,11 @@ public class ClientEventHandler
 
         if (structure != null)
         {
-            final BlockPos primaryOffset = TemplateUtils.getPrimaryBlockOffset(structure.getBluePrint());
+            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
             final BlockPos offset = primaryOffset.rotate(BlockPosUtil.getRotationFromRotations(Settings.instance.getRotation()));
             BlockPos pos = Settings.instance.getPosition().subtract(offset);
 
-            BlockPos size = structure.getSize(BlockPosUtil.getRotationFromRotations(Settings.instance.getRotation()));
+            BlockPos size = structure.getSize(BlockPosUtil.getRotationFromRotations(Settings.instance.getRotation()), Settings.instance.getMirror());
 
             final BlockPos smallOffset;
             final boolean mirrored = Settings.instance.getMirror() != Mirror.NONE;

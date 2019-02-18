@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.structurize.coremod.Structurize;
+import com.structurize.coremod.util.StructureUtils;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -91,24 +92,24 @@ public class UpdateSchematics implements ICommand
             File output = new File(globalOutputFolder, input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
             output.getParentFile().mkdirs();
 
-            NBTTagCompound template = CompressedStreamTools.readCompressed(Files.newInputStream(input.toPath()));
-            if (template == null || template.isEmpty())
+            NBTTagCompound blueprint = CompressedStreamTools.readCompressed(Files.newInputStream(input.toPath()));
+            if (blueprint == null || blueprint.isEmpty())
             {
                 return;
             }
 
-            template = Structure.getFixer().process(FixTypes.STRUCTURE, template);
+            blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
 
-            final NBTTagList blocks = template.getTagList("blocks", NBT.TAG_COMPOUND);
-            final NBTTagList pallete = template.getTagList("palette", NBT.TAG_COMPOUND);
+            final NBTTagList blocks = blueprint.getTagList("blocks", NBT.TAG_COMPOUND);
+            final NBTTagList pallete = blueprint.getTagList("palette", NBT.TAG_COMPOUND);
 
-            final NBTTagCompound blueprint = new NBTTagCompound();
+            final NBTTagCompound bluePrintCompound = new NBTTagCompound();
 
-            final NBTTagList list = template.getTagList("size", NBT.TAG_INT);
+            final NBTTagList list = bluePrintCompound.getTagList("size", NBT.TAG_INT);
             final int[] size = new int[] {list.getIntAt(0), list.getIntAt(1), list.getIntAt(2)};
-            blueprint.setShort("size_x", (short) size[0]);
-            blueprint.setShort("size_y", (short) size[1]);
-            blueprint.setShort("size_z", (short) size[2]);
+            bluePrintCompound.setShort("size_x", (short) size[0]);
+            bluePrintCompound.setShort("size_y", (short) size[1]);
+            bluePrintCompound.setShort("size_z", (short) size[2]);
 
             final boolean addStructureVoid = blocks.tagCount() != size[0] * size[1] * size[2];
             short structureVoidID = 0;
@@ -133,8 +134,8 @@ public class UpdateSchematics implements ICommand
                 requiredMods.appendTag(new NBTTagString(str));
             }
 
-            blueprint.setTag("palette", pallete);
-            blueprint.setTag("required_mods", requiredMods);
+            bluePrintCompound.setTag("palette", pallete);
+            bluePrintCompound.setTag("required_mods", requiredMods);
 
             final MutableBlockPos pos = new MutableBlockPos();
             final short[][][] dataArray = new short[size[1]][size[2]][size[0]];
@@ -169,16 +170,16 @@ public class UpdateSchematics implements ICommand
                 }
             }
 
-            blueprint.setIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
-            blueprint.setTag("tile_entities", tileEntities);
-            blueprint.setTag("architects", new NBTTagList());
-            blueprint.setTag("name", new NBTTagString(input.getName().replaceAll("\\.nbt", "")));
-            blueprint.setInteger("version", 1);
+            bluePrintCompound.setIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
+            bluePrintCompound.setTag("tile_entities", tileEntities);
+            bluePrintCompound.setTag("architects", new NBTTagList());
+            bluePrintCompound.setTag("name", new NBTTagString(input.getName().replaceAll("\\.nbt", "")));
+            bluePrintCompound.setInteger("version", 1);
 
             final NBTTagList newEntities = new NBTTagList();
-            if (template.hasKey("entities"))
+            if (bluePrintCompound.hasKey("entities"))
             {
-                final NBTTagList entities = template.getTagList("entities", NBT.TAG_COMPOUND);
+                final NBTTagList entities = bluePrintCompound.getTagList("entities", NBT.TAG_COMPOUND);
                 for (int i = 0; i < entities.tagCount(); i++)
                 {
                     NBTTagCompound entityData = entities.getCompoundTagAt(i);
@@ -187,10 +188,10 @@ public class UpdateSchematics implements ICommand
                     newEntities.appendTag(entity);
                 }
             }
-            blueprint.setTag("entities", newEntities);
+            bluePrintCompound.setTag("entities", newEntities);
 
             output.createNewFile();
-            CompressedStreamTools.writeCompressed(blueprint, Files.newOutputStream(output.toPath()));
+            CompressedStreamTools.writeCompressed(bluePrintCompound, Files.newOutputStream(output.toPath()));
         }
         catch (final IOException e)
         {

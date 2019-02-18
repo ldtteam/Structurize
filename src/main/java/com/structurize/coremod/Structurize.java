@@ -5,9 +5,8 @@ import com.structurize.compat.optifine.OptifineCompat;
 import com.structurize.coremod.blocks.ModBlocks;
 import com.structurize.coremod.management.Structures;
 import com.structurize.coremod.network.messages.*;
-import com.structurize.coremod.placementhandlers.PlacementHandlers;
 import com.structurize.coremod.proxy.IProxy;
-import com.structurize.structures.helpers.Structure;
+import com.structurize.coremod.util.StructureLoadingUtils;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -82,7 +81,7 @@ public class Structurize
     @Mod.EventHandler
     public void preInit(@NotNull final FMLPreInitializationEvent event)
     {
-        Structure.originFolders.add(Constants.MOD_ID);
+        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
         proxy.registerEntities();
         proxy.registerEntityRendering();
         proxy.registerEvents();

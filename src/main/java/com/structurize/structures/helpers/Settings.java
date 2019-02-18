@@ -30,7 +30,6 @@ public final class Settings
     private Structure structure      = null;
     private int       rotation       = 0;
     private String    structureName  = null;
-    private boolean   isPendingReset = false;
 
     /**
      * Shape variables.
@@ -277,7 +276,6 @@ public final class Settings
     public void reset()
     {
         structure = null;
-        isPendingReset = false;
         offset.setPos(0, 0, 0);
         rotation = 0;
         isMirrored = false;
@@ -338,8 +336,8 @@ public final class Settings
             return;
         }
         isMirrored = !isMirrored;
-
-        structure.setPlacementSettings(structure.getSettings().setMirror(getMirror()));
+        structure.getSettings().setMirror(getMirror());
+        structure.setPlacementSettings(structure.getSettings());
     }
 
     /**

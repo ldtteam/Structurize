@@ -1,5 +1,6 @@
 package com.structurize.coremod.client.gui;
 
+import com.structurize.api.util.BlockUtils;
 import com.structurize.api.util.LanguageHandler;
 import com.structurize.api.util.Shape;
 import com.structurize.api.util.constant.Constants;
@@ -11,6 +12,7 @@ import com.structurize.blockout.views.DropDownList;
 import com.structurize.coremod.Structurize;
 import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.network.messages.*;
+import com.structurize.coremod.util.PlacementSettings;
 import com.structurize.structures.helpers.Settings;
 import com.structurize.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
@@ -18,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -212,7 +213,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow()));
-        structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
+        structure.setPlacementSettings(new PlacementSettings(Mirror.NONE, Rotation.NONE));
         Settings.instance.setActiveSchematic(structure);
     }
 
@@ -348,7 +349,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow(),
-          Settings.instance.getRotation(),
+          BlockUtils.getRotation(Settings.instance.getRotation()),
           Settings.instance.getMirror()));
     }
 
@@ -557,10 +558,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 settings.setRotation(Rotation.NONE);
         }
         Settings.instance.setRotation(rotation);
+        settings.setMirror(Settings.instance.getMirror());
 
         if (Settings.instance.getActiveStructure() != null)
         {
-            Settings.instance.getActiveStructure().setPlacementSettings(settings.setMirror(Settings.instance.getMirror()));
+            Settings.instance.getActiveStructure().setPlacementSettings(settings);
         }
     }
 }

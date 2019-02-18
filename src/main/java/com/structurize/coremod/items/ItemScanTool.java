@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.structurize.coremod.util.StructureLoadingUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.structurize.api.util.BlockPosUtil;
@@ -201,7 +202,7 @@ public class ItemScanTool extends AbstractItemStructurize
 
         final StructureName structureName = new StructureName(prefix, "backup", fileName);
 
-        final List<File> folder = Structure.getCachedSchematicsFolders();
+        final List<File> folder = StructureLoadingUtils.getCachedSchematicsFolders();
         if (folder == null || folder.isEmpty())
         {
             Log.getLogger().warn("Unable to save schematic in cache since no folder was found.");

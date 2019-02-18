@@ -1,16 +1,23 @@
 package com.structurize.structures.helpers;
 
+import com.structurize.api.configuration.Configurations;
+import com.structurize.api.util.BlockPosUtil;
+import com.structurize.api.util.BlockUtils;
+import com.structurize.api.util.ItemStackUtils;
 import com.structurize.api.util.Log;
 import com.structurize.coremod.management.Structures;
-import com.structurize.coremod.util.BlockInfo;
-import com.structurize.coremod.util.PlacementSettings;
-import com.structurize.coremod.util.StructureLoadingUtils;
-import com.structurize.coremod.util.StructureUtils;
+import com.structurize.coremod.util.*;
 import com.structurize.structures.blueprints.v1.Blueprint;
 import com.structurize.structures.blueprints.v1.BlueprintUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +40,7 @@ public class Structure
     protected static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
 
     /**
-     * Template of the structure.
+     * blueprint of the structure.
      */
     private Blueprint blueprint;
 
@@ -152,7 +159,7 @@ public class Structure
 
     /**
      * Set the blueprint externally.
-     * @param blueprint the template to set.
+     * @param blueprint the blueprint to set.
      */
     public void setBluePrint(final Blueprint blueprint)
     {
@@ -176,9 +183,9 @@ public class Structure
     }
 
     /**
-     * Checks if the template is null.
+     * Checks if the blueprint is null.
      *
-     * @return true if the template is null.
+     * @return true if the blueprint is null.
      */
     public boolean isBluePrintMissing()
     {
@@ -314,5 +321,240 @@ public class Structure
     public PlacementSettings getSettings()
     {
         return this.settings;
+    }
+
+    /**
+     * Rotates the structure x times.
+     *
+     * @param rotation  the rotation.
+     * @param world     world it's rotating it in.
+     * @param rotatePos position to rotateWithMirror it around.
+     * @param mirror    the mirror to rotate with.
+     */
+    public void rotate(final Rotation rotation, @NotNull final World world, @NotNull final BlockPos rotatePos, @NotNull final Mirror mirror)
+    {
+        this.offset = this.blueprint.rotateWithMirror(rotation, rotatePos, mirror);
+    }
+
+    /**
+     * Increment progressPos.
+     *
+     * @return false if the all the block have been incremented through.
+     */
+    public boolean incrementBlock()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            this.progressPos.setPos(-1, 0, 0);
+        }
+
+        this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
+        if (this.progressPos.getX() == this.blueprint.getSizeX())
+        {
+            this.progressPos.setPos(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
+            if (this.progressPos.getZ() == this.blueprint.getSizeZ())
+            {
+                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
+                if (this.progressPos.getY() == this.blueprint.getSizeY())
+                {
+                    this.reset();
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Decrement progressPos.
+     *
+     * @return false if progressPos can't be decremented any more.
+     */
+    public boolean decrementBlock()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            this.progressPos.setPos(this.blueprint.getSizeX(), this.blueprint.getSizeY() - 1, this.blueprint.getSizeZ() - 1);
+        }
+
+        this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
+        if (this.progressPos.getX() == -1)
+        {
+            this.progressPos.setPos(this.blueprint.getSizeX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
+            if (this.progressPos.getZ() == -1)
+            {
+                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, this.blueprint.getSizeZ() - 1);
+                if (this.progressPos.getY() == -1)
+                {
+                    this.reset();
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Find the next block that doesn't already exist in the world.
+     *
+     * @return true if a new block is found and false if there is no next block.
+     */
+    public boolean findNextBlock()
+    {
+        int count = 0;
+        do
+        {
+            count++;
+            if (!this.incrementBlock())
+            {
+                return false;
+            }
+        }
+        while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) && count < Configurations.gameplay.maxBlocksChecked);
+
+        return true;
+    }
+
+    /**
+     * Base position of the structure.
+     *
+     * @return BlockPos representing where the structure is.
+     */
+    public BlockPos getPosition()
+    {
+        if (this.position == null)
+        {
+            return new BlockPos(0, 0, 0);
+        }
+        return this.position;
+    }
+
+    /**
+     * Calculate the item needed to place the current block in the structure.
+     *
+     * @return an item or null if not initialized.
+     */
+    @Nullable
+    public Item getItem()
+    {
+        @Nullable final Block block = this.getBlock();
+        @Nullable final IBlockState blockState = this.getBlockstate();
+        if (block == null || blockState == null || block == Blocks.AIR || blockState.getMaterial().isLiquid())
+        {
+            return null;
+        }
+
+        final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
+
+        if (!ItemStackUtils.isEmpty(stack))
+        {
+            return stack.getItem();
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate the current block in the structure.
+     *
+     * @return the current block or null if not initialized.
+     */
+    @Nullable
+    public Block getBlock()
+    {
+        @Nullable final IBlockState state = this.getBlockState(getLocalPosition());
+        if (state == null)
+        {
+            return null;
+        }
+        return state.getBlock();
+    }
+
+    /**
+     * Calculate the current blockState in the structure.
+     * @return the current blockState or null if not there.
+     */
+    @Nullable
+    public IBlockState getBlockstate()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+        return this.getBlockState(this.progressPos);
+    }
+
+    /**
+     * Reset the progressPos.
+     */
+    public void reset()
+    {
+        BlockPosUtil.set(this.progressPos, NULL_POS);
+    }
+
+    /**
+     * @return progressPos as an immutable.
+     */
+    @NotNull
+    public BlockPos getLocalPosition()
+    {
+        return this.progressPos.toImmutable();
+    }
+
+    /**
+     * Change the current progressPos. Used when loading progress.
+     *
+     * @param localPosition new progressPos.
+     */
+    public void setLocalPosition(@NotNull final BlockPos localPosition)
+    {
+        BlockPosUtil.set(this.progressPos, localPosition);
+    }
+
+    /**
+     * @return World position.
+     */
+    public BlockPos getBlockPosition()
+    {
+        return this.progressPos.add(this.getOffsetPosition());
+    }
+
+    /**
+     * @return Min world position for the structure.
+     */
+    public BlockPos getOffsetPosition()
+    {
+        return this.position.subtract(this.getOffset());
+    }
+
+    /**
+     * Set the position, used when loading.
+     *
+     * @param position Where the structure is in the world.
+     */
+    public void setPosition(final BlockPos position)
+    {
+        this.position = position;
+    }
+
+    /**
+     * Get the world instance we're placing in.
+     * @return the world.
+     */
+    public World getWorld()
+    {
+        return world;
+    }
+
+    /**
+     * Get the size and calculate it from a rotation.
+     * @param rotation the rotation.
+     * @return the rotated size.
+     */
+    public BlockPos getSize(final Rotation rotation, final Mirror mirror)
+    {
+        return Blueprint.transformedBlockPos(blueprint.getSizeY(), blueprint.getSizeZ(), blueprint.getSizeX(), mirror, rotation);
     }
 }

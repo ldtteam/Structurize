@@ -1,8 +1,8 @@
 package com.structurize.structures.client;
 
-import com.structurize.coremod.Structurize;
+import com.structurize.structures.blueprints.v1.Blueprint;
 import com.structurize.structures.lib.RenderUtil;
-import com.structurize.structures.lib.TemplateUtils;
+import com.structurize.structures.lib.BlueprintUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -11,52 +11,53 @@ import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.structure.template.Template;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
 /**
- * The renderer for templates.
- * Holds all information required to render a Template.
+ * The renderer for blueprint.
+ * Holds all information required to render a blueprint.
  */
-public class TemplateRenderer
+public class BlueprintRenderer
 {
     private static final float HALF_PERCENT_SHRINK               = 0.995F;
 
-    private final TemplateBlockAccess blockAccess;
-    private final List<TileEntity>    tileEntities;
-    private final List<Entity>        entities;
-    private final TemplateTessellator tessellator;
-    private final BlockPos            primaryBlockOffset;
+    private final BluePrintBlockAccess blockAccess;
+    private final List<TileEntity>     tileEntities;
+    private final List<Entity>         entities;
+    private final BlueprintTessellator tessellator;
+    private final BlockPos             primaryBlockOffset;
 
     /**
-     * Static factory utility method to handle the extraction of the values from the template.
+     * Static factory utility method to handle the extraction of the values from the blueprint.
      *
-     * @param template The template to create an instance for.
+     * @param blueprint The blueprint to create an instance for.
      * @return The renderer.
      */
-    public static TemplateRenderer buildRendererForTemplate(Template template)
+    public static BlueprintRenderer buildRendererForBlueprint(final Blueprint blueprint)
     {
-        final TemplateBlockAccess blockAccess = new TemplateBlockAccess(template);
-        final List<TileEntity> tileEntities = TemplateUtils.instantiateTileEntities(template, blockAccess);
-        final List<Entity> entities = TemplateUtils.instantiateEntities(template, blockAccess);
-        final TemplateTessellator templateTessellator = new TemplateTessellator();
-        final BlockPos primaryBlockOffset = TemplateUtils.getPrimaryBlockOffset(template);
+        final BluePrintBlockAccess blockAccess = new BluePrintBlockAccess(blueprint);
+        final List<TileEntity> tileEntities = BlueprintUtils.instantiateTileEntities(blueprint, blockAccess);
+        final List<Entity> entities = BlueprintUtils.instantiateEntities(blueprint, blockAccess);
+        final BlueprintTessellator blueprintTessellator = new BlueprintTessellator();
+        final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
 
-        return new TemplateRenderer(blockAccess, tileEntities, entities, templateTessellator, primaryBlockOffset);
+        return new BlueprintRenderer(blockAccess, tileEntities, entities, blueprintTessellator, primaryBlockOffset);
     }
 
-    private TemplateRenderer(
-      final TemplateBlockAccess blockAccess,
+    private BlueprintRenderer(
+      final BluePrintBlockAccess blockAccess,
       final List<TileEntity> tileEntities,
       final List<Entity> entities,
-      final TemplateTessellator tessellator,
+      final BlueprintTessellator tessellator,
       final BlockPos primaryBlockOffset)
     {
         this.blockAccess = blockAccess;
@@ -75,15 +76,15 @@ public class TemplateRenderer
     {
         tessellator.startBuilding();
 
-        blockAccess.getTemplate().blocks.stream()
-          .map(b -> TemplateBlockInfoTransformHandler.getInstance().Transform(b))
-          .forEach(b -> Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlock(b.blockState, b.pos, blockAccess, tessellator.getBuilder()));
+        blockAccess.getBlueprint().getBlockInfoAsList().stream()
+          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
+          .forEach(b -> Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlock(b.getState(), b.getPos(), blockAccess, tessellator.getBuilder()));
 
         tessellator.finishBuilding();
     }
 
     /**
-     * Draws an instance of the template at the given position, with the given rotation, and mirroring.
+     * Draws an instance of the blueprint at the given position, with the given rotation, and mirroring.
      *
      * @param rotation The rotation.
      * @param mirror The mirroring.
@@ -92,7 +93,7 @@ public class TemplateRenderer
     public void draw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
         //Handle things like mirror, rotation and offset.
-        preTemplateDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
+        preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
 
         //Draw normal blocks.
         tessellator.draw();
@@ -134,11 +135,11 @@ public class TemplateRenderer
             GlStateManager.popMatrix();
         });
 
-        postTemplateDraw();
+        postBlueprintDraw();
 
     }
 
-    private static void preTemplateDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inTemplateOffset)
+    private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inBlueprintOffset)
     {
         final ITextureObject textureObject = Minecraft.getMinecraft().getTextureMapBlocks();
         GlStateManager.bindTexture(textureObject.getGlTextureId());
@@ -146,11 +147,11 @@ public class TemplateRenderer
         GlStateManager.pushMatrix();
         GlStateManager.translate(drawingOffset.x, drawingOffset.y, drawingOffset.z);
 
-        final BlockPos rotateInTemplateOffset = inTemplateOffset.rotate(rotation);
-        GlStateManager.translate(-rotateInTemplateOffset.getX(), -rotateInTemplateOffset.getY(), -rotateInTemplateOffset.getZ());
+        final BlockPos rotateInBlueprintOffset = inBlueprintOffset.rotate(rotation);
+        GlStateManager.translate(-rotateInBlueprintOffset.getX(), -rotateInBlueprintOffset.getY(), -rotateInBlueprintOffset.getZ());
 
         RenderUtil.applyRotationToYAxis(rotation);
-        RenderUtil.applyMirror(mirror, inTemplateOffset);
+        RenderUtil.applyMirror(mirror, inBlueprintOffset);
 
         GlStateManager.scale(HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK);
         GlStateManager.enableBlend();
@@ -159,7 +160,7 @@ public class TemplateRenderer
         GlStateManager.pushMatrix();
     }
 
-    private static void postTemplateDraw()
+    private static void postBlueprintDraw()
     {
         GlStateManager.popMatrix();
         GlStateManager.resetColor();
@@ -167,7 +168,7 @@ public class TemplateRenderer
         GlStateManager.popMatrix();
     }
 
-    public TemplateBlockAccess getBlockAccess()
+    public BluePrintBlockAccess getBlockAccess()
     {
         return blockAccess;
     }
@@ -177,7 +178,7 @@ public class TemplateRenderer
         return tileEntities;
     }
 
-    public TemplateTessellator getTessellator()
+    public BlueprintTessellator getTessellator()
     {
         return tessellator;
     }

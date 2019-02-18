@@ -2,6 +2,7 @@ package com.structurize.coremod.proxy;
 
 import java.io.File;
 
+import com.structurize.coremod.util.BlockInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ import com.structurize.coremod.event.ClientEventHandler;
 import com.structurize.coremod.items.ModItems;
 import com.structurize.coremod.management.Manager;
 import com.structurize.coremod.management.Structures;
-import com.structurize.structures.client.TemplateBlockInfoTransformHandler;
+import com.structurize.structures.client.BlueprintBlockInfoTransformHandler;
 import com.structurize.structures.event.RenderEventHandler;
 import com.structurize.structures.helpers.Settings;
 
@@ -39,7 +40,6 @@ import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -222,15 +222,15 @@ public class ClientProxy extends CommonProxy
         createCustomModel(ModBlocks.multiBlock);
 
         //Additionally we register an exclusion handler here;
-        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          (b) -> b.blockState.getBlock() == ModBlocks.blockSubstitution,
-          (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
+        BlueprintBlockInfoTransformHandler.getInstance().AddTransformHandler(
+          (b) -> b.getState().getBlock() == ModBlocks.blockSubstitution,
+          (b) -> new BlockInfo(b.getPos(), Blocks.AIR.getDefaultState(), null)
         );
 
         //Additionally we register an exclusion handler here;
-        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          (b) -> b.blockState.getBlock() == ModBlocks.blockSolidSubstitution,
-          (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
+        BlueprintBlockInfoTransformHandler.getInstance().AddTransformHandler(
+          (b) -> b.getState().getBlock() == ModBlocks.blockSolidSubstitution,
+          (b) -> new BlockInfo(b.getPos(), Blocks.AIR.getDefaultState(), null)
         );
 
 

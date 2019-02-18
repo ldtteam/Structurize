@@ -7,7 +7,6 @@ import com.structurize.api.util.ChangeStorage;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -76,7 +75,7 @@ public class ScanToolOperation
     /**
      * The structure wrapper if structure place.
      */
-    private final StructureWrapper wrapper;
+    private final InstantStructurePlacer wrapper;
 
     /**
      * Create a ScanToolOperation.
@@ -130,7 +129,7 @@ public class ScanToolOperation
      * @param wrapper the structure wrapper for the placement..
      * @param player the player.
      */
-    public ScanToolOperation(final StructureWrapper wrapper, final EntityPlayer player)
+    public ScanToolOperation(final InstantStructurePlacer wrapper, final EntityPlayer player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ORIGIN;
