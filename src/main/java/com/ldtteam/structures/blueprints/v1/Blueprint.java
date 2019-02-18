@@ -126,6 +126,7 @@ public class Blueprint
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
+        this.palette.add(0, Blocks.AIR.getDefaultState());
     }
 
     /**
@@ -190,7 +191,7 @@ public class Blueprint
 
         if (index == -1)
         {
-            index = this.palleteSize;
+            index = this.palleteSize + 1;
             this.palleteSize++;
             this.palette.add(state);
         }

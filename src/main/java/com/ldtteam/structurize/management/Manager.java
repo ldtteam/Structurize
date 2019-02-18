@@ -166,7 +166,7 @@ public final class Manager
         }
         else if (shape == Shape.CUBE)
         {
-            blueprint = generateCube(height, width, length, mainBlock, fillBlock, hollow);
+            blueprint = generateCube(height, mainBlock, fillBlock, hollow);
         }
         else if (shape == Shape.WAVE)
         {
@@ -195,37 +195,39 @@ public final class Manager
       final Shape shape)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
+        final int hHeight = height/2;
+
         final Map<BlockPos, IBlockState> posList = new HashMap<>();
-        for (int y = 0; y < height / 2; y++)
+        for (int y = 0; y < hHeight; y++)
         {
-            for (int x = 0; x < height / 2; x++)
+            for (int x = 0; x < hHeight; x++)
             {
-                for (int z = 0; z < height / 2; z++)
+                for (int z = 0; z < hHeight; z++)
                 {
                     if (((x == z && x >= y) || (x == y && x >= z) || ((hollow ? y == z : y >= z) && y >= x)) && x * z <= y * y)
                     {
                         final IBlockState blockToUse = x == z && x >= y || x == y || y == z ? block : fillBlock;
                         if (shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
                         {
-                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, y,  hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, y, hHeight - z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, y, hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, y, hHeight - z), blockToUse, posList);
                         }
 
                         if (shape == Shape.PYRAMID || shape == Shape.DIAMOND)
                         {
-                            addPosToList(new BlockPos(x, -y + height - 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, -y + height - 2, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y + height - 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y + height - 2, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight - z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight - z), blockToUse, posList);
                         }
                     }
                 }
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short)height, (short) height, (short)height);
+        final Blueprint blueprint = new Blueprint((short)height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short)height);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -241,8 +243,6 @@ public final class Manager
      */
     private static Blueprint generateCube(
       final int height,
-      final int width,
-      final int length,
       final IBlockState block,
       final IBlockState fillBlock,
       final boolean hollow)
@@ -250,11 +250,11 @@ public final class Manager
         final Map<BlockPos, IBlockState> posList = new HashMap<>();
         for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < height; x++)
             {
-                for (int z = 0; z < length; z++)
+                for (int z = 0; z < height; z++)
                 {
-                    if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1))
+                    if ((x == 0 || x == height - 1) || (y == 0 || y == height - 1) || (z == 0 || z == height - 1))
                     {
                         posList.put(new BlockPos(x, y, z), block);
                     }
@@ -298,24 +298,24 @@ public final class Manager
                         final IBlockState blockToUse = (sum > height * height - 2 * height) ? block : fillBlock;
                         if (shape == Shape.HALF_SPHERE || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x * 2, y * 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x * 2, y * 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y * 2, z * 2), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y * 2, z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height + y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height + y, height - z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height + y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height + y, height - z), blockToUse, posList);
                         }
                         if (shape == Shape.BOWL || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x * 2, y, z * 2), blockToUse, posList);
-                            addPosToList(new BlockPos(x * 2, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, z * 2), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height - y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height - y, height - z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height - y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height - y, height - z), blockToUse, posList);
                         }
                     }
                 }
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short)(height * 2), (short) (height * 2), (short)(height * 2));
+        final Blueprint blueprint = new Blueprint((short)((height + 2) * 2), (short) ((height + 2) * 2), (short)((height + 2) * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -346,16 +346,16 @@ public final class Manager
                     if (sum < (width * width) / 4 && (!hollow || sum > (width * width) / 4 - width))
                     {
                         final IBlockState blockToUse = (sum > (width * width) / 4 - width) ? block : fillBlock;
-                        addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                        addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                        addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                        addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                        addPosToList(new BlockPos(width + x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width + x, y, width - z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width - z), blockToUse, posList);
                     }
                 }
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short)width, (short) height, (short)width);
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -381,17 +381,17 @@ public final class Manager
             for (int z = 0; z < width; z++)
             {
                 final double yVal = (flat ? 0 : z) + (double) frequency * Math.sin(x / (double) height);
-                addPosToList(new BlockPos(x, yVal, z), block, posList);
+                addPosToList(new BlockPos(x, yVal + frequency, (flat ? 0 : width) + z), block, posList);
                 if (!flat)
                 {
-                    addPosToList(new BlockPos(x, yVal, -z), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1, z - width + 1), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1, -z + width - 1), block, posList);
+                    addPosToList(new BlockPos(x, yVal + frequency, width - z), block, posList);
+                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width + z - width + 1), block, posList);
+                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width - z + width - 1), block, posList);
                 }
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short)length, (short) (height * length + 1), (short) (width * 2 + 1));
+        final Blueprint blueprint = new Blueprint((short)length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
