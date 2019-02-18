@@ -11,7 +11,6 @@ import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -43,18 +42,10 @@ public final class ClientStructureWrapper
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
 
-        final File file;
-        if (nbttagcompound.hasKey("required_mods"))
-        {
-            file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
-        }
-        else
-        {
-            file = new File(Structure.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION);
-        }
+        final File file = new File(StructureLoadingUtils.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());
 
-        try (OutputStream outputstream = new FileOutputStream(file))
+        try (final OutputStream outputstream = new FileOutputStream(file))
         {
             CompressedStreamTools.writeCompressed(nbttagcompound, outputstream);
         }
@@ -76,6 +67,6 @@ public final class ClientStructureWrapper
      */
     public static void sendMessageSchematicTooBig(final int maxSize)
     {
-        LanguageHandler.sendPlayerMessage(Minecraft.getMinecraft().player, "com.ldtteam.structurize.network.messages.schematicsavemessage.toobig", maxSize);
+        LanguageHandler.sendPlayerMessage(Minecraft.getMinecraft().player, "com.structurize.coremod.network.messages.schematicsavemessage.toobig", maxSize);
     }
 }

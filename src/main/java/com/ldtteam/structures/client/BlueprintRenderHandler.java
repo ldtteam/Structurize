@@ -4,45 +4,46 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.structure.template.Template;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
- * The wayPointTemplate render handler on the client side.
+ * The wayPointblueprint render handler on the client side.
  */
-public final class TemplateRenderHandler
+public final class BlueprintRenderHandler
 {
     /**
      * A static instance on the client.
      */
-    private static final TemplateRenderHandler ourInstance = new TemplateRenderHandler();
+    private static final BlueprintRenderHandler ourInstance = new BlueprintRenderHandler();
 
     /**
      * The builder cache.
      */
-    private final Cache<Template, TemplateRenderer> templateBufferBuilderCache =
+    private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
       CacheBuilder.newBuilder()
         .maximumSize(50)
-        .removalListener((RemovalListener<Template, TemplateRenderer>) notification -> notification.getValue().getTessellator().getBuffer().deleteGlBuffers())
+        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().getTessellator().getBuffer().deleteGlBuffers())
         .build();
 
     /**
      * Cached entity renderer.
      */
-    //private RenderManager entityRenderer;
+    private RenderManager entityRenderer;
 
     /**
      * Private constructor to hide public one.
      */
-    private TemplateRenderHandler()
+    private BlueprintRenderHandler()
     {
         /*
          * Intentionally left empty.
@@ -54,30 +55,30 @@ public final class TemplateRenderHandler
      *
      * @return a static instance of this class.
      */
-    public static TemplateRenderHandler getInstance()
+    public static BlueprintRenderHandler getInstance()
     {
         return ourInstance;
     }
 
     /**
-     * Draw a wayPointTemplate with a rotation, mirror and offset.
+     * Draw a wayPointBlueprint with a rotation, mirror and offset.
      *
-     * @param template      the wayPointTemplate to draw.
+     * @param blueprint     the wayPointBlueprint to draw.
      * @param rotation      its rotation.
      * @param mirror        its mirror.
      * @param drawingOffset its offset.
      */
-    public void draw(final Template template, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
+    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
-        if (template == null)
+        if (blueprint == null)
         {
-            Log.getLogger().warn("Trying to draw null template!");
+            Log.getLogger().warn("Trying to draw null blueprint!");
             return;
         }
 
         try
         {
-            templateBufferBuilderCache.get(template, () -> TemplateRenderer.buildRendererForTemplate(template)).draw(rotation, mirror, drawingOffset);
+            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint)).draw(rotation, mirror, drawingOffset);
         }
         catch (ExecutionException e)
         {
@@ -86,13 +87,13 @@ public final class TemplateRenderHandler
     }
 
     /**
-     * Render a template at a list of points.
+     * Render a blueprint at a list of points.
      *
      * @param points       the points to render it at.
      * @param partialTicks the partial ticks.
-     * @param template the template.
+     * @param blueprint    the blueprint.
      */
-    public void drawTemplateAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Template template)
+    public void drawBlueprintAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Blueprint blueprint)
     {
         if (points.isEmpty())
         {
@@ -115,7 +116,7 @@ public final class TemplateRenderHandler
             renderOffset.y = renderOffsetY;
             renderOffset.z = renderOffsetZ;
 
-            draw(template, Rotation.NONE, Mirror.NONE, renderOffset);
+            draw(blueprint, Rotation.NONE, Mirror.NONE, renderOffset);
         }
     }
 }

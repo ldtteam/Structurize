@@ -4,6 +4,7 @@ import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.util.StructureUtils;
 import com.ldtteam.structures.helpers.Structure;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -77,7 +78,7 @@ public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, 
         final int length = buf.readInt();
         final byte[] compressedData = new byte[length];
         buf.readBytes(compressedData);
-        data = Structure.uncompress(compressedData);
+        data = StructureUtils.uncompress(compressedData);
         pieces = buf.readInt();
         piece = buf.readInt();
         id = UUID.fromString(ByteBufUtils.readUTF8String(buf));
@@ -86,7 +87,7 @@ public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, 
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        final byte[] compressedData = Structure.compress(data);
+        final byte[] compressedData = StructureUtils.compress(data);
         if (compressedData != null)
         {
             buf.capacity(compressedData.length + buf.writerIndex());

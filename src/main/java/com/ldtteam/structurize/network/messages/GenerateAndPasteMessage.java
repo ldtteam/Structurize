@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -101,7 +102,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
       final Shape shape,
       final ItemStack block,
       final ItemStack block2,
-      final boolean hollow, final int rotation, final Mirror mirror)
+      final boolean hollow, final Rotation rotation, final Mirror mirror)
     {
         super();
         this.pos = pos;
@@ -114,7 +115,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
         this.block2 = block2;
         this.hollow = hollow;
         this.mirror = mirror != Mirror.NONE;
-        this.rotation = rotation;
+        this.rotation = rotation.ordinal();
     }
 
     @Override
@@ -169,6 +170,6 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
           message.hollow,
           player,
           message.mirror ? Mirror.FRONT_BACK : Mirror.NONE,
-          message.rotation);
+          Rotation.values()[message.rotation]);
     }
 }

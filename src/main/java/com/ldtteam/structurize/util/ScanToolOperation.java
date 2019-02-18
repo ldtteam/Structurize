@@ -75,7 +75,7 @@ public class ScanToolOperation
     /**
      * The structure wrapper if structure place.
      */
-    private final StructureWrapper wrapper;
+    private final InstantStructurePlacer wrapper;
 
     /**
      * Create a ScanToolOperation.
@@ -129,7 +129,7 @@ public class ScanToolOperation
      * @param wrapper the structure wrapper for the placement..
      * @param player the player.
      */
-    public ScanToolOperation(final StructureWrapper wrapper, final EntityPlayer player)
+    public ScanToolOperation(final InstantStructurePlacer wrapper, final EntityPlayer player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ORIGIN;
@@ -162,7 +162,7 @@ public class ScanToolOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            currentPos = wrapper.placeStructure(world, storage, currentPos, true);
+            currentPos = wrapper.placeStructure(world, storage, currentPos);
             return currentPos == null;
         }
 

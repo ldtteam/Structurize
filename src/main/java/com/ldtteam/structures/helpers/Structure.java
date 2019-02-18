@@ -1,64 +1,33 @@
 package com.ldtteam.structures.helpers;
 
-import static com.ldtteam.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
-import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION;
-import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_NEW;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import javax.annotation.Nullable;
-import javax.xml.bind.DatatypeConverter;
-
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
-
-import com.google.common.collect.ImmutableList;
 import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.util.*;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.datafix.DataFixesManager;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
-import net.minecraft.world.gen.structure.template.Template;
-import net.minecraftforge.common.util.CompoundDataFixer;
-import net.minecraftforge.common.util.ModFixs;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_NEW;
 
 /**
  * Structure class, used to store, create, get structures.
@@ -66,31 +35,57 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class Structure
 {
     /**
-     * Rotation by 90°.
+     * The position we use as our uninitialized value.
      */
-    private static final double NINETY_DEGREES = 90D;
+    protected static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
 
     /**
-     * Size of the buffer.
+     * blueprint of the structure.
      */
-    private static final int BUFFER_SIZE = 1024;
+    private Blueprint blueprint;
 
     /**
-     * Required Datafixer
+     * The MD5 value of the blueprint.
      */
-    private static DataFixer fixer;
+    private String md5;
 
     /**
-     * The list of origin folders.
+     * The used settings for the placement.
      */
-    public static List<String> originFolders = new ArrayList<>();
-
-    /**
-     * Template of the structure.
-     */
-    private Template          template;
     private PlacementSettings settings;
-    private String            md5;
+
+    /**
+     * The current offset.
+     */
+    private BlockPos offset;
+
+    /**
+     * The minecraft world this struture is displayed in.
+     */
+    @NotNull
+    protected final World world;
+
+    /**
+     * The anchor position this structure will be
+     * placed on in the minecraft world.
+     */
+    protected BlockPos position;
+
+    /**
+     * The Structure position we are at. Defaulted to NULL_POS.
+     */
+    protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
+
+    /**
+     * Constuctor of Structure, tries to create a new structure.
+     * creates a plain Structure to append rendering later.
+     *
+     * @param world with world.
+     */
+    public Structure(@NotNull final World world)
+    {
+        this.world = world;
+    }
 
     /**
      * Constuctor of Structure, tries to create a new structure.
@@ -99,22 +94,19 @@ public class Structure
      * @param structureName name of the structure (at stored location).
      * @param settings      it's settings.
      */
-    public Structure(@Nullable final World world, final String structureName, final PlacementSettings settings)
+    public Structure(@NotNull final World world, final String structureName, final PlacementSettings settings)
     {
+        this(world);
         String correctStructureName = structureName;
-        if (world == null || world.isRemote)
-        {
-            this.settings = settings;
-        }
+        this.settings = settings;
 
         InputStream inputStream = null;
         try
         {
-
             //Try the cache first
             if (Structures.hasMD5(correctStructureName))
             {
-                inputStream = Structure.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
+                inputStream = StructureLoadingUtils.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
                 if (inputStream != null)
                 {
                     correctStructureName = Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName);
@@ -123,7 +115,7 @@ public class Structure
 
             if (inputStream == null)
             {
-                inputStream = Structure.getStream(correctStructureName);
+                inputStream = StructureLoadingUtils.getStream(correctStructureName);
             }
 
             if (inputStream == null)
@@ -133,39 +125,20 @@ public class Structure
 
             try
             {
-                this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
+                this.md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName));
                 final String ending = Structures.getFileExtension(correctStructureName);
                 if (ending != null)
                 {
-                    if (ending.endsWith(SCHEMATIC_EXTENSION))
-                    {
-                        this.template = readTemplateFromStream(inputStream, getFixer());
-                    }
-                    else if (ending.endsWith(SCHEMATIC_EXTENSION_NEW))
+                    if (ending.endsWith(SCHEMATIC_EXTENSION_NEW))
                     {
                         final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(inputStream);
-                        final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, getFixer());
-                        if (blueprint != null)
-                        {
-                            this.template = BlueprintUtil.toTemplate(blueprint);
-                        }
-                        else
-                        {
-                            if (!nbttagcompound.hasKey("DataVersion", 99))
-                            {
-                                nbttagcompound.setInteger("DataVersion", 500);
-                            }
-
-                            final Template template = new Template();
-                            template.read(getFixer().process(FixTypes.STRUCTURE, nbttagcompound));
-                            this.template = template;
-                        }
+                        this.blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, StructureUtils.getFixer());
                     }
                 }
             }
             catch (final IOException e)
             {
-                Log.getLogger().warn(String.format("Failed to load template %s", correctStructureName), e);
+                Log.getLogger().warn(String.format("Failed to load blueprint %s", correctStructureName), e);
             }
         }
         finally
@@ -175,381 +148,22 @@ public class Structure
     }
 
     /**
-     * Get the Datafixer and instantiate if not existing.
-     * @return the datafixer.
-     */
-    public static DataFixer getFixer()
-    {
-        if (fixer == null)
-        {
-            fixer = DataFixesManager.createFixer();
-            final ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
-            fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
-            {
-                @Override
-                public int getFixVersion()
-                {
-                    return 1;
-                }
-
-                @NotNull
-                @Override
-                public NBTTagCompound fixTagCompound(@NotNull final NBTTagCompound compound)
-                {
-                    if (compound.hasKey("palette"))
-                    {
-                        NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
-                        for (final NBTBase listCompound : list)
-                        {
-                            if (listCompound instanceof NBTTagCompound && ((NBTTagCompound) listCompound).hasKey("Name"))
-                            {
-                                String name = ((NBTTagCompound) listCompound).getString("Name");
-                                if (name.contains("minecolonies"))
-                                {
-                                    if (Block.getBlockFromName(name) == null)
-                                    {
-                                        final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
-                                        if (Block.getBlockFromName(structurizeName) != null)
-                                        {
-                                            ((NBTTagCompound) listCompound).setString("Name", structurizeName);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return compound;
-                }
-            });
-        }
-        return fixer;
-    }
-
-    /**
-     * get a InputStream for a give structureName.
-     * <p>
-     * Look into the following director (in order):
-     * - scan
-     * - cache
-     * - schematics folder
-     * - jar
-     * It should be the exact opposite that the way used to build the list.
-     * <p>
-     * Suppressing Sonar Rule squid:S2095
-     * This rule enforces "Close this InputStream"
-     * But in this case the rule does not apply because
-     * We are returning the stream and that is reasonable
+     * get the blueprint from the structure.
      *
-     * @param structureName name of the structure to load
-     * @return the input stream or null
+     * @return The blueprint for the structure
      */
-    @SuppressWarnings(RESOURCES_SHOULD_BE_CLOSED)
-    @Nullable
-    public static InputStream getStream(final String structureName)
+    public Blueprint getBluePrint()
     {
-        final StructureName sn = new StructureName(structureName);
-        InputStream inputstream = null;
-        if (Structures.SCHEMATICS_CACHE.equals(sn.getPrefix()))
-        {
-            for (final File cachedFile : Structure.getCachedSchematicsFolders())
-            {
-                final InputStream stream = Structure.getStreamFromFolder(cachedFile, structureName);
-                if (stream != null)
-                {
-                    return stream;
-                }
-            }
-        }
-        else if (Structures.SCHEMATICS_SCAN.equals(sn.getPrefix()))
-        {
-            for (final File cachedFile : Structure.getClientSchematicsFolders())
-            {
-                final InputStream stream = Structure.getStreamFromFolder(cachedFile, structureName);
-                if (stream != null)
-                {
-                    return stream;
-                }
-            }
-        }
-        else if (!Structures.SCHEMATICS_PREFIX.equals(sn.getPrefix()))
-        {
-            return null;
-        }
-        else
-        {
-            //Look in the folder first
-            inputstream = Structure.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
-            if (inputstream == null && !Configurations.gameplay.ignoreSchematicsFromJar)
-            {
-                for (final InputStream stream : Structure.getStreamsFromJar(structureName))
-                {
-                    if (stream != null)
-                    {
-                        inputstream = stream;
-                    }
-                }
-            }
-        }
-
-        return inputstream;
+        return this.blueprint;
     }
 
     /**
-     * Calculate the MD5 hash for a template from an inputstream.
-     *
-     * @param stream to which we want the MD5 hash
-     * @return the MD5 hash string or null
+     * Set the blueprint externally.
+     * @param blueprint the blueprint to set.
      */
-    public static String calculateMD5(final InputStream stream)
+    public void setBluePrint(final Blueprint blueprint)
     {
-        if (stream == null)
-        {
-            Log.getLogger().error("Structure.calculateMD5: stream is null, this should not happen");
-            return null;
-        }
-        return calculateMD5(getStreamAsByteArray(stream));
-    }
-
-    /**
-     * Reads a template from an inputstream.
-     */
-    private static Template readTemplateFromStream(final InputStream stream, final DataFixer fixer) throws IOException
-    {
-        final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(stream);
-
-        if (!nbttagcompound.hasKey("DataVersion", 99))
-        {
-            nbttagcompound.setInteger("DataVersion", 500);
-        }
-
-        final Template template = new Template();
-        template.read(fixer.process(FixTypes.STRUCTURE, nbttagcompound));
-        return template;
-    }
-
-    /**
-     * get a input stream for a schematic within a specif folder.
-     *
-     * @param folder        where to load it from.
-     * @param structureName name of the structure to load.
-     * @return the input stream or null
-     */
-    @Nullable
-    private static InputStream getStreamFromFolder(@Nullable final File folder, final String structureName)
-    {
-        if (folder == null)
-        {
-            return null;
-        }
-        final File nbtFile = new File(folder.getPath() + "/" + structureName + SCHEMATIC_EXTENSION);
-        final File blueprintFile = new File(folder.getPath() + "/" + structureName + SCHEMATIC_EXTENSION_NEW);
-        try
-        {
-            if (folder.exists())
-            {
-                //We need to check that we stay within the correct folder
-                if (!nbtFile.toURI().normalize().getPath().startsWith(folder.toURI().normalize().getPath()))
-                {
-                    Log.getLogger().error("Structure: Illegal structure name \"" + structureName + "\"");
-                    return null;
-                }
-                if (nbtFile.exists())
-                {
-                    return new FileInputStream(nbtFile);
-                }
-                else if (blueprintFile.exists())
-                {
-                    return new FileInputStream(blueprintFile);
-                }
-            }
-        }
-        catch (final FileNotFoundException e)
-        {
-            //we should will never go here
-            Log.getLogger().error("Structure.getStreamFromFolder", e);
-        }
-        return null;
-    }
-
-    /**
-     * Get the file representation of the cached schematics' folder.
-     *
-     * @return the folder for the cached schematics
-     */
-    public static List<File> getCachedSchematicsFolders()
-    {
-        final List<File> cachedSchems = new ArrayList<>();
-        for (final String origin : originFolders)
-        {
-            if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
-            {
-                if (Manager.getServerUUID() != null)
-                {
-                    cachedSchems.add(new File(Minecraft.getMinecraft().gameDir, origin + "/" + Manager.getServerUUID()));
-                }
-                else
-                {
-                    Log.getLogger().error("Manager.getServerUUID() => null this should not happen");
-                    return null;
-                }
-            }
-            else
-            {
-                cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID));
-            }
-        }
-        return cachedSchems;
-    }
-
-    /**
-     * get the schematic folder for the client.
-     *
-     * @return the client folder.
-     */
-    public static List<File> getClientSchematicsFolders()
-    {
-        final List<File> clientSchems = new ArrayList<>();
-        for (final String origin : originFolders)
-        {
-            clientSchems.add(new File(Minecraft.getMinecraft().gameDir, origin));
-        }
-        return clientSchems;
-    }
-
-    /**
-     * get a input stream for a schematic from jar.
-     *
-     * @param structureName name of the structure to load from the jar.
-     * @return the input stream or null
-     */
-    private static List<InputStream> getStreamsFromJar(final String structureName)
-    {
-        final List<InputStream> streamsFromJar = new ArrayList<>();
-        for (final String origin : originFolders)
-        {
-            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + SCHEMATIC_EXTENSION));
-            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + SCHEMATIC_EXTENSION_NEW));
-        }
-        return streamsFromJar;
-    }
-
-    /**
-     * Calculate the MD5 hash of a byte array
-     *
-     * @param bytes array
-     * @return the MD5 hash string or null
-     */
-    public static String calculateMD5(final byte[] bytes)
-    {
-        try
-        {
-            final MessageDigest md = MessageDigest.getInstance("MD5");
-            return DatatypeConverter.printHexBinary(md.digest(bytes));
-        }
-        catch (@NotNull final NoSuchAlgorithmException e)
-        {
-            Log.getLogger().trace(e);
-        }
-
-        return null;
-    }
-
-    /**
-     * Convert an InputStream into and array of bytes.
-     *
-     * @param stream to be converted to bytes array
-     * @return the array of bytes, array is size 0 when the stream is null
-     */
-    public static byte[] getStreamAsByteArray(final InputStream stream)
-    {
-        if (stream == null)
-        {
-            Log.getLogger().info("Structure.getStreamAsByteArray: stream is null this should not happen");
-            return new byte[0];
-        }
-        try
-        {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-            int nRead;
-            final byte[] data = new byte[BUFFER_SIZE];
-
-            while ((nRead = stream.read(data, 0, data.length)) != -1)
-            {
-                buffer.write(data, 0, nRead);
-            }
-            return buffer.toByteArray();
-        }
-        catch (@NotNull final IOException e)
-        {
-            Log.getLogger().trace(e);
-        }
-        return new byte[0];
-    }
-
-    /**
-     * Constuctor of Structure, tries to create a new structure.
-     * creates a plain Structure to append rendering later.
-     *
-     * @param world with world.
-     */
-    public Structure(@Nullable final World world)
-    {
-        super();
-    }
-
-    public static byte[] compress(final byte[] data)
-    {
-        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream(data.length);
-        try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream))
-        {
-            zipStream.write(data);
-        }
-        catch (@NotNull final IOException e)
-        {
-            Log.getLogger().error("Could not compress the data", e);
-        }
-        return byteStream.toByteArray();
-    }
-
-    public static byte[] uncompress(final byte[] data)
-    {
-        final byte[] buffer = new byte[BUFFER_SIZE];
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-             GZIPInputStream zipStream = new GZIPInputStream(byteStream))
-        {
-            int len;
-            while ((len = zipStream.read(buffer)) > 0)
-            {
-                out.write(buffer, 0, len);
-            }
-        }
-        catch (@NotNull final IOException e)
-        {
-            Log.getLogger().warn("Could not uncompress data", e);
-        }
-
-        return out.toByteArray();
-    }
-
-    /**
-     * get the Template from the structure.
-     *
-     * @return The templae for the structure
-     */
-    public Template getTemplate()
-    {
-        return this.template;
-    }
-
-    /**
-     * Set the template externally.
-     * @param template the template to set.
-     */
-    public void setTemplate(final Template template)
-    {
-        this.template = template;
+        this.blueprint = blueprint;
     }
 
     /**
@@ -569,164 +183,134 @@ public class Structure
     }
 
     /**
-     * Checks if the template is null.
+     * Checks if the blueprint is null.
      *
-     * @return true if the template is null.
+     * @return true if the blueprint is null.
      */
-    public boolean isTemplateMissing()
+    public boolean isBluePrintMissing()
     {
-        return this.template == null;
-    }
-
-    public Template.BlockInfo[] getBlockInfo()
-    {
-        Template.BlockInfo[] blockList = new Template.BlockInfo[this.template.blocks.size()];
-        blockList = this.template.blocks.toArray(blockList);
-        return blockList;
+        return this.blueprint == null;
     }
 
     /**
-     * Get entity array at position in world.
+     * Getter of the offset.
      *
-     * @param world the world.
-     * @param pos   the position.
-     * @return the entity array.
+     * @return the blockPos of the offset.
      */
-    public Entity[] getEntityInfo(final World world, final BlockPos pos)
+    public BlockPos getOffset()
     {
-        Template.EntityInfo[] entityInfoList = new Template.EntityInfo[this.template.entities.size()];
-        entityInfoList = this.template.blocks.toArray(entityInfoList);
+        return this.offset;
+    }
 
-        final Entity[] entityList = null;
+    /**
+     * Setter of the offset.
+     *
+     * @param pos the new offset.
+     */
+    public void setOffset(final BlockPos pos)
+    {
+        this.offset = pos;
+    }
 
-        for (int i = 0; i < entityInfoList.length; i++)
+    /**
+     * Getter of the IBlockState at a certain position.
+     *
+     * @param pos the position.
+     * @return the blockState.
+     */
+    @Nullable
+    public IBlockState getBlockState(@NotNull final BlockPos pos)
+    {
+        if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() || this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
-            final Entity finalEntity = EntityList.createEntityFromNBT(entityInfoList[i].entityData, world);
-            final Vec3d entityVec = entityInfoList[i].pos.add(new Vec3d(pos));
-            finalEntity.setPosition(entityVec.x, entityVec.y, entityVec.z);
+            return null;
         }
-
-        return entityList;
+        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getY()][pos.getZ()][pos.getX()] & 0xFFFF];
     }
 
     /**
-     * Get size of structure.
+     * Getter of the BlockInfo at a certain position.
      *
-     * @param rotation with rotation.
-     * @return size as blockPos (x = length, z = width, y = height).
+     * @param pos the position.
+     * @return the blockState.
      */
-    public BlockPos getSize(final Rotation rotation)
+    @NotNull
+    public BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        return this.template.transformedSize(rotation);
+        final IBlockState state = getBlockState(pos);
+        final NBTTagCompound compound = this.getTileEntityData(pos);
+        return new BlockInfo(pos, state, compound);
     }
 
+    /**
+     * Getter of the EntityInfo at a certain position.
+     *
+     * @param pos the position.
+     * @return the blockState.
+     */
+    @Nullable
+    public NBTTagCompound getTileEntityData(@NotNull final BlockPos pos)
+    {
+        if (this.blueprint.getTileEntities().length <= pos.getY() || this.blueprint.getTileEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getTileEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
+        {
+            return null;
+        }
+        return this.blueprint.getTileEntities()[pos.getY()][pos.getZ()][pos.getX()];
+    }
+
+    /**
+     * Getter of the EntityInfo at a certain position.
+     *
+     * @param pos the position.
+     * @return the blockState.
+     */
+    @Nullable
+    public NBTTagCompound getEntityData(@NotNull final BlockPos pos)
+    {
+        if (this.blueprint.getEntities().length <= pos.getY() || this.blueprint.getEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
+        {
+            return null;
+        }
+        return this.blueprint.getEntities()[pos.getY()][pos.getZ()][pos.getX()];
+    }
+
+    /**
+     * Getter of the width.
+     *
+     * @return the width.
+     */
+    public int getWidth()
+    {
+        return this.blueprint.getSizeX();
+    }
+
+    /**
+     * Getter of the length.
+     *
+     * @return the length
+     */
+    public int getLength()
+    {
+        return this.blueprint.getSizeZ();
+    }
+
+    /**
+     * Getter of the height.
+     *
+     * @return the height
+     */
+    public int getHeight()
+    {
+        return this.blueprint.getSizeY();
+    }
+
+    /**
+     * Set the placement settings of the structure.
+     * @param settings the settings to set.
+     */
     public void setPlacementSettings(final PlacementSettings settings)
     {
         this.settings = settings;
-    }
-
-    /**
-     * Get blockInfo of structure with a specific setting.
-     *
-     * @param settings the setting.
-     * @return the block info array.
-     */
-    public ImmutableList<Template.BlockInfo> getBlockInfoWithSettings(final PlacementSettings settings)
-    {
-        final ImmutableList.Builder<Template.BlockInfo> builder = ImmutableList.builder();
-
-        this.template.blocks.forEach(blockInfo -> {
-            final IBlockState finalState = blockInfo.blockState.withMirror(settings.getMirror()).withRotation(settings.getRotation());
-            final BlockPos finalPos = Template.transformedBlockPos(settings, blockInfo.pos);
-            final Template.BlockInfo finalInfo = new Template.BlockInfo(finalPos, finalState, blockInfo.tileentityData);
-            builder.add(finalInfo);
-        });
-
-        return builder.build();
-    }
-
-    /**
-     * Get entity info with specific setting.
-     *
-     * @param entityInfo the entity to transform.
-     * @param world      world the entity is in.
-     * @param pos        the position it is at.
-     * @param settings   the settings.
-     * @return the entity info aray.
-     */
-    public Template.EntityInfo transformEntityInfoWithSettings(final Template.EntityInfo entityInfo, final World world, final BlockPos pos, final PlacementSettings settings)
-    {
-        final Entity finalEntity = EntityList.createEntityFromNBT(entityInfo.entityData, world);
-
-        //err might be here? only use pos? or don't add?
-        final Vec3d entityVec = Structure.transformedVec3d(settings, entityInfo.pos).add(new Vec3d(pos));
-
-        if (finalEntity != null)
-        {
-            finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(settings.getMirror()) - NINETY_DEGREES);
-            final double rotationYaw
-              = finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - (double) finalEntity.getRotatedYaw(settings.getRotation()));
-
-            finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
-              (float) rotationYaw, finalEntity.rotationPitch);
-
-            final NBTTagCompound nbttagcompound = new NBTTagCompound();
-            finalEntity.writeToNBTOptional(nbttagcompound);
-            return new Template.EntityInfo(entityInfo.pos, entityInfo.blockPos, nbttagcompound);
-        }
-
-        return null;
-    }
-
-    /**
-     * Transform a Vec3d with placement settings.
-     *
-     * @param settings the settings.
-     * @param vec      the vector.
-     * @return the new vector.
-     */
-    public static Vec3d transformedVec3d(final PlacementSettings settings, final Vec3d vec)
-    {
-        final Mirror mirrorIn = settings.getMirror();
-        final Rotation rotationIn = settings.getRotation();
-        double xCoord = vec.x;
-        final double yCoord = vec.y;
-        double zCoord = vec.z;
-        boolean flag = true;
-
-        switch (mirrorIn)
-        {
-            case LEFT_RIGHT:
-                zCoord = 1.0D - zCoord;
-                break;
-            case FRONT_BACK:
-                xCoord = 1.0D - xCoord;
-                break;
-            default:
-                flag = false;
-        }
-
-        switch (rotationIn)
-        {
-            case COUNTERCLOCKWISE_90:
-                return new Vec3d(zCoord, yCoord, 1.0D - xCoord);
-            case CLOCKWISE_90:
-                return new Vec3d(1.0D - zCoord, yCoord, xCoord);
-            case CLOCKWISE_180:
-                return new Vec3d(1.0D - xCoord, yCoord, 1.0D - zCoord);
-            default:
-                return flag ? new Vec3d(xCoord, yCoord, zCoord) : vec;
-        }
-    }
-
-    /**
-     * Get all additional entities.
-     *
-     * @return list of entities.
-     */
-    public List<Template.EntityInfo> getTileEntities()
-    {
-        return this.template.entities;
     }
 
     /**
@@ -737,5 +321,240 @@ public class Structure
     public PlacementSettings getSettings()
     {
         return this.settings;
+    }
+
+    /**
+     * Rotates the structure x times.
+     *
+     * @param rotation  the rotation.
+     * @param world     world it's rotating it in.
+     * @param rotatePos position to rotateWithMirror it around.
+     * @param mirror    the mirror to rotate with.
+     */
+    public void rotate(final Rotation rotation, @NotNull final World world, @NotNull final BlockPos rotatePos, @NotNull final Mirror mirror)
+    {
+        this.offset = this.blueprint.rotateWithMirror(rotation, rotatePos, mirror);
+    }
+
+    /**
+     * Increment progressPos.
+     *
+     * @return false if the all the block have been incremented through.
+     */
+    public boolean incrementBlock()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            this.progressPos.setPos(-1, 0, 0);
+        }
+
+        this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
+        if (this.progressPos.getX() == this.blueprint.getSizeX())
+        {
+            this.progressPos.setPos(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
+            if (this.progressPos.getZ() == this.blueprint.getSizeZ())
+            {
+                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
+                if (this.progressPos.getY() == this.blueprint.getSizeY())
+                {
+                    this.reset();
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Decrement progressPos.
+     *
+     * @return false if progressPos can't be decremented any more.
+     */
+    public boolean decrementBlock()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            this.progressPos.setPos(this.blueprint.getSizeX(), this.blueprint.getSizeY() - 1, this.blueprint.getSizeZ() - 1);
+        }
+
+        this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
+        if (this.progressPos.getX() == -1)
+        {
+            this.progressPos.setPos(this.blueprint.getSizeX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
+            if (this.progressPos.getZ() == -1)
+            {
+                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, this.blueprint.getSizeZ() - 1);
+                if (this.progressPos.getY() == -1)
+                {
+                    this.reset();
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Find the next block that doesn't already exist in the world.
+     *
+     * @return true if a new block is found and false if there is no next block.
+     */
+    public boolean findNextBlock()
+    {
+        int count = 0;
+        do
+        {
+            count++;
+            if (!this.incrementBlock())
+            {
+                return false;
+            }
+        }
+        while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) && count < Configurations.gameplay.maxBlocksChecked);
+
+        return true;
+    }
+
+    /**
+     * Base position of the structure.
+     *
+     * @return BlockPos representing where the structure is.
+     */
+    public BlockPos getPosition()
+    {
+        if (this.position == null)
+        {
+            return new BlockPos(0, 0, 0);
+        }
+        return this.position;
+    }
+
+    /**
+     * Calculate the item needed to place the current block in the structure.
+     *
+     * @return an item or null if not initialized.
+     */
+    @Nullable
+    public Item getItem()
+    {
+        @Nullable final Block block = this.getBlock();
+        @Nullable final IBlockState blockState = this.getBlockstate();
+        if (block == null || blockState == null || block == Blocks.AIR || blockState.getMaterial().isLiquid())
+        {
+            return null;
+        }
+
+        final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
+
+        if (!ItemStackUtils.isEmpty(stack))
+        {
+            return stack.getItem();
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate the current block in the structure.
+     *
+     * @return the current block or null if not initialized.
+     */
+    @Nullable
+    public Block getBlock()
+    {
+        @Nullable final IBlockState state = this.getBlockState(getLocalPosition());
+        if (state == null)
+        {
+            return null;
+        }
+        return state.getBlock();
+    }
+
+    /**
+     * Calculate the current blockState in the structure.
+     * @return the current blockState or null if not there.
+     */
+    @Nullable
+    public IBlockState getBlockstate()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+        return this.getBlockState(this.progressPos);
+    }
+
+    /**
+     * Reset the progressPos.
+     */
+    public void reset()
+    {
+        BlockPosUtil.set(this.progressPos, NULL_POS);
+    }
+
+    /**
+     * @return progressPos as an immutable.
+     */
+    @NotNull
+    public BlockPos getLocalPosition()
+    {
+        return this.progressPos.toImmutable();
+    }
+
+    /**
+     * Change the current progressPos. Used when loading progress.
+     *
+     * @param localPosition new progressPos.
+     */
+    public void setLocalPosition(@NotNull final BlockPos localPosition)
+    {
+        BlockPosUtil.set(this.progressPos, localPosition);
+    }
+
+    /**
+     * @return World position.
+     */
+    public BlockPos getBlockPosition()
+    {
+        return this.progressPos.add(this.getOffsetPosition());
+    }
+
+    /**
+     * @return Min world position for the structure.
+     */
+    public BlockPos getOffsetPosition()
+    {
+        return this.position.subtract(this.getOffset());
+    }
+
+    /**
+     * Set the position, used when loading.
+     *
+     * @param position Where the structure is in the world.
+     */
+    public void setPosition(final BlockPos position)
+    {
+        this.position = position;
+    }
+
+    /**
+     * Get the world instance we're placing in.
+     * @return the world.
+     */
+    public World getWorld()
+    {
+        return world;
+    }
+
+    /**
+     * Get the size and calculate it from a rotation.
+     * @param rotation the rotation.
+     * @return the rotated size.
+     */
+    public BlockPos getSize(final Rotation rotation, final Mirror mirror)
+    {
+        return Blueprint.transformedBlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ(), mirror, rotation);
     }
 }

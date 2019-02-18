@@ -28,13 +28,14 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.ldtteam.structurize.util.StructureLoadingUtils;
+import com.ldtteam.structurize.util.StructureUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.MathUtils;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structures.helpers.Structure;
 
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -50,7 +51,6 @@ public final class Structures
      * Extension used by the schematic files.
      */
     public static final String SCHEMATIC_EXTENSION_NEW = ".blueprint";
-    public static final String SCHEMATIC_EXTENSION = ".nbt";
 
     /**
      * Storage location for the "normal" schematics.
@@ -159,7 +159,7 @@ public final class Structures
             loadSchematicsForPrefix(schematicsFolder.toPath(), SCHEMATICS_PREFIX);
         }
 
-        for (final File cachedSchems : Structure.getCachedSchematicsFolders())
+        for (final File cachedSchems : StructureLoadingUtils.getCachedSchematicsFolders())
         {
             if (cachedSchems != null)
             {
@@ -183,7 +183,7 @@ public final class Structures
     {
         URI uri;
 
-        for (final String origin : Structure.originFolders)
+        for (final String origin : StructureLoadingUtils.originFolders)
         {
             try
             {
@@ -240,7 +240,7 @@ public final class Structures
 
         schematicsMap.remove(SCHEMATICS_SCAN);
 
-        for (final File clientSchems : Structure.getClientSchematicsFolders())
+        for (final File clientSchems : StructureLoadingUtils.getClientSchematicsFolders())
         {
             checkDirectory(clientSchems.toPath().resolve(SCHEMATICS_SCAN).toFile());
             loadSchematicsForPrefix(clientSchems.toPath(), SCHEMATICS_SCAN);
@@ -276,8 +276,8 @@ public final class Structures
             while (it.hasNext())
             {
                 final Path path = it.next();
-                final String fileExtension = path.toString().endsWith(SCHEMATIC_EXTENSION_NEW) ? SCHEMATIC_EXTENSION_NEW : SCHEMATIC_EXTENSION;
-                if (path.toString().endsWith(SCHEMATIC_EXTENSION) || path.toString().endsWith(SCHEMATIC_EXTENSION_NEW))
+                final String fileExtension = SCHEMATIC_EXTENSION_NEW;
+                if (path.toString().endsWith(SCHEMATIC_EXTENSION_NEW))
                 {
                     String relativePath = path.toString().substring(basePath.toString().length()).split("\\" + fileExtension)[0];
                     if (!SCHEMATICS_SEPARATOR.equals(path.getFileSystem().getSeparator()))
@@ -290,11 +290,11 @@ public final class Structures
                     }
 
                     final StructureName structureName = new StructureName(relativePath);
-                	fileMap.put(structureName.toString(), fileExtension);
-                    final String md5 = Structure.calculateMD5(Structure.getStream(relativePath));
+                    fileMap.put(structureName.toString(), fileExtension);
+                    final String md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(relativePath));
                     if (md5 == null)
                     {
-                    	fileMap.remove(structureName.toString());
+                        fileMap.remove(structureName.toString());
                         Log.getLogger().error("Structures: " + structureName + " with md5 null.");
                     }
                     else if (isSchematicSizeValid(structureName.toString()))
@@ -322,8 +322,8 @@ public final class Structures
      */
     private static boolean isSchematicSizeValid(@NotNull final String structureName)
     {
-        final byte[] data = Structure.getStreamAsByteArray(Structure.getStream(structureName));
-        final byte[] compressed = Structure.compress(data);
+        final byte[] data = StructureLoadingUtils.getStreamAsByteArray(StructureLoadingUtils.getStream(structureName));
+        final byte[] compressed = StructureUtils.compress(data);
 
         if (compressed == null)
         {
@@ -433,7 +433,7 @@ public final class Structures
         }
 
 
-        for (final File clientSchems : Structure.getClientSchematicsFolders())
+        for (final File clientSchems : StructureLoadingUtils.getClientSchematicsFolders())
         {
             final File structureFile = clientSchems.toPath().resolve(structureName.toString() + getFileExtension(structureName.toString())).toFile();
             final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + getFileExtension(structureName.toString())).toFile();
@@ -511,9 +511,9 @@ public final class Structures
             return false;
         }
 
-        for (final File clientSchems : Structure.getClientSchematicsFolders())
+        for (final File clientSchems : StructureLoadingUtils.getClientSchematicsFolders())
         {
-            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
+            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION_NEW).toFile();
             if (structureFile.delete())
             {
                 md5Map.remove(structureName.toString());
@@ -762,11 +762,11 @@ public final class Structures
             return false;
         }
 
-        final String md5 = Structure.calculateMD5(bytes);
+        final String md5 = StructureUtils.calculateMD5(bytes);
         if (md5 != null)
         {
             Log.getLogger().info("Structures.handleSaveSchematicMessage: received new schematic md5:" + md5);
-            for (final File cachedSchems : Structure.getCachedSchematicsFolders())
+            for (final File cachedSchems : StructureLoadingUtils.getCachedSchematicsFolders())
             {
                 final File schematicFile = cachedSchems.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION_NEW).toFile();
                 checkDirectory(schematicFile.getParentFile());
@@ -879,9 +879,8 @@ public final class Structures
             return false;
         }
 
-        final File structureFileNBT = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION).toFile();
         final File structureFileBlueprint = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION_NEW).toFile();
-        if (structureFileNBT.delete() || structureFileBlueprint.delete())
+        if (structureFileBlueprint.delete())
         {
             md5Map.remove(structureName.toString());
             fileMap.remove(structureName.toString());

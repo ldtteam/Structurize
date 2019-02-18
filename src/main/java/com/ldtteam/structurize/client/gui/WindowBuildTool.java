@@ -13,6 +13,8 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
+import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import net.minecraft.block.Block;
@@ -22,7 +24,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -294,11 +295,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String name = sections.get(index);
             if (Structures.SCHEMATICS_SCAN.equals(name))
             {
-                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.scans");
+                return LanguageHandler.format("com.structurize.coremod.gui.buildtool.scans");
             }
             else if (Structures.SCHEMATICS_PREFIX.equals(name))
             {
-                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.decorations");
+                return LanguageHandler.format("com.structurize.coremod.gui.buildtool.decorations");
             }
             //should be a something else.
             return getSectionName(name);
@@ -784,16 +785,16 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
 
         final StructureName structureName = new StructureName(sname);
-        final Structure structure = new Structure(null,
+        final Structure structure = new Structure(Minecraft.getMinecraft().world,
           structureName.toString(),
-          new PlacementSettings().setRotation(BlockUtils.getRotation(Settings.instance.getRotation())).setMirror(Settings.instance.getMirror()));
+          new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
 
         final String md5 = Structures.getMD5(structureName.toString());
-        if (structure.isTemplateMissing() || !structure.isCorrectMD5(md5))
+        if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
         {
-            if (structure.isTemplateMissing())
+            if (structure.isBluePrintMissing())
             {
-                Log.getLogger().info("Template structure " + structureName + " missing");
+                Log.getLogger().info("Blueprint structure " + structureName + " missing");
             }
             else
             {
@@ -841,11 +842,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String serverSideName = Structures.SCHEMATICS_CACHE + '/' + md5;
             if (!Structures.hasMD5(new StructureName(serverSideName)))
             {
-                final InputStream stream = Structure.getStream(structureName.toString());
+                final InputStream stream = StructureLoadingUtils.getStream(structureName.toString());
                 if (stream != null)
                 {
                     final UUID id = UUID.randomUUID();
-                    final byte[] structureAsByteArray = Structure.getStreamAsByteArray(stream);
+                    final byte[] structureAsByteArray = StructureLoadingUtils.getStreamAsByteArray(stream);
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {
@@ -890,7 +891,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                   serverSideName,
                   structureName.toString(),
                   Settings.instance.getPosition(),
-                  Settings.instance.getRotation(),
+                  BlockUtils.getRotation(Settings.instance.getRotation()),
                   false,
                   Settings.instance.getMirror(),
                   complete, null));
@@ -932,11 +933,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String serverSideName = Structures.SCHEMATICS_CACHE + '/' + md5;
             if (!Structures.hasMD5(new StructureName(serverSideName)))
             {
-                final InputStream stream = Structure.getStream(structureName.toString());
+                final InputStream stream = StructureLoadingUtils.getStream(structureName.toString());
                 if (stream != null)
                 {
                     final UUID id = UUID.randomUUID();
-                    final byte[] structureAsByteArray = Structure.getStreamAsByteArray(stream);
+                    final byte[] structureAsByteArray = StructureLoadingUtils.getStreamAsByteArray(stream);
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {
@@ -1027,7 +1028,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
           name.toString(),
           name.toString(),
           Settings.instance.getPosition(),
-          Settings.instance.getRotation(),
+          BlockUtils.getRotation(Settings.instance.getRotation()),
           false,
           Settings.instance.getMirror(),
           complete, Settings.instance.getFreeMode()));
@@ -1101,10 +1102,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 settings.setRotation(Rotation.NONE);
         }
         Settings.instance.setRotation(rotation);
-
+        settings.setMirror(Settings.instance.getMirror());
         if (Settings.instance.getActiveStructure() != null)
         {
-            Settings.instance.getActiveStructure().setPlacementSettings(settings.setMirror(Settings.instance.getMirror()));
+            Settings.instance.getActiveStructure().setPlacementSettings(settings);
         }
     }
 
