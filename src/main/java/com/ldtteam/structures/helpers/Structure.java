@@ -585,6 +585,6 @@ public class Structure
      */
     public BlockPos getSize(final Rotation rotation, final Mirror mirror)
     {
-        return Blueprint.transformedBlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ(), mirror, rotation);
+        return Blueprint.transformedSize(new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ()), rotation);
     }
 }
