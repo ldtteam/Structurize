@@ -479,7 +479,7 @@ public class Structure
     @Nullable
     public Block getBlock()
     {
-        @Nullable final IBlockState state = this.getBlockState(getLocalPosition());
+        @Nullable final IBlockState state = this.getBlockState(progressPos);
         if (state == null)
         {
             return null;
