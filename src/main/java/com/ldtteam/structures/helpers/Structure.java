@@ -479,6 +479,11 @@ public class Structure
     @Nullable
     public Block getBlock()
     {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+
         @Nullable final IBlockState state = this.getBlockState(progressPos);
         if (state == null)
         {
