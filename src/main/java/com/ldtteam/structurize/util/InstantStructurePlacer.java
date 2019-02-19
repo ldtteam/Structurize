@@ -32,7 +32,7 @@ public class InstantStructurePlacer
     /**
      * The structure of this placer.
      */
-    private final Structure structure;
+    protected final Structure structure;
 
     /**
      * If complete or not.
