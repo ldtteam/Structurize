@@ -177,7 +177,7 @@ public class BlueprintUtil
 
         // Adding Tile Entities
         final NBTTagList finishedTes = new NBTTagList();
-        final NBTTagCompound[] tes = Arrays.stream(schem.getTileEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).toArray(NBTTagCompound[]::new);
+        final NBTTagCompound[] tes = Arrays.stream(schem.getTileEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(NBTTagCompound[]::new);
         for (final NBTTagCompound te : tes)
         {
             finishedTes.appendTag(te);
@@ -186,7 +186,7 @@ public class BlueprintUtil
 
         // Adding Entities
         final NBTTagList finishedEntities = new NBTTagList();
-        final NBTTagCompound[] entities = Arrays.stream(schem.getEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).toArray(NBTTagCompound[]::new);
+        final NBTTagCompound[] entities = Arrays.stream(schem.getEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(NBTTagCompound[]::new);
         for (final NBTTagCompound entity : entities)
         {
             finishedEntities.appendTag(entity);
