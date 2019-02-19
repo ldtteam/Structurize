@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.compat.optifine;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structures.client.TemplateTessellator;
+import com.ldtteam.structures.client.BlueprintTessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -118,7 +118,7 @@ public class OptifineCompat
      * Checks if the compat is enabled or not.
      */
     @SideOnly(Side.CLIENT)
-    public void preTemplateDraw()
+    public void preBlueprintDraw()
     {
         if (!enableOptifine)
         {
@@ -155,7 +155,7 @@ public class OptifineCompat
      * Checks if the compat is enabled or not.
      */
     @SideOnly(Side.CLIENT)
-    public void postTemplateDraw()
+    public void postBlueprintDraw()
     {
         if (!enableOptifine)
         {
@@ -230,7 +230,7 @@ public class OptifineCompat
      * @param tessellator The tessellator that is about to be uploaded to the GPU.
      */
     @SideOnly(Side.CLIENT)
-    public void beforeBuilderUpload(TemplateTessellator tessellator)
+    public void beforeBuilderUpload(BlueprintTessellator tessellator)
     {
         if (!enableOptifine)
         {

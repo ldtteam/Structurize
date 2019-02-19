@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
@@ -24,7 +25,6 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structures.helpers.Structure;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -201,7 +201,7 @@ public class ItemScanTool extends AbstractItemStructurize
 
         final StructureName structureName = new StructureName(prefix, "backup", fileName);
 
-        final List<File> folder = Structure.getCachedSchematicsFolders();
+        final List<File> folder = StructureLoadingUtils.getCachedSchematicsFolders();
         if (folder == null || folder.isEmpty())
         {
             Log.getLogger().warn("Unable to save schematic in cache since no folder was found.");
@@ -216,7 +216,7 @@ public class ItemScanTool extends AbstractItemStructurize
 
         try (OutputStream outputstream = new FileOutputStream(file))
         {
-        	CompressedStreamTools.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
+            CompressedStreamTools.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
         }
         catch (Exception e)
         {

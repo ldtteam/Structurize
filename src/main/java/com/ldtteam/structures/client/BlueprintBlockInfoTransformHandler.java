@@ -1,6 +1,6 @@
 package com.ldtteam.structures.client;
 
-import net.minecraft.world.gen.structure.template.Template;
+import com.ldtteam.structurize.util.BlockInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -9,20 +9,20 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Registry and handler for modifying template information with regards to blocks.
+ * Registry and handler for modifying blueprint information with regards to blocks.
  */
-public class TemplateBlockInfoTransformHandler
+public class BlueprintBlockInfoTransformHandler
 {
-    private static TemplateBlockInfoTransformHandler ourInstance = new TemplateBlockInfoTransformHandler();
+    private static BlueprintBlockInfoTransformHandler ourInstance = new BlueprintBlockInfoTransformHandler();
 
-    public static TemplateBlockInfoTransformHandler getInstance()
+    public static BlueprintBlockInfoTransformHandler getInstance()
     {
         return ourInstance;
     }
 
-    private Map<Predicate<Template.BlockInfo>, Function<Template.BlockInfo, Template.BlockInfo>> blockInfoTransformHandler = new HashMap<>();
+    private Map<Predicate<BlockInfo>, Function<BlockInfo, BlockInfo>> blockInfoTransformHandler = new HashMap<>();
 
-    private TemplateBlockInfoTransformHandler()
+    private BlueprintBlockInfoTransformHandler()
     {
     }
 
@@ -32,7 +32,7 @@ public class TemplateBlockInfoTransformHandler
      * @param transformPredicate The predicate to check if this transform function needs to be applied.
      * @param transformHandler The tranformer.
      */
-    public void AddTransformHandler(@NotNull final Predicate<Template.BlockInfo> transformPredicate, @NotNull final Function<Template.BlockInfo, Template.BlockInfo> transformHandler)
+    public void AddTransformHandler(@NotNull final Predicate<BlockInfo> transformPredicate, @NotNull final Function<BlockInfo, BlockInfo> transformHandler)
     {
         blockInfoTransformHandler.put(transformPredicate, transformHandler);
     }
@@ -43,12 +43,12 @@ public class TemplateBlockInfoTransformHandler
      * @param blockInfo The block info to transform
      * @return The transformed blockinfo.
      */
-    public Template.BlockInfo Transform(@NotNull final Template.BlockInfo blockInfo)
+    public BlockInfo Transform(@NotNull final BlockInfo blockInfo)
     {
         return getTransformHandler(blockInfo).apply(blockInfo);
     }
 
-    private Function<Template.BlockInfo, Template.BlockInfo> getTransformHandler(@NotNull final Template.BlockInfo blockInfo)
+    private Function<BlockInfo, BlockInfo> getTransformHandler(@NotNull final BlockInfo blockInfo)
     {
         return blockInfoTransformHandler.keySet().stream().filter(p -> p.test(blockInfo)).findFirst().map(p -> blockInfoTransformHandler.get(p)).orElse(Function.identity());
     }

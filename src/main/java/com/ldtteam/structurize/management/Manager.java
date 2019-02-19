@@ -6,21 +6,22 @@ import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.ScanToolOperation;
-import com.ldtteam.structurize.util.StructureWrapper;
+import com.ldtteam.structurize.util.StructurePlacementUtils;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.gen.structure.template.Template;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -43,7 +44,7 @@ public final class Manager
     /**
      * List of scanTool operations.
      */
-    private static LinkedList<ScanToolOperation> scanToolOperationPool = new LinkedList<ScanToolOperation>();
+    private static LinkedList<ScanToolOperation> scanToolOperationPool = new LinkedList<>();
 
     /**
      * Pseudo unique id for the server
@@ -129,10 +130,10 @@ public final class Manager
       final boolean hollow,
       final EntityPlayerMP player,
       final Mirror mirror,
-      final int rotation)
+      final Rotation rotation)
     {
-        final Template template = Manager.getStructureFromFormula(width, length, height, frequency, shape, inputBlock, inputFillBlock, hollow);;
-        StructureWrapper.loadAndPlaceShapeWithRotation(server, template, pos, rotation,mirror, player);
+        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, shape, inputBlock, inputFillBlock, hollow);
+        StructurePlacementUtils.loadAndPlaceShapeWithRotation(server, blueprint, pos, rotation, mirror, player);
     }
 
     /**
@@ -146,7 +147,7 @@ public final class Manager
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
      */
-    public static Template getStructureFromFormula(
+    public static Blueprint getStructureFromFormula(
       final int width,
       final int length,
       final int height,
@@ -155,39 +156,38 @@ public final class Manager
       final ItemStack inputBlock,
       final ItemStack inputFillBlock, final boolean hollow)
     {
-        final Template template = new Template();
+        final Blueprint blueprint;
         final IBlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock);
         final IBlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock);
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {
-            generateSphere(template, height / 2, mainBlock, fillBlock, hollow, shape);
+            blueprint = generateSphere(height / 2, mainBlock, fillBlock, hollow, shape);
         }
         else if (shape == Shape.CUBE)
         {
-            generateCube(template, height, width, length, mainBlock, fillBlock, hollow);
+            blueprint = generateCube(height, mainBlock, fillBlock, hollow);
         }
         else if (shape == Shape.WAVE)
         {
-            generateWave(template, height, width, length, frequency, mainBlock, true);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, true);
         }
         else if (shape == Shape.WAVE_3D)
         {
-            generateWave(template, height, width, length, frequency, mainBlock, false);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, false);
         }
         else if (shape == Shape.CYLINDER)
         {
-            generateCylinder(template, height, width, mainBlock, fillBlock, hollow);
+            blueprint = generateCylinder(height, width, mainBlock, fillBlock, hollow);
         }
-        else if (shape == Shape.DIAMOND || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID)
+        else
         {
-            generatePyramid(template, height, mainBlock, fillBlock, hollow, shape);
+            blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape);
         }
-        return template;
+        return blueprint;
     }
 
-    private static void generatePyramid(
-      final Template template,
+    private static Blueprint generatePyramid(
       final int inputHeight,
       final IBlockState block,
       final IBlockState fillBlock,
@@ -195,44 +195,45 @@ public final class Manager
       final Shape shape)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
+        final int hHeight = height/2;
+
         final Map<BlockPos, IBlockState> posList = new HashMap<>();
-        for (int y = 0; y < height / 2; y++)
+        for (int y = 0; y < hHeight; y++)
         {
-            for (int x = 0; x < height / 2; x++)
+            for (int x = 0; x < hHeight; x++)
             {
-                for (int z = 0; z < height / 2; z++)
+                for (int z = 0; z < hHeight; z++)
                 {
                     if (((x == z && x >= y) || (x == y && x >= z) || ((hollow ? y == z : y >= z) && y >= x)) && x * z <= y * y)
                     {
                         final IBlockState blockToUse = x == z && x >= y || x == y || y == z ? block : fillBlock;
                         if (shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
                         {
-                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, y,  hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, y, hHeight - z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, y, hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, y, hHeight - z), blockToUse, posList);
                         }
 
                         if (shape == Shape.PYRAMID || shape == Shape.DIAMOND)
                         {
-                            addPosToList(new BlockPos(x, -y + height - 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, -y + height - 2, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y + height - 2, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y + height - 2, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight + x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight - z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight + z), blockToUse, posList);
+                            addPosToList(new BlockPos(hHeight - x, - y + height - (shape == Shape.DIAMOND ? 2 : inputHeight), hHeight - z), blockToUse, posList);
                         }
                     }
                 }
             }
         }
 
-        template.size = new BlockPos(height, height, height);
-        template.blocks.addAll(posList.entrySet().stream().map(pos -> new Template.BlockInfo(pos.getKey(), pos.getValue(), null)).collect(Collectors.toList()));
+        final Blueprint blueprint = new Blueprint((short)height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short)height);
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
     }
 
     /**
-     * Generates a cube with the specific size and adds it to the template provided.
-     *
-     * @param template  the provided template.
+     * Generates a cube with the specific size and adds it to the blueprint provided.
      * @param height    the height.
      * @param width     the width.
      * @param length    the length.
@@ -240,44 +241,44 @@ public final class Manager
      * @param fillBlock the fill block.
      * @param hollow    if full.
      */
-    private static void generateCube(
-      final Template template,
+    private static Blueprint generateCube(
       final int height,
-      final int width,
-      final int length,
       final IBlockState block,
       final IBlockState fillBlock,
       final boolean hollow)
     {
+        final Map<BlockPos, IBlockState> posList = new HashMap<>();
         for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < height; x++)
             {
-                for (int z = 0; z < length; z++)
+                for (int z = 0; z < height; z++)
                 {
-                    if (!hollow || ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1)))
+                    if ((x == 0 || x == height - 1) || (y == 0 || y == height - 1) || (z == 0 || z == height - 1))
                     {
-                        final IBlockState blockToUse = ((x == 0 || x == width - 1) || (y == 0 || y == height - 1) || (z == 0 || z == length - 1)) ? block : fillBlock;
-                        template.blocks.add(new Template.BlockInfo(new BlockPos(x, y, z), blockToUse, null));
+                        posList.put(new BlockPos(x, y, z), block);
+                    }
+                    else
+                    {
+                        posList.put(new BlockPos(x, y, z), hollow ? Blocks.AIR.getDefaultState() : fillBlock);
                     }
                 }
             }
         }
-        template.size = new BlockPos(width, height, length);
+        final Blueprint blueprint = new Blueprint((short)height, (short) height, (short)height);
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
     }
 
     /**
-     * Generates a hollow sphere with the specific size and adds it to the template provided.
-     *
-     * @param template  the provided template.
+     * Generates a hollow sphere with the specific size and adds it to the blueprint provided.
      * @param height    the height.
      * @param block     the block to use.
      * @param fillBlock the fill block.
      * @param hollow    if hollow.
      * @param shape     the type of shape.
      */
-    private static void generateSphere(
-      final Template template,
+    private static Blueprint generateSphere(
       final int height,
       final IBlockState block,
       final IBlockState fillBlock,
@@ -297,38 +298,37 @@ public final class Manager
                         final IBlockState blockToUse = (sum > height * height - 2 * height) ? block : fillBlock;
                         if (shape == Shape.HALF_SPHERE || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height + y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height + y, height - z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height + y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height + y, height - z), blockToUse, posList);
                         }
                         if (shape == Shape.BOWL || shape == Shape.SPHERE)
                         {
-                            addPosToList(new BlockPos(x, -y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(x, -y, -z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y, z), blockToUse, posList);
-                            addPosToList(new BlockPos(-x, -y, -z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height - y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height + x, height - y, height - z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height - y, height + z), blockToUse, posList);
+                            addPosToList(new BlockPos(height - x, height - y, height - z), blockToUse, posList);
                         }
                     }
                 }
             }
         }
-        template.size = new BlockPos(height * 2, height * 2, height * 2);
-        template.blocks.addAll(posList.entrySet().stream().map(pos -> new Template.BlockInfo(pos.getKey(), pos.getValue(), null)).collect(Collectors.toList()));
+
+        final Blueprint blueprint = new Blueprint((short)((height + 2) * 2), (short) ((height + 2) * 2), (short)((height + 2) * 2));
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
     }
 
     /**
-     * Generates a cube with the specific size and adds it to the template provided.
-     *
-     * @param template the provided template.
+     * Generates a cube with the specific size and adds it to the blueprint provided.
      * @param height   the height.
      * @param width    the width.
      * @param block    the block to use.
      * @param fillBlock the fill block.
      * @param hollow   if full.
      */
-    private static void generateCylinder(
-      final Template template,
+    private static Blueprint generateCylinder(
       final int height,
       final int width,
       final IBlockState block,
@@ -346,30 +346,28 @@ public final class Manager
                     if (sum < (width * width) / 4 && (!hollow || sum > (width * width) / 4 - width))
                     {
                         final IBlockState blockToUse = (sum > (width * width) / 4 - width) ? block : fillBlock;
-                        addPosToList(new BlockPos(x, y, z), blockToUse, posList);
-                        addPosToList(new BlockPos(x, y, -z), blockToUse, posList);
-                        addPosToList(new BlockPos(-x, y, z), blockToUse, posList);
-                        addPosToList(new BlockPos(-x, y, -z), blockToUse, posList);
+                        addPosToList(new BlockPos(width + x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width + x, y, width - z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width - z), blockToUse, posList);
                     }
                 }
             }
         }
 
-        template.size = new BlockPos(width, height, width);
-        template.blocks.addAll(posList.entrySet().stream().map(pos -> new Template.BlockInfo(pos.getKey(), pos.getValue(), null)).collect(Collectors.toList()));
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
     }
 
     /**
-     * Generates a wave with the specific size and adds it to the template provided.
-     *
-     * @param template the provided template.
+     * Generates a wave with the specific size and adds it to the blueprint provided.
      * @param height   the height.
      * @param width    the width.
      * @param length   the length.
      * @param block    the block to use.
      */
-    private static void generateWave(
-      final Template template,
+    private static Blueprint generateWave(
       final int height,
       final int width,
       final int length,
@@ -383,21 +381,22 @@ public final class Manager
             for (int z = 0; z < width; z++)
             {
                 final double yVal = (flat ? 0 : z) + (double) frequency * Math.sin(x / (double) height);
-                addPosToList(new BlockPos(x, yVal, z), block, posList);
+                addPosToList(new BlockPos(x, yVal + frequency, (flat ? 0 : width) + z), block, posList);
                 if (!flat)
                 {
-                    addPosToList(new BlockPos(x, yVal, -z), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1, z - width + 1), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1, -z + width - 1), block, posList);
+                    addPosToList(new BlockPos(x, yVal + frequency, width - z), block, posList);
+                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width + z - width + 1), block, posList);
+                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width - z + width - 1), block, posList);
                 }
             }
         }
 
-        template.size = new BlockPos(length, height * length + 1, width * 2 + 1);
-        template.blocks.addAll(posList.entrySet().stream().map(pos -> new Template.BlockInfo(pos.getKey(), pos.getValue(), null)).collect(Collectors.toList()));
+        final Blueprint blueprint = new Blueprint((short)length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1));
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
     }
 
-    public static void generateRandomShape(final Template template, final int height, final int width, final int length)
+    public static void generateRandomShape(final int height, final int width, final int length)
     {
         final double radiusX = 20;
         final double radiusY = 26;
@@ -414,8 +413,6 @@ public final class Manager
                 }
             }
         }
-
-        template.blocks.addAll(posList.stream().map(pos -> new Template.BlockInfo(pos.getFirst(), pos.getSecond(), null)).collect(Collectors.toList()));
     }
 
     /**

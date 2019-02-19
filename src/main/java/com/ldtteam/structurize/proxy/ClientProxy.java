@@ -2,6 +2,7 @@ package com.ldtteam.structurize.proxy;
 
 import java.io.File;
 
+import com.ldtteam.structurize.util.BlockInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ import com.ldtteam.structurize.event.ClientEventHandler;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structures.client.TemplateBlockInfoTransformHandler;
+import com.ldtteam.structures.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structures.event.RenderEventHandler;
 import com.ldtteam.structures.helpers.Settings;
 
@@ -39,7 +40,6 @@ import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -184,28 +184,28 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomStateMapper(ModBlocks.blockPaperWall, new StateMap.Builder().withName(BlockPaperwall.VARIANT).withSuffix("_blockPaperwall").build());
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleOak), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.OAK.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.OAK.getName()), INVENTORY));
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleBirch), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.BIRCH.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.BIRCH.getName()), INVENTORY));
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleSpruce), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.SPRUCE.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.SPRUCE.getName()), INVENTORY));
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleJungle), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.JUNGLE.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.JUNGLE.getName()), INVENTORY));
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleDarkOak), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.DARK_OAK.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.DARK_OAK.getName()), INVENTORY));
 
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.blockShingleAcacia), 0,
-                new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
-                        BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.ACACIA.getName()), INVENTORY));
+          new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID,
+            BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.ACACIA.getName()), INVENTORY));
 
         for (final PaperwallType type : PaperwallType.values())
         {
@@ -216,21 +216,21 @@ public class ClientProxy extends CommonProxy
         for (final BlockTimberFrame frame : ModBlocks.getTimberFrames())
         {
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(frame), 0,
-                        new ModelResourceLocation(frame.getRegistryName(), INVENTORY));
+              new ModelResourceLocation(frame.getRegistryName(), INVENTORY));
         }
 
         createCustomModel(ModBlocks.multiBlock);
 
         //Additionally we register an exclusion handler here;
-        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          (b) -> b.blockState.getBlock() == ModBlocks.blockSubstitution,
-          (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
+        BlueprintBlockInfoTransformHandler.getInstance().AddTransformHandler(
+          (b) -> b.getState().getBlock() == ModBlocks.blockSubstitution,
+          (b) -> new BlockInfo(b.getPos(), Blocks.AIR.getDefaultState(), null)
         );
 
         //Additionally we register an exclusion handler here;
-        TemplateBlockInfoTransformHandler.getInstance().AddTransformHandler(
-          (b) -> b.blockState.getBlock() == ModBlocks.blockSolidSubstitution,
-          (b) -> new Template.BlockInfo(b.pos, Blocks.AIR.getDefaultState(), null)
+        BlueprintBlockInfoTransformHandler.getInstance().AddTransformHandler(
+          (b) -> b.getState().getBlock() == ModBlocks.blockSolidSubstitution,
+          (b) -> new BlockInfo(b.getPos(), Blocks.AIR.getDefaultState(), null)
         );
 
 

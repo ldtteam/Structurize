@@ -1,6 +1,7 @@
 package com.ldtteam.structures.client;
 
-import com.ldtteam.structures.lib.TemplateUtils;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.lib.BlueprintUtils;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -11,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.structure.template.Template;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -19,33 +19,33 @@ import javax.annotation.Nullable;
 /**
  * Our world/blockAccess dummy.
  */
-public class TemplateBlockAccess extends World implements IBlockAccess
+public class BlueprintBlockAccess extends World implements IBlockAccess
 {
     /**
-     * The template with the info we need.
+     * The blueprint with the info we need.
      */
-    private final Template template;
+    private final Blueprint blueprint;
 
     /**
      * Constructor to create a new world/blockAccess
-     * @param template the template to create it from.
+     * @param blueprint the blueprint.
      */
-    public TemplateBlockAccess(final Template template)
+    public BlueprintBlockAccess(final Blueprint blueprint)
     {
         super(Minecraft.getMinecraft().world.getSaveHandler(), Minecraft.getMinecraft().world.getWorldInfo(), Minecraft.getMinecraft().world.provider, Minecraft.getMinecraft().world.profiler, true);
-        this.template = template;
+        this.blueprint = blueprint;
     }
 
-    public Template getTemplate()
+    public Blueprint getBlueprint()
     {
-        return template;
+        return blueprint;
     }
 
     @Nullable
     @Override
     public TileEntity getTileEntity(@NotNull final BlockPos pos)
     {
-        return TemplateUtils.getTileEntityFromPos(template, pos, this);
+        return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     }
 
     @Override
-    public float getLightBrightness(final BlockPos pos)
+    public float getLightBrightness(@NotNull final BlockPos pos)
     {
         return 1f;
     }
@@ -70,7 +70,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
     @Override
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        return TemplateUtils.getBlockInfoFromPos(template, pos).blockState;
+        return BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
     }
 
     @Override
@@ -92,6 +92,7 @@ public class TemplateBlockAccess extends World implements IBlockAccess
         return Biomes.PLAINS;
     }
 
+    @NotNull
     @Override
     protected IChunkProvider createChunkProvider()
     {

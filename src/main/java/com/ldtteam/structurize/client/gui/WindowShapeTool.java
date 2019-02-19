@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.ldtteam.structurize.api.util.BlockUtils;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -11,6 +12,7 @@ import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import net.minecraft.client.Minecraft;
@@ -18,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -193,8 +194,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             genShape();
         }
 
-        
-        //final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
         findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow() ? LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow") : LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid"));
     }
 
@@ -204,7 +203,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void genShape()
     {
         final Structure structure = new Structure(Minecraft.getMinecraft().world);
-        structure.setTemplate(Manager.getStructureFromFormula(
+        structure.setBluePrint(Manager.getStructureFromFormula(
           Settings.instance.getWidth(),
           Settings.instance.getLength(),
           Settings.instance.getHeight(),
@@ -213,7 +212,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow()));
-        structure.setPlacementSettings(new PlacementSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE));
+        structure.setPlacementSettings(new PlacementSettings(Mirror.NONE, Rotation.NONE));
         Settings.instance.setActiveSchematic(structure);
     }
 
@@ -349,7 +348,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow(),
-          Settings.instance.getRotation(),
+          BlockUtils.getRotation(Settings.instance.getRotation()),
           Settings.instance.getMirror()));
     }
 
@@ -558,10 +557,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 settings.setRotation(Rotation.NONE);
         }
         Settings.instance.setRotation(rotation);
+        settings.setMirror(Settings.instance.getMirror());
 
         if (Settings.instance.getActiveStructure() != null)
         {
-            Settings.instance.getActiveStructure().setPlacementSettings(settings.setMirror(Settings.instance.getMirror()));
+            Settings.instance.getActiveStructure().setPlacementSettings(settings);
         }
     }
 }

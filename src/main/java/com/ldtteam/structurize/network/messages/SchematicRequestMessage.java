@@ -2,6 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structures.helpers.Structure;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -58,7 +59,7 @@ public class SchematicRequestMessage extends AbstractMessage<SchematicRequestMes
     @Override
     public void messageOnServerThread(final SchematicRequestMessage message, final EntityPlayerMP player)
     {
-        final InputStream stream = Structure.getStream(message.filename);
+        final InputStream stream = StructureLoadingUtils.getStream(message.filename);
 
         if (stream == null)
         {
@@ -67,7 +68,7 @@ public class SchematicRequestMessage extends AbstractMessage<SchematicRequestMes
         else
         {
             Log.getLogger().info("Request: player " + player.getName() + " is requesting schematic " + message.filename);
-            final byte[] schematic = Structure.getStreamAsByteArray(stream);
+            final byte[] schematic = StructureLoadingUtils.getStreamAsByteArray(stream);
             Structurize.getNetwork().sendTo(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), player);
         }
     }

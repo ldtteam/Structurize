@@ -6,7 +6,7 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.proxy.IProxy;
-import com.ldtteam.structures.helpers.Structure;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -81,7 +81,7 @@ public class Structurize
     @Mod.EventHandler
     public void preInit(@NotNull final FMLPreInitializationEvent event)
     {
-        Structure.originFolders.add(Constants.MOD_ID);
+        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
         proxy.registerEntities();
         proxy.registerEntityRendering();
         proxy.registerEvents();

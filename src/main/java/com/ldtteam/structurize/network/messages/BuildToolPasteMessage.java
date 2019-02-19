@@ -3,10 +3,13 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structurize.util.StructureWrapper;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
+import com.ldtteam.structurize.util.StructurePlacementUtils;
+import com.ldtteam.structurize.util.StructureUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -49,14 +52,14 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
     public BuildToolPasteMessage(
       final String structureName,
       final String workOrderName, final BlockPos pos,
-      final int rotation, final boolean isHut,
+      final Rotation rotation, final boolean isHut,
       final Mirror mirror, final boolean complete, final WindowBuildTool.FreeMode freeMode)
     {
         super();
         this.structureName = structureName;
         this.workOrderName = workOrderName;
         this.pos = pos;
-        this.rotation = rotation;
+        this.rotation = rotation.ordinal();
         this.isHut = isHut;
         this.mirror = mirror == Mirror.FRONT_BACK;
         this.complete = complete;
@@ -120,8 +123,8 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
 
         if (player.capabilities.isCreativeMode)
         {
-            StructureWrapper.loadAndPlaceStructureWithRotation(player.world, message.structureName,
-              message.pos, message.rotation, message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(player.world, message.structureName,
+              message.pos, Rotation.values()[message.rotation], message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
         }
     }
 }
