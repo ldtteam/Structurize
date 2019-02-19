@@ -262,7 +262,7 @@ public class Structure
      * Getter of the EntityInfo at a certain position.
      *
      * @param pos the position.
-     * @return the blockState.
+     * @return the entity data.
      */
     @Nullable
     public NBTTagCompound getEntityData(@NotNull final BlockPos pos)
@@ -272,6 +272,21 @@ public class Structure
             return null;
         }
         return this.blueprint.getEntities()[pos.getY()][pos.getZ()][pos.getX()];
+    }
+
+    /**
+     * Getter of the EntityInfo at the current position.
+     *
+     * @return the entity data.
+     */
+    @Nullable
+    public NBTTagCompound getEntityData()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+        return getEntityData(progressPos);
     }
 
     /**
@@ -485,6 +500,21 @@ public class Structure
         }
         return this.getBlockState(this.progressPos);
     }
+
+    /**
+     * Get the current blockinfo.
+     * @return the current blockinfo or null if not there.
+     */
+    @Nullable
+    public BlockInfo getBlockInfo()
+    {
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+        return this.getBlockInfo(this.progressPos);
+    }
+
 
     /**
      * Reset the progressPos.
