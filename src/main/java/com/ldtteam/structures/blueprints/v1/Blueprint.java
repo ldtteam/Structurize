@@ -355,9 +355,9 @@ public class Blueprint
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror)
     {
         final BlockPos resultSize = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
-        final short newSizeX = (short) resultSize.getX();
-        final short newSizeY = (short) resultSize.getY();
-        final short newSizeZ = (short) resultSize.getZ();
+        final short newSizeX = (short) Math.abs(resultSize.getX());
+        final short newSizeY = (short) Math.abs(resultSize.getY());
+        final short newSizeZ = (short) Math.abs(resultSize.getZ());
 
         final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
         final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
