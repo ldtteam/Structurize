@@ -120,7 +120,9 @@ public class BlueprintUtil
             entity.setPosition(oldPos.x - pos.getX(), oldPos.y - pos.getY(), oldPos.z - pos.getZ());
             NBTTagCompound entityTag = new NBTTagCompound();
             if(entity.writeToNBTOptional(entityTag))
+            {
                 entitiesTag.add(entityTag);
+            }
             entity.setPosition(oldPos.x, oldPos.y, oldPos.z);
         }
 

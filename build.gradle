@@ -63,7 +63,7 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
 }
 
-group = "com.ldtteam.structurize"
+group = "com.ldtteam"
 version = config.minecraft_version.toString() + "-" + System.getenv()["Version"]
 archivesBaseName = "structurize"
 
