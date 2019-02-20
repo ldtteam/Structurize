@@ -3,7 +3,12 @@ package com.ldtteam.structurize.blocks.decorative;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
@@ -47,5 +52,16 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
         setResistance(RESISTANCE);
         this.useNeighborBrightness = true;
         this.setLightOpacity(LIGHT_OPACITY);
+    }
+
+    @NotNull
+    @Override
+    public BlockFaceShape getBlockFaceShape(@NotNull final IBlockAccess worldIn, @NotNull final IBlockState state, @NotNull final BlockPos pos, final EnumFacing face)
+    {
+        if (face == EnumFacing.UP)
+        {
+            return BlockFaceShape.CENTER_BIG;
+        }
+        return super.getBlockFaceShape(worldIn, state, pos, face);
     }
 }
