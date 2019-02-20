@@ -3,6 +3,7 @@ package com.ldtteam.structures.blueprints.v1;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.state.IBlockState;
@@ -126,7 +127,7 @@ public class Blueprint
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
-        this.palette.add(0, Blocks.AIR.getDefaultState());
+        this.palette.add(0, ModBlocks.blockSubstitution.getDefaultState());
     }
 
     /**

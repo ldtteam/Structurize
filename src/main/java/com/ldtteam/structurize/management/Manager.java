@@ -235,8 +235,6 @@ public final class Manager
     /**
      * Generates a cube with the specific size and adds it to the blueprint provided.
      * @param height    the height.
-     * @param width     the width.
-     * @param length    the length.
      * @param block     the block to use.
      * @param fillBlock the fill block.
      * @param hollow    if full.
@@ -258,9 +256,9 @@ public final class Manager
                     {
                         posList.put(new BlockPos(x, y, z), block);
                     }
-                    else
+                    else if (!hollow)
                     {
-                        posList.put(new BlockPos(x, y, z), hollow ? Blocks.AIR.getDefaultState() : fillBlock);
+                        posList.put(new BlockPos(x, y, z), fillBlock);
                     }
                 }
             }
