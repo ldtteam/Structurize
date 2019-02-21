@@ -11,6 +11,7 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -25,10 +26,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import scala.Array;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -456,13 +459,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Called when the window is closed.
      * If there is a current structure, its information is stored in {@link Settings}.
+     * Also updates state via {@link LSStructureDisplayerMessage}
      */
     @Override
     public void onClosed()
     {
+        final ByteBuf buffer = Unpooled.buffer();
+
         if (Settings.instance.getActiveStructure() != null)
         {
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
+            Settings.instance.toBytes(buffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
+        }
+        else
+        {
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
     }
 

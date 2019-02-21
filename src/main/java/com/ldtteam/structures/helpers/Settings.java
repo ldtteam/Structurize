@@ -2,18 +2,25 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import io.netty.buffer.ByteBuf;
 
 /**
  * Class used to store.
  */
-public final class Settings
+public final class Settings implements IMessage
 {
     /**
      * Single instance of this class.
@@ -69,7 +76,7 @@ public final class Settings
     /**
      * Possible free to place structure.
      */
-    private WindowBuildTool.FreeMode freeMode;
+    private WindowBuildTool.FreeMode freeMode = null;
 
     /**
      * Private constructor to hide implicit one.
@@ -451,5 +458,76 @@ public final class Settings
     public void setHollow(final boolean hollow)
     {
         this.hollow = hollow;
+    }
+
+    /**
+     * Serializable from {@link LSStructureDisplayerMessage}
+     */
+    public void fromBytes(ByteBuf buf)
+    {
+        offset.setPos(buf.readInt(), buf.readInt(), buf.readInt());
+
+        pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+        
+        //box = new Tuple<BlockPos, BlockPos>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
+
+        isMirrored = buf.readBoolean();
+        staticSchematicMode = buf.readBoolean();
+        rotation = buf.readInt();
+        structureName = ByteBufUtils.readUTF8String(buf);
+        staticSchematicName = ByteBufUtils.readUTF8String(buf);
+        freeMode = (buf.getInt(buf.readerIndex()) < 0) ? null : WindowBuildTool.FreeMode.values()[buf.readInt()];
+
+        //Structure structure; send via structureName
+        /* shape tool is not synchronized yet
+        int     width;
+        int     height;
+        int     length;
+        int     frequency;
+        boolean hollow;
+        Shape shape;
+        Tuple<ItemStack, ItemStack> stack;
+        */
+    }
+
+    /**
+     * Serializable from {@link LSStructureDisplayerMessage}
+     */
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeInt(offset.getX());
+        buf.writeInt(offset.getY());
+        buf.writeInt(offset.getZ());
+
+        buf.writeInt(pos.getX());
+        buf.writeInt(pos.getY());
+        buf.writeInt(pos.getZ());
+
+        /*
+        buf.writeInt(box.getFirst().getX());
+        buf.writeInt(box.getFirst().getY());
+        buf.writeInt(box.getFirst().getZ());
+        buf.writeInt(box.getSecond().getX());
+        buf.writeInt(box.getSecond().getY());
+        buf.writeInt(box.getSecond().getZ());
+        */
+
+        buf.writeBoolean(isMirrored);
+        buf.writeBoolean(staticSchematicMode);
+        buf.writeInt(rotation);
+        ByteBufUtils.writeUTF8String(buf, structureName);
+        ByteBufUtils.writeUTF8String(buf, staticSchematicName);
+        buf.writeInt((freeMode == null) ? -1 : freeMode.ordinal());
+
+        //Structure structure; send via structureName
+        /* shape tool is not synchronized yet
+        int     width;
+        int     height;
+        int     length;
+        int     frequency;
+        boolean hollow;
+        Shape shape;
+        Tuple<ItemStack, ItemStack> stack;
+        */
     }
 }

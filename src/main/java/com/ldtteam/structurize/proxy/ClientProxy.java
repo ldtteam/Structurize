@@ -18,7 +18,6 @@ import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowMultiBlock;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
-import com.ldtteam.structurize.commands.UpdateSchematics;
 import com.ldtteam.structurize.event.ClientEventHandler;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
@@ -40,7 +39,6 @@ import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -74,8 +72,6 @@ public class ClientProxy extends CommonProxy
 
         MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
-
-        ClientCommandHandler.instance.registerCommand(new UpdateSchematics());
     }
 
     @Override

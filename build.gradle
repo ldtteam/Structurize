@@ -136,10 +136,6 @@ artifacts {
     archives sourceJar
 }
 
-javadoc {
-    source += sourceSets.api.allSource
-}
-
 idea {
     module {
         inheritOutputDirs = true
