@@ -184,7 +184,7 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
      * 
      * @param playerUUID {@link EntityPlayer#getUniqueID()}
      * @param channel    {@link ChannelsEnum}
-     * @return boolean:  mute state, true = muted, false = unmuted
+     * @return boolean:  mute state (returns false if checking fails), true = muted, false = unmuted
      */
     public boolean getMuteState(@NotNull final UUID playerUUID, @NotNull final ChannelsEnum channel)
     {

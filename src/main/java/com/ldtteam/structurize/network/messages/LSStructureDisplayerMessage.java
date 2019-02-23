@@ -106,7 +106,7 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
         }
         
         final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
-        targets.remove(player.getUniqueID()); // TODO: remove this to ensure no desync will appear?
+        targets.remove(player.getUniqueID()); // TODO: remove this to ensure desync will not appear?
         for(UUID target : targets)
         {
             if(player.getServer().getEntityFromUuid(target) instanceof EntityPlayerMP)

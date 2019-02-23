@@ -225,6 +225,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public static void commonStructureUpdate()
     {
         genShape();
+        updateRotation(Settings.instance.getRotation());
     }
 
     private void disableInputIfNecessary()
@@ -542,6 +543,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void cancelClicked()
     {
         Settings.instance.reset();
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
         close();
     }
 
@@ -583,16 +585,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     @Override
     public void onClosed()
     {
-        final ByteBuf buffer = Unpooled.buffer();
-
         if (Settings.instance.getActiveStructure() != null)
         {
+            final ByteBuf buffer = Unpooled.buffer();
             Settings.instance.toBytes(buffer);
             Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
-        }
-        else
-        {
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
     }
 }
