@@ -23,6 +23,9 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -200,7 +203,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * Generate the shape depending on the variables on the client.
      */
-    private void genShape()
+    private static void genShape()
     {
         final Structure structure = new Structure(Minecraft.getMinecraft().world);
         structure.setBluePrint(Manager.getStructureFromFormula(
@@ -214,6 +217,14 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.isHollow()));
         structure.setPlacementSettings(new PlacementSettings(Mirror.NONE, Rotation.NONE));
         Settings.instance.setActiveSchematic(structure);
+    }
+
+    /**
+     * Generate the shape depending on the variables on the client.
+     */ 
+    public static void commonStructureUpdate()
+    {
+        genShape();
     }
 
     private void disableInputIfNecessary()
@@ -562,6 +573,26 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (Settings.instance.getActiveStructure() != null)
         {
             Settings.instance.getActiveStructure().setPlacementSettings(settings);
+        }
+    }
+
+    /**
+     * Called when the window is closed.
+     * Updates state via {@link LSStructureDisplayerMessage}
+     */
+    @Override
+    public void onClosed()
+    {
+        final ByteBuf buffer = Unpooled.buffer();
+
+        if (Settings.instance.getActiveStructure() != null)
+        {
+            Settings.instance.toBytes(buffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
+        }
+        else
+        {
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
     }
 }

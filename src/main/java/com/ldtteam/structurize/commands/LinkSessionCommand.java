@@ -389,13 +389,13 @@ public class LinkSessionCommand extends CommandTreeBase
             final TextComponentTranslation msgWithHead = new TextComponentTranslation("commands.message.display.incoming",
                 new Object[] {Constants.MOD_NAME + " Session Message " + sender.getName(), getChatComponentFromNthArg(sender, args, 0, true)});
 
-            if (uniqueMembers.isEmpty() && LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
+            if (LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
             {
-                throw new CommandException("You (or every other possible player) have messages muted.");
+                throw new CommandException("You have messages channel muted.");
             }
-            if (uniqueMembers.isEmpty())
+            if (uniqueMembers.size() == 1)
             {
-                throw new CommandException("You are not a part of any session.");
+                throw new CommandException("You are not a part of any session or every other players have messages channel muted.");
             }
 
             msgWithHead.getStyle().setColor(TextFormatting.GRAY).setItalic(Boolean.valueOf(true));

@@ -288,6 +288,11 @@ public final class Settings implements IMessage
         isMirrored = false;
         staticSchematicMode = false;
         staticSchematicName = "";
+        freeMode = null;
+        hollow = false;
+        structureName = null;
+        pos = null;
+        box = null;
     }
 
     /**

@@ -2,23 +2,17 @@ package com.ldtteam.structurize.network.messages;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.BlockUtils;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.management.StructureName;
-import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.client.gui.WindowBuildTool;
+import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
-import com.ldtteam.structurize.util.PlacementSettings;
 
 import java.util.Set;
 import java.util.UUID;
@@ -76,7 +70,7 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
      * {@inheritDoc}
      * <p>
      * Displays or updates or destroys instance on target client
-     * Copied from WindowBuildTool, TODO: make common method with new BO
+     * Copied from WindowBuildTool
      *
      * @param message Message
      * @param ctx     Context
@@ -86,47 +80,16 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
     {
         if(message.show)
         {
-            final String sname;
-
             Settings.instance.fromBytes(message.settings);
-            if (Settings.instance.isStaticSchematicMode())
+            // TODO: better solution would be great
+            if (Settings.instance.getStructureName() == null && Settings.instance.getStaticSchematicName() == null)
             {
-                sname = Settings.instance.getStaticSchematicName();
+                WindowShapeTool.commonStructureUpdate();
             }
             else
             {
-                sname = Settings.instance.getStructureName();
+                WindowBuildTool.commonStructureUpdate();
             }
-
-            final StructureName structureName = new StructureName(sname);
-            final String md5 = Structures.getMD5(structureName.toString());
-            final Structure structure = new Structure(Minecraft.getMinecraft().world, structureName.toString(),
-                new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
-
-            if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
-            {
-                if (structure.isBluePrintMissing())
-                {
-                    Log.getLogger().info("Blueprint structure " + structureName + " missing");
-                }
-                else
-                {
-                    Log.getLogger().info("structure " + structureName + " md5 error");
-                }
-    
-                Log.getLogger().info("Request To Server for structure " + structureName);
-                if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
-                {
-                    Structurize.getNetwork().sendToServer(new SchematicRequestMessage(structureName.toString()));
-                    return;
-                }
-                else
-                {
-                    Log.getLogger().error("WindowBuildTool: Need to download schematic on a standalone client/server. This should never happen");
-                }
-            }
-            Settings.instance.setStructureName(structureName.toString());
-            Settings.instance.setActiveSchematic(structure);
         }
         else
         {

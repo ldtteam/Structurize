@@ -478,7 +478,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
     }
 
-
     /*
      * ---------------- Schematic Navigation Handling -----------------
      */
@@ -786,22 +785,45 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void changeSchematic()
     {
+        if (!Settings.instance.isStaticSchematicMode())
+        {
+            Settings.instance.setStructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
+        }
+
+        commonStructureUpdate();
+
+        if (Settings.instance.getPosition() == null)
+        {
+            Settings.instance.setPosition(this.pos);
+        }
+    }
+
+    /**
+     * Changes the current structure.
+     */
+    public static void commonStructureUpdate()
+    {
         final String sname;
+
         if (Settings.instance.isStaticSchematicMode())
         {
             sname = Settings.instance.getStaticSchematicName();
         }
         else
         {
-            sname = schematics.get(schematicsDropDownList.getSelectedIndex());
+            sname = Settings.instance.getStructureName();
+        }
+        
+        if (sname == null)
+        {
+            return;
         }
 
         final StructureName structureName = new StructureName(sname);
-        final Structure structure = new Structure(Minecraft.getMinecraft().world,
-          structureName.toString(),
-          new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
-
         final String md5 = Structures.getMD5(structureName.toString());
+        final Structure structure = new Structure(Minecraft.getMinecraft().world, structureName.toString(),
+            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
+
         if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
         {
             if (structure.isBluePrintMissing())
@@ -826,12 +848,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         Settings.instance.setStructureName(structureName.toString());
         Settings.instance.setActiveSchematic(structure);
-
-
-        if (Settings.instance.getPosition() == null)
-        {
-            Settings.instance.setPosition(this.pos);
-        }
     }
 
     /**

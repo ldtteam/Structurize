@@ -77,8 +77,7 @@ public final class BackUpHelper
         {
             return;
         }
-        Log.getLogger().info(current.renameTo(newBackup));
-        Log.getLogger().info(newBackup.getPath());
+        current.renameTo(newBackup);
         @NotNull final Supplier<Stream<String>> allBackups = () -> Stream.of(getSaveDir().list())
             .filter(fileName -> fileName.contains(FILENAME_EXT_OLD) && fileName.contains(FILENAME_STRUCTURIZE_PATH + additionalPath));
 
