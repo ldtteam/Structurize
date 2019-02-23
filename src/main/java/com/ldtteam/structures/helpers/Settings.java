@@ -66,7 +66,7 @@ public final class Settings implements IMessage
     /**
      * Name of the static schematic if existent.
      */
-    private String staticSchematicName = "";
+    private String staticSchematicName = null;
 
     /**
      * The stack used to present blocks.
@@ -287,7 +287,7 @@ public final class Settings implements IMessage
         rotation = 0;
         isMirrored = false;
         staticSchematicMode = false;
-        staticSchematicName = "";
+        staticSchematicName = null;
         freeMode = null;
         hollow = false;
         structureName = null;
@@ -546,7 +546,7 @@ public final class Settings implements IMessage
         }
         else
         {
-            staticSchematicName = "";
+            staticSchematicName = null;
         }
 
         // itemstack
