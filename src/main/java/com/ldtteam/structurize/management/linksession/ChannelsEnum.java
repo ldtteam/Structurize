@@ -10,6 +10,7 @@ public enum ChannelsEnum
 {
     COMMAND_MESSAGE(0, "messages"),
     STRUCTURE_DISPLAYER(1, "structures");
+    // Add any new channels here, don't change the ids of previous ones
 
     private final int id;
     private final String commandName;

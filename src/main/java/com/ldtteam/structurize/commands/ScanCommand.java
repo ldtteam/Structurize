@@ -97,12 +97,12 @@ public class ScanCommand extends CommandBase
             }
             
             //TODO: implement replacements and save structure to file
-            throw new WrongUsageException("NOT IMPLEMENTED YET", new Object[0]);
+            throw new CommandException("NOT IMPLEMENTED YET", new Object[0]);
         }
         else
         {
             //TODO: open scan tool gui for client with given pos
-            throw new WrongUsageException("NOT IMPLEMENTED YET", new Object[0]);
+            throw new CommandException("NOT IMPLEMENTED YET", new Object[0]);
         }
     }
 }

@@ -75,7 +75,7 @@ public class LinkSession
      * @return String: player's name in readable form (nickname)
      */
     @Nullable
-    protected String getMemberName(@NotNull final UUID memberUUID)
+    protected String getMemberDisplayName(@NotNull final UUID memberUUID)
     {
         return members.get(memberUUID);
     }

@@ -35,10 +35,12 @@ public class LinkSessionCommand extends CommandTreeBase
     public LinkSessionCommand()
     {
         super.addSubcommand(new AboutMe());
+        super.addSubcommand(new AcceptInvite());
         super.addSubcommand(new AddPlayer());
         super.addSubcommand(new Create());
         super.addSubcommand(new Destroy());
         super.addSubcommand(new MuteChannel());
+        super.addSubcommand(new Leave());
         super.addSubcommand(new RemovePlayer());
         super.addSubcommand(new SendMessage());
     }
@@ -260,8 +262,13 @@ public class LinkSessionCommand extends CommandTreeBase
 
             for (String name : args)
             {
-                LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID(), name);
-                sender.sendMessage(new TextComponentString("Adding player \"" + name + "\" to " + sender.getName() + "'s session."));
+                if (server.getPlayerList().getPlayerByUsername(name) == null)
+                {
+                    continue;
+                }
+
+                LinkSessionManager.INSTANCE.createInvite(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), ownerUUID);
+                sender.sendMessage(new TextComponentString("Inviting player \"" + name + "\" to " + sender.getName() + "'s session."));
             }
         }
     }
@@ -326,6 +333,11 @@ public class LinkSessionCommand extends CommandTreeBase
 
             for (String name : args)
             {
+                if (server.getPlayerList().getPlayerByUsername(name) == null)
+                {
+                    continue;
+                }
+                
                 LinkSessionManager.INSTANCE.removeMemberOfSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID());
                 sender.sendMessage(new TextComponentString("Removing player \"" + name + "\" of " + sender.getName() + "'s session."));
             }
@@ -379,7 +391,7 @@ public class LinkSessionCommand extends CommandTreeBase
 
             if (uniqueMembers.isEmpty() && LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
             {
-                throw new CommandException("You (and every other possible player) have messages muted.");
+                throw new CommandException("You (or every other possible player) have messages muted.");
             }
             if (uniqueMembers.isEmpty())
             {
@@ -439,6 +451,17 @@ public class LinkSessionCommand extends CommandTreeBase
             final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
             List<String> ownerSession = LinkSessionManager.INSTANCE.getMembersNamesOf(senderUUID);
             sender.sendMessage(new TextComponentString("Info about \"" + sender.getName() + "\":"));
+
+            // has an invite?
+            final String ownerName = LinkSessionManager.INSTANCE.hasInvite(senderUUID);
+            if (ownerName == null)
+            {
+                sender.sendMessage(new TextComponentString("  §cYou have no open invite."));
+            }
+            else
+            {
+                sender.sendMessage(new TextComponentString("  §aYou have an open invite from " + ownerName + "."));
+            }
 
             // is owner?
             if(ownerSession == null)
@@ -547,6 +570,124 @@ public class LinkSessionCommand extends CommandTreeBase
                 {
                     LinkSessionManager.INSTANCE.setMuteState(senderUUID, ch, !LinkSessionManager.INSTANCE.getMuteState(senderUUID, ch));
                 }
+            }
+        }
+    }
+
+    /**
+     * Command for accepting the current invite
+     */
+    private class AcceptInvite extends CommandBase
+    {
+        protected final static String NAME = "acceptinvite";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length > 0)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
+            final String ownerName = LinkSessionManager.INSTANCE.consumeInvite(senderUUID, sender.getCommandSenderEntity().getName());
+
+            if (ownerName == null)
+            {
+                throw new CommandException("You have no open invite.");
+            }
+            sender.sendMessage(new TextComponentString("You have successfully joined to " + sender.getName() + "'s linksession."));
+        }
+    }
+
+    /**
+     * Command for leaving session of owner
+     */
+    private class Leave extends CommandBase
+    {
+        protected final static String NAME = "leave";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <nickname>";
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isUsernameIndex(String[] args, int index)
+        {
+            return true;
+        }
+        
+        @Override
+        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
+        {
+            return getListOfStringsMatchingLastWord(args, LinkSessionManager.INSTANCE.getSessionNamesOf(sender.getCommandSenderEntity().getUniqueID()));
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length < 1)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
+
+            for (String name : args)
+            {
+                if (server.getPlayerList().getPlayerByUsername(name) == null)
+                {
+                    continue;
+                }
+                
+                LinkSessionManager.INSTANCE.removeMemberOfSession(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), senderUUID);
+                sender.sendMessage(new TextComponentString("Leaving a session owned by \"" + name + "\"."));
             }
         }
     }
