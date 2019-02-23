@@ -367,7 +367,7 @@ public class Blueprint
         final List<IBlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).withRotation(rotation).withMirror(mirror));
+            palette.add(i, this.palette.get(i).withMirror(mirror).withRotation(rotation));
         }
 
         final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
