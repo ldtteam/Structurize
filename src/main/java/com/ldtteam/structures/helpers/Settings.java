@@ -465,29 +465,95 @@ public final class Settings implements IMessage
      */
     public void fromBytes(ByteBuf buf)
     {
-        offset.setPos(buf.readInt(), buf.readInt(), buf.readInt());
-
-        pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
-        
-        //box = new Tuple<BlockPos, BlockPos>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
-
         isMirrored = buf.readBoolean();
         staticSchematicMode = buf.readBoolean();
-        rotation = buf.readInt();
-        structureName = ByteBufUtils.readUTF8String(buf);
-        staticSchematicName = ByteBufUtils.readUTF8String(buf);
-        freeMode = (buf.getInt(buf.readerIndex()) < 0) ? null : WindowBuildTool.FreeMode.values()[buf.readInt()];
+        hollow = buf.readBoolean();
 
-        //Structure structure; send via structureName
-        /* shape tool is not synchronized yet
-        int     width;
-        int     height;
-        int     length;
-        int     frequency;
-        boolean hollow;
-        Shape shape;
-        Tuple<ItemStack, ItemStack> stack;
-        */
+        rotation = buf.readInt();
+        width = buf.readInt();
+        height = buf.readInt();
+        length = buf.readInt();
+        frequency = buf.readInt();
+
+        // enums
+        
+        if (buf.readBoolean())
+        {
+            shape = Shape.values()[buf.readInt()];
+        }
+        else
+        {
+            shape = Shape.CUBE;
+        }
+        
+        if (buf.readBoolean())
+        {
+            freeMode = WindowBuildTool.FreeMode.values()[buf.readInt()];
+        }
+        else
+        {
+            freeMode = null;
+        }
+
+        // block pos
+
+        if (buf.readBoolean())
+        {
+            offset.setPos(buf.readInt(), buf.readInt(), buf.readInt());
+        }
+        else
+        {
+            offset.setPos(0, 0, 0);
+        }
+
+        if (buf.readBoolean())
+        {
+            pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+        }
+        else
+        {
+            pos = null;
+        }
+        
+        if (buf.readBoolean())
+        {
+            box = new Tuple<BlockPos, BlockPos>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
+        }
+        else
+        {
+            box = null;
+        }
+
+        // strings
+
+        if (buf.readBoolean())
+        {
+            structureName = ByteBufUtils.readUTF8String(buf);
+        }
+        else
+        {
+            structureName = null;
+        }
+        
+        if (buf.readBoolean())
+        {
+            staticSchematicName = ByteBufUtils.readUTF8String(buf);
+        }
+        else
+        {
+            staticSchematicName = "";
+        }
+
+        // itemstack
+
+        if (buf.readBoolean())
+        {
+            stack = new Tuple<>(ByteBufUtils.readItemStack(buf), ByteBufUtils.readItemStack(buf));
+        }
+        else
+        {
+            stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
+        }
     }
 
     /**
@@ -495,39 +561,80 @@ public final class Settings implements IMessage
      */
     public void toBytes(ByteBuf buf)
     {
-        buf.writeInt(offset.getX());
-        buf.writeInt(offset.getY());
-        buf.writeInt(offset.getZ());
-
-        buf.writeInt(pos.getX());
-        buf.writeInt(pos.getY());
-        buf.writeInt(pos.getZ());
-
-        /*
-        buf.writeInt(box.getFirst().getX());
-        buf.writeInt(box.getFirst().getY());
-        buf.writeInt(box.getFirst().getZ());
-        buf.writeInt(box.getSecond().getX());
-        buf.writeInt(box.getSecond().getY());
-        buf.writeInt(box.getSecond().getZ());
-        */
-
         buf.writeBoolean(isMirrored);
         buf.writeBoolean(staticSchematicMode);
-        buf.writeInt(rotation);
-        ByteBufUtils.writeUTF8String(buf, structureName);
-        ByteBufUtils.writeUTF8String(buf, staticSchematicName);
-        buf.writeInt((freeMode == null) ? -1 : freeMode.ordinal());
+        buf.writeBoolean(hollow);
 
-        //Structure structure; send via structureName
-        /* shape tool is not synchronized yet
-        int     width;
-        int     height;
-        int     length;
-        int     frequency;
-        boolean hollow;
-        Shape shape;
-        Tuple<ItemStack, ItemStack> stack;
-        */
+        buf.writeInt(rotation);
+        buf.writeInt(width);
+        buf.writeInt(height);
+        buf.writeInt(length);
+        buf.writeInt(frequency);
+
+        // enums
+
+        buf.writeBoolean(shape != null);
+        if (shape != null)
+        {
+            buf.writeInt(shape.ordinal());
+        }
+
+        buf.writeBoolean(freeMode != null);
+        if (freeMode != null)
+        {
+            buf.writeInt(freeMode.ordinal());
+        }
+
+        // block pos
+
+        buf.writeBoolean(offset != null);
+        if (offset != null)
+        {
+            buf.writeInt(offset.getX());
+            buf.writeInt(offset.getY());
+            buf.writeInt(offset.getZ());
+        }
+
+        buf.writeBoolean(pos != null);
+        if (pos != null)
+        {
+            buf.writeInt(pos.getX());
+            buf.writeInt(pos.getY());
+            buf.writeInt(pos.getZ());
+        }
+
+        buf.writeBoolean(box != null);
+        if (box != null)
+        {
+            buf.writeInt(box.getFirst().getX());
+            buf.writeInt(box.getFirst().getY());
+            buf.writeInt(box.getFirst().getZ());
+            buf.writeInt(box.getSecond().getX());
+            buf.writeInt(box.getSecond().getY());
+            buf.writeInt(box.getSecond().getZ());
+        }
+
+        // strings
+
+        buf.writeBoolean(structureName != null);
+        if (structureName != null)
+        {
+            ByteBufUtils.writeUTF8String(buf, structureName);
+        }
+
+        buf.writeBoolean(staticSchematicName != null);
+        if (staticSchematicName != null)
+        {
+            ByteBufUtils.writeUTF8String(buf, staticSchematicName);
+        }
+
+        // itemstacks
+
+        buf.writeBoolean(stack != null);
+        if (stack != null)
+        {
+            ByteBufUtils.writeItemStack(buf, stack.getFirst());
+            ByteBufUtils.writeItemStack(buf, stack.getSecond());
+        }
     }
 }
