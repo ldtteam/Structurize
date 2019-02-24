@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;

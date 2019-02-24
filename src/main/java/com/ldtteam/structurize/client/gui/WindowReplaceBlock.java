@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.common.collect.ImmutableList;
+import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Color;
@@ -74,14 +75,14 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private String filter = "";
 
     /**
-     * If this is being opened from scan or shape tool window.
-     */
-    private final boolean shapeCall;
-
-    /**
      * If this is to choose the main or the replace block.
      */
     private final boolean mainBlock;
+
+    /**
+     * The origin window.
+     */
+    private final Window origin;
 
     /**
      * Create the replacement GUI.
@@ -89,15 +90,15 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param pos1 the start pos.
      * @param pos2 the end pos.
      */
-    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2)
+    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
         this.pos1 = pos1;
         this.pos2 = pos2;
-        this.shapeCall = false;
         this.mainBlock = false;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
+        this.origin = origin;
     }
 
     /**
@@ -106,15 +107,15 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param pos the central pos.
      * @param main main block or fill block.
      */
-    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main)
+    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
         this.pos1 = pos;
         this.pos2 = BlockPos.ORIGIN;
-        this.shapeCall = true;
         this.mainBlock = main;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
+        this.origin = origin;
     }
 
     @Override
@@ -177,29 +178,22 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         if (button.getID().equals(BUTTON_DONE))
         {
             final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
-            if (shapeCall || !ItemStackUtils.isEmpty(to))
+            if (!ItemStackUtils.isEmpty(to))
             {
-                if (shapeCall)
+                if (origin instanceof WindowScan)
                 {
-                    new WindowShapeTool(pos1, to, mainBlock).open();
+                    Structurize.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }
                 else
                 {
-                    Structurize.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
-                    new WindowScan(pos1, pos2).open();
+                    new WindowShapeTool(pos1, to, mainBlock).open();
                 }
+                origin.open();
             }
         }
         else if (button.getID().equals(BUTTON_CANCEL))
         {
-            if (shapeCall)
-            {
-                new WindowShapeTool(pos1).open();
-            }
-            else
-            {
-                new WindowScan(pos1, pos2).open();
-            }
+            origin.open();
         }
         else if(button.getID().equals(BUTTON_SELECT))
         {

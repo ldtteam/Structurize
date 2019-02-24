@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.util.BlockUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structures.blueprints.v1.Blueprint;

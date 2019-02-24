@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -12,10 +13,6 @@ import com.ldtteam.blockout.controls.Label;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.network.messages.RemoveBlockMessage;
-import com.ldtteam.structurize.network.messages.RemoveEntityMessage;
-import com.ldtteam.structurize.network.messages.ScanOnServerMessage;
-import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structures.helpers.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -203,7 +200,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = resourceList.getListElementIndexByPane(button);
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
 
-        new WindowReplaceBlock(tempRes.get(row).getItemStack(), new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2)).open();
+        new WindowReplaceBlock(tempRes.get(row).getItemStack(), new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), this).open();
     }
 
     @Override
@@ -285,21 +282,25 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         try
         {
-            final int x1 = Integer.parseInt(pos1x.getText());
-            final int y1 = Integer.parseInt(pos1y.getText());
-            final int z1 = Integer.parseInt(pos1z.getText());
+            final int x1 = pos1x.getText().isEmpty() ? 0 : Integer.parseInt(pos1x.getText());
+            final int y1 = pos1y.getText().isEmpty() ? 0 : Integer.parseInt(pos1y.getText());
+            final int z1 = pos1z.getText().isEmpty() ? 0 : Integer.parseInt(pos1z.getText());
             pos1 = new BlockPos(x1, y1, z1);
 
-            final int x2 = Integer.parseInt(pos2x.getText());
-            final int y2 = Integer.parseInt(pos2y.getText());
-            final int z2 = Integer.parseInt(pos2z.getText());
+            final int x2 = pos2x.getText().isEmpty() ? 0 : Integer.parseInt(pos2x.getText());
+            final int y2 = pos2y.getText().isEmpty() ? 0 : Integer.parseInt(pos2y.getText());
+            final int z2 = pos2z.getText().isEmpty() ? 0 : Integer.parseInt(pos2z.getText());
             pos2 = new BlockPos(x2, y2, z2);
         }
         catch(final NumberFormatException e)
         {
             Minecraft.getMinecraft().player.sendMessage(new TextComponentString("Invalid Number - Closing!"));
             close();
+            return;
         }
+
+        Settings.instance.setBox(new Tuple<>(pos1, pos2));
+        Structurize.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
         final World world = Minecraft.getMinecraft().world;
         resources.clear();

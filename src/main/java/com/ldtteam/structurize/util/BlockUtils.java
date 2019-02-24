@@ -1,5 +1,8 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.*;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
@@ -157,16 +160,47 @@ public final class BlockUtils
         }
         else if (blockState.getBlock() instanceof BlockDoor)
         {
-            final Item item = blockState.getBlock() == Blocks.IRON_DOOR ? Items.IRON_DOOR
-                                : (blockState.getBlock() == Blocks.SPRUCE_DOOR ? Items.SPRUCE_DOOR
-                                     : (blockState.getBlock() == Blocks.BIRCH_DOOR ? Items.BIRCH_DOOR
-                                          : (blockState.getBlock() == Blocks.JUNGLE_DOOR ? Items.JUNGLE_DOOR
-                                               : (blockState.getBlock() == Blocks.ACACIA_DOOR ? Items.ACACIA_DOOR
-                                                    : (blockState.getBlock() == Blocks.DARK_OAK_DOOR
-                                                         ? Items.DARK_OAK_DOOR
-                                                         : Items.OAK_DOOR)))));
+            final Block block = blockState.getBlock();
+            if (block == Blocks.IRON_DOOR)
+            {
+                return Items.IRON_DOOR;
+            }
 
-            return item == null ? Item.getItemFromBlock(blockState.getBlock()) : item;
+            if (block == Blocks.SPRUCE_DOOR)
+            {
+                return Items.SPRUCE_DOOR;
+            }
+
+            if (block == Blocks.BIRCH_DOOR)
+            {
+                return Items.BIRCH_DOOR;
+            }
+
+            if (block == Blocks.JUNGLE_DOOR)
+            {
+                return Items.JUNGLE_DOOR;
+            }
+
+            if (block == Blocks.ACACIA_DOOR)
+            {
+                return Items.ACACIA_DOOR;
+            }
+
+            if (block == Blocks.DARK_OAK_DOOR)
+            {
+                return Items.DARK_OAK_DOOR;
+            }
+
+            if (block == Blocks.OAK_DOOR)
+            {
+                return Items.OAK_DOOR;
+            }
+
+            if (block == ModBlocks.blockCactusDoor)
+            {
+                return ModItems.itemCactusDoor;
+            }
+            return Item.getItemFromBlock(blockState.getBlock());
         }
         else if (blockState.getBlock() instanceof BlockFarmland || blockState.getBlock() instanceof BlockGrassPath)
         {
