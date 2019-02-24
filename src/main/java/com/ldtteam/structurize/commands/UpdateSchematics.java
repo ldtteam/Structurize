@@ -105,7 +105,7 @@ public class UpdateSchematics implements ICommand
 
             final NBTTagCompound bluePrintCompound = new NBTTagCompound();
 
-            final NBTTagList list = bluePrintCompound.getTagList("size", NBT.TAG_INT);
+            final NBTTagList list = blueprint.getTagList("size", NBT.TAG_INT);
             final int[] size = new int[] {list.getIntAt(0), list.getIntAt(1), list.getIntAt(2)};
             bluePrintCompound.setShort("size_x", (short) size[0]);
             bluePrintCompound.setShort("size_y", (short) size[1]);
@@ -177,9 +177,9 @@ public class UpdateSchematics implements ICommand
             bluePrintCompound.setInteger("version", 1);
 
             final NBTTagList newEntities = new NBTTagList();
-            if (bluePrintCompound.hasKey("entities"))
+            if (blueprint.hasKey("entities"))
             {
-                final NBTTagList entities = bluePrintCompound.getTagList("entities", NBT.TAG_COMPOUND);
+                final NBTTagList entities = blueprint.getTagList("entities", NBT.TAG_COMPOUND);
                 for (int i = 0; i < entities.tagCount(); i++)
                 {
                     NBTTagCompound entityData = entities.getCompoundTagAt(i);
