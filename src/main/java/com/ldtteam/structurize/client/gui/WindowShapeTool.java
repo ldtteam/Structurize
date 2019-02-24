@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -273,7 +273,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(Settings.instance.getBlock(true), Settings.instance.getPosition(), true).open();
+        new WindowReplaceBlock(Settings.instance.getBlock(true), Settings.instance.getPosition(), true, this).open();
     }
 
     /**
@@ -281,7 +281,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void pickFillBlock()
     {
-        new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false).open();
+        new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false, this).open();
     }
 
     /**

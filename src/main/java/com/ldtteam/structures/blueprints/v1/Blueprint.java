@@ -3,6 +3,7 @@ package com.ldtteam.structures.blueprints.v1;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.state.IBlockState;
@@ -126,7 +127,7 @@ public class Blueprint
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
-        this.palette.add(0, Blocks.AIR.getDefaultState());
+        this.palette.add(0, ModBlocks.blockSubstitution.getDefaultState());
     }
 
     /**
@@ -354,10 +355,10 @@ public class Blueprint
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror)
     {
-        final BlockPos resultSize = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
-        final short newSizeX = (short) Math.abs(resultSize.getX());
-        final short newSizeY = (short) Math.abs(resultSize.getY());
-        final short newSizeZ = (short) Math.abs(resultSize.getZ());
+        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
+        final short newSizeX = (short) resultSize.getX();
+        final short newSizeY = (short) resultSize.getY();
+        final short newSizeZ = (short) resultSize.getZ();
 
         final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
         final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
@@ -366,8 +367,13 @@ public class Blueprint
         final List<IBlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).withRotation(rotation).withMirror(mirror));
+            palette.add(i, this.palette.get(i).withMirror(mirror).withRotation(rotation));
         }
+
+        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
+        int minX = extremes.getX() < 0 ? -extremes.getX()-1 : 0;
+        int minY = extremes.getY() < 0 ? -extremes.getY()-1 : 0;
+        int minZ = extremes.getZ() < 0 ? -extremes.getZ()-1 : 0;
 
         this.palette = palette;
 
@@ -380,7 +386,7 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation);
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).add(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final IBlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
@@ -428,6 +434,24 @@ public class Blueprint
     }
 
     /**
+     * Calculate the transformed size from a blockpos.
+     * @param pos the pos to transform
+     * @param rotation the rotation to apply.
+     * @return the resulting size.
+     */
+    public static BlockPos transformedSize(final BlockPos pos, final Rotation rotation)
+    {
+        switch (rotation)
+        {
+            case COUNTERCLOCKWISE_90:
+            case CLOCKWISE_90:
+                return new BlockPos(pos.getZ(), pos.getY(), pos.getX());
+            default:
+                return pos;
+        }
+    }
+
+    /**
      * Transforms a blockpos with mirror and rotation.
      *
      * @param xIn      the x input.
@@ -465,7 +489,7 @@ public class Blueprint
             case CLOCKWISE_180:
                 return new BlockPos(-x, y, -z);
             default:
-                return flag ? new BlockPos(x, y, z) : new BlockPos(x, y, z);
+                return flag ? new BlockPos(x, y, z) : new BlockPos(xIn, y, zIn);
         }
     }
 }

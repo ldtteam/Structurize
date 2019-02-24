@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
@@ -235,8 +235,6 @@ public final class Manager
     /**
      * Generates a cube with the specific size and adds it to the blueprint provided.
      * @param height    the height.
-     * @param width     the width.
-     * @param length    the length.
      * @param block     the block to use.
      * @param fillBlock the fill block.
      * @param hollow    if full.
@@ -258,9 +256,9 @@ public final class Manager
                     {
                         posList.put(new BlockPos(x, y, z), block);
                     }
-                    else
+                    else if (!hollow)
                     {
-                        posList.put(new BlockPos(x, y, z), hollow ? Blocks.AIR.getDefaultState() : fillBlock);
+                        posList.put(new BlockPos(x, y, z), fillBlock);
                     }
                 }
             }

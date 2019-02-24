@@ -2,7 +2,7 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
@@ -479,7 +479,12 @@ public class Structure
     @Nullable
     public Block getBlock()
     {
-        @Nullable final IBlockState state = this.getBlockState(getLocalPosition());
+        if (this.progressPos.equals(NULL_POS))
+        {
+            return null;
+        }
+
+        @Nullable final IBlockState state = this.getBlockState(progressPos);
         if (state == null)
         {
             return null;
@@ -585,6 +590,6 @@ public class Structure
      */
     public BlockPos getSize(final Rotation rotation, final Mirror mirror)
     {
-        return Blueprint.transformedBlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ(), mirror, rotation);
+        return Blueprint.transformedSize(new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ()), rotation);
     }
 }

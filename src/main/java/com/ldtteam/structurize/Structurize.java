@@ -136,6 +136,7 @@ public class Structurize
         getNetwork().registerMessage(RemoveEntityMessage.class, RemoveEntityMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(ReplaceBlockMessage.class, ReplaceBlockMessage.class, ++id, Side.SERVER);
         getNetwork().registerMessage(GenerateAndPasteMessage.class, GenerateAndPasteMessage.class, ++id, Side.SERVER);
+        getNetwork().registerMessage(UpdateScanToolMessage.class, UpdateScanToolMessage.class, ++id, Side.SERVER);
 
         // Schematic transfer messages
         getNetwork().registerMessage(SchematicRequestMessage.class, SchematicRequestMessage.class, ++id, Side.SERVER);
