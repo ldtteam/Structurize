@@ -464,17 +464,13 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     @Override
     public void onClosed()
     {
-        final ByteBuf buffer = Unpooled.buffer();
-
         if (Settings.instance.getActiveStructure() != null)
         {
+            final ByteBuf buffer = Unpooled.buffer();
+            
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
             Settings.instance.toBytes(buffer);
             Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
-        }
-        else
-        {
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, false));
         }
     }
 
@@ -1104,6 +1100,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void cancelClicked()
     {
         Settings.instance.reset();
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
         close();
     }
 
