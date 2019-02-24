@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Class handling the Server UUID Message.
+ * Message for sharing structure Settings between players in one session
  */
 public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisplayerMessage, IMessage>
 {
@@ -34,6 +34,8 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
     }
 
     /**
+     * Message for sharing structure Settings between players in one session
+     * 
      * @param settings structure settings
      * @param show if true create or update, if false destroy
      */

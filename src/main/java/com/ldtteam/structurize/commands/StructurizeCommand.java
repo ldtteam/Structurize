@@ -23,37 +23,25 @@ public class StructurizeCommand extends CommandTreeBase
         super.addSubcommand(new ScanCommand());
         super.addSubcommand(new UpdateSchematicsCommand());
     }
-
-    /**
-     * Gets the name of the command
-     */
+    
     @Override
     public String getName()
     {
         return NAME;
     }
-
-    /**
-     * Return the required permission level for this command.
-     */
+    
     @Override
     public int getRequiredPermissionLevel()
     {
         return 0;
     }
-
-    /**
-     * Check if the given ICommandSender has permission to execute this command
-     */
+    
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
         return true;
     }
-
-    /**
-     * Gets the usage string for the command.
-     */
+    
     @Override
     public String getUsage(ICommandSender sender)
     {
@@ -71,10 +59,7 @@ public class StructurizeCommand extends CommandTreeBase
         usage.append(">");
         return usage.toString();
     }
-
-    /**
-     * Callback for when the command is executed
-     */
+    
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {

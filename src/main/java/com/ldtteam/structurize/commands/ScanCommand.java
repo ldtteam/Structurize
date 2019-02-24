@@ -4,9 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.ScanToolOperation;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,10 +14,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 
 /**
- * Command for (un)muting a channel for sender
+ * Command for opening WindowScanTool or scanning a structure into a file
  */
 public class ScanCommand extends CommandBase
 {
@@ -37,18 +33,6 @@ public class ScanCommand extends CommandBase
     public String getUsage(ICommandSender sender)
     {
         return "/" + StructurizeCommand.NAME + " " + NAME + " <x1> <y1> <z1> <x2> <y2> <z2> [fileName] [blockToReplace > blockReplaceWith]...";
-    }
-
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-    
-    @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-    {
-        return true;
     }
     
     @Override
