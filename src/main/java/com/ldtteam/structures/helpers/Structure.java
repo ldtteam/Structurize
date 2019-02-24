@@ -2,7 +2,7 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
