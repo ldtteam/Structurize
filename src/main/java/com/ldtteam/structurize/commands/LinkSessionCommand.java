@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.server.command.CommandTreeBase;
 
 /**
@@ -255,6 +256,14 @@ public class LinkSessionCommand extends CommandTreeBase
             }
 
             final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
+            final TextComponentString acceptButton = new TextComponentString("ACCEPT");
+            final TextComponentString inviteMsg =
+                new TextComponentString("You have been invited to " + sender.getCommandSenderEntity().getName() + "'s session, click the button to ");
+
+            acceptButton.getStyle().setColor(TextFormatting.DARK_RED).setClickEvent(
+                new ClickEvent(ClickEvent.Action.RUN_COMMAND, new AcceptInvite().getUsage(sender) + " " + ownerUUID.toString()));
+            inviteMsg.appendSibling(acceptButton);
+
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
             {
                 throw new CommandException("You don't have a session created.");
@@ -268,6 +277,7 @@ public class LinkSessionCommand extends CommandTreeBase
                 }
 
                 LinkSessionManager.INSTANCE.createInvite(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), ownerUUID);
+                server.getPlayerList().getPlayerByUsername(name).sendMessage(inviteMsg);
                 sender.sendMessage(new TextComponentString("Inviting player \"" + name + "\" to " + sender.getName() + "'s session."));
             }
         }
@@ -609,19 +619,38 @@ public class LinkSessionCommand extends CommandTreeBase
         @Override
         public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
         {
-            if (args.length > 0)
+            if (args.length > 1)
             {
                 throw new WrongUsageException(this.getUsage(sender), new Object[0]);
             }
 
             final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
-            final String ownerName = LinkSessionManager.INSTANCE.consumeInvite(senderUUID, sender.getCommandSenderEntity().getName());
-
-            if (ownerName == null)
+            String ownerName = null;
+            if (args.length > 0)
             {
-                throw new CommandException("You have no open invite.");
+                try
+                {
+                    ownerName = LinkSessionManager.INSTANCE.consumeInviteWithCheck(senderUUID, sender.getCommandSenderEntity().getName(), UUID.fromString(args[0]));
+                }
+                catch (IllegalArgumentException e)
+                {
+                    throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+                }
+                if (ownerName == null)
+                {
+                    throw new CommandException("This invite does not exist anymore.");
+                }
             }
-            sender.sendMessage(new TextComponentString("You have successfully joined to " + sender.getName() + "'s linksession."));
+            else
+            {
+                ownerName = LinkSessionManager.INSTANCE.consumeInvite(senderUUID, sender.getCommandSenderEntity().getName());
+                if (ownerName == null)
+                {
+                    throw new CommandException("You have no open invite.");
+                }
+            }
+
+            sender.sendMessage(new TextComponentString("You have successfully joined to " + ownerName + "'s linksession."));
         }
     }
 

@@ -314,6 +314,25 @@ public class LinkSessionManager implements INBTSerializable<NBTTagCompound>
     }
 
     /**
+     * Comsumes player's invites and makes him a member in appropriate session
+     * 
+     * @param playerUUID  {@link EntityPlayer#getUniqueID()}
+     * @param playerName  string used in commands for displaying player's name
+     * @param UUIDtoCheck data in to check against current invite
+     * @return String:    ownerUUID of playerUUID session
+     * <p>     null:      if playerUUID was not found or if UUIDtoCheck does not match
+     */
+    @Nullable
+    public String consumeInviteWithCheck(@NotNull final UUID playerUUID, @Nullable final String playerName, @NotNull final UUID UUIDtoCheck)
+    {
+        if (invites.containsKey(playerUUID) && invites.get(playerUUID).equals(UUIDtoCheck))
+        {
+            return consumeInvite(playerUUID, playerName);
+        }
+        return null;
+    }
+
+    /**
      * Clears every storage of this manager
      */
     private void reset()

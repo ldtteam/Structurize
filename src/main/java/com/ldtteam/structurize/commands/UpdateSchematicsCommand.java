@@ -45,19 +45,6 @@ public class UpdateSchematicsCommand extends CommandBase
         return "/" + StructurizeCommand.NAME + " " + NAME;
     }
 
-    @NotNull
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-
-    @Override
-    public boolean checkPermission(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender)
-    {
-        return true;
-    }
-
     @Override
     public void execute(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender, @NotNull final String[] args) throws CommandException
     {
