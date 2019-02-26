@@ -421,6 +421,25 @@ public class Blueprint
             }
         }
 
+        if (!foundAnchor)
+        {
+            BlockPos tempSize = new BlockPos(sizeX, 0, sizeZ);
+            if (rotation == Rotation.CLOCKWISE_90)
+            {
+                tempSize = new BlockPos(-sizeZ, 0, sizeX);
+            }
+            if (rotation == Rotation.CLOCKWISE_180)
+            {
+                tempSize = new BlockPos(-sizeX, 0, -sizeZ);
+            }
+            if (rotation == Rotation.COUNTERCLOCKWISE_90)
+            {
+                tempSize = new BlockPos(sizeZ, 0, -sizeX);
+            }
+
+            offset = new BlockPos(tempSize.getX() / 2, 0, tempSize.getZ() / 2).add(minX, minY, minZ);
+        }
+
         sizeX = newSizeX;
         sizeY = newSizeY;
         sizeZ = newSizeZ;
@@ -430,9 +449,9 @@ public class Blueprint
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
 
-        return foundAnchor ? offset : new BlockPos(resultSize.getX() / 2, 0, resultSize.getZ() / 2);
+        return offset;
     }
-
+    
     /**
      * Calculate the transformed size from a blockpos.
      * @param pos the pos to transform
