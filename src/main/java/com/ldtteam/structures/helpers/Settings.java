@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * Class used to store.
  */
-public final class Settings implements IMessage
+public final class Settings
 {
     /**
      * Single instance of this class.
