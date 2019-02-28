@@ -72,7 +72,6 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
      * {@inheritDoc}
      * <p>
      * Displays or updates or destroys instance on target client
-     * Copied from WindowBuildTool
      *
      * @param message Message
      * @param ctx     Context
@@ -99,6 +98,14 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Spread message to all affected clients
+     *
+     * @param message Message
+     * @param player  Player
+     */
     @Override
     public void messageOnServerThread(final LSStructureDisplayerMessage message, final EntityPlayerMP player)
     {
@@ -108,7 +115,7 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
         }
         
         final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
-        targets.remove(player.getUniqueID()); // TODO: remove this to ensure desync will not appear?
+        targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
         for(UUID target : targets)
         {
             if(player.getServer().getEntityFromUuid(target) instanceof EntityPlayerMP)
