@@ -186,7 +186,7 @@ public class BlueprintUtil
 
         // Adding Entities
         final NBTTagList finishedEntities = new NBTTagList();
-        final NBTTagCompound[] entities = Arrays.stream(schem.getEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(NBTTagCompound[]::new);
+        final NBTTagCompound[] entities = schem.getEntities();
         for (final NBTTagCompound entity : entities)
         {
             finishedEntities.appendTag(entity);

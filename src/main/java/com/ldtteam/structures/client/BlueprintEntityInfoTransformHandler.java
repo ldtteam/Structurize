@@ -22,7 +22,7 @@ public class BlueprintEntityInfoTransformHandler
         return ourInstance;
     }
 
-    private Map<Predicate<Tuple<BlockPos, NBTTagCompound>>, Function<Tuple<BlockPos, NBTTagCompound>, Tuple<BlockPos, NBTTagCompound>>> entityInfoTransformHandler = new HashMap<>();
+    private Map<Predicate<NBTTagCompound>, Function<NBTTagCompound, NBTTagCompound>> entityInfoTransformHandler = new HashMap<>();
 
     private BlueprintEntityInfoTransformHandler()
     {
@@ -34,7 +34,7 @@ public class BlueprintEntityInfoTransformHandler
      * @param transformPredicate The predicate to check if this transform function needs to be applied.
      * @param transformHandler The tranformer.
      */
-    public void AddTransformHandler(@NotNull final Predicate<Tuple<BlockPos, NBTTagCompound>> transformPredicate, @NotNull final Function<Tuple<BlockPos, NBTTagCompound>, Tuple<BlockPos, NBTTagCompound>> transformHandler)
+    public void AddTransformHandler(@NotNull final Predicate<NBTTagCompound> transformPredicate, @NotNull final Function<NBTTagCompound, NBTTagCompound> transformHandler)
     {
         entityInfoTransformHandler.put(transformPredicate, transformHandler);
     }
@@ -45,12 +45,12 @@ public class BlueprintEntityInfoTransformHandler
      * @param entityInfo The entity info to transform
      * @return The transformed entityinfo.
      */
-    public Tuple<BlockPos, NBTTagCompound> Transform(@NotNull final Tuple<BlockPos, NBTTagCompound> entityInfo)
+    public NBTTagCompound Transform(@NotNull final NBTTagCompound entityInfo)
     {
         return getTransformHandler(entityInfo).apply(entityInfo);
     }
 
-    private Function<Tuple<BlockPos, NBTTagCompound>, Tuple<BlockPos, NBTTagCompound>> getTransformHandler(@NotNull final Tuple<BlockPos, NBTTagCompound> entityInfo)
+    private Function<NBTTagCompound,NBTTagCompound> getTransformHandler(@NotNull final NBTTagCompound entityInfo)
     {
         return entityInfoTransformHandler.keySet().stream().filter(p -> p.test(entityInfo)).findFirst().map(p -> entityInfoTransformHandler.get(p)).orElse(Function.identity());
     }

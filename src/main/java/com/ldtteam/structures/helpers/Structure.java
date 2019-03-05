@@ -259,34 +259,14 @@ public class Structure
     }
 
     /**
-     * Getter of the EntityInfo at a certain position.
-     *
-     * @param pos the position.
-     * @return the entity data.
-     */
-    @Nullable
-    public NBTTagCompound getEntityData(@NotNull final BlockPos pos)
-    {
-        if (this.blueprint.getEntities().length <= pos.getY() || this.blueprint.getEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
-        {
-            return null;
-        }
-        return this.blueprint.getEntities()[pos.getY()][pos.getZ()][pos.getX()];
-    }
-
-    /**
      * Getter of the EntityInfo at the current position.
      *
      * @return the entity data.
      */
     @Nullable
-    public NBTTagCompound getEntityData()
+    public NBTTagCompound[] getEntityData()
     {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            return null;
-        }
-        return getEntityData(progressPos);
+        return blueprint.getEntities();
     }
 
     /**
@@ -348,7 +328,7 @@ public class Structure
      */
     public void rotate(final Rotation rotation, @NotNull final World world, @NotNull final BlockPos rotatePos, @NotNull final Mirror mirror)
     {
-        this.offset = this.blueprint.rotateWithMirror(rotation, rotatePos, mirror);
+        this.offset = this.blueprint.rotateWithMirror(rotation, rotatePos, mirror, world);
     }
 
     /**

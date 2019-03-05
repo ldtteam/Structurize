@@ -3,6 +3,8 @@ package com.ldtteam.structurize.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.ChangeStorage;
@@ -41,6 +43,7 @@ public class InstantStructurePlacer
 
     /**
      * Create a new instnat structure placer.
+     *
      * @param structure the structure to place.
      */
     public InstantStructurePlacer(final Structure structure)
@@ -144,43 +147,27 @@ public class InstantStructurePlacer
             }
             currentPos = new BlockPos(0, y, 0);
         }
-        currentPos = new BlockPos(0, 0, 0);
         this.handleDelayedBlocks(delayedBlocks, storage, world);
 
-        for (int y = currentPos.getY(); y < endPos.getY(); y++)
+        for (final NBTTagCompound compound : this.structure.getEntityData())
         {
-            for (int x = currentPos.getX(); x < endPos.getX(); x++)
+            if (compound != null)
             {
-                for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
+                try
                 {
-                    @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final BlockPos worldPos = structure.getPosition().add(localPos);
-
-                    final NBTTagCompound info = this.structure.getEntityData(localPos);
-
-                    if (info != null)
-                    {
-                        try
-                        {
-                            final Entity entity = EntityList.createEntityFromNBT(info, world);
-                            entity.setUniqueId(UUID.randomUUID());
-                            entity.setPosition(worldPos.getX(), worldPos.getY(), worldPos.getZ());
-                            world.spawnEntity(entity);
-                            storage.addToBeKilledEntity(entity);
-                        }
-                        catch (final RuntimeException e)
-                        {
-                            Log.getLogger().info("Couldn't restore entitiy", e);
-                        }
-                    }
-                    if (count >= Configurations.gameplay.maxOperationsPerTick)
-                    {
-                        return new BlockPos(x, y, z);
-                    }
+                    final BlockPos pos = this.structure.getPosition();
+                    final Entity entity = EntityList.createEntityFromNBT(compound, world);
+                    entity.setUniqueId(UUID.randomUUID());
+                    final Vec3d worldPos = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
+                    entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
+                    world.spawnEntity(entity);
+                    storage.addToBeKilledEntity(entity);
                 }
-                currentPos = new BlockPos(x, y, 0);
+                catch (final RuntimeException e)
+                {
+                    Log.getLogger().info("Couldn't restore entitiy", e);
+                }
             }
-            currentPos = new BlockPos(0, y, 0);
         }
 
         return null;
@@ -268,6 +255,7 @@ public class InstantStructurePlacer
 
     /**
      * Set the placement to complete.
+     *
      * @param complete if placing the complete structure with placeholders.
      */
     public void setComplete(final boolean complete)

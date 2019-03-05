@@ -11,13 +11,11 @@ import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;

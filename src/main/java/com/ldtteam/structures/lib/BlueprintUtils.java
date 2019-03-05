@@ -16,12 +16,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,12 +157,12 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static Entity constructEntity(@Nullable final Tuple<BlockPos, NBTTagCompound> info, @NotNull final BlueprintBlockAccess blockAccess)
+    private static Entity constructEntity(@Nullable final NBTTagCompound info, @NotNull final BlueprintBlockAccess blockAccess)
     {
-        if (info.getSecond() == null)
+        if (info == null)
             return null;
 
-        final String entityId = info.getSecond().getString("id");
+        final String entityId = info.getString("id");
 
         //We know that this is going to fail.
         //Fail fast.
@@ -175,17 +171,8 @@ public final class BlueprintUtils
 
         try
         {
-            final NBTTagCompound compound = info.getSecond().copy();
-            Vec3d vec3d1 = new Vec3d(info.getFirst());
-            NBTTagList nbttaglist = new NBTTagList();
-            nbttaglist.appendTag(new NBTTagDouble(vec3d1.x));
-            nbttaglist.appendTag(new NBTTagDouble(vec3d1.y));
-            nbttaglist.appendTag(new NBTTagDouble(vec3d1.z));
-            compound.setTag("Pos", nbttaglist);
+            final NBTTagCompound compound = info.copy();
             compound.setUniqueId("UUID", UUID.randomUUID());
-            compound.setInteger("TileX", (int) vec3d1.x);
-            compound.setInteger("TileY", (int) vec3d1.y);
-            compound.setInteger("TileZ", (int) vec3d1.z);
 
             return EntityList.createEntityFromNBT(compound, blockAccess);
         }

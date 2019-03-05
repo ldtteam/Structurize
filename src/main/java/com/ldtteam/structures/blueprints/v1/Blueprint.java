@@ -1,18 +1,25 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -67,7 +74,7 @@ public class Blueprint
     /**
      * The entities.
      */
-    private NBTTagCompound[][][] entities;
+    private NBTTagCompound[] entities;
 
     /**
      * Constructor of a new Blueprint.
@@ -123,7 +130,6 @@ public class Blueprint
         this.sizeZ = sizeZ;
         this.structure = new short[sizeY][sizeZ][sizeX];
         this.tileEntities = new NBTTagCompound[sizeY][sizeZ][sizeX];
-        this.entities = new NBTTagCompound[sizeY][sizeZ][sizeX];
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
@@ -222,7 +228,7 @@ public class Blueprint
      * @return an array of serialized TileEntities (the Pos tag has
      * been localized to coordinates within the structure)
      */
-    public NBTTagCompound[][][] getEntities()
+    public NBTTagCompound[] getEntities()
     {
         return this.entities;
     }
@@ -233,14 +239,7 @@ public class Blueprint
      */
     public void setEntities(NBTTagCompound[] entities)
     {
-        this.entities = new NBTTagCompound[sizeY][sizeZ][sizeX];
-        for (final NBTTagCompound te : entities)
-        {
-            if (te != null)
-            {
-                this.entities[te.getShort("y")][te.getShort("z")][te.getShort("x")] = te;
-            }
-        }
+        this.entities = entities;
     }
 
     /**
@@ -307,20 +306,9 @@ public class Blueprint
      * Get a list of all entities in the blueprint as a list.
      * @return the list of nbttagcompounds.
      */
-    public final List<Tuple<BlockPos, NBTTagCompound>> getEntitiesAsList()
+    public final List<NBTTagCompound> getEntitiesAsList()
     {
-        final List<Tuple<BlockPos, NBTTagCompound>> list = new ArrayList<>();
-        for (short x = 0; x < this.sizeX; x++)
-        {
-            for (short y = 0; y < this.sizeY; y++)
-            {
-                for (short z = 0; z < this.sizeZ; z++)
-                {
-                    list.add(new Tuple<>(new BlockPos(x,y,z), entities[y][z][x]));
-                }
-            }
-        }
-        return list;
+        return Arrays.stream(entities).collect(Collectors.toList());
     }
 
     /**
@@ -353,7 +341,7 @@ public class Blueprint
      * @param pos the pos to rotateWithMirror it around.
      * @param mirror    the mirror.
      */
-    public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror)
+    public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
     {
         final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
         final short newSizeX = (short) resultSize.getX();
@@ -361,7 +349,7 @@ public class Blueprint
         final short newSizeZ = (short) resultSize.getZ();
 
         final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
-        final NBTTagCompound[][][] newEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
+        final NBTTagCompound[] newEntities = new NBTTagCompound[entities.length];
         final NBTTagCompound[][][] newTileEntities = new NBTTagCompound[newSizeY][newSizeZ][newSizeX];
 
         final List<IBlockState> palette = new ArrayList<>();
@@ -408,33 +396,62 @@ public class Blueprint
                         compound.setInteger("z", tempPos.getZ());
                     }
                     newTileEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = compound;
-
-                    final NBTTagCompound entitiesCompound = entities[y][z][x];
-                    if (compound != null)
-                    {
-                        compound.setInteger("x", tempPos.getX());
-                        compound.setInteger("y", tempPos.getY());
-                        compound.setInteger("z", tempPos.getZ());
-                    }
-                    newEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = entitiesCompound;
                 }
             }
         }
 
-        if (!foundAnchor)
+        for (int i = 0; i < entities.length; i++)
         {
-            BlockPos tempSize = new BlockPos(sizeX, 0, sizeZ);
+            final NBTTagCompound entitiesCompound = entities[i];
+            if (entitiesCompound != null)
+            {
+                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotation, mirror);
+            }
+        }
+
+        BlockPos temp;
+        if (mirror.equals(Mirror.FRONT_BACK))
+        {
+            if (minX == minZ)
+            {
+                temp = new BlockPos(resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
+            }
+            else
+            {
+                temp = new BlockPos(minX > 0 ? -resultSize.getX() : resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
+            }
+
+            Rotation theRotation = rotation;
             if (rotation == Rotation.CLOCKWISE_90)
             {
-                tempSize = new BlockPos(-sizeZ, 0, sizeX);
+                theRotation = Rotation.COUNTERCLOCKWISE_90;
+            }
+            else if (rotation == Rotation.COUNTERCLOCKWISE_90)
+            {
+                theRotation = Rotation.CLOCKWISE_90;
+            }
+
+            temp = temp.rotate(theRotation);
+        }
+        else
+        {
+            temp = resultSize;
+        }
+
+        if (!foundAnchor)
+        {
+            BlockPos tempSize = new BlockPos(temp.getX(), 0, temp.getZ());
+            if (rotation == Rotation.CLOCKWISE_90)
+            {
+                tempSize = new BlockPos(-temp.getZ(), 0, temp.getX());
             }
             if (rotation == Rotation.CLOCKWISE_180)
             {
-                tempSize = new BlockPos(-sizeX, 0, -sizeZ);
+                tempSize = new BlockPos(-temp.getX(), 0, -temp.getZ());
             }
             if (rotation == Rotation.COUNTERCLOCKWISE_90)
             {
-                tempSize = new BlockPos(sizeZ, 0, -sizeX);
+                tempSize = new BlockPos(temp.getZ(), 0, -temp.getX());
             }
 
             offset = new BlockPos(tempSize.getX() / 2, 0, tempSize.getZ() / 2).add(minX, minY, minZ);
@@ -509,6 +526,74 @@ public class Blueprint
                 return new BlockPos(-x, y, -z);
             default:
                 return flag ? new BlockPos(x, y, z) : new BlockPos(xIn, y, zIn);
+        }
+    }
+
+    /**
+     * Transform an entity and rotate it.
+     * @param entityInfo the entity nbt.
+     * @param world the world.
+     * @param pos the position.
+     * @param rotation the wanted rotation.
+     * @param mirror the mirror.
+     * @return the updated nbt.
+     */
+    private NBTTagCompound transformEntityInfoWithSettings(final NBTTagCompound entityInfo, final World world, final BlockPos pos, final Rotation rotation, final Mirror mirror)
+    {
+        final Entity finalEntity = EntityList.createEntityFromNBT(entityInfo, world);
+        if (finalEntity != null)
+        {
+            final Vec3d entityVec = Blueprint.transformedVec3d(rotation, mirror, finalEntity.getPositionVector()).add(new Vec3d(pos));
+
+            finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
+            final double rotationYaw = finalEntity.getMirroredYaw(mirror) + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
+
+            finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
+              (float) rotationYaw, finalEntity.rotationPitch);
+
+            final NBTTagCompound nbttagcompound = new NBTTagCompound();
+            finalEntity.writeToNBTOptional(nbttagcompound);
+            return nbttagcompound;
+        }
+
+        return null;
+    }
+
+    /**
+     * Transform a Vec3d with rotation and mirror.
+     * @param rotation the rotation.
+     * @param mirror the mirror.
+     * @param vec the vec to transform.
+     * @return the result.
+     */
+    private static Vec3d transformedVec3d(final Rotation rotation, final Mirror mirror, final Vec3d vec)
+    {
+        double xCoord = vec.x;
+        double zCoord = vec.z;
+        boolean flag = true;
+
+        switch (mirror)
+        {
+            case LEFT_RIGHT:
+                zCoord = 1.0D - zCoord;
+                break;
+            case FRONT_BACK:
+                xCoord = 1.0D - xCoord;
+                break;
+            default:
+                flag = false;
+        }
+
+        switch (rotation)
+        {
+            case COUNTERCLOCKWISE_90:
+                return new Vec3d(zCoord, vec.y, 1.0D - xCoord);
+            case CLOCKWISE_90:
+                return new Vec3d(1.0D - zCoord, vec.y, xCoord);
+            case CLOCKWISE_180:
+                return new Vec3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
+            default:
+                return flag ? new Vec3d(xCoord, vec.y, zCoord) : vec;
         }
     }
 }
