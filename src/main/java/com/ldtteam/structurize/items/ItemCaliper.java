@@ -22,7 +22,10 @@ public class ItemCaliper extends AbstractItemStructurize
 
     private static final double HALF                        = 0.5;
     private static final String ITEM_CALIPER_MESSAGE_SAME   = "item.caliper.message.same";
-    private static final String[] shapes = {"line", "square", "cube"};
+    private static final String ITEM_CALIPER_MESSAGE_BASE   = "item.caliper.message.base";
+    private static final String ITEM_CALIPER_MESSAGE_BY     = "item.caliper.message.by";
+    private static final String ITEM_CALIPER_MESSAGE_DIRLEN = "item.caliper.message.directLength";
+    private static final String ITEM_CALIPER_MESSAGE_XD     = "item.caliper.message.%sD";
 
     private BlockPos startPosition;
 
@@ -83,7 +86,7 @@ public class ItemCaliper extends AbstractItemStructurize
         int disX = Math.abs(pos.getX() - startPosition.getX());
         int disY = Math.abs(pos.getY() - startPosition.getY());
         int disZ = Math.abs(pos.getZ() - startPosition.getZ());
-        int flag = 2;
+        int flag = 3;
 
         if (startPosition.getX() == pos.getX())
         {
@@ -98,34 +101,33 @@ public class ItemCaliper extends AbstractItemStructurize
             flag--;
         }
 
-        final StringBuilder msg = new StringBuilder();
-        msg.append("That's a ");
-        msg.append(shapes[flag]);
-        msg.append(" ");
+        final String by = " " + LanguageHandler.format(ITEM_CALIPER_MESSAGE_BY) + " ";
+        StringBuilder msg = new StringBuilder();
         if (disX != 0)
         {
             disX++;
             msg.append(disX);
-            msg.append(" by ");
+            msg.append(by);
         }
         if (disY != 0)
         {
             disY++;
             msg.append(disY);
-            msg.append(" by ");
+            msg.append(by);
         }
         if (disZ != 0)
         {
             disZ++;
             msg.append(disZ);
-            msg.append(" by ");
+            msg.append(by);
         }
-        msg.delete(msg.length() - 3, msg.length());
-        msg.append("blocks");
-        if (flag > 0)
+        msg.delete(msg.length() - by.length(), msg.length());
+
+        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString(), LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag))));
+        if (flag > 1)
         {
-            msg.append(", direct length: ");
-            msg.append((double) Math.round(1000 * Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2) + Math.pow(disZ, 2))) / 1000);
+            msg.append(LanguageHandler.format(ITEM_CALIPER_MESSAGE_DIRLEN,
+                (double) Math.round(1000 * Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2) + Math.pow(disZ, 2))) / 1000));
         }
 
         LanguageHandler.sendPlayerMessage(playerIn, msg.toString());
