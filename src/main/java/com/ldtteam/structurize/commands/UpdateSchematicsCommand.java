@@ -1,13 +1,7 @@
 package com.ldtteam.structurize.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.*;
-
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.StructureUtils;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -23,6 +17,11 @@ import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
 
 /**
  * Command to update all schematics in structurize/updater/input to the blueprint format to structurize/updater/output.

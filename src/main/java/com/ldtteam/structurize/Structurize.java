@@ -9,7 +9,6 @@ import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.util.BackUpHelper;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +22,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

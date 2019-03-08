@@ -1,15 +1,13 @@
 package com.ldtteam.structurize.management.linksession;
 
+import net.minecraft.nbt.NBTTagCompound;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Instance of one session
