@@ -119,9 +119,9 @@ public class Blueprint
     /**
      * Constructor of a new Blueprint.
      *
-     * @param sizeX        the x size.
-     * @param sizeY        the y size.
-     * @param sizeZ        the z size.
+     * @param sizeX the x size.
+     * @param sizeY the y size.
+     * @param sizeZ the z size.
      */
     public Blueprint(short sizeX, short sizeY, short sizeZ)
     {
@@ -181,7 +181,8 @@ public class Blueprint
 
     /**
      * Add a blockstate to the structure.
-     * @param pos the position to add it to.
+     *
+     * @param pos   the position to add it to.
      * @param state the state to add.
      */
     public void addBlockState(final BlockPos pos, final IBlockState state)
@@ -304,6 +305,7 @@ public class Blueprint
 
     /**
      * Get a list of all entities in the blueprint as a list.
+     *
      * @return the list of nbttagcompounds.
      */
     public final List<NBTTagCompound> getEntitiesAsList()
@@ -313,6 +315,7 @@ public class Blueprint
 
     /**
      * Get a list of all blockInfo objects in the blueprint.
+     *
      * @return a list of all blockinfo (position, blockState, tileEntityData).
      */
     public final List<BlockInfo> getBlockInfoAsList()
@@ -337,9 +340,9 @@ public class Blueprint
     /**
      * Rotate the structure depending on the direction it's facing.
      *
-     * @param rotation  times to rotateWithMirror.
-     * @param pos the pos to rotateWithMirror it around.
-     * @param mirror    the mirror.
+     * @param rotation times to rotateWithMirror.
+     * @param pos      the pos to rotateWithMirror it around.
+     * @param mirror   the mirror.
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
     {
@@ -359,9 +362,9 @@ public class Blueprint
         }
 
         final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
-        int minX = extremes.getX() < 0 ? -extremes.getX()-1 : 0;
-        int minY = extremes.getY() < 0 ? -extremes.getY()-1 : 0;
-        int minZ = extremes.getZ() < 0 ? -extremes.getZ()-1 : 0;
+        int minX = extremes.getX() < 0 ? -extremes.getX() - 1 : 0;
+        int minY = extremes.getY() < 0 ? -extremes.getY() - 1 : 0;
+        int minZ = extremes.getZ() < 0 ? -extremes.getZ() - 1 : 0;
 
         this.palette = palette;
 
@@ -410,7 +413,7 @@ public class Blueprint
         }
 
         BlockPos temp;
-        if (mirror.equals(Mirror.FRONT_BACK))
+        if (rotation.equals(Rotation.CLOCKWISE_90) || rotation.equals(Rotation.COUNTERCLOCKWISE_90) || mirror.equals(Mirror.FRONT_BACK))
         {
             if (minX == minZ)
             {
@@ -420,7 +423,7 @@ public class Blueprint
             {
                 temp = new BlockPos(minX > 0 ? -resultSize.getX() : resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
             }
-
+            
             Rotation theRotation = rotation;
             if (rotation == Rotation.CLOCKWISE_90)
             {
@@ -468,10 +471,11 @@ public class Blueprint
 
         return offset;
     }
-    
+
     /**
      * Calculate the transformed size from a blockpos.
-     * @param pos the pos to transform
+     *
+     * @param pos      the pos to transform
      * @param rotation the rotation to apply.
      * @return the resulting size.
      */
@@ -531,11 +535,12 @@ public class Blueprint
 
     /**
      * Transform an entity and rotate it.
+     *
      * @param entityInfo the entity nbt.
-     * @param world the world.
-     * @param pos the position.
-     * @param rotation the wanted rotation.
-     * @param mirror the mirror.
+     * @param world      the world.
+     * @param pos        the position.
+     * @param rotation   the wanted rotation.
+     * @param mirror     the mirror.
      * @return the updated nbt.
      */
     private NBTTagCompound transformEntityInfoWithSettings(final NBTTagCompound entityInfo, final World world, final BlockPos pos, final Rotation rotation, final Mirror mirror)
@@ -561,9 +566,10 @@ public class Blueprint
 
     /**
      * Transform a Vec3d with rotation and mirror.
+     *
      * @param rotation the rotation.
-     * @param mirror the mirror.
-     * @param vec the vec to transform.
+     * @param mirror   the mirror.
+     * @param vec      the vec to transform.
      * @return the result.
      */
     private static Vec3d transformedVec3d(final Rotation rotation, final Mirror mirror, final Vec3d vec)
