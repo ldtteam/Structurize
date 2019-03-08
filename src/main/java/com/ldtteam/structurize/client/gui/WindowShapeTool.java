@@ -22,6 +22,8 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,7 +202,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * Generate the shape depending on the variables on the client.
      */
-    private void genShape()
+    private static void genShape()
     {
         final Structure structure = new Structure(Minecraft.getMinecraft().world);
         structure.setBluePrint(Manager.getStructureFromFormula(
@@ -214,6 +216,15 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.isHollow()));
         structure.setPlacementSettings(new PlacementSettings(Mirror.NONE, Rotation.NONE));
         Settings.instance.setActiveSchematic(structure);
+    }
+
+    /**
+     * Generate the shape depending on the variables on the client.
+     */ 
+    public static void commonStructureUpdate()
+    {
+        genShape();
+        updateRotation(Settings.instance.getRotation());
     }
 
     private void disableInputIfNecessary()
@@ -531,6 +542,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void cancelClicked()
     {
         Settings.instance.reset();
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
         close();
     }
 
@@ -562,6 +574,21 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (Settings.instance.getActiveStructure() != null)
         {
             Settings.instance.getActiveStructure().setPlacementSettings(settings);
+        }
+    }
+
+    /**
+     * Called when the window is closed.
+     * Updates state via {@link LSStructureDisplayerMessage}
+     */
+    @Override
+    public void onClosed()
+    {
+        if (Settings.instance.getActiveStructure() != null)
+        {
+            final ByteBuf buffer = Unpooled.buffer();
+            Settings.instance.toBytes(buffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
         }
     }
 }

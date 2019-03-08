@@ -2,13 +2,16 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import io.netty.buffer.ByteBuf;
 
 /**
  * Class used to store.
@@ -59,7 +62,7 @@ public final class Settings
     /**
      * Name of the static schematic if existent.
      */
-    private String staticSchematicName = "";
+    private String staticSchematicName = null;
 
     /**
      * The stack used to present blocks.
@@ -69,7 +72,7 @@ public final class Settings
     /**
      * Possible free to place structure.
      */
-    private WindowBuildTool.FreeMode freeMode;
+    private WindowBuildTool.FreeMode freeMode = null;
 
     /**
      * Private constructor to hide implicit one.
@@ -280,7 +283,12 @@ public final class Settings
         rotation = 0;
         isMirrored = false;
         staticSchematicMode = false;
-        staticSchematicName = "";
+        staticSchematicName = null;
+        freeMode = null;
+        hollow = false;
+        structureName = null;
+        pos = null;
+        box = null;
     }
 
     /**
@@ -451,5 +459,183 @@ public final class Settings
     public void setHollow(final boolean hollow)
     {
         this.hollow = hollow;
+    }
+
+    /**
+     * Serializable from {@link LSStructureDisplayerMessage}
+     */
+    public void fromBytes(ByteBuf buf)
+    {
+        isMirrored = buf.readBoolean();
+        staticSchematicMode = buf.readBoolean();
+        hollow = buf.readBoolean();
+
+        rotation = buf.readInt();
+        width = buf.readInt();
+        height = buf.readInt();
+        length = buf.readInt();
+        frequency = buf.readInt();
+
+        // enums
+        
+        if (buf.readBoolean())
+        {
+            shape = Shape.values()[buf.readInt()];
+        }
+        else
+        {
+            shape = Shape.CUBE;
+        }
+        
+        if (buf.readBoolean())
+        {
+            freeMode = WindowBuildTool.FreeMode.values()[buf.readInt()];
+        }
+        else
+        {
+            freeMode = null;
+        }
+
+        // block pos
+
+        if (buf.readBoolean())
+        {
+            offset.setPos(buf.readInt(), buf.readInt(), buf.readInt());
+        }
+        else
+        {
+            offset.setPos(0, 0, 0);
+        }
+
+        if (buf.readBoolean())
+        {
+            pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+        }
+        else
+        {
+            pos = null;
+        }
+        
+        if (buf.readBoolean())
+        {
+            box = new Tuple<BlockPos, BlockPos>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
+        }
+        else
+        {
+            box = null;
+        }
+
+        // strings
+
+        if (buf.readBoolean())
+        {
+            structureName = ByteBufUtils.readUTF8String(buf);
+        }
+        else
+        {
+            structureName = null;
+        }
+        
+        if (buf.readBoolean())
+        {
+            staticSchematicName = ByteBufUtils.readUTF8String(buf);
+        }
+        else
+        {
+            staticSchematicName = null;
+        }
+
+        // itemstack
+
+        if (buf.readBoolean())
+        {
+            stack = new Tuple<>(ByteBufUtils.readItemStack(buf), ByteBufUtils.readItemStack(buf));
+        }
+        else
+        {
+            stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
+        }
+    }
+
+    /**
+     * Serializable from {@link LSStructureDisplayerMessage}
+     */
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeBoolean(isMirrored);
+        buf.writeBoolean(staticSchematicMode);
+        buf.writeBoolean(hollow);
+
+        buf.writeInt(rotation);
+        buf.writeInt(width);
+        buf.writeInt(height);
+        buf.writeInt(length);
+        buf.writeInt(frequency);
+
+        // enums
+
+        buf.writeBoolean(shape != null);
+        if (shape != null)
+        {
+            buf.writeInt(shape.ordinal());
+        }
+
+        buf.writeBoolean(freeMode != null);
+        if (freeMode != null)
+        {
+            buf.writeInt(freeMode.ordinal());
+        }
+
+        // block pos
+
+        buf.writeBoolean(offset != null);
+        if (offset != null)
+        {
+            buf.writeInt(offset.getX());
+            buf.writeInt(offset.getY());
+            buf.writeInt(offset.getZ());
+        }
+
+        buf.writeBoolean(pos != null);
+        if (pos != null)
+        {
+            buf.writeInt(pos.getX());
+            buf.writeInt(pos.getY());
+            buf.writeInt(pos.getZ());
+        }
+
+        buf.writeBoolean(box != null);
+        if (box != null)
+        {
+            buf.writeInt(box.getFirst().getX());
+            buf.writeInt(box.getFirst().getY());
+            buf.writeInt(box.getFirst().getZ());
+            buf.writeInt(box.getSecond().getX());
+            buf.writeInt(box.getSecond().getY());
+            buf.writeInt(box.getSecond().getZ());
+        }
+
+        // strings
+
+        buf.writeBoolean(structureName != null);
+        if (structureName != null)
+        {
+            ByteBufUtils.writeUTF8String(buf, structureName);
+        }
+
+        buf.writeBoolean(staticSchematicName != null);
+        if (staticSchematicName != null)
+        {
+            ByteBufUtils.writeUTF8String(buf, staticSchematicName);
+        }
+
+        // itemstacks
+
+        buf.writeBoolean(stack != null);
+        if (stack != null)
+        {
+            ByteBufUtils.writeItemStack(buf, stack.getFirst());
+            ByteBufUtils.writeItemStack(buf, stack.getSecond());
+        }
     }
 }

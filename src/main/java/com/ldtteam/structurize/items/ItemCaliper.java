@@ -21,10 +21,11 @@ public class ItemCaliper extends AbstractItemStructurize
     private static final RangedAttribute ATTRIBUTE_CALIPER_USE = new RangedAttribute((IAttribute) null, "player.caliperUse", 0.0, 0.0, 1.0);
 
     private static final double HALF                        = 0.5;
-    private static final String ITEM_CALIPER_MESSAGE_LINE   = "item.caliper.message.line";
-    private static final String ITEM_CALIPER_MESSAGE_SQUARE = "item.caliper.message.square";
-    private static final String ITEM_CALIPER_MESSAGE_CUBE   = "item.caliper.message.cube";
     private static final String ITEM_CALIPER_MESSAGE_SAME   = "item.caliper.message.same";
+    private static final String ITEM_CALIPER_MESSAGE_BASE   = "item.caliper.message.base";
+    private static final String ITEM_CALIPER_MESSAGE_BY     = "item.caliper.message.by";
+    private static final String ITEM_CALIPER_MESSAGE_DIRLEN = "item.caliper.message.directLength";
+    private static final String ITEM_CALIPER_MESSAGE_XD     = "item.caliper.message.%sD";
 
     private BlockPos startPosition;
 
@@ -37,16 +38,6 @@ public class ItemCaliper extends AbstractItemStructurize
 
         super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
         maxStackSize = 1;
-    }
-
-    private static EnumActionResult handleZEqual(@NotNull final EntityPlayer playerIn, final int a, final int a2)
-    {
-        final int distance1 = Math.abs(a) + 1;
-        final int distance2 = Math.abs(a2) + 1;
-
-        LanguageHandler.sendPlayerMessage(
-          playerIn, ITEM_CALIPER_MESSAGE_SQUARE, Integer.toString(distance1), Integer.toString(distance2));
-        return EnumActionResult.SUCCESS;
     }
 
     @Override
@@ -92,49 +83,54 @@ public class ItemCaliper extends AbstractItemStructurize
 
     private EnumActionResult handlePlayerMessage(@NotNull final EntityPlayer playerIn, @NotNull final BlockPos pos)
     {
+        int disX = Math.abs(pos.getX() - startPosition.getX());
+        int disY = Math.abs(pos.getY() - startPosition.getY());
+        int disZ = Math.abs(pos.getZ() - startPosition.getZ());
+        int flag = 3;
+
         if (startPosition.getX() == pos.getX())
         {
-            return handleXEqual(playerIn, pos);
+            flag--;
         }
         if (startPosition.getY() == pos.getY())
         {
-            return handleYEqual(playerIn, pos, pos.getX() - startPosition.getX(), pos.getY() - startPosition.getZ());
+            flag--;
         }
         if (startPosition.getZ() == pos.getZ())
         {
-            return handleZEqual(playerIn, pos.getX() - startPosition.getX(), pos.getY() - startPosition.getY());
+            flag--;
         }
 
-        final int distance1 = Math.abs(pos.getX() - startPosition.getX()) + 1;
-        final int distance2 = Math.abs(pos.getY() - startPosition.getY()) + 1;
-        final int distance3 = Math.abs(pos.getZ() - startPosition.getZ()) + 1;
+        final String by = " " + LanguageHandler.format(ITEM_CALIPER_MESSAGE_BY) + " ";
+        StringBuilder msg = new StringBuilder();
+        if (disX != 0)
+        {
+            disX++;
+            msg.append(disX);
+            msg.append(by);
+        }
+        if (disY != 0)
+        {
+            disY++;
+            msg.append(disY);
+            msg.append(by);
+        }
+        if (disZ != 0)
+        {
+            disZ++;
+            msg.append(disZ);
+            msg.append(by);
+        }
+        msg.delete(msg.length() - by.length(), msg.length());
 
-        LanguageHandler.sendPlayerMessage(
-          playerIn,
-          ITEM_CALIPER_MESSAGE_CUBE,
-          Integer.toString(distance1), Integer.toString(distance2), Integer.toString(distance3));
+        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString(), LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag))));
+        if (flag > 1)
+        {
+            msg.append(LanguageHandler.format(ITEM_CALIPER_MESSAGE_DIRLEN,
+                (double) Math.round(1000 * Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2) + Math.pow(disZ, 2))) / 1000));
+        }
+
+        LanguageHandler.sendPlayerMessage(playerIn, msg.toString());
         return EnumActionResult.SUCCESS;
-    }
-
-    private EnumActionResult handleYEqual(@NotNull final EntityPlayer playerIn, @NotNull final BlockPos pos, final int a, final int a2)
-    {
-        if (startPosition.getZ() == pos.getZ())
-        {
-            final int distance = Math.abs(a) + 1;
-            LanguageHandler.sendPlayerMessage(playerIn, ITEM_CALIPER_MESSAGE_LINE, Integer.toString(distance));
-            return EnumActionResult.SUCCESS;
-        }
-        return handleZEqual(playerIn, a, a2);
-    }
-
-    private EnumActionResult handleXEqual(@NotNull final EntityPlayer playerIn, @NotNull final BlockPos pos)
-    {
-        if (startPosition.getY() == pos.getY())
-        {
-            final int distance = Math.abs(pos.getZ() - startPosition.getZ()) + 1;
-            LanguageHandler.sendPlayerMessage(playerIn, ITEM_CALIPER_MESSAGE_LINE, Integer.toString(distance));
-            return EnumActionResult.SUCCESS;
-        }
-        return handleYEqual(playerIn, pos, pos.getY() - startPosition.getY(), pos.getZ() - startPosition.getZ());
     }
 }

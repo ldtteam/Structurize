@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * CommonProxy of the structurize mod (Server and Client).
@@ -104,35 +104,13 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, Constants.MOD_ID + ":multiblock");
+        GameRegistry.registerTileEntity(TileEntityMultiBlock.class, new ResourceLocation(Constants.MOD_ID, "multiblock"));
     }
 
     @Override
     public void registerEvents()
     {
         MinecraftForge.EVENT_BUS.register(new FMLEventHandler());
-    }
-
-    @Override
-    public void registerEntities()
-    {
-
-    }
-
-    @Override
-    public void registerEntityRendering()
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
-    public void registerTileEntityRendering()
-    {
-        /*
-         * Intentionally left empty.
-         */
     }
 
     @Override
@@ -169,14 +147,6 @@ public class CommonProxy implements IProxy
 
     @Override
     public void openClipBoardWindow(final int colonyId)
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
-    public void registerRenderer()
     {
         /*
          * Intentionally left empty.

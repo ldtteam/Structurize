@@ -11,6 +11,7 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -25,10 +26,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import scala.Array;
 
+import scala.Array;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -456,16 +459,20 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Called when the window is closed.
      * If there is a current structure, its information is stored in {@link Settings}.
+     * Also updates state via {@link LSStructureDisplayerMessage}
      */
     @Override
     public void onClosed()
     {
         if (Settings.instance.getActiveStructure() != null)
         {
+            final ByteBuf buffer = Unpooled.buffer();
+            
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
+            Settings.instance.toBytes(buffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
         }
     }
-
 
     /*
      * ---------------- Schematic Navigation Handling -----------------
@@ -774,22 +781,45 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void changeSchematic()
     {
+        if (!Settings.instance.isStaticSchematicMode())
+        {
+            Settings.instance.setStructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
+        }
+
+        commonStructureUpdate();
+
+        if (Settings.instance.getPosition() == null)
+        {
+            Settings.instance.setPosition(this.pos);
+        }
+    }
+
+    /**
+     * Changes the current structure.
+     */
+    public static void commonStructureUpdate()
+    {
         final String sname;
+
         if (Settings.instance.isStaticSchematicMode())
         {
             sname = Settings.instance.getStaticSchematicName();
         }
         else
         {
-            sname = schematics.get(schematicsDropDownList.getSelectedIndex());
+            sname = Settings.instance.getStructureName();
+        }
+        
+        if (sname == null)
+        {
+            return;
         }
 
         final StructureName structureName = new StructureName(sname);
-        final Structure structure = new Structure(Minecraft.getMinecraft().world,
-          structureName.toString(),
-          new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
-
         final String md5 = Structures.getMD5(structureName.toString());
+        final Structure structure = new Structure(Minecraft.getMinecraft().world, structureName.toString(),
+            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
+
         if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
         {
             if (structure.isBluePrintMissing())
@@ -814,12 +844,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         Settings.instance.setStructureName(structureName.toString());
         Settings.instance.setActiveSchematic(structure);
-
-
-        if (Settings.instance.getPosition() == null)
-        {
-            Settings.instance.setPosition(this.pos);
-        }
     }
 
     /**
@@ -1076,6 +1100,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void cancelClicked()
     {
         Settings.instance.reset();
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
         close();
     }
 
