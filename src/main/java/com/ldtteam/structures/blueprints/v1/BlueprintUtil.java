@@ -61,14 +61,14 @@ public class BlueprintUtil
      */
     public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ, String name, String... architects)
     {
-        List<IBlockState> pallete = new ArrayList<>();
+        final List<IBlockState> pallete = new ArrayList<>();
         //Allways add AIR to Pallete
         pallete.add(Blocks.AIR.getDefaultState());
-        short[][][] structure = new short[sizeY][sizeZ][sizeX];
+        final short[][][] structure = new short[sizeY][sizeZ][sizeX];
 
-        List<NBTTagCompound> tileEntities = new ArrayList<>();
+        final List<NBTTagCompound> tileEntities = new ArrayList<>();
 
-        List<String> requiredMods = new ArrayList<>();
+        final List<String> requiredMods = new ArrayList<>();
 
         for (final MutableBlockPos mutablePos : BlockPos.getAllInBoxMutable(pos, pos.add(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
@@ -90,7 +90,7 @@ public class BlueprintUtil
                 continue;
             }
 
-            TileEntity te = world.getTileEntity(mutablePos);
+            final TileEntity te = world.getTileEntity(mutablePos);
             if (te != null)
             {
                 NBTTagCompound teTag = te.serializeNBT();
@@ -106,19 +106,18 @@ public class BlueprintUtil
             structure[y][z][x] = (short) pallete.indexOf(state);
         }
 
-        NBTTagCompound[] tes = new NBTTagCompound[tileEntities.size()];
-        tes = tileEntities.toArray(tes);
+        final NBTTagCompound[] tes = tileEntities.toArray(new NBTTagCompound[0]);
 
-        List<NBTTagCompound> entitiesTag = new ArrayList<>();
+        final List<NBTTagCompound> entitiesTag = new ArrayList<>();
 
-        List<Entity> entities =
+        final List<Entity> entities =
           world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
 
-        for (Entity entity : entities)
+        for (final Entity entity : entities)
         {
-            Vec3d oldPos = entity.getPositionVector();
+            final Vec3d oldPos = entity.getPositionVector();
             entity.setPosition(oldPos.x - pos.getX(), oldPos.y - pos.getY(), oldPos.z - pos.getZ());
-            NBTTagCompound entityTag = new NBTTagCompound();
+            final NBTTagCompound entityTag = new NBTTagCompound();
             if(entity.writeToNBTOptional(entityTag))
             {
                 entitiesTag.add(entityTag);
