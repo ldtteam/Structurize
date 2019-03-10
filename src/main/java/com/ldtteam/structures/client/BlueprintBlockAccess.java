@@ -11,6 +11,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,6 +91,20 @@ public class BlueprintBlockAccess extends World implements IBlockAccess
     public Biome getBiome(@NotNull final BlockPos pos)
     {
         return Biomes.PLAINS;
+    }
+
+    @NotNull
+    @Override
+    public Chunk getChunk(final BlockPos pos)
+    {
+        return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
+    }
+
+    @NotNull
+    @Override
+    public Chunk getChunk(int chunkX, int chunkZ)
+    {
+        return new BlueprintChunk(this, chunkX, chunkZ);
     }
 
     @NotNull
