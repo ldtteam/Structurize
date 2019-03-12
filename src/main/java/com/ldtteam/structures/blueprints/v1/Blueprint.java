@@ -74,7 +74,7 @@ public class Blueprint
     /**
      * The entities.
      */
-    private NBTTagCompound[] entities;
+    private NBTTagCompound[] entities = new NBTTagCompound[0];
 
     /**
      * Constructor of a new Blueprint.
