@@ -125,16 +125,8 @@ public class Structure
 
             try
             {
-                this.md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName));
-                final String ending = Structures.getFileExtension(correctStructureName);
-                if (ending != null)
-                {
-                    if (ending.endsWith(SCHEMATIC_EXTENSION_NEW))
-                    {
-                        final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(inputStream);
-                        this.blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, StructureUtils.getFixer());
-                    }
-                }
+                final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(inputStream);
+                this.blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, StructureUtils.getFixer());
             }
             catch (final IOException e)
             {
