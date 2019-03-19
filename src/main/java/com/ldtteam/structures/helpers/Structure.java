@@ -125,6 +125,7 @@ public class Structure
 
             try
             {
+                this.md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName));
                 final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(inputStream);
                 this.blueprint = BlueprintUtil.readBlueprintFromNBT(nbttagcompound, StructureUtils.getFixer());
             }
