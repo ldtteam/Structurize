@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -556,9 +557,7 @@ public final class Structures
         if (schematicsMap.containsKey(section))
         {
             final Map<String, Map<String, String>> sectionMap = schematicsMap.get(section);
-            final ArrayList<String> list = new ArrayList<>(sectionMap.keySet());
-            Collections.sort(list);
-            return list;
+            return sectionMap.keySet().stream().filter(str -> !str.endsWith("/miner")).sorted().collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
