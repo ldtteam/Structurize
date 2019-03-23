@@ -3,6 +3,7 @@ package com.ldtteam.structurize.placementhandlers;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -530,7 +531,8 @@ public final class PlacementHandlers
           @NotNull final IBlockState blockState,
           @Nullable final NBTTagCompound tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -544,7 +546,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos);
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
             }
 
             return blockState;
@@ -653,21 +655,39 @@ public final class PlacementHandlers
      * @param world the world.
      * @param pos the position.
      */
-    public static void handleTileEntityPlacement(final NBTTagCompound tileEntityData, final World world, @NotNull final BlockPos pos)
+    public static void handleTileEntityPlacement(final NBTTagCompound tileEntityData, final World world, @NotNull final BlockPos pos, final PlacementSettings settings)
     {
         if (tileEntityData != null)
         {
-            final TileEntity tileEntityFlowerpot = world.getTileEntity(pos);
-            if (tileEntityFlowerpot == null)
+            final TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity == null)
             {
-                TileEntity.create(world, tileEntityData);
+                final TileEntity newTile = TileEntity.create(world, tileEntityData);
+                if (newTile != null)
+                {
+                    newTile.rotate(settings.rotation);
+                    newTile.mirror(settings.mirror);
+                }
             }
             else
             {
-                tileEntityFlowerpot.readFromNBT(tileEntityData);
-                world.setTileEntity(pos, tileEntityFlowerpot);
+                tileEntity.readFromNBT(tileEntityData);
+                world.setTileEntity(pos, tileEntity);
+                tileEntity.rotate(settings.rotation);
+                tileEntity.mirror(settings.mirror);
             }
         }
+    }
+
+    /**
+     * Handles tileEntity placement.
+     * @param tileEntityData the data of the tile entity.
+     * @param world the world.
+     * @param pos the position.
+     */
+    public static void handleTileEntityPlacement(final NBTTagCompound tileEntityData, final World world, @NotNull final BlockPos pos)
+    {
+        handleTileEntityPlacement(tileEntityData, world, pos, new PlacementSettings());
     }
 
     /**

@@ -208,7 +208,7 @@ public class InstantStructurePlacer
         {
             if (handlers.canHandle(world, pos, localState))
             {
-                handlers.handle(world, pos, localState, tileEntityData, complete, structure.getPosition());
+                handlers.handle(world, pos, localState, tileEntityData, complete, structure.getPosition(), structure.getSettings());
                 return;
             }
         }

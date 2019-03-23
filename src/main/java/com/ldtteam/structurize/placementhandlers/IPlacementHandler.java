@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.placementhandlers;
 
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -33,15 +35,43 @@ public interface IPlacementHandler
      * @param blockState     the blockState.
      * @param tileEntityData the placer of the block.
      * @param complete       place it complete (with or without substitution blocks etc).
-     * @param centerPos
+     * @param centerPos      centerPos the central position of it.
      * @return ACCEPT, DENY or IGNORE.
      */
-    Object handle(
+    default Object handle(
       @NotNull final World world,
       @NotNull final BlockPos pos,
       @NotNull final IBlockState blockState,
       @Nullable final NBTTagCompound tileEntityData,
-      final boolean complete, final BlockPos centerPos);
+      final boolean complete, final BlockPos centerPos)
+    {
+        /*
+         * Do nothing...
+         */
+        return Blocks.AIR;
+    }
+
+    /**
+     * Method used to handle the processing of a Placement of a block.
+     *
+     * @param world          receives the world.
+     * @param pos            the position.
+     * @param blockState     the blockState.
+     * @param tileEntityData the placer of the block.
+     * @param complete       place it complete (with or without substitution blocks etc).
+     * @param centerPos      the central position of it.
+     * @param settings       the settings to use to rotate or mirror it.
+     * @return ACCEPT, DENY or IGNORE.
+     */
+    default Object handle(
+      @NotNull final World world,
+      @NotNull final BlockPos pos,
+      @NotNull final IBlockState blockState,
+      @Nullable final NBTTagCompound tileEntityData,
+      final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
+    {
+        return this.handle(world, pos, blockState, tileEntityData, complete, centerPos);
+    }
 
     /**
      * Method used to get the required items to place a block.
