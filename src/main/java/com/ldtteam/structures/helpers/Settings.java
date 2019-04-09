@@ -290,6 +290,7 @@ public final class Settings
         structureName = null;
         pos = null;
         box = null;
+        equation = "";
     }
 
     /**
@@ -557,6 +558,11 @@ public final class Settings
         {
             stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
         }
+
+        if (buf.readBoolean())
+        {
+            equation = ByteBufUtils.readUTF8String(buf);
+        }
     }
 
     /**
@@ -639,6 +645,12 @@ public final class Settings
         {
             ByteBufUtils.writeItemStack(buf, stack.getFirst());
             ByteBufUtils.writeItemStack(buf, stack.getSecond());
+        }
+
+        buf.writeBoolean(!equation.isEmpty());
+        if (!equation.isEmpty())
+        {
+            ByteBufUtils.writeUTF8String(buf, equation);
         }
     }
 
