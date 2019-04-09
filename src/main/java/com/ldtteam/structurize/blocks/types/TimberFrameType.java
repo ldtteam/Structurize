@@ -59,6 +59,7 @@ public enum TimberFrameType implements IStringSerializable
 
     /**
      * The color which represents this entry on a map.
+     * @return the MapColor object.
      */
     public MapColor getMapColor()
     {

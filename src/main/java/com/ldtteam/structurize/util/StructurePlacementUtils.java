@@ -88,6 +88,7 @@ public class StructurePlacementUtils
      * and place it in the right position and rotation.
      *
      * @param worldObj the world to load it in
+     * @param blueprint the blueprint to load and place.
      * @param pos      coordinates
      * @param rotation the rotation.
      * @param mirror   the mirror used.

@@ -559,6 +559,7 @@ public class Structure
     /**
      * Get the size and calculate it from a rotation.
      * @param rotation the rotation.
+     * @param mirror the mirror.
      * @return the rotated size.
      */
     public BlockPos getSize(final Rotation rotation, final Mirror mirror)

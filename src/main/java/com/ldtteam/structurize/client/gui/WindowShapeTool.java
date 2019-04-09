@@ -128,6 +128,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      *
      * @param pos coordinate.
      * @param mainBlock if main or fill block.
+     * @param stack the stack to use.
      */
     public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
     {

@@ -54,6 +54,7 @@ public class ChangeStorage
      * @param world the world.
      * @param from the first position.
      * @param to the second position.
+     * @param player the player assigned to it.
      */
     public ChangeStorage(final World world, final BlockPos from, final BlockPos to, final EntityPlayer player)
     {
@@ -109,6 +110,7 @@ public class ChangeStorage
     /**
      * Reload the previous state of the positions.
      * @param world the world to manipulate.
+     * @return true if successful.
      */
     public boolean undo(final World world)
     {

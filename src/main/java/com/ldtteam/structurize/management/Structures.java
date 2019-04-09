@@ -666,6 +666,7 @@ public final class Structures
      * @param id     UUID.
      * @param piece  the piece.
      * @param pieces the amount of pieces.
+     * @return true if successful.
      */
     public static boolean handleSaveSchematicMessage(final byte[] bytes, final UUID id, final int pieces, final int piece)
     {

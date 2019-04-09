@@ -261,8 +261,10 @@ public class Blueprint
 
     /**
      * Sets the name of the Structure
+     * @param name the name to set.
+     * @return this object.
      */
-    public Blueprint setName(String name)
+    public Blueprint setName(final String name)
     {
         this.name = name;
         return this;
@@ -278,8 +280,10 @@ public class Blueprint
 
     /**
      * Sets an Array of all architects for this structure
+     * @param architects an array of architects.
+     * @return this blueprint.
      */
-    public Blueprint setArchitects(String[] architects)
+    public Blueprint setArchitects(final String[] architects)
     {
         this.architects = architects;
         return this;
@@ -296,8 +300,10 @@ public class Blueprint
 
     /**
      * Sets the missing mods
+     * @param missingMods the missing mods list.
+     * @return this object.
      */
-    public Blueprint setMissingMods(String... missingMods)
+    public Blueprint setMissingMods(final String... missingMods)
     {
         this.missingMods = missingMods;
         return this;
@@ -343,6 +349,8 @@ public class Blueprint
      * @param rotation times to rotateWithMirror.
      * @param pos      the pos to rotateWithMirror it around.
      * @param mirror   the mirror.
+     * @param world the world.
+     * @return the new offset.
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
     {

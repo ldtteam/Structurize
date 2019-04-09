@@ -132,8 +132,8 @@ public final class Settings
 
     /**
      * Set a possible box.
+     * @param box, the box which should be drawn (two positions).
      */
-    @NotNull
     public void setBox(final Tuple<BlockPos, BlockPos> box)
     {
         this.box = box;
@@ -464,8 +464,9 @@ public final class Settings
 
     /**
      * Serializable from {@link LSStructureDisplayerMessage}
+     * @param buf the bytebuf to read it from.
      */
-    public void fromBytes(ByteBuf buf)
+    public void fromBytes(final ByteBuf buf)
     {
         isMirrored = buf.readBoolean();
         staticSchematicMode = buf.readBoolean();
@@ -560,8 +561,9 @@ public final class Settings
 
     /**
      * Serializable from {@link LSStructureDisplayerMessage}
+     * @param buf the bytebuf to write it in.
      */
-    public void toBytes(ByteBuf buf)
+    public void toBytes(final ByteBuf buf)
     {
         buf.writeBoolean(isMirrored);
         buf.writeBoolean(staticSchematicMode);

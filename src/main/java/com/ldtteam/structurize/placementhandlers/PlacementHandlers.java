@@ -654,6 +654,7 @@ public final class PlacementHandlers
      * @param tileEntityData the data of the tile entity.
      * @param world the world.
      * @param pos the position.
+     * @param settings the placement settings.
      */
     public static void handleTileEntityPlacement(final NBTTagCompound tileEntityData, final World world, @NotNull final BlockPos pos, final PlacementSettings settings)
     {

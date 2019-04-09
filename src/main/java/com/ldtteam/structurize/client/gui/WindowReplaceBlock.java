@@ -89,6 +89,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param initialStack the initial stack.
      * @param pos1 the start pos.
      * @param pos2 the end pos.
+     * @param origin the origin view.
      */
     public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
     {
@@ -106,6 +107,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param initialStack the initial stack.
      * @param pos the central pos.
      * @param main main block or fill block.
+     * @param origin the origin view.
      */
     public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
     {

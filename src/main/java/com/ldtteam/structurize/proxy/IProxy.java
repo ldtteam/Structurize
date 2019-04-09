@@ -86,6 +86,7 @@ public interface IProxy
 
     /**
      * Method to get a side specific world from a message context anywhere.
+     * @param dimension the dimension.
      * @return The world.
      */
     @Nullable

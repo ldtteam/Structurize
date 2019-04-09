@@ -1009,7 +1009,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
     /**
      * Override if place without paste is required.
-     * @param structureName
+     * @param structureName the name.
      */
     public void place(final StructureName structureName)
     {
@@ -1045,6 +1045,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
     /**
      * Method to directly paste a structure.
+     * @param name the name of the structure.
+     * @param complete if complete or not.
      */
     public void paste(final StructureName name, final boolean complete)
     {

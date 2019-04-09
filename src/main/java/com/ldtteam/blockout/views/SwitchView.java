@@ -181,6 +181,7 @@ public class SwitchView extends View
 
     /**
      * Get amount of views
+     * @return the size.
      */
     public int getChildrenSize()
     {

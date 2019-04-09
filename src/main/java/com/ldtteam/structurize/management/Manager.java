@@ -109,6 +109,7 @@ public final class Manager
      * @param width          the width.
      * @param length         the length.
      * @param height         the height.
+     * @param frequency      the frequency.
      * @param equation       the equation.
      * @param shape          the shape.
      * @param inputBlock     the input block.
@@ -144,11 +145,13 @@ public final class Manager
      * @param width          the width.
      * @param length         the length.
      * @param height         the height.
+     * @param frequency      the frequency.
      * @param equation       the equation.
      * @param shape          the shape.
      * @param inputBlock     the input block.
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
+     * @return               the new blueprint.
      */
     public static Blueprint getStructureFromFormula(
       final int width,
@@ -414,9 +417,6 @@ public final class Manager
 
     /**
      * Randomly generates shape based on an equation.
-     * Examples:
-     *   (-(z^2/12)+(y^2/4)-(x^2/12)) > -0.03
-     *   (0.75-sqrt((x^2+y^2)^2)+z^2 < 0.25^2)
      * @param height the height.
      * @param width the width.
      * @param length the length.

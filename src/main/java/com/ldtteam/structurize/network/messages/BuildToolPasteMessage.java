@@ -47,7 +47,7 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
      * @param isHut         true if hut, false if decoration
      * @param mirror        the mirror of the building or decoration.
      * @param complete      paste it complete (with structure blocks) or without.
-     * @param freeMode
+     * @param freeMode      the free mode type.
      */
     public BuildToolPasteMessage(
       final String structureName,

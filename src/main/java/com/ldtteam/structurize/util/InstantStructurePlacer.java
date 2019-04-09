@@ -95,6 +95,9 @@ public class InstantStructurePlacer
      * Place a structure into the world.
      *
      * @param world the placing player.
+     * @param storage the change storage.
+     * @param inputPos the start pos.
+     * @return the last pos.
      */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
     {
@@ -218,6 +221,7 @@ public class InstantStructurePlacer
      * Check if there is enough free space to place a structure in the world.
      *
      * @param pos coordinates
+     * @return true if there is free space.
      */
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {

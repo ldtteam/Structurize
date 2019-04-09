@@ -35,6 +35,7 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
     private static final float                         RESISTANCE     = 1F;
     /**
      * Constructor for the TimberFrame
+     * @param name the name to register it to.
      */
     public BlockTimberFrame(final String name)
     {
@@ -58,10 +59,10 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
     /**
      * Calc the default state depending on the neighboring blocks.
      * @deprecated remove this when not needed anymore
-     * @param state
-     * @param world
-     * @param pos
-     * @return
+     * @param state the state.
+     * @param world the world.
+     * @param pos the position.
+     * @return the actual blockstate.
      */
     @Deprecated
     @Override

@@ -97,7 +97,10 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
      * @param frequency the frequency.
      * @param shape     the shape.
      * @param block     the block to set.
+     * @param block2    the fill block.
      * @param hollow    if hollow or not.
+     * @param rotation  the rotation of it.
+     * @param mirror    its mirror.
      */
     public GenerateAndPasteMessage(
       @NotNull final BlockPos pos,
