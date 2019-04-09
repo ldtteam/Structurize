@@ -11,6 +11,9 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,6 +80,12 @@ public abstract class AbstractBlockSlab<B extends AbstractBlockSlab<B>> extends 
             return this.getDefaultState().withProperty(HALF, EnumBlockHalf.TOP);
         }
         return this.getDefaultState().withProperty(HALF, EnumBlockHalf.BOTTOM);
+    }
+
+    @Override
+    public boolean isSideSolid(final IBlockState base_state, @NotNull final IBlockAccess world, @NotNull final BlockPos pos, final EnumFacing side)
+    {
+        return false;
     }
 
     /**

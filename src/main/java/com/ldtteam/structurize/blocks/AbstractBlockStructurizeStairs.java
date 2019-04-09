@@ -11,6 +11,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractBlockStructurizeStairs<B extends AbstractBlockStructurizeStairs<B>> extends BlockStairs implements IBlockStructurize<B>
 {
@@ -45,7 +46,7 @@ public abstract class AbstractBlockStructurizeStairs<B extends AbstractBlockStru
     }
 
     @Override
-    public boolean doesSideBlockRendering(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face)
+    public boolean isSideSolid(final IBlockState base_state, @NotNull final IBlockAccess world, @NotNull final BlockPos pos, final EnumFacing side)
     {
         return false;
     }
