@@ -11,7 +11,6 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -433,7 +432,7 @@ public final class Manager
         final Argument argumentZ = new Argument("z = 0");
         final Argument argumentH = new Argument("h = " + height);
         final Argument argumentW = new Argument("w = " + width);
-        final Argument argumentL = new Argument("l = 0" +  length);
+        final Argument argumentL = new Argument("l = " +  length);
 
         e.addArguments(argumentX,argumentY, argumentZ, argumentH, argumentW, argumentL);
 

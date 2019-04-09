@@ -261,13 +261,20 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         frequencyLabel.show();
         shapeLabel.hide();
 
+        findPaneByID(BUTTON_HOLLOW).show();
+        findPaneByID(BUTTON_PICK_FILL_BLOCK).show();
+        findPaneByID(RESOURCE_ICON_FILL).show();
+
+
         if (shape == Shape.RANDOM)
         {
             inputShape.show();
             shapeLabel.show();
             inputFrequency.hide();
             frequencyLabel.hide();
-            hollowShapeToggle();
+            findPaneByID(BUTTON_HOLLOW).hide();
+            findPaneByID(BUTTON_PICK_FILL_BLOCK).hide();
+            findPaneByID(RESOURCE_ICON_FILL).hide();
         }
         else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
         {
