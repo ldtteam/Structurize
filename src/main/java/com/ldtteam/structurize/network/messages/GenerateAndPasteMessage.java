@@ -64,6 +64,11 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
     private int frequency;
 
     /**
+     * The equation of the random shape.
+     */
+    private String equation;
+
+    /**
      * The rotation.
      */
     private int rotation;
@@ -88,6 +93,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
      * @param length    the length.
      * @param width     the width.
      * @param height    the height.
+     * @param equation  the equation.
      * @param frequency the frequency.
      * @param shape     the shape.
      * @param block     the block to set.
@@ -99,10 +105,13 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
       final int width,
       final int height,
       final int frequency,
+      final String equation,
       final Shape shape,
       final ItemStack block,
       final ItemStack block2,
-      final boolean hollow, final Rotation rotation, final Mirror mirror)
+      final boolean hollow,
+      final Rotation rotation,
+      final Mirror mirror)
     {
         super();
         this.pos = pos;
@@ -116,6 +125,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
         this.hollow = hollow;
         this.mirror = mirror != Mirror.NONE;
         this.rotation = rotation.ordinal();
+        this.equation = equation;
     }
 
     @Override
@@ -132,6 +142,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
         hollow = buf.readBoolean();
         rotation = buf.readInt();
         mirror = buf.readBoolean();
+        equation = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
@@ -148,6 +159,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
         buf.writeBoolean(hollow);
         buf.writeInt(rotation);
         buf.writeBoolean(mirror);
+        ByteBufUtils.writeUTF8String(buf, equation);
     }
 
     @Override
@@ -164,6 +176,7 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
           message.length,
           message.height,
           message.frequency,
+          message.equation,
           message.shape,
           message.block,
           message.block2,

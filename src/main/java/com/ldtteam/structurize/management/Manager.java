@@ -19,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Expression;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -108,6 +110,7 @@ public final class Manager
      * @param width          the width.
      * @param length         the length.
      * @param height         the height.
+     * @param equation       the equation.
      * @param shape          the shape.
      * @param inputBlock     the input block.
      * @param inputFillBlock the fill block.
@@ -123,6 +126,7 @@ public final class Manager
       final int length,
       final int height,
       final int frequency,
+      final String equation,
       final Shape shape,
       final ItemStack inputBlock,
       final ItemStack inputFillBlock,
@@ -131,7 +135,7 @@ public final class Manager
       final Mirror mirror,
       final Rotation rotation)
     {
-        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, shape, inputBlock, inputFillBlock, hollow);
+        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
         StructurePlacementUtils.loadAndPlaceShapeWithRotation(server, blueprint, pos, rotation, mirror, player);
     }
 
@@ -141,6 +145,7 @@ public final class Manager
      * @param width          the width.
      * @param length         the length.
      * @param height         the height.
+     * @param equation       the equation.
      * @param shape          the shape.
      * @param inputBlock     the input block.
      * @param inputFillBlock the fill block.
@@ -151,6 +156,7 @@ public final class Manager
       final int length,
       final int height,
       final int frequency,
+      final String equation,
       final Shape shape,
       final ItemStack inputBlock,
       final ItemStack inputFillBlock, final boolean hollow)
@@ -185,7 +191,7 @@ public final class Manager
         }
         else
         {
-            blueprint = generateRandomShape(height, width, length);
+            blueprint = generateRandomShape(height, width, length, equation, mainBlock);
         }
         return blueprint;
     }
@@ -405,12 +411,32 @@ public final class Manager
         return blueprint;
     }
 
-    //(x−h)^2+(y−k)^2=r^2
-    //-(Math.pow(z,2)/12)+(Math.pow(y,2)/4)-(Math.pow(x,2)/12) > -0.03
-    //Math.pow((z/2),2)+Math.pow(x,2)+Math.pow(5*y/4-Math.sqrt(Math.abs(x)),2)<60
-    //(0.75-Math.pow(Math.sqrt(Math.pow(x,2)+Math.pow(y,2)),2)+Math.pow(z,2) < Math.pow(0.25,2))
-    public static Blueprint generateRandomShape(final int height, final int width, final int length)
+
+
+    /**
+     * Randomly generates shape based on an equation.
+     * Examples:
+     *   (-(z^2/12)+(y^2/4)-(x^2/12)) > -0.03
+     *   (0.75-sqrt((x^2+y^2)^2)+z^2 < 0.25^2)
+     * @param height the height.
+     * @param width the width.
+     * @param length the length.
+     * @param equation the equation.
+     * @param block the block.
+     * @return the created blueprint
+     */
+    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final IBlockState block)
     {
+        Expression e = new Expression(equation);
+        final Argument argumentX = new Argument("x = 0");
+        final Argument argumentY = new Argument("y = 0");
+        final Argument argumentZ = new Argument("z = 0");
+        final Argument argumentH = new Argument("h = " + height);
+        final Argument argumentW = new Argument("w = " + width);
+        final Argument argumentL = new Argument("l = 0" +  length);
+
+        e.addArguments(argumentX,argumentY, argumentZ, argumentH, argumentW, argumentL);
+
         final Map<BlockPos, IBlockState> posList = new HashMap<>();
         for (double x = -length/2.0; x <= length/2; x++)
         {
@@ -418,12 +444,13 @@ public final class Manager
             {
                 for (double z = -width/2.0; z <= width/2; z++)
                 {
-                    /*double value = (0.5 + Math.sin(Math.atan2(x, z) * 8) * 0.2) * Math.pow(Math.sqrt(x * x + z * z) / 0.5, -2) - 1.2;
-                    if (value < 0)
+                    argumentX.setArgumentValue(x);
+                    argumentY.setArgumentValue(y);
+                    argumentZ.setArgumentValue(z);
+                    if (e.calculate() == 1)
                     {
-                        addPosToList(new BlockPos(x + length/2.0, y + height/2.0, z + width/2.0), Blocks.GOLD_BLOCK.getDefaultState(), posList);
-                    }*/
-
+                        addPosToList(new BlockPos(x + length / 2.0, y + height / 2.0, z + width / 2.0), block, posList);
+                    }
                 }
             }
         }

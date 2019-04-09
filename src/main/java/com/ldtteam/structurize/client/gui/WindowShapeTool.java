@@ -63,6 +63,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private TextField inputFrequency;
 
     /**
+     * The inputShape text field.
+     */
+    private TextField inputShape;
+
+    /**
      * The width.
      */
     private int shapeWidth = 1;
@@ -83,6 +88,11 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private int shapeFrequency = 1;
 
     /**
+     * The equation.
+     */
+    private String shapeEquation = "";
+
+    /**
      * Current rotation of the hut/decoration.
      */
     private int rotation = 0;
@@ -94,7 +104,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private BlockPos pos = new BlockPos(0, 0, 0);
 
     /**
-     * Creates a window shape tool.
+     * Creates a window inputShape tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
@@ -111,7 +121,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Creates a window shape tool.
+     * Creates a window inputShape tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
@@ -141,6 +151,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             this.shapeLength = Settings.instance.getLength();
             this.shapeHeight = Settings.instance.getHeight();
             this.shapeFrequency = Settings.instance.getFrequency();
+            this.shapeEquation = Settings.instance.getEquation();
         }
         else if (pos != null)
         {
@@ -176,11 +187,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
         inputHeight = findPaneOfTypeByID(INPUT_HEIGHT, TextField.class);
         inputFrequency = findPaneOfTypeByID(INPUT_FREQUENCY, TextField.class);
+        inputShape = findPaneOfTypeByID(INPUT_SHAPE, TextField.class);
 
         inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
         inputLength.setText(Integer.toString(Settings.instance.getLength()));
         inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
         inputFrequency.setText(Integer.toString(Settings.instance.getFrequency()));
+        inputShape.setText(Settings.instance.getEquation());
 
         sections.clear();
         sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
@@ -200,7 +213,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Generate the shape depending on the variables on the client.
+     * Generate the inputShape depending on the variables on the client.
      */
     private static void genShape()
     {
@@ -210,6 +223,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getLength(),
           Settings.instance.getHeight(),
           Settings.instance.getFrequency(),
+          Settings.instance.getEquation(),
           Settings.instance.getShape(),
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
@@ -219,7 +233,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Generate the shape depending on the variables on the client.
+     * Generate the inputShape depending on the variables on the client.
      */ 
     public static void commonStructureUpdate()
     {
@@ -234,17 +248,28 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         final Label widthLabel = findPaneOfTypeByID(WIDTH_LABEL, Label.class);
         final Label lengthLabel = findPaneOfTypeByID(LENGTH_LABEL, Label.class);
         final Label frequencyLabel = findPaneOfTypeByID(FREQUENCY_LABEL, Label.class);
+        final Label shapeLabel = findPaneOfTypeByID(SHAPE_LABEL, Label.class);
 
         inputHeight.show();
         inputWidth.show();
         inputLength.show();
         inputFrequency.show();
+        inputShape.hide();
         heightLabel.show();
         widthLabel.show();
         lengthLabel.show();
         frequencyLabel.show();
+        shapeLabel.hide();
 
-        if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
+        if (shape == Shape.RANDOM)
+        {
+            inputShape.show();
+            shapeLabel.show();
+            inputFrequency.hide();
+            frequencyLabel.hide();
+            hollowShapeToggle();
+        }
+        else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
         {
             inputWidth.hide();
             inputLength.hide();
@@ -318,7 +343,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Toggle the hollow or solid shape
+     * Toggle the hollow or solid inputShape
      */
     private void hollowShapeToggle()
     {
@@ -355,6 +380,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getWidth(),
           Settings.instance.getHeight(),
           Settings.instance.getFrequency(),
+          Settings.instance.getEquation(),
           Settings.instance.getShape(),
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
@@ -428,6 +454,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         final String lengthText = inputLength.getText();
         final String heightText = inputHeight.getText();
         final String frequencyText = inputFrequency.getText();
+        final String localEquation = inputShape.getText();
 
         if (!widthText.isEmpty() && !lengthText.isEmpty() && !heightText.isEmpty())
         {
@@ -438,16 +465,18 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 final int localLength = Integer.parseInt(lengthText);
                 final int localFrequency = Integer.parseInt(frequencyText);
 
-                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency)
+                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency || !shapeEquation.equals(localEquation))
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;
                     this.shapeHeight = localHeight;
                     this.shapeFrequency = localFrequency;
+                    this.shapeEquation = localEquation;
                     Settings.instance.setWidth(localWidth);
                     Settings.instance.setLength(localLength);
                     Settings.instance.setHeight(localHeight);
                     Settings.instance.setFrequency(localFrequency);
+                    Settings.instance.setEquation(localEquation);
                     genShape();
                 }
             }

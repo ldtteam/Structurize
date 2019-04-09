@@ -50,6 +50,8 @@ configFile.withReader {
 }
 
 dependencies {
+    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
+
     testCompile 'junit:junit:4.11'
     testCompile "org.mockito:mockito-core:1.+"
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'

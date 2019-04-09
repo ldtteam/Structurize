@@ -31,11 +31,13 @@
     <label label="Width" id="widthLabel" size="20 20" pos="310 25"/>
     <label label="Length" id="lengthLabel" size="20 20" pos="304 50"/>
     <label label="Frequency" id="frequencyLabel" size="20 20" pos="306 75"/>
+    <label label="Shape" id="shapeLabel" size="20 20" pos="120 30"/>
 
     <input id="height" size="20 20" pos="340 1" maxlength="3"/>
     <input id="width" size="20 20" pos="340 25" maxlength="3"/>
     <input id="length" size="20 20" pos="340 50" maxlength="3"/>
     <input id="frequency" size="20 20" pos="340 75" maxlength="3"/>
+    <input id="shape" size="140 20" pos="160 30" maxlength="200"/>
 
     <view size="120 112" pos="160 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>

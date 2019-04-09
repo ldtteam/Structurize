@@ -41,6 +41,7 @@ public final class Settings
     private int     height = 1;
     private int     length = 1;
     private int     frequency = 1;
+    private String  equation = "";
 
     private boolean hollow = false;
 
@@ -637,5 +638,23 @@ public final class Settings
             ByteBufUtils.writeItemStack(buf, stack.getFirst());
             ByteBufUtils.writeItemStack(buf, stack.getSecond());
         }
+    }
+
+    /**
+     * Sets the equation of the random shape.
+     * @param localEquation the equation to set.
+     */
+    public void setEquation(final String localEquation)
+    {
+        this.equation = localEquation;
+    }
+
+    /**
+     * Getter for the equation of the random shape.
+     * @return the String.
+     */
+    public String getEquation()
+    {
+        return this.equation;
     }
 }
