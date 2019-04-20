@@ -268,6 +268,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             setStructureName(Settings.instance.getStructureName());
         }
+
+        if (Manager.isSchematicDownloaded())
+        {
+            Manager.setSchematicDownloaded(false);
+            changeSchematic();
+        }
     }
 
     public void pasteNice()
