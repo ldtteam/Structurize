@@ -173,9 +173,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Settings.instance.setRotation(rotation);
             this.rotation = rotation;
         }
-
-        renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
-        deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
     }
 
     /**
@@ -196,8 +193,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
 
         this.init(pos);
-        renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
-        deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
     }
 
     private void init(final BlockPos pos)
@@ -236,6 +231,43 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
+
+        renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
+        deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
+
+        if (Settings.instance.isStaticSchematicMode())
+        {
+            sections.add(Structures.SCHEMATICS_PREFIX);
+            setStructureName(staticSchematicName);
+        }
+        else
+        {
+            Structures.loadScannedStyleMaps();
+
+            sections.clear();
+            final InventoryPlayer inventory = this.mc.player.inventory;
+            final List<String> allSections = Structures.getSections();
+            for (final String section : allSections)
+            {
+                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || inventoryHasHut(inventory, section))
+                {
+                    sections.add(section);
+                }
+            }
+
+            if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
+            {
+                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
+                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
+            }
+            else
+            {
+                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(false);
+                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(false);
+            }
+
+            setStructureName(Settings.instance.getStructureName());
+        }
     }
 
     public void pasteNice()
@@ -406,41 +438,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (!hasPermission())
         {
             close();
-            return;
-        }
-
-        if (Settings.instance.isStaticSchematicMode())
-        {
-            sections.add(Structures.SCHEMATICS_PREFIX);
-            setStructureName(staticSchematicName);
-        }
-        else
-        {
-            Structures.loadScannedStyleMaps();
-
-            sections.clear();
-            final InventoryPlayer inventory = this.mc.player.inventory;
-            final List<String> allSections = Structures.getSections();
-            for (final String section : allSections)
-            {
-                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || inventoryHasHut(inventory, section))
-                {
-                    sections.add(section);
-                }
-            }
-
-            if (Minecraft.getMinecraft().player.capabilities.isCreativeMode)
-            {
-                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
-                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
-            }
-            else
-            {
-                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(false);
-                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(false);
-            }
-
-            setStructureName(Settings.instance.getStructureName());
         }
     }
 
