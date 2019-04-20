@@ -2,6 +2,8 @@ package com.ldtteam.structurize.proxy;
 
 import java.io.File;
 
+import com.ldtteam.blockout.Screen;
+import com.ldtteam.structurize.client.gui.*;
 import com.ldtteam.structurize.util.BlockInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,10 +16,6 @@ import com.ldtteam.structurize.blocks.decorative.BlockPaperwall;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.blocks.types.PaperwallType;
-import com.ldtteam.structurize.client.gui.WindowBuildTool;
-import com.ldtteam.structurize.client.gui.WindowMultiBlock;
-import com.ldtteam.structurize.client.gui.WindowScan;
-import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.event.ClientEventHandler;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
@@ -82,6 +80,11 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
+        if (Minecraft.getMinecraft().currentScreen instanceof Screen)
+        {
+            return;
+        }
+
         @Nullable final WindowBuildTool window = new WindowBuildTool(pos);
         window.open();
     }
@@ -114,6 +117,11 @@ public class ClientProxy extends CommonProxy
     public void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation)
     {
         if (pos == null && Settings.instance.getActiveStructure() == null)
+        {
+            return;
+        }
+
+        if (Minecraft.getMinecraft().currentScreen instanceof Screen)
         {
             return;
         }
