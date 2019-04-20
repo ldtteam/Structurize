@@ -706,6 +706,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         else
         {
             sectionsDropDownList.setSelectedIndex(0);
+            final int styleIndex = styles.indexOf(Settings.instance.getStyle());
+            if (styleIndex != -1)
+            {
+                stylesDropDownList.setSelectedIndex(styleIndex);
+            }
         }
     }
 
