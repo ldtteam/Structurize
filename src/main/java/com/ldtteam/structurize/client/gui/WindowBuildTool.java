@@ -277,7 +277,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         {
             paste(structureName, complete);
         }
-        Settings.instance.reset();
+        Settings.instance.softReset();
         close();
     }
 
@@ -519,8 +519,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (stylesDropDownList.getSelectedIndex() > -1 && stylesDropDownList.getSelectedIndex() < styles.size())
         {
             currentStyle = styles.get(stylesDropDownList.getSelectedIndex());
+            Settings.instance.setStyleIndex(stylesDropDownList.getSelectedIndex());
         }
         styles = Structures.getStylesFor(sections.get(sectionsDropDownList.getSelectedIndex()));
+
+        if (currentStyle.isEmpty())
+        {
+            currentStyle = styles.get(Settings.instance.getStyleIndex());
+        }
+
         int newIndex = styles.indexOf(currentStyle);
         if (newIndex == -1)
         {
@@ -1101,7 +1108,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public void cancelClicked()
     {
-        Settings.instance.reset();
+        Settings.instance.softReset();
         Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
         close();
     }

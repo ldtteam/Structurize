@@ -9,7 +9,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
 
@@ -22,7 +21,7 @@ public final class Settings
      * Single instance of this class.
      */
     public static final Settings                 instance = new Settings();
-    private final       BlockPos.MutableBlockPos offset   = new BlockPos.MutableBlockPos();
+    private final BlockPos.MutableBlockPos offset = new BlockPos.MutableBlockPos();
 
     /**
      * The position of the structure.
@@ -33,6 +32,11 @@ public final class Settings
     private Structure structure      = null;
     private int       rotation       = 0;
     private String    structureName  = null;
+
+    /**
+     * The style index to use currently.
+     */
+    private int styleIndex = 0;
 
     /**
      * Shape variables.
@@ -294,6 +298,22 @@ public final class Settings
     }
 
     /**
+     * Reset the schematic rendering.
+     */
+    public void softReset()
+    {
+        structure = null;
+        offset.setPos(0, 0, 0);
+        staticSchematicMode = false;
+        staticSchematicName = null;
+        freeMode = null;
+        hollow = false;
+        pos = null;
+        box = null;
+        equation = "";
+    }
+
+    /**
      * Saves the schematic info when the client closes the build tool window.
      *
      * @param structureName name of the structure.
@@ -521,7 +541,7 @@ public final class Settings
         
         if (buf.readBoolean())
         {
-            box = new Tuple<BlockPos, BlockPos>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
+            box = new Tuple<>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
         }
         else
         {
@@ -597,8 +617,8 @@ public final class Settings
 
         // block pos
 
-        buf.writeBoolean(offset != null);
-        if (offset != null)
+        buf.writeBoolean(!offset.equals(BlockPos.ORIGIN));
+        if (!offset.equals(BlockPos.ORIGIN))
         {
             buf.writeInt(offset.getX());
             buf.writeInt(offset.getY());
@@ -670,5 +690,23 @@ public final class Settings
     public String getEquation()
     {
         return this.equation;
+    }
+
+    /**
+     * Get the current style index to use.
+     * @return the current style index.
+     */
+    public int getStyleIndex()
+    {
+        return styleIndex;
+    }
+
+    /**
+     * Set the current style index to use.
+     * @param styleIndex the index to set.
+     */
+    public void setStyleIndex(final int styleIndex)
+    {
+        this.styleIndex = styleIndex;
     }
 }
