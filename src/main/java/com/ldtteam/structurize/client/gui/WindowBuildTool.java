@@ -686,16 +686,23 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                     if (schematicIndex != -1)
                     {
                         schematicsDropDownList.setSelectedIndex(schematicIndex);
-                        return;
+                    }
+                    else
+                    {
+                        schematicsDropDownList.setSelectedIndex(0);
                     }
                 }
+                else
+                {
+                    stylesDropDownList.setSelectedIndex(0);
+
+                }
+            }
+            else
+            {
+                sectionsDropDownList.setSelectedIndex(0);
             }
         }
-
-        //We did not find the structure, select the first of each
-        sectionsDropDownList.setSelectedIndex(0);
-        stylesDropDownList.setSelectedIndex(0);
-        schematicsDropDownList.setSelectedIndex(0);
     }
 
     /**
