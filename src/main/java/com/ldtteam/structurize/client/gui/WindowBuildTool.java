@@ -519,13 +519,13 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (stylesDropDownList.getSelectedIndex() > -1 && stylesDropDownList.getSelectedIndex() < styles.size())
         {
             currentStyle = styles.get(stylesDropDownList.getSelectedIndex());
-            Settings.instance.setStyleIndex(stylesDropDownList.getSelectedIndex());
+            Settings.instance.setStyle(currentStyle);
         }
         styles = Structures.getStylesFor(sections.get(sectionsDropDownList.getSelectedIndex()));
 
         if (currentStyle.isEmpty())
         {
-            currentStyle = styles.get(Settings.instance.getStyleIndex());
+            currentStyle = Settings.instance.getStyle();
         }
 
         int newIndex = styles.indexOf(currentStyle);

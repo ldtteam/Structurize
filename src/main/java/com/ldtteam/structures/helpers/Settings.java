@@ -36,7 +36,7 @@ public final class Settings
     /**
      * The style index to use currently.
      */
-    private int styleIndex = 0;
+    private String style = "";
 
     /**
      * Shape variables.
@@ -693,20 +693,20 @@ public final class Settings
     }
 
     /**
-     * Get the current style index to use.
-     * @return the current style index.
+     * Get the current style to use.
+     * @return the current style.
      */
-    public int getStyleIndex()
+    public String getStyle()
     {
-        return styleIndex;
+        return style;
     }
 
     /**
-     * Set the current style index to use.
-     * @param styleIndex the index to set.
+     * Set the current style to use.
+     * @param style the to set.
      */
-    public void setStyleIndex(final int styleIndex)
+    public void setStyle(final String style)
     {
-        this.styleIndex = styleIndex;
+        this.style = style;
     }
 }
