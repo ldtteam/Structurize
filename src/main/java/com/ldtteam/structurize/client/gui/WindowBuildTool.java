@@ -703,6 +703,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 sectionsDropDownList.setSelectedIndex(0);
             }
         }
+        else
+        {
+            sectionsDropDownList.setSelectedIndex(0);
+        }
     }
 
     /**
