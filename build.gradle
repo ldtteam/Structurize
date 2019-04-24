@@ -49,6 +49,12 @@ configFile.withReader {
     ext.config = new ConfigSlurper().parse prop
 }
 
+configurations {
+    contained {
+        transitive = false
+    }
+}
+
 dependencies {
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 
@@ -109,9 +115,17 @@ jar {
     from sourceSets.api.output
     from sourceSets.main.output
 
+    from(configurations.contained.files) {
+        include '*'
+        into 'META-INF/libraries'
+    }
+
     manifest {
-        attributes 'FMLAT': "structurize_at.cfg",
-        'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}"
+        attributes([
+                'ContainedDeps': configurations.contained.files.collect { it.name }.join(' '),
+                'FMLAT': "structurize_at.cfg",
+                'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}"
+        ])
     }
 }
 
