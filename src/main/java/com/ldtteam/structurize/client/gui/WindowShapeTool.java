@@ -161,9 +161,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             Settings.instance.setRotation(0);
         }
 
-        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
-        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
-
         //Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::paste);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
@@ -204,7 +201,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         sectionsDropDownList.setDataProvider(new SectionDropDownList());
         sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
         disableInputIfNecessary();
-
         if (structure == null || shouldUpdate)
         {
             genShape();
@@ -417,6 +413,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             close();
         }
         updateRotation(rotation);
+        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
+        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
