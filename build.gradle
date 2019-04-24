@@ -56,6 +56,8 @@ configurations {
 }
 
 dependencies {
+
+    contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 
     testCompile 'junit:junit:4.11'
