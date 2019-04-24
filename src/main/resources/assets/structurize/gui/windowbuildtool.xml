@@ -32,7 +32,7 @@
     <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
     <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
 
-    <view size="120 112" pos="160 80">
+    <view size="96 128" pos="160 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>
         <buttonimage id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 0"/>
         <buttonimage id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="32" pos="64 0"/>
