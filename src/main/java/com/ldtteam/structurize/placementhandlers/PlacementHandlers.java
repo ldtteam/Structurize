@@ -214,7 +214,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, Blocks.DIRT.getDefaultState(), UPDATE_FLAG))
+            if (!world.setBlockState(pos, Blocks.GRASS.getDefaultState(), UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }

@@ -128,7 +128,7 @@ public class BlueprintRenderer
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)lightMapX, (float)lightMapY);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            Minecraft.getMinecraft().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, 0f, 0, true);
+            Minecraft.getMinecraft().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, entity.rotationYaw, 0, true);
 
             GlStateManager.popMatrix();
         });

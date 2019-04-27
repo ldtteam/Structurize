@@ -4,16 +4,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
+import net.minecraft.entity.EntityHanging;
+import net.minecraft.nbt.*;
 import org.apache.logging.log4j.LogManager;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
@@ -31,7 +28,6 @@ import net.minecraftforge.fml.common.Loader;
  */
 public class BlueprintUtil
 {
-
     /**
      * Generates a Blueprint objects from the world
      *
@@ -116,13 +112,25 @@ public class BlueprintUtil
         for (final Entity entity : entities)
         {
             final Vec3d oldPos = entity.getPositionVector();
-            entity.setPosition(oldPos.x - pos.getX(), oldPos.y - pos.getY(), oldPos.z - pos.getZ());
             final NBTTagCompound entityTag = new NBTTagCompound();
             if(entity.writeToNBTOptional(entityTag))
             {
+                final NBTTagList posList = new NBTTagList();
+                posList.appendTag(new NBTTagDouble(oldPos.x - pos.getX()));
+                posList.appendTag(new NBTTagDouble(oldPos.y - pos.getY()));
+                posList.appendTag(new NBTTagDouble(oldPos.z - pos.getZ()));
+
+                BlockPos entityPos = entity.getPosition();
+                if (entity instanceof EntityHanging)
+                {
+                    entityPos = ((EntityHanging) entity).getHangingPosition();
+                }
+                entityTag.setTag("Pos", posList);
+                entityTag.setTag("TileX", new NBTTagInt(entityPos.getX() - pos.getX()));
+                entityTag.setTag("TileY", new NBTTagInt(entityPos.getY() - pos.getY()));
+                entityTag.setTag("TileZ", new NBTTagInt(entityPos.getZ() - pos.getZ()));
                 entitiesTag.add(entityTag);
             }
-            entity.setPosition(oldPos.x, oldPos.y, oldPos.z);
         }
 
         final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes,

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.entity.EntityHanging;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import com.ldtteam.structurize.api.configuration.Configurations;
@@ -162,7 +163,20 @@ public class InstantStructurePlacer
                     final Entity entity = EntityList.createEntityFromNBT(compound, world);
                     entity.setUniqueId(UUID.randomUUID());
                     final Vec3d worldPos = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
-                    entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
+
+                    if (entity instanceof EntityHanging)
+                    {
+                        entity.posX = worldPos.x;
+                        entity.posY = worldPos.y;
+                        entity.posZ = worldPos.z;
+
+                        final BlockPos hanging = ((EntityHanging) entity).getHangingPosition();
+                        entity.setPosition(hanging.getX() + pos.getX(), hanging.getY() + pos.getY(), hanging.getZ() + pos.getZ());
+                    }
+                    else
+                    {
+                        entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
+                    }
                     world.spawnEntity(entity);
                     storage.addToBeKilledEntity(entity);
                 }

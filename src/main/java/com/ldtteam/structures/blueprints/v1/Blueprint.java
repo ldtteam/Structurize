@@ -10,7 +10,9 @@ import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
@@ -557,12 +559,25 @@ public class Blueprint
         if (finalEntity != null)
         {
             final Vec3d entityVec = Blueprint.transformedVec3d(rotation, mirror, finalEntity.getPositionVector()).add(new Vec3d(pos));
-
             finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
             final double rotationYaw = finalEntity.getMirroredYaw(mirror) + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
 
-            finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
-              (float) rotationYaw, finalEntity.rotationPitch);
+            if (finalEntity instanceof EntityHanging)
+            {
+                final BlockPos currentPos = ((EntityHanging) finalEntity).getHangingPosition();
+                final BlockPos entityPos = Blueprint.transformedBlockPos(currentPos.getX(), currentPos.getY(), currentPos.getZ(), mirror, rotation).add(pos);
+
+                finalEntity.posX = entityVec.x;
+                finalEntity.posY = entityVec.y;
+                finalEntity.posZ = entityVec.z;
+
+                finalEntity.setPosition(entityPos.getX(), entityPos.getY(), entityPos.getZ());
+            }
+            else
+            {
+                finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
+                  (float) rotationYaw, finalEntity.rotationPitch);
+            }
 
             final NBTTagCompound nbttagcompound = new NBTTagCompound();
             finalEntity.writeToNBTOptional(nbttagcompound);
@@ -603,7 +618,7 @@ public class Blueprint
             case COUNTERCLOCKWISE_90:
                 return new Vec3d(zCoord, vec.y, 1.0D - xCoord);
             case CLOCKWISE_90:
-                return new Vec3d(1.0D - zCoord, vec.y, xCoord);
+                return new Vec3d(1.0D - zCoord, vec.y,  xCoord);
             case CLOCKWISE_180:
                 return new Vec3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
             default:
