@@ -12,6 +12,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * Contains one scan tool operation, as remove block, replace block, etc.
@@ -54,6 +57,7 @@ public class ScanToolOperation
     /**
      * The creator of the operation.
      */
+    @Nullable
     private final EntityPlayer player;
 
     /**
@@ -90,7 +94,7 @@ public class ScanToolOperation
       final OperationType type,
       final BlockPos startPos,
       final BlockPos endPos,
-      final EntityPlayer player,
+      @Nullable final EntityPlayer player,
       final ItemStack firstBlock,
       final ItemStack secondBlock)
     {
@@ -110,7 +114,7 @@ public class ScanToolOperation
      * @param storage the storage for the UNDO.
      * @param player the player.
      */
-    public ScanToolOperation(final ChangeStorage storage, final EntityPlayer player)
+    public ScanToolOperation(final ChangeStorage storage, @Nullable final EntityPlayer player)
     {
         this.operation = OperationType.UNDO;
         this.startPos = BlockPos.ORIGIN;
@@ -128,7 +132,7 @@ public class ScanToolOperation
      * @param wrapper the structure wrapper for the placement..
      * @param player the player.
      */
-    public ScanToolOperation(final InstantStructurePlacer wrapper, final EntityPlayer player)
+    public ScanToolOperation(final InstantStructurePlacer wrapper, @Nullable final EntityPlayer player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ORIGIN;
@@ -149,7 +153,7 @@ public class ScanToolOperation
      */
     public boolean apply(final WorldServer world)
     {
-        if (player.dimension != world.provider.getDimension())
+        if (player != null && player.dimension != world.provider.getDimension())
         {
             return false;
         }
@@ -176,7 +180,7 @@ public class ScanToolOperation
      */
     private boolean run(final WorldServer world)
     {
-        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player.getUniqueID(), "placeStuffForMePl0x"));
+        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUniqueID(), "placeStuffForMePl0x"));
         int count = 0;
         for (int y = currentPos.getY(); y <= endPos.getY(); y++)
         {
