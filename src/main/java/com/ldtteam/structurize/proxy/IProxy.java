@@ -106,4 +106,6 @@ public interface IProxy
      * @param pos coordinates.
      */
     void openMultiBlockWindow(final BlockPos pos);
+
+    void initializeOptifine();
 }
