@@ -117,7 +117,7 @@ public class Structurize
         OreDictionary.registerOre("fenceWood", ModBlocks.blockCactusFence);
         OreDictionary.registerOre("fenceGateWood", ModBlocks.blockCactusFenceGate);
 
-        OptifineCompat.getInstance().intialize();
+        proxy.initializeOptifine();
     }
 
     private static synchronized void initializeNetwork()
