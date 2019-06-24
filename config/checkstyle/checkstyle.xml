@@ -31,6 +31,8 @@
 -->
 
 <module name="Checker">
+    <property name="charset" value="UTF-8"/>
+
     <!--
         If you set the basedir property below, then all reported file
         names will be relative to the specified directory. See
@@ -40,6 +42,12 @@
     -->
 
     <!-- property name="fileExtensions" value="java, properties, xml"/ -->
+
+    <!-- Excludes all 'module-info.java' files              -->
+    <!-- See https://checkstyle.org/config_filefilters.html -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="module\-info\.java$"/>
+    </module>
 
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
@@ -113,7 +121,8 @@
         <!-- Checks for imports                              -->
         <!-- See http://checkstyle.sf.net/config_import.html -->
         <module name="AvoidStarImport"/>
-        <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
+        <module name="IllegalImport"/>
+        <!-- defaults to sun.* packages -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
@@ -138,8 +147,7 @@
         <module name="NoWhitespaceBefore"/>
         <module name="OperatorWrap">
             <property name="severity" value="info"/>
-            <property name="tokens"
-                      value="QUESTION,COLON,EQUAL,NOT_EQUAL,DIV,PLUS,MINUS,STAR,MOD,SR,BSR,GE,GT,SL,LE,LT,BXOR,BOR,LOR,BAND,LAND,TYPE_EXTENSION_AND,LITERAL_INSTANCEOF"/>
+            <property name="tokens" value="QUESTION,COLON,EQUAL,NOT_EQUAL,DIV,PLUS,MINUS,STAR,MOD,SR,BSR,GE,GT,SL,LE,LT,BXOR,BOR,LOR,BAND,LAND,TYPE_EXTENSION_AND,LITERAL_INSTANCEOF"/>
             <property name="option" value="nl"/>
         </module>
         <module name="ParenPad"/>
@@ -171,7 +179,7 @@
         <!-- See http://checkstyle.sf.net/config_coding.html -->
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <module name="HiddenField" >
+        <module name="HiddenField">
             <property name="ignoreSetter" value="true" />
             <property name="ignoreConstructorParameter" value="true" />
         </module>
