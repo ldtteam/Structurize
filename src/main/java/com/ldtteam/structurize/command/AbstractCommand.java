@@ -13,8 +13,8 @@ import net.minecraft.command.CommandSource;
 public abstract class AbstractCommand
 {
     /**
-     * Builds command's tree
-     * 
+     * Builds command's tree.
+     *
      * @return new built command
      */
     protected static LiteralArgumentBuilder<CommandSource> build()
@@ -23,25 +23,25 @@ public abstract class AbstractCommand
     }
 
     /**
-     * Creates new subcommand, used for subcommands and type picking
-     * 
+     * Creates new subcommand, used for subcommands and type picking.
+     *
      * @param name subcommand name
      * @return new node builder
      */
-    protected static LiteralArgumentBuilder<CommandSource> newLiteral(String name)
+    protected static LiteralArgumentBuilder<CommandSource> newLiteral(final String name)
     {
         return LiteralArgumentBuilder.literal(name);
     }
 
     /**
      * Creates new command argument, used for collection selector, number picker etc.
-     * 
+     *
      * @param <T>  argument class type
      * @param name argument name, aka description/alias, but it's also id key to get argument value from command during execution
      * @param type argument type, see net.minecraft.command.arguments
      * @return new node builder
      */
-    protected static <T> RequiredArgumentBuilder<CommandSource, T> newArgument(String name, ArgumentType<T> type)
+    protected static <T> RequiredArgumentBuilder<CommandSource, T> newArgument(final String name, final ArgumentType<T> type)
     {
         return RequiredArgumentBuilder.argument(name, type);
     }
@@ -51,56 +51,62 @@ public abstract class AbstractCommand
      */
     protected static class CommandTree
     {
-        private final LiteralArgumentBuilder<CommandSource> backingCommand;
-        private final List<CommandTree> nodes;
+        /**
+         * Tree root node
+         */
+        private final LiteralArgumentBuilder<CommandSource> rootNode;
+        /**
+         * List of child trees, commands are directly baked into rootNode
+         */
+        private final List<CommandTree> childNodes;
 
         /**
-         * Creates new command tree
-         * 
+         * Creates new command tree.
+         *
          * @param commandName root vertex name
          */
         protected CommandTree(final String commandName)
         {
-            backingCommand = newLiteral(commandName);
-            nodes = new ArrayList<>();
+            rootNode = newLiteral(commandName);
+            childNodes = new ArrayList<>();
         }
 
         /**
-         * Adds new tree as leaf into this tree
-         * 
+         * Adds new tree as leaf into this tree.
+         *
          * @param tree new tree to add
          * @return this
          */
         protected CommandTree addNode(final CommandTree tree)
         {
-            nodes.add(tree);
+            childNodes.add(tree);
             return this;
         }
 
         /**
-         * Adds new command as leaf into this tree
-         * 
+         * Adds new command as leaf into this tree.
+         *
          * @param command new commnad to add
          * @return this
          */
         protected CommandTree addNode(final LiteralArgumentBuilder<CommandSource> command)
         {
-            backingCommand.then(command.build());
+            rootNode.then(command.build());
             return this;
         }
 
         /**
-         * Builds whole tree for dispatcher
-         * 
+         * Builds whole tree for dispatcher.
+         *
          * @return tree as command node
          */
         protected LiteralArgumentBuilder<CommandSource> build()
         {
-            for (CommandTree ct : nodes)
+            for (final CommandTree ct : childNodes)
             {
-                backingCommand.then(ct.build().build());
+                addNode(ct.build());
             }
-            return backingCommand;
+            return rootNode;
         }
     }
 }

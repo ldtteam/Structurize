@@ -8,6 +8,9 @@ import net.minecraft.util.ResourceLocation;
  */
 public final class Utils
 {
+    /**
+     * Private constructor to hide implicit public one.
+     */
     private Utils()
     {
         /*
@@ -16,8 +19,8 @@ public final class Utils
     }
 
     /**
-     * Creates a resource location from mod id and path
-     * 
+     * Creates a resource location from mod id and path.
+     *
      * @param path path for the new RL
      * @return the new RL from mod id and given path
      */

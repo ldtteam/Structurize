@@ -192,7 +192,7 @@
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->
-        <module name="FinalClass"/>
+        <!--<module name="FinalClass"/>-->
         <module name="FinalLocalVariable"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
@@ -209,7 +209,6 @@
         <module name="UpperEll"/>
 
         <!-- Additional SonarQube related rules            -->
-        <module name="FileContentsHolder"/>
         <module name="SuppressWarningsHolder"/>
         <module name="AnnotationLocation">
             <property name="severity" value="warning"/>

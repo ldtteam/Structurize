@@ -18,9 +18,9 @@ public class TestChatCommand extends AbstractCommand
         return newLiteral("sendmessage").then(newArgument(MESSAGE_ARG, MessageArgument.message()).executes((s) -> onExecute(s)));
     }
 
-    private static int onExecute(CommandContext<CommandSource> command) throws CommandSyntaxException
+    private static int onExecute(final CommandContext<CommandSource> command) throws CommandSyntaxException
     {
-        ITextComponent msg = MessageArgument.getMessage(command, MESSAGE_ARG);
+        final ITextComponent msg = MessageArgument.getMessage(command, MESSAGE_ARG);
         Instances.getNetwork().sendToEveryone(new TestMessage(command.getInput() + "<|>" + msg.getString()));
         return 1;
     }

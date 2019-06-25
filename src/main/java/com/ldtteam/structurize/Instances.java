@@ -11,24 +11,32 @@ import org.apache.logging.log4j.Logger;
  */
 public class Instances
 {
-    private static final Instances INSTANCE = new Instances();
+    private static final NetworkChannel generalNetworkChannel;
+    private static final Logger modLogger;
 
-    private final NetworkChannel generalNetworkChannel;
-    private final Logger modLogger;
-
-    private Instances()
+    static
     {
         generalNetworkChannel = new NetworkChannel("net-channel");
         modLogger = LogManager.getLogger(GeneralConstants.MOD_ID);
     }
 
+    /**
+     * Private constructor to hide implicit public one.
+     */
+    private Instances()
+    {
+        /**
+         * Intentionally left empty
+         */
+    }
+
     public static NetworkChannel getNetwork()
     {
-        return INSTANCE.generalNetworkChannel;
+        return generalNetworkChannel;
     }
 
     public static Logger getModLogger()
     {
-        return INSTANCE.modLogger;
+        return modLogger;
     }
 }

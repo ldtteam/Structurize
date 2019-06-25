@@ -23,6 +23,9 @@ public class EntryPoint extends AbstractCommand
      * client sided commands are not possible now (as of 25-06-2019)
      */
 
+    /**
+     * Private constructor to hide implicit public one.
+     */
     private EntryPoint()
     {
         /**
@@ -31,11 +34,11 @@ public class EntryPoint extends AbstractCommand
     }
 
     /**
-     * Registers mod command tree to given dispatcher
-     * 
+     * Registers mod command tree to given dispatcher.
+     *
      * @param dispatcher main server command dispatcher
      */
-    public static void register(CommandDispatcher<CommandSource> dispatcher)
+    public static void register(final CommandDispatcher<CommandSource> dispatcher)
     {
         final CommandTree testSubTree = new CommandTree("test").addNode(TestChatCommand.build());
         final CommandTree structurizeRoot = new CommandTree(GeneralConstants.MOD_ID).addNode(testSubTree).addNode(TestChatCommand.build());

@@ -21,12 +21,15 @@ public class NetworkChannel
 {
     private static final String LATEST_PROTO_VER = "1.0";
     private static final String ACCEPTED_PROTO_VERS = LATEST_PROTO_VER;
+    /**
+     * Forge network channel
+     */
     private final SimpleChannel rawChannel;
 
     /**
-     * Creates a new instance of network channel
-     * 
-     * @param channelName
+     * Creates a new instance of network channel.
+     *
+     * @param channelName unique channel name
      * @throws IllegalArgumentException if channelName already exists
      */
     public NetworkChannel(final String channelName)
@@ -35,7 +38,7 @@ public class NetworkChannel
     }
 
     /**
-     * Registers all common messages
+     * Registers all common messages.
      */
     public void registerCommonMessages()
     {
@@ -44,8 +47,8 @@ public class NetworkChannel
     }
 
     /**
-     * Register a message into rawChannel
-     * 
+     * Register a message into rawChannel.
+     *
      * @param <MSG>    message class type
      * @param id       network id
      * @param msgClazz message class
@@ -59,7 +62,7 @@ public class NetworkChannel
                 msg.fromBytes(buf);
                 return msg;
             }
-            catch (InstantiationException | IllegalAccessException e)
+            catch (final InstantiationException | IllegalAccessException e)
             {
                 e.printStackTrace();
             }
@@ -73,33 +76,33 @@ public class NetworkChannel
     }
 
     /**
-     * Sends to server
-     * 
+     * Sends to server.
+     *
      * @param msg message to send
      */
-    public void sendToServer(IMessage msg)
+    public void sendToServer(final IMessage msg)
     {
         rawChannel.sendToServer(msg);
     }
 
     /**
-     * Sends to player
-     * 
+     * Sends to player.
+     *
      * @param msg    message to send
      * @param player target player
      */
-    public void sendToPlayer(IMessage msg, ServerPlayerEntity player)
+    public void sendToPlayer(final IMessage msg, final ServerPlayerEntity player)
     {
         rawChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);
     }
 
     /**
-     * Sends to origin client
-     * 
+     * Sends to origin client.
+     *
      * @param msg message to send
      * @param ctx network context
      */
-    public void sendToOrigin(IMessage msg, Context ctx)
+    public void sendToOrigin(final IMessage msg, final Context ctx)
     {
         final ServerPlayerEntity player = ctx.getSender();
         if (player != null)
@@ -109,79 +112,79 @@ public class NetworkChannel
     }
 
     /**
-     * Sends to everyone in dimension
-     * 
+     * Sends to everyone in dimension.
+     *
      * @param msg message to send
      * @param dim target dimension
      */
-    public void sendToDimension(IMessage msg, DimensionType dim)
+    public void sendToDimension(final IMessage msg, final DimensionType dim)
     {
         rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
     }
 
     /**
-     * Sends to everyone in circle made using given target point
-     * 
+     * Sends to everyone in circle made using given target point.
+     *
      * @param msg message to send
      * @param pos target position and radius
      * @see TargetPoint
      */
-    public void sendToPosition(IMessage msg, TargetPoint pos)
+    public void sendToPosition(final IMessage msg, final TargetPoint pos)
     {
         rawChannel.send(PacketDistributor.NEAR.with(() -> pos), msg);
     }
 
     /**
-     * Sends to everyone
-     * 
+     * Sends to everyone.
+     *
      * @param msg message to send
      */
-    public void sendToEveryone(IMessage msg)
+    public void sendToEveryone(final IMessage msg)
     {
         rawChannel.send(PacketDistributor.ALL.noArg(), msg);
     }
 
     /**
-     * Sends to everyone who is in range from entity's pos using formula below
-     * 
+     * Sends to everyone who is in range from entity's pos using formula below.
+     *
      * <pre>
      * Math.min(Entity.getType().getTrackingRange(), ChunkManager.this.viewDistance - 1) * 16;
      * </pre>
-     * 
+     *
      * as of 24-06-2019
-     * 
+     *
      * @param msg    message to send
      * @param entity target entity to look at
      */
-    public void sendToTrackingEntity(IMessage msg, Entity entity)
+    public void sendToTrackingEntity(final IMessage msg, final Entity entity)
     {
         rawChannel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), msg);
     }
 
     /**
-     * Sends to everyone (including given entity) who is in range from entity's pos using formula below
-     * 
+     * Sends to everyone (including given entity) who is in range from entity's pos using formula below.
+     *
      * <pre>
      * Math.min(Entity.getType().getTrackingRange(), ChunkManager.this.viewDistance - 1) * 16;
      * </pre>
-     * 
+     *
      * as of 24-06-2019
-     * 
+     *
      * @param msg    message to send
      * @param entity target entity to look at
      */
-    public void sendToTrackingEntityAndSelf(IMessage msg, Entity entity)
+    public void sendToTrackingEntityAndSelf(final IMessage msg, final Entity entity)
     {
         rawChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), msg);
     }
 
     /**
-     * Sends to everyone in given chunk
-     * 
+     * Sends to everyone in given chunk.
+     *
      * @param msg   message to send
      * @param chunk target chunk to look at
      */
-    public void sendToTrackingChunk(IMessage msg, Chunk chunk)
+    public void sendToTrackingChunk(final IMessage msg, final Chunk chunk)
     {
         rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
     }
