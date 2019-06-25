@@ -130,3 +130,7 @@ publishing {
         }
     }
 }
+
+task setupCIWorkspace {
+    //dummy task
+}
