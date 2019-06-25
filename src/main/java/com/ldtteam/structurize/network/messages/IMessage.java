@@ -6,7 +6,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 /**
  * Interface for all network messages
  */
-public interface AbstractMessage
+public interface IMessage
 {
     /**
      * Writes message data to buffer

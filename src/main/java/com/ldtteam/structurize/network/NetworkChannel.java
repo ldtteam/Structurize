@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network;
 
-import com.ldtteam.structurize.network.messages.AbstractMessage;
+import com.ldtteam.structurize.network.messages.IMessage;
 import com.ldtteam.structurize.network.messages.TestMessage;
 import com.ldtteam.structurize.util.Utils;
 import net.minecraft.entity.Entity;
@@ -50,7 +50,7 @@ public class NetworkChannel
      * @param id       network id
      * @param msgClazz message class
      */
-    private <MSG extends AbstractMessage> void registerMessage(final int id, final Class<MSG> msgClazz)
+    private <MSG extends IMessage> void registerMessage(final int id, final Class<MSG> msgClazz)
     {
         rawChannel.registerMessage(id, msgClazz, (msg, buf) -> msg.toBytes(buf), (buf) -> {
             try
@@ -77,7 +77,7 @@ public class NetworkChannel
      * 
      * @param msg message to send
      */
-    public void sendToServer(AbstractMessage msg)
+    public void sendToServer(IMessage msg)
     {
         rawChannel.sendToServer(msg);
     }
@@ -88,7 +88,7 @@ public class NetworkChannel
      * @param msg    message to send
      * @param player target player
      */
-    public void sendToPlayer(AbstractMessage msg, ServerPlayerEntity player)
+    public void sendToPlayer(IMessage msg, ServerPlayerEntity player)
     {
         rawChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);
     }
@@ -99,7 +99,7 @@ public class NetworkChannel
      * @param msg message to send
      * @param ctx network context
      */
-    public void sendToOrigin(AbstractMessage msg, Context ctx)
+    public void sendToOrigin(IMessage msg, Context ctx)
     {
         final ServerPlayerEntity player = ctx.getSender();
         if (player != null)
@@ -114,7 +114,7 @@ public class NetworkChannel
      * @param msg message to send
      * @param dim target dimension
      */
-    public void sendToDimension(AbstractMessage msg, DimensionType dim)
+    public void sendToDimension(IMessage msg, DimensionType dim)
     {
         rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
     }
@@ -126,7 +126,7 @@ public class NetworkChannel
      * @param pos target position and radius
      * @see TargetPoint
      */
-    public void sendToPosition(AbstractMessage msg, TargetPoint pos)
+    public void sendToPosition(IMessage msg, TargetPoint pos)
     {
         rawChannel.send(PacketDistributor.NEAR.with(() -> pos), msg);
     }
@@ -136,7 +136,7 @@ public class NetworkChannel
      * 
      * @param msg message to send
      */
-    public void sendToEveryone(AbstractMessage msg)
+    public void sendToEveryone(IMessage msg)
     {
         rawChannel.send(PacketDistributor.ALL.noArg(), msg);
     }
@@ -153,7 +153,7 @@ public class NetworkChannel
      * @param msg    message to send
      * @param entity target entity to look at
      */
-    public void sendToTrackingEntity(AbstractMessage msg, Entity entity)
+    public void sendToTrackingEntity(IMessage msg, Entity entity)
     {
         rawChannel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), msg);
     }
@@ -170,7 +170,7 @@ public class NetworkChannel
      * @param msg    message to send
      * @param entity target entity to look at
      */
-    public void sendToTrackingEntityAndSelf(AbstractMessage msg, Entity entity)
+    public void sendToTrackingEntityAndSelf(IMessage msg, Entity entity)
     {
         rawChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), msg);
     }
@@ -181,7 +181,7 @@ public class NetworkChannel
      * @param msg   message to send
      * @param chunk target chunk to look at
      */
-    public void sendToTrackingChunk(AbstractMessage msg, Chunk chunk)
+    public void sendToTrackingChunk(IMessage msg, Chunk chunk)
     {
         rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
     }

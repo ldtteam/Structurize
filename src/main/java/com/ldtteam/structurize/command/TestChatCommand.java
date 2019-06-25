@@ -9,21 +9,19 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.arguments.MessageArgument;
 import net.minecraft.util.text.ITextComponent;
 
-public class TestChatCommand implements ICommand
+public class TestChatCommand extends AbstractCommand
 {
     private static final String MESSAGE_ARG = "message";
 
-    @Override
-    public LiteralArgumentBuilder<CommandSource> build()
+    protected static LiteralArgumentBuilder<CommandSource> build()
     {
-        return EntryPoint.newLiteral("sendmessage").then(EntryPoint.newArgument(MESSAGE_ARG, MessageArgument.message()).executes((s) -> onExecute(s)));
+        return newLiteral("sendmessage").then(newArgument(MESSAGE_ARG, MessageArgument.message()).executes((s) -> onExecute(s)));
     }
 
-    @Override
-    public int onExecute(CommandContext<CommandSource> command) throws CommandSyntaxException
+    private static int onExecute(CommandContext<CommandSource> command) throws CommandSyntaxException
     {
         ITextComponent msg = MessageArgument.getMessage(command, MESSAGE_ARG);
-        Instances.getNetwork().sendToEveryone(new TestMessage(msg.getString()));
+        Instances.getNetwork().sendToEveryone(new TestMessage(command.getInput() + "<|>" + msg.getString()));
         return 1;
     }
 }

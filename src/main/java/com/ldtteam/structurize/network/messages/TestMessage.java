@@ -4,7 +4,7 @@ import com.ldtteam.structurize.Instances;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
-public class TestMessage implements AbstractMessage
+public class TestMessage implements IMessage
 {
     private String str;
 
