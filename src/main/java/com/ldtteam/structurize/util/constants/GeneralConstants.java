@@ -6,6 +6,7 @@ package com.ldtteam.structurize.util.constants;
 public class GeneralConstants
 {
     public static final String MOD_ID = "structurize";
+    public static final String MOD_NAME = "Structurize";
 
     /**
      * Private constructor to hide implicit public one.

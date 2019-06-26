@@ -1,0 +1,9 @@
+{
+    "itemGroup.Structurize": "Structurize",
+    "item.structurize.buildtool": "Build Tool",
+    "item.structurize.scantool": "Scan Tool",
+    "item.structurize.shapetool": "Shape Tool",
+    "item.structurize.caliper": "Caliper",
+    "block.structurize.anyblocksubstitution": "Anyblock Substitution",
+    "block.structurize.variablesubstitution": "Variable Substitution"
+}
