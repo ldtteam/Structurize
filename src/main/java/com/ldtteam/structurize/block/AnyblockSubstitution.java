@@ -28,6 +28,7 @@ public class AnyblockSubstitution extends Block
      * Whether block instances should render texture or not.
      */
     private static final AtomicBoolean SHOULD_RENDER_BLOCK_TEXTURE = new AtomicBoolean(false);
+    private static final int CHUNK_SIZE = 16;
 
     /**
      * Creates default anyblock substitution block.
@@ -80,15 +81,15 @@ public class AnyblockSubstitution extends Block
                 if (worldIn.isRemote())
                 {
                     SHOULD_RENDER_BLOCK_TEXTURE.set(!SHOULD_RENDER_BLOCK_TEXTURE.get());
-                    worldIn.markForRerender(playerIn.getPosition().add(16, 0, 16));
-                    worldIn.markForRerender(playerIn.getPosition().add(16, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(16, 0, -16));
-                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, 16));
+                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, CHUNK_SIZE));
+                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, 0));
+                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, -CHUNK_SIZE));
+                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, CHUNK_SIZE));
                     worldIn.markForRerender(playerIn.getPosition().add(0, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, -16));
-                    worldIn.markForRerender(playerIn.getPosition().add(-16, 0, 16));
-                    worldIn.markForRerender(playerIn.getPosition().add(-16, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(-16, 0, -16));
+                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, -CHUNK_SIZE));
+                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, CHUNK_SIZE));
+                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, 0));
+                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, -CHUNK_SIZE));
                 }
                 return new ActionResult<>(ActionResultType.SUCCESS, playerIn.getHeldItem(handIn));
             }

@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.network;
 
+import com.ldtteam.structurize.Instances;
 import com.ldtteam.structurize.network.messages.IMessage;
 import com.ldtteam.structurize.network.messages.TestMessage;
 import com.ldtteam.structurize.util.Utils;
@@ -69,9 +70,15 @@ public class NetworkChannel
             return null;
         }, (msg, ctxIn) -> {
             final Context ctx = ctxIn.get();
-            // boolean param MUST equals true if packet arrived at logical server
-            ctx.enqueueWork(() -> msg.onExecute(ctx, ctx.getDirection().getOriginationSide().equals(LogicalSide.CLIENT)));
+            final LogicalSide packetOrigin = ctx.getDirection().getOriginationSide();
             ctx.setPacketHandled(true);
+            if (msg.getExecutionSide() != null && packetOrigin.equals(msg.getExecutionSide()))
+            {
+                Instances.getModLogger().warn("Receving {} at wrong side!", msg.getClass());
+                return;
+            }
+            // boolean param MUST equals true if packet arrived at logical server
+            ctx.enqueueWork(() -> msg.onExecute(ctx, packetOrigin.equals(LogicalSide.CLIENT)));
         });
     }
 
@@ -105,7 +112,7 @@ public class NetworkChannel
     public void sendToOrigin(final IMessage msg, final Context ctx)
     {
         final ServerPlayerEntity player = ctx.getSender();
-        if (player != null)
+        if (player != null) // side check
         {
             sendToPlayer(msg, player);
         }

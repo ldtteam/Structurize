@@ -2,6 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.Instances;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class TestMessage implements IMessage
@@ -28,6 +29,12 @@ public class TestMessage implements IMessage
     public void fromBytes(final PacketBuffer buf)
     {
         str = buf.readString();
+    }
+
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return null;
     }
 
     @Override
