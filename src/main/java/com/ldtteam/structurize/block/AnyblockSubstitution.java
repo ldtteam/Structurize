@@ -56,7 +56,7 @@ public class AnyblockSubstitution extends Block
     @Override
     public boolean propagatesSkylightDown(final BlockState state, final IBlockReader reader, final BlockPos pos)
     {
-        return !SHOULD_RENDER_BLOCK_TEXTURE.get();
+        return true; // !SHOULD_RENDER_BLOCK_TEXTURE.get(); does not work since it's only checked when resource reloading
     }
 
     @Override
@@ -81,15 +81,16 @@ public class AnyblockSubstitution extends Block
                 if (worldIn.isRemote())
                 {
                     SHOULD_RENDER_BLOCK_TEXTURE.set(!SHOULD_RENDER_BLOCK_TEXTURE.get());
-                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, CHUNK_SIZE));
-                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(CHUNK_SIZE, 0, -CHUNK_SIZE));
-                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, CHUNK_SIZE));
-                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(0, 0, -CHUNK_SIZE));
-                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, CHUNK_SIZE));
-                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, 0));
-                    worldIn.markForRerender(playerIn.getPosition().add(-CHUNK_SIZE, 0, -CHUNK_SIZE));
+                    for (int i = -1; i < 2; i++)
+                    {
+                        for (int j = -1; j < 2; j++)
+                        {
+                            for (int k = -1; k < 2; k++)
+                            {
+                                worldIn.markForRerender(playerIn.getPosition().add(i * CHUNK_SIZE, j * CHUNK_SIZE, k * CHUNK_SIZE));
+                            }
+                        }
+                    }
                 }
                 return new ActionResult<>(ActionResultType.SUCCESS, playerIn.getHeldItem(handIn));
             }

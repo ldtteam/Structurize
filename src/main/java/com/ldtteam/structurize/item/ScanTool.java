@@ -1,13 +1,17 @@
 package com.ldtteam.structurize.item;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Rarity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /**
  * ScanTool item class
  */
-public class ScanTool extends Item
+public class ScanTool extends AbstractItemWithPosSelector
 {
     /**
      * Creates default scan tool item.
@@ -28,5 +32,17 @@ public class ScanTool extends Item
     {
         super(properties);
         setRegistryName("scantool");
+    }
+
+    @Override
+    public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn)
+    {
+        return ActionResultType.SUCCESS;
+    }
+
+    @Override
+    public AbstractItemWithPosSelector getRegisteredItemInstance()
+    {
+        return ModItems.SCAN_TOOL;
     }
 }

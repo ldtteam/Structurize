@@ -74,7 +74,7 @@ public class NetworkChannel
             ctx.setPacketHandled(true);
             if (msg.getExecutionSide() != null && packetOrigin.equals(msg.getExecutionSide()))
             {
-                Instances.getModLogger().warn("Receving {} at wrong side!", msg.getClass());
+                Instances.getModLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
                 return;
             }
             // boolean param MUST equals true if packet arrived at logical server

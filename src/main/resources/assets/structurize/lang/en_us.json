@@ -1,9 +1,18 @@
 {
-    "itemGroup.Structurize": "Structurize",
-    "item.structurize.buildtool": "Build Tool",
-    "item.structurize.scantool": "Scan Tool",
-    "item.structurize.shapetool": "Shape Tool",
-    "item.structurize.caliper": "Caliper",
-    "block.structurize.anyblocksubstitution": "Anyblock Substitution",
-    "block.structurize.variablesubstitution": "Variable Substitution"
+  "itemGroup.Structurize": "Structurize",
+  "item.structurize.buildtool": "Build Tool",
+  "item.structurize.scantool": "Scan Tool",
+  "item.structurize.shapetool": "Shape Tool",
+  "item.structurize.caliper": "Caliper",
+  "block.structurize.anyblocksubstitution": "Anyblock Substitution",
+  "block.structurize.variablesubstitution": "Variable Substitution",
+  "item.possetter.firstpos": "First pos set to x=%d y=%d z=%d",
+  "item.possetter.secondpos": "Second pos set to x=%d y=%d z=%d",
+  "item.caliper.msg.same": "That's the same block",
+  "item.caliper.msg.base": "That's a %s blocks",
+  "item.caliper.msg.by": "by",
+  "item.caliper.msg.directLength": ", direct length is",
+  "item.caliper.msg.1D": "line",
+  "item.caliper.msg.2D": "square",
+  "item.caliper.msg.3D": "cube"
 }
