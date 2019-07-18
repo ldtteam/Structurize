@@ -116,6 +116,10 @@ public class NetworkChannel
         {
             sendToPlayer(msg, player);
         }
+        else
+        {
+            sendToServer(msg);
+        }
     }
 
     /**
