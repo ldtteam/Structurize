@@ -76,18 +76,6 @@ public class Caliper extends AbstractItemWithPosSelector
         int disY = Math.abs(start.getY() - end.getY());
         int disZ = Math.abs(start.getZ() - end.getZ());
         int flag = 3;
-        if (start.getX() == end.getX())
-        {
-            flag--;
-        }
-        if (start.getY() == end.getY())
-        {
-            flag--;
-        }
-        if (start.getZ() == end.getZ())
-        {
-            flag--;
-        }
         final String by = " " + LanguageHandler.translateKey(MSG_BY_TKEY) + " ";
         StringBuilder msg = new StringBuilder();
         if (disX != 0)
@@ -96,17 +84,29 @@ public class Caliper extends AbstractItemWithPosSelector
             msg.append(disX);
             msg.append(by);
         }
+        else
+        {
+            flag--;
+        }
         if (disY != 0)
         {
             disY++;
             msg.append(disY);
             msg.append(by);
         }
+        else
+        {
+            flag--;
+        }
         if (disZ != 0)
         {
             disZ++;
             msg.append(disZ);
             msg.append(by);
+        }
+        else
+        {
+            flag--;
         }
         msg.delete(msg.length() - by.length(), msg.length());
         msg = new StringBuilder(LanguageHandler.translateKeyWithFormat(MSG_BASE_TKEY, msg.toString()));
