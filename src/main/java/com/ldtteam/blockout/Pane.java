@@ -20,23 +20,25 @@ public class Pane extends Gui
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
-    private static final int SCISSOR_X_INDEX = 12;
-    private static final int SCISSOR_Y_INDEX = 13;
-    protected static Pane lastClickedPane;
-    protected static Pane focus;
-    protected static boolean   debugging = false;
-    protected        Minecraft mc        = Minecraft.getMinecraft();
+    private static final int                 SCISSOR_X_INDEX   = 12;
+    private static final int                 SCISSOR_Y_INDEX   = 13;
+    protected static     Pane                lastClickedPane;
+    protected static     Pane                focus;
+    protected            Pane                onHover;
+    protected static     boolean             debugging         = false;
+    protected            Minecraft           mc                = Minecraft.getMinecraft();
     //  Attributes
-    protected        String    id        = "";
-    protected        int       x         = 0;
-    protected        int       y         = 0;
-    protected        int       width     = 0;
-    protected        int       height    = 0;
-    protected        Alignment alignment = Alignment.TOP_LEFT;
-    protected        boolean   visible   = true;
-    protected        boolean   enabled   = true;
+    protected            String              id                = "";
+    protected            int                 x                 = 0;
+    protected            int                 y                 = 0;
+    protected            int                 width             = 0;
+    protected            int                 height            = 0;
+    protected            Alignment           alignment         = Alignment.TOP_LEFT;
+    protected            boolean             visible           = true;
+    protected            boolean             enabled           = true;
+    protected            String              onHoverId         = "";
     //  Runtime
-    protected Window window;
+    protected            Window              window;
     protected View   parent;
 
     /**
@@ -86,6 +88,7 @@ public class Pane extends Gui
         alignment = params.getEnumAttribute("align", Alignment.class, alignment);
         visible = params.getBooleanAttribute("visible", visible);
         enabled = params.getBooleanAttribute("enabled", enabled);
+        onHoverId = params.getStringAttribute("onHoverId");
     }
 
     /**
@@ -241,6 +244,32 @@ public class Pane extends Gui
     public void disable()
     {
         setEnabled(false);
+    }
+
+    /**
+     * Is pane visible and enabled
+     */
+    public boolean isOn()
+    {
+        return enabled && visible;
+    }
+
+    /**
+     * Enable and show this pane.
+     */
+    public void on()
+    {
+        setEnabled(true);
+        setVisible(true);
+    }
+
+    /**
+     * Disable and hide this pane.
+     */
+    public void off()
+    {
+        setEnabled(false);
+        setVisible(false);
     }
 
     /**
@@ -617,6 +646,15 @@ public class Pane extends Gui
          */
     }
 
+    /**
+     * Set the parent of the child.
+     * @param view the parent view.
+     */
+    public void setParentView(final View view)
+    {
+        this.parent = view;
+    }
+
     private static class ScissorsInfo
     {
         private final int x;
@@ -630,6 +668,46 @@ public class Pane extends Gui
             this.y = y;
             this.width = w;
             this.height = h;
+        }
+    }
+
+    /**
+     * Handle onHover element, element must be visible
+     * TODO: bug: must have pos set from xml (or be not in a group)
+     */
+    public void handleHover(final int mx, final int my)
+    {
+        if (onHover == null)
+        {
+            if (!onHoverId.isEmpty())
+            {
+                onHover = window.findPaneByID(onHoverId);
+            }
+            else
+            {
+                return;
+            }
+        }
+        if (!this.isVisible())
+        {
+            if (onHover.isVisible())
+            {
+                onHover.off();
+            }
+            return;
+        }
+        if (onHover.isPointInPane(mx, my) && onHover.isVisible())
+        {
+            return;
+        }
+        if (this.isPointInPane(mx, my) && !onHover.isVisible())
+        {
+            onHover.on();
+            return;
+        }
+        if (!this.isPointInPane(mx, my) && onHover.isVisible())
+        {
+            onHover.off();
         }
     }
 }

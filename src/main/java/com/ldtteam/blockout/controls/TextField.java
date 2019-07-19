@@ -23,16 +23,16 @@ public class TextField extends Pane
     /**
      * Texture resource location.
      */
-    private static final ResourceLocation TEXTURE           = new ResourceLocation("textures/gui/widgets.png");
-    private static final int RECT_COLOR = -3_092_272;
-    private static final int DEFAULT_MAX_TEXT_LENGTH = 32;
+    private static final ResourceLocation TEXTURE                 = new ResourceLocation("textures/gui/widgets.png");
+    private static final int              RECT_COLOR              = -3_092_272;
+    private static final int              DEFAULT_MAX_TEXT_LENGTH = 32;
     //  Attributes
-    protected            int              maxTextLength     = DEFAULT_MAX_TEXT_LENGTH;
-    protected            int              textColor         = 0xE0E0E0;
-    protected            int              textColorDisabled = 0x707070;
-    protected            boolean          shadow            = true;
+    protected            int              maxTextLength           = DEFAULT_MAX_TEXT_LENGTH;
+    protected            int              textColor               = 0xE0E0E0;
+    protected            int              textColorDisabled       = 0x707070;
+    protected            boolean          shadow                  = true;
     @Nullable
-    protected            String           tabNextPaneID     = null;
+    protected            String           tabNextPaneID           = null;
     //  Runtime
     protected            String           text              = "";
     protected Filter filter;
@@ -96,52 +96,6 @@ public class TextField extends Pane
     public int getInternalWidth()
     {
         return getWidth();
-    }
-
-    public int getMaxTextLength()
-    {
-        return maxTextLength;
-    }
-
-    public void setMaxTextLength(final int m)
-    {
-        maxTextLength = m;
-    }
-
-    public int getTextColor()
-    {
-        return textColor;
-    }
-
-    public void setTextColor(final int c)
-    {
-        textColor = c;
-    }
-
-    public int getTextColorDisabled()
-    {
-        return textColorDisabled;
-    }
-
-    public void setTextColorDisabled(final int c)
-    {
-        textColorDisabled = c;
-    }
-
-    @Nullable
-    public String getTabNextPaneID()
-    {
-        return tabNextPaneID;
-    }
-
-    public void setTabNextPaneID(final String nextID)
-    {
-        tabNextPaneID = nextID;
-    }
-
-    public int getCursorPosition()
-    {
-        return cursorPosition;
     }
 
     public void setCursorPosition(final int pos)

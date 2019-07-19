@@ -49,7 +49,7 @@ public class Screen extends GuiScreen
     @Override
     public void drawScreen(final int mx, final int my, final float f)
     {
-        if (window.hasLightbox())
+        if (window.hasLightbox() && super.mc != null)
         {
             super.drawDefaultBackground();
         }
@@ -87,6 +87,9 @@ public class Screen extends GuiScreen
     {
         super.handleMouseInput();
         final int wheel = Mouse.getDWheel();
+        final int mx = Mouse.getEventX() * super.width / super.mc.displayWidth - x;
+        final int my = super.height - Mouse.getEventY() * super.height / super.mc.displayHeight - 1 - y;
+        window.handleHover(mx, my);
         if(wheel != 0)
         {
             window.scrollInput(wheel);
