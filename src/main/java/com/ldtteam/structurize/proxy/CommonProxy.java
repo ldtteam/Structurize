@@ -187,4 +187,10 @@ public class CommonProxy implements IProxy
          * Intentionally left empty.
          */
     }
+
+    @Override
+    public void initializeOptifine()
+    {
+        //Noop by default.
+    }
 }

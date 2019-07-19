@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.ldtteam.blockout.Screen;
 import com.ldtteam.structurize.client.gui.*;
+import com.ldtteam.structurize.compat.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -303,5 +304,11 @@ public class ClientProxy extends CommonProxy
     {
         @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
         window.open();
+    }
+
+    @Override
+    public void initializeOptifine()
+    {
+        OptifineCompat.getInstance().intialize();
     }
 }
