@@ -1,7 +1,7 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -15,15 +15,15 @@ public class ButtonVanilla extends Button
      */
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/widgets.png");
 
-    private static final int DEFAULT_BUTTON_WIDTH  = 200;
+    private static final int DEFAULT_BUTTON_WIDTH = 200;
     private static final int DEFAULT_BUTTON_HEIGHT = 20;
 
-    private static final int ENABLED_COLOR  = 0xE0E0E0;
-    private static final int HOVER_COLOR    = 0xFFFFA0;
+    private static final int ENABLED_COLOR = 0xE0E0E0;
+    private static final int HOVER_COLOR = 0xFFFFA0;
     private static final int DISABLED_COLOR = 0xA0A0A0;
 
-    private static final int ENABLED_TEXTURE_V  = 66;
-    private static final int HOVER_TEXTURE_V    = 86;
+    private static final int ENABLED_TEXTURE_V = 66;
+    private static final int HOVER_TEXTURE_V = 86;
     private static final int DISABLED_TEXTURE_V = 46;
 
     /**
@@ -63,8 +63,8 @@ public class ButtonVanilla extends Button
     @Override
     public void drawSelf(final int mx, final int my)
     {
-        mc.renderEngine.bindTexture(TEXTURE);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.getTextureManager().bindTexture(TEXTURE);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         final boolean isMouseOver = isPointInPane(mx, my);
 
@@ -86,22 +86,21 @@ public class ButtonVanilla extends Button
             v = DISABLED_TEXTURE_V;
         }
 
-
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         if (width == DEFAULT_BUTTON_WIDTH && height == DEFAULT_BUTTON_HEIGHT)
         {
-            //Full size button
-            drawTexturedModalRect(x, y, u, v, width, height);
+            // Full size button
+            blit(x, y, u, v, width, height);
         }
         else
         {
-            drawTexturedModalRect(x, y, u, v, width / 2, height / 2);
-            drawTexturedModalRect(x + width / 2, y, u + DEFAULT_BUTTON_WIDTH - width / 2, v, width / 2, height / 2);
-            drawTexturedModalRect(x, y + height / 2, u, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
-            drawTexturedModalRect(x + width / 2, y + height / 2, u + DEFAULT_BUTTON_WIDTH - width / 2, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
+            blit(x, y, u, v, width / 2, height / 2);
+            blit(x + width / 2, y, u + DEFAULT_BUTTON_WIDTH - width / 2, v, width / 2, height / 2);
+            blit(x, y + height / 2, u, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
+            blit(x + width / 2, y + height / 2, u + DEFAULT_BUTTON_WIDTH - width / 2, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
         }
 
         final int textColor;

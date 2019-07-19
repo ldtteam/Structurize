@@ -1,8 +1,8 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ScrollingContainer extends View
 {
-    private static final int PERCENT_90   = 90;
+    private static final int PERCENT_90 = 90;
     private static final int PERCENT_FULL = 100;
 
     protected ScrollingView owner;
-    protected int scrollY       = 0;
+    protected int scrollY = 0;
     protected int contentHeight = 0;
 
     ScrollingContainer(final ScrollingView owner)
@@ -37,7 +37,8 @@ public class ScrollingContainer extends View
     {
         contentHeight = 0;
 
-        for (@NotNull final Pane child : children)
+        for (@NotNull
+        final Pane child : children)
         {
             if (child != null)
             {
@@ -45,7 +46,7 @@ public class ScrollingContainer extends View
             }
         }
 
-        //  Recompute scroll
+        // Recompute scroll
         setScrollY(scrollY);
     }
 
@@ -59,9 +60,9 @@ public class ScrollingContainer extends View
     {
         scissorsStart();
 
-        //  Translate the scroll
+        // Translate the scroll
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, -scrollY, 0);
+        GlStateManager.translatef(0.0f, (float) -scrollY, 0.0f);
         super.drawSelf(mx, my + scrollY);
         GlStateManager.popMatrix();
 
@@ -71,17 +72,14 @@ public class ScrollingContainer extends View
     @Override
     public void click(final int mx, final int my)
     {
-        //  Offset click by the scroll amounts; we'll adjust it back on clickSelf
+        // Offset click by the scroll amounts; we'll adjust it back on clickSelf
         super.click(mx, my + scrollY);
     }
 
     @Override
     protected boolean childIsVisible(@NotNull final Pane child)
     {
-        return child.getX() < getWidth()
-                 && child.getY() < getHeight() + scrollY
-                 && (child.getX() + child.getWidth()) >= 0
-                 && (child.getY() + child.getHeight()) >= scrollY;
+        return child.getX() < getWidth() && child.getY() < getHeight() + scrollY && (child.getX() + child.getWidth()) >= 0 && (child.getY() + child.getHeight()) >= scrollY;
     }
 
     public int getScrollY()

@@ -1,14 +1,13 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
-import com.minecolonies.blockout.views.View;
-import com.minecolonies.blockout.views.Window;
+import com.ldtteam.blockout.views.View;
+import com.ldtteam.blockout.views.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.AbstractGui;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-
 import java.nio.FloatBuffer;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * A Pane is the root of all UI objects.
  */
-public class Pane extends Gui
+public class Pane extends AbstractGui
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
@@ -24,22 +23,22 @@ public class Pane extends Gui
     private static final int SCISSOR_Y_INDEX = 13;
     protected static Pane lastClickedPane;
     protected static Pane focus;
-    protected        Pane onHover;
-    protected static boolean   debugging = false;
-    protected        Minecraft mc        = Minecraft.getMinecraft();
-    //  Attributes
-    protected        String    id        = "";
-    protected        int       x         = 0;
-    protected        int       y         = 0;
-    protected        int       width     = 0;
-    protected        int       height    = 0;
-    protected        Alignment alignment = Alignment.TOP_LEFT;
-    protected        boolean   visible   = true;
-    protected        boolean   enabled   = true;
-    protected        String    onHoverId = "";
-    //  Runtime
+    protected Pane onHover;
+    protected static boolean debugging = false;
+    protected Minecraft mc = Minecraft.getInstance();
+    // Attributes
+    protected String id = "";
+    protected int x = 0;
+    protected int y = 0;
+    protected int width = 0;
+    protected int height = 0;
+    protected Alignment alignment = Alignment.TOP_LEFT;
+    protected boolean visible = true;
+    protected boolean enabled = true;
+    protected String onHoverId = "";
+    // Runtime
     protected Window window;
-    protected View   parent;
+    protected View parent;
 
     /**
      * Default constructor.
@@ -47,7 +46,7 @@ public class Pane extends Gui
     public Pane()
     {
         super();
-        //Required for panes.
+        // Required for panes.
     }
 
     /**
@@ -60,7 +59,8 @@ public class Pane extends Gui
         super();
         id = params.getStringAttribute("id", id);
 
-        @NotNull final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
+        @NotNull
+        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
         PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
         if (sizePair != null)
         {
@@ -135,7 +135,8 @@ public class Pane extends Gui
         // Can be overloaded
     }
 
-    //  ID
+    // ID
+
     public final String getID()
     {
         return id;
@@ -192,7 +193,8 @@ public class Pane extends Gui
         this.alignment = alignment;
     }
 
-    //  Visibility
+    // Visibility
+
     public boolean isVisible()
     {
         return visible;
@@ -219,7 +221,8 @@ public class Pane extends Gui
         setVisible(false);
     }
 
-    //  Enabling
+    // Enabling
+
     public boolean isEnabled()
     {
         return enabled;
@@ -247,7 +250,7 @@ public class Pane extends Gui
     }
 
     /**
-     * Is pane visible and enabled
+     * Is pane visible and enabled.
      */
     public boolean isOn()
     {
@@ -338,7 +341,7 @@ public class Pane extends Gui
     }
 
     /**
-     * Draw self.  The graphics port is already relative to the appropriate
+     * Draw self. The graphics port is already relative to the appropriate
      * location.
      * <p>
      * Override this to actually draw.
@@ -360,17 +363,16 @@ public class Pane extends Gui
      */
     protected boolean isPointInPane(final int mx, final int my)
     {
-        return mx >= x && mx < (x + width)
-                 && my >= y && my < (y + height);
+        return mx >= x && mx < (x + width) && my >= y && my < (y + height);
     }
 
-    //  Dimensions
+    // Dimensions
     public int getWidth()
     {
         return width;
     }
 
-    //  Drawing
+    // Drawing
 
     public int getHeight()
     {
@@ -389,7 +391,8 @@ public class Pane extends Gui
      */
     public final <T extends Pane> T findPaneOfTypeByID(final String id, @NotNull final Class<T> type)
     {
-        @Nullable final Pane p = findPaneByID(id);
+        @Nullable
+        final Pane p = findPaneByID(id);
         try
         {
             return type.cast(p);
@@ -400,7 +403,7 @@ public class Pane extends Gui
         }
     }
 
-    //----------Subpanes-------------//
+    // ----------Subpanes-------------//
 
     /**
      * Returns the first Pane of a given ID.
@@ -441,7 +444,7 @@ public class Pane extends Gui
     }
 
     /**
-     * Put this Pane inside a View.  Only Views and subclasses can contain
+     * Put this Pane inside a View. Only Views and subclasses can contain
      * Panes.
      *
      * @param newParent the View to put this Pane into, or null to remove from
@@ -467,7 +470,7 @@ public class Pane extends Gui
         return visible && enabled;
     }
 
-    //----------Mouse-------------//
+    // ----------Mouse-------------//
 
     /**
      * Process a mouse down on the Pane.
@@ -568,7 +571,7 @@ public class Pane extends Gui
     protected synchronized void scissorsStart()
     {
         final FloatBuffer fb = BufferUtils.createFloatBuffer(16 * 4);
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, fb);
+        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, fb);
 
         int scissorsX = (int) fb.get(SCISSOR_X_INDEX) + getX();
         int scissorsY = (int) fb.get(SCISSOR_Y_INDEX) + getY();
@@ -592,11 +595,12 @@ public class Pane extends Gui
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
-        @NotNull final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
+        @NotNull
+        final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
         scissorsInfoStack.push(info);
 
-        final int scale = Screen.getScale();
-        GL11.glScissor(info.x * scale, mc.displayHeight - ((info.y + info.height) * scale), info.width * scale, info.height * scale);
+        final double scale = BOScreen.getScale();
+        GL11.glScissor((int) (info.x * scale), (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)), (int) (info.width * scale), (int) (info.height * scale));
     }
 
     /**
@@ -630,16 +634,17 @@ public class Pane extends Gui
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
             final ScissorsInfo info = scissorsInfoStack.peek();
-            final int scale = Screen.getScale();
-            GL11.glScissor(info.x * scale, mc.displayHeight - ((info.y + info.height) * scale), info.width * scale, info.height * scale);
+            final double scale = BOScreen.getScale();
+            GL11.glScissor((int) (info.x * scale), (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)), (int) (info.width * scale), (int) (info.height * scale));
         }
     }
 
     /**
      * Wheel input.
+     *
      * @param wheel minus for down, plus for up.
      */
-    public void scrollInput(final int wheel)
+    public void scrollInput(final double wheel)
     {
         /**
          * Can be overwritten by child classes
@@ -648,6 +653,7 @@ public class Pane extends Gui
 
     /**
      * Set the parent of the child.
+     *
      * @param view the parent view.
      */
     public void setParentView(final View view)
@@ -672,7 +678,7 @@ public class Pane extends Gui
     }
 
     /**
-     * Handle onHover element, element must be visible
+     * Handle onHover element, element must be visible.
      * TODO: bug: must have pos set from xml (or be not in a group)
      */
     public void handleHover(final int mx, final int my)
@@ -708,6 +714,18 @@ public class Pane extends Gui
         if (!this.isPointInPane(mx, my) && onHover.isVisible())
         {
             onHover.off();
+        }
+    }
+
+    protected int drawString(final String text, final float x, final float y, final int color, final boolean shadow)
+    {
+        if (shadow)
+        {
+            return mc.fontRenderer.drawStringWithShadow(text, x, y, color);
+        }
+        else
+        {
+            return mc.fontRenderer.drawString(text, x, y, color);
         }
     }
 }

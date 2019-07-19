@@ -1,19 +1,5 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
-import com.minecolonies.blockout.controls.*;
-import com.minecolonies.blockout.views.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -21,6 +7,33 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import com.ldtteam.blockout.controls.ButtonImage;
+import com.ldtteam.blockout.controls.ButtonVanilla;
+import com.ldtteam.blockout.controls.Image;
+import com.ldtteam.blockout.controls.ItemIcon;
+import com.ldtteam.blockout.controls.Label;
+import com.ldtteam.blockout.controls.Text;
+import com.ldtteam.blockout.controls.TextFieldVanilla;
+import com.ldtteam.blockout.views.Box;
+import com.ldtteam.blockout.views.DropDownList;
+import com.ldtteam.blockout.views.Group;
+import com.ldtteam.blockout.views.OverlayView;
+import com.ldtteam.blockout.views.ScrollingGroup;
+import com.ldtteam.blockout.views.ScrollingList;
+import com.ldtteam.blockout.views.SwitchView;
+import com.ldtteam.blockout.views.View;
+import com.ldtteam.blockout.views.Window;
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 
 /**
  * Utilities to load xml files.
@@ -46,6 +59,7 @@ public final class Loader
         register("dropdown", DropDownList.class);
         register("overlay", OverlayView.class);
     }
+
     private Loader()
     {
         // Hides default constructor.
@@ -62,10 +76,7 @@ public final class Loader
 
         if (paneConstructorMap.containsKey(key))
         {
-            throw new IllegalArgumentException("Duplicate pane type '"
-                                                 + name + "' of style '"
-                                                 + style + "' when registering Pane class mapping for "
-                                                 + paneClass.getName());
+            throw new IllegalArgumentException("Duplicate pane type '" + name + "' of style '" + style + "' when registering Pane class mapping for " + paneClass.getName());
         }
 
         try
@@ -75,8 +86,7 @@ public final class Loader
         }
         catch (final NoSuchMethodException exception)
         {
-            throw new IllegalArgumentException("Missing (XMLNode) constructor for type '"
-                                                 + name + "' when adding Pane class mapping for " + paneClass.getName(), exception);
+            throw new IllegalArgumentException("Missing (XMLNode) constructor for type '" + name + "' when adding Pane class mapping for " + paneClass.getName(), exception);
         }
     }
 
@@ -88,7 +98,7 @@ public final class Loader
 
     private static Pane createFromPaneParams(final PaneParams params)
     {
-        //  Parse Attributes first, to full construct
+        // Parse Attributes first, to full construct
         final String paneType = params.getType();
         final String style = params.getStringAttribute("style", null);
 
@@ -106,11 +116,9 @@ public final class Loader
             {
                 return constructor.newInstance(params);
             }
-            catch (InstantiationException | IllegalAccessException | InvocationTargetException exc)
+            catch (final InstantiationException | IllegalAccessException | InvocationTargetException exc)
             {
-                Log.getLogger().error(
-                  String.format("Exception when parsing XML for pane type %s", paneType),
-                  exc);
+                Log.getLogger().error(String.format("Exception when parsing XML for pane type %s", paneType), exc);
             }
         }
 
@@ -187,7 +195,7 @@ public final class Loader
 
             createFromXML(doc, parent);
         }
-        catch (ParserConfigurationException | SAXException | IOException exc)
+        catch (final ParserConfigurationException | SAXException | IOException exc)
         {
             Log.getLogger().error("Exception when parsing XML.", exc);
         }
@@ -236,18 +244,17 @@ public final class Loader
     {
         try
         {
-            if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+            InputStream is = DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().getResourceManager().getResource(res).getInputStream());
+            if (is == null)
             {
-                return Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream();
+                is = DistExecutor
+                    .callWhenOn(Dist.DEDICATED_SERVER, () -> () -> Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath())));
             }
-            else
-            {
-                return Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath()));
-            }
+            return is;
         }
-        catch (final IOException e)
+        catch (final RuntimeException e)
         {
-            Log.getLogger().error("IOException Loader.java", e);
+            Log.getLogger().error("IOException Loader.java", e.getCause());
         }
         return null;
     }

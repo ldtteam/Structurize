@@ -1,8 +1,8 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Loader;
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
+import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
 
 /**
  * A Blockout pane that contains a scrolling line of other panes.
@@ -52,7 +52,6 @@ public class ScrollingListContainer extends ScrollingContainer
                 dataProvider.updateElement(i, child);
             }
         }
-
 
         while (children.size() > numElements)
         {

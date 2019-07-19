@@ -1,7 +1,7 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +41,7 @@ public class Group extends View
         int childWidth = child.getWidth();
         final int childHeight = child.getHeight();
 
-        //  Adjust for horizontal size and alignment
+        // Adjust for horizontal size and alignment
         if (childWidth < 0)
         {
             childWidth = getInteriorWidth();
@@ -55,7 +55,8 @@ public class Group extends View
             childX = ((getInteriorWidth() - childWidth) / 2) + childX;
         }
 
-        for (@NotNull final Pane c : children)
+        for (@NotNull
+        final Pane c : children)
         {
             if (c == child)
             {
@@ -76,7 +77,8 @@ public class Group extends View
         final int formerChildY = child.getY();
         final int formerChildHeight = child.getHeight();
 
-        for (@NotNull final Pane c : children)
+        for (@NotNull
+        final Pane c : children)
         {
             if (c.getY() > formerChildY)
             {

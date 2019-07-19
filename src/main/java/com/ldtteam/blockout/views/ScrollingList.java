@@ -1,9 +1,8 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.function.IntSupplier;
 
@@ -15,9 +14,9 @@ import java.util.function.IntSupplier;
  */
 public class ScrollingList extends ScrollingView
 {
-    //  Runtime
+    // Runtime
     protected DataProvider dataProvider;
-    private   PaneParams   listNodeParams;
+    private PaneParams listNodeParams;
 
     /**
      * Default constructor required by Blockout.
@@ -92,8 +91,8 @@ public class ScrollingList extends ScrollingView
             return;
         }
 
-        //  Get the PaneParams for this child, because we'll need it in the future
-        //  to create more nodes
+        // Get the PaneParams for this child, because we'll need it in the future
+        // to create more nodes
         listNodeParams = childNodes.get(0);
     }
 

@@ -1,10 +1,9 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import com.minecolonies.blockout.controls.*;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.controls.*;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +28,7 @@ public class DropDownList extends View implements ButtonHandler
     /**
      * date required to fill the list.
      */
-    protected DataProvider  dataProvider;
+    protected DataProvider dataProvider;
 
     /**
      * handler for the accept method.
@@ -74,11 +73,11 @@ public class DropDownList extends View implements ButtonHandler
         super(params);
         final PaneParams.SizePair dropDownSize = params.getSizePairAttribute("dropDownSize", null, null);
         dropDownWidth = dropDownSize == null ? width : dropDownSize.getX();
-        //When unknown, we use the same height as it is wide.
+        // When unknown, we use the same height as it is wide.
         dropDownHeight = dropDownSize == null ? width : dropDownSize.getY();
         dropDownFixX = params.getIntegerAttribute("dropfixx", dropDownFixX);
 
-        if(params.getStringAttribute("source", "").isEmpty())
+        if (params.getStringAttribute("source", "").isEmpty())
         {
             button = new ButtonVanilla(params);
         }

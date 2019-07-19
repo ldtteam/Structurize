@@ -1,8 +1,8 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import com.minecolonies.blockout.controls.Scrollbar;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.controls.Scrollbar;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class ScrollingView extends View
 {
     private static final int DEFAULT_SCROLLBAR_WIDTH = 8;
-    //  Runtime
+    // Runtime
     protected ScrollingContainer container;
-    protected Scrollbar          scrollbar;
-    //  Params
+    protected Scrollbar scrollbar;
+    // Params
     private final int scrollbarWidth = DEFAULT_SCROLLBAR_WIDTH;
 
     /**
@@ -67,15 +67,16 @@ public class ScrollingView extends View
     public void setSize(final int w, final int h)
     {
         super.setSize(w, h);
-        container.setSize(getInteriorWidth() - scrollbarWidth + (scrollbar.getScrollOffsetX()>scrollbarWidth ? scrollbarWidth : scrollbar.getScrollOffsetX()), getInteriorHeight());
+        container
+            .setSize(getInteriorWidth() - scrollbarWidth + (scrollbar.getScrollOffsetX() > scrollbarWidth ? scrollbarWidth : scrollbar.getScrollOffsetX()), getInteriorHeight());
         scrollbar.setPosition(getInteriorWidth() - scrollbarWidth, 0);
         scrollbar.setSize(scrollbarWidth, getInteriorHeight());
     }
 
     @Override
-    public void scrollInput(final int wheel)
+    public void scrollInput(final double wheel)
     {
-        this.setScrollY(getScrollY() + -wheel);
+        this.setScrollY(getScrollY() - (int) wheel);
     }
 
     public ScrollingContainer getContainer()

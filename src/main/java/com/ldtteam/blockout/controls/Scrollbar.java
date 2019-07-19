@@ -1,10 +1,10 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import com.minecolonies.blockout.views.ScrollingContainer;
+import com.ldtteam.blockout.BOScreen;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.views.ScrollingContainer;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 
 /**
  * Class handling scrollbars in our GUIs.
@@ -61,8 +61,8 @@ public class Scrollbar extends Pane
     public Scrollbar(final ScrollingContainer container, final PaneParams params)
     {
         this(container);
-        //  TODO: Parse Scrollbar-specific Params
-        
+        // TODO: Parse Scrollbar-specific Params
+
         final PaneParams.SizePair size = params.getSizePairAttribute("scrollbarOffset", null, null);
         if (size != null)
         {
@@ -89,7 +89,7 @@ public class Scrollbar extends Pane
      */
     public void dragScroll(final int my)
     {
-        if(container.getContentHeight() == 0)
+        if (container.getContentHeight() == 0)
         {
             return;
         }
@@ -114,10 +114,11 @@ public class Scrollbar extends Pane
     @Override
     public void drawSelf(final int mx, final int my)
     {
-        barClicked = barClicked && Mouse.isButtonDown(0);
+        barClicked = barClicked && (mc.mouseHelper.isLeftDown() || BOScreen.isMouseLeftDown);
+        // TODO: catch from screen
         if (barClicked)
         {
-            //  Current relative position of the click position on the bar
+            // Current relative position of the click position on the bar
             dragScroll(my - y);
         }
 
@@ -129,20 +130,17 @@ public class Scrollbar extends Pane
         final int scrollBarBackX1 = x + offsetX;
         final int scrollBarBackX2 = scrollBarBackX1 + (getWidth() - 2);
 
-        //  Scroll Area Back
-        drawGradientRect(scrollBarBackX2, y + getHeight() + offsetY, scrollBarBackX1, y + offsetY,
-          scrollbarBackground, scrollbarBackground);
+        // Scroll Area Back
+        fill(scrollBarBackX2, y + getHeight() + offsetY, scrollBarBackX1, y + offsetY, scrollbarBackground);
 
         final int scrollBarStartY = y + getScrollBarYPos();
         final int scrollBarEndY = scrollBarStartY + getBarHeight();
 
-        //  Scroll Bar (Bottom/Right Edge line) - Fill whole Scroll area
-        drawGradientRect(scrollBarBackX2, scrollBarEndY, scrollBarBackX1, scrollBarStartY,
-          scrollbarColorHighlight, scrollbarColorHighlight);
+        // Scroll Bar (Bottom/Right Edge line) - Fill whole Scroll area
+        fill(scrollBarBackX2, scrollBarEndY, scrollBarBackX1, scrollBarStartY, scrollbarColorHighlight);
 
-        //  Scroll Bar (Inset color)
-        drawGradientRect(scrollBarBackX2 - 1, scrollBarEndY - 1, scrollBarBackX1, scrollBarStartY,
-          scrollbarColor, scrollbarColor);
+        // Scroll Bar (Inset color)
+        fill(scrollBarBackX2 - 1, scrollBarEndY - 1, scrollBarBackX1, scrollBarStartY, scrollbarColor);
     }
 
     @Override

@@ -1,7 +1,7 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.PaneParams;
-import com.minecolonies.blockout.Render;
+import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Render;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class Box extends View
 {
     private float lineWidth = 1.0F;
-    private int   color     = 0xff000000;
+    private int color = 0xff000000;
 
     /**
      * Required default constructor.

@@ -1,8 +1,8 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.Alignment;
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
+import com.ldtteam.blockout.Alignment;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
@@ -15,37 +15,37 @@ public class ButtonImage extends Button
     /**
      * Default size is a small square button.
      */
-    private static final int   DEFAULT_BUTTON_SIZE = 20;
-    private static final float HALF                = 0.5F;
+    private static final int DEFAULT_BUTTON_SIZE = 20;
+    private static final float HALF = 0.5F;
     protected ResourceLocation image;
     protected ResourceLocation imageHighlight;
     protected ResourceLocation imageDisabled;
-    protected int       imageOffsetX       = 0;
-    protected int       imageOffsetY       = 0;
-    protected int       imageWidth         = 0;
-    protected int       imageHeight        = 0;
-    protected int       imageMapWidth      = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int       imageMapHeight     = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int       highlightOffsetX   = 0;
-    protected int       highlightOffsetY   = 0;
-    protected int       highlightWidth     = 0;
-    protected int       highlightHeight    = 0;
-    protected int       highlightMapWidth  = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int       highlightMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int       disabledOffsetX    = 0;
-    protected int       disabledOffsetY    = 0;
-    protected int       disabledWidth      = 0;
-    protected int       disabledHeight     = 0;
-    protected int       disabledMapWidth   = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int       disabledMapHeight  = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected double    textScale          = 1.0;
-    protected Alignment textAlignment      = Alignment.MIDDLE;
-    protected int       textColor          = 0xffffff;
-    protected int       textHoverColor     = 0xffffff;
-    protected int       textDisabledColor  = 0xffffff;
-    protected boolean   shadow             = false;
-    protected int       textOffsetX        = 0;
-    protected int       textOffsetY        = 0;
+    protected int imageOffsetX = 0;
+    protected int imageOffsetY = 0;
+    protected int imageWidth = 0;
+    protected int imageHeight = 0;
+    protected int imageMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int imageMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int highlightOffsetX = 0;
+    protected int highlightOffsetY = 0;
+    protected int highlightWidth = 0;
+    protected int highlightHeight = 0;
+    protected int highlightMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int highlightMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int disabledOffsetX = 0;
+    protected int disabledOffsetY = 0;
+    protected int disabledWidth = 0;
+    protected int disabledHeight = 0;
+    protected int disabledMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int disabledMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected double textScale = 1.0;
+    protected Alignment textAlignment = Alignment.MIDDLE;
+    protected int textColor = 0xffffff;
+    protected int textHoverColor = 0xffffff;
+    protected int textDisabledColor = 0xffffff;
+    protected boolean shadow = false;
+    protected int textOffsetX = 0;
+    protected int textOffsetY = 0;
 
     /**
      * Default constructor. Makes a small square button.
@@ -191,8 +191,8 @@ public class ButtonImage extends Button
     private void loadImageDimensions()
     {
         final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(image);
-        imageMapWidth = dimensions.getFirst();
-        imageMapHeight = dimensions.getSecond();
+        imageMapWidth = dimensions.getA();
+        imageMapHeight = dimensions.getB();
     }
 
     /**
@@ -201,8 +201,8 @@ public class ButtonImage extends Button
     private void loadImageHighlightDimensions()
     {
         final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageHighlight);
-        highlightMapWidth = dimensions.getFirst();
-        highlightMapHeight = dimensions.getSecond();
+        highlightMapWidth = dimensions.getA();
+        highlightMapHeight = dimensions.getB();
     }
 
     /**
@@ -211,8 +211,8 @@ public class ButtonImage extends Button
     private void loadImageDisabledDimensions()
     {
         final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageDisabled);
-        disabledMapWidth = dimensions.getFirst();
-        disabledMapHeight = dimensions.getSecond();
+        disabledMapWidth = dimensions.getA();
+        disabledMapHeight = dimensions.getB();
     }
 
     /**
@@ -549,8 +549,8 @@ public class ButtonImage extends Button
 
         setupOpenGL(bind);
 
-        //Draw
-        drawModalRectWithCustomSizedTexture(x, y, offsetX, offsetY, w, h, mapWidth, mapHeight);
+        // Draw
+        blit(x, y, offsetX, offsetY, w, h, mapWidth, mapHeight);
 
         GlStateManager.disableBlend();
     }
@@ -588,8 +588,8 @@ public class ButtonImage extends Button
             }
 
             GlStateManager.pushMatrix();
-            GlStateManager.scale((float) textScale, (float) textScale, (float) textScale);
-            mc.fontRenderer.drawString(label, (float) (getX() + offsetX), (float) (getY() + offsetY), color, shadow);
+            GlStateManager.scaled(textScale, textScale, textScale);
+            drawString(label, (float) (getX() + offsetX), (float) (getY() + offsetY), color, shadow);
             GlStateManager.popMatrix();
         }
     }
@@ -604,15 +604,15 @@ public class ButtonImage extends Button
         this.mc.getTextureManager().bindTexture(texture);
         if (this.enabled || this.imageDisabled != null)
         {
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
         else
         {
-            GlStateManager.color(HALF, HALF, HALF, 1.0F);
+            GlStateManager.color4f(HALF, HALF, HALF, 1.0F);
         }
 
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 

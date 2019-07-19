@@ -1,13 +1,12 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Alignment;
-import com.minecolonies.blockout.Loader;
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
+import com.ldtteam.blockout.Alignment;
+import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -19,7 +18,7 @@ public class View extends Pane
 {
     @NotNull
     protected List<Pane> children = new ArrayList<>();
-    protected int        padding  = 0;
+    protected int padding = 0;
 
     /**
      * Constructs a barebones View.
@@ -64,15 +63,15 @@ public class View extends Pane
     @Override
     public void drawSelf(final int mx, final int my)
     {
-        //  Translate the drawing origin to our x,y.
+        // Translate the drawing origin to our x,y.
         GlStateManager.pushMatrix();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
 
-        GlStateManager.translate((float) paddedX, (float) paddedY, 0);
+        GlStateManager.translatef((float) paddedX, (float) paddedY, 0.0f);
 
-        //  Translate Mouse into the View
+        // Translate Mouse into the View
         final int drawX = mx - paddedX;
         final int drawY = my - paddedY;
 
@@ -82,7 +81,7 @@ public class View extends Pane
     }
 
     @Override
-    public void scrollInput(final int wheel)
+    public void scrollInput(final double wheel)
     {
         for (final Pane child : new ArrayList<>(children))
         {
@@ -91,7 +90,7 @@ public class View extends Pane
                 child.scrollInput(wheel);
             }
         }
-    } 
+    }
 
     @Override
     public void handleHover(final int mx, final int my)
@@ -137,7 +136,7 @@ public class View extends Pane
         }
     }
 
-    //  Mouse
+    // Mouse
     @Override
     public void rightClick(final int mx, final int my)
     {
@@ -154,7 +153,7 @@ public class View extends Pane
         }
     }
 
-    //  Mouse
+    // Mouse
     @Override
     public void click(final int mx, final int my)
     {
@@ -184,7 +183,7 @@ public class View extends Pane
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
 
-        //  Iterate in reverse, since Panes later in the list draw on top of earlier panes.
+        // Iterate in reverse, since Panes later in the list draw on top of earlier panes.
         while (it.hasPrevious())
         {
             final Pane child = it.previous();
@@ -205,10 +204,7 @@ public class View extends Pane
 
     protected boolean childIsVisible(final Pane child)
     {
-        return child.getX() < getInteriorWidth()
-                 && child.getY() < getInteriorHeight()
-                 && (child.getX() + child.getWidth()) >= 0
-                 && (child.getY() + child.getHeight()) >= 0;
+        return child.getX() < getInteriorWidth() && child.getY() < getInteriorHeight() && (child.getX() + child.getWidth()) >= 0 && (child.getY() + child.getHeight()) >= 0;
     }
 
     public int getInteriorWidth()
@@ -242,7 +238,7 @@ public class View extends Pane
         int childWidth = child.getWidth();
         int childHeight = child.getHeight();
 
-        //  Negative width = 100% of parents width minus abs(width).
+        // Negative width = 100% of parents width minus abs(width).
         if (childWidth < 0)
         {
             childWidth = Math.max(0, getInteriorWidth() + childWidth);
@@ -250,7 +246,7 @@ public class View extends Pane
 
         final Alignment alignment = child.getAlignment();
 
-        //  Adjust for horizontal alignment.
+        // Adjust for horizontal alignment.
         if (alignment.isRightAligned())
         {
             childX = (getInteriorWidth() - childWidth) - childX;
@@ -260,13 +256,13 @@ public class View extends Pane
             childX = ((getInteriorWidth() - childWidth) / 2) + childX;
         }
 
-        //  Negative height = 100% of parents height minus abs(height).
+        // Negative height = 100% of parents height minus abs(height).
         if (childHeight < 0)
         {
             childHeight = Math.max(0, getInteriorHeight() + childHeight);
         }
 
-        //  Adjust for vertical alignment.
+        // Adjust for vertical alignment.
         if (alignment.isBottomAligned())
         {
             childY = (getInteriorHeight() - childHeight) - childY;

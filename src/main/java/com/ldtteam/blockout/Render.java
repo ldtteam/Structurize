@@ -1,7 +1,7 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
@@ -11,10 +11,10 @@ import org.lwjgl.opengl.GL11;
  */
 public final class Render
 {
-    private static final int    ALPHA_SHIFT   = 24;
-    private static final int    RED_SHIFT     = 16;
-    private static final int    GREEN_SHIFT   = 8;
-    private static final int    COLOR_MASK    = 255;
+    private static final int ALPHA_SHIFT = 24;
+    private static final int RED_SHIFT = 16;
+    private static final int GREEN_SHIFT = 8;
+    private static final int COLOR_MASK = 255;
     private static final double COLOR_DIVISOR = 255.0;
 
     private Render()
@@ -63,17 +63,17 @@ public final class Render
         final BufferBuilder vertexBuffer = tessellator.getBuffer();
 
         vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         GL11.glLineWidth(lineWidth);
-        GlStateManager.color(r, g, b, a);
+        GlStateManager.color4f(r, g, b, a);
 
-        //Since our points do not have any u,v this seems to be the correct code
+        // Since our points do not have any u,v this seems to be the correct code
         vertexBuffer.pos(x1, y2, 0.0D).endVertex();
         vertexBuffer.pos(x2, y2, 0.0D).endVertex();
         vertexBuffer.pos(x2, y1, 0.0D).endVertex();
         vertexBuffer.pos(x1, y1, 0.0D).endVertex();
 
         tessellator.draw();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
     }
 }

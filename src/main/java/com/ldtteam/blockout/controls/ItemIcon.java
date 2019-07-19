@@ -1,15 +1,15 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Class of itemIcons in our GUIs.
@@ -43,7 +43,7 @@ public class ItemIcon extends Pane
         final String itemName = params.getStringAttribute("item", null);
         if (itemName != null)
         {
-            final Item item = Item.REGISTRY.getObject(new ResourceLocation(itemName));
+            final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName));
             if (item != null)
             {
                 itemStack = new ItemStack(item, 1);
@@ -53,6 +53,7 @@ public class ItemIcon extends Pane
 
     /**
      * Set the item of the icon.
+     *
      * @param itemStack the itemstack to set.
      */
     public void setItem(final ItemStack itemStack)
@@ -62,6 +63,7 @@ public class ItemIcon extends Pane
 
     /**
      * Get the itemstack of the icon.
+     *
      * @return the stack of it.
      */
     public ItemStack getItem()
@@ -82,19 +84,23 @@ public class ItemIcon extends Pane
     }
 
     /**
-     * Modified from GuiContainer
+     * Modified from GuiContainer.
+     *
+     * @param stack stack
+     * @param x     x
+     * @param y     y
      */
     private void drawItemStack(final ItemStack stack, final int x, final int y)
     {
-        if (ItemStackUtils.isEmpty(itemStack))
+        if (stack.isEmpty())
         {
             return;
         }
 
-        final RenderItem itemRender = mc.getRenderItem();
+        final ItemRenderer itemRender = mc.getItemRenderer();
 
-        GlStateManager.translate(x, y, GUI_ITEM_Z_TRANSLATE);
-        GlStateManager.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+        GlStateManager.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
+        GlStateManager.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
 
         FontRenderer font = stack.getItem().getFontRenderer(stack);
         if (font == null)

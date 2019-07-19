@@ -1,18 +1,16 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
-import com.minecolonies.blockout.views.View;
+import com.ldtteam.blockout.views.View;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.minecolonies.blockout.Log.getLogger;
+import static com.ldtteam.blockout.Log.getLogger;
 
 /**
  * Special parameters for the panes.
@@ -20,11 +18,10 @@ import static com.minecolonies.blockout.Log.getLogger;
 public class PaneParams
 {
     private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern RGBA_PATTERN       =
-      Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    private static final char  HASH_CHAR             = '#';
-    private final        Node node;
-    private              View parentView;
+    private static final Pattern RGBA_PATTERN = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    private static final char HASH_CHAR = '#';
+    private final Node node;
+    private View parentView;
 
     /**
      * Instantiates the pane parameters.
@@ -350,13 +347,13 @@ public class PaneParams
             {
                 value = scale * MathHelper.clamp(value, 0, 100) / 100;
             }
-            //  DO NOT attempt to do a "value < 0" treated as (100% of parent) - abs(size)
-            //  without differentiating between 'size' and 'position' value types
-            //  even then, it's probably not actually necessary...
+            // DO NOT attempt to do a "value < 0" treated as (100% of parent) - abs(size)
+            // without differentiating between 'size' and 'position' value types
+            // even then, it's probably not actually necessary...
 
             return value;
         }
-        catch (NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)
+        catch (final NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)
         {
             getLogger().warn(ex);
         }
@@ -388,7 +385,7 @@ public class PaneParams
 
                 if (m.find() || m.find(0))
                 {
-                    //  If no second value is passed, use the first value
+                    // If no second value is passed, use the first value
                     h = parseScalableIntegerRegexMatch(m, h, scale != null ? scale.y : 0);
                 }
             }
@@ -418,10 +415,10 @@ public class PaneParams
 
         if (attr.charAt(0) == HASH_CHAR)
         {
-            //  CSS Hex format: #00112233
+            // CSS Hex format: #00112233
             return Integer.parseInt(attr.substring(1), 16);
         }
-        //  CSS RGB format: rgb(255,0,0) and rgba(255,0,0,0.3)
+        // CSS RGB format: rgb(255,0,0) and rgba(255,0,0,0.3)
         else if ((attr.startsWith("rgb(") || attr.startsWith("rgba(")) && m.find())
         {
             return getRGBA(attr, m);

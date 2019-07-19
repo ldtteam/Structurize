@@ -1,4 +1,4 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -12,7 +12,7 @@ public final class Color
     private static final Map<String, Integer> nameToColorMap = new HashMap<>();
     static
     {
-        //  Would love to load these from a file
+        // Would love to load these from a file
         nameToColorMap.put("aqua", 0x00FFFF);
         nameToColorMap.put("black", 0x000000);
         nameToColorMap.put("blue", 0x0000FF);
@@ -35,6 +35,7 @@ public final class Color
         nameToColorMap.put("slategray", 0x708090);
         nameToColorMap.put("darkgreen", 0x006400);
     }
+
     private Color()
     {
         // Hides default constructor.

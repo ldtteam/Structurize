@@ -1,9 +1,9 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Log;
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import org.lwjgl.input.Keyboard;
+import com.ldtteam.blockout.Log;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * An OverlayView is a full screen View which is displayed on top of the window.
@@ -78,7 +78,7 @@ public class OverlayView extends View
     public boolean onKeyTyped(final char ch, final int key)
     {
         Log.getLogger().info("OverlayView::onKeyTyped()");
-        if (isVisible() && key == Keyboard.KEY_ESCAPE)
+        if (isVisible() && key == GLFW.GLFW_KEY_ESCAPE)
         {
             setVisible(false);
             return true;

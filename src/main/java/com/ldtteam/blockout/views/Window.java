@@ -1,20 +1,20 @@
-package com.minecolonies.blockout.views;
+package com.ldtteam.blockout.views;
 
-import com.minecolonies.blockout.Loader;
-import com.minecolonies.blockout.PaneParams;
-import com.minecolonies.blockout.Screen;
-import net.minecraft.client.gui.GuiScreen;
+import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.BOScreen;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Blockout window, high level root pane.
  */
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class Window extends View
 {
     /**
@@ -30,7 +30,7 @@ public class Window extends View
     /**
      * The screen of the window.
      */
-    protected Screen screen;
+    protected BOScreen screen;
 
     /**
      * Defines if the window should pause the game.
@@ -73,7 +73,7 @@ public class Window extends View
         width = w;
         height = h;
 
-        screen = new Screen(this);
+        screen = new BOScreen(this);
         window = this;
     }
 
@@ -131,11 +131,14 @@ public class Window extends View
         super.drawSelf(mx, my);
     }
 
-    private static void updateDebugging()
+    private boolean isKeyDown(final int keyCode)
     {
-        debugging = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
-                      && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
-                      && Keyboard.isKeyDown(Keyboard.KEY_LMENU);
+        return InputMappings.isKeyDown(mc.mainWindow.getHandle(), keyCode);
+    }
+
+    private void updateDebugging()
+    {
+        debugging = isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && isKeyDown(GLFW.GLFW_KEY_LEFT_ALT) && (isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_SUPER));
     }
 
     /**
@@ -163,10 +166,7 @@ public class Window extends View
      */
     public void open()
     {
-        if (FMLCommonHandler.instance().getSide().equals(Side.CLIENT))
-        {
-            FMLCommonHandler.instance().showGuiScreen(getScreen());
-        }
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
     }
 
     /**
@@ -174,7 +174,7 @@ public class Window extends View
      *
      * @return The current GuiScreen.
      */
-    public GuiScreen getScreen()
+    public BOScreen getScreen()
     {
         return screen;
     }
@@ -193,7 +193,7 @@ public class Window extends View
     }
 
     /**
-     * Key input handler.  Directs keystrokes to focused Pane, or to onUnhandledKeyTyped() if no
+     * Key input handler. Directs keystrokes to focused Pane, or to onUnhandledKeyTyped() if no
      * Pane handles the keystroke.
      * <p>
      * It is advised not to override this method.
@@ -225,7 +225,7 @@ public class Window extends View
      */
     public void onUnhandledKeyTyped(final int ch, final int key)
     {
-        if (key == Keyboard.KEY_ESCAPE)
+        if (key == GLFW.GLFW_KEY_ESCAPE)
         {
             close();
         }
@@ -236,8 +236,8 @@ public class Window extends View
      */
     public void close()
     {
+        screen.onClose();
         this.mc.player.closeScreen();
-        this.mc.setIngameFocus();
     }
 
     /**

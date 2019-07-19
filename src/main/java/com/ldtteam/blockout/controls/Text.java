@@ -1,8 +1,7 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
-
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -147,11 +146,9 @@ public class Text extends AbstractTextElement
             }
             else
             {
-                formattedText = Collections.unmodifiableList(
-                  mc.fontRenderer.listFormattedStringToWidth(textContent, (int) (getWidth() / scale))
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
+                formattedText = Collections
+                    .unmodifiableList(
+                        mc.fontRenderer.listFormattedStringToWidth(textContent, (int) (getWidth() / scale)).stream().filter(Objects::nonNull).collect(Collectors.toList()));
             }
 
             final int numLines = formattedText.size();
@@ -207,10 +204,10 @@ public class Text extends AbstractTextElement
             }
 
             GlStateManager.pushMatrix();
-            GlStateManager.translate((float) (getX() + offsetX), (float) (getY() + offsetY), 0);
-            GlStateManager.scale((float) scale, (float) scale, (float) scale);
-            mc.renderEngine.bindTexture(TEXTURE);
-            mc.fontRenderer.drawString(s, 0, 0, textColor, shadow);
+            GlStateManager.translatef((float) (getX() + offsetX), (float) (getY() + offsetY), 0);
+            GlStateManager.scalef((float) scale, (float) scale, (float) scale);
+            mc.getTextureManager().bindTexture(TEXTURE);
+            drawString(s, 0, 0, textColor, shadow);
             GlStateManager.popMatrix();
 
             offsetY += getLineHeight() + scaledLinespace;

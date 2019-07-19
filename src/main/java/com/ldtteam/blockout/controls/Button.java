@@ -1,9 +1,9 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.init.SoundEvents;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
+import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.util.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class Button extends Pane
 {
     protected ButtonHandler handler;
-    protected String        label;
+    protected String label;
 
     /**
      * Default constructor.
@@ -73,13 +73,13 @@ public class Button extends Pane
     @Override
     public void handleClick(final int mx, final int my)
     {
-        mc.getSoundHandler().playSound(PositionedSoundRecord.getMusicRecord(SoundEvents.UI_BUTTON_CLICK));
+        mc.getSoundHandler().play(SimpleSound.music(SoundEvents.UI_BUTTON_CLICK));
 
         ButtonHandler delegatedHandler = handler;
 
         if (delegatedHandler == null)
         {
-            //  If we do not have a designated handler, find the closest ancestor that is a Handler
+            // If we do not have a designated handler, find the closest ancestor that is a Handler
             for (Pane p = parent; p != null; p = p.getParent())
             {
                 if (p instanceof ButtonHandler)

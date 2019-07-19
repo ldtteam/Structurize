@@ -1,5 +1,6 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
+import com.ldtteam.structurize.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +19,7 @@ public final class Log
      */
     private Log()
     {
-        //Hides implicit constructor.
+        // Hides implicit constructor.
     }
 
     /**
@@ -30,7 +31,7 @@ public final class Log
     {
         if (logger == null)
         {
-            Log.logger = LogManager.getLogger("minecolonies");
+            Log.logger = LogManager.getLogger(Utils.createLocationFor("blockout").toString());
         }
         return logger;
     }

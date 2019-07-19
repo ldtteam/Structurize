@@ -1,7 +1,7 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 /**
  * BlockOut label pane. Used to render a piece of text.
@@ -37,7 +37,7 @@ public class Label extends AbstractTextElement
         super(params);
         labelText = params.getLocalizedStringAttribute("label", labelText);
 
-        //  match textColor by default
+        // match textColor by default
         hoverColor = params.getColorAttribute("hovercolor", textColor);
 
         if (width == 0)
@@ -100,10 +100,10 @@ public class Label extends AbstractTextElement
         }
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate((double) (getX() + offsetX), (double) (getY() + offsetY), 0);
-        GlStateManager.scale((float) scale, (float) scale, (float) scale);
-        mc.renderEngine.bindTexture(TEXTURE);
-        mc.fontRenderer.drawString(labelText, 0, 0, color, shadow);
+        GlStateManager.translated((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
+        GlStateManager.scalef((float) scale, (float) scale, (float) scale);
+        mc.getTextureManager().bindTexture(TEXTURE);
+        drawString(labelText, 0, 0, color, shadow);
         GlStateManager.popMatrix();
     }
 

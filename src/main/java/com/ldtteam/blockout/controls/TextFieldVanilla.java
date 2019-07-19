@@ -1,21 +1,21 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.PaneParams;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ChatAllowedCharacters;
+import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.util.SharedConstants;
 
 /**
  * Mimics Vanilla text fields.
  */
 public class TextFieldVanilla extends TextField
 {
-    private static final int   BACKGROUND_WIDTH_OFFSET       = 8;
-    private static final float BACKGROUND_X_TRANSLATE        = 4F;
-    private static final int   BACKGROUND_Y_TRANSLATE_OFFSET = 8;
-    private static final int   BACKGROUND_MOUSE_OFFSET_X     = 4;
-    private boolean backgroundEnabled    = true;
-    private int     backgroundOuterColor = 0xFFA0A0A0;
-    private int     backgroundInnerColor = 0xFF000000;
+    private static final int BACKGROUND_WIDTH_OFFSET = 8;
+    private static final float BACKGROUND_X_TRANSLATE = 4F;
+    private static final int BACKGROUND_Y_TRANSLATE_OFFSET = 8;
+    private static final int BACKGROUND_MOUSE_OFFSET_X = 4;
+    private boolean backgroundEnabled = true;
+    private int backgroundOuterColor = 0xFFA0A0A0;
+    private int backgroundInnerColor = 0xFF000000;
 
     /**
      * Required default constructor.
@@ -81,12 +81,12 @@ public class TextFieldVanilla extends TextField
     {
         if (backgroundEnabled)
         {
-            //  Draw box
-            drawRect(x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
-            drawRect(x, y, x + width, y + height, backgroundInnerColor);
+            // Draw box
+            fill(x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
+            fill(x, y, x + width, y + height, backgroundInnerColor);
 
             GlStateManager.pushMatrix();
-            GlStateManager.translate(BACKGROUND_X_TRANSLATE, (float) ((height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2.0), 0);
+            GlStateManager.translatef(BACKGROUND_X_TRANSLATE, (float) ((height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2.0), 0);
         }
 
         super.drawSelf(mx, my);
@@ -111,42 +111,41 @@ public class TextFieldVanilla extends TextField
     }
 
     /*
-    private static class FilterNumeric implements Filter
-    {
-        @Override
-        public String filter(final String s)
-        {
-            final StringBuilder sb = new StringBuilder();
-            for (final char c : s.toCharArray())
-            {
-                if (isAllowedCharacter(c))
-                {
-                    sb.append(c);
-                }
-            }
-            return sb.toString();
-        }
-
-        @Override
-        public boolean isAllowedCharacter(final char c)
-        {
-            return Character.isDigit(c);
-        }
-    }
-    */
+     * private static class FilterNumeric implements Filter
+     * {
+     * @Override
+     * public String filter(final String s)
+     * {
+     * final StringBuilder sb = new StringBuilder();
+     * for (final char c : s.toCharArray())
+     * {
+     * if (isAllowedCharacter(c))
+     * {
+     * sb.append(c);
+     * }
+     * }
+     * return sb.toString();
+     * }
+     * @Override
+     * public boolean isAllowedCharacter(final char c)
+     * {
+     * return Character.isDigit(c);
+     * }
+     * }
+     */
 
     private static class FilterVanilla implements Filter
     {
         @Override
         public String filter(final String s)
         {
-            return ChatAllowedCharacters.filterAllowedCharacters(s);
+            return SharedConstants.filterAllowedCharacters(s);
         }
 
         @Override
         public boolean isAllowedCharacter(final char c)
         {
-            return ChatAllowedCharacters.isAllowedCharacter(c);
+            return SharedConstants.isAllowedCharacter(c);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.minecolonies.blockout;
+package com.ldtteam.blockout;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public enum Alignment
 {
     // RelativePosition determines how the x,y coordinates of an item are relative
-    // to the position of the parent.  Corner to matching corner
+    // to the position of the parent. Corner to matching corner
     // E.g, TopLeft x,y is from top left corner of parent to top left of item
     // while BOTTOM_RIGHT is from bottom right corner of parent to bottom right of item
     // Do not use negative values; BOTTOM_RIGHT(10,10) is 10 pixels inset left and up.

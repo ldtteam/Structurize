@@ -1,19 +1,17 @@
-package com.minecolonies.blockout.controls;
+package com.ldtteam.blockout.controls;
 
-import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.PaneParams;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.util.Iterator;
-
-import static com.minecolonies.blockout.Log.getLogger;
+import static com.ldtteam.blockout.Log.getLogger;
 
 /**
  * Simple image element.
@@ -23,13 +21,13 @@ public class Image extends Pane
     public static final int MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE = 256;
 
     protected ResourceLocation resourceLocation;
-    protected int     imageOffsetX = 0;
-    protected int     imageOffsetY = 0;
-    protected int     imageWidth   = 0;
-    protected int     imageHeight  = 0;
-    protected int     mapWidth     = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int     mapHeight    = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected boolean customSized  = true;
+    protected int imageOffsetX = 0;
+    protected int imageOffsetY = 0;
+    protected int imageWidth = 0;
+    protected int imageHeight = 0;
+    protected int mapWidth = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int mapHeight = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected boolean customSized = true;
     protected boolean autoscale = true;
 
     /**
@@ -75,8 +73,8 @@ public class Image extends Pane
     private void loadMapDimensions()
     {
         final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);
-        mapWidth = dimensions.getFirst();
-        mapHeight = dimensions.getSecond();
+        mapWidth = dimensions.getA();
+        mapHeight = dimensions.getB();
     }
 
     /**
@@ -94,7 +92,8 @@ public class Image extends Pane
         if (it.hasNext())
         {
             final ImageReader reader = it.next();
-            try (ImageInputStream stream = ImageIO.createImageInputStream(Minecraft.getMinecraft().getResourceManager().getResource(resourceLocation).getInputStream()))
+            try (
+                ImageInputStream stream = ImageIO.createImageInputStream(Minecraft.getInstance().getResourceManager().getResource(resourceLocation).getInputStream()))
             {
                 reader.setInput(stream);
                 width = reader.getWidth(reader.getMinIndex());
@@ -198,28 +197,30 @@ public class Image extends Pane
     @Override
     public void drawSelf(final int mx, final int my)
     {
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        this.mc.getTextureManager().bindTexture(resourceLocation);
+        mc.getTextureManager().bindTexture(resourceLocation);
 
         GlStateManager.pushMatrix();
 
         if (this.customSized)
         {
             // /Draw
-            drawScaledCustomSizeModalRect(x, y,
-              imageOffsetX, imageOffsetY,
-                    mapWidth, mapHeight,
-              imageWidth != 0 ? imageWidth : getWidth(),
-              imageHeight != 0 ? imageHeight : getHeight(),
-              mapWidth, mapHeight);
+            blit(
+                x,
+                y,
+                imageOffsetX,
+                imageOffsetY,
+                mapWidth,
+                mapHeight,
+                imageWidth != 0 ? imageWidth : getWidth(),
+                imageHeight != 0 ? imageHeight : getHeight(),
+                mapWidth,
+                mapHeight);
         }
         else
         {
-            drawTexturedModalRect(x, y,
-              imageOffsetX, imageOffsetY,
-              imageWidth != 0 ? imageWidth : getWidth(),
-              imageHeight != 0 ? imageHeight : getHeight());
+            blit(x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
         GlStateManager.popMatrix();
