@@ -12,6 +12,7 @@
 *.iws
 *.iml
 /.idea
+/classes
 
 # gradle
 /build
