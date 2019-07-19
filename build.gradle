@@ -8,9 +8,20 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+
+repositories {
+    maven {
+        name 'DVS1 Maven FS'
+        url 'http://dvs1.progwml6.com/files/maven'
+    }
+    maven {
+        url 'http://dogforce-games.com/maven'
+    }
+}
+
+apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
+apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 
 version = '1.0'
@@ -71,33 +82,30 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.3-27.0.57'
+    minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
 
-    // You may put jars on which you depend on in ./libs or you may define them like so..
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
+    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 
-    // Real examples
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    testCompile 'junit:junit:4.11'
+    testCompile "org.mockito:mockito-core:1.+"
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
 
-    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    testCompile 'org.assertj:assertj-core:3.9.0'
 
-    // These dependencies get remapped to your current MCP mappings
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
 
     compile 'com.intellij:annotations:+@jar'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
+
     manifest {
         attributes([
+            'FMLAT': "structurize_at.cfg",
+            'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}",
             "Specification-Title": "structurize",
             "Specification-Vendor": "structurizesareus",
             "Specification-Version": "1", // We are version 1 of ourselves
@@ -118,6 +126,7 @@ def reobfArtifact = artifacts.add('default', reobfFile) {
     type 'jar'
     builtBy 'reobfJar'
 }
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -129,8 +138,4 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
-}
-
-task setupCIWorkspace {
-    //dummy task
 }
