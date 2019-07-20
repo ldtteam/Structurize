@@ -3,13 +3,14 @@ package com.ldtteam.structurize.blocks.decorative;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizePillar;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.NotNull;
-
-import static com.ldtteam.structurize.api.util.constant.Suppression.DEPRECATION;
+import net.minecraft.world.IWorld;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Decorative block
@@ -38,18 +39,33 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
         setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
     }
 
+    @Override
+    public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
+    {
+        return getActualState(stateIn, worldIn, currentPos);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(
+      final BlockState state,
+      final Direction HORIZONTAL_FACING,
+      final BlockState state2,
+      final IWorld world,
+      final BlockPos pos1,
+      final BlockPos pos2,
+      final Hand hand)
+    {
+        return getActualState(state, world, pos1);
+    }
 
     /**
      * Calc the default state depending on the neighboring blocks.
-     * @deprecated remove this when not needed anymore
      * @param state the state.
      * @param world the world.
      * @param pos the position.
      * @return the actual blockstate.
      */
-    @Deprecated
-    @Override
-    public BlockState getActualState(final BlockState state, final IBlockAccess world, final BlockPos pos)
+    public BlockState getActualState(final BlockState state, final IWorld world, final BlockPos pos)
     {
         final BlockState upState = world.getBlockState(pos.up());
         final BlockState downState = world.getBlockState(pos.down());
@@ -70,9 +86,9 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
         final boolean back = isConnectable(backState);
 
         if(!isConnectable(state) || state.getBlock().getTranslationKey().contains(TimberFrameType.HORIZONTALNOCAP.getName())
-             || (state.getValue(AXIS) == EnumFacing.Axis.Y && !up && !down)
-             || (state.getValue(AXIS) == EnumFacing.Axis.X && !left && !right)
-             || (state.getValue(AXIS) == EnumFacing.Axis.Z && !straight && !back))
+             || (state.get(AXIS) == Direction.Axis.Y && !up && !down)
+             || (state.get(AXIS) == Direction.Axis.X && !left && !right)
+             || (state.get(AXIS) == Direction.Axis.Z && !straight && !back))
         {
             return state;
         }
@@ -81,56 +97,57 @@ public class BlockTimberFrame extends AbstractBlockStructurizePillar<BlockTimber
         final int underline = name.lastIndexOf('_');
         name = name.substring(0, underline + 1);
 
-        if(state.getValue(AXIS) == EnumFacing.Axis.Y)
+        if(state.get(AXIS) == Direction.Axis.Y)
         {
             final BlockState returnState;
             if(up && down)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.SIDEFRAMED.getName()).getDefaultState();
+                //todo cache them by name in the list
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.SIDEFRAMED.getName())).getDefaultState();
             }
             else if(down)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.GATEFRAMED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.GATEFRAMED.getName())).getDefaultState();
             }
             else
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.DOWNGATED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.DOWNGATED.getName())).getDefaultState();
             }
-            return returnState.withProperty(AXIS, EnumFacing.Axis.Y);
+            return returnState.with(AXIS, Direction.Axis.Y);
         }
-        else if(state.getValue(AXIS) == EnumFacing.Axis.X)
+        else if(state.get(AXIS) == Direction.Axis.X)
         {
             final BlockState returnState;
             if(left && right)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.SIDEFRAMED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.SIDEFRAMED.getName())).getDefaultState();
             }
             else if(right)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.GATEFRAMED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.GATEFRAMED.getName())).getDefaultState();
             }
             else
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.DOWNGATED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.DOWNGATED.getName())).getDefaultState();
             }
-            return returnState.withProperty(AXIS, EnumFacing.Axis.X);
+            return returnState.with(AXIS, Direction.Axis.X);
         }
-        else if(state.getValue(AXIS) == EnumFacing.Axis.Z)
+        else if(state.get(AXIS) == Direction.Axis.Z)
         {
             final BlockState returnState;
             if(straight && back)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.SIDEFRAMED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.SIDEFRAMED.getName())).getDefaultState();
             }
             else if(straight)
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.GATEFRAMED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.GATEFRAMED.getName())).getDefaultState();
             }
             else
             {
-                returnState = Block.getBlockFromName(name + TimberFrameType.DOWNGATED.getName()).getDefaultState();
+                returnState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MOD_ID, name + TimberFrameType.DOWNGATED.getName())).getDefaultState();
             }
-            return returnState.withProperty(AXIS, EnumFacing.Axis.Z);
+            return returnState.with(AXIS, Direction.Axis.Z);
         }
         return state;
     }

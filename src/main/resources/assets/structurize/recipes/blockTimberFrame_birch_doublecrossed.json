@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:blocktimberframe_birch_plain"
+    }
+  ],
+  "result": {
+    "item": "structurize:blocktimberframe_birch_doublecrossed",
+    "count": 1
+  }
+}

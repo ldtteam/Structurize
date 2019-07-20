@@ -3,18 +3,17 @@ package com.ldtteam.structurize.blocks.decorative;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeDirectional;
 import com.ldtteam.structurize.blocks.types.ShingleSlabType;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.state.EnumProperty;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.state.StateContainer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.IWorld;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -66,43 +65,23 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
         setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     @Override
-    public int getMetaFromState(@NotNull final BlockState state)
+    public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
-        return state.getValue(FACING).getHorizontalIndex();
+        return getSlabShape(stateIn, worldIn, currentPos);
     }
 
-    /**
-     * @deprecated remove when minecraft invents something better.
-     */
-    @Deprecated
     @Override
-    public BlockState getStateFromMeta(final int meta)
+    public BlockState getStateForPlacement(
+      final BlockState state,
+      final Direction HORIZONTAL_FACING,
+      final BlockState state2,
+      final IWorld world,
+      final BlockPos pos1,
+      final BlockPos pos2,
+      final Hand hand)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.HORIZONTALS[meta]);
-    }
-
-    /**
-     * @deprecated remove when minecraft invents something better.
-     */
-    @Deprecated
-    @Override
-    public AxisAlignedBB getBoundingBox(@NotNull final BlockState state, @NotNull final IBlockAccess source, @NotNull final BlockPos pos)
-    {
-        return AABB_BOTTOM_HALF;
-    }
-
-    /**
-     * @deprecated remove when minecraft invents something better.
-     */
-    @Deprecated
-    @Override
-    public BlockState getActualState(@NotNull final BlockState state, @NotNull final IBlockAccess worldIn, @NotNull final BlockPos pos)
-    {
-        return getSlabShape(state, worldIn, pos);
+        return getSlabShape(state, world, pos1);
     }
 
     /**
@@ -112,7 +91,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
      * @param position the position.Re
      * @return the blockState to use.
      */
-    private static BlockState getSlabShape(@NotNull final BlockState state, @NotNull final IBlockAccess world, @NotNull final BlockPos position)
+    private static BlockState getSlabShape(@NotNull final BlockState state, @NotNull final IWorld world, @NotNull final BlockPos position)
     {
         final boolean[] connectors = new boolean[]{!(world.getBlockState(position.east()).getBlock() instanceof BlockShingleSlab),
             !(world.getBlockState(position.west()).getBlock() instanceof BlockShingleSlab),
@@ -130,100 +109,79 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
 
         if(amount == NO_CONNECTIONS)
         {
-            return state.withProperty(VARIANT, ShingleSlabType.TOP);
+            return state.with(VARIANT, ShingleSlabType.TOP);
         }
         if(amount == THREE_CONNECTIONS)
         {
             if (connectors[0])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.ONE_WAY).withProperty(FACING, EnumFacing.SOUTH);
+                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.SOUTH);
             }
             else if (connectors[1])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.ONE_WAY).withProperty(FACING, EnumFacing.NORTH);
+                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
             }
             else if (connectors[2])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.ONE_WAY).withProperty(FACING, EnumFacing.EAST);
+                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.EAST);
             }
-            return state.withProperty(VARIANT, ShingleSlabType.ONE_WAY).withProperty(FACING, EnumFacing.WEST);
+            return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.WEST);
         }
         else if(amount == TWO_CONNECTIONS)
         {
             if (connectors[0] && connectors[1] && !connectors[2] && !connectors[3])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.TWO_WAY).withProperty(FACING, EnumFacing.EAST);
+                return state.with(VARIANT, ShingleSlabType.TWO_WAY).with(HORIZONTAL_FACING, Direction.EAST);
             }
             else if (!connectors[0] && !connectors[1] && connectors[2] && connectors[3])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.TWO_WAY).withProperty(FACING, EnumFacing.NORTH);
+                return state.with(VARIANT, ShingleSlabType.TWO_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
             }
             else if(!connectors[0] && connectors[1] && connectors[2] && !connectors[3])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.CURVED).withProperty(FACING, EnumFacing.WEST);
+                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.WEST);
             }
             else if(connectors[0] && !connectors[1] && !connectors[2] && connectors[3])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.CURVED).withProperty(FACING, EnumFacing.EAST);
+                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.EAST);
             }
             else if(!connectors[0] && connectors[1] && !connectors[2] && connectors[3])
             {
-                return state.withProperty(VARIANT, ShingleSlabType.CURVED).withProperty(FACING, EnumFacing.SOUTH);
+                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.SOUTH);
             }
-            return state.withProperty(VARIANT, ShingleSlabType.CURVED).withProperty(FACING, EnumFacing.NORTH);
+            return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.NORTH);
         }
         else if(amount == ONE_CONNECTION)
         {
             if (!connectors[0] && !world.isAirBlock(position.west().down()))
             {
-                return state.withProperty(VARIANT, ShingleSlabType.THREE_WAY).withProperty(FACING, EnumFacing.NORTH);
+                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
             }
             else if (!connectors[1] && !world.isAirBlock(position.east().down()))
             {
-                return state.withProperty(VARIANT, ShingleSlabType.THREE_WAY).withProperty(FACING, EnumFacing.SOUTH);
+                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.SOUTH);
             }
             else if (!connectors[2] && !world.isAirBlock(position.south().down()))
             {
-                return state.withProperty(VARIANT, ShingleSlabType.THREE_WAY).withProperty(FACING, EnumFacing.WEST);
+                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.WEST);
             }
             else if (!connectors[3] && !world.isAirBlock(position.north().down()))
             {
-                return state.withProperty(VARIANT, ShingleSlabType.THREE_WAY).withProperty(FACING, EnumFacing.EAST);
+                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.EAST);
             }
-            return state.withProperty(VARIANT, ShingleSlabType.TWO_WAY)
-                    .withProperty(FACING, !connectors[0] || !connectors[1] ? EnumFacing.NORTH : EnumFacing.EAST);
+            return state.with(VARIANT, ShingleSlabType.TWO_WAY)
+                    .with(HORIZONTAL_FACING, !connectors[0] || !connectors[1] ? Direction.NORTH : Direction.EAST);
         }
-        return state.withProperty(VARIANT, ShingleSlabType.FOUR_WAY);
+        return state.with(VARIANT, ShingleSlabType.FOUR_WAY);
     }
 
     @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, new IProperty[] {FACING, VARIANT});
-    }
-
-    /**
-     * @deprecated remove when minecraft invents something better.
-     */
-    @Deprecated
-    @Override
-    public boolean isOpaqueCube(@NotNull final BlockState state)
-    {
-        return false;
-    }
-
-    /**
-     * @deprecated remove when minecraft invents something better.
-     */
-    @Deprecated
-    @Override
-    public boolean isFullCube(@NotNull final BlockState state)
-    {
-        return false;
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+        builder.add(HORIZONTAL_FACING, VARIANT);
     }
 
     @Override
-    public boolean doesSideBlockRendering(@NotNull final BlockState state, @NotNull final IBlockAccess world, @NotNull final BlockPos pos, @NotNull final EnumFacing face)
+    public boolean doesSideBlockRendering(final BlockState state, final IEnviromentBlockReader world, final BlockPos pos, final Direction face)
     {
         return false;
     }

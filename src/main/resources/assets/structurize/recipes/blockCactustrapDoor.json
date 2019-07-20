@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "XBX"
+  ],
+  "key": {
+    "X": {
+      "item": "structurize:blockcactusplank"
+    },
+    "B": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "result": {
+    "item": "structurize:blockcactustrapdoor",
+    "count": 2
+  }
+}

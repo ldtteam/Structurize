@@ -8,16 +8,57 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'idea'
 
 version = '1.0'
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+
+sourceSets {
+    api {
+        java {
+            srcDir 'src/api/java'
+        }
+        resources {
+            srcDir 'src/api/resources'
+        }
+    }
+    blockOut {
+        java {
+            srcDir 'src/blockout/java'
+        }
+        resources {
+            srcDir 'src/blockout/resources'
+        }
+        compileClasspath += sourceSets.api.compileClasspath
+    }
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+        compileClasspath += sourceSets.blockOut.output
+        compileClasspath += sourceSets.api.output
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -45,6 +86,7 @@ minecraft {
             mods {
                 structurize {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -61,9 +103,16 @@ minecraft {
             mods {
                 structurize {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
+    }
+}
+
+configurations {
+    contained {
+        transitive = false
     }
 }
 
@@ -94,8 +143,46 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
 }
 
+processResources {
+
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.api.output
+    classifier 'api'
+}
+
+javadoc {
+    source += sourceSets.api.allSource
+    source += sourceSets.blockOut.allSource
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
+    from sourceSets.api.output
+    from sourceSets.blockOut.output
+    from sourceSets.main.output
+
+    from(configurations.contained.files) {
+        include '*'
+        into 'META-INF/libraries'
+    }
+
     manifest {
         attributes([
             "Specification-Title": "structurize",
@@ -107,6 +194,8 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+
+    classifier = 'universal'
 }
 
 // Example configuration to allow publishing using the maven-publish task

@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Instances;
-import com.ldtteam.structurize.block.ModBlocks;
 import com.ldtteam.structurize.item.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -38,7 +37,6 @@ public class LifecycleSubscriber
     public static void onBlockRegistry(final RegistryEvent.Register<Block> event)
     {
         Instances.getModLogger().warn("RegistryEvent.Register<Block>");
-        ModBlocks.registerBlocks(event.getRegistry());
     }
 
     /**

@@ -1,0 +1,7 @@
+{
+    "parent": "block/door_top_rh",
+    "textures": {
+        "bottom": "structurize:blocks/door_cactus_lower",
+        "top": "structurize:blocks/door_cactus_upper"
+    }
+}

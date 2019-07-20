@@ -7,7 +7,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.IForgeRegistry;
-import static com.ldtteam.structurize.block.ModBlocks.*;
 
 /**
  * Utils for mod items init
@@ -44,7 +43,6 @@ public class ModItems
     public static void registerItems(final IForgeRegistry<Item> registry)
     {
         registry.registerAll(BUILD_TOOL, SCAN_TOOL, SHAPE_TOOL, CALIPER);
-        registry.registerAll(ANYBLOCK_SUBSTITUTION.createSpecialBI(CREATIVE_TAB), newBI(VARIABLE_SUBSTITUTION));
     }
 
     /**

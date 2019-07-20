@@ -2,15 +2,8 @@ package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Locale;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.material.Material;
 
 /**
  * Class defining the general shingle.
@@ -35,33 +28,11 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
     /**
      * Prefix of the block.
      */
-    public static final String BLOCK_PREFIX = "blockshingle";
+    public static final String BLOCK_PREFIX = "blockshingle_";
 
     public BlockShingle(final BlockState modelState, final String name)
     {
-        super(modelState);
-        init(name);
-    }
-
-    private void init(final String name)
-    {
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + name);
-        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setHardness(BLOCK_HARDNESS);
-        setResistance(RESISTANCE);
-        this.useNeighborBrightness = true;
-        this.setLightOpacity(LIGHT_OPACITY);
-    }
-
-    @NotNull
-    @Override
-    public BlockFaceShape getBlockFaceShape(@NotNull final IBlockAccess worldIn, @NotNull final BlockState state, @NotNull final BlockPos pos, final EnumFacing face)
-    {
-        if (face == EnumFacing.UP)
-        {
-            return BlockFaceShape.CENTER_BIG;
-        }
-        return super.getBlockFaceShape(worldIn, state, pos, face);
+        super(modelState, Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).lightValue(LIGHT_OPACITY));
+        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_PREFIX + name);
     }
 }
