@@ -2,22 +2,15 @@ package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public abstract class AbstractBlockStructurize<B extends AbstractBlockStructurize<B>> extends Block implements IBlockStructurize<B>
 {
-    public AbstractBlockStructurize(final Material blockMaterialIn, final MapColor blockMapColorIn)
+    public AbstractBlockStructurize(final Properties properties)
     {
-        super(blockMaterialIn, blockMapColorIn);
-    }
-
-    public AbstractBlockStructurize(final Material materialIn)
-    {
-        super(materialIn);
+        super(properties);
     }
 
     /**
@@ -38,8 +31,8 @@ public abstract class AbstractBlockStructurize<B extends AbstractBlockStructuriz
      * @param registry the registry to use.
      */
     @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry)
+    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
-        registry.register((new ItemBlock(this)).setRegistryName(this.getRegistryName()));
+        registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
     }
 }

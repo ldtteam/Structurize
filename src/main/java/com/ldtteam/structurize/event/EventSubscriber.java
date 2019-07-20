@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Instances;
-import com.ldtteam.structurize.command.EntryPoint;
+import com.ldtteam.structurize.commands.EntryPoint;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;

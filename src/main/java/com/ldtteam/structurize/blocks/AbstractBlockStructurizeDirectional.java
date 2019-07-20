@@ -3,25 +3,18 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class AbstractBlockStructurizeDirectional<B extends AbstractBlockStructurizeDirectional<B>> extends BlockHorizontal implements IBlockStructurize<B>
+public abstract class AbstractBlockStructurizeDirectional<B extends AbstractBlockStructurizeDirectional<B>> extends HorizontalBlock implements IBlockStructurize<B>
 {
-    public AbstractBlockStructurizeDirectional(final Material blockMaterialIn)
+    public AbstractBlockStructurizeDirectional(final Properties properties)
     {
-        super(blockMaterialIn);
+        super(properties);
     }
 
-    /**
-     * Registery block at gameregistry.
-     *
-     * @param registry the registry to use.
-     * @return the block itself.
-     */
     @Override
     @SuppressWarnings(Suppression.UNCHECKED)
     public B registerBlock(final IForgeRegistry<Block> registry)
@@ -30,15 +23,9 @@ public abstract class AbstractBlockStructurizeDirectional<B extends AbstractBloc
         return (B) this;
     }
 
-
-    /**
-     * Registery block at gameregistry.
-     *
-     * @param registry the registry to use.
-     */
     @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry)
+    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
-        registry.register((new ItemBlock(this)).setRegistryName(this.getRegistryName()));
+        registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
     }
 }

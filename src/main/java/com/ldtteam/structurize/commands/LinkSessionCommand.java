@@ -3,18 +3,16 @@ package com.ldtteam.structurize.commands;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
-import net.minecraft.command.CommandBase;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.command.arguments.MessageArgument;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraftforge.server.command.CommandTreeBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,12 +25,18 @@ import java.util.stream.Stream;
 /**
  * Complete management of /structurize linksession
  */
-public class LinkSessionCommand extends CommandTreeBase
+public class LinkSessionCommand extends AbstractCommand
 {
     protected final static String NAME = "linksession";
 
-    public LinkSessionCommand()
+
+    //ArgumentType
+    protected static LiteralArgumentBuilder<CommandSource> build()
     {
+        return newLiteral(NAME);
+
+        //todo we gotta activate them once everything is compiling.
+        /*return newLiteral(NAME).then(newArgument(AboutMe.NAME, MessageArgument.message()).suggests(.suggests((ctx, build) -> ISuggestionProvider.suggest(Helper.getDimensionIdsAsStringList(), build))))
         super.addSubcommand(new AboutMe());
         super.addSubcommand(new AcceptInvite());
         super.addSubcommand(new AddPlayer());
@@ -41,399 +45,20 @@ public class LinkSessionCommand extends CommandTreeBase
         super.addSubcommand(new MuteChannel());
         super.addSubcommand(new Leave());
         super.addSubcommand(new RemovePlayer());
-        super.addSubcommand(new SendMessage());
-    }
-
-    @NotNull
-    @Override
-    public String getName()
-    {
-        return NAME;
-    }
-
-    @Override
-    public String getUsage(ICommandSender sender)
-    {
-        final StringBuilder usage = new StringBuilder();
-        usage.append("/");
-        usage.append(StructurizeCommand.NAME);
-        usage.append(" ");
-        usage.append(NAME);
-        usage.append(" <");
-        for (final String sub : super.getCommandMap().keySet())
-        {
-            usage.append(sub);
-            usage.append(" | ");
-        }
-        usage.delete(usage.length() - 3, usage.length());
-        usage.append(">");
-        return usage.toString();
-    }
-
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-
-    @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-    {
-        return true;
-    }
-
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-    {
-        if (!(sender instanceof PlayerEntity))
-        {
-            throw new CommandException("Can be only used from clients.", new Object[0]);
-        }
-        if (args.length < 1)
-        {
-            throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-        }
-        super.execute(server, sender, args);
-    }
-
-    /**
-     * Command for creating a new session for sender
-     */
-    private class Create extends CommandBase
-    {
-        protected final static String NAME = "create";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
-
-        @Override
-        public String getUsage(ICommandSender sender)
-        {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
-        }
-
-        @Override
-        public int getRequiredPermissionLevel()
-        {
-            return 0;
-        }
-
-        @Override
-        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-        {
-            return true;
-        }
-
-        @Override
-        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-        {
-            if (args.length > 0)
-            {
-                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-            }
-
-            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) != null)
-            {
-                throw new CommandException("You have already created a session.");
-            }
-
-            LinkSessionManager.INSTANCE.createSession(ownerUUID);
-            LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getName());
-            sender.sendMessage(new TextComponentString("Created session for player: " + sender.getName()));
-        }
-    }
-
-    /**
-     * Command for removing an existing sender's session
-     */
-    private class Destroy extends CommandBase
-    {
-        protected final static String NAME = "destroy";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
-
-        @Override
-        public String getUsage(ICommandSender sender)
-        {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
-        }
-
-        @Override
-        public int getRequiredPermissionLevel()
-        {
-            return 0;
-        }
-        
-        @Override
-        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-        {
-            return true;
-        }
-
-        @Override
-        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-        {
-            if (args.length > 0)
-            {
-                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-            }
-
-            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-
-            if (LinkSessionManager.INSTANCE.destroySession(ownerUUID))
-            {
-                sender.sendMessage(new TextComponentString("Destroying session of player: " + sender.getName())); 
-            }
-            else
-            {
-                throw new CommandException("You don't have a session created.");
-            }
-        }
-    }
-
-    /**
-     * Command for adding a new player(s) to an existing sender's session
-     */
-    private class AddPlayer extends CommandBase
-    {
-        protected final static String NAME = "addplayer";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
-
-        @Override
-        public String getUsage(ICommandSender sender)
-        {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <nickname>";
-        }
-
-        @Override
-        public int getRequiredPermissionLevel()
-        {
-            return 0;
-        }
-        
-        @Override
-        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isUsernameIndex(String[] args, int index)
-        {
-            return true;
-        }
-        
-        @Override
-        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
-        {
-            return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
-        }
-
-        @Override
-        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-        {
-            if (args.length < 1)
-            {
-                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-            }
-
-            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            final TextComponentString acceptButton = new TextComponentString("ACCEPT");
-            final TextComponentString inviteMsg =
-                new TextComponentString("You have been invited to " + sender.getCommandSenderEntity().getName() + "'s session, click the button to ");
-
-            acceptButton.getStyle().setColor(TextFormatting.DARK_RED).setClickEvent(
-                new ClickEvent(ClickEvent.Action.RUN_COMMAND, new AcceptInvite().getUsage(sender) + " " + ownerUUID.toString()));
-            inviteMsg.appendSibling(acceptButton);
-
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
-            {
-                throw new CommandException("You don't have a session created.");
-            }
-
-            for (String name : args)
-            {
-                if (server.getPlayerList().getPlayerByUsername(name) == null)
-                {
-                    continue;
-                }
-
-                LinkSessionManager.INSTANCE.createInvite(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), ownerUUID);
-                server.getPlayerList().getPlayerByUsername(name).sendMessage(inviteMsg);
-                sender.sendMessage(new TextComponentString("Inviting player \"" + name + "\" to " + sender.getName() + "'s session."));
-            }
-        }
-    }
-
-    /**
-     * Command for removing an existing player(s) to an existing sender's session
-     */
-    private class RemovePlayer extends CommandBase
-    {
-        protected final static String NAME = "removeplayer";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
-
-        @Override
-        public String getUsage(ICommandSender sender)
-        {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <nickname>";
-        }
-
-        @Override
-        public int getRequiredPermissionLevel()
-        {
-            return 0;
-        }
-        
-        @Override
-        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isUsernameIndex(String[] args, int index)
-        {
-            return true;
-        }
-        
-        @Override
-        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
-        {
-            return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
-        }
-
-        @Override
-        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-        {
-            if (args.length < 1)
-            {
-                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-            }
-
-            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
-            {
-                throw new CommandException("You don't have a session created.");
-            }
-
-            for (String name : args)
-            {
-                if (server.getPlayerList().getPlayerByUsername(name) == null)
-                {
-                    continue;
-                }
-                
-                LinkSessionManager.INSTANCE.removeMemberOfSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID());
-                sender.sendMessage(new TextComponentString("Removing player \"" + name + "\" of " + sender.getName() + "'s session."));
-            }
-        }
-    }
-
-    /**
-     * Command for sending a message to "friends" of sender
-     */
-    private class SendMessage extends CommandBase
-    {
-        protected final static String NAME = "sendmessage";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
-
-        @Override
-        public String getUsage(ICommandSender sender)
-        {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <message>";
-        }
-
-        @Override
-        public int getRequiredPermissionLevel()
-        {
-            return 0;
-        }
-        
-        @Override
-        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-        {
-            return true;
-        }
-
-        @Override
-        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-        {
-            if (args.length < 1)
-            {
-                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
-            }
-            
-            final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
-            final Set<UUID> uniqueMembers = LinkSessionManager.INSTANCE.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
-            final TextComponentTranslation msgWithHead = new TextComponentTranslation("commands.message.display.incoming",
-                new Object[] {Constants.MOD_NAME + " Session Message " + sender.getName(), getChatComponentFromNthArg(sender, args, 0, true)});
-
-            if (LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
-            {
-                throw new CommandException("You have messages channel muted.");
-            }
-            if (uniqueMembers.size() == 1)
-            {
-                throw new CommandException("You are not a part of any session or every other players have messages channel muted.");
-            }
-
-            msgWithHead.getStyle().setColor(TextFormatting.GRAY).setItalic(Boolean.valueOf(true));
-            uniqueMembers.forEach(member -> {
-                if(server.getEntityFromUuid(member) != null)
-                {
-                    server.getEntityFromUuid(member).sendMessage(msgWithHead);
-                }
-            });
-        }
+        super.addSubcommand(new SendMessage());*/
     }
 
     /**
      * Command which sends information of sender to sender
      */
-    private class AboutMe extends CommandBase
+    private class AboutMe extends AbstractCommand
     {
-        protected final static String NAME = "aboutme";
-
-        @NotNull
-        @Override
-        public String getName()
-        {
-            return NAME;
-        }
+        /*protected final static String NAME = "aboutme";
 
         @Override
         public String getUsage(ICommandSender sender)
         {
-            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
+            return ;
         }
 
         @Override
@@ -441,7 +66,7 @@ public class LinkSessionCommand extends CommandTreeBase
         {
             return 0;
         }
-        
+
         @Override
         public boolean checkPermission(MinecraftServer server, ICommandSender sender)
         {
@@ -521,13 +146,344 @@ public class LinkSessionCommand extends CommandTreeBase
                 }
             }
         }
+        */
+    }
+
+
+    /**
+     * Command for creating a new session for sender
+     */
+    private class Create extends AbstractCommand
+    {
+        /*
+        protected final static String NAME = "create";
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length > 0)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) != null)
+            {
+                throw new CommandException("You have already created a session.");
+            }
+
+            LinkSessionManager.INSTANCE.createSession(ownerUUID);
+            LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getName());
+            sender.sendMessage(new TextComponentString("Created session for player: " + sender.getName()));
+        }
+
+         */
+    }
+
+    /**
+     * Command for removing an existing sender's session
+     */
+    private class Destroy extends AbstractCommand
+    {
+        /*
+        protected final static String NAME = "destroy";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME;
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length > 0)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
+
+            if (LinkSessionManager.INSTANCE.destroySession(ownerUUID))
+            {
+                sender.sendMessage(new TextComponentString("Destroying session of player: " + sender.getName())); 
+            }
+            else
+            {
+                throw new CommandException("You don't have a session created.");
+            }
+        }
+
+         */
+    }
+
+    /**
+     * Command for adding a new player(s) to an existing sender's session
+     */
+    private class AddPlayer extends AbstractCommand
+    {
+        /*
+        protected final static String NAME = "addplayer";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <nickname>";
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isUsernameIndex(String[] args, int index)
+        {
+            return true;
+        }
+        
+        @Override
+        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
+        {
+            return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length < 1)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
+            final TextComponentString acceptButton = new TextComponentString("ACCEPT");
+            final TextComponentString inviteMsg =
+                new TextComponentString("You have been invited to " + sender.getCommandSenderEntity().getName() + "'s session, click the button to ");
+
+            acceptButton.getStyle().setColor(TextFormatting.DARK_RED).setClickEvent(
+                new ClickEvent(ClickEvent.Action.RUN_COMMAND, new AcceptInvite().getUsage(sender) + " " + ownerUUID.toString()));
+            inviteMsg.appendSibling(acceptButton);
+
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
+            {
+                throw new CommandException("You don't have a session created.");
+            }
+
+            for (String name : args)
+            {
+                if (server.getPlayerList().getPlayerByUsername(name) == null)
+                {
+                    continue;
+                }
+
+                LinkSessionManager.INSTANCE.createInvite(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), ownerUUID);
+                server.getPlayerList().getPlayerByUsername(name).sendMessage(inviteMsg);
+                sender.sendMessage(new TextComponentString("Inviting player \"" + name + "\" to " + sender.getName() + "'s session."));
+            }
+        }
+
+         */
+    }
+
+    /**
+     * Command for removing an existing player(s) to an existing sender's session
+     */
+    private class RemovePlayer extends AbstractCommand
+    {
+        /*
+        protected final static String NAME = "removeplayer";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <nickname>";
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isUsernameIndex(String[] args, int index)
+        {
+            return true;
+        }
+        
+        @Override
+        public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
+        {
+            return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length < 1)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+
+            final UUID ownerUUID = sender.getCommandSenderEntity().getUniqueID();
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
+            {
+                throw new CommandException("You don't have a session created.");
+            }
+
+            for (String name : args)
+            {
+                if (server.getPlayerList().getPlayerByUsername(name) == null)
+                {
+                    continue;
+                }
+                
+                LinkSessionManager.INSTANCE.removeMemberOfSession(ownerUUID, server.getPlayerList().getPlayerByUsername(name).getUniqueID());
+                sender.sendMessage(new TextComponentString("Removing player \"" + name + "\" of " + sender.getName() + "'s session."));
+            }
+        }
+
+         */
+    }
+
+    /**
+     * Command for sending a message to "friends" of sender
+     */
+    private class SendMessage extends AbstractCommand
+    {
+        /*
+        protected final static String NAME = "sendmessage";
+
+        @NotNull
+        @Override
+        public String getName()
+        {
+            return NAME;
+        }
+
+        @Override
+        public String getUsage(ICommandSender sender)
+        {
+            return "/" + StructurizeCommand.NAME + " " + LinkSessionCommand.NAME + " " + NAME + " <message>";
+        }
+
+        @Override
+        public int getRequiredPermissionLevel()
+        {
+            return 0;
+        }
+        
+        @Override
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+        {
+            return true;
+        }
+
+        @Override
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+        {
+            if (args.length < 1)
+            {
+                throw new WrongUsageException(this.getUsage(sender), new Object[0]);
+            }
+            
+            final UUID senderUUID = sender.getCommandSenderEntity().getUniqueID();
+            final Set<UUID> uniqueMembers = LinkSessionManager.INSTANCE.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
+            final TextComponentTranslation msgWithHead = new TextComponentTranslation("commands.message.display.incoming",
+                new Object[] {Constants.MOD_NAME + " Session Message " + sender.getName(), getChatComponentFromNthArg(sender, args, 0, true)});
+
+            if (LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
+            {
+                throw new CommandException("You have messages channel muted.");
+            }
+            if (uniqueMembers.size() == 1)
+            {
+                throw new CommandException("You are not a part of any session or every other players have messages channel muted.");
+            }
+
+            msgWithHead.getStyle().setColor(TextFormatting.GRAY).setItalic(Boolean.valueOf(true));
+            uniqueMembers.forEach(member -> {
+                if(server.getEntityFromUuid(member) != null)
+                {
+                    server.getEntityFromUuid(member).sendMessage(msgWithHead);
+                }
+            });
+        }
+
+         */
     }
 
     /**
      * Command for (un)muting a channel for sender
      */
-    private class MuteChannel extends CommandBase
+    private class MuteChannel extends AbstractCommand
     {
+        /*
         protected final static String NAME = "mutechannel";
 
         @NotNull
@@ -580,13 +536,16 @@ public class LinkSessionCommand extends CommandTreeBase
                 }
             }
         }
+
+         */
     }
 
     /**
      * Command for accepting the current invite
      */
-    private class AcceptInvite extends CommandBase
+    private class AcceptInvite extends AbstractCommand
     {
+        /*
         protected final static String NAME = "acceptinvite";
 
         @NotNull
@@ -650,13 +609,16 @@ public class LinkSessionCommand extends CommandTreeBase
 
             sender.sendMessage(new TextComponentString("You have successfully joined to " + ownerName + "'s linksession."));
         }
+
+         */
     }
 
     /**
      * Command for leaving session of owner
      */
-    private class Leave extends CommandBase
+    private class Leave extends AbstractCommand
     {
+        /*
         protected final static String NAME = "leave";
 
         @NotNull
@@ -717,5 +679,6 @@ public class LinkSessionCommand extends CommandTreeBase
                 sender.sendMessage(new TextComponentString("Leaving a session owned by \"" + name + "\"."));
             }
         }
+         */
     }
 }

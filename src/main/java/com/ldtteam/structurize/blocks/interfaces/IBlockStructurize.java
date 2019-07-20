@@ -19,5 +19,5 @@ public interface IBlockStructurize<B extends IBlockStructurize<B>>
      *
      * @param registry the registry to use.
      */
-    void registerItemBlock(final IForgeRegistry<Item> registry);
+    void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties);
 }

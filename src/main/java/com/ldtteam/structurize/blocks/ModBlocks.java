@@ -12,6 +12,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSlab;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.ArrayList;
@@ -75,14 +77,12 @@ public final class ModBlocks
          */
     }
 
-    /**
-     * Initates all the blocks. At the correct time.
-     * @param registry the registry object.
-     */
-    public static void init(final IForgeRegistry<Block> registry)
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
+        final IForgeRegistry<Block> registry = event.getRegistry();
         blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
-        blockCactusDoor = new BlockCactusDoor(blockCactusDoor).registerBlock(registry);
+        blockCactusDoor = new BlockCactusDoor().registerBlock(registry);
         blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
         blockCactusSlabHalf = new BlockCactusSlabHalf().registerBlock(registry);
         blockCactusSlabDouble = new BlockCactusSlabDouble().registerBlock(registry);
@@ -120,7 +120,8 @@ public final class ModBlocks
         multiBlock = new MultiBlock().registerBlock(registry);
     }
 
-    public static void registerItemBlock(final IForgeRegistry<Item> registry)
+    @SubscribeEvent
+    public static void registerItems(RegistryEvent.Register<Item> event)
     {
         blockSolidSubstitution.registerItemBlock(registry);
         blockSubstitution.registerItemBlock(registry);

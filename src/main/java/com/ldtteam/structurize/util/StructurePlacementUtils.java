@@ -15,6 +15,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.extensions.IForgeBlockState;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,7 +31,7 @@ public class StructurePlacementUtils
      * @param state         the state in the structure.
      * @return true if so.
      */
-    public static boolean isStructureBlockEqualWorldBlock(final World world, final BlockPos blockPosition, final IBlockState state)
+    public static boolean isStructureBlockEqualWorldBlock(final World world, final BlockPos blockPosition, final IForgeBlockState state)
     {
         final Block structureBlock = state.getBlock();
 

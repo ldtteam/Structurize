@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.mojang.datafixers.DataFixer;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.CompoundNBT;

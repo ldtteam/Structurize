@@ -2,27 +2,25 @@ package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
-import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.Random;
-
-public abstract class AbstractBlockDoor<B extends AbstractBlockDoor<B>> extends BlockDoor implements IBlockStructurize<B>
+/**
+ * Creates an instance of the abstract door block.
+ * @param <B> the type.
+ */
+public abstract class AbstractBlockDoor<B extends AbstractBlockDoor<B>> extends DoorBlock implements IBlockStructurize<B>
 {
-    public AbstractBlockDoor(final Material materialIn, final Block block)
+    /**
+     * Constructor of the door block.
+     * @param properties the doors properties.
+     */
+    public AbstractBlockDoor(final Properties properties)
     {
-        super(materialIn);
+        super(properties);
     }
 
     /**
@@ -45,20 +43,8 @@ public abstract class AbstractBlockDoor<B extends AbstractBlockDoor<B>> extends 
      * @param registry the registry to use.
      */
     @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry)
+    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
-        registry.register((new ItemBlock(this)).setRegistryName(this.getRegistryName()));
-    }
-
-    @Override
-    public Item getItemDropped(IBlockState state, Random rand, final int fortune)
-    {
-        return ModItems.itemCactusDoor;
-    }
-
-    @Override
-    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, final PlayerEntity player)
-    {
-        return new ItemStack(ModItems.itemCactusDoor);
+        registry.register((new BlockItem(this, properties.maxStackSize(16))).setRegistryName(this.getRegistryName()));
     }
 }

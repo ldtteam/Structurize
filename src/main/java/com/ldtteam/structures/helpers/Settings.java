@@ -3,13 +3,12 @@ package com.ldtteam.structures.helpers;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.gui.WindowBuildTool;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -485,9 +484,9 @@ public final class Settings
 
     /**
      * Serializable from {@link LSStructureDisplayerMessage}
-     * @param buf the bytebuf to read it from.
+     * @param buf the packet buffer to read it from.
      */
-    public void fromBytes(final ByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         isMirrored = buf.readBoolean();
         staticSchematicMode = buf.readBoolean();
@@ -548,11 +547,9 @@ public final class Settings
             box = null;
         }
 
-        // strings
-        PacketBuffer //todo
         if (buf.readBoolean())
         {
-            structureName = ByteBufUtils.readUTF8String(buf);
+            structureName = buf.readString();
         }
         else
         {
@@ -561,7 +558,7 @@ public final class Settings
         
         if (buf.readBoolean())
         {
-            staticSchematicName = ByteBufUtils.readUTF8String(buf);
+            staticSchematicName = buf.readString();
         }
         else
         {
@@ -572,7 +569,7 @@ public final class Settings
 
         if (buf.readBoolean())
         {
-            stack = new Tuple<>(ByteBufUtils.readItemStack(buf), ByteBufUtils.readItemStack(buf));
+            stack = new Tuple<>(buf.readItemStack(), buf.readItemStack());
         }
         else
         {
@@ -581,15 +578,15 @@ public final class Settings
 
         if (buf.readBoolean())
         {
-            equation = ByteBufUtils.readUTF8String(buf);
+            equation = buf.readString();
         }
     }
 
     /**
      * Serializable from {@link LSStructureDisplayerMessage}
-     * @param buf the bytebuf to write it in.
+     * @param buf the packet buffer to write it in.
      */
-    public void toBytes(final ByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeBoolean(isMirrored);
         buf.writeBoolean(staticSchematicMode);
@@ -649,13 +646,13 @@ public final class Settings
         buf.writeBoolean(structureName != null);
         if (structureName != null)
         {
-            ByteBufUtils.writeUTF8String(buf, structureName);
+            buf.writeString(structureName);
         }
 
         buf.writeBoolean(staticSchematicName != null);
         if (staticSchematicName != null)
         {
-            ByteBufUtils.writeUTF8String(buf, staticSchematicName);
+            buf.writeString(staticSchematicName);
         }
 
         // itemstacks
@@ -663,14 +660,14 @@ public final class Settings
         buf.writeBoolean(stack != null);
         if (stack != null)
         {
-            ByteBufUtils.writeItemStack(buf, stack.getA());
-            ByteBufUtils.writeItemStack(buf, stack.getB());
+            buf.writeItemStack(stack.getA());
+            buf.writeItemStack(stack.getB());
         }
 
         buf.writeBoolean(!equation.isEmpty());
         if (!equation.isEmpty())
         {
-            ByteBufUtils.writeUTF8String(buf, equation);
+            buf.writeString(equation);
         }
     }
 

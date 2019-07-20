@@ -3,21 +3,20 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FenceGateBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class AbstractBlockStructurizeFenceGate<B extends AbstractBlockStructurizeFenceGate<B>> extends BlockFenceGate implements IBlockStructurize<B>
+public abstract class AbstractBlockStructurizeFenceGate<B extends AbstractBlockStructurizeFenceGate<B>> extends FenceGateBlock implements IBlockStructurize<B>
 {
-    public AbstractBlockStructurizeFenceGate(final BlockPlanks.EnumType type)
+    public AbstractBlockStructurizeFenceGate(final Properties properties)
     {
-        super(type);
+        super(properties);
     }
 
     /**
@@ -34,19 +33,14 @@ public abstract class AbstractBlockStructurizeFenceGate<B extends AbstractBlockS
         return (B) this;
     }
 
-    /**
-     * Registery block at gameregistry.
-     *
-     * @param registry the registry to use.
-     */
     @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry)
+    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
-        registry.register((new ItemBlock(this)).setRegistryName(this.getRegistryName()));
+        registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
     }
 
     @Override
-    public boolean doesSideBlockRendering(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face)
+    public boolean doesSideBlockRendering(final BlockState state, final IEnviromentBlockReader world, final BlockPos pos, final Direction face)
     {
         return false;
     }

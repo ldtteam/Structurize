@@ -9,8 +9,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -19,6 +18,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.extensions.IForgeBlockState;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -209,13 +209,13 @@ public class Structure
      * @return the blockState.
      */
     @Nullable
-    public IBlockState getBlockState(@NotNull final BlockPos pos)
+    public IForgeBlockState getBlockState(@NotNull final BlockPos pos)
     {
         if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() || this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
-        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getY()][pos.getZ()][pos.getX()] & 0xFFFF];
+        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getY()][pos.getZ()][pos.getX()] & 0xFFFF].getBlockState();
     }
 
     /**
@@ -227,7 +227,7 @@ public class Structure
     @NotNull
     public BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        final IBlockState state = getBlockState(pos);
+        final IForgeBlockState state = getBlockState(pos);
         final CompoundNBT compound = this.getTileEntityData(pos);
         return new BlockInfo(pos, state, compound);
     }
@@ -425,8 +425,8 @@ public class Structure
     public Item getItem()
     {
         @Nullable final Block block = this.getBlock();
-        @Nullable final IBlockState blockState = this.getBlockstate();
-        if (block == null || blockState == null || block == Blocks.AIR || blockState.getMaterial().isLiquid())
+        @Nullable final IForgeBlockState blockState = this.getBlockstate();
+        if (block == null || blockState == null || block == Blocks.AIR || blockState.getBlockState().getMaterial().isLiquid())
         {
             return null;
         }
@@ -454,12 +454,12 @@ public class Structure
             return null;
         }
 
-        @Nullable final IBlockState state = this.getBlockState(progressPos);
+        @Nullable final IForgeBlockState state = this.getBlockState(progressPos);
         if (state == null)
         {
             return null;
         }
-        return state.getBlock();
+        return state.getBlockState().getBlock();
     }
 
     /**
@@ -467,7 +467,7 @@ public class Structure
      * @return the current blockState or null if not there.
      */
     @Nullable
-    public IBlockState getBlockstate()
+    public IForgeBlockState getBlockstate()
     {
         if (this.progressPos.equals(NULL_POS))
         {

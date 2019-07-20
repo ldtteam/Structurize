@@ -2,14 +2,9 @@ package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +18,10 @@ import java.util.Set;
 /**
  * Command to update all schematics in structurize/updater/input to the blueprint format to structurize/updater/output.
  */
-public class UpdateSchematicsCommand extends CommandBase
+public class UpdateSchematicsCommand extends AbstractCommand
 {
+    //todo handle later too.
+    /*
     protected final static String NAME = "updateschematics";
 
     @NotNull

@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.command;
+package com.ldtteam.structurize.commands;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.impl.TeleportCommand;
 
 /**
  * Interface for all commands
