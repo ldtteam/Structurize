@@ -5,8 +5,11 @@ import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -102,7 +105,7 @@ public final class ModBlocks
           BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.ACACIA.getName()).registerBlock(registry);
         blockShingleSlab = new BlockShingleSlab().registerBlock(registry);
 
-        for (final BlockPlanks.EnumType type : BlockPlanks.EnumType.values())
+        for (final BlockPlank.EnumType type : BlockPlanks.EnumType.values())
         {
             for (final TimberFrameType frameType : TimberFrameType.values())
             {
@@ -117,7 +120,7 @@ public final class ModBlocks
     public static void registerItems(RegistryEvent.Register<Item> event)
     {
         final IForgeRegistry<Item> registry = event.getRegistry();
-        final Item.Properties properties = new Item.Properties().group(CreativeTab.DECORATION);
+        final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
         blockSolidSubstitution.registerItemBlock(registry, properties);
         blockSubstitution.registerItemBlock(registry, properties);
         blockPaperWall.registerItemBlock(registry, properties);
