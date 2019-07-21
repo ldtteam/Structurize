@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "structurize:jungle_timberframe/blocktimberframe_onecrossedrl"
+    "model": "structurize:block/jungle_timberframe/blocktimberframe_onecrossedrl"
   },
   "variants": {
     "axis": {

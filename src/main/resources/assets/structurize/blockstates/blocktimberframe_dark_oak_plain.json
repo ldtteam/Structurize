@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "structurize:dark_oak_timberframe/blocktimberframe_plain"
+    "model": "structurize:block/dark_oak_timberframe/blocktimberframe_plain"
   },
   "variants": {
     "axis": {

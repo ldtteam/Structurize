@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "structurize:birch_timberframe/blocktimberframe_doublecrossed"
+    "model": "structurize:block/birch_timberframe/blocktimberframe_doublecrossed"
   },
   "variants": {
     "axis": {
