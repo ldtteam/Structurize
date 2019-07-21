@@ -7,22 +7,21 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.client.gui.WindowScan;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import com.ldtteam.structurize.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -44,31 +43,28 @@ public class ItemScanTool extends AbstractItemStructurize
 {
     /**
      * Creates instance of item.
+     * @param properties the properties.
      */
-    public ItemScanTool()
+    public ItemScanTool(final Properties properties)
     {
-        super("scepterSteel");
-
-        super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        this.setMaxStackSize(1);
+        super("scepterSteel", properties.maxStackSize(1));
     }
 
     @Override
-    public float getDestroySpeed(final ItemStack stack, final IBlockState state)
+    public float getDestroySpeed(final ItemStack stack, final BlockState state)
     {
         return Float.MAX_VALUE;
     }
 
-    @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, @NotNull final EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
     {
-        final ItemStack stack = playerIn.getHeldItem(hand);
-        if (!stack.hasTagCompound())
+        final ItemStack stack = playerIn.getHeldItem(handIn);
+        if (!stack.hasTag())
         {
-            stack.setTagCompound(new CompoundNBT());
+            stack.setTag(new CompoundNBT());
         }
-        final CompoundNBT compound = stack.getTagCompound();
+        final CompoundNBT compound = stack.getTag();
 
         @NotNull final BlockPos pos1 = BlockPosUtil.readFromNBT(compound, FIRST_POS_STRING);
         @NotNull final BlockPos pos2 = BlockPosUtil.readFromNBT(compound, SECOND_POS_STRING);
@@ -89,42 +85,38 @@ public class ItemScanTool extends AbstractItemStructurize
             }
         }
 
-        return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
+        return ActionResult.newResult(ActionResultType.SUCCESS, stack);
     }
 
-    @NotNull
     @Override
-    public EnumActionResult onItemUse(
-      final PlayerEntity playerIn,
-      final World worldIn,
-      final BlockPos pos,
-      final EnumHand hand,
-      final EnumFacing facing,
-      final float hitX,
-      final float hitY,
-      final float hitZ)
+    public ActionResultType onItemUse(final ItemUseContext context)
     {
+        final PlayerEntity playerIn = context.getPlayer();
+        final Hand hand = context.getHand();
         final ItemStack stack = playerIn.getHeldItem(hand);
-        if (!stack.hasTagCompound())
+        final BlockPos pos = context.getPos();
+        final World world = context.getWorld();
+
+        if (!stack.hasTag())
         {
-            stack.setTagCompound(new CompoundNBT());
+            stack.setTag(new CompoundNBT());
         }
-        final CompoundNBT compound = stack.getTagCompound();
+        final CompoundNBT compound = stack.getTag();
 
         @NotNull final BlockPos pos1 = BlockPosUtil.readFromNBT(compound, FIRST_POS_STRING);
         @NotNull final BlockPos pos2 = pos;
         if (pos2.distanceSq(pos1) > 0)
         {
             BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, pos2);
-            if (worldIn.isRemote)
+            if (world.isRemote)
             {
                 LanguageHandler.sendPlayerMessage(playerIn, "item.scepterSteel.point2", pos.getX(), pos.getY(), pos.getZ());
             }
 
-            stack.setTagCompound(compound);
-            return EnumActionResult.SUCCESS;
+            stack.setTag(compound);
+            return ActionResultType.SUCCESS;
         }
-        return EnumActionResult.FAIL;
+        return ActionResultType.FAIL;
     }
 
     /**
@@ -162,8 +154,7 @@ public class ItemScanTool extends AbstractItemStructurize
         }
 
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
-        Structurize.getNetwork().sendTo(
-          new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (PlayerEntityMP) player);
+        Structurize.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
 
     /**

@@ -37,8 +37,8 @@ public final class ModBlocks
      * References can be made to here.
      */
 
-    private static final List<BlockTimberFrame>         timberFrames = new ArrayList<>();
-    private static final List<BlockPaperwall>         paperwalls = new ArrayList<>();
+    private static final List<BlockTimberFrame> timberFrames = new ArrayList<>();
+    private static final List<BlockPaperwall>   paperwalls   = new ArrayList<>();
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
@@ -87,7 +87,7 @@ public final class ModBlocks
         blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
         blockCactusDoor = new BlockCactusDoor().registerBlock(registry);
         blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
-        blockCactusSlab = new BlockMinecoloniesSlab(Block.Properties.from(blockCactusPlank),"blockcactusslab").registerBlock(registry);
+        blockCactusSlab = new BlockMinecoloniesSlab(Block.Properties.from(blockCactusPlank), "blockcactusslab").registerBlock(registry);
 
         blockCactusStair = new BlockCactusStair().registerBlock(registry);
         blockCactusFence = new BlockCactusFence().registerBlock(registry);
@@ -171,7 +171,7 @@ public final class ModBlocks
         blockCactusFence.registerItemBlock(registry, properties);
         blockCactusFenceGate.registerItemBlock(registry, properties);
 
-        for (final BlockTimberFrame frame: timberFrames)
+        for (final BlockTimberFrame frame : timberFrames)
         {
             frame.registerItemBlock(registry, properties);
         }

@@ -1,23 +1,24 @@
 package com.ldtteam.structurize.management;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ScanToolOperation;
 import com.ldtteam.structurize.util.StructurePlacementUtils;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.storage.MapStorage;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.world.ServerWorld;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.storage.DimensionSavedDataManager;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 
@@ -61,7 +62,7 @@ public final class Manager
      *
      * @param world the world which is ticking.
      */
-    public static void onWorldTick(final WorldServer world)
+    public static void onWorldTick(final ServerWorld world)
     {
         if (!scanToolOperationPool.isEmpty())
         {
@@ -94,7 +95,7 @@ public final class Manager
      */
     public static void addToUndoCache(final ChangeStorage storage)
     {
-        if (changeQueue.size() >= Configurations.gameplay.maxCachedChanges)
+        if (changeQueue.size() >= Structurize.getConfig().getCommon().maxCachedChanges.get())
         {
             changeQueue.pop();
         }
@@ -120,7 +121,7 @@ public final class Manager
      * @param rotation       the rotation.
      */
     public static void pasteStructure(
-      final WorldServer server,
+      final ServerWorld server,
       final BlockPos pos,
       final int width,
       final int length,
@@ -131,7 +132,7 @@ public final class Manager
       final ItemStack inputBlock,
       final ItemStack inputFillBlock,
       final boolean hollow,
-      final PlayerEntityMP player,
+      final ServerPlayerEntity player,
       final Mirror mirror,
       final Rotation rotation)
     {
@@ -164,8 +165,8 @@ public final class Manager
       final ItemStack inputFillBlock, final boolean hollow)
     {
         final Blueprint blueprint;
-        final IBlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock);
-        final IBlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock);
+        final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock);
+        final BlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock);
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {
@@ -200,15 +201,15 @@ public final class Manager
 
     private static Blueprint generatePyramid(
       final int inputHeight,
-      final IBlockState block,
-      final IBlockState fillBlock,
+      final BlockState block,
+      final BlockState fillBlock,
       final boolean hollow,
       final Shape shape)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final int hHeight = height / 2;
 
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y < hHeight; y++)
         {
             for (int x = 0; x < hHeight; x++)
@@ -217,7 +218,7 @@ public final class Manager
                 {
                     if (((x == z && x >= y) || (x == y && x >= z) || ((hollow ? y == z : y >= z) && y >= x)) && x * z <= y * y)
                     {
-                        final IBlockState blockToUse = x == z && x >= y || x == y || y == z ? block : fillBlock;
+                        final BlockState blockToUse = x == z && x >= y || x == y || y == z ? block : fillBlock;
                         if (shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
                         {
                             addPosToList(new BlockPos(hHeight + x, y, hHeight + z), blockToUse, posList);
@@ -257,11 +258,11 @@ public final class Manager
       final int height,
       final int width,
       final int length,
-      final IBlockState block,
-      final IBlockState fillBlock,
+      final BlockState block,
+      final BlockState fillBlock,
       final boolean hollow)
     {
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -295,12 +296,12 @@ public final class Manager
      */
     private static Blueprint generateSphere(
       final int height,
-      final IBlockState block,
-      final IBlockState fillBlock,
+      final BlockState block,
+      final BlockState fillBlock,
       final boolean hollow,
       final Shape shape)
     {
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y <= height + 1; y++)
         {
             for (int x = 0; x <= height + 1; x++)
@@ -310,7 +311,7 @@ public final class Manager
                     int sum = x * x + z * z + y * y;
                     if (sum < height * height && (!hollow || sum > height * height - 2 * height))
                     {
-                        final IBlockState blockToUse = (sum > height * height - 2 * height) ? block : fillBlock;
+                        final BlockState blockToUse = (sum > height * height - 2 * height) ? block : fillBlock;
                         if (shape == Shape.HALF_SPHERE || shape == Shape.SPHERE)
                         {
                             addPosToList(new BlockPos(height + x, height + y, height + z), blockToUse, posList);
@@ -347,11 +348,11 @@ public final class Manager
     private static Blueprint generateCylinder(
       final int height,
       final int width,
-      final IBlockState block,
-      final IBlockState fillBlock,
+      final BlockState block,
+      final BlockState fillBlock,
       final boolean hollow)
     {
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < width; z++)
@@ -361,7 +362,7 @@ public final class Manager
                     int sum = x * x + z * z;
                     if (sum < (width * width) / 4 && (!hollow || sum > (width * width) / 4 - width))
                     {
-                        final IBlockState blockToUse = (sum > (width * width) / 4 - width) ? block : fillBlock;
+                        final BlockState blockToUse = (sum > (width * width) / 4 - width) ? block : fillBlock;
                         addPosToList(new BlockPos(width + x, y, width + z), blockToUse, posList);
                         addPosToList(new BlockPos(width + x, y, width - z), blockToUse, posList);
                         addPosToList(new BlockPos(width - x, y, width + z), blockToUse, posList);
@@ -389,10 +390,10 @@ public final class Manager
       final int width,
       final int length,
       final int frequency,
-      final IBlockState block,
+      final BlockState block,
       final boolean flat)
     {
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < length; x++)
         {
             for (int z = 0; z < width; z++)
@@ -424,7 +425,7 @@ public final class Manager
      * @param block the block.
      * @return the created blueprint
      */
-    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final IBlockState block)
+    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block)
     {
         Expression e = new Expression(equation);
         final Argument argumentX = new Argument("x = 0");
@@ -436,7 +437,7 @@ public final class Manager
 
         e.addArguments(argumentX,argumentY, argumentZ, argumentH, argumentW, argumentL);
 
-        final Map<BlockPos, IBlockState> posList = new HashMap<>();
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (double x = -length/2.0; x <= length/2; x++)
         {
             for (double y = -height/2.0; y <= height/2; y++)
@@ -465,7 +466,7 @@ public final class Manager
      * @param blockToUse the block to use.
      * @param posList    the list to add it to.
      */
-    private static void addPosToList(final BlockPos blockPos, final IBlockState blockToUse, final Map<BlockPos, IBlockState> posList)
+    private static void addPosToList(final BlockPos blockPos, final BlockState blockToUse, final Map<BlockPos, BlockState> posList)
     {
         if (!posList.containsKey(blockPos))
         {
@@ -511,8 +512,8 @@ public final class Manager
      */
     private static UUID generateOrRetrieveUUID()
     {
-        final MapStorage storage = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getMapStorage();
-        UUIDStorage instance = (UUIDStorage) storage.getOrLoadData(UUIDStorage.class, UUIDStorage.DATA_NAME);
+        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.OVERWORLD).getSavedData();
+        final UUIDStorage instance = storage.getOrCreate(UUIDStorage::new, UUIDStorage.DATA_NAME);
 
         if (instance == null)
         {
@@ -521,7 +522,7 @@ public final class Manager
                 Manager.setServerUUID(UUID.randomUUID());
                 Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
             }
-            storage.setData(UUIDStorage.DATA_NAME, new UUIDStorage());
+            storage.set(instance);
         }
         return serverUUID;
     }

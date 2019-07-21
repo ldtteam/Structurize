@@ -197,6 +197,32 @@ public final class BlockUtils
     }
 
     /**
+     * Get a blockState from an itemStack.
+     *
+     * @param stack the stack to analyze.
+     * @return the IBlockState.
+     */
+    public static BlockState getBlockStateFromStack(final ItemStack stack)
+    {
+        if (stack.getItem() == Items.AIR)
+        {
+            return Blocks.AIR.getDefaultState();
+        }
+
+        if (stack.getItem() == Items.WATER_BUCKET)
+        {
+            return Blocks.WATER.getDefaultState();
+        }
+
+        if (stack.getItem() == Items.LAVA_BUCKET)
+        {
+            return Blocks.LAVA.getDefaultState();
+        }
+
+        return stack.getItem() instanceof BlockItem ? ((BlockItem) stack.getItem()).getBlock().getDefaultState() : Blocks.GOLD_BLOCK.getDefaultState();
+    }
+
+    /**
      * Mimics pick block.
      *
      * @param blockState the block and state we are creating an ItemStack for.

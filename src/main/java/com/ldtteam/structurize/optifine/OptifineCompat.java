@@ -4,8 +4,8 @@ import com.ldtteam.structures.client.BlueprintTessellator;
 import com.ldtteam.structurize.Structurize;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -117,7 +117,7 @@ public class OptifineCompat
      * Call to setup the shader in Optifine.
      * Checks if the compat is enabled or not.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void preBlueprintDraw()
     {
         if (!enableOptifine)
@@ -154,7 +154,7 @@ public class OptifineCompat
      * Call to disable the shader
      * Checks if the compat is enabled or not.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void postBlueprintDraw()
     {
         if (!enableOptifine)
@@ -191,7 +191,7 @@ public class OptifineCompat
      *
      * @return True when optifine is enabled and setup completed, false when not.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public boolean setupArrayPointers()
     {
         if (!enableOptifine)
@@ -229,7 +229,7 @@ public class OptifineCompat
      *
      * @param tessellator The tessellator that is about to be uploaded to the GPU.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void beforeBuilderUpload(BlueprintTessellator tessellator)
     {
         if (!enableOptifine)

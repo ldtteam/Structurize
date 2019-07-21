@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.MathUtils;
+import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -128,7 +128,7 @@ public final class Structures
     @SuppressWarnings(EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS)
     private static void loadStyleMaps()
     {
-        if (!Configurations.gameplay.ignoreSchematicsFromJar)
+        if (!Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
         {
             loadStyleMapsJar();
         }
@@ -211,10 +211,10 @@ public final class Structures
     /**
      * Load all schematics from the scan folder.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void loadScannedStyleMaps()
     {
-        if (!allowPlayerSchematics && FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+        if (!allowPlayerSchematics && ServerLifecycleHooks.getCurrentServer() == null)
         {
             return;
         }
@@ -282,7 +282,7 @@ public final class Structures
                     else if (isSchematicSizeValid(structureName.toString()))
                     {
                         md5Map.put(structureName.toString(), md5);
-                        if (Structurize.isClient())
+                        if (Structurize.proxy instanceof ClientProxy)
                         {
                             addSchematic(structureName);
                         }
@@ -320,7 +320,7 @@ public final class Structures
      *
      * @param structureName the structure to add
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static void addSchematic(@NotNull final StructureName structureName)
     {
         if (structureName.getPrefix().equals(SCHEMATICS_CACHE))
@@ -366,7 +366,7 @@ public final class Structures
      *
      * @return True if the server accept schematics otherwise False
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static boolean isPlayerSchematicsAllowed()
     {
         return allowPlayerSchematics;
@@ -377,7 +377,7 @@ public final class Structures
      *
      * @param allowed True if the server allow it otherwise False
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void setAllowPlayerSchematics(final boolean allowed)
     {
         allowPlayerSchematics = allowed;
@@ -391,7 +391,7 @@ public final class Structures
      * @param name          New name for the schematic as in style/schematicname
      * @return the new structureName
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static StructureName renameScannedStructure(@NotNull final StructureName structureName, @NotNull final String name)
     {
         if (!SCHEMATICS_SCAN.equals(structureName.getPrefix()))
@@ -478,7 +478,7 @@ public final class Structures
      * @param structureName the structure to delete
      * @return True if the structure have been deleted, False otherwise
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static boolean deleteScannedStructure(@NotNull final StructureName structureName)
     {
         if (!SCHEMATICS_SCAN.equals(structureName.getPrefix()))
@@ -517,7 +517,7 @@ public final class Structures
      * @return list of sections.
      */
     @NotNull
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static List<String> getSections()
     {
         final ArrayList<String> list = new ArrayList<>(schematicsMap.keySet());
@@ -532,7 +532,7 @@ public final class Structures
      * @return the list of style for that section.
      */
     @NotNull
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static List<String> getStylesFor(final String section)
     {
         if (schematicsMap.containsKey(section))
@@ -551,7 +551,7 @@ public final class Structures
      * @return the list of schematics
      */
     @NotNull
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static List<String> getSchematicsFor(final String section, final String style)
     {
         if (schematicsMap.containsKey(section))
@@ -620,7 +620,7 @@ public final class Structures
      *
      * @param md5s new md5Map.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void setMD5s(final Map<String, String> md5s)
     {
         // First clear all section except scans
@@ -653,7 +653,7 @@ public final class Structures
     {
         for (final Map.Entry<UUID, Tuple<Long, Map<Integer, byte[]>>> entry : new HashSet<>(schematicPieces.entrySet()))
         {
-            if (MathUtils.nanoSecondsToSeconds(System.nanoTime() - entry.getValue().getFirst()) > SECONDS_A_MINUTE)
+            if (MathUtils.nanoSecondsToSeconds(System.nanoTime() - entry.getValue().getA()) > SECONDS_A_MINUTE)
             {
                 schematicPieces.remove(entry.getKey());
                 Log.getLogger().warn("Waiting too long for piece of structure, discarding it");
@@ -676,9 +676,9 @@ public final class Structures
             if (schematicPieces.containsKey(id))
             {
                 final Tuple<Long, Map<Integer, byte[]>> schemTuple = schematicPieces.remove(id);
-                schemPieces = schemTuple.getSecond();
+                schemPieces = schemTuple.getB();
 
-                if (MathUtils.nanoSecondsToSeconds(System.nanoTime() - schemTuple.getFirst()) > SECONDS_A_MINUTE)
+                if (MathUtils.nanoSecondsToSeconds(System.nanoTime() - schemTuple.getA()) > SECONDS_A_MINUTE)
                 {
                     Log.getLogger().warn("Waiting too long for piece: " + piece);
                     return false;
@@ -782,24 +782,26 @@ public final class Structures
      */
     private static boolean canStoreNewSchematic()
     {
-        if (Structurize.isClient())
+        if (Structurize.proxy instanceof ClientProxy)
         {
             return true;
         }
-        if (!Configurations.gameplay.allowPlayerSchematics)
+        if (!Structurize.getConfig().getCommon().allowPlayerSchematics.get())
         {
             return false;
         }
 
+        final int maxCachedSchematics = Structurize.getConfig().getCommon().maxCachedSchematics.get();
+
         final Set<String> md5Set = getCachedMD5s();
-        if (md5Set.size() < Configurations.gameplay.maxCachedSchematics)
+        if (md5Set.size() < maxCachedSchematics)
         {
             return true;
         }
 
         //md5Set contain only the unused one
         final Iterator<String> iterator = md5Set.iterator();
-        while (iterator.hasNext() && md5Set.size() >= Configurations.gameplay.maxCachedSchematics)
+        while (iterator.hasNext() && md5Set.size() >= maxCachedSchematics)
         {
             final StructureName sn = new StructureName(iterator.next());
             if (deleteCachedStructure(sn))
@@ -808,7 +810,7 @@ public final class Structures
             }
         }
 
-        return md5Set.size() < Configurations.gameplay.maxCachedSchematics;
+        return md5Set.size() < maxCachedSchematics;
     }
 
     /**

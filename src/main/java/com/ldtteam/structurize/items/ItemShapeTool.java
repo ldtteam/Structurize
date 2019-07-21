@@ -2,14 +2,12 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,38 +15,28 @@ public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
      * Sets the name, creative tab, and registers the item.
+     * @param properties the properties
      */
-    public ItemShapeTool()
+    public ItemShapeTool(final Properties properties)
     {
-        super("shapeTool");
-
-        super.setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setMaxStackSize(1);
+        super("shapeTool", properties.maxStackSize(1));
     }
 
     @NotNull
     @Override
-    public EnumActionResult onItemUse(
-      final PlayerEntity playerIn,
-      final World worldIn,
-      final BlockPos pos,
-      final EnumHand hand,
-      final EnumFacing facing,
-      final float hitX,
-      final float hitY,
-      final float hitZ)
+    public ActionResultType onItemUse(final ItemUseContext context)
     {
-        if (worldIn.isRemote)
+        if (context.getWorld().isRemote)
         {
-            Structurize.proxy.openShapeToolWindow(pos.offset(facing));
+            Structurize.proxy.openShapeToolWindow(context.getPos().offset(context.getPlacementHorizontalFacing()));
         }
 
-        return EnumActionResult.SUCCESS;
+        return ActionResultType.SUCCESS;
     }
 
     @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, final EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand hand)
     {
         final ItemStack stack = playerIn.getHeldItem(hand);
 
@@ -57,8 +45,9 @@ public class ItemShapeTool extends AbstractItemStructurize
             Structurize.proxy.openShapeToolWindow(null);
         }
 
-        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
+
 
     @Override
     public ItemStack getContainerItem(final ItemStack itemStack)

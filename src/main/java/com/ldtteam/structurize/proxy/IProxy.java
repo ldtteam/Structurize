@@ -1,10 +1,9 @@
 package com.ldtteam.structurize.proxy;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.stats.RecipeBook;
+import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,11 +20,6 @@ public interface IProxy
      * @return true when client, false when server.
      */
     boolean isClient();
-
-    /**
-     * Method to register Tile Entities in.
-     */
-    void registerTileEntities();
 
     /**
      * Method to register events in.
@@ -76,13 +70,6 @@ public interface IProxy
     @Nullable
     File getSchematicsFolder();
 
-    /**
-     * Method to get a side specific world from a message context during networking.
-     * @param context The context to get the world from.
-     * @return The world.
-     */
-    @Nullable
-    World getWorldFromMessage(@NotNull final MessageContext context);
 
     /**
      * Method to get a side specific world from a message context anywhere.
@@ -107,5 +94,8 @@ public interface IProxy
      */
     void openMultiBlockWindow(final BlockPos pos);
 
+    /**
+     * Inititalize optifine on the right side.
+     */
     void initializeOptifine();
 }

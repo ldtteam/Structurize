@@ -36,7 +36,7 @@ public class UUIDStorage extends WorldSavedData
     }
 
     @Override
-    public void readFromNBT(@NotNull final CompoundNBT compound)
+    public void read(@NotNull final CompoundNBT compound)
     {
         if (compound.hasUniqueId(TAG_UUID))
         {
@@ -44,12 +44,13 @@ public class UUIDStorage extends WorldSavedData
         }
     }
 
+    @NotNull
     @Override
-    public CompoundNBT writeToNBT(@NotNull final CompoundNBT compound)
+    public CompoundNBT write(@NotNull final CompoundNBT compound)
     {
         if (Manager.getServerUUID() != null)
         {
-            compound.setUniqueId(TAG_UUID, Manager.getServerUUID());
+            compound.putUniqueId(TAG_UUID, Manager.getServerUUID());
         }
         return compound;
     }

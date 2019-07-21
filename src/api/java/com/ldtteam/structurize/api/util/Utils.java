@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.api.util;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -260,5 +262,16 @@ public final class Utils
         {
             Log.getLogger().error("Directory doesn't exist and failed to be created: " + directory.toString());
         }
+    }
+
+    /**
+     * Creates a resource location from mod id and path.
+     *
+     * @param path path for the new RL
+     * @return the new RL from mod id and given path
+     */
+    public static ResourceLocation createLocationFor(final String path)
+    {
+        return new ResourceLocation(Constants.MOD_ID, path);
     }
 }
