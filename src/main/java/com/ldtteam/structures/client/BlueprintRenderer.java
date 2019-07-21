@@ -8,7 +8,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
-import net.minecraft.client.renderer.chunk.ChunkRenderTask;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
@@ -16,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.List;
 import java.util.Random;
@@ -78,11 +78,10 @@ public class BlueprintRenderer
         tessellator.startBuilding();
 
         final Random random = new Random();
-        new ChunkRenderTask()
 
         blockAccess.getBlueprint().getBlockInfoAsList().stream()
           .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
-          .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, null));
+          .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, EmptyModelData.INSTANCE));
 
         tessellator.finishBuilding();
     }
