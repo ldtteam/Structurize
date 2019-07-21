@@ -5,18 +5,20 @@ import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.StructurePlacementUtils;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Send build tool data to the server. Verify the data on the server side and then place the building.
  */
-public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage, IMessage>
+public class BuildToolPasteMessage implements IMessage
 {
     private boolean complete;
     private String                   structureName;
@@ -27,7 +29,7 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
     private boolean                  mirror;
 
     /**
-     * Empty constructor used when registering the message.
+     * Empty constructor used when registering the 
      */
     public BuildToolPasteMessage()
     {
@@ -68,10 +70,10 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
      * @param buf The buffer begin read from.
      */
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        structureName = ByteBufUtils.readUTF8String(buf);
-        workOrderName = ByteBufUtils.readUTF8String(buf);
+        structureName = buf.readString();
+        workOrderName = buf.readString();
 
         pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
 
@@ -90,10 +92,10 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
      * @param buf The buffer being written to.
      */
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        ByteBufUtils.writeUTF8String(buf, structureName);
-        ByteBufUtils.writeUTF8String(buf, workOrderName);
+        buf.writeString(structureName);
+        buf.writeString(workOrderName);
 
         buf.writeInt(pos.getX());
         buf.writeInt(pos.getY());
@@ -108,20 +110,27 @@ public class BuildToolPasteMessage extends AbstractMessage<BuildToolPasteMessage
         buf.writeBoolean(complete);
     }
 
+    @Nullable
     @Override
-    public void messageOnServerThread(final BuildToolPasteMessage message, final PlayerEntityMP player)
+    public LogicalSide getExecutionSide()
     {
-        final StructureName sn = new StructureName(message.structureName);
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        final StructureName sn = new StructureName(structureName);
         if (!Structures.hasMD5(sn))
         {
-            player.sendMessage(new TextComponentString("Can not build " + message.workOrderName + ": schematic missing!"));
+            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"));
             return;
         }
 
-        if (player.capabilities.isCreativeMode)
+        if (ctxIn.getSender().isCreative())
         {
-            StructurePlacementUtils.loadAndPlaceStructureWithRotation(player.world, message.structureName,
-              message.pos, Rotation.values()[message.rotation], message.mirror ? Mirror.FRONT_BACK : Mirror.NONE, message.complete, player);
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().world, structureName,
+              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, complete, ctxIn.getSender());
         }
     }
 }

@@ -1,17 +1,17 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.items.ItemScanTool;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Send the scan message for a player to the server.
  */
-public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IMessage>
+public class ScanOnServerMessage implements IMessage
 {
     /**
      * Position to scan from.
@@ -46,24 +46,31 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        name = ByteBufUtils.readUTF8String(buf);
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
+        name = buf.readString();
+        from = buf.readBlockPos();
+        to = buf.readBlockPos();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        ByteBufUtils.writeUTF8String(buf, name);
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
+        buf.writeString(name);
+        buf.writeBlockPos(from);
+        buf.writeBlockPos(to);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void messageOnServerThread(final ScanOnServerMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ItemScanTool.saveStructure(player.getEntityWorld(), message.from, message.to, player, message.name);
+        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name);
     }
 }

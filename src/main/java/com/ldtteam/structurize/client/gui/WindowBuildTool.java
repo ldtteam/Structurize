@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.gui;
+package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.controls.Button;
@@ -20,20 +20,22 @@ import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import scala.Array;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -245,7 +247,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Structures.loadScannedStyleMaps();
 
             sections.clear();
-            final InventoryPlayer inventory = this.mc.player.inventory;
+            final PlayerInventory inventory = this.mc.player.inventory;
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
@@ -255,7 +257,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 }
             }
 
-            if (Minecraft.getInstance().player.capabilities.isCreativeMode)
+            if (Minecraft.getInstance().player.isCreative())
             {
                 findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
                 findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
@@ -306,7 +308,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             sname = schematics.get(schematicsDropDownList.getSelectedIndex());
         }
         final StructureName structureName = new StructureName(sname);
-        if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+        if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && ServerLifecycleHooks.getCurrentServer() == null)
         {
             //We need to check that the server have it too using the md5
             requestAndPlaceScannedSchematic(structureName, true, complete);
@@ -470,10 +472,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (Settings.instance.getActiveStructure() != null)
         {
             final ByteBuf buffer = Unpooled.buffer();
-            
+            final PacketBuffer packetBuffer = new PacketBuffer(buffer);
+
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
-            Settings.instance.toBytes(buffer);
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
+            Settings.instance.toBytes(packetBuffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
         }
     }
 
@@ -721,9 +724,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param hut       the hut.
      * @return true if so.
      */
-    private static boolean inventoryHasHut(@NotNull final InventoryPlayer inventory, final String hut)
+    private static boolean inventoryHasHut(@NotNull final PlayerInventory inventory, final String hut)
     {
-        return inventory.hasItemStack(new ItemStack(Block.getBlockFromName(Constants.MINECOLONIES_MOD_ID + HUT_PREFIX + hut)));
+        ;
+        return inventory.hasItemStack(new ItemStack(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, HUT_PREFIX + hut))));
     }
 
     /*
@@ -858,7 +862,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             }
 
             Log.getLogger().info("Request To Server for structure " + structureName);
-            if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+            if (ServerLifecycleHooks.getCurrentServer() == null)
             {
                 Structurize.getNetwork().sendToServer(new SchematicRequestMessage(structureName.toString()));
                 return;
@@ -919,8 +923,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                             {
                                 size = MAX_MESSAGE_SIZE;
                             }
-                            final byte[] bytes = new byte[size];
-                            Array.copy(structureAsByteArray, start, bytes, 0, size);
+                            byte[] bytes = Arrays.copyOfRange(structureAsByteArray, start, size);
                             Structurize.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
                         }
                     }
@@ -1010,8 +1013,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                             {
                                 size = MAX_MESSAGE_SIZE;
                             }
-                            final byte[] bytes = new byte[size];
-                            Array.copy(structureAsByteArray, start, bytes, 0, size);
+                            byte[] bytes = Arrays.copyOfRange(structureAsByteArray, start, size);
                             Structurize.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
                         }
                     }
@@ -1057,7 +1059,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public boolean hasPermission()
     {
-        return Minecraft.getInstance().player.capabilities.isCreativeMode;
+        return Minecraft.getInstance().player.isCreative();
     }
 
     /**
@@ -1098,7 +1100,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         else
         {
             final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-            if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+            if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && ServerLifecycleHooks.getCurrentServer() == null)
             {
                 //We need to check that the server have it too using the md5
                 requestAndPlaceScannedSchematic(structureName, false, false);
@@ -1115,7 +1117,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 }
             }
 
-            if (!GuiScreen.isShiftKeyDown())
+            if (!Screen.hasShiftDown())
             {
                 cancelClicked();
             }

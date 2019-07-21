@@ -1,19 +1,19 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ScanToolOperation;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to remove a block from the world.
  */
-public class RemoveBlockMessage extends AbstractMessage<RemoveBlockMessage, IMessage>
+public class RemoveBlockMessage implements IMessage
 {
     /**
      * Position to scan from.
@@ -53,28 +53,35 @@ public class RemoveBlockMessage extends AbstractMessage<RemoveBlockMessage, IMes
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
-        block = ByteBufUtils.readItemStack(buf);
+        from = buf.readBlockPos();
+        to = buf.readBlockPos();
+        block = buf.readItemStack();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
-        ByteBufUtils.writeItemStack(buf, block);
+        buf.writeBlockPos(from);
+        buf.writeBlockPos(to);
+        buf.writeItemStack(block);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void messageOnServerThread(final RemoveBlockMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        if (!player.capabilities.isCreativeMode)
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
-        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REMOVE_BLOCK, message.from, message.to, player, message.block, ItemStack.EMPTY));
+        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REMOVE_BLOCK, from, to, ctxIn.getSender(), block, ItemStack.EMPTY));
     }
 }

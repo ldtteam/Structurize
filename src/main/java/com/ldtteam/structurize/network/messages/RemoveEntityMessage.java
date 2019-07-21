@@ -1,23 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.management.Manager;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
  * Message to remove an entity from the world.
  */
-public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IMessage>
+public class RemoveEntityMessage implements IMessage
 {
     /**
      * Position to scan from.
@@ -57,36 +57,44 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
-        entityName = ByteBufUtils.readUTF8String(buf);
+        from = buf.readBlockPos();
+        to = buf.readBlockPos();
+        entityName = buf.readString();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
-        ByteBufUtils.writeUTF8String(buf, entityName);
+        buf.writeBlockPos(from);
+        buf.writeBlockPos(to);
+        buf.writeString(entityName);
     }
 
+    @Nullable
     @Override
-    public void messageOnServerThread(final RemoveEntityMessage message, final PlayerEntityMP player)
+    public LogicalSide getExecutionSide()
     {
-        if (!player.capabilities.isCreativeMode)
+        return LogicalSide.SERVER;
+    }
+
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        final World world = player.getServerWorld();
-        final ChangeStorage storage = new ChangeStorage(player);
-        for(int x = Math.min(message.from.getX(), message.to.getX()); x <= Math.max(message.from.getX(), message.to.getX()); x++)
+        final World world = ctxIn.getSender().getServerWorld();
+        final ChangeStorage storage = new ChangeStorage(ctxIn.getSender());
+        for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
-            for (int y = Math.min(message.from.getY(), message.to.getY()); y <= Math.max(message.from.getY(), message.to.getY()); y++)
+            for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
             {
-                for (int z = Math.min(message.from.getZ(), message.to.getZ()); z <= Math.max(message.from.getZ(), message.to.getZ()); z++)
+                for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
                     final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
@@ -94,9 +102,9 @@ public class RemoveEntityMessage extends AbstractMessage<RemoveEntityMessage, IM
 
                     for(final Entity entity: list)
                     {
-                        if (entity.getName().equals(message.entityName))
+                        if (entity.getName().getUnformattedComponentText().equals(entityName))
                         {
-                            entity.setDead();
+                            entity.remove();
                         }
                     }
                 }

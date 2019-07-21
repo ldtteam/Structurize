@@ -1,10 +1,8 @@
 package com.ldtteam.structurize.network;
 
-import com.ldtteam.structurize.Instances;
-import com.ldtteam.structurize.network.messages.IMessage;
-import com.ldtteam.structurize.network.messages.MultiBlockChangeMessage;
-import com.ldtteam.structurize.network.messages.TestMessage;
-import com.ldtteam.structurize.util.Utils;
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.network.messages.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.chunk.Chunk;
@@ -45,9 +43,21 @@ public class NetworkChannel
     public void registerCommonMessages()
     {
         int idx = 0;
-        registerMessage(++idx, TestMessage.class);
         registerMessage(++idx, MultiBlockChangeMessage.class);
-
+        registerMessage(++idx, BuildToolPasteMessage.class);
+        registerMessage(++idx, GenerateAndPasteMessage.class);
+        registerMessage(++idx, LSStructureDisplayerMessage.class);
+        registerMessage(++idx, RemoveBlockMessage.class);
+        registerMessage(++idx, RemoveEntityMessage.class);
+        registerMessage(++idx, SaveScanMessage.class);
+        registerMessage(++idx, ReplaceBlockMessage.class);
+        registerMessage(++idx, ScanOnServerMessage.class);
+        registerMessage(++idx, SchematicRequestMessage.class);
+        registerMessage(++idx, SchematicSaveMessage.class);
+        registerMessage(++idx, ServerUUIDMessage.class);
+        registerMessage(++idx, StructurizeStylesMessage.class);
+        registerMessage(++idx, UndoMessage.class);
+        registerMessage(++idx, UpdateScanToolMessage.class);
     }
 
     /**
@@ -77,7 +87,7 @@ public class NetworkChannel
             ctx.setPacketHandled(true);
             if (msg.getExecutionSide() != null && packetOrigin.equals(msg.getExecutionSide()))
             {
-                Instances.getLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
+                Structurize.getLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
                 return;
             }
             // boolean param MUST equals true if packet arrived at logical server

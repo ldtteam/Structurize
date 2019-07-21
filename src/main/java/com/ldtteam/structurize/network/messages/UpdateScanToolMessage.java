@@ -2,13 +2,15 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.items.ModItems;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
@@ -16,7 +18,7 @@ import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_P
 /**
  * Send the scan tool update message to the client.
  */
-public class UpdateScanToolMessage extends AbstractMessage<UpdateScanToolMessage, IMessage>
+public class UpdateScanToolMessage implements IMessage
 {
     /**
      * Position to scan from.
@@ -47,12 +49,12 @@ public class UpdateScanToolMessage extends AbstractMessage<UpdateScanToolMessage
         final ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
         if (stack.getItem() == ModItems.scanTool)
         {
-            final CompoundNBT compound = stack.getTagCompound();
+            final CompoundNBT compound = stack.getTag();
             if (compound != null)
             {
                 BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, from);
                 BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, to);
-                stack.setTagCompound(compound);
+                stack.setTag(compound);
             }
         }
         this.from = from;
@@ -60,31 +62,38 @@ public class UpdateScanToolMessage extends AbstractMessage<UpdateScanToolMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
+        from = buf.readBlockPos();
+        to = buf.readBlockPos();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
+        buf.writeBlockPos(from);
+        buf.writeBlockPos(to);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void messageOnServerThread(final UpdateScanToolMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        final ItemStack stack = player.getHeldItemMainhand();
+        final ItemStack stack = ctxIn.getSender().getHeldItemMainhand();
         if (stack.getItem() == ModItems.scanTool)
         {
-            final CompoundNBT compound = stack.getTagCompound();
+            final CompoundNBT compound = stack.getTag();
             if (compound != null)
             {
-                BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, message.from);
-                BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, message.to);
-                stack.setTagCompound(compound);
+                BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, from);
+                BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, to);
+                stack.setTag(compound);
             }
         }
     }

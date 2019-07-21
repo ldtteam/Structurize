@@ -1,13 +1,15 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message class which handles undoing a change to the world.
  */
-public class UndoMessage extends AbstractMessage<UndoMessage, IMessage>
+public class UndoMessage implements IMessage
 {
     /**
      * Empty public constructor.
@@ -18,7 +20,7 @@ public class UndoMessage extends AbstractMessage<UndoMessage, IMessage>
     }
 
     @Override
-    public void fromBytes(final ByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         /*
          * Nothing needed.
@@ -26,28 +28,28 @@ public class UndoMessage extends AbstractMessage<UndoMessage, IMessage>
     }
 
     @Override
-    public void toBytes(final ByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         /*
          * Nothing needed.
          */
     }
 
-    /**
-     * Executes the message on the server thread.
-     * Only if the player has the permission, toggle message.
-     *
-     * @param message the original message.
-     * @param player  the player associated.
-     */
+    @Nullable
     @Override
-    public void messageOnServerThread(final UndoMessage message, final PlayerEntityMP player)
+    public LogicalSide getExecutionSide()
     {
-        if (!player.capabilities.isCreativeMode)
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        Manager.undo(player);
+        Manager.undo(ctxIn.getSender());
     }
 }

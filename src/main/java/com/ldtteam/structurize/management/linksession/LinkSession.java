@@ -106,7 +106,7 @@ public class LinkSession
     protected CompoundNBT writeToNBT()
     {
         final CompoundNBT data = new CompoundNBT();
-        members.forEach((uuid, name) -> data.setString(uuid.toString(), name));
+        members.forEach((uuid, name) -> data.putString(uuid.toString(), name));
         return data;
     }
 
@@ -119,7 +119,7 @@ public class LinkSession
     protected static LinkSession createFromNBT(@NotNull final CompoundNBT in)
     {
         final LinkSession ls = new LinkSession();
-        for(String key : in.getKeySet())
+        for(String key : in.keySet())
         {
             ls.addOrUpdateMember(UUID.fromString(key), in.getString(key));
         }

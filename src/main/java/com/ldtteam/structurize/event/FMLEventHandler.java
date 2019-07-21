@@ -8,7 +8,7 @@ import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.EnumHand;
@@ -40,10 +40,10 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.player instanceof PlayerEntityMP)
+        if (event.player instanceof ServerPlayerEntity)
         {
-            Structurize.getNetwork().sendTo(new ServerUUIDMessage(), (PlayerEntityMP) event.player);
-            Structurize.getNetwork().sendTo(new StructurizeStylesMessage(), (PlayerEntityMP) event.player);
+            Structurize.getNetwork().sendTo(new ServerUUIDMessage(), (ServerPlayerEntity) event.player);
+            Structurize.getNetwork().sendTo(new StructurizeStylesMessage(), (ServerPlayerEntity) event.player);
         }
     }
 

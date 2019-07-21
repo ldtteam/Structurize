@@ -6,11 +6,14 @@ import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
@@ -18,9 +21,9 @@ import java.util.UUID;
 /**
  * Message for sharing structure Settings between players in one session
  */
-public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisplayerMessage, IMessage>
+public class LSStructureDisplayerMessage implements IMessage
 {
-    private ByteBuf settings;
+    private PacketBuffer settings;
     private boolean show;
 
     /**
@@ -37,7 +40,7 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
      * @param settings structure settings
      * @param show if true create or update, if false destroy
      */
-    public LSStructureDisplayerMessage(@NotNull final ByteBuf settings, @NotNull final boolean show)
+    public LSStructureDisplayerMessage(@NotNull final PacketBuffer settings, @NotNull final boolean show)
     {
         super();
         this.settings = settings;
@@ -45,19 +48,19 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         show = buf.readBoolean();
         if (show)
         {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            settings = Unpooled.wrappedBuffer(bytes);
+            settings = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
         }
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(show);
         if (show)
@@ -66,59 +69,53 @@ public class LSStructureDisplayerMessage extends AbstractMessage<LSStructureDisp
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Displays or updates or destroys instance on target client
-     *
-     * @param message Message
-     * @param ctx     Context
-     */
+    @Nullable
     @Override
-    protected void messageOnClientThread(final LSStructureDisplayerMessage message, final MessageContext ctx)
+    public LogicalSide getExecutionSide()
     {
-        if(message.show)
+        return null;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        if (isLogicalServer)
         {
-            Settings.instance.fromBytes(message.settings);
-            // TODO: better solution would be great
-            if (Settings.instance.getStructureName() == null && Settings.instance.getStaticSchematicName() == null)
+            final PlayerEntity player = ctxIn.getSender();
+            if (LinkSessionManager.INSTANCE.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
             {
-                WindowShapeTool.commonStructureUpdate();
+                return;
             }
-            else
+
+            final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
+            targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
+            for(UUID target : targets)
             {
-                WindowBuildTool.commonStructureUpdate();
+                final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayerByUUID(target);
+                if(playerEntity != null)
+                {
+                    Structurize.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);
+                }
             }
         }
         else
         {
-            Settings.instance.reset();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Spread message to all affected clients
-     *
-     * @param message Message
-     * @param player  Player
-     */
-    @Override
-    public void messageOnServerThread(final LSStructureDisplayerMessage message, final PlayerEntityMP player)
-    {
-        if (LinkSessionManager.INSTANCE.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
-        {
-            return;
-        }
-        
-        final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
-        targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
-        for(UUID target : targets)
-        {
-            if(player.getServer().getEntityFromUuid(target) instanceof PlayerEntityMP)
+            if (show)
             {
-                Structurize.getNetwork().sendTo(new LSStructureDisplayerMessage(message.settings, message.show), (PlayerEntityMP) player.getServer().getEntityFromUuid(target));
+                Settings.instance.fromBytes(settings);
+                // TODO: better solution would be great
+                if (Settings.instance.getStructureName() == null && Settings.instance.getStaticSchematicName() == null)
+                {
+                    WindowShapeTool.commonStructureUpdate();
+                }
+                else
+                {
+                    WindowBuildTool.commonStructureUpdate();
+                }
+            }
+            else
+            {
+                Settings.instance.reset();
             }
         }
     }

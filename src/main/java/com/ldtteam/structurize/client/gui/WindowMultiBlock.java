@@ -1,11 +1,11 @@
-package com.ldtteam.structurize.client.gui.gui;
+package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.ButtonImage;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.View;
-import com.ldtteam.structurize.Instances;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.MultiBlockChangeMessage;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
@@ -239,7 +239,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         {
             Log.getLogger().warn("Unable to parse number for MultiBlock range or speed, considering default range/speed!", e);
         }
-        Instances.getNetwork().sendToServer(new MultiBlockChangeMessage(pos, facing, output, range, speed));
+        Structurize.getNetwork().sendToServer(new MultiBlockChangeMessage(pos, facing, output, range, speed));
         close();
     }
 

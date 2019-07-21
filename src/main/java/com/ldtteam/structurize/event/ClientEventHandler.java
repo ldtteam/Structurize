@@ -5,14 +5,12 @@ import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import net.minecraft.client.Minecraft;
-Minecraft.getInstance()
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -81,7 +79,7 @@ public class ClientEventHandler
 
         if (Settings.instance.getBox() != null)
         {
-            renderBox(Settings.instance.getBox().getFirst(), Settings.instance.getBox().getSecond(), player, event);
+            renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), player, event);
         }
     }
 

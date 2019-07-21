@@ -8,7 +8,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -101,7 +102,7 @@ public class StructurePlacementUtils
       @NotNull final BlockPos pos,
       final Rotation rotation,
       @NotNull final Mirror mirror,
-      final PlayerEntityMP player)
+      final ServerPlayerEntity player)
     {
         try
         {
@@ -138,7 +139,7 @@ public class StructurePlacementUtils
       final Rotation rotation,
       @NotNull final Mirror mirror,
       final boolean complete,
-      final PlayerEntityMP player)
+      final ServerPlayerEntity player)
     {
         try
         {

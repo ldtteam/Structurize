@@ -1,19 +1,19 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ScanToolOperation;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to replace a block from the world with another one.
  */
-public class ReplaceBlockMessage extends AbstractMessage<ReplaceBlockMessage, IMessage>
+public class ReplaceBlockMessage implements IMessage
 {
     /**
      * Position to scan from.
@@ -60,31 +60,38 @@ public class ReplaceBlockMessage extends AbstractMessage<ReplaceBlockMessage, IM
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        from = BlockPosUtil.readFromByteBuf(buf);
-        to = BlockPosUtil.readFromByteBuf(buf);
-        blockTo = ByteBufUtils.readItemStack(buf);
-        blockFrom = ByteBufUtils.readItemStack(buf);
+        from = buf.readBlockPos();
+        to = buf.readBlockPos();
+        blockTo = buf.readItemStack();
+        blockFrom = buf.readItemStack();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        BlockPosUtil.writeToByteBuf(buf, from);
-        BlockPosUtil.writeToByteBuf(buf, to);
-        ByteBufUtils.writeItemStack(buf, blockTo);
-        ByteBufUtils.writeItemStack(buf, blockFrom);
+        buf.writeBlockPos(from);
+        buf.writeBlockPos(to);
+        buf.writeItemStack(blockTo);
+        buf.writeItemStack(blockFrom);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void messageOnServerThread(final ReplaceBlockMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        if (!player.capabilities.isCreativeMode)
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REPLACE_BLOCK, message.from, message.to, player, message.blockFrom, message.blockTo));
+        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REPLACE_BLOCK, from, to, ctxIn.getSender(), blockFrom, blockTo));
     }
 }

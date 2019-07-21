@@ -1,16 +1,15 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.StructureUtils;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ import static com.ldtteam.structurize.api.util.constant.Constants.MAX_AMOUNT_OF_
 /**
  * Save Schematic Message.
  */
-public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, IMessage>
+public class SchematicSaveMessage implements IMessage
 {
     /**
      * The schematic data.
@@ -71,7 +70,7 @@ public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, 
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         final int length = buf.readInt();
         final byte[] compressedData = new byte[length];
@@ -79,11 +78,11 @@ public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, 
         data = StructureUtils.uncompress(compressedData);
         pieces = buf.readInt();
         piece = buf.readInt();
-        id = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+        id = buf.readUniqueId();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         final byte[] compressedData = StructureUtils.compress(data);
         if (compressedData != null)
@@ -93,63 +92,66 @@ public class SchematicSaveMessage extends AbstractMessage<SchematicSaveMessage, 
             buf.writeBytes(compressedData);
             buf.writeInt(pieces);
             buf.writeInt(piece);
-            ByteBufUtils.writeUTF8String(buf, id.toString());
+            buf.writeUniqueId(id);
         }
     }
 
+    @Nullable
     @Override
-    public void messageOnServerThread(final SchematicSaveMessage message, final PlayerEntityMP player)
+    public LogicalSide getExecutionSide()
     {
-        if (!Structurize.isClient() && !Configurations.gameplay.allowPlayerSchematics)
-        {
-            Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
-            player.sendMessage(new TextComponentString("The server does not allow custom schematic!"));
-            return;
-        }
-
-        if(message.pieces > MAX_AMOUNT_OF_PIECES)
-        {
-            Log.getLogger().error("Schematic has more than 10 pieces, discarding.");
-            player.sendMessage(new TextComponentString("Schematic has more than 10 pieces, that's too big!"));
-            return;
-        }
-
-        final boolean schematicSent;
-        if (message.data == null)
-        {
-            Log.getLogger().error("Received empty schematic file");
-            schematicSent = false;
-        }
-        else
-        {
-            schematicSent = Structures.handleSaveSchematicMessage(message.data, message.id, message.pieces, message.piece);
-        }
-
-        if (schematicSent)
-        {
-            player.sendMessage(new TextComponentString("Schematic successfully sent!"));
-        }
-        else
-        {
-            player.sendMessage(new TextComponentString("Failed to send the Schematic!"));
-        }
+        return null;
     }
 
     @Override
-    protected void messageOnClientThread(final SchematicSaveMessage message, final MessageContext ctx)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        if (!Structurize.isClient() && !Configurations.gameplay.allowPlayerSchematics)
+        if (isLogicalServer)
         {
-            Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
-        }
+            if (!Structurize.getConfig().getCommon().allowPlayerSchematics.get())
+            {
+                Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
+                ctxIn.getSender().sendMessage(new StringTextComponent("The server does not allow custom schematic!"));
+                return;
+            }
 
-        if (message.data == null)
-        {
-            Log.getLogger().error("Received empty schematic file");
+            if (pieces > MAX_AMOUNT_OF_PIECES)
+            {
+                Log.getLogger().error("Schematic has more than 10 pieces, discarding.");
+                ctxIn.getSender().sendMessage(new StringTextComponent("Schematic has more than 10 pieces, that's too big!"));
+                return;
+            }
+
+            final boolean schematicSent;
+            if (data == null)
+            {
+                Log.getLogger().error("Received empty schematic file");
+                schematicSent = false;
+            }
+            else
+            {
+                schematicSent = Structures.handleSaveSchematicMessage(data, id, pieces, piece);
+            }
+
+            if (schematicSent)
+            {
+                ctxIn.getSender().sendMessage(new StringTextComponent("Schematic successfully sent!"));
+            }
+            else
+            {
+                ctxIn.getSender().sendMessage(new StringTextComponent("Failed to send the Schematic!"));
+            }
         }
         else
         {
-            Structures.handleSaveSchematicMessage(message.data);
+            if (data == null)
+            {
+                Log.getLogger().error("Received empty schematic file");
+            }
+            else
+            {
+                Structures.handleSaveSchematicMessage(data);
+            }
         }
     }
 }

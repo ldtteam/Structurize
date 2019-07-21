@@ -1,21 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.management.Manager;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to request a shape from the server.
  */
-public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMessage, IMessage>
+public class GenerateAndPasteMessage implements IMessage
 {
     /**
      * If hollow or not.
@@ -131,60 +131,68 @@ public class GenerateAndPasteMessage extends AbstractMessage<GenerateAndPasteMes
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        pos = BlockPosUtil.readFromByteBuf(buf);
+        pos = buf.readBlockPos();
         length = buf.readInt();
         width = buf.readInt();
         height = buf.readInt();
         frequency = buf.readInt();
         shape = Shape.values()[buf.readInt()];
-        block = ByteBufUtils.readItemStack(buf);
-        block2 = ByteBufUtils.readItemStack(buf);
+        block = buf.readItemStack();
+        block2 = buf.readItemStack();
         hollow = buf.readBoolean();
         rotation = buf.readInt();
         mirror = buf.readBoolean();
-        equation = ByteBufUtils.readUTF8String(buf);
+        equation = buf.readString();
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        BlockPosUtil.writeToByteBuf(buf, pos);
+
+        buf.writeBlockPos(pos);
         buf.writeInt(length);
         buf.writeInt(width);
         buf.writeInt(height);
         buf.writeInt(frequency);
         buf.writeInt(shape.ordinal());
-        ByteBufUtils.writeItemStack(buf, block);
-        ByteBufUtils.writeItemStack(buf, block2);
+        buf.writeItemStack(block);
+        buf.writeItemStack(block2);
         buf.writeBoolean(hollow);
         buf.writeInt(rotation);
         buf.writeBoolean(mirror);
-        ByteBufUtils.writeUTF8String(buf, equation);
+        buf.writeString(equation);
     }
 
     @Override
-    public void messageOnServerThread(final GenerateAndPasteMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        if (!player.capabilities.isCreativeMode)
+        if (ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        Manager.pasteStructure(player.getServerWorld(),
-          message.pos,
-          message.width,
-          message.length,
-          message.height,
-          message.frequency,
-          message.equation,
-          message.shape,
-          message.block,
-          message.block2,
-          message.hollow,
-          player,
-          message.mirror ? Mirror.FRONT_BACK : Mirror.NONE,
-          Rotation.values()[message.rotation]);
+        Manager.pasteStructure(ctxIn.getSender().getServerWorld(),
+          pos,
+          width,
+          length,
+          height,
+          frequency,
+          equation,
+          shape,
+          block,
+          block2,
+          hollow,
+          ctxIn.getSender(),
+          mirror ? Mirror.FRONT_BACK : Mirror.NONE,
+          Rotation.values()[rotation]);
     }
 }

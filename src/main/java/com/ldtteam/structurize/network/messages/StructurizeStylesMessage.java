@@ -1,11 +1,12 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Structures;
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Class handling the colony styles messages.
  */
-public class StructurizeStylesMessage extends AbstractMessage<StructurizeStylesMessage, IMessage>
+public class StructurizeStylesMessage implements IMessage
 {
     private boolean             allowPlayerSchematics;
     private Map<String, String> md5Map;
@@ -27,57 +28,56 @@ public class StructurizeStylesMessage extends AbstractMessage<StructurizeStylesM
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         allowPlayerSchematics = buf.readBoolean();
         md5Map = readMD5MapFromByteBuf(buf);
     }
 
     @NotNull
-    private static Map<String, String> readMD5MapFromByteBuf(@NotNull final ByteBuf buf)
+    private static Map<String, String> readMD5MapFromByteBuf(@NotNull final PacketBuffer buf)
     {
         @NotNull final Map<String, String> map = new HashMap<>();
 
         final int count = buf.readInt();
         for (int i = 0; i < count; i++)
         {
-            final String filename = ByteBufUtils.readUTF8String(buf);
-            final String md5 = ByteBufUtils.readUTF8String(buf);
+            final String filename = buf.readString();
+            final String md5 = buf.readString();
             map.put(filename, md5);
         }
         return map;
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeBoolean(Configurations.gameplay.allowPlayerSchematics);
+        buf.writeBoolean(Structurize.getConfig().getCommon().allowPlayerSchematics.get());
         writeMD5MapToByteBuf(buf);
     }
 
-    private static void writeMD5MapToByteBuf(@NotNull final ByteBuf buf)
+    private static void writeMD5MapToByteBuf(@NotNull final PacketBuffer buf)
     {
         final Map<String, String> md5s = Structures.getMD5s();
         buf.writeInt(md5s.size());
         for (final Map.Entry<String, String> entry : md5s.entrySet())
         {
-            ByteBufUtils.writeUTF8String(buf, entry.getKey());
-            ByteBufUtils.writeUTF8String(buf, entry.getValue());
+            buf.writeString(entry.getKey());
+            buf.writeString(entry.getValue());
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Sets the styles of the huts to the given value in the message
-     *
-     * @param message Message
-     * @param ctx     Context
-     */
+    @Nullable
     @Override
-    protected void messageOnClientThread(final StructurizeStylesMessage message, final MessageContext ctx)
+    public LogicalSide getExecutionSide()
     {
-        Structures.setAllowPlayerSchematics(message.allowPlayerSchematics);
-        Structures.setMD5s(message.md5Map);
+        return LogicalSide.CLIENT;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        Structures.setAllowPlayerSchematics(allowPlayerSchematics);
+        Structures.setMD5s(md5Map);
     }
 }

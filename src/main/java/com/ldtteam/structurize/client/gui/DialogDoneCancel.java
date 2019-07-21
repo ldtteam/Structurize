@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.gui;
+package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.controls.Button;

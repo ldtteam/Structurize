@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.gui;
+package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ItemIcon;
@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -116,7 +117,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        if (Minecraft.getInstance().player.capabilities.isCreativeMode)
+        if (Minecraft.getInstance().player.isCreative())
         {
             this.init(pos, false);
         }
@@ -135,7 +136,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        if (Minecraft.getInstance().player.capabilities.isCreativeMode)
+        if (Minecraft.getInstance().player.isCreative())
         {
             Settings.instance.setBlock(stack, mainBlock);
             this.init(pos, true);
@@ -410,7 +411,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        if (!Minecraft.getInstance().player.capabilities.isCreativeMode)
+        if (Minecraft.getInstance().player.isCreative())
         {
             close();
         }
@@ -624,8 +625,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (Settings.instance.getActiveStructure() != null)
         {
             final ByteBuf buffer = Unpooled.buffer();
-            Settings.instance.toBytes(buffer);
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(buffer, true));
+            final PacketBuffer packetBuffer = new PacketBuffer(buffer);
+            Settings.instance.toBytes(packetBuffer);
+            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
         }
     }
 }

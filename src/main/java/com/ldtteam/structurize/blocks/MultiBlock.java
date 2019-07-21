@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.client.gui.gui.WindowMultiBlock;
+import com.ldtteam.structurize.client.gui.WindowMultiBlock;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

@@ -14,7 +14,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
@@ -83,7 +83,7 @@ public class InstantStructurePlacer
      * @param complete if complete or not.
      * @param player   the issuing player.
      */
-    public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final PlayerEntityMP player)
+    public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final ServerPlayerEntity player)
     {
         structure.setLocalPosition(pos);
         this.complete = complete;

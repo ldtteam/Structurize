@@ -2,16 +2,18 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.PacketUtils;
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 /**
  * Class handling the Server UUID Message.
  */
-public class ServerUUIDMessage extends AbstractMessage<ServerUUIDMessage, IMessage>
+public class ServerUUIDMessage implements IMessage
 {
     private UUID serverUUID;
 
@@ -24,28 +26,27 @@ public class ServerUUIDMessage extends AbstractMessage<ServerUUIDMessage, IMessa
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         serverUUID = PacketUtils.readUUID(buf);
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         PacketUtils.writeUUID(buf, Manager.getServerUUID());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Set the server UUID.
-     *
-     * @param message Message
-     * @param ctx     Context
-     */
+    @Nullable
     @Override
-    protected void messageOnClientThread(final ServerUUIDMessage message, final MessageContext ctx)
+    public LogicalSide getExecutionSide()
     {
-        Manager.setServerUUID(message.serverUUID);
+        return LogicalSide.CLIENT;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        Manager.setServerUUID(serverUUID);
     }
 }

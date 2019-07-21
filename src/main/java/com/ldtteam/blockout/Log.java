@@ -1,6 +1,6 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.structurize.util.Utils;
+import com.ldtteam.structurize.api.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

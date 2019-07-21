@@ -204,14 +204,14 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
         final CompoundNBT out = new CompoundNBT();
         final CompoundNBT channelz = new CompoundNBT();
 
-        sessions.forEach((uuid, ls) -> out.setTag(uuid.toString(), ls.writeToNBT()));
+        sessions.forEach((uuid, ls) -> out.put(uuid.toString(), ls.writeToNBT()));
         channels.forEach((uuid, ch) -> {
             final CompoundNBT player = new CompoundNBT();
             
-            ch.forEach((id, state) -> player.setBoolean(String.valueOf(id), state));
-            channelz.setTag(uuid.toString(), player);
+            ch.forEach((id, state) -> player.putBoolean(String.valueOf(id), state));
+            channelz.put(uuid.toString(), player);
         });
-        out.setTag(CHANNELS_TAG, channelz);
+        out.put(CHANNELS_TAG, channelz);
         return out;
     }
 
@@ -224,23 +224,23 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     {
         reset();
 
-        final CompoundNBT channelz = in.getCompoundTag(CHANNELS_TAG);
-        for (String key : channelz.getKeySet())
+        final CompoundNBT channelz = in.getCompound(CHANNELS_TAG);
+        for (String key : channelz.keySet())
         {
-            final CompoundNBT playerTag = channelz.getCompoundTag(key);
+            final CompoundNBT playerTag = channelz.getCompound(key);
             final UUID playerUUID = UUID.fromString(key);
 
             channels.put(playerUUID, new HashMap<Integer, Boolean>());
-            for (String id : playerTag.getKeySet())
+            for (String id : playerTag.keySet())
             {
                 channels.get(playerUUID).put(new Integer(id), playerTag.getBoolean(id));
             }
         }
-        in.removeTag(CHANNELS_TAG);
+        in.remove(CHANNELS_TAG);
 
-        for(String key : in.getKeySet())
+        for(String key : in.keySet())
         {
-            sessions.put(UUID.fromString(key), LinkSession.createFromNBT(in.getCompoundTag(key)));
+            sessions.put(UUID.fromString(key), LinkSession.createFromNBT(in.getCompound(key)));
         }
     }
 

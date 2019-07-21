@@ -2,7 +2,7 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
@@ -397,7 +397,7 @@ public class Structure
                 return false;
             }
         }
-        while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) && count < Configurations.gameplay.maxBlocksChecked);
+        while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) && count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
 
         return true;
     }

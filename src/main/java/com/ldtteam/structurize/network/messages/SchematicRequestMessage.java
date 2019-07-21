@@ -3,10 +3,11 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
  *
  * @author xavier
  */
-public class SchematicRequestMessage extends AbstractMessage<SchematicRequestMessage, IMessage>
+public class SchematicRequestMessage implements IMessage
 {
 
     private String filename;
@@ -43,31 +44,38 @@ public class SchematicRequestMessage extends AbstractMessage<SchematicRequestMes
     }
 
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        filename = ByteBufUtils.readUTF8String(buf);
+        filename = buf.readString();
     }
 
     @Override
-    public void toBytes(@NotNull final ByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
-        ByteBufUtils.writeUTF8String(buf, filename);
+        buf.writeString(filename);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    public void messageOnServerThread(final SchematicRequestMessage message, final PlayerEntityMP player)
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        final InputStream stream = StructureLoadingUtils.getStream(message.filename);
+        final InputStream stream = StructureLoadingUtils.getStream(filename);
 
         if (stream == null)
         {
-            Log.getLogger().error("SchematicRequestMessage: file \"" + message.filename + "\" not found");
+            Log.getLogger().error("SchematicRequestMessage: file \"" + filename + "\" not found");
         }
         else
         {
-            Log.getLogger().info("Request: player " + player.getName() + " is requesting schematic " + message.filename);
+            Log.getLogger().info("Request: player " + ctxIn.getSender().getName().getUnformattedComponentText() + " is requesting schematic " + filename);
             final byte[] schematic = StructureLoadingUtils.getStreamAsByteArray(stream);
-            Structurize.getNetwork().sendTo(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), player);
+            Structurize.getNetwork().sendToPlayer(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), ctxIn.getSender());
         }
     }
 }

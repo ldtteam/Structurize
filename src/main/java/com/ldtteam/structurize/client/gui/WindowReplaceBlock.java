@@ -1,8 +1,7 @@
-package com.ldtteam.structurize.gui;
+package com.ldtteam.structurize.client.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.ldtteam.blockout.Color;
-import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.ScrollingList;
@@ -11,15 +10,13 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemDoor;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -113,7 +110,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
         this.pos1 = pos;
-        this.pos2 = BlockPos.ORIGIN;
+        this.pos2 = BlockPos.ZERO;
         this.mainBlock = main;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         this.origin = origin;
@@ -132,18 +129,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private void updateResources()
     {
         allItems.clear();
-        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(Item.REGISTRY.iterator(), Spliterator.ORDERED), false).flatMap(item -> {
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false).flatMap(item -> {
             final NonNullList<ItemStack> stacks = NonNullList.create();
-            try
-            {
-                item.getSubItems(CreativeTabs.SEARCH, stacks);
-            }
-            catch (final Exception ex)
-            {
-                Log.getLogger().warn("Failed to get sub items from: " + item.getRegistryName(), ex);
-            }
-
-            return stacks.stream().filter(stack -> (stack.getItem() instanceof ItemBlock || stack.getItem() instanceof ItemDoor)
+            return stacks.stream().filter(stack -> (stack.getItem() instanceof BlockItem)
                     && (filter.isEmpty() || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))));
         }).collect(Collectors.toList())));
 
@@ -155,7 +143,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         allItems.addAll(specialBlockList.stream().filter(
                 stack -> filter.isEmpty()
                         || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                        || stack.getDisplayName().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                        || stack.getDisplayName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
                 .collect(Collectors.toList()));
         updateResourceList();
     }
@@ -234,7 +222,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 final ItemStack resource = tempRes.get(index);
                 final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
-                resourceLabel.setLabelText(resource.getDisplayName());
+                resourceLabel.setLabelText(resource.getDisplayName().getUnformattedComponentText());
                 resourceLabel.setColor(WHITE, WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
