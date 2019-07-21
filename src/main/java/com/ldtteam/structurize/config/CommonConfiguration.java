@@ -31,15 +31,20 @@ public class CommonConfiguration extends AbstractConfiguration
      */
     protected CommonConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        builder.comment("Common").push("common");
-        testList = defineList(builder, "testlist", new ArrayList<String>(), o -> o instanceof String);
+        super(builder);
+
+        newCategory("Common", "Common");
+
+        testList = defineList(builder, "testlist", new ArrayList<>(), o -> o instanceof String);
         testBoolean = defineBoolean(builder, "testboolean", false);
         testDouble = defineDouble(builder, "testdouble", 0.5d, 0.0d, 1.0d);
         testLong = defineLong(builder, "testlong", 150);
-        builder.pop();
-        builder.comment("General").push("general");
+
+        newCategory("General", "General");
+
         testEnum = defineEnum(builder, "testenum", Test.ONE);
-        builder.pop();
+
+        finish();
     }
 
     public List<? extends String> getTestList()
