@@ -42,11 +42,11 @@ public class TestMessage implements IMessage
     {
         if (isLogicalServer)
         {
-            Instances.getModLogger().info("Incoming message from client: " + str);
+            Instances.getLogger().info("Incoming message from client: " + str);
         }
         else
         {
-            Instances.getModLogger().info("Incoming message from server: " + str);
+            Instances.getLogger().info("Incoming message from server: " + str);
         }
     }
 }

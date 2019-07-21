@@ -22,8 +22,8 @@ public abstract class AbstractItemWithPosSelector extends Item
 {
     private static final String NBT_START_POS = Utils.createLocationFor("start_pos").toString();
     private static final String NBT_END_POS = Utils.createLocationFor("end_pos").toString();
-    private static final String START_POS_TKEY = "item.possetter.firstpos";
-    private static final String END_POS_TKEY = "item.possetter.secondpos";
+    private static final String START_POS_TKEY = "structurize.possetter.firstpos";
+    private static final String END_POS_TKEY = "structurize.possetter.secondpos";
 
     /**
      * MC redirect.

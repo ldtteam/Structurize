@@ -2,6 +2,7 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Instances;
 import com.ldtteam.structurize.item.ModItems;
+import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -9,6 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 
@@ -36,7 +38,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onBlockRegistry(final RegistryEvent.Register<Block> event)
     {
-        Instances.getModLogger().warn("RegistryEvent.Register<Block>");
+        Instances.getLogger().warn("RegistryEvent.Register<Block>");
     }
 
     /**
@@ -47,7 +49,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onItemRegistry(final RegistryEvent.Register<Item> event)
     {
-        Instances.getModLogger().warn("RegistryEvent.Register<Item>");
+        Instances.getLogger().warn("RegistryEvent.Register<Item>");
         ModItems.registerItems(event.getRegistry());
     }
 
@@ -59,7 +61,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onModInit(final FMLCommonSetupEvent event)
     {
-        Instances.getModLogger().warn("FMLCommonSetupEvent");
+        Instances.getLogger().warn("FMLCommonSetupEvent");
         Instances.getNetwork().registerCommonMessages();
     }
 
@@ -71,7 +73,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onClientInit(final FMLClientSetupEvent event)
     {
-        Instances.getModLogger().warn("FMLClientSetupEvent");
+        Instances.getLogger().warn("FMLClientSetupEvent");
     }
 
     /**
@@ -82,7 +84,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onDediServerInit(final FMLDedicatedServerSetupEvent event)
     {
-        Instances.getModLogger().warn("FMLDedicatedServerSetupEvent");
+        Instances.getLogger().warn("FMLDedicatedServerSetupEvent");
     }
 
     /**
@@ -93,7 +95,7 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void enqueueIMC(final InterModEnqueueEvent event)
     {
-        Instances.getModLogger().warn("InterModEnqueueEvent");
+        Instances.getLogger().warn("InterModEnqueueEvent");
         /*
          * InterModComms.sendTo("structurize", "helloworld", () -> {
          * return "Hello world";
@@ -109,9 +111,21 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void processIMC(final InterModProcessEvent event)
     {
-        Instances.getModLogger().warn("InterModProcessEvent");
+        Instances.getLogger().warn("InterModProcessEvent");
         /*
          * LOGGER.info("Got IMC {}", event.getIMCStream().map(m -> m.getMessageSupplier().get()).collect(Collectors.toList()));
          */
+    }
+
+    /**
+     * Called when MC loading is about to finish.
+     *
+     * @param event event
+     */
+    @SubscribeEvent
+    public static void onLoadComplete(final FMLLoadCompleteEvent event)
+    {
+        Instances.getLogger().warn("FMLLoadCompleteEvent");
+        LanguageHandler.setMClanguageLoaded();
     }
 }

@@ -14,7 +14,7 @@ import net.minecraft.world.World;
  */
 public class Caliper extends AbstractItemWithPosSelector
 {
-    private static final String ROOT_TKEY = "item.caliper.msg.";
+    private static final String ROOT_TKEY = "structurize.caliper.msg.";
     private static final String MSG_SAME_TKEY = ROOT_TKEY + "same";
     private static final String MSG_BASE_TKEY = ROOT_TKEY + "base";
     private static final String MSG_BY_TKEY = ROOT_TKEY + "by";

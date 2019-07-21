@@ -3,6 +3,7 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.Instances;
 import com.ldtteam.structurize.command.EntryPoint;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
@@ -32,7 +33,8 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerAboutToStart(final FMLServerAboutToStartEvent event)
     {
-        Instances.getModLogger().warn("FMLServerAboutToStartEvent");
+        Instances.getLogger().warn("FMLServerAboutToStartEvent");
+        Instances.getLogger().info(Instances.getConfig().getCommon().getTestBoolean());
     }
 
     /**
@@ -43,7 +45,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerStarting(final FMLServerStartingEvent event)
     {
-        Instances.getModLogger().warn("FMLServerStartingEvent");
+        Instances.getLogger().warn("FMLServerStartingEvent");
         EntryPoint.register(event.getCommandDispatcher());
     }
 
@@ -55,7 +57,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerStarted(final FMLServerStartedEvent event)
     {
-        Instances.getModLogger().warn("FMLServerStartedEvent");
+        Instances.getLogger().warn("FMLServerStartedEvent");
     }
 
     /**
@@ -66,7 +68,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerStopping(final FMLServerStoppingEvent event)
     {
-        Instances.getModLogger().warn("FMLServerStoppingEvent");
+        Instances.getLogger().warn("FMLServerStoppingEvent");
     }
 
     /**
@@ -77,6 +79,19 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerStopped(final FMLServerStoppedEvent event)
     {
-        Instances.getModLogger().warn("FMLServerStoppedEvent");
+        Instances.getLogger().warn("FMLServerStoppedEvent");
+    }
+
+    /**
+     * Called when config has changed.
+     *
+     * @param event event
+     */
+    public static void onConfigChanged(final OnConfigChangedEvent event)
+    {
+        if (event.getModID().equals(""))
+        {
+
+        }
     }
 }
