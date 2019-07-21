@@ -30,6 +30,7 @@ sourceSets {
         resources {
             srcDir 'src/api/resources'
         }
+        compileClasspath += main.compileClasspath
     }
     blockOut {
         java {

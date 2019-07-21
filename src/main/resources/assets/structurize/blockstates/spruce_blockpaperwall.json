@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_post"
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_post"
       }
     },
     {
@@ -10,7 +10,7 @@
         "north": true
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_side"
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_side"
       }
     },
     {
@@ -18,7 +18,7 @@
         "east": true
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_side",
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_side",
         "y": 90
       }
     },
@@ -27,7 +27,7 @@
         "south": true
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_side_alt"
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_side_alt"
       }
     },
     {
@@ -35,7 +35,7 @@
         "west": true
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_side_alt",
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_side_alt",
         "y": 90
       }
     },
@@ -44,7 +44,7 @@
         "north": false
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_noside"
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_noside"
       }
     },
     {
@@ -52,7 +52,7 @@
         "east": false
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_noside_alt"
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_noside_alt"
       }
     },
     {
@@ -60,7 +60,7 @@
         "south": false
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_noside_alt",
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_noside_alt",
         "y": 90
       }
     },
@@ -69,7 +69,7 @@
         "west": false
       },
       "apply": {
-        "model": "structurize:spruce_paperwall/blockPaperwall_noside",
+        "model": "structurize:block/spruce_paperwall/blockpaperwall_noside",
         "y": 270
       }
     }

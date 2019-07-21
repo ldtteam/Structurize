@@ -13,6 +13,6 @@ public class BlockCactusStair extends AbstractBlockStructurizeStairs<BlockCactus
     public BlockCactusStair()
     {
         super(ModBlocks.blockCactusPlank.getDefaultState(), Block.Properties.from(ModBlocks.blockCactusPlank));
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
+        setRegistryName(BLOCK_NAME);
     }
 }

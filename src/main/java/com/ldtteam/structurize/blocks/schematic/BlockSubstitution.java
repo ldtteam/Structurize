@@ -20,7 +20,7 @@ public class BlockSubstitution extends AbstractBlockStructurize<BlockSubstitutio
     /**
      * This blocks name.
      */
-    private static final String BLOCK_NAME = "blockSubstitution";
+    private static final String BLOCK_NAME = "blocksubstitution";
 
     /**
      * The resistance this block has.
@@ -34,6 +34,6 @@ public class BlockSubstitution extends AbstractBlockStructurize<BlockSubstitutio
     public BlockSubstitution()
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
+        setRegistryName(BLOCK_NAME);
     }
 }

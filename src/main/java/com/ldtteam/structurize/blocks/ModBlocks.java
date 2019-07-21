@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
+import com.ldtteam.structurize.blocks.types.PaperwallType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
@@ -11,7 +13,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,8 @@ import java.util.List;
  */
 @SuppressWarnings({"squid:ClassVariableVisibilityCheck", "squid:S2444", "squid:S1444", "squid:S1820",})
 
+@ObjectHolder(Constants.MOD_ID)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
     /*
@@ -32,6 +38,7 @@ public final class ModBlocks
      */
 
     private static final List<BlockTimberFrame>         timberFrames = new ArrayList<>();
+    private static final List<BlockPaperwall>         paperwalls = new ArrayList<>();
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
@@ -88,7 +95,12 @@ public final class ModBlocks
 
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
-        blockPaperWall = new BlockPaperwall().registerBlock(registry);
+
+        for (final PaperwallType type : PaperwallType.values())
+        {
+            blockPaperWall = new BlockPaperwall(type.getName()).registerBlock(registry);
+            paperwalls.add(blockPaperWall);
+        }
 
         blockShingleOak = new BlockShingle(Blocks.OAK_PLANKS.getDefaultState(), "oak").registerBlock(registry);
         blockShingleJungle = new BlockShingle(Blocks.BIRCH_PLANKS.getDefaultState(), "birch").registerBlock(registry);
@@ -98,9 +110,6 @@ public final class ModBlocks
         blockShingleAcacia = new BlockShingle(Blocks.SPRUCE_PLANKS.getDefaultState(), "spruce").registerBlock(registry);
         blockShingleSlab = new BlockShingleSlab().registerBlock(registry);
 
-        
-        
-        
         for (final TimberFrameType frameType : TimberFrameType.values())
         {
             timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "birch" + "_" + frameType).registerBlock(registry));
@@ -130,8 +139,6 @@ public final class ModBlocks
         {
             timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "spruce" + "_" + frameType).registerBlock(registry));
         }
-        
-        
 
         multiBlock = new MultiBlock().registerBlock(registry);
     }
@@ -143,7 +150,12 @@ public final class ModBlocks
         final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
         blockSolidSubstitution.registerItemBlock(registry, properties);
         blockSubstitution.registerItemBlock(registry, properties);
-        blockPaperWall.registerItemBlock(registry, properties);
+
+        for (final BlockPaperwall paperwall : paperwalls)
+        {
+            paperwall.registerItemBlock(registry, properties);
+        }
+
         blockShingleOak.registerItemBlock(registry, properties);
         blockShingleBirch.registerItemBlock(registry, properties);
         blockShingleJungle.registerItemBlock(registry, properties);

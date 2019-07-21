@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": {"model": "structurize:block/blockcactusslab_half" },
+    "type=top":  {"model": "structurize:block/blockcactusslab_upper" },
+    "type=double": { "model": "structurize:block/blockcactusplank" }
+  }
+}

@@ -32,7 +32,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     /**
      * This blocks name.
      */
-    public static final String                      BLOCK_NAME     = "blockPaperwall";
+    public static final String                      BLOCK_NAME     = "blockpaperwall";
 
     /**
      * The hardness this block has.
@@ -44,10 +44,10 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
      */
     private static final float                      RESISTANCE     = 1F;
 
-    public BlockPaperwall()
+    public BlockPaperwall(final String type)
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
+        setRegistryName(type + "_" + BLOCK_NAME);
     }
 
     /**
@@ -92,7 +92,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
 
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, WEST, SOUTH, VARIANT);
+        builder.add(NORTH, EAST, WEST, SOUTH, VARIANT, WATERLOGGED);
     }
 
     @Override

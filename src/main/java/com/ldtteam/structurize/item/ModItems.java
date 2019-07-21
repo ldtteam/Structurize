@@ -1,11 +1,10 @@
 package com.ldtteam.structurize.item;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import com.ldtteam.structurize.util.constants.GeneralConstants;
 import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
@@ -14,11 +13,13 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class ModItems
 {
     private static final ModItemGroup CREATIVE_TAB = new ModItemGroup();
+    private static final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
 
     public static final BuildTool BUILD_TOOL = new BuildTool(CREATIVE_TAB);
     public static final ScanTool SCAN_TOOL = new ScanTool(CREATIVE_TAB);
     public static final ShapeTool SHAPE_TOOL = new ShapeTool(CREATIVE_TAB);
     public static final Caliper CALIPER = new Caliper(CREATIVE_TAB);
+    public static Item CACTUS_DOOR;
 
     static
     {
@@ -30,7 +31,7 @@ public class ModItems
      */
     private ModItems()
     {
-        /**
+        /*
          * Intentionally left empty
          */
     }
@@ -42,7 +43,9 @@ public class ModItems
      */
     public static void registerItems(final IForgeRegistry<Item> registry)
     {
-        registry.registerAll(BUILD_TOOL, SCAN_TOOL, SHAPE_TOOL, CALIPER);
+        CACTUS_DOOR = new TallBlockItem(ModBlocks.blockCactusDoor, properties).setRegistryName(ModBlocks.blockCactusDoor.getRegistryName());
+
+        registry.registerAll(BUILD_TOOL, SCAN_TOOL, SHAPE_TOOL, CALIPER, CACTUS_DOOR);
     }
 
     /**

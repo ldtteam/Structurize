@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "structurize:items/shapeTool"
+    "layer0": "structurize:items/shapetool"
   },
   "display": {
     "thirdperson": {

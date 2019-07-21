@@ -1,5 +1,5 @@
 {
-  "parent": "structurize:block/multiBlock",
+  "parent": "structurize:block/multiblock",
   "display": {
     "gui": {
       "rotation": [30, 50, 0],

@@ -13,6 +13,6 @@ public class BlockCactusFenceGate extends AbstractBlockStructurizeFenceGate<Bloc
     public BlockCactusFenceGate()
     {
         super(Block.Properties.from(Blocks.OAK_DOOR));
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
+        setRegistryName(BLOCK_NAME);
     }
 }

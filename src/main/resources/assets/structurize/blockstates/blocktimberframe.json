@@ -1,7 +1,7 @@
 {
   "variants": {
-    "normal": {
-      "model": "structurize:BlockTimberFrame"
+    "": {
+      "model": "structurize:block/blocktimberframe"
     }
   }
 }

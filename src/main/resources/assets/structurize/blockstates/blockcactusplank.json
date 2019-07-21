@@ -1,6 +1,5 @@
 {
   "variants": {
-    "normal": { "model": "structurize:blockcactusplank" },
-    "inventory": { "model": "structurize:blockcactusplank" }
+    "": { "model": "structurize:block/blockcactusplank" }
   }
 }

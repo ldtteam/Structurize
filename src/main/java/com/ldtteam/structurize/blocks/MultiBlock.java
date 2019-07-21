@@ -31,7 +31,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     /**
      * This blocks name.
      */
-    private static final String BLOCK_NAME = "multiBlock";
+    private static final String BLOCK_NAME = "multiblock";
 
     /**
      * The resistance this block has.
@@ -45,7 +45,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     public MultiBlock()
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
+        setRegistryName(BLOCK_NAME);
     }
 
     @Override

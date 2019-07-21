@@ -1,5 +1,5 @@
 {
-  "parent": "structurize:block/blockSubstitution",
+  "parent": "structurize:block/blocksubstitution",
   "display": {
     "thirdperson": {
       "rotation": [

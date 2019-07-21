@@ -4,6 +4,6 @@
     "model": "structurize:blocksolidsubstitution"
   },
   "variants": {
-    "normal": [{}]
+    "": [{}]
   }
 }
