@@ -4,17 +4,17 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemDoor;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.BedPart;
+import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.HALF_BLOCK;
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 
 /**
@@ -70,7 +71,7 @@ public final class PlacementHandlers
     public static class BlockSolidSubstitutionPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
             return blockState.getBlock() instanceof BlockSolidSubstitution;
         }
@@ -79,12 +80,12 @@ public final class PlacementHandlers
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
         {
-            final IBlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
+            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos).getBlockState();
             if (complete)
             {
                 if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
@@ -104,9 +105,9 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
-            final IBlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
+            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos).getBlockState();
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(newBlockState));
             return itemList;
@@ -116,13 +117,13 @@ public final class PlacementHandlers
     public static class FirePlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockFire;
+            return blockState.getBlock() instanceof FireBlock;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(new ItemStack(Items.FLINT_AND_STEEL, 1));
@@ -133,7 +134,7 @@ public final class PlacementHandlers
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -146,13 +147,13 @@ public final class PlacementHandlers
     public static class FallingBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockFalling;
+            return blockState.getBlock() instanceof FallingBlock;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -168,7 +169,7 @@ public final class PlacementHandlers
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -180,7 +181,7 @@ public final class PlacementHandlers
 
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
             {
-                world.setBlockState(pos.down(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
+                world.setBlockState(pos.down(), BlockUtils.getSubstitutionBlockAtWorld(world, pos).getBlockState(), UPDATE_FLAG);
             }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
@@ -199,7 +200,7 @@ public final class PlacementHandlers
     public static class GrassPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
             return blockState.getBlock() == Blocks.GRASS;
         }
@@ -208,7 +209,7 @@ public final class PlacementHandlers
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -221,7 +222,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(new ItemStack(Blocks.DIRT));
@@ -232,26 +233,28 @@ public final class PlacementHandlers
     public static class DoorPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockDoor;
+            return blockState.getBlock() instanceof DoorBlock;
         }
 
         @Override
         public Object handle(
-          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState,
+          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData, final boolean complete, final BlockPos centerPos)
         {
-            if (blockState.getValue(BlockDoor.HALF).equals(BlockDoor.EnumDoorHalf.LOWER))
+            //todo maybe doors work from scratch?
+            if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                ItemDoor.placeDoor(world, pos, blockState.getValue(BlockDoor.FACING), blockState.getBlock(), false);
+                world.setBlockState(pos, blockState.with(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
+                world.setBlockState(pos.up(), blockState.with(DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
             }
 
             return blockState;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -262,23 +265,23 @@ public final class PlacementHandlers
     public static class BedPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockBed;
+            return blockState.getBlock() instanceof BedBlock;
         }
 
         @Override
         public Object handle(
-          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState,
+          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData, final boolean complete, final BlockPos centerPos)
         {
-            if (blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD)
+            if (blockState.get(BedBlock.PART) == BedPart.HEAD)
             {
-                final EnumFacing facing = blockState.getValue(BlockBed.FACING);
+                final Direction facing = blockState.get(BedBlock.HORIZONTAL_FACING);
 
                 //pos.offset(facing) will get the other part of the bed
-                world.setBlockState(pos.offset(facing.getOpposite()), blockState.withProperty(BlockBed.PART, BlockBed.EnumPartType.FOOT), UPDATE_FLAG);
-                world.setBlockState(pos, blockState.withProperty(BlockBed.PART, BlockBed.EnumPartType.HEAD), UPDATE_FLAG);
+                world.setBlockState(pos.offset(facing.getOpposite()), blockState.with(BedBlock.PART, BedPart.FOOT), UPDATE_FLAG);
+                world.setBlockState(pos, blockState.with(BedBlock.PART, BedPart.HEAD), UPDATE_FLAG);
 
                 if (tileEntityData != null)
                 {
@@ -293,12 +296,12 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             if (tileEntityData == null)
             {
                 final List<ItemStack> list = new ArrayList<>();
-                list.add(new ItemStack(Items.BED, 1, 14));
+                list.add(new ItemStack(blockState.getBlock(), 1));
                 return list;
             }
             else
@@ -311,31 +314,31 @@ public final class PlacementHandlers
     public static class DoublePlantPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockDoublePlant;
+            return blockState.getBlock() instanceof DoublePlantBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (blockState.getValue(BlockDoublePlant.HALF).equals(BlockDoublePlant.EnumBlockHalf.LOWER))
+            if (blockState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                world.setBlockState(pos, blockState.withProperty(BlockDoublePlant.HALF, BlockDoublePlant.EnumBlockHalf.LOWER), UPDATE_FLAG);
-                world.setBlockState(pos.up(), blockState.withProperty(BlockDoublePlant.HALF, BlockDoublePlant.EnumBlockHalf.UPPER), UPDATE_FLAG);
+                world.setBlockState(pos, blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
+                world.setBlockState(pos.up(), blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
                 return blockState;
             }
             return ActionProcessingResult.ACCEPT;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -346,19 +349,19 @@ public final class PlacementHandlers
     public static class SpecialBlockPlacementAttemptHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState instanceof BlockEndPortal
-                     || blockState instanceof BlockMobSpawner
-                     || blockState instanceof BlockDragonEgg
-                     || blockState instanceof BlockPortal;
+            return blockState.getBlock() instanceof EndPortalBlock
+                     || blockState.getBlock()  instanceof SpawnerBlock
+                     || blockState.getBlock()  instanceof DragonEggBlock
+                     || blockState.getBlock()  instanceof EndPortalBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -367,7 +370,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             return new ArrayList<>();
         }
@@ -376,16 +379,16 @@ public final class PlacementHandlers
     public static class FlowerPotPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockFlowerPot;
+            return blockState.getBlock() instanceof FlowerPotBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -403,7 +406,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -417,16 +420,16 @@ public final class PlacementHandlers
     public static class AirPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockAir;
+            return blockState.getBlock() instanceof AirBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -434,22 +437,22 @@ public final class PlacementHandlers
             if (!world.isAirBlock(pos))
             {
                 final List<Entity> entityList =
-                  world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof EntityLiving || entity instanceof EntityItem));
+                  world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof LivingEntity || entity instanceof ItemEntity));
                 if (!entityList.isEmpty())
                 {
                     for (final Entity entity : entityList)
                     {
-                        entity.setDead();
+                        entity.remove();
                     }
                 }
 
-                world.setBlockToAir(pos);
+                world.removeBlock(pos, false);
             }
             return ActionProcessingResult.ACCEPT;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             return new ArrayList<>();
         }
@@ -458,16 +461,16 @@ public final class PlacementHandlers
     public static class BlockGrassPathPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockGrassPath;
+            return blockState.getBlock() instanceof GrassPathBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -481,7 +484,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(new ItemStack(Blocks.DIRT, 1));
@@ -492,24 +495,24 @@ public final class PlacementHandlers
     public static class StairBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockStairs
-                     && world.getBlockState(pos).getBlock() instanceof BlockStairs
-                     && world.getBlockState(pos).getValue(BlockStairs.FACING) == blockState.getValue(BlockStairs.FACING)
+            return blockState.getBlock() instanceof StairsBlock
+                     && world.getBlockState(pos).getBlock() instanceof StairsBlock
+                     && world.getBlockState(pos).get(StairsBlock.FACING) == blockState.get(StairsBlock.FACING)
                      && blockState.getBlock() == world.getBlockState(pos).getBlock();
         }
 
         @Override
         public Object handle(
-          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState,
+          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData, final boolean complete, final BlockPos centerPos)
         {
             return ActionProcessingResult.ACCEPT;
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             return new ArrayList<>();
         }
@@ -518,7 +521,7 @@ public final class PlacementHandlers
     public static class GeneralBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
             return true;
         }
@@ -527,7 +530,7 @@ public final class PlacementHandlers
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
@@ -552,7 +555,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -564,16 +567,16 @@ public final class PlacementHandlers
     public static class ChestPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockChest;
+            return blockState.getBlock() instanceof ChestBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -592,7 +595,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -607,16 +610,16 @@ public final class PlacementHandlers
     public static class BannerPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState)
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockBanner;
+            return blockState.getBlock() instanceof BannerBlock;
         }
 
         @Override
         public Object handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final IBlockState blockState,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -640,7 +643,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
+        public List<ItemStack> getRequiredItems(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
             itemList.removeIf(ItemStackUtils::isEmpty);
@@ -662,16 +665,17 @@ public final class PlacementHandlers
             final TileEntity tileEntity = world.getTileEntity(pos);
             if (tileEntity == null)
             {
-                final TileEntity newTile = TileEntity.create(world, tileEntityData);
+                final TileEntity newTile = TileEntity.create(tileEntityData);
                 if (newTile != null)
                 {
+                    newTile.setWorld(world);
                     newTile.rotate(settings.rotation);
                     newTile.mirror(settings.mirror);
                 }
             }
             else
             {
-                tileEntity.readFromNBT(tileEntityData);
+                tileEntity.read(tileEntityData);
                 world.setTileEntity(pos, tileEntity);
                 tileEntity.rotate(settings.rotation);
                 tileEntity.mirror(settings.mirror);

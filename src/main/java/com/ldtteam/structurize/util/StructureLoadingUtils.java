@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.configuration.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
@@ -9,7 +8,7 @@ import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -183,7 +182,7 @@ public final class StructureLoadingUtils
         {
             //Look in the folder first
             inputstream = StructureLoadingUtils.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
-            if (inputstream == null && !Configurations.gameplay.ignoreSchematicsFromJar)
+            if (inputstream == null && !Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
             {
                 for (final InputStream stream : StructureLoadingUtils.getStreamsFromJar(structureName))
                 {
@@ -208,7 +207,7 @@ public final class StructureLoadingUtils
         final List<File> cachedSchems = new ArrayList<>();
         for (final String origin : originFolders)
         {
-            if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
+            if (ServerLifecycleHooks.getCurrentServer() == null)
             {
                 if (Manager.getServerUUID() != null)
                 {
@@ -222,7 +221,7 @@ public final class StructureLoadingUtils
             }
             else
             {
-                cachedSchems.add(new File(FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory() + "/" + Constants.MOD_ID));
+                cachedSchems.add(new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID));
             }
         }
         return cachedSchems;

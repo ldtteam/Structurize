@@ -4,18 +4,13 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.extensions.IForgeBlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +29,7 @@ public class StructurePlacementUtils
      */
     public static boolean isStructureBlockEqualWorldBlock(final World world, final BlockPos blockPosition, final IForgeBlockState state)
     {
-        final Block structureBlock = state.getBlock();
+        final Block structureBlock = state.getBlockState().getBlock();
 
         //All worldBlocks are equal the substitution block
         if (structureBlock == ModBlocks.blockSubstitution)
@@ -42,7 +37,7 @@ public class StructurePlacementUtils
             return true;
         }
 
-        final IBlockState worldBlockState = world.getBlockState(blockPosition);
+        final BlockState worldBlockState = world.getBlockState(blockPosition);
 
         if (structureBlock == ModBlocks.blockSolidSubstitution && worldBlockState.getMaterial().isSolid())
         {
@@ -53,12 +48,11 @@ public class StructurePlacementUtils
 
         //list of things to only check block for.
         //For the time being any flower pot is equal to each other.
-        if (structureBlock instanceof BlockDoor || structureBlock == Blocks.FLOWER_POT)
+        if (structureBlock instanceof DoorBlock || structureBlock == Blocks.FLOWER_POT)
         {
             return structureBlock == worldBlock;
         }
-        else if ((structureBlock instanceof BlockStairs && state == worldBlockState)
-                   || BlockUtils.isGrassOrDirt(structureBlock, worldBlock, state, worldBlockState))
+        else if (structureBlock instanceof StairsBlock && state == worldBlockState)
         {
             return true;
         }
@@ -97,7 +91,7 @@ public class StructurePlacementUtils
      * @param player   the placing player.
      */
     public static void loadAndPlaceShapeWithRotation(
-      final WorldServer worldObj,
+      final ServerWorld worldObj,
       final Blueprint blueprint,
       @NotNull final BlockPos pos,
       final Rotation rotation,

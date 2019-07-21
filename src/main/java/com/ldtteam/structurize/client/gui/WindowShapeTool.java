@@ -580,7 +580,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void cancelClicked()
     {
         Settings.instance.reset();
-        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
         close();
     }
 

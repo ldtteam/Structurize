@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.placementhandlers;
 
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +25,7 @@ public interface IPlacementHandler
      * @param blockState the blockState.
      * @return true if so.
      */
-    boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState);
+    boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState);
 
     /**
      * Method used to handle the processing of a Placement of a block.
@@ -41,7 +41,7 @@ public interface IPlacementHandler
     default Object handle(
       @NotNull final World world,
       @NotNull final BlockPos pos,
-      @NotNull final IBlockState blockState,
+      @NotNull final BlockState blockState,
       @Nullable final CompoundNBT tileEntityData,
       final boolean complete, final BlockPos centerPos)
     {
@@ -66,7 +66,7 @@ public interface IPlacementHandler
     default Object handle(
       @NotNull final World world,
       @NotNull final BlockPos pos,
-      @NotNull final IBlockState blockState,
+      @NotNull final BlockState blockState,
       @Nullable final CompoundNBT tileEntityData,
       final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
     {
@@ -86,7 +86,7 @@ public interface IPlacementHandler
     List<ItemStack> getRequiredItems(
       @NotNull final World world,
       @NotNull final BlockPos pos,
-      @NotNull final IBlockState blockState,
+      @NotNull final BlockState blockState,
       @Nullable final CompoundNBT tileEntityData,
       final boolean complete);
 

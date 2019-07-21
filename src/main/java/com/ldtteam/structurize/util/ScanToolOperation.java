@@ -1,15 +1,16 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.state.properties.BedPart;
+import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,9 +117,9 @@ public class ScanToolOperation
     public ScanToolOperation(final ChangeStorage storage, @Nullable final PlayerEntity player)
     {
         this.operation = OperationType.UNDO;
-        this.startPos = BlockPos.ORIGIN;
-        this.currentPos = BlockPos.ORIGIN;
-        this.endPos = BlockPos.ORIGIN;
+        this.startPos = BlockPos.ZERO;
+        this.currentPos = BlockPos.ZERO;
+        this.endPos = BlockPos.ZERO;
         this.player = player;
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
@@ -134,9 +135,9 @@ public class ScanToolOperation
     public ScanToolOperation(final InstantStructurePlacer wrapper, @Nullable final PlayerEntity player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
-        this.startPos = BlockPos.ORIGIN;
-        this.currentPos = BlockPos.ORIGIN;
-        this.endPos = BlockPos.ORIGIN;
+        this.startPos = BlockPos.ZERO;
+        this.currentPos = BlockPos.ZERO;
+        this.endPos = BlockPos.ZERO;
         this.player = player;
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
@@ -150,9 +151,9 @@ public class ScanToolOperation
      * @param world the world to apply them on.
      * @return true if finished.
      */
-    public boolean apply(final WorldServer world)
+    public boolean apply(final ServerWorld world)
     {
-        if (player != null && player.dimension != world.provider.getDimension())
+        if (player != null && player.dimension != world.getDimension().getType())
         {
             return false;
         }
@@ -177,7 +178,7 @@ public class ScanToolOperation
      * @param world the world to run it in.
      * @return true if finished.
      */
-    private boolean run(final WorldServer world)
+    private boolean run(final ServerWorld world)
     {
         final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUniqueID(), "placeStuffForMePl0x"));
         int count = 0;
@@ -188,25 +189,25 @@ public class ScanToolOperation
                 for (int z = currentPos.getZ(); z <= endPos.getZ(); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
-                    final IBlockState blockState = world.getBlockState(here);
+                    final BlockState blockState = world.getBlockState(here);
                     final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
                     if (correctBlockToRemoveOrReplace(stack, blockState, firstBlock))
                     {
-                        if ((blockState.getBlock() instanceof BlockDoor && blockState.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.UPPER)
-                              || (blockState.getBlock() instanceof BlockBed && blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD))
+                        if ((blockState.getBlock() instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
+                              || (blockState.getBlock() instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD))
                         {
                             continue;
                         }
                         count++;
 
                         storage.addPositionStorage(here, world);
-                        world.setBlockToAir(here);
+                        world.removeBlock(here, false);
                         if (operation == OperationType.REPLACE_BLOCK)
                         {
                             BlockUtils.handleCorrectBlockPlacement(world, fakePlayer, secondBlock, blockState, here);
                         }
 
-                        if (count >= Configurations.gameplay.maxOperationsPerTick)
+                        if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
                         {
                             currentPos = new BlockPos(x, y, z);
                             return false;
@@ -228,11 +229,11 @@ public class ScanToolOperation
      * @param compareStack the comparison stack.
      * @return true if so.
      */
-    private static boolean correctBlockToRemoveOrReplace(final ItemStack worldStack, final IBlockState worldState, final ItemStack compareStack)
+    private static boolean correctBlockToRemoveOrReplace(final ItemStack worldStack, final BlockState worldState, final ItemStack compareStack)
     {
         return (worldStack != null && worldStack.isItemEqual(compareStack)
-                  || (compareStack.getItem() == Items.LAVA_BUCKET && (worldState.getBlock() == Blocks.LAVA || worldState.getBlock() == Blocks.FLOWING_LAVA))
-                  || (compareStack.getItem() == Items.WATER_BUCKET && (worldState.getBlock() == Blocks.WATER || worldState.getBlock() == Blocks.FLOWING_WATER))
+                  || (compareStack.getItem() == Items.LAVA_BUCKET && worldState.getBlock() == Blocks.LAVA)
+                  || (compareStack.getItem() == Items.WATER_BUCKET && worldState.getBlock() == Blocks.WATER)
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
     }
 

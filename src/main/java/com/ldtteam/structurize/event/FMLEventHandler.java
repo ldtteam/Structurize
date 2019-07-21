@@ -3,7 +3,6 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.LanguageHandler;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
@@ -11,14 +10,11 @@ import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.EnumHand;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
+import net.minecraft.util.Hand;
+import net.minecraft.world.ServerWorld;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -40,24 +36,12 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.player instanceof ServerPlayerEntity)
+        if (event.getPlayer() instanceof ServerPlayerEntity)
         {
-            Structurize.getNetwork().sendTo(new ServerUUIDMessage(), (ServerPlayerEntity) event.player);
-            Structurize.getNetwork().sendTo(new StructurizeStylesMessage(), (ServerPlayerEntity) event.player);
+            Structurize.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayerEntity) event.getPlayer());
+            Structurize.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayerEntity) event.getPlayer());
         }
     }
-
-    /**
-     * Called when the config is changed, used to synch between file and game.
-     *
-     * @param event the on config changed event.
-     */
-    @SubscribeEvent
-    public void onConfigChanged(@NotNull final ConfigChangedEvent.OnConfigChangedEvent event)
-    {
-        ConfigManager.sync(Constants.MOD_ID, Config.Type.INSTANCE);
-    }
-
 
     /**
      * Event when a block is broken.
@@ -68,18 +52,18 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onBlockBreak(@NotNull final BlockEvent.BreakEvent event)
     {
-        if (event.getPlayer().getHeldItem(EnumHand.MAIN_HAND).getItem() == ModItems.scanTool)
+        if (event.getPlayer().getHeldItem(Hand.MAIN_HAND).getItem() == ModItems.scanTool)
         {
-            final ItemStack itemstack = event.getPlayer().getHeldItem(EnumHand.MAIN_HAND);
-            if (!itemstack.hasTagCompound())
+            final ItemStack itemstack = event.getPlayer().getHeldItem(Hand.MAIN_HAND);
+            if (!itemstack.hasTag())
             {
-                itemstack.setTagCompound(new CompoundNBT());
+                itemstack.setTag(new CompoundNBT());
             }
-            final CompoundNBT compound = itemstack.getTagCompound();
+            final CompoundNBT compound = itemstack.getTag();
 
             BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, event.getPos());
             LanguageHandler.sendPlayerMessage(event.getPlayer(), "item.scepterSteel.point", event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
-            itemstack.setTagCompound(compound);
+            itemstack.setTag(compound);
 
             event.setCanceled(true);
         }
@@ -92,6 +76,6 @@ public class FMLEventHandler
         {
             return;
         }
-        Manager.onWorldTick((WorldServer) event.world);
+        Manager.onWorldTick((ServerWorld) event.world);
     }
 }

@@ -4,18 +4,13 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.DataFixesManager;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.util.CompoundDataFixer;
-import net.minecraftforge.common.util.ModFixs;
 import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.DatatypeConverter;
@@ -171,8 +166,8 @@ public final class StructureUtils
     {
         if (fixer == null)
         {
-            fixer = DataFixesManager.createFixer();
-            final ModFixs fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
+            fixer = DataFixesManager.getDataFixer();
+            /*final ModFix fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
             fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
             {
                 @Override
@@ -185,12 +180,12 @@ public final class StructureUtils
                 @Override
                 public CompoundNBT fixTagCompound(@NotNull final CompoundNBT compound)
                 {
-                    if (compound.hasKey("palette"))
+                    if (compound.keySet().contains("palette"))
                     {
-                        NBTTagList list = compound.getTagList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
-                        for (final NBTBase listCompound : list)
+                        ListNBT list = compound.getList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
+                        for (final INBT listCompound : list)
                         {
-                            if (listCompound instanceof CompoundNBT && ((CompoundNBT) listCompound).hasKey("Name"))
+                            if (listCompound instanceof CompoundNBT && ((CompoundNBT) listCompound).keySet().contains("Name"))
                             {
                                 String name = ((CompoundNBT) listCompound).getString("Name");
                                 if (name.contains("minecolonies"))
@@ -209,7 +204,7 @@ public final class StructureUtils
                     }
                     return compound;
                 }
-            });
+            });*/
         }
         return fixer;
     }

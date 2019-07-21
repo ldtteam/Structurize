@@ -1130,7 +1130,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void cancelClicked()
     {
         Settings.instance.softReset();
-        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(Unpooled.buffer(), false));
+        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
         close();
     }
 

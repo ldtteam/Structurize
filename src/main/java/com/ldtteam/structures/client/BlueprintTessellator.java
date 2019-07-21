@@ -1,5 +1,6 @@
 package com.ldtteam.structures.client;
 
+import com.ldtteam.structurize.api.util.constant.OpenGlHelper;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;

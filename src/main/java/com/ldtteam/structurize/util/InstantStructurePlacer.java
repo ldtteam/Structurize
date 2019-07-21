@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structures.helpers.Structure;
-import com.ldtteam.structurize.api.configuration.Configurations;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -10,12 +10,12 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.placementhandlers.IPlacementHandler;
 import com.ldtteam.structurize.placementhandlers.PlacementHandlers;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityHanging;
-import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -69,7 +70,7 @@ public class InstantStructurePlacer
                     final BlockPos worldPos = pos.add(localPos);
                     if (!structure.getWorld().isAirBlock(worldPos))
                     {
-                        structure.getWorld().setBlockToAir(worldPos);
+                        structure.getWorld().removeBlock(worldPos, false);
                     }
                 }
             }
@@ -114,7 +115,7 @@ public class InstantStructurePlacer
                 for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final IBlockState localState = this.structure.getBlockState(localPos);
+                    final BlockState localState = this.structure.getBlockState(localPos).getBlockState();
                     if (localState == null)
                     {
                         continue;
@@ -140,7 +141,7 @@ public class InstantStructurePlacer
                         delayedBlocks.add(localPos);
                     }
 
-                    if (count >= Configurations.gameplay.maxOperationsPerTick)
+                    if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
                     {
                         this.handleDelayedBlocks(delayedBlocks, storage, world);
                         return new BlockPos(x, y, z);
@@ -159,25 +160,35 @@ public class InstantStructurePlacer
                 try
                 {
                     final BlockPos pos = this.structure.getPosition();
-                    final Entity entity = EntityList.createEntityFromNBT(compound, world);
-                    entity.setUniqueId(UUID.randomUUID());
-                    final Vec3d worldPos = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
 
-                    if (entity instanceof EntityHanging)
+                    final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+                    if (type.isPresent())
                     {
-                        entity.posX = worldPos.x;
-                        entity.posY = worldPos.y;
-                        entity.posZ = worldPos.z;
+                        final Entity entity = type.get().create(world);
+                        if (entity != null)
+                        {
+                            entity.deserializeNBT(compound);
 
-                        final BlockPos hanging = ((EntityHanging) entity).getHangingPosition();
-                        entity.setPosition(hanging.getX() + pos.getX(), hanging.getY() + pos.getY(), hanging.getZ() + pos.getZ());
+                            entity.setUniqueId(UUID.randomUUID());
+                            final Vec3d worldPos = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
+
+                            if (entity instanceof HangingEntity)
+                            {
+                                entity.posX = worldPos.x;
+                                entity.posY = worldPos.y;
+                                entity.posZ = worldPos.z;
+
+                                final BlockPos hanging = ((HangingEntity) entity).getHangingPosition();
+                                entity.setPosition(hanging.getX() + pos.getX(), hanging.getY() + pos.getY(), hanging.getZ() + pos.getZ());
+                            }
+                            else
+                            {
+                                entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
+                            }
+                            world.addEntity(entity);
+                            storage.addToBeKilledEntity(entity);
+                        }
                     }
-                    else
-                    {
-                        entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
-                    }
-                    world.spawnEntity(entity);
-                    storage.addToBeKilledEntity(entity);
                 }
                 catch (final RuntimeException e)
                 {
@@ -200,7 +211,7 @@ public class InstantStructurePlacer
     {
         for (@NotNull final BlockPos coords : delayedBlocks)
         {
-            final IBlockState localState = this.structure.getBlockState(coords);
+            final BlockState localState = this.structure.getBlockState(coords).getBlockState();
             final BlockPos newWorldPos = structure.getPosition().add(coords);
             storage.addPositionStorage(coords, world);
             final BlockInfo info = this.structure.getBlockInfo(coords);
@@ -218,7 +229,7 @@ public class InstantStructurePlacer
      * @param complete       if complete with it.
      * @param tileEntityData the tileEntity.
      */
-    public void handleBlockPlacement(final World world, final BlockPos pos, final IBlockState localState, final boolean complete, final CompoundNBT tileEntityData)
+    public void handleBlockPlacement(final World world, final BlockPos pos, final BlockState localState, final boolean complete, final CompoundNBT tileEntityData)
     {
         for (final IPlacementHandler handlers : PlacementHandlers.handlers)
         {
@@ -254,7 +265,7 @@ public class InstantStructurePlacer
                         return false;
                     }
 
-                    final IBlockState worldState = structure.getWorld().getBlockState(worldPos);
+                    final BlockState worldState = structure.getWorld().getBlockState(worldPos);
                     if (worldState.getBlock() == Blocks.BEDROCK)
                     {
                         return false;

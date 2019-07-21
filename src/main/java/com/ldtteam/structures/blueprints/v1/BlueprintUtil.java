@@ -229,7 +229,7 @@ public class BlueprintUtil
      */
     public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
     {
-        final CompoundNBT tag = fixer.process(FixTypes.STRUCTURE, nbtTag);
+        final CompoundNBT tag = nbtTag; //fixer.process(FixTypes.STRUCTURE, nbtTag); todo
         byte version = tag.getByte("version");
         if (version == 1)
         {
