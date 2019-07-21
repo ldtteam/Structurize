@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class UpdateSchematicsCommand extends AbstractCommand
 {
-    protected final static String NAME = "updateschematics";
+    private final static String NAME = "updateschematics";
 
     protected static LiteralArgumentBuilder<CommandSource> build()
     {
@@ -36,7 +36,6 @@ public class UpdateSchematicsCommand extends AbstractCommand
     {
         final File updaterInput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/input");
         final File updaterOutput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/output");
-        // TODO: schematic folder
 
         updaterInput.mkdirs();
 
@@ -74,7 +73,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 return;
             }
 
-            //blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
+            // blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
             // TODO: this! (datafixer)
 
             final ListNBT blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);

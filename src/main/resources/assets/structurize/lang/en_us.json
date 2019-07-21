@@ -106,5 +106,19 @@
   "block.structurize.blocktimberframe_acacia_downgated": "Lower Gate Framed Acacia Timberframe",
   "block.structurize.blocktimberframe_acacia_horizontalplain": "Plain Horizontal Acacia Timberframe",
   "block.structurize.blocktimberframe_acacia_horizontalnocap": "Side Framed Horizontal Acacia Timberframe",
-  "block.structurize.blocktimberframe_acacia_doublecrossed": "Double Crossed Acacia Timberframe"
+  "block.structurize.blocktimberframe_acacia_doublecrossed": "Double Crossed Acacia Timberframe",
+  "structurize.command.ls.generic.dontexist": "You don't have a session created.",
+  "structurize.command.ls.create.already": "You have already created a session.",
+  "structurize.command.ls.create.done": "Created session for player: %s",
+  "structurize.command.ls.destroy.done": "Destroying session of player: %s",
+  "structurize.command.ls.invite.accept": "ACCEPT",
+  "structurize.command.ls.invite.message": "You have been invited to %s's session, click the button to ",
+  "structurize.command.ls.invite.done": "Inviting player \"%s\" to %s's session.",
+  "structurize.command.ls.remove.done": "Removing player \"%s\" of %s's session.",
+  "structurize.command.ls.message.head": "%s Session Message %s",
+  "structurize.command.ls.message.muted": "You have messages channel muted.",
+  "structurize.command.ls.message.norecipient": "You are not a part of any session or every other players have messages channel muted.",
+  "structurize.command.ls.invite.accepted": "You have successfully joined to %s's linksession.",
+  "structurize.command.ls.invite.timeout": "This invite does not exist anymore.",
+  "structurize.command.ls.invite.noopen": "You have no open invite."
 }
