@@ -1,0 +1,6 @@
+{
+  "parent": "block/oak_trapdoor_bottom",
+  "textures": {
+    "texture": "structurize:blocks/blockcactustrapdoor"
+  }
+}

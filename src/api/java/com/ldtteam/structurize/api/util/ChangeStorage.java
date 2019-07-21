@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.api.util;
 
-import com.ldtteam.structurize.api.configuration.Configurations;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -122,9 +121,10 @@ public class ChangeStorage
             blocks.remove(entry.getKey());
             count++;
 
-            if (count >= Configurations.gameplay.maxOperationsPerTick)
+            //if (count >= Configurations.gameplay.maxOperationsPerTick)
             {
-                return false;
+                //todo
+                //return false;
             }
         }
 

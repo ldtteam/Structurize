@@ -1,22 +1,16 @@
 package com.ldtteam.structurize.blocks.cactus;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeFence;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-
-import java.util.Locale;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 
 public class BlockCactusFence extends AbstractBlockStructurizeFence<BlockCactusFence>
 {
+    private static final String BLOCK_NAME = "blockcactusfence";
+
     public BlockCactusFence()
     {
-        super(Material.WOOD, MapColor.GREEN);
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + "blockcactusfence");
-        setTranslationKey(Constants.MOD_ID.toLowerCase(Locale.ENGLISH) + "." + "blockcactusfence");
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setSoundType(SoundType.WOOD);
+        super(Block.Properties.from(Blocks.OAK_FENCE));
+        setRegistryName(BLOCK_NAME);
     }
 }

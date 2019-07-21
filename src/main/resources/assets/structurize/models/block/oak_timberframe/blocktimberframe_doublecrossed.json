@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "down": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "up": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "north": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "east": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "south": "structurize:blocks/timberframe/oak/blockdoublecrossedside",
+    "west": "structurize:blocks/timberframe/oak/blockdoublecrossedside"
+  }
+}

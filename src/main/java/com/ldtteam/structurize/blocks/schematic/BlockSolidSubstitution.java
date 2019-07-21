@@ -2,11 +2,7 @@ package com.ldtteam.structurize.blocks.schematic;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-
-import static com.ldtteam.structurize.api.util.constant.Suppression.DEPRECATION;
 
 /**
  * This block is used as a substitution block for the Builder.
@@ -24,7 +20,7 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
     /**
      * This blocks name.
      */
-    private static final String BLOCK_NAME = "blockSolidSubstitution";
+    private static final String BLOCK_NAME = "blocksolidsubstitution";
 
     /**
      * The resistance this block has.
@@ -37,35 +33,7 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
      */
     public BlockSolidSubstitution()
     {
-        super(Material.WOOD);
-        initBlock();
+        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        setRegistryName(BLOCK_NAME);
     }
-
-    /**
-     * initialize the block
-     * sets the creative tab, as well as the resistance and the hardness.
-     */
-    private void initBlock()
-    {
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
-        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(), BLOCK_NAME));
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setHardness(BLOCK_HARDNESS);
-        setResistance(RESISTANCE);
-    }
-
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks
-     * for render.
-     *
-     * @return true
-     */
-    //todo: remove once we no longer need to support this
-    @SuppressWarnings(DEPRECATION)
-    @Override
-    public boolean isOpaqueCube(final IBlockState state)
-    {
-        return true;
-    }
-
 }

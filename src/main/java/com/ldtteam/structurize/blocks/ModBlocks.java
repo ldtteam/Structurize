@@ -1,20 +1,21 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.cactus.*;
-import com.ldtteam.structurize.blocks.decorative.BlockPaperwall;
-import com.ldtteam.structurize.blocks.decorative.BlockShingle;
-import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
-import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
+import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
+import com.ldtteam.structurize.blocks.types.PaperwallType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemSlab;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ import java.util.List;
  */
 @SuppressWarnings({"squid:ClassVariableVisibilityCheck", "squid:S2444", "squid:S1444", "squid:S1820",})
 
+@ObjectHolder(Constants.MOD_ID)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
     /*
@@ -35,6 +38,7 @@ public final class ModBlocks
      */
 
     private static final List<BlockTimberFrame>         timberFrames = new ArrayList<>();
+    private static final List<BlockPaperwall>         paperwalls = new ArrayList<>();
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
@@ -55,12 +59,11 @@ public final class ModBlocks
     public static BlockCactusDoor       blockCactusDoor;
     public static BlockCactusTrapdoor   blockCactusTrapdoor;
     public static BlockCactusStair      blockCactusStair;
-    public static BlockCactusSlabHalf   blockCactusSlabHalf;
-    public static BlockCactusSlabDouble blockCactusSlabDouble;
+    public static BlockMinecoloniesSlab blockCactusSlab;
     public static BlockCactusFence      blockCactusFence;
     public static BlockCactusFenceGate  blockCactusFenceGate;
 
-    public static MultiBlock                  multiBlock;
+    public static MultiBlock multiBlock;
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
@@ -84,37 +87,57 @@ public final class ModBlocks
         blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
         blockCactusDoor = new BlockCactusDoor().registerBlock(registry);
         blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
-        blockCactusSlabHalf = new BlockCactusSlabHalf().registerBlock(registry);
-        blockCactusSlabDouble = new BlockCactusSlabDouble().registerBlock(registry);
+        blockCactusSlab = new BlockMinecoloniesSlab(Block.Properties.from(blockCactusPlank),"blockcactusslab").registerBlock(registry);
 
-        blockCactusStair = new BlockCactusStair(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)).registerBlock(registry);
+        blockCactusStair = new BlockCactusStair().registerBlock(registry);
         blockCactusFence = new BlockCactusFence().registerBlock(registry);
-        blockCactusFenceGate = new BlockCactusFenceGate(BlockPlanks.EnumType.OAK).registerBlock(registry);
+        blockCactusFenceGate = new BlockCactusFenceGate().registerBlock(registry);
 
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
-        blockPaperWall = new BlockPaperwall().registerBlock(registry);
 
-        blockShingleOak = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.OAK.getName()).registerBlock(registry);
-        blockShingleJungle = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.JUNGLE),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.JUNGLE.getName()).registerBlock(registry);
-        blockShingleBirch = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.BIRCH),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.BIRCH.getName()).registerBlock(registry);
-        blockShingleSpruce = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.SPRUCE),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.SPRUCE.getName()).registerBlock(registry);
-        blockShingleDarkOak = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.DARK_OAK),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.DARK_OAK.getName()).registerBlock(registry);
-        blockShingleAcacia = new BlockShingle(new BlockPlanks().getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.ACACIA),
-          BlockShingle.BLOCK_PREFIX + "_" + BlockPlanks.EnumType.ACACIA.getName()).registerBlock(registry);
+        for (final PaperwallType type : PaperwallType.values())
+        {
+            blockPaperWall = new BlockPaperwall(type.getName()).registerBlock(registry);
+            paperwalls.add(blockPaperWall);
+        }
+
+        blockShingleOak = new BlockShingle(Blocks.OAK_PLANKS.getDefaultState(), "oak").registerBlock(registry);
+        blockShingleJungle = new BlockShingle(Blocks.BIRCH_PLANKS.getDefaultState(), "birch").registerBlock(registry);
+        blockShingleBirch = new BlockShingle(Blocks.JUNGLE_PLANKS.getDefaultState(), "jungle").registerBlock(registry);
+        blockShingleSpruce = new BlockShingle(Blocks.DARK_OAK_PLANKS.getDefaultState(), "dark_oak").registerBlock(registry);
+        blockShingleDarkOak = new BlockShingle(Blocks.ACACIA_PLANKS.getDefaultState(), "acacia").registerBlock(registry);
+        blockShingleAcacia = new BlockShingle(Blocks.SPRUCE_PLANKS.getDefaultState(), "spruce").registerBlock(registry);
         blockShingleSlab = new BlockShingleSlab().registerBlock(registry);
 
-        for (final BlockPlanks.EnumType type : BlockPlanks.EnumType.values())
+        for (final TimberFrameType frameType : TimberFrameType.values())
         {
-            for (final TimberFrameType frameType : TimberFrameType.values())
-            {
-                timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + type.getName() + "_" + frameType).registerBlock(registry));
-            }
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "birch" + "_" + frameType).registerBlock(registry));
+        }
+
+        for (final TimberFrameType frameType : TimberFrameType.values())
+        {
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "jungle" + "_" + frameType).registerBlock(registry));
+        }
+
+        for (final TimberFrameType frameType : TimberFrameType.values())
+        {
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "oak" + "_" + frameType).registerBlock(registry));
+        }
+
+        for (final TimberFrameType frameType : TimberFrameType.values())
+        {
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "dark_oak" + "_" + frameType).registerBlock(registry));
+        }
+
+        for (final TimberFrameType frameType : TimberFrameType.values())
+        {
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "acacia" + "_" + frameType).registerBlock(registry));
+        }
+
+        for (final TimberFrameType frameType : TimberFrameType.values())
+        {
+            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "spruce" + "_" + frameType).registerBlock(registry));
         }
 
         multiBlock = new MultiBlock().registerBlock(registry);
@@ -123,29 +146,36 @@ public final class ModBlocks
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event)
     {
-        blockSolidSubstitution.registerItemBlock(registry);
-        blockSubstitution.registerItemBlock(registry);
-        blockPaperWall.registerItemBlock(registry);
-        blockShingleOak.registerItemBlock(registry);
-        blockShingleBirch.registerItemBlock(registry);
-        blockShingleJungle.registerItemBlock(registry);
-        blockShingleSpruce.registerItemBlock(registry);
-        blockShingleDarkOak.registerItemBlock(registry);
-        blockShingleAcacia.registerItemBlock(registry);
-        blockShingleSlab.registerItemBlock(registry);
+        final IForgeRegistry<Item> registry = event.getRegistry();
+        final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
+        blockSolidSubstitution.registerItemBlock(registry, properties);
+        blockSubstitution.registerItemBlock(registry, properties);
 
-        blockCactusPlank.registerItemBlock(registry);
-        blockCactusTrapdoor.registerItemBlock(registry);
-        blockCactusStair.registerItemBlock(registry);
-        registry.register(new ItemSlab(blockCactusSlabHalf, blockCactusSlabHalf, blockCactusSlabDouble).setRegistryName(blockCactusSlabHalf.getRegistryName()));
-        blockCactusFence.registerItemBlock(registry);
-        blockCactusFenceGate.registerItemBlock(registry);
+        for (final BlockPaperwall paperwall : paperwalls)
+        {
+            paperwall.registerItemBlock(registry, properties);
+        }
+
+        blockShingleOak.registerItemBlock(registry, properties);
+        blockShingleBirch.registerItemBlock(registry, properties);
+        blockShingleJungle.registerItemBlock(registry, properties);
+        blockShingleSpruce.registerItemBlock(registry, properties);
+        blockShingleDarkOak.registerItemBlock(registry, properties);
+        blockShingleAcacia.registerItemBlock(registry, properties);
+        blockShingleSlab.registerItemBlock(registry, properties);
+
+        blockCactusPlank.registerItemBlock(registry, properties);
+        blockCactusTrapdoor.registerItemBlock(registry, properties);
+        blockCactusStair.registerItemBlock(registry, properties);
+        blockCactusSlab.registerItemBlock(registry, properties);
+        blockCactusFence.registerItemBlock(registry, properties);
+        blockCactusFenceGate.registerItemBlock(registry, properties);
 
         for (final BlockTimberFrame frame: timberFrames)
         {
-            frame.registerItemBlock(registry);
+            frame.registerItemBlock(registry, properties);
         }
 
-        multiBlock.registerItemBlock(registry);
+        multiBlock.registerItemBlock(registry, properties);
     }
 }

@@ -2,28 +2,30 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.block.BlockState;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message class which handles updating the minecolonies multiblock.
  */
-public class MultiBlockChangeMessage extends AbstractMessage<MultiBlockChangeMessage, IMessage>
+public class MultiBlockChangeMessage implements IMessage
 {
     /**
      * The direction it should push or pull rom.
      */
-    private EnumFacing direction;
+    private Direction direction;
 
     /**
      * The direction it should push or pull rom.
      */
-    private EnumFacing output;
+    private Direction output;
 
     /**
      * The range it should pull to.
@@ -49,14 +51,14 @@ public class MultiBlockChangeMessage extends AbstractMessage<MultiBlockChangeMes
     }
 
     /**
-     * Constructor to create the message.
+     * Constructor to create the 
      * @param pos the position of the block.
      * @param facing the way it should be facing.
      * @param output the way it will output to.
      * @param range the range it should work.
      * @param speed the speed it should have.
      */
-    public MultiBlockChangeMessage(final BlockPos pos, final EnumFacing facing, final EnumFacing output, final int range, final int speed)
+    public MultiBlockChangeMessage(final BlockPos pos, final Direction facing, final Direction output, final int range, final int speed)
     {
         super();
         this.pos = pos;
@@ -66,55 +68,46 @@ public class MultiBlockChangeMessage extends AbstractMessage<MultiBlockChangeMes
         this.speed = speed;
     }
 
-    /**
-     * Transformation from a byteStream.
-     *
-     * @param buf the used byteBuffer.
-     */
     @Override
-    public void fromBytes(@NotNull final ByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
-        pos = BlockPosUtil.readFromByteBuf(buf);
-        direction = EnumFacing.values()[buf.readInt()];
-        output = EnumFacing.values()[buf.readInt()];
-        range = buf.readInt();
-        speed = buf.readInt();
-    }
-
-    /**
-     * Transformation to a byteStream.
-     *
-     * @param buf the used byteBuffer.
-     */
-    @Override
-    public void toBytes(@NotNull final ByteBuf buf)
-    {
-        BlockPosUtil.writeToByteBuf(buf, pos);
+        buf.writeBlockPos(pos);
         buf.writeInt(direction.ordinal());
         buf.writeInt(output.ordinal());
         buf.writeInt(range);
         buf.writeInt(speed);
     }
 
-    /**
-     * Executes the message on the server thread.
-     * Only if the player has the permission, toggle message.
-     *
-     * @param message the original message.
-     * @param player  the player associated.
-     */
     @Override
-    public void messageOnServerThread(final MultiBlockChangeMessage message, final PlayerEntityMP player)
+    public void fromBytes(final PacketBuffer buf)
     {
-        final TileEntity entity = player.getServerWorld().getTileEntity(message.pos);
+        pos = buf.readBlockPos();
+        direction = Direction.values()[buf.readInt()];
+        output = Direction.values()[buf.readInt()];
+        range = buf.readInt();
+        speed = buf.readInt();
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    {
+        final World world = ctxIn.getSender().getServerWorld();
+        final TileEntity entity = world.getTileEntity(pos);
         if (entity instanceof TileEntityMultiBlock)
         {
-            ((TileEntityMultiBlock) entity).setDirection(message.direction);
-            ((TileEntityMultiBlock) entity).setOutput(message.output);
-            ((TileEntityMultiBlock) entity).setRange(message.range);
-            ((TileEntityMultiBlock) entity).setSpeed(message.speed);
-            final IBlockState state = player.getServerWorld().getBlockState(message.pos);
-            player.getServerWorld().notifyBlockUpdate(message.pos, state, state, 0x3);
+            ((TileEntityMultiBlock) entity).setDirection(direction);
+            ((TileEntityMultiBlock) entity).setOutput(output);
+            ((TileEntityMultiBlock) entity).setRange(range);
+            ((TileEntityMultiBlock) entity).setSpeed(speed);
+            final BlockState state = world.getBlockState(pos);
+            world.notifyBlockUpdate(pos, state, state, 0x3);
         }
     }
 }

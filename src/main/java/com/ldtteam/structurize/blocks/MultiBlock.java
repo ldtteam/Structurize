@@ -1,21 +1,21 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import com.ldtteam.structurize.client.gui.gui.WindowMultiBlock;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
 
-import java.util.Locale;
+import javax.annotation.Nullable;
 
 /**
  * This Class is about the MultiBlock which takes care of pushing others around (In a non mean way).
@@ -31,7 +31,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     /**
      * This blocks name.
      */
-    private static final String BLOCK_NAME = "multiBlock";
+    private static final String BLOCK_NAME = "multiblock";
 
     /**
      * The resistance this block has.
@@ -44,45 +44,23 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
      */
     public MultiBlock()
     {
-        super(Material.WOOD);
-        initBlock();
-    }
-
-    /**
-     * initialize the block
-     * sets the creative tab, as well as the resistance and the hardness.
-     */
-    private void initBlock()
-    {
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + BLOCK_NAME);
-        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.ENGLISH), BLOCK_NAME));
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setHardness(BLOCK_HARDNESS);
-        setResistance(RESISTANCE);
+        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        setRegistryName(BLOCK_NAME);
     }
 
     @Override
     public boolean onBlockActivated(
-            final World worldIn,
-            final BlockPos pos,
-            final IBlockState state,
-            final PlayerEntity playerIn,
-            final EnumHand hand,
-            final EnumFacing facing,
-            final float hitX,
-            final float hitY,
-            final float hitZ)
+      final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit)
     {
         if (worldIn.isRemote)
         {
-            Structurize.proxy.openMultiBlockWindow(pos);
+            new WindowMultiBlock(pos).open();
         }
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(final IBlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos)
+    public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
     {
         if(worldIn.isRemote)
         {
@@ -96,45 +74,20 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     }
 
     @Override
-    public boolean hasTileEntity(final IBlockState state)
+    public boolean hasTileEntity(final BlockState state)
     {
         return true;
     }
 
+    @Nullable
     @Override
-    public TileEntity createTileEntity(final World world, final IBlockState state)
+    public TileEntity createTileEntity(final BlockState state, final IBlockReader world)
     {
         return new TileEntityMultiBlock();
     }
 
-    /**
-     * @deprecated (Remove this as soon as minecraft offers anything better).
-     */
     @Override
-    @Deprecated
-    public boolean isFullBlock(final IBlockState state)
-    {
-        return false;
-    }
-
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks
-     * for render.
-     *
-     * @return true
-     *
-     * @deprecated
-     */
-    //todo: remove once we no longer need to support this
-    @Override
-    @Deprecated
-    public boolean isOpaqueCube(final IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean doesSideBlockRendering(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face)
+    public boolean doesSideBlockRendering(final BlockState state, final IEnviromentBlockReader world, final BlockPos pos, final Direction face)
     {
         return false;
     }

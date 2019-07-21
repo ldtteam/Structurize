@@ -1,16 +1,18 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
+import afu.org.checkerframework.checker.oigj.qual.O;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.GlassBlock;
+import net.minecraft.block.material.Material;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Locale;
 
 /**
  * Class defining the general shingle.
@@ -35,33 +37,17 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
     /**
      * Prefix of the block.
      */
-    public static final String BLOCK_PREFIX = "blockshingle";
+    public static final String BLOCK_PREFIX = "blockshingle_";
 
-    public BlockShingle(final IBlockState modelState, final String name)
+    public BlockShingle(final BlockState modelState, final String name)
     {
-        super(modelState);
-        init(name);
-    }
-
-    private void init(final String name)
-    {
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + name);
-        setTranslationKey(String.format("%s.%s", Constants.MOD_ID.toLowerCase(Locale.US), name));
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setHardness(BLOCK_HARDNESS);
-        setResistance(RESISTANCE);
-        this.useNeighborBrightness = true;
-        this.setLightOpacity(LIGHT_OPACITY);
+        super(modelState, Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).lightValue(LIGHT_OPACITY));
+        setRegistryName(BLOCK_PREFIX + name);
     }
 
     @NotNull
     @Override
-    public BlockFaceShape getBlockFaceShape(@NotNull final IBlockAccess worldIn, @NotNull final IBlockState state, @NotNull final BlockPos pos, final EnumFacing face)
-    {
-        if (face == EnumFacing.UP)
-        {
-            return BlockFaceShape.CENTER_BIG;
-        }
-        return super.getBlockFaceShape(worldIn, state, pos, face);
+    public BlockRenderLayer getRenderLayer() {
+        return BlockRenderLayer.CUTOUT;
     }
 }

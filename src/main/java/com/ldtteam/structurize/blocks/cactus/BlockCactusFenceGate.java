@@ -2,21 +2,17 @@ package com.ldtteam.structurize.blocks.cactus;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeFenceGate;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.SoundType;
-
-import java.util.Locale;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 
 public class BlockCactusFenceGate extends AbstractBlockStructurizeFenceGate<BlockCactusFenceGate>
 {
 
-    public BlockCactusFenceGate(final BlockPlanks.EnumType type)
-    {
-        super(type);
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + "blockcactusfencegate");
-        setTranslationKey(Constants.MOD_ID.toLowerCase(Locale.ENGLISH) + "." + "blockcactusfencegate");
-        setSoundType(SoundType.WOOD);
-        setLightOpacity(0);
-    }
+    private static final String BLOCK_NAME = "blockcactusfencegate";
 
+    public BlockCactusFenceGate()
+    {
+        super(Block.Properties.from(Blocks.OAK_DOOR));
+        setRegistryName(BLOCK_NAME);
+    }
 }

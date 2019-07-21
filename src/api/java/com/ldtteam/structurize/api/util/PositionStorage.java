@@ -33,7 +33,7 @@ public class PositionStorage
 
     /**
      * Get the state of the storage.
-     * @return the IBlockState.
+     * @return the BlockState.
      */
     public IForgeBlockState getState()
     {

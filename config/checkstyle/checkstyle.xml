@@ -32,6 +32,7 @@
 
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
 
     <!--
         If you set the basedir property below, then all reported file

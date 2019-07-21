@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.decorative.BlockPaperwall;
-import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum PaperwallType implements IStringSerializable
 {
-    OAK(0, "oak", MapColor.WOOD),
-    SPRUCE(1, "spruce", MapColor.OBSIDIAN),
-    BIRCH(2, "birch", MapColor.SAND),
-    JUNGLE(3, "jungle", MapColor.DIRT);
+    OAK(0, "oak", MaterialColor.WOOD),
+    SPRUCE(1, "spruce", MaterialColor.OBSIDIAN),
+    BIRCH(2, "birch", MaterialColor.SAND),
+    JUNGLE(3, "jungle", MaterialColor.DIRT);
 
     private static final PaperwallType[] META_LOOKUP = new PaperwallType[values().length];
     static
@@ -29,19 +29,19 @@ public enum PaperwallType implements IStringSerializable
     /**
      * The color that represents this entry on a map.
      */
-    private final MapColor mapColor;
+    private final MaterialColor materialColor;
 
-    PaperwallType(final int metaIn, final String nameIn, final MapColor mapColorIn)
+    PaperwallType(final int metaIn, final String nameIn, final MaterialColor MaterialColorIn)
     {
-        this(metaIn, nameIn, nameIn, mapColorIn);
+        this(metaIn, nameIn, nameIn, MaterialColorIn);
     }
 
-    PaperwallType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MapColor mapColorIn)
+    PaperwallType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MaterialColor materialColor)
     {
         this.meta = metaIn;
         this.name = nameIn;
         this.unlocalizedName = unlocalizedNameIn;
-        this.mapColor = mapColorIn;
+        this.materialColor = materialColor;
     }
 
     public static PaperwallType byMetadata(final int meta)
@@ -62,11 +62,11 @@ public enum PaperwallType implements IStringSerializable
 
     /**
      * The color which represents this entry on a map.
-     * @return the MapColor object.
+     * @return the MaterialColor object.
      */
-    public MapColor getMapColor()
+    public MaterialColor getMaterialColor()
     {
-        return this.mapColor;
+        return this.materialColor;
     }
 
     @Override

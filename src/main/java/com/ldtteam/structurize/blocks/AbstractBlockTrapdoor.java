@@ -3,17 +3,16 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockTrapDoor;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.TrapDoorBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class AbstractBlockTrapdoor<B extends AbstractBlockTrapdoor<B>> extends BlockTrapDoor implements IBlockStructurize<B>
+public abstract class AbstractBlockTrapdoor<B extends AbstractBlockTrapdoor<B>> extends TrapDoorBlock implements IBlockStructurize<B>
 {
-    public AbstractBlockTrapdoor(final Material materialIn)
+    public AbstractBlockTrapdoor(final Properties properties)
     {
-        super(materialIn);
+        super(properties);
     }
 
     /**
@@ -30,14 +29,9 @@ public abstract class AbstractBlockTrapdoor<B extends AbstractBlockTrapdoor<B>> 
         return (B) this;
     }
 
-    /**
-     * Registery block at gameregistry.
-     *
-     * @param registry the registry to use.
-     */
     @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry)
+    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
-        registry.register((new ItemBlock(this)).setRegistryName(this.getRegistryName()));
+        registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
     }
 }

@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "down": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "up": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "north": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "east": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "south": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl",
+    "west": "structurize:blocks/timberframe/jungle/blockonecrossedsiderl"
+  }
+}

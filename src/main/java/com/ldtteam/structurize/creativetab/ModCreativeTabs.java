@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.creativetab;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.items.ModItems;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
@@ -15,7 +15,7 @@ public final class ModCreativeTabs
         @Override
         public ItemStack createIcon()
         {
-            return new ItemStack(ModItems.buildTool);
+            return new ItemStack(ModBlocks.blockCactusDoor);
         }
 
         @Override

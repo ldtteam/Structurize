@@ -17,7 +17,7 @@ public class Structurize
      */
     public Structurize()
     {
-        Instances.getModLogger().warn("Structurize");
+        Instances.getLogger().warn("Structurize");
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
     }

@@ -1,34 +1,32 @@
 package com.ldtteam.structurize.tileentities;
 
 import com.google.common.primitives.Ints;
-import net.minecraft.block.material.EnumPushReaction;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.*;
-import static net.minecraft.util.EnumFacing.*;
+import static net.minecraft.util.Direction.*;
 
 /**
  * This Class is about the MultiBlock TileEntity which takes care of pushing others around (In a non mean way).
  */
-public class TileEntityMultiBlock extends TileEntity implements ITickable
+public class TileEntityMultiBlock extends TileEntity implements ITickableTileEntity
 {
     /**
      * Max block range.
@@ -63,12 +61,12 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
     /**
      * The direction it should push or pull rom.
      */
-    private EnumFacing direction = UP;
+    private Direction direction = UP;
 
     /**
      * The output direction.
      */
-    private EnumFacing output = DOWN;
+    private Direction output = DOWN;
 
     /**
      * The range it should pull to.
@@ -78,7 +76,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
     /**
      * The direction it is going to.
      */
-    private EnumFacing currentDirection;
+    private Direction currentDirection;
 
     /**
      * The progress it has made.
@@ -94,6 +92,11 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      * Speed of the multiblock, max 3, min 1.
      */
     private int speed = 2;
+
+    public TileEntityMultiBlock()
+    {
+        super(StructurizeTileEntities.MULTIBLOCK);
+    }
 
     /**
      * Handle redstone input.
@@ -122,9 +125,8 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
         }
     }
 
-
     @Override
-    public void update()
+    public void tick()
     {
         if(world == null || world.isRemote)
         {
@@ -151,15 +153,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      */
     public void handleTick()
     {
-        final EnumFacing currentOutPutDirection = currentDirection == direction ? output : direction;
+        final Direction currentOutPutDirection = currentDirection == direction ? output : direction;
 
         if(progress < range)
         {
-            final IBlockState blockToMove = world.getBlockState(pos.offset(currentDirection, 1));
+            final BlockState blockToMove = world.getBlockState(pos.offset(currentDirection, 1));
             if (blockToMove.getBlock() == Blocks.AIR
-                    || blockToMove.getPushReaction() == EnumPushReaction.IGNORE
-                    || blockToMove.getPushReaction() == EnumPushReaction.DESTROY
-                    || blockToMove.getPushReaction() == EnumPushReaction.BLOCK
+                    || blockToMove.getPushReaction() == PushReaction.IGNORE
+                    || blockToMove.getPushReaction() == PushReaction.DESTROY
+                    || blockToMove.getPushReaction() == PushReaction.BLOCK
                     || blockToMove.getBlock().hasTileEntity(blockToMove)
                     || blockToMove.getBlock() == Blocks.BEDROCK)
             {
@@ -176,12 +178,12 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
                 final BlockPos posToGoFrom = blockToGoFrom > 0 ? pos.offset(currentDirection, blockToGoFrom) : pos.offset(currentOutPutDirection, Math.abs(blockToGoFrom));
                 if (world.isAirBlock(posToGo))
                 {
-                    final IBlockState tempState = world.getBlockState(posToGoFrom);
+                    final BlockState tempState = world.getBlockState(posToGoFrom);
                     if (blockToMove.getBlock() == tempState.getBlock() && world.isBlockLoaded(posToGoFrom) && world.isBlockLoaded(posToGo))
                     {
                         pushEntitiesIfNecessary(posToGo, pos);
                         world.setBlockState(posToGo, tempState);
-                        world.setBlockToAir(posToGoFrom);
+                        world.removeBlock(posToGoFrom, false);
                     }
                 }
             }
@@ -252,7 +254,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      *
      * @return the EnumFacing.
      */
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
         return direction;
     }
@@ -262,7 +264,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      *
      * @return the EnumFacing.
      */
-    public EnumFacing getOutput()
+    public Direction getOutput()
     {
         return output;
     }
@@ -272,7 +274,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      *
      * @param direction the direction.
      */
-    public void setDirection(final EnumFacing direction)
+    public void setDirection(final Direction direction)
     {
         this.direction = direction;
     }
@@ -282,7 +284,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
      *
      * @param output the direction.
      */
-    public void setOutput(final EnumFacing output)
+    public void setOutput(final Direction output)
     {
         this.output = output;
     }
@@ -327,33 +329,34 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
     }
 
     @Override
-    public void readFromNBT(final CompoundNBT compound)
+    public void read(final CompoundNBT compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
 
-        range = compound.getInteger(TAG_RANGE);
-        this.progress = compound.getInteger(TAG_PROGRESS);
-        direction = values()[compound.getInteger(TAG_DIRECTION)];
+        range = compound.getInt(TAG_RANGE);
+        this.progress = compound.getInt(TAG_PROGRESS);
+        direction = values()[compound.getInt(TAG_DIRECTION)];
         on = compound.getBoolean(TAG_INPUT);
-        if(compound.hasKey(TAG_OUTPUT_DIRECTION))
+        if(compound.keySet().contains(TAG_OUTPUT_DIRECTION))
         {
-            output = values()[compound.getInteger(TAG_OUTPUT_DIRECTION)];
+            output = values()[compound.getInt(TAG_OUTPUT_DIRECTION)];
         }
         else
         {
             output = direction.getOpposite();
         }
-        speed = compound.getInteger(TAG_SPEED);
+        speed = compound.getInt(TAG_SPEED);
     }
 
+    @NotNull
     @Override
-    public CompoundNBT writeToNBT(final CompoundNBT compound)
+    public CompoundNBT write(final CompoundNBT compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
         compound.putInt(TAG_RANGE, range);
         compound.putInt(TAG_PROGRESS, progress);
         compound.putInt(TAG_DIRECTION, direction.ordinal());
-        compound.setBoolean(TAG_INPUT, on);
+        compound.putBoolean(TAG_INPUT, on);
         if(output != null)
         {
             compound.putInt(TAG_OUTPUT_DIRECTION, output.ordinal());
@@ -363,30 +366,21 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
     }
 
     @Override
-    protected void setWorldCreate(final World world)
+    public void handleUpdateTag(final CompoundNBT tag)
     {
-        this.setWorld(world);
+        this.read(tag);
     }
 
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket()
+    public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
     {
-        final CompoundNBT compound = new CompoundNBT();
-        this.writeToNBT(compound);
-        return new SPacketUpdateTileEntity(this.pos, 0, compound);
+        this.read(pkt.getNbtCompound());
     }
 
     @NotNull
     @Override
     public CompoundNBT getUpdateTag()
     {
-        return writeToNBT(new CompoundNBT());
-    }
-
-    @Override
-    public void onDataPacket(final NetworkManager net, final SPacketUpdateTileEntity packet)
-    {
-        final CompoundNBT compound = packet.getNbtCompound();
-        this.readFromNBT(compound);
+        return write(new CompoundNBT());
     }
 }

@@ -1,19 +1,19 @@
 package com.ldtteam.structurize.blocks.types;
 
-import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
 public enum BarrelType implements IStringSerializable
 {
-    ZERO(0, "0perc", MapColor.WOOD),
-    TWENTY(1, "20perc", MapColor.WOOD),
-    FORTY(2, "40perc", MapColor.WOOD),
-    SIXTY(3, "60perc", MapColor.WOOD),
-    EIGHTY(4, "80perc", MapColor.WOOD),
-    HUNDRED(5, "100perc", MapColor.WOOD),
-    WORKING(6, "working", MapColor.WOOD),
-    DONE(7, "done", MapColor.WOOD),;
+    ZERO(0, "0perc", MaterialColor.WOOD),
+    TWENTY(1, "20perc", MaterialColor.WOOD),
+    FORTY(2, "40perc", MaterialColor.WOOD),
+    SIXTY(3, "60perc", MaterialColor.WOOD),
+    EIGHTY(4, "80perc", MaterialColor.WOOD),
+    HUNDRED(5, "100perc", MaterialColor.WOOD),
+    WORKING(6, "working", MaterialColor.WOOD),
+    DONE(7, "done", MaterialColor.WOOD),;
 
     private static final BarrelType[] META_LOOKUP = new BarrelType[values().length];
     static
@@ -27,17 +27,17 @@ public enum BarrelType implements IStringSerializable
     private final String   name;
     private final String   unlocalizedName;
 
-    private final MapColor mapColor;
+    private final MaterialColor materialColor;
 
     /***
      * Constructor for the BarrelType
      * @param metaIn the metadata
      * @param nameIn the name
-     * @param mapColorIn the color
+     * @param materialColor the color
      */
-    BarrelType(final int metaIn, final String nameIn, final MapColor mapColorIn)
+    BarrelType(final int metaIn, final String nameIn, final MaterialColor materialColor)
     {
-        this(metaIn, nameIn, nameIn, mapColorIn);
+        this(metaIn, nameIn, nameIn, materialColor);
     }
 
     /***
@@ -45,14 +45,14 @@ public enum BarrelType implements IStringSerializable
      * @param metaIn the metadata
      * @param nameIn the name
      * @param unlocalizedNameIn the unlocalized name
-     * @param mapColorIn the color
+     * @param materialColor the color
      */
-    BarrelType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MapColor mapColorIn)
+    BarrelType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MaterialColor materialColor)
     {
         this.meta = metaIn;
         this.name = nameIn;
         this.unlocalizedName = unlocalizedNameIn;
-        this.mapColor = mapColorIn;
+        this.materialColor = materialColor;
     }
 
     /**
@@ -84,9 +84,9 @@ public enum BarrelType implements IStringSerializable
      * Returns the color that represents the entry on the map
      * @return the color
      */
-    public MapColor getMapColor()
+    public MaterialColor getMaterialColor()
     {
-        return this.mapColor;
+        return this.materialColor;
     }
 
     /***

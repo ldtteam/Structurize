@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
-import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,12 +10,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum ShingleSlabType implements IStringSerializable
 {
-    TOP(0, "top", MapColor.WOOD),
-    ONE_WAY(1, "oneway", MapColor.OBSIDIAN),
-    TWO_WAY(2, "twoway", MapColor.SAND),
-    THREE_WAY(3, "threeway", MapColor.GOLD),
-    FOUR_WAY(4, "fourway", MapColor.BROWN),
-    CURVED(5, "curved", MapColor.DIRT);
+    TOP(0, "top", MaterialColor.WOOD),
+    ONE_WAY(1, "oneway", MaterialColor.OBSIDIAN),
+    TWO_WAY(2, "twoway", MaterialColor.SAND),
+    THREE_WAY(3, "threeway", MaterialColor.GOLD),
+    FOUR_WAY(4, "fourway", MaterialColor.BROWN),
+    CURVED(5, "curved", MaterialColor.DIRT);
 
     private static final ShingleSlabType[] META_LOOKUP = new ShingleSlabType[values().length];
     static
@@ -31,19 +31,19 @@ public enum ShingleSlabType implements IStringSerializable
     /**
      * The color that represents this entry on a map.
      */
-    private final MapColor mapColor;
+    private final MaterialColor materialColor;
 
-    ShingleSlabType(final int metaIn, final String nameIn, final MapColor mapColorIn)
+    ShingleSlabType(final int metaIn, final String nameIn, final MaterialColor MaterialColorIn)
     {
-        this(metaIn, nameIn, nameIn, mapColorIn);
+        this(metaIn, nameIn, nameIn, MaterialColorIn);
     }
 
-    ShingleSlabType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MapColor mapColorIn)
+    ShingleSlabType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MaterialColor materialColor)
     {
         this.meta = metaIn;
         this.name = nameIn;
         this.unlocalizedName = unlocalizedNameIn;
-        this.mapColor = mapColorIn;
+        this.materialColor = materialColor;
     }
 
     public static ShingleSlabType byMetadata(final int meta)
@@ -64,11 +64,11 @@ public enum ShingleSlabType implements IStringSerializable
 
     /**
      * The color which represents this entry on a map.
-     * @return the MapColor object.
+     * @return the MaterialColor object.
      */
-    public MapColor getMapColor()
+    public MaterialColor getMaterialColor()
     {
-        return this.mapColor;
+        return this.materialColor;
     }
 
     @Override

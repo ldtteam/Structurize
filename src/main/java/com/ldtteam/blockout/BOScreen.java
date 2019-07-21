@@ -61,6 +61,16 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public boolean keyPressed(final int p_keyPressed_1_, final int p_keyPressed_2_, final int p_keyPressed_3_)
+    {
+        if (p_keyPressed_1_ == 259)
+        {
+            return window.onKeyTyped('/', 259);
+        }
+        return true;
+    }
+
+    @Override
     public boolean charTyped(final char ch, final int key)
     {
         return window.onKeyTyped(ch, key);

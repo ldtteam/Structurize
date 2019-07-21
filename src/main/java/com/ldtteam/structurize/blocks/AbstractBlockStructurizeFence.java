@@ -38,4 +38,6 @@ public abstract class AbstractBlockStructurizeFence<B extends AbstractBlockStruc
     {
         return false;
     }
+
+
 }

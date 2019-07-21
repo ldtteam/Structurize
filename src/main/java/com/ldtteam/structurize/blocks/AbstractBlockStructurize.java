@@ -25,6 +25,7 @@ public abstract class AbstractBlockStructurize<B extends AbstractBlockStructuriz
         registry.register(this);
         return (B) this;
     }
+
     /**
      * Registery block at gameregistry.
      *

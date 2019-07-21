@@ -9,26 +9,56 @@ buildscript {
     }
 }
 
-repositories {
-    maven {
-        name 'DVS1 Maven FS'
-        url 'http://dvs1.progwml6.com/files/maven'
-    }
-    maven {
-        url 'http://dogforce-games.com/maven'
-    }
-}
-
-apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
+apply plugin: 'idea'
 
 version = '1.0'
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+
+sourceSets {
+    api {
+        java {
+            srcDir 'src/api/java'
+        }
+        resources {
+            srcDir 'src/api/resources'
+        }
+        compileClasspath += main.compileClasspath
+    }
+    blockOut {
+        java {
+            srcDir 'src/blockout/java'
+        }
+        resources {
+            srcDir 'src/blockout/resources'
+        }
+        compileClasspath += sourceSets.api.compileClasspath
+    }
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+        compileClasspath += sourceSets.blockOut.output
+        compileClasspath += sourceSets.api.output
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -56,6 +86,7 @@ minecraft {
             mods {
                 structurize {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -72,9 +103,16 @@ minecraft {
             mods {
                 structurize {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
+    }
+}
+
+configurations {
+    contained {
+        transitive = false
     }
 }
 
@@ -99,8 +137,45 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
 }
 
+processResources {
+
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.api.output
+    classifier 'api'
+}
+
+javadoc {
+    source += sourceSets.api.allSource
+    source += sourceSets.blockOut.allSource
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
+    from sourceSets.api.output
+    from sourceSets.blockOut.output
+    from sourceSets.main.output
+
+    from(configurations.contained.files) {
+        include '*'
+        into 'META-INF/libraries'
+    }
 
     manifest {
         attributes([
@@ -115,6 +190,8 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+
+    classifier = 'universal'
 }
 
 // Example configuration to allow publishing using the maven-publish task

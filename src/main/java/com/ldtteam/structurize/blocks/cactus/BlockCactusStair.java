@@ -2,21 +2,17 @@ package com.ldtteam.structurize.blocks.cactus;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
-
-import java.util.Locale;
+import com.ldtteam.structurize.blocks.ModBlocks;
+import net.minecraft.block.Block;
 
 public class BlockCactusStair extends AbstractBlockStructurizeStairs<BlockCactusStair>
 {
 
-    public BlockCactusStair(final IBlockState modelState)
+    private static final String BLOCK_NAME = "blockcactusstair";
+
+    public BlockCactusStair()
     {
-        super(modelState);
-        setRegistryName(Constants.MOD_ID.toLowerCase() + ":" + "blockcactusstair");
-        setTranslationKey(Constants.MOD_ID.toLowerCase(Locale.ENGLISH) + "." + "blockcactusstair");
-        setCreativeTab(ModCreativeTabs.STRUCTURIZE);
-        setSoundType(SoundType.WOOD);
+        super(ModBlocks.blockCactusPlank.getDefaultState(), Block.Properties.from(ModBlocks.blockCactusPlank));
+        setRegistryName(BLOCK_NAME);
     }
 }

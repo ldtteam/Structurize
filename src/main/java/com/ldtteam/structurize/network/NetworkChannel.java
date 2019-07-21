@@ -2,6 +2,7 @@ package com.ldtteam.structurize.network;
 
 import com.ldtteam.structurize.Instances;
 import com.ldtteam.structurize.network.messages.IMessage;
+import com.ldtteam.structurize.network.messages.MultiBlockChangeMessage;
 import com.ldtteam.structurize.network.messages.TestMessage;
 import com.ldtteam.structurize.util.Utils;
 import net.minecraft.entity.Entity;
@@ -45,6 +46,8 @@ public class NetworkChannel
     {
         int idx = 0;
         registerMessage(++idx, TestMessage.class);
+        registerMessage(++idx, MultiBlockChangeMessage.class);
+
     }
 
     /**
@@ -74,7 +77,7 @@ public class NetworkChannel
             ctx.setPacketHandled(true);
             if (msg.getExecutionSide() != null && packetOrigin.equals(msg.getExecutionSide()))
             {
-                Instances.getModLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
+                Instances.getLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
                 return;
             }
             // boolean param MUST equals true if packet arrived at logical server

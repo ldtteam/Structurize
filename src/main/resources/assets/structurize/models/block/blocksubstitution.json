@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/blocksubstitution",
+    "down": "structurize:blocks/blocksubstitution",
+    "up": "structurize:blocks/blocksubstitution",
+    "north": "structurize:blocks/blocksubstitution",
+    "east": "structurize:blocks/blocksubstitution",
+    "south": "structurize:blocks/blocksubstitution",
+    "west": "structurize:blocks/blocksubstitution"
+  }
+}

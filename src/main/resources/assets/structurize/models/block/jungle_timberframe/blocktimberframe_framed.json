@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "structurize:blocks/timberframe/jungle/blockframedside",
+    "down": "structurize:blocks/timberframe/jungle/blockframedside",
+    "up": "structurize:blocks/timberframe/jungle/blockframedside",
+    "north": "structurize:blocks/timberframe/jungle/blockframedside",
+    "east": "structurize:blocks/timberframe/jungle/blockframedside",
+    "south": "structurize:blocks/timberframe/jungle/blockframedside",
+    "west": "structurize:blocks/timberframe/jungle/blockframedside"
+  }
+}

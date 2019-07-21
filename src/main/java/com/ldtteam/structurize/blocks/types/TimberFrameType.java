@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
-import net.minecraft.block.material.MapColor;
+
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,16 +9,16 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameType implements IStringSerializable
 {
-    PLAIN(0, "plain", MapColor.WOOD),
-    DOUBLECROSSED(1, "doublecrossed", MapColor.ADOBE),
-    FRAMED(2, "framed", MapColor.AIR),
-    SIDEFRAMED(3, "sideframed", MapColor.BLACK),
-    GATEFRAMED(4, "gateframed", MapColor.BLUE),
-    ONECROSSEDLR(5, "onecrossedlr", MapColor.SNOW),
-    ONECROSSEDRL(6, "onecrossedrl", MapColor.BROWN),
-    DOWNGATED(7, "downgated", MapColor.CLAY),
-    HORIZONTALPLAIN(8, "horizontalplain", MapColor.CLOTH),
-    HORIZONTALNOCAP(9, "horizontalnocap", MapColor.CYAN);
+    PLAIN(0, "plain", MaterialColor.WOOD),
+    DOUBLECROSSED(1, "doublecrossed", MaterialColor.ADOBE),
+    FRAMED(2, "framed", MaterialColor.AIR),
+    SIDEFRAMED(3, "sideframed", MaterialColor.BLACK),
+    GATEFRAMED(4, "gateframed", MaterialColor.BLUE),
+    ONECROSSEDLR(5, "onecrossedlr", MaterialColor.SNOW),
+    ONECROSSEDRL(6, "onecrossedrl", MaterialColor.BROWN),
+    DOWNGATED(7, "downgated", MaterialColor.CLAY),
+    HORIZONTALPLAIN(8, "horizontalplain", MaterialColor.ICE),
+    HORIZONTALNOCAP(9, "horizontalnocap", MaterialColor.CYAN);
     private static final TimberFrameType[] META_LOOKUP = new TimberFrameType[values().length];
     static
     {
@@ -26,21 +27,21 @@ public enum TimberFrameType implements IStringSerializable
             META_LOOKUP[enumtype.getMetadata()] = enumtype;
         }
     }
-    private final int      meta;
-    private final String   name;
-    private final String   unlocalizedName;
-    private final MapColor mapColor;
+    private final int           meta;
+    private final String        name;
+    private final String        unlocalizedName;
+    private final MaterialColor materialColor;
 
-    TimberFrameType(final int metaIn, final String nameIn, final MapColor mapColorIn)
+    TimberFrameType(final int metaIn, final String nameIn, final MaterialColor MaterialColorIn)
     {
-        this(metaIn, nameIn, nameIn, mapColorIn);
+        this(metaIn, nameIn, nameIn, MaterialColorIn);
     }
-    TimberFrameType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MapColor mapColorIn)
+    TimberFrameType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MaterialColor materialColorIn)
     {
         this.meta = metaIn;
         this.name = nameIn;
         this.unlocalizedName = unlocalizedNameIn;
-        this.mapColor = mapColorIn;
+        this.materialColor = materialColorIn;
     }
     public static TimberFrameType byMetadata(final int meta)
     {
@@ -59,11 +60,11 @@ public enum TimberFrameType implements IStringSerializable
 
     /**
      * The color which represents this entry on a map.
-     * @return the MapColor object.
+     * @return the MaterialColor object.
      */
-    public MapColor getMapColor()
+    public MaterialColor getMaterialColor()
     {
-        return this.mapColor;
+        return this.materialColor;
     }
 
     @Override
