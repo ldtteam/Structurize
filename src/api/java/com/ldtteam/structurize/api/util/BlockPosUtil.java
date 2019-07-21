@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.api.util;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;

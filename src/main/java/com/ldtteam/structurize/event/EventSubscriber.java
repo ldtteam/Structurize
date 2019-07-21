@@ -2,6 +2,7 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.commands.EntryPoint;
+import com.ldtteam.structurize.management.Structures;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
@@ -30,5 +31,6 @@ public class EventSubscriber
     {
         Structurize.getLogger().warn("FMLServerStartingEvent");
         EntryPoint.register(event.getCommandDispatcher());
+        Structures.init();
     }
 }

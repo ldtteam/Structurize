@@ -1,6 +1,8 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,7 +33,7 @@ public final class Log
     {
         if (logger == null)
         {
-            Log.logger = LogManager.getLogger(Utils.createLocationFor("blockout").toString());
+            Log.logger = LogManager.getLogger(new ResourceLocation(Constants.MOD_ID, "blockout").toString());
         }
         return logger;
     }

@@ -77,7 +77,6 @@ public class OverlayView extends View
     @Override
     public boolean onKeyTyped(final char ch, final int key)
     {
-        Log.getLogger().info("OverlayView::onKeyTyped()");
         if (isVisible() && key == GLFW.GLFW_KEY_ESCAPE)
         {
             setVisible(false);

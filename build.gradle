@@ -15,12 +15,12 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-version = '1.0'
-group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'structurize'
-
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
+ext.configFile = file "build.properties"
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
 
 sourceSets {
     api {
@@ -30,7 +30,6 @@ sourceSets {
         resources {
             srcDir 'src/api/resources'
         }
-        compileClasspath += main.compileClasspath
     }
     blockOut {
         java {
@@ -60,6 +59,40 @@ sourceSets {
         }
     }
 }
+
+configurations {
+    contained {
+        transitive = false
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
+
+    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
+
+    testCompile 'junit:junit:4.11'
+    testCompile "org.mockito:mockito-core:1.+"
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
+
+    testCompile 'org.assertj:assertj-core:3.9.0'
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+
+    compile 'com.intellij:annotations:+@jar'
+}
+
+version = '1.0'
+group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'structurize'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -111,32 +144,6 @@ minecraft {
     }
 }
 
-configurations {
-    contained {
-        transitive = false
-    }
-}
-
-dependencies {
-    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
-
-    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
-
-    testCompile 'junit:junit:4.11'
-    testCompile "org.mockito:mockito-core:1.+"
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
-
-    testCompile 'org.assertj:assertj-core:3.9.0'
-
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
-
-    compile 'com.intellij:annotations:+@jar'
-}
 
 processResources {
     inputs.property "version", project.version

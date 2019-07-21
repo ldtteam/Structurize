@@ -2,7 +2,10 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
@@ -33,6 +36,7 @@ public class LifecycleSubscriber
     {
         Structurize.getLogger().warn("FMLCommonSetupEvent");
         Network.getNetwork().registerCommonMessages();
+        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
     }
 
     /**
