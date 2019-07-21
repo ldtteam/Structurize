@@ -45,19 +45,15 @@ public class CommonConfiguration extends AbstractConfiguration
      */
     protected CommonConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        super(builder);
+        createCategory(builder, "gameplay");
 
-        firstCategory("Gameplay", "All configuration items related to the core gameplay");
+        ignoreSchematicsFromJar = defineBoolean(builder, "ignoreSchematicsFromJar", false);
+        allowPlayerSchematics = defineBoolean(builder, "allowPlayerSchematics", true);
+        maxOperationsPerTick = defineInteger(builder, "maxOperationsPerTick", 1000, 0, 100000);
+        maxCachedChanges = defineInteger(builder, "maxCachedChanges", 10, 0, 100);
+        maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
+        maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
 
-        //Should the default schematics be ignored (from the jar)?
-        ignoreSchematicsFromJar = defineBoolean(builder, ".ignoreSchematicsFromJar", false);
-        allowPlayerSchematics = defineBoolean(builder, ".allowPlayerSchematics", true);
-
-        maxOperationsPerTick = defineInteger(builder, ".maxOperationsPerTick", 1000, 0, 100000);
-        maxCachedChanges = defineInteger(builder, ".maxCachedChanges", 10, 0, 100);
-        maxCachedSchematics = defineInteger(builder, ".maxCachedSchematics", 100, 0, 100000);
-        maxBlocksChecked = defineInteger(builder, ".maxBlocksChecked", 1000, 0, 100000);
-
-        finish();
+        finishCategory(builder);
     }
 }

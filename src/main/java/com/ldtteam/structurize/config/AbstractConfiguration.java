@@ -3,9 +3,8 @@ package com.ldtteam.structurize.config;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
-
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.constants.GeneralConstants;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
@@ -17,51 +16,25 @@ import net.minecraftforge.common.ForgeConfigSpec.LongValue;
 
 public abstract class AbstractConfiguration
 {
-    /**
-     * The builder;
-     */
-    protected final ForgeConfigSpec.Builder builder;
-
-    /**
-     * Constructor of the config.
-     * @param builder the builder assigned to it.
-     */
-    public AbstractConfiguration(final ForgeConfigSpec.Builder builder)
+    protected void createCategory(final Builder builder, final String key)
     {
-        this.builder = builder;
+        buildBase(builder, key).push(key);
     }
 
-    /**
-     * Creates a new Category.
-     * @param name the name of the category.
-     * @param comment the comment to it.
-     */
-    protected void firstCategory(final String name, final String comment)
+    protected void swapToCategory(final Builder builder, final String key)
     {
-        builder.comment(comment).push(name);
+        finishCategory(builder);
+        createCategory(builder, key);
     }
 
-    /**
-     * Creates a new Category.
-     * @param name the name of the category.
-     * @param comment the comment to it.
-     */
-    protected void newCategory(final String name, final String comment)
-    {
-        builder.comment(comment).push(name);
-    }
-
-    /**
-     * Finish the creation of the config.
-     */
-    protected void finish()
+    protected void finishCategory(final Builder builder)
     {
         builder.pop();
     }
 
     private static String nameTKey(final String key)
     {
-        return GeneralConstants.MOD_ID + ".config." + key;
+        return Constants.MOD_ID + ".config." + key;
     }
 
     private static String commentTKey(final String key)
@@ -110,10 +83,10 @@ public abstract class AbstractConfiguration
     }
 
     protected static <T> ConfigValue<List<? extends T>> defineList(
-      final Builder builder,
-      final String key,
-      final List<? extends T> defaultValue,
-      final Predicate<Object> elementValidator)
+        final Builder builder,
+        final String key,
+        final List<? extends T> defaultValue,
+        final Predicate<Object> elementValidator)
     {
         return buildBase(builder, key).defineList(key, defaultValue, elementValidator);
     }

@@ -15,6 +15,5 @@ public class ClientConfiguration extends AbstractConfiguration
      */
     protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        super(builder);
     }
 }
