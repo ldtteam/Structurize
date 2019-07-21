@@ -40,7 +40,7 @@ public class EntryPoint extends AbstractCommand
      */
     public static void register(final CommandDispatcher<CommandSource> dispatcher)
     {
-        /*final CommandTree linkSession = new CommandTree("linksession").addNode(LinkSessionCommand.AboutMe.build())
+        final CommandTree linkSession = new CommandTree("linksession").addNode(LinkSessionCommand.AboutMe.build())
             .addNode(LinkSessionCommand.AcceptInvite.build())
             .addNode(LinkSessionCommand.AddPlayer.build())
             .addNode(LinkSessionCommand.Create.build())
@@ -51,6 +51,6 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.SendMessage.build());
         final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID).addNode(linkSession).addNode(UpdateSchematicsCommand.build());
 
-        dispatcher.register(structurizeRoot.build());*/
+        dispatcher.register(structurizeRoot.build());
     }
 }
