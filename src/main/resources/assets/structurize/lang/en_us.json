@@ -26,7 +26,7 @@
   "structurize.config.maxCachedSchematics": "Max Cached Schematics",
   "structurize.config.maxCachedSchematics.comment": "Max amount of schematics to be cached on the server",
   "structurize.config.maxBlocksChecked": "Max Blocks Checked",
-  "structurize.config.maxBlocksChecked.comment": "Max amount of blocks checked by a possible worker.",
+  "structurize.config.maxBlocksChecked.comment": "Max amount of blocks checked by a possible worker",
   "block.structurize.blockcactusdoor": "Cactus Plank",
   "block.structurize.blockcactusplank": "Cactus Door",
   "block.structurize.blockcactustrapdoor": "Cactus Trapdoor",
