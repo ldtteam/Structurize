@@ -14,6 +14,7 @@ apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 ext.configFile = file "build.properties"
 configFile.withReader {
@@ -30,15 +31,7 @@ sourceSets {
         resources {
             srcDir 'src/api/resources'
         }
-    }
-    blockOut {
-        java {
-            srcDir 'src/blockout/java'
-        }
-        resources {
-            srcDir 'src/blockout/resources'
-        }
-        compileClasspath += sourceSets.api.compileClasspath
+        runtimeClasspath += sourceSets.main.output
     }
     main {
         java {
@@ -47,16 +40,7 @@ sourceSets {
         resources {
             srcDir 'src/main/resources'
         }
-        compileClasspath += sourceSets.blockOut.output
         compileClasspath += sourceSets.api.output
-    }
-    test {
-        java {
-            srcDir 'src/test/java'
-        }
-        resources {
-            srcDir 'src/test/resources'
-        }
     }
 }
 
@@ -71,20 +55,8 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
-
-    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
-
-    testCompile 'junit:junit:4.11'
-    testCompile "org.mockito:mockito-core:1.+"
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
-
-    testCompile 'org.assertj:assertj-core:3.9.0'
-
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
-
     compile 'com.intellij:annotations:+@jar'
+    compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 }
 
 version = '1.0'
@@ -156,7 +128,6 @@ task apiJar(type: Jar) {
 
 javadoc {
     source += sourceSets.api.allSource
-    source += sourceSets.blockOut.allSource
 }
 
 idea {
@@ -168,7 +139,6 @@ idea {
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     from sourceSets.api.output
-    from sourceSets.blockOut.output
     from sourceSets.main.output
 
     from(configurations.contained.files) {
