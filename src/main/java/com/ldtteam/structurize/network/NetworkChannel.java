@@ -2,9 +2,11 @@ package com.ldtteam.structurize.network;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.LogicalSide;
@@ -34,7 +36,7 @@ public class NetworkChannel
      */
     public NetworkChannel(final String channelName)
     {
-        rawChannel = NetworkRegistry.newSimpleChannel(Utils.createLocationFor(channelName), () -> LATEST_PROTO_VER, ACCEPTED_PROTO_VERS::equals, ACCEPTED_PROTO_VERS::equals);
+        rawChannel = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MOD_ID, channelName), () -> LATEST_PROTO_VER, ACCEPTED_PROTO_VERS::equals, ACCEPTED_PROTO_VERS::equals);
     }
 
     /**
