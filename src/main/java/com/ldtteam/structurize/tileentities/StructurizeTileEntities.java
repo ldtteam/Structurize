@@ -18,11 +18,14 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class StructurizeTileEntities
 {
+    @ObjectHolder("multiblock")
+    public static TileEntityType<?> MULTIBLOCK;
+
     @SubscribeEvent
     public static void registerTileEntity(final RegistryEvent.Register<TileEntityType<?>> event)
     {
-        event.getRegistry().registerAll(
-          TileEntityType.Builder.create(TileEntityMultiBlock::new,
-            ModBlocks.multiBlock).build(null).setRegistryName(Constants.MOD_ID, "multiblock"));
+        MULTIBLOCK = TileEntityType.Builder.create(TileEntityMultiBlock::new,
+          ModBlocks.multiBlock).build(null).setRegistryName(Constants.MOD_ID, "multiblock");
+        event.getRegistry().registerAll(MULTIBLOCK);
     }
 }

@@ -4,12 +4,12 @@ import com.google.common.primitives.Ints;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.PushReaction;
-import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
@@ -26,7 +26,7 @@ import static net.minecraft.util.Direction.*;
 /**
  * This Class is about the MultiBlock TileEntity which takes care of pushing others around (In a non mean way).
  */
-public class TileEntityMultiBlock extends TileEntity implements ITickable
+public class TileEntityMultiBlock extends TileEntity implements ITickableTileEntity
 {
     /**
      * Max block range.
@@ -95,7 +95,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickable
 
     public TileEntityMultiBlock()
     {
-        super(TileEntityType.PISTON);
+        super(StructurizeTileEntities.MULTIBLOCK);
     }
 
     /**

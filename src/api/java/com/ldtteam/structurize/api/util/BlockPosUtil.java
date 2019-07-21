@@ -73,34 +73,6 @@ public final class BlockPosUtil
     }
 
     /**
-     * Writes chunk coordinates to a {@link ByteBuf}.
-     *
-     * @param buf Buf to write to.
-     * @param pos Coordinate to write.
-     */
-    public static void writeToByteBuf(@NotNull final ByteBuf buf, @NotNull final BlockPos pos)
-    {
-        buf.writeInt(pos.getX());
-        buf.writeInt(pos.getY());
-        buf.writeInt(pos.getZ());
-    }
-
-    /**
-     * Read chunk coordinates from a {@link ByteBuf}.
-     *
-     * @param buf Buf to read from.
-     * @return Chunk coordinate that was read.
-     */
-    @NotNull
-    public static BlockPos readFromByteBuf(@NotNull final ByteBuf buf)
-    {
-        final int x = buf.readInt();
-        final int y = buf.readInt();
-        final int z = buf.readInt();
-        return new BlockPos(x, y, z);
-    }
-
-    /**
      * this checks that you are not in liquid.  Will check for all liquids, even
      * those from other mods before TP
      *

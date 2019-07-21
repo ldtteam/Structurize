@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.client.gui.gui.WindowMultiBlock;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -52,11 +52,10 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     public boolean onBlockActivated(
       final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit)
     {
-        /*if (worldIn.isRemote)
+        if (worldIn.isRemote)
         {
-            //todo
-            Structurize.proxy.openMultiBlockWindow(pos);
-        }*/
+            new WindowMultiBlock(pos).open();
+        }
         return true;
     }
 
