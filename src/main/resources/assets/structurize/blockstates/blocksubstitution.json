@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "structurize:blocksubstitution"
+    "model": "structurize:block/blocksubstitution"
   },
   "variants": {
     "": [{}]

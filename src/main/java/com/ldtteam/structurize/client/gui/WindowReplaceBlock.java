@@ -6,7 +6,7 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.blockout.views.Window;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
@@ -171,7 +171,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 if (origin instanceof WindowScan)
                 {
-                    Structurize.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
+                    Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }
                 else
                 {

@@ -2,7 +2,7 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
@@ -47,7 +47,7 @@ public class ItemScanTool extends AbstractItemStructurize
      */
     public ItemScanTool(final Properties properties)
     {
-        super("scepterSteel", properties.maxStackSize(1));
+        super("sceptersteel", properties.maxStackSize(1));
     }
 
     @Override
@@ -154,7 +154,7 @@ public class ItemScanTool extends AbstractItemStructurize
         }
 
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
-        Structurize.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
+        Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
 
     /**

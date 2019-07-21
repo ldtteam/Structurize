@@ -22,7 +22,7 @@ public class ItemBuildTool extends AbstractItemStructurize
      */
     public ItemBuildTool(final Properties properties)
     {
-        super("scepterGold", properties.maxStackSize(1));
+        super("sceptergold", properties.maxStackSize(1));
     }
 
     @NotNull

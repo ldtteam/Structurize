@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
@@ -94,7 +94,7 @@ public class LSStructureDisplayerMessage implements IMessage
                 final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayerByUUID(target);
                 if(playerEntity != null)
                 {
-                    Structurize.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);
+                    Network.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);
                 }
             }
         }

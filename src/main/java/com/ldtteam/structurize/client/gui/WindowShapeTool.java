@@ -7,7 +7,7 @@ import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -374,7 +374,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void undoClicked()
     {
-        Structurize.getNetwork().sendToServer(new UndoMessage());
+        Network.getNetwork().sendToServer(new UndoMessage());
     }
 
     /**
@@ -382,7 +382,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void paste()
     {
-        Structurize.getNetwork().sendToServer(new GenerateAndPasteMessage(Settings.instance.getPosition(),
+        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(Settings.instance.getPosition(),
           Settings.instance.getLength(),
           Settings.instance.getWidth(),
           Settings.instance.getHeight(),
@@ -580,7 +580,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void cancelClicked()
     {
         Settings.instance.reset();
-        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
+        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
         close();
     }
 
@@ -627,7 +627,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             final ByteBuf buffer = Unpooled.buffer();
             final PacketBuffer packetBuffer = new PacketBuffer(buffer);
             Settings.instance.toBytes(packetBuffer);
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
+            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
         }
     }
 }

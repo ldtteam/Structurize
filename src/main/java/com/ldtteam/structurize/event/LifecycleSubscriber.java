@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,7 +32,7 @@ public class LifecycleSubscriber
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Structurize.getLogger().warn("FMLCommonSetupEvent");
-        Structurize.getNetwork().registerCommonMessages();
+        Network.getNetwork().registerCommonMessages();
     }
 
     /**

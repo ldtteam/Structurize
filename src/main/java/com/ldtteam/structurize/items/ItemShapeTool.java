@@ -19,7 +19,7 @@ public class ItemShapeTool extends AbstractItemStructurize
      */
     public ItemShapeTool(final Properties properties)
     {
-        super("shapeTool", properties.maxStackSize(1));
+        super("shapetool", properties.maxStackSize(1));
     }
 
     @NotNull

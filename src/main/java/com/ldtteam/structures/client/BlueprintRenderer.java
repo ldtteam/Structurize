@@ -8,6 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.client.renderer.chunk.ChunkRenderTask;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
@@ -77,6 +78,8 @@ public class BlueprintRenderer
         tessellator.startBuilding();
 
         final Random random = new Random();
+        new ChunkRenderTask()
+
         blockAccess.getBlueprint().getBlockInfoAsList().stream()
           .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
           .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, null));

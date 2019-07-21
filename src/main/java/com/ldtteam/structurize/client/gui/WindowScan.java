@@ -8,7 +8,7 @@ import com.ldtteam.blockout.controls.Label;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -139,7 +139,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void undoClicked()
     {
-        Structurize.getNetwork().sendToServer(new UndoMessage());
+        Network.getNetwork().sendToServer(new UndoMessage());
     }
 
     /**
@@ -164,7 +164,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final int row = entityList.getListElementIndexByPane(button);
         final Entity entity = new ArrayList<>(entities.values()).get(row);
-        Structurize.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getUnformattedComponentText()));
+        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getUnformattedComponentText()));
         entities.remove(entity.getName());
         updateEntitylist();
     }
@@ -182,7 +182,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = resourceList.getListElementIndexByPane(button);
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
         final ItemStack stack = tempRes.get(row).getItemStack();
-        Structurize.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
         final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
         resources.remove(stack.getTranslationKey() + ":" + stack.getDamage() + "-" + hashCode);
         updateResourceList();
@@ -257,7 +257,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Structurize.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name));
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name));
         Settings.instance.setBox(null);
         close();
     }
@@ -301,7 +301,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
-        Structurize.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
         final World world = Minecraft.getInstance().world;
         resources.clear();

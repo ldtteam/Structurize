@@ -5,7 +5,7 @@ import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
@@ -476,7 +476,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
             Settings.instance.toBytes(packetBuffer);
-            Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
+            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
         }
     }
 
@@ -864,7 +864,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Log.getLogger().info("Request To Server for structure " + structureName);
             if (ServerLifecycleHooks.getCurrentServer() == null)
             {
-                Structurize.getNetwork().sendToServer(new SchematicRequestMessage(structureName.toString()));
+                Network.getNetwork().sendToServer(new SchematicRequestMessage(structureName.toString()));
                 return;
             }
             else
@@ -904,7 +904,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {
-                        Structurize.getNetwork().sendToServer(new SchematicSaveMessage(structureAsByteArray, id, 1, 1));
+                        Network.getNetwork().sendToServer(new SchematicSaveMessage(structureAsByteArray, id, 1, 1));
                     }
                     else
                     {
@@ -924,7 +924,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                                 size = MAX_MESSAGE_SIZE;
                             }
                             byte[] bytes = Arrays.copyOfRange(structureAsByteArray, start, size);
-                            Structurize.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
+                            Network.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
                         }
                     }
                 }
@@ -940,7 +940,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             if (paste || pasteDirectly())
             {
-                Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
+                Network.getNetwork().sendToServer(new BuildToolPasteMessage(
                   serverSideName,
                   structureName.toString(),
                   Settings.instance.getPosition(),
@@ -994,7 +994,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {
-                        Structurize.getNetwork().sendToServer(new SchematicSaveMessage(structureAsByteArray, id, 1, 1));
+                        Network.getNetwork().sendToServer(new SchematicSaveMessage(structureAsByteArray, id, 1, 1));
                     }
                     else
                     {
@@ -1014,7 +1014,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                                 size = MAX_MESSAGE_SIZE;
                             }
                             byte[] bytes = Arrays.copyOfRange(structureAsByteArray, start, size);
-                            Structurize.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
+                            Network.getNetwork().sendToServer(new SchematicSaveMessage(bytes, id, pieces, i));
                         }
                     }
                 }
@@ -1078,7 +1078,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public void paste(final StructureName name, final boolean complete)
     {
-        Structurize.getNetwork().sendToServer(new BuildToolPasteMessage(
+        Network.getNetwork().sendToServer(new BuildToolPasteMessage(
           name.toString(),
           name.toString(),
           Settings.instance.getPosition(),
@@ -1130,7 +1130,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void cancelClicked()
     {
         Settings.instance.softReset();
-        Structurize.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
+        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
         close();
     }
 

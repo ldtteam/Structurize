@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.network.PacketBuffer;
@@ -75,7 +75,7 @@ public class SchematicRequestMessage implements IMessage
         {
             Log.getLogger().info("Request: player " + ctxIn.getSender().getName().getUnformattedComponentText() + " is requesting schematic " + filename);
             final byte[] schematic = StructureLoadingUtils.getStreamAsByteArray(stream);
-            Structurize.getNetwork().sendToPlayer(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), ctxIn.getSender());
+            Network.getNetwork().sendToPlayer(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), ctxIn.getSender());
         }
     }
 }

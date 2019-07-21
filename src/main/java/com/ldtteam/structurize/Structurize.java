@@ -34,14 +34,9 @@ public class Structurize
     private static final Logger logger = LogManager.getLogger(Constants.MOD_ID);
 
     /**
-     * The network instance.
-     */
-    private static NetworkChannel network;
-
-    /**
      * The config instance.
      */
-    private static Configuration config;
+    private static final Configuration config = new Configuration(ModLoadingContext.get().getActiveContainer());
 
     /**
      * Mod init, registers events to their respective busses
@@ -53,10 +48,6 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(FMLEventHandler.class);
-
-
-        network = new NetworkChannel("net-channel");
-        config = new Configuration(ModLoadingContext.get().getActiveContainer());
     }
 
     /**
@@ -67,15 +58,6 @@ public class Structurize
     public static Logger getLogger()
     {
         return logger;
-    }
-
-    /**
-     * Get the network handler.
-     * @return the network handler.
-     */
-    public static NetworkChannel getNetwork()
-    {
-        return network;
     }
 
     /**

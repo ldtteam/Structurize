@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.items.ModItems;
@@ -38,8 +38,8 @@ public class FMLEventHandler
     {
         if (event.getPlayer() instanceof ServerPlayerEntity)
         {
-            Structurize.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayerEntity) event.getPlayer());
-            Structurize.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayerEntity) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayerEntity) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayerEntity) event.getPlayer());
         }
     }
 
