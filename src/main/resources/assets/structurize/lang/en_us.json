@@ -13,6 +13,14 @@
   "item.caliper.msg.1D": "line",
   "item.caliper.msg.2D": "square",
   "item.caliper.msg.3D": "cube",
+
+  "structurize.config.ignoreSchematicsFromJar": "Should the default schematics be ignored (from the jar)?",
+  "structurize.config.allowPlayerSchematics": "Should player made schematics be allowed",
+  "structurize.config.maxOperationsPerTick": "Max world operations per tick (Max blocks to place, remove or replace)",
+  "structurize.config.maxCachedChanges": "Max amount of changes cached to be able to undo",
+  "structurize.config.maxCachedSchematics": "Max amount of schematics to be cached on the server",
+  "structurize.config.maxBlocksChecked": "Max amount of blocks checked by a possible worker.",
+
   "block.structurize.blockcactusdoor": "Cactus Plank",
   "block.structurize.blockcactusplank": "Cactus Door",
   "block.structurize.blockcactustrapdoor": "Cactus Trapdoor",

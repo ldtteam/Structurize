@@ -36,9 +36,18 @@ public abstract class AbstractConfiguration
      * @param name the name of the category.
      * @param comment the comment to it.
      */
+    protected void firstCategory(final String name, final String comment)
+    {
+        builder.comment(comment).push(name);
+    }
+
+    /**
+     * Creates a new Category.
+     * @param name the name of the category.
+     * @param comment the comment to it.
+     */
     protected void newCategory(final String name, final String comment)
     {
-        builder.pop();
         builder.comment(comment).push(name);
     }
 

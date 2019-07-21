@@ -20,13 +20,13 @@ public class EventSubscriber
      */
     private EventSubscriber()
     {
-        /**
+        /*
          * Intentionally left empty
          */
     }
 
     /**
-     * Called when server will load a world (client: play button, dedi server: after {@link LifecycleSubscriber#processIMC()}).
+     * Called when server will load a world (client: play button, dedi server: after {@link LifecycleSubscriber()}).
      *
      * @param event event
      */
@@ -34,7 +34,6 @@ public class EventSubscriber
     public static void onServerAboutToStart(final FMLServerAboutToStartEvent event)
     {
         Instances.getLogger().warn("FMLServerAboutToStartEvent");
-        Instances.getLogger().info(Instances.getConfig().getCommon().getTestBoolean());
     }
 
     /**

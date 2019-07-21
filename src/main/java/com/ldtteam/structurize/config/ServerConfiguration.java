@@ -15,8 +15,6 @@ public class ServerConfiguration extends AbstractConfiguration
      */
     protected ServerConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        /**
-         * Intentionally left empty
-         */
+        super(builder);
     }
 }

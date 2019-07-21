@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.config;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
@@ -10,19 +8,35 @@ import net.minecraftforge.common.ForgeConfigSpec;
  */
 public class CommonConfiguration extends AbstractConfiguration
 {
-    private final ForgeConfigSpec.ConfigValue<List<? extends String>> testList;
-    private final ForgeConfigSpec.BooleanValue testBoolean;
-    private final ForgeConfigSpec.DoubleValue testDouble;
-    private final ForgeConfigSpec.LongValue testLong;
-    private final ForgeConfigSpec.EnumValue<Test> testEnum;
+    /**
+     * Should the default schematics be ignored (from the jar)?
+     */
+    public final ForgeConfigSpec.BooleanValue ignoreSchematicsFromJar;
 
-    public enum Test
-    {
-        ONE,
-        TWO,
-        THOUSAND,
-        SAND;
-    }
+    /**
+     * Should player made schematics be allowed
+     */
+    public final ForgeConfigSpec.BooleanValue allowPlayerSchematics;
+
+    /**
+     * Max world operations per tick (Max blocks to place, remove or replace)
+     */
+    public final ForgeConfigSpec.IntValue maxOperationsPerTick;
+
+    /**
+     * Max amount of changes cached to be able to undo
+     */
+    public final ForgeConfigSpec.IntValue maxCachedChanges;
+
+    /**
+     * Max amount of schematics to be cached on the server
+     */
+    public final ForgeConfigSpec.IntValue maxCachedSchematics;
+
+    /**
+     * Max amount of blocks checked by a possible worker.
+     */
+    public final ForgeConfigSpec.IntValue maxBlocksChecked;
 
     /**
      * Builds common configuration.
@@ -33,42 +47,17 @@ public class CommonConfiguration extends AbstractConfiguration
     {
         super(builder);
 
-        newCategory("Common", "Common");
+        firstCategory("Gameplay", "All configuration items related to the core gameplay");
 
-        testList = defineList(builder, "testlist", new ArrayList<>(), o -> o instanceof String);
-        testBoolean = defineBoolean(builder, "testboolean", false);
-        testDouble = defineDouble(builder, "testdouble", 0.5d, 0.0d, 1.0d);
-        testLong = defineLong(builder, "testlong", 150);
+        //Should the default schematics be ignored (from the jar)?
+        ignoreSchematicsFromJar = defineBoolean(builder, ".ignoreSchematicsFromJar", false);
+        allowPlayerSchematics = defineBoolean(builder, ".allowPlayerSchematics", true);
 
-        newCategory("General", "General");
-
-        testEnum = defineEnum(builder, "testenum", Test.ONE);
+        maxOperationsPerTick = defineInteger(builder, ".maxOperationsPerTick", 1000, 0, 100000);
+        maxCachedChanges = defineInteger(builder, ".maxCachedChanges", 10, 0, 100);
+        maxCachedSchematics = defineInteger(builder, ".maxCachedSchematics", 100, 0, 100000);
+        maxBlocksChecked = defineInteger(builder, ".maxBlocksChecked", 1000, 0, 100000);
 
         finish();
-    }
-
-    public List<? extends String> getTestList()
-    {
-        return testList.get();
-    }
-
-    public boolean getTestBoolean()
-    {
-        return testBoolean.get();
-    }
-
-    public double getTestDouble()
-    {
-        return testDouble.get();
-    }
-
-    public long getTestLong()
-    {
-        return testLong.get();
-    }
-
-    public Test getTestEnum()
-    {
-        return testEnum.get();
     }
 }
