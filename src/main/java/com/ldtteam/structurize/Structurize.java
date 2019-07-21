@@ -43,7 +43,7 @@ public class Structurize
      */
     public Structurize()
     {
-        logger.warn("Structurize");
+        logger.warn("Structurize starting up");
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);

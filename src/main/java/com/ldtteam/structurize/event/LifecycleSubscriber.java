@@ -18,7 +18,7 @@ public class LifecycleSubscriber
      */
     private LifecycleSubscriber()
     {
-        /**
+        /*
          * Intentionally left empty
          */
     }
