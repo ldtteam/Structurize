@@ -1,15 +1,15 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
-import com.ldtteam.structurize.util.constants.GeneralConstants;
 import net.minecraftforge.fml.common.Mod;
 
 /**
  * Mod main class.
  * The value in annotation should match an entry in the META-INF/mods.toml file.
  */
-@Mod(GeneralConstants.MOD_ID)
+@Mod(Constants.MOD_ID)
 public class Structurize
 {
     /**

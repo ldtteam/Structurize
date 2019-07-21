@@ -1,12 +1,21 @@
 package com.ldtteam.structurize.util;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.translation.LanguageMap;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 
 /**
  * Helper class for localization and sending player messages.
@@ -83,6 +92,59 @@ public final class LanguageHandler
      */
     public static String translateKey(final String key)
     {
-        return LanguageMap.getInstance().translateKey(key);
+        return LanguageCache.getInstance().translateKey(key);
+    }
+
+    /**
+     * Sets our cache to use mc default one.
+     */
+    public static void setMClanguageLoaded()
+    {
+        LanguageCache.getInstance().isMCloaded = true;
+        LanguageCache.getInstance().languageMap = null;
+    }
+
+    // TODO: javadoc, move constants
+    private static class LanguageCache
+    {
+        private static LanguageCache instance;
+        private boolean isMCloaded = false;
+        private Map<String, String> languageMap;
+
+        private LanguageCache()
+        {
+            final String fileLoc = "assets/structurize/lang/%s.json";
+            final String defaultLocale = "en_us";
+            String locale = DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().gameSettings.language);
+            if (locale == null)
+            {
+                locale = defaultLocale;
+            }
+            InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(fileLoc, locale));
+            if (is == null)
+            {
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(fileLoc, defaultLocale));
+            }
+            languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>(){
+            }.getType());
+        }
+
+        private static LanguageCache getInstance()
+        {
+            return instance == null ? instance = new LanguageCache() : instance;
+        }
+
+        private String translateKey(final String key)
+        {
+            if (isMCloaded)
+            {
+                return LanguageMap.getInstance().translateKey(key);
+            }
+            else
+            {
+                final String res = languageMap.get(key);
+                return res == null ? key : res;
+            }
+        }
     }
 }

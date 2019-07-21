@@ -1,8 +1,8 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.network.NetworkChannel;
-import com.ldtteam.structurize.util.constants.GeneralConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -20,7 +20,7 @@ public class Instances
     static
     {
         GENERAL_NETWORK_CHANNEL = new NetworkChannel("net-channel");
-        MOD_LOGGER = LogManager.getLogger(GeneralConstants.MOD_ID);
+        MOD_LOGGER = LogManager.getLogger(Constants.MOD_ID);
         MOD_CONFIG = new Configuration(ModLoadingContext.get().getActiveContainer());
     }
 

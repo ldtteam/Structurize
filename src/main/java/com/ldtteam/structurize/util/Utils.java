@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.util.constants.GeneralConstants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -26,6 +26,6 @@ public final class Utils
      */
     public static ResourceLocation createLocationFor(final String path)
     {
-        return new ResourceLocation(GeneralConstants.MOD_ID, path);
+        return new ResourceLocation(Constants.MOD_ID, path);
     }
 }

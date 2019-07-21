@@ -13,6 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 
 version = '1.0'
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -138,16 +139,7 @@ dependencies {
 }
 
 processResources {
-
     inputs.property "version", project.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
 }
 
 task apiJar(type: Jar) {
@@ -215,4 +207,9 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+
+task setupCIWorkspace {
+    //dummy task
 }

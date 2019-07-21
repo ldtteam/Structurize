@@ -1,11 +1,9 @@
 package com.ldtteam.structurize.config;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -18,7 +16,8 @@ public abstract class AbstractConfiguration
 {
     protected void createCategory(final Builder builder, final String key)
     {
-        buildBase(builder, key).push(key);
+        // TODO: missing name, translation not allowed for now
+        builder.comment(LanguageHandler.translateKey(commentTKey(key))).push(key);
     }
 
     protected void swapToCategory(final Builder builder, final String key)
