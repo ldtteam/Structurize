@@ -30,7 +30,7 @@ public class LinkSessionCommand
      */
     protected static class Create extends AbstractCommand
     {
-        protected final static String NAME = "create";
+       /* protected final static String NAME = "create";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
         {
@@ -50,6 +50,8 @@ public class LinkSessionCommand
             LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getGameProfile().getName());
             sender.sendMessage(new StringTextComponent("Created session for player: " + sender.getName()));
         }
+
+        */
     }
 
     /**
@@ -57,6 +59,7 @@ public class LinkSessionCommand
      */
     protected static class Destroy extends AbstractCommand
     {
+        /*
         protected final static String NAME = "destroy";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -79,6 +82,8 @@ public class LinkSessionCommand
                 throw new CommandException("You don't have a session created.");
             }
         }
+
+         */
     }
 
     /**
@@ -86,6 +91,7 @@ public class LinkSessionCommand
      */
     protected static class AddPlayer extends AbstractCommand
     {
+        /*
         protected final static String NAME = "addplayer";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -134,6 +140,8 @@ public class LinkSessionCommand
                 sender.sendMessage(new StringTextComponent("Inviting player \"" + name + "\" to " + sender.getName() + "'s session."));
             }
         }
+
+         */
     }
 
     /**
@@ -141,6 +149,7 @@ public class LinkSessionCommand
      */
     protected static class RemovePlayer extends AbstractCommand
     {
+        /*
         protected final static String NAME = "removeplayer";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -180,6 +189,8 @@ public class LinkSessionCommand
                 sender.sendMessage(new StringTextComponent("Removing player \"" + name + "\" of " + sender.getName() + "'s session."));
             }
         }
+
+         */
     }
 
     /**
@@ -187,6 +198,7 @@ public class LinkSessionCommand
      */
     protected static class SendMessage extends AbstractCommand
     {
+        /*
         protected final static String NAME = "sendmessage";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -222,6 +234,8 @@ public class LinkSessionCommand
                 }
             });
         }
+
+         */
     }
 
     /**
@@ -229,6 +243,7 @@ public class LinkSessionCommand
      */
     protected static class AboutMe extends AbstractCommand
     {
+        /*
         protected final static String NAME = "aboutme";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -306,6 +321,8 @@ public class LinkSessionCommand
                 }
             }
         }
+
+         */
     }
 
     /**
@@ -313,6 +330,7 @@ public class LinkSessionCommand
      */
     protected static class MuteChannel extends AbstractCommand
     {
+        /*
         protected final static String NAME = "mutechannel";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -341,6 +359,8 @@ public class LinkSessionCommand
                 }
             }
         }
+
+         */
     }
 
     /**
@@ -348,6 +368,7 @@ public class LinkSessionCommand
      */
     protected static class AcceptInvite extends AbstractCommand
     {
+        /*
         protected final static String NAME = "acceptinvite";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -388,6 +409,8 @@ public class LinkSessionCommand
 
             sender.sendMessage(new StringTextComponent("You have successfully joined to " + ownerName + "'s linksession."));
         }
+
+         */
     }
 
     /**
@@ -395,6 +418,7 @@ public class LinkSessionCommand
      */
     protected static class Leave extends AbstractCommand
     {
+        /*
         protected final static String NAME = "leave";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
@@ -430,5 +454,9 @@ public class LinkSessionCommand
                 sender.sendMessage(new StringTextComponent("Leaving a session owned by \"" + name + "\"."));
             }
         }
+
+         */
     }
+
+
 }

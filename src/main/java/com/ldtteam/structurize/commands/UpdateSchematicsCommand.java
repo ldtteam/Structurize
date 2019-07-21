@@ -10,13 +10,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.nbt.StringNBT;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +44,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         {
             update(file, updaterInput, updaterOutput);
         }
+        return 1;
     }
 
     private static void update(@NotNull final File input, @NotNull final File globalInputFolder, @NotNull final File globalOutputFolder)
@@ -78,7 +74,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 return;
             }
 
-            blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
+            //blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
             // TODO: this! (datafixer)
 
             final ListNBT blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);
