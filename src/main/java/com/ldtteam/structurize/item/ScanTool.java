@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.item;
 
+import com.ldtteam.structurize.Instances;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -7,6 +9,9 @@ import net.minecraft.item.Rarity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * ScanTool item class
@@ -39,20 +44,7 @@ public class ScanTool extends AbstractItemWithPosSelector
     {
         if (!worldIn.isRemote())
         {
-            final Path loc = Minecraft.getInstance().gameDir.toPath().resolve("structurize").resolve("tempschem.blueprint").toAbsolutePath();
-            Instances.getLogger().info("Saving bp to: " + loc.toString());
-            try
-            {
-                Files.createDirectories(loc.getParent());
-                BlueprintUtils
-                    .writeToStream(
-                        Files.newOutputStream(loc, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
-                        BlueprintUtils.createBlueprint(worldIn, start, end, Long.toString(System.currentTimeMillis())));
-            }
-            catch (final IOException e)
-            {
-                e.printStackTrace();
-            }
+
         }
         return ActionResultType.SUCCESS;
     }
