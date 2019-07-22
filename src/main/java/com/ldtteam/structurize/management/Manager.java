@@ -152,7 +152,7 @@ public final class Manager
      * @param inputBlock     the input block.
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
-     * @return               the new blueprint.
+     * @return the new blueprint.
      */
     public static Blueprint getStructureFromFormula(
       final int width,
@@ -414,15 +414,14 @@ public final class Manager
         return blueprint;
     }
 
-
-
     /**
      * Randomly generates shape based on an equation.
-     * @param height the height.
-     * @param width the width.
-     * @param length the length.
+     *
+     * @param height   the height.
+     * @param width    the width.
+     * @param length   the length.
      * @param equation the equation.
-     * @param block the block.
+     * @param block    the block.
      * @return the created blueprint
      */
     public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block)
@@ -433,16 +432,16 @@ public final class Manager
         final Argument argumentZ = new Argument("z = 0");
         final Argument argumentH = new Argument("h = " + height);
         final Argument argumentW = new Argument("w = " + width);
-        final Argument argumentL = new Argument("l = " +  length);
+        final Argument argumentL = new Argument("l = " + length);
 
-        e.addArguments(argumentX,argumentY, argumentZ, argumentH, argumentW, argumentL);
+        e.addArguments(argumentX, argumentY, argumentZ, argumentH, argumentW, argumentL);
 
         final Map<BlockPos, BlockState> posList = new HashMap<>();
-        for (double x = -length/2.0; x <= length/2; x++)
+        for (double x = -length / 2.0; x <= length / 2; x++)
         {
-            for (double y = -height/2.0; y <= height/2; y++)
+            for (double y = -height / 2.0; y <= height / 2; y++)
             {
-                for (double z = -width/2.0; z <= width/2; z++)
+                for (double z = -width / 2.0; z <= width / 2; z++)
                 {
                     argumentX.setArgumentValue(x);
                     argumentY.setArgumentValue(y);
@@ -514,16 +513,13 @@ public final class Manager
     {
         final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.OVERWORLD).getSavedData();
         final UUIDStorage instance = storage.getOrCreate(UUIDStorage::new, UUIDStorage.DATA_NAME);
-
-        if (instance == null)
+        if (serverUUID == null)
         {
-            if (serverUUID == null)
-            {
-                Manager.setServerUUID(UUID.randomUUID());
-                Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
-            }
-            storage.set(instance);
+            Manager.setServerUUID(UUID.randomUUID());
+            Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
         }
+        storage.set(instance);
+
         return serverUUID;
     }
 

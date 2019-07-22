@@ -30,7 +30,7 @@ public final class StructureClientHandler
             final double interpolatedEntityPosZ = perspectiveEntity.lastTickPosZ + (perspectiveEntity.posZ - perspectiveEntity.lastTickPosZ) * partialTicks;
 
             final double renderOffsetX = pos.getX() - interpolatedEntityPosX;
-            final double renderOffsetY = pos.getY() - interpolatedEntityPosY;
+            final double renderOffsetY = pos.getY() - interpolatedEntityPosY - perspectiveEntity.getEyeHeight();
             final double renderOffsetZ = pos.getZ() - interpolatedEntityPosZ;
 
             final Vector3d renderOffset = new Vector3d();

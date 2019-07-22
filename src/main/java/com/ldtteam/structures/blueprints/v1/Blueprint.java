@@ -3,6 +3,7 @@ package com.ldtteam.structures.blueprints.v1;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -13,7 +14,6 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.extensions.IForgeBlockState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class Blueprint
     /**
      * The palette of different blocks.
      */
-    private List<IForgeBlockState> palette;
+    private List<BlockState> palette;
 
     /**
      * The name of the blueprint.
@@ -95,7 +95,7 @@ public class Blueprint
       short sizeY,
       short sizeZ,
       short palleteSize,
-      List<IForgeBlockState> pallete,
+      List<BlockState> pallete,
       short[][][] structure,
       CompoundNBT[] tileEntities,
       List<String> requiredMods)
@@ -176,9 +176,9 @@ public class Blueprint
     /**
      * @return the pallete (without rotation and/or mirroring)
      */
-    public IForgeBlockState[] getPalette()
+    public BlockState[] getPalette()
     {
-        return this.palette.toArray(new IForgeBlockState[0]);
+        return this.palette.toArray(new BlockState[0]);
     }
 
     /**
@@ -187,7 +187,7 @@ public class Blueprint
      * @param pos   the position to add it to.
      * @param state the state to add.
      */
-    public void addBlockState(final BlockPos pos, final IForgeBlockState state)
+    public void addBlockState(final BlockPos pos, final BlockState state)
     {
         int index = -1;
         for (int i = 0; i < this.palette.size(); i++)
@@ -337,7 +337,7 @@ public class Blueprint
                 {
                     final BlockPos tempPos = new BlockPos(x, y, z);
                     final short value = structure[y][z][x];
-                    final IForgeBlockState state = palette.get(value & 0xFFFF);
+                    final BlockState state = palette.get(value & 0xFFFF);
                     list.add(new BlockInfo(tempPos, state, tileEntities[y][z][x]));
                 }
             }
@@ -365,7 +365,7 @@ public class Blueprint
         final CompoundNBT[] newEntities = new CompoundNBT[entities.length];
         final CompoundNBT[][][] newTileEntities = new CompoundNBT[newSizeY][newSizeZ][newSizeX];
 
-        final List<IForgeBlockState> palette = new ArrayList<>();
+        final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
             palette.add(i, this.palette.get(i).getBlockState().mirror(mirror).rotate(rotation));
@@ -389,7 +389,7 @@ public class Blueprint
                 {
                     final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).add(minX, minY, minZ);
                     final short value = structure[y][z][x];
-                    final IForgeBlockState state = palette.get(value & 0xFFFF);
+                    final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlockState().getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;

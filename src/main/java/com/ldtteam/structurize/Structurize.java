@@ -1,5 +1,6 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structures.event.RenderEventHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventHandler;
@@ -48,6 +49,9 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(FMLEventHandler.class);
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(RenderEventHandler.class);
+
+
     }
 
     /**

@@ -31,7 +31,7 @@ sourceSets {
         resources {
             srcDir 'src/api/resources'
         }
-        runtimeClasspath += sourceSets.main.output
+        compileClasspath += configurations.getByName("minecraft")
     }
     main {
         java {
@@ -55,6 +55,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
+    apiCompileOnly "com.intellij:annotations:+@jar"
     compile 'com.intellij:annotations:+@jar'
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 }

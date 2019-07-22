@@ -17,6 +17,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -120,20 +121,18 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     public void onOpened()
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText(from.getTranslationKey());
+        findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText(from.getDisplayName().getUnformattedComponentText());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(new ItemStack(Blocks.AIR).getTranslationKey());
+        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(new ItemStack(Blocks.AIR).getDisplayName().getUnformattedComponentText());
         updateResources();
     }
 
     private void updateResources()
     {
         allItems.clear();
-        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false).flatMap(item -> {
-            final NonNullList<ItemStack> stacks = NonNullList.create();
-            return stacks.stream().filter(stack -> (stack.getItem() instanceof BlockItem)
-                    && (filter.isEmpty() || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))));
-        }).collect(Collectors.toList())));
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+            .map(ItemStack::new)
+            .filter(stack -> (stack.getItem() instanceof BlockItem) && (filter.isEmpty() || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))).collect(Collectors.toList())));
 
         final List<ItemStack> specialBlockList = new ArrayList<>();
         specialBlockList.add(new ItemStack(Items.WATER_BUCKET));
@@ -189,7 +188,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = allItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(to.getTranslationKey());
+            findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(to.getDisplayName().getUnformattedComponentText());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import com.mojang.datafixers.DataFixer;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.HangingEntity;
@@ -10,7 +11,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.extensions.IForgeBlockState;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
@@ -57,7 +57,7 @@ public class BlueprintUtil
      */
     public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ, String name, String... architects)
     {
-        final List<IForgeBlockState> pallete = new ArrayList<>();
+        final List<BlockState> pallete = new ArrayList<>();
         //Allways add AIR to Pallete
         pallete.add(Blocks.AIR.getDefaultState());
         final short[][][] structure = new short[sizeY][sizeZ][sizeX];
@@ -67,22 +67,25 @@ public class BlueprintUtil
 
         for (final BlockPos mutablePos : BlockPos.getAllInBoxMutable(pos, pos.add(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
-            IForgeBlockState state = world.getBlockState(mutablePos);
+            BlockState state = world.getBlockState(mutablePos);
             String modName = state.getBlockState().getBlock().getRegistryName().getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()), z = (short) (mutablePos.getZ() - pos.getZ());
 
-            if (!requiredMods.contains(modName))
+            if (!modName.equals("minecraft"))
             {
-                if (!ModList.get().getModContainerById(modName).isPresent())
+                if (!requiredMods.contains(modName))
                 {
-                    requiredMods.add(modName);
+                    if (!ModList.get().getModContainerById(modName).isPresent())
+                    {
+                        requiredMods.add(modName);
+                    }
                 }
-            }
-            else if (!ModList.get().getModContainerById(modName).isPresent())
-            {
-                structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.getDefaultState());
-                continue;
+                else if (!ModList.get().getModContainerById(modName).isPresent())
+                {
+                    structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.getDefaultState());
+                    continue;
+                }
             }
 
             final TileEntity te = world.getTileEntity(mutablePos);
@@ -165,7 +168,7 @@ public class BlueprintUtil
         tag.putShort("size_z", schem.getSizeZ());
 
         // Create Pallete
-        final IForgeBlockState[] palette = schem.getPalette();
+        final BlockState[] palette = schem.getPalette();
         final ListNBT paletteTag = new ListNBT();
         for (short i = 0; i < schem.getPalleteSize(); i++)
         {
@@ -254,7 +257,7 @@ public class BlueprintUtil
             // Reading Pallete
             ListNBT paletteTag = (ListNBT) tag.get("palette");
             short paletteSize = (short) paletteTag.size();
-            List<IForgeBlockState> palette = new ArrayList<>();
+            List<BlockState> palette = new ArrayList<>();
             for (short i = 0; i < paletteSize; i++)
             {
                 palette.add(i, NBTUtil.readBlockState(paletteTag.getCompound(i)));

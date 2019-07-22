@@ -3,6 +3,7 @@ package com.ldtteam.structures.client;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structures.lib.RenderUtil;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.List;
@@ -80,8 +82,9 @@ public class BlueprintRenderer
         final Random random = new Random();
 
         blockAccess.getBlueprint().getBlockInfoAsList().stream()
-          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
-          .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, EmptyModelData.INSTANCE));
+          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() == ModBlocks.blockSubstitution)
+          .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random,
+            ModelDataManager.getModelData(blockAccess, b.getPos())));
 
         tessellator.finishBuilding();
     }

@@ -252,6 +252,11 @@ public final class Structures
      */
     private static void loadSchematicsForPrefix(@NotNull final Path basePath, @NotNull final String prefix)
     {
+        if (!new File(basePath.resolve(prefix).toString()).exists())
+        {
+            return;
+        }
+
         try (Stream<Path> walk = Files.walk(basePath.resolve(prefix)))
         {
             final Iterator<Path> it = walk.iterator();

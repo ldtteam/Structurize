@@ -12,6 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import static net.minecraft.client.renderer.WorldRenderer.drawSelectionBoundingBox;
@@ -19,6 +20,7 @@ import static net.minecraft.client.renderer.WorldRenderer.drawSelectionBoundingB
 /**
  * Used to handle client events.
  */
+@Mod.EventBusSubscriber
 public class ClientEventHandler
 {
     /**
@@ -27,7 +29,7 @@ public class ClientEventHandler
      * @param event the catched event.
      */
     @SubscribeEvent
-    public void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
+    public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
         final Structure structure = Settings.instance.getActiveStructure();
         final PlayerEntity player = Minecraft.getInstance().player;
@@ -136,7 +138,7 @@ public class ClientEventHandler
         GlStateManager.disableTexture();
         GlStateManager.depthMask(false);
 
-        final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
+        final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1-player.getEyeHeight(), z1, x2, y2-player.getEyeHeight(), z2);
         drawSelectionBoundingBox(axisalignedbb.grow(0.002D).offset(-renderPosX, -renderPosY, -renderPosZ), 1.0F, 1.0F, 1.0F, 1.0F);
 
 

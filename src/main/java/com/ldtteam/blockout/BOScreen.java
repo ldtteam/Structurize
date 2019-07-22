@@ -120,16 +120,12 @@ public class BOScreen extends Screen
         return true;
     }
 
-    /**
-     * @see lwjgl callback {@link net.minecraft.client.MouseHelper#scrollCallback()}
-     * @see option taken into account {@link net.minecraft.client.settings.AbstractOption#DISCRETE_MOUSE_SCROLL}
-     */
     @Override
     public boolean mouseScrolled(final double mx, final double my, final double scrollDiff)
     {
         if (scrollDiff != 0)
         {
-            window.scrollInput(scrollDiff);
+            window.scrollInput(scrollDiff*10);
         }
         // TODO: needs propagation
         return true;

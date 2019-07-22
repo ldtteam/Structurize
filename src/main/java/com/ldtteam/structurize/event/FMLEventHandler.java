@@ -34,7 +34,7 @@ public class FMLEventHandler
      * @param event {@link net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent}
      */
     @SubscribeEvent
-    public void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
+    public static void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
     {
         if (event.getPlayer() instanceof ServerPlayerEntity)
         {
@@ -50,7 +50,7 @@ public class FMLEventHandler
      * @param event {@link net.minecraftforge.event.world.BlockEvent.BreakEvent}
      */
     @SubscribeEvent
-    public void onBlockBreak(@NotNull final BlockEvent.BreakEvent event)
+    public static void onBlockBreak(@NotNull final BlockEvent.BreakEvent event)
     {
         if (event.getPlayer().getHeldItem(Hand.MAIN_HAND).getItem() == ModItems.scanTool)
         {
@@ -70,7 +70,7 @@ public class FMLEventHandler
     }
 
     @SubscribeEvent
-    public void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
+    public static void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
         if (event.world.isRemote)
         {

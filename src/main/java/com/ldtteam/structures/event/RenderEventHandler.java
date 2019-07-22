@@ -5,10 +5,12 @@ import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 /**
  * EventHandler used to display the schematics on the client.
  */
+@Mod.EventBusSubscriber
 public class RenderEventHandler
 {
     /**
@@ -17,7 +19,7 @@ public class RenderEventHandler
      * @param event Object containing event details.
      */
     @SubscribeEvent
-    public void onRenderWorldLast(final RenderWorldLastEvent event)
+    public static void onRenderWorldLast(final RenderWorldLastEvent event)
     {
         final Structure structure = Settings.instance.getActiveStructure();
 

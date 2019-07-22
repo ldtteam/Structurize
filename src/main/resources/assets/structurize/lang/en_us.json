@@ -107,6 +107,7 @@
   "block.structurize.blocktimberframe_acacia_horizontalplain": "Plain Horizontal Acacia Timberframe",
   "block.structurize.blocktimberframe_acacia_horizontalnocap": "Side Framed Horizontal Acacia Timberframe",
   "block.structurize.blocktimberframe_acacia_doublecrossed": "Double Crossed Acacia Timberframe",
+
   "structurize.command.ls.generic.dontexist": "You don't have a session created.",
   "structurize.command.ls.create.already": "You have already created a session.",
   "structurize.command.ls.create.done": "Created session for player: %s",
@@ -120,5 +121,47 @@
   "structurize.command.ls.message.norecipient": "You are not a part of any session or every other players have messages channel muted.",
   "structurize.command.ls.invite.accepted": "You have successfully joined to %s's linksession.",
   "structurize.command.ls.invite.timeout": "This invite does not exist anymore.",
-  "structurize.command.ls.invite.noopen": "You have no open invite."
+  "structurize.command.ls.invite.noopen": "You have no open invite.",
+
+  "com.ldtteam.structurize.gui.scanTool.showRes": "Show Resources",
+  "com.ldtteam.structurize.gui.scanTool.to": "To:",
+  "com.ldtteam.structurize.gui.scanTool.from": "From:",
+  "com.ldtteam.structurize.gui.scanTool.name": "Scan Name:",
+  "com.ldtteam.structurize.gui.scanTool.remove": "Remove",
+  "com.ldtteam.structurize.gui.scanTool.replace": "Replace",
+  "com.ldtteam.structurize.gui.scan.replace.title": "Block Replacement GUI",
+  "com.ldtteam.structurize.gui.scanTool.select": "Select",
+
+  "item.structurize.sceptergold.name": "Building Tool",
+  "item.structurize.sceptersteel.name": "Scan Tool",
+  "item.structurize.shapetool.name": "Shape Tool",
+  "item.structurize.caliper.name": "Caliper",
+
+  "item.scepterSteel.point": "Point one saved: %d %d %d",
+  "item.scepterSteel.point2": "Point two saved: %d %d %d.",
+  "item.scepterSteel.samePoint": "That was the same point",
+  "item.scepterSteel.scanFormat": "SCAN_%s-%s",
+  "item.scepterSteel.scanSuccess": "Scan successfully saved as %s",
+  "item.scepterSteel.scanFailure": "Scan failed to save",
+  "item.caliper.message.same": "That's the same block",
+  "item.caliper.message.base": "That's a %s blocks %s",
+  "item.caliper.message.by": "by",
+  "item.caliper.message.directLength": ", direct length: %s",
+  "item.caliper.message.1D": "line",
+  "item.caliper.message.2D": "square",
+  "item.caliper.message.3D": "cube",
+
+  "com.ldtteam.structurize.gui.buildtool.hut": "Huts",
+  "com.ldtteam.structurize.gui.buildtool.hut.level": "Level %s",
+  "com.ldtteam.structurize.network.messages.schematicsavemassage.toobig": "Schematic size is too big, can not be bigger than %s bytes",
+  "com.ldtteam.structurize.gui.buildtool.decorations": "Decorations",
+  "com.ldtteam.structurize.gui.buildtool.scans": "My schematics",
+
+  "com.ldtteam.structurize.gui.shapeTool.pickmainblock": "Pick Main Block",
+  "com.ldtteam.structurize.gui.shapeTool.pickfillblock=": "Pick Fill Block",
+
+  "com.ldtteam.structurize.gui.shapeTool.replace": "Replace Blocks",
+  "com.ldtteam.structurize.gui.shapeTool.ignore": "Ignore Blocks",
+  "com.ldtteam.structurize.gui.shapeTool.hollow": "Hollow",
+  "com.ldtteam.structurize.gui.shapeTool.solid": "Solid"
 }

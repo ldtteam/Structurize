@@ -411,7 +411,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        if (Minecraft.getInstance().player.isCreative())
+        if (!Minecraft.getInstance().player.isCreative())
         {
             close();
         }

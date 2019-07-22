@@ -14,14 +14,14 @@ import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.BedPart;
+import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -340,6 +340,11 @@ public class WindowScan extends AbstractWindowSkeleton
                             }
                         }
 
+                        if ((block instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD)
+                        || block instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
+                        {
+                            continue;
+                        }
                         if (block == Blocks.WATER)
                         {
                             addNeededResource(new ItemStack(Items.WATER_BUCKET, 1), 1);
