@@ -55,7 +55,7 @@ public abstract class AbstractCommand
      *
      * @param key language key to translate
      */
-    protected static void throwSyntaxException(final String key) throws CommandSyntaxException
+    public static void throwSyntaxException(final String key) throws CommandSyntaxException
     {
         throw new CommandSyntaxException(new StructurizeCommandExceptionType(), new LiteralMessage(LanguageHandler.translateKey(key)));
     }
@@ -66,7 +66,7 @@ public abstract class AbstractCommand
      * @param key    language key to translate
      * @param format String.format() attributes
      */
-    protected static void throwSyntaxException(final String key, final Object... format) throws CommandSyntaxException
+    public static void throwSyntaxException(final String key, final Object... format) throws CommandSyntaxException
     {
         throw new CommandSyntaxException(new StructurizeCommandExceptionType(), new LiteralMessage(LanguageHandler.translateKeyWithFormat(key, format)));
     }
