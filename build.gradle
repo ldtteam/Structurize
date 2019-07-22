@@ -187,7 +187,14 @@ publishing {
     }
 }
 
+task setupDecompWorkspace {
+    afterEvaluate {
+        println "Setup"
+    }
+}
 
 task setupCIWorkspace {
-    //dummy task
+    afterEvaluate {
+        println "Setup"
+    }
 }

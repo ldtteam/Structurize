@@ -233,7 +233,7 @@ public class BlueprintUtil
      */
     public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
     {
-        final CompoundNBT tag = NBTUtil.update(fixer, DefaultTypeReferences.STRUCTURE, nbtTag,nbtTag.getInt("DataVersion"));
+        final CompoundNBT tag = NBTUtil.update(fixer, DefaultTypeReferences.STRUCTURE, nbtTag, 1900);
         byte version = tag.getByte("version");
         if (version == 1)
         {
@@ -247,7 +247,7 @@ public class BlueprintUtil
             for (int i = 0; i < modListSize; i++)
             {
                 requiredMods.add((modsList.get(i)).getString());
-                if (!ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
+                if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
                 {
                     LogManager.getLogger().warn(
                       "Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
