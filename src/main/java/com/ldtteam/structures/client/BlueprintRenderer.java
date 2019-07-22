@@ -82,7 +82,7 @@ public class BlueprintRenderer
         final Random random = new Random();
 
         blockAccess.getBlueprint().getBlockInfoAsList().stream()
-          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() == ModBlocks.blockSubstitution)
+          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
           .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random,
             ModelDataManager.getModelData(blockAccess, b.getPos())));
 
