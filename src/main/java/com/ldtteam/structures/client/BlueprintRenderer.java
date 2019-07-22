@@ -85,7 +85,6 @@ public class BlueprintRenderer
           .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
           .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random,
             ModelDataManager.getModelData(blockAccess, b.getPos())));
-
         tessellator.finishBuilding();
     }
 

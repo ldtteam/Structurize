@@ -2,7 +2,6 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;

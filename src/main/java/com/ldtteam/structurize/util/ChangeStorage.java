@@ -1,5 +1,7 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.PositionStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -121,10 +123,9 @@ public class ChangeStorage
             blocks.remove(entry.getKey());
             count++;
 
-            //if (count >= Configurations.gameplay.maxOperationsPerTick)
+            if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
             {
-                //todo
-                //return false;
+                return false;
             }
         }
 

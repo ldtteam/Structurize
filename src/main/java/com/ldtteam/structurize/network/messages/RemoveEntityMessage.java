@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.ChangeStorage;
+import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.management.Manager;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;

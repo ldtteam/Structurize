@@ -2,7 +2,7 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ChangeStorage;
+import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.BlockUtils;

@@ -1,12 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.block.Block;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.datafix.DataFixesManager;
@@ -167,44 +162,6 @@ public final class StructureUtils
         if (fixer == null)
         {
             fixer = DataFixesManager.getDataFixer();
-            /*final ModFix fixs = ((CompoundDataFixer) fixer).init(Constants.MOD_ID, 1);
-            fixs.registerFix(FixTypes.STRUCTURE, new IFixableData()
-            {
-                @Override
-                public int getFixVersion()
-                {
-                    return 1;
-                }
-
-                @NotNull
-                @Override
-                public CompoundNBT fixTagCompound(@NotNull final CompoundNBT compound)
-                {
-                    if (compound.keySet().contains("palette"))
-                    {
-                        ListNBT list = compound.getList("palette", net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND);
-                        for (final INBT listCompound : list)
-                        {
-                            if (listCompound instanceof CompoundNBT && ((CompoundNBT) listCompound).keySet().contains("Name"))
-                            {
-                                String name = ((CompoundNBT) listCompound).getString("Name");
-                                if (name.contains("minecolonies"))
-                                {
-                                    if (Block.getBlockFromName(name) == null)
-                                    {
-                                        final String structurizeName = "structurize" + name.substring(Constants.MINECOLONIES_MOD_ID.length());
-                                        if (Block.getBlockFromName(structurizeName) != null)
-                                        {
-                                            ((CompoundNBT) listCompound).setString("Name", structurizeName);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return compound;
-                }
-            });*/
         }
         return fixer;
     }

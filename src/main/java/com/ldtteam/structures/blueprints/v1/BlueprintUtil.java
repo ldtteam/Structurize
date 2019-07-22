@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.datafix.DefaultTypeReferences;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -232,7 +233,7 @@ public class BlueprintUtil
      */
     public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
     {
-        final CompoundNBT tag = nbtTag; //fixer.process(FixTypes.STRUCTURE, nbtTag); todo
+        final CompoundNBT tag = NBTUtil.update(fixer, DefaultTypeReferences.STRUCTURE, nbtTag,nbtTag.getInt("DataVersion"));
         byte version = tag.getByte("version");
         if (version == 1)
         {

@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
