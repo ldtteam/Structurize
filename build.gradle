@@ -64,7 +64,7 @@ dependencies {
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 }
 
-version = System.getenv().containsKey("Version") ? System.getenv("Version") : "borked-" + System.currentTimeMillis()
+version = System.getenv().containsKey("Version") ? System.getenv("Version") : "no-version-" + System.currentTimeMillis()
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
