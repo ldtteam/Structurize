@@ -204,12 +204,12 @@ task setupCIWorkspace {
 }
 
 curseforge {
-    if (System.getenv().CURSEAPIKEY != null && System.getenv().CURSERELEASETYPE != null)
+    if (false && System.getenv().CURSEAPIKEY != null && System.getenv().CURSERELEASETYPE != null)
     {
         apiKey = System.getenv().CURSEAPIKEY
 
         project {
-            id = '245506'
+            id = '298744'
 
             changelog = file('build/changelog.md')
             changelogType = 'markdown'
