@@ -111,11 +111,7 @@ public final class BlueprintRenderHandler
             final double renderOffsetX = pos.getX() - interpolatedEntityPosX;
             final double renderOffsetY = pos.getY() - interpolatedEntityPosY;
             final double renderOffsetZ = pos.getZ() - interpolatedEntityPosZ;
-            final Vector3d renderOffset = new Vector3d();
-            renderOffset.x = renderOffsetX;
-            renderOffset.y = renderOffsetY;
-            renderOffset.z = renderOffsetZ;
-
+            final Vector3d renderOffset = new Vector3d(renderOffsetX, renderOffsetY, renderOffsetZ);
             draw(blueprint, Rotation.NONE, Mirror.NONE, renderOffset);
         }
     }
