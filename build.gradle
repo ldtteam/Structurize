@@ -78,7 +78,7 @@ processResources {
 }
 
 version = '1.14.4' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
-group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'com.ldtteam' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -210,7 +210,7 @@ task setupCIWorkspace {
 }
 
 curseforge {
-    if (false && System.getenv().CURSEAPIKEY != null && System.getenv().CURSERELEASETYPE != null)
+    if (System.getenv().CURSEAPIKEY != null && System.getenv().CURSERELEASETYPE != null)
     {
         apiKey = System.getenv().CURSEAPIKEY
 
