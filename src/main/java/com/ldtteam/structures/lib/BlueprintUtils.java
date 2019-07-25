@@ -143,11 +143,14 @@ public final class BlueprintUtils
             compound.putInt("z", info.getPos().getZ());
 
             final TileEntity entity = TileEntity.create(compound);
-            entity.setWorld(blockAccess);
 
+            if (entity != null)
+            {
+                entity.setWorld(blockAccess);
+            }
             return entity;
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             Log.getLogger().error("Could not create tile entity: " + entityId + " with nbt: " + info.toString(), ex);
             blackListedTileEntityIds.add(entityId);

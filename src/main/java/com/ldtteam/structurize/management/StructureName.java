@@ -2,10 +2,10 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,7 +101,7 @@ public class StructureName
         {
             hut = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
-            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, ":blockHut" + hut)) != null)
+            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR)
             {
                 section = hut;
             }

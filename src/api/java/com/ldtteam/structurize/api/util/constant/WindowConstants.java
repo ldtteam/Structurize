@@ -182,7 +182,7 @@ public final class WindowConstants
     /**
      * Hut prefix.
      */
-    public static final String HUT_PREFIX = ":blockHut";
+    public static final String HUT_PREFIX = "blockhut";
 
     /**
      * The builders gui file.

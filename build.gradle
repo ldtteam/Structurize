@@ -44,6 +44,7 @@ sourceSets {
         resources {
             srcDir 'src/main/resources'
         }
+        compileClasspath += sourceSets.main.compileClasspath
         compileClasspath += sourceSets.api.output
     }
 }
@@ -64,7 +65,19 @@ dependencies {
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 }
 
-version = System.getenv().containsKey("Version") ? System.getenv("Version") : "no-version-" + System.currentTimeMillis()
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+
+        expand 'version': project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'META-INF/mods.toml'
+    }
+}
+
+version = System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
@@ -119,11 +132,6 @@ minecraft {
             }
         }
     }
-}
-
-
-processResources {
-    inputs.property "version", project.version
 }
 
 task apiJar(type: Jar) {

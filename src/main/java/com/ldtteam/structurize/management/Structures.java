@@ -169,7 +169,7 @@ public final class Structures
         {
             try
             {
-                uri = Manager.class.getResource(SCHEMATICS_ASSET_PATH + origin).toURI();
+                uri = Structures.class.getResource(SCHEMATICS_ASSET_PATH + origin).toURI();
             }
             catch (@NotNull final URISyntaxException e)
             {
@@ -177,15 +177,16 @@ public final class Structures
                 return;
             }
 
-            if ("modjar".equals(uri.getScheme()))
+            if ("jar".equals(uri.getScheme()))
             {
+                Log.getLogger().warn(uri);
                 try (FileSystem fileSystem = FileSystems.getFileSystem(uri))
                 {
                     final Path basePath = fileSystem.getPath(SCHEMATICS_ASSET_PATH + origin);
                     Log.getLogger().info("Load huts or decorations from jar");
                     loadSchematicsForPrefix(basePath, SCHEMATICS_PREFIX);
                 }
-                catch (@NotNull IOException | FileSystemNotFoundException e1)
+                catch (@NotNull Exception e)
                 {
                     try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap()))
                     {
@@ -193,7 +194,7 @@ public final class Structures
                         Log.getLogger().info("Load huts or decorations from jar");
                         loadSchematicsForPrefix(basePath, SCHEMATICS_PREFIX);
                     }
-                    catch (@NotNull final IOException e2)
+                    catch (@NotNull final Exception e2)
                     {
                         Log.getLogger().warn("loadStyleMaps: Could not load the schematics from the jar.", e2);
                     }
