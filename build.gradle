@@ -172,8 +172,6 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-
-    classifier = 'universal'
 }
 
 // Example configuration to allow publishing using the maven-publish task
