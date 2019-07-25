@@ -77,7 +77,7 @@ processResources {
     }
 }
 
-version = System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
+version = '1.14.4' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
 group = 'com.ldtteam.structurize' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
