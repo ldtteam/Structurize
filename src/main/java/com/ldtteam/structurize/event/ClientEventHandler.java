@@ -6,6 +6,7 @@ import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -32,7 +33,7 @@ public class ClientEventHandler
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
         final Structure structure = Settings.instance.getActiveStructure();
-        final PlayerEntity player = Minecraft.getInstance().player;
+        final ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (structure != null)
         {
