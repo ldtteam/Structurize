@@ -2,7 +2,7 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;

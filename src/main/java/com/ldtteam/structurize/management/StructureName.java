@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
