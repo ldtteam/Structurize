@@ -8,7 +8,6 @@ import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
@@ -16,6 +15,7 @@ import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -129,9 +129,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
      *
-     * @param pos coordinate.
+     * @param pos       coordinate.
      * @param mainBlock if main or fill block.
-     * @param stack the stack to use.
+     * @param stack     the stack to use.
      */
     public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
     {
@@ -209,7 +209,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             genShape();
         }
 
-        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow() ? LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow") : LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid"));
+        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setLabel(Settings.instance.isHollow()
+                                                                   ? LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.hollow")
+                                                                   : LanguageHandler.format("com.ldtteam.structurize.gui.shapeTool.solid"));
     }
 
     /**
@@ -234,7 +236,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
     /**
      * Generate the inputShape depending on the variables on the client.
-     */ 
+     */
     public static void commonStructureUpdate()
     {
         genShape();
@@ -276,7 +278,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             findPaneByID(BUTTON_PICK_FILL_BLOCK).hide();
             findPaneByID(RESOURCE_ICON_FILL).hide();
         }
-        else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
+        else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
+                   || shape == Shape.DIAMOND)
         {
             inputWidth.hide();
             inputLength.hide();
@@ -394,6 +397,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.isHollow(),
           BlockUtils.getRotation(Settings.instance.getRotation()),
           Settings.instance.getMirror()));
+        close();
     }
 
     /**
@@ -443,6 +447,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
     /**
      * Update the style after change.
+     *
      * @param s the style to use.
      */
     private void updateStyle(final String s)
@@ -474,7 +479,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 final int localLength = Integer.parseInt(lengthText);
                 final int localFrequency = Integer.parseInt(frequencyText);
 
-                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency || !shapeEquation.equals(localEquation))
+                if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency
+                      || !shapeEquation.equals(localEquation))
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;
