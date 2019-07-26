@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.management;
 
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.configuration.Configurations;
-import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ScanToolOperation;
 import com.ldtteam.structurize.util.StructurePlacementUtils;
-import com.ldtteam.structures.blueprints.v1.Blueprint;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -279,7 +279,7 @@ public final class Manager
                 }
             }
         }
-        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) width);
+        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
