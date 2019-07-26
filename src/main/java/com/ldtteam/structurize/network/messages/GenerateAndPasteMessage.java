@@ -175,7 +175,7 @@ public class GenerateAndPasteMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        if (ctxIn.getSender().isCreative())
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
