@@ -13,6 +13,7 @@ import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger;
  * The value in annotation should match an entry in the META-INF/mods.toml file.
  */
 @Mod(Constants.MOD_ID)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Structurize
 {
     /**
@@ -78,7 +80,8 @@ public class Structurize
      * This method is for adding datagenerators. this does not run during normal client operations, only during building.
      * @param event event sent when you run the "runData" gradle task
      */
-    private void dataGeneratorSetup(final GatherDataEvent event)
+    @SubscribeEvent
+    public static void dataGeneratorSetup(final GatherDataEvent event)
     {
         //Shingles
         event.getGenerator().addProvider(new ShinglesBlockStateProvider(event.getGenerator()));
