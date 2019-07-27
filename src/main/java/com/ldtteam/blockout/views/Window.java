@@ -3,6 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.BOScreen;
+import net.minecraft.client.gui.screen.inventory.FurnaceScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;
@@ -210,9 +211,8 @@ public class Window extends View
             return true;
         }
 
-        onUnhandledKeyTyped(ch, key);
 
-        return false;
+        return onUnhandledKeyTyped(ch, key);
     }
 
     /**
@@ -223,12 +223,14 @@ public class Window extends View
      * @param ch  Character of key pressed.
      * @param key Keycode of key pressed.
      */
-    public void onUnhandledKeyTyped(final int ch, final int key)
+    public boolean onUnhandledKeyTyped(final int ch, final int key)
     {
         if (key == GLFW.GLFW_KEY_ESCAPE)
         {
             close();
+            return true;
         }
+        return false;
     }
 
     /**

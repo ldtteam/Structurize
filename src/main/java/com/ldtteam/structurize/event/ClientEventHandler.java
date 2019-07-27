@@ -6,16 +6,17 @@ import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-
-import static net.minecraft.client.renderer.WorldRenderer.drawSelectionBoundingBox;
 
 /**
  * Used to handle client events.
@@ -28,11 +29,12 @@ public class ClientEventHandler
      *
      * @param event the catched event.
      */
+    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
         final Structure structure = Settings.instance.getActiveStructure();
-        final PlayerEntity player = Minecraft.getInstance().player;
+        final ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (structure != null)
         {
@@ -88,7 +90,7 @@ public class ClientEventHandler
         }
     }
 
-    private static void renderBox(final BlockPos posA, final BlockPos posB, final PlayerEntity player, final RenderWorldLastEvent event)
+    private static void renderBox(final BlockPos posA, final BlockPos posB, final ClientPlayerEntity player, final RenderWorldLastEvent event)
     {
         int x1 = posA.getX();
         int y1 = posA.getY();
@@ -139,7 +141,7 @@ public class ClientEventHandler
         GlStateManager.depthMask(false);
 
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1-player.getEyeHeight(), z1, x2, y2-player.getEyeHeight(), z2);
-        drawSelectionBoundingBox(axisalignedbb.grow(0.002D).offset(-renderPosX, -renderPosY, -renderPosZ), 1.0F, 1.0F, 1.0F, 1.0F);
+        WorldRenderer.drawSelectionBoundingBox(axisalignedbb.grow(0.002D).offset(-renderPosX, -renderPosY, -renderPosZ), 1.0F, 1.0F, 1.0F, 1.0F);
 
 
         GlStateManager.depthMask(true);

@@ -5,7 +5,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +21,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Instance
      */
-    public  static final LinkSessionManager INSTANCE = new LinkSessionManager();
+    public static final LinkSessionManager INSTANCE = new LinkSessionManager();
 
     /**
      * Storage of sessions by ownerUUID
@@ -70,9 +69,10 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for members of a session identified by owner
      * 
-     * @param ownerUUID   {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
      * @return List UUID: list of UUIDs of session members
-     * <p>     null:      if ownerUUID was not found
+     *         <p>
+     *         null: if ownerUUID was not found
      */
     @Nullable
     public List<UUID> getMembersOf(@NotNull final UUID ownerUUID)
@@ -83,9 +83,10 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for members of a session identified by owner
      * 
-     * @param ownerUUID     {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
      * @return List String: list of player's name (nickname) of session members
-     * <p>     null:        if ownerUUID was not found
+     *         <p>
+     *         null: if ownerUUID was not found
      */
     @Nullable
     public List<String> getMembersNamesOf(@NotNull final UUID ownerUUID)
@@ -96,22 +97,25 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for session names of all sessions identified by member
      * 
-     * @param memberUUID    {@link PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link PlayerEntity#getUniqueID()}
      * @return List String: list of player's name (nickname) of session members
-     * <p>     null:        if ownerUUID was not found
+     *         <p>
+     *         null: if ownerUUID was not found
      */
     @Nullable
     public List<String> getSessionNamesOf(@NotNull final UUID memberUUID)
     {
-        final List<String> ses = sessions.entrySet().stream()
-            .filter(en -> en.getValue().isMember(memberUUID) && !en.getKey().equals(memberUUID))
+        final List<String> ses = sessions.entrySet()
+            .stream()
+            .filter(en -> en.getValue().isMember(memberUUID))// && !en.getKey().equals(memberUUID))
             .map(en -> en.getValue().getMemberDisplayName(en.getKey()))
             .collect(Collectors.toList());
         return ses.isEmpty() ? null : ses;
     }
 
     /**
-     * Getter for unique members (which are not muted in a channel) of all sessions identified by member <p>
+     * Getter for unique members (which are not muted in a channel) of all sessions identified by member
+     * <p>
      * Old name: <code>getUniquePlayersInSessionsOf</code>
      * 
      * @param memberUUID {@link PlayerEntity#getUniqueID()}
@@ -120,7 +124,8 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      */
     public Set<UUID> execute(@NotNull final UUID memberUUID, @NotNull final ChannelsEnum channel)
     {
-        return sessions.entrySet().stream()
+        return sessions.entrySet()
+            .stream()
             .filter(en -> en.getValue().isMember(memberUUID))
             .flatMap(en -> getMembersOf(en.getKey()).stream())
             .filter(uuid -> !getMuteState(uuid, channel))
@@ -133,11 +138,11 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * @param ownerUUID   {@link PlayerEntity#getUniqueID()}
      * @param memberUUID  {@link PlayerEntity#getUniqueID()}
      * @param displayName string used in commands for displaying player's name
-     * @return boolean:   whether ownerUUID was found or not
+     * @return boolean: whether ownerUUID was found or not
      */
     public boolean addOrUpdateMemberInSession(@NotNull final UUID ownerUUID, @NotNull final UUID memberUUID, @Nullable final String displayName)
     {
-        if(sessions.containsKey(ownerUUID))
+        if (sessions.containsKey(ownerUUID))
         {
             sessions.get(ownerUUID).addOrUpdateMember(memberUUID, displayName);
             return true;
@@ -150,11 +155,11 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @param ownerUUID  {@link PlayerEntity#getUniqueID()}
      * @param memberUUID {@link PlayerEntity#getUniqueID()}
-     * @return boolean:  whether ownerUUID was found or not
+     * @return boolean: whether ownerUUID was found or not
      */
     public boolean removeMemberOfSession(@NotNull final UUID ownerUUID, @NotNull final UUID memberUUID)
     {
-        if(sessions.containsKey(ownerUUID))
+        if (sessions.containsKey(ownerUUID))
         {
             sessions.get(ownerUUID).removeMember(memberUUID);
             return true;
@@ -171,7 +176,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      */
     public void setMuteState(@NotNull final UUID playerUUID, @NotNull final ChannelsEnum channel, @NotNull final boolean state)
     {
-        if(!channels.containsKey(playerUUID))
+        if (!channels.containsKey(playerUUID))
         {
             channels.put(playerUUID, new HashMap<Integer, Boolean>());
         }
@@ -183,7 +188,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @param playerUUID {@link PlayerEntity#getUniqueID()}
      * @param channel    {@link ChannelsEnum}
-     * @return boolean:  mute state (returns false if checking fails), true = muted, false = unmuted
+     * @return boolean: mute state (returns false if checking fails), true = muted, false = unmuted
      */
     public boolean getMuteState(@NotNull final UUID playerUUID, @NotNull final ChannelsEnum channel)
     {
@@ -207,7 +212,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
         sessions.forEach((uuid, ls) -> out.put(uuid.toString(), ls.writeToNBT()));
         channels.forEach((uuid, ch) -> {
             final CompoundNBT player = new CompoundNBT();
-            
+
             ch.forEach((id, state) -> player.putBoolean(String.valueOf(id), state));
             channelz.put(uuid.toString(), player);
         });
@@ -238,7 +243,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
         }
         in.remove(CHANNELS_TAG);
 
-        for(String key : in.keySet())
+        for (String key : in.keySet())
         {
             sessions.put(UUID.fromString(key), LinkSession.createFromNBT(in.getCompound(key)));
         }
@@ -249,11 +254,11 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @param playerUUID {@link PlayerEntity#getUniqueID()}
      * @param ownerUUID  {@link PlayerEntity#getUniqueID()}
-     * @return boolean:  whether ownerUUID was found or not
+     * @return boolean: whether ownerUUID was found or not
      */
     public boolean createInvite(@NotNull final UUID playerUUID, @NotNull final UUID ownerUUID)
     {
-        if(sessions.containsKey(ownerUUID))
+        if (sessions.containsKey(ownerUUID))
         {
             invites.put(playerUUID, ownerUUID);
             return true;
@@ -265,8 +270,9 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * Check if a player has open invite
      * 
      * @param playerUUID {@link PlayerEntity#getUniqueID()}
-     * @return String:   display name of an owner of invite's target session
-     * <p>     null:     if player has not an open invite
+     * @return String: display name of an owner of invite's target session
+     *         <p>
+     *         null: if player has not an open invite
      */
     @Nullable
     public String hasInvite(@NotNull final UUID playerUUID)
@@ -291,8 +297,9 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @param playerUUID {@link PlayerEntity#getUniqueID()}
      * @param playerName string used in commands for displaying player's name
-     * @return String:   owner's display name of playerUUID session
-     * <p>     null:     if playerUUID was not found or session no longer exists
+     * @return String: owner's display name of playerUUID session
+     *         <p>
+     *         null: if playerUUID was not found or session no longer exists
      */
     @Nullable
     public String consumeInvite(@NotNull final UUID playerUUID, @Nullable final String playerName)
@@ -304,7 +311,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
 
         final UUID ownerUUID = invites.get(playerUUID);
         invites.remove(playerUUID);
-        
+
         if (!addOrUpdateMemberInSession(ownerUUID, playerUUID, playerName))
         {
             return null;
@@ -318,8 +325,9 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * @param playerUUID  {@link PlayerEntity#getUniqueID()}
      * @param playerName  string used in commands for displaying player's name
      * @param UUIDtoCheck UUID to check against current invite
-     * @return String:    owner's display name of playerUUID session
-     * <p>     null:      if UUIDtoCheck does not match or if playerUUID was not found or session no longer exists
+     * @return String: owner's display name of playerUUID session
+     *         <p>
+     *         null: if UUIDtoCheck does not match or if playerUUID was not found or session no longer exists
      */
     @Nullable
     public String consumeInviteWithCheck(@NotNull final UUID playerUUID, @Nullable final String playerName, @NotNull final UUID UUIDtoCheck)

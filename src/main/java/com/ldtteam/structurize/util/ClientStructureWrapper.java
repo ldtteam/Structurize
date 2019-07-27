@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structurize.api.util.LanguageHandler;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.management.StructureName;

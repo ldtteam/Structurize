@@ -1,13 +1,23 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import com.mojang.datafixers.DataFixer;
+import com.mojang.datafixers.DataFixerBuilder;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.schemas.Schema;
+import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.DefaultTypeReferences;
+import net.minecraft.util.datafix.TypeReferences;
+import net.minecraft.util.datafix.fixes.BlockNameFlattening;
+import net.minecraft.util.datafix.fixes.BlockStateFlattenStructures;
+import net.minecraft.util.datafix.fixes.BlockStateFlatteningMap;
+import net.minecraft.util.datafix.fixes.BlockStateFlatternEntities;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -233,7 +243,7 @@ public class BlueprintUtil
      */
     public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
     {
-        final CompoundNBT tag = nbtTag; //NBTUtil.update(fixer, DefaultTypeReferences.STRUCTURE, nbtTag, 1900);
+        final CompoundNBT tag = nbtTag;
         byte version = tag.getByte("version");
         if (version == 1)
         {
@@ -257,11 +267,14 @@ public class BlueprintUtil
 
             // Reading Pallete
             ListNBT paletteTag = (ListNBT) tag.get("palette");
+            //paletteTag = NBTUtil.update(fixer, DefaultTypeReferences.CHUNK, paletteTag, 1945);
+
+            final Schema schema = DataFixesManager.getDataFixer().getSchema(1450);
             short paletteSize = (short) paletteTag.size();
             List<BlockState> palette = new ArrayList<>();
             for (short i = 0; i < paletteSize; i++)
             {
-                palette.add(i, NBTUtil.readBlockState(paletteTag.getCompound(i)));
+                palette.add(i, NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, paletteTag.getCompound(i))).getValue()));
             }
 
             // Reading Blocks

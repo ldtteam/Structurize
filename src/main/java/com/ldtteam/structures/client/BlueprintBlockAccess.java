@@ -2,9 +2,11 @@ package com.ldtteam.structures.client;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -99,7 +101,8 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     @Override
     public BlockState getBlockState(@NotNull final BlockPos pos)
     {
-        return BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
+        final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
+        return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
 
     @Override

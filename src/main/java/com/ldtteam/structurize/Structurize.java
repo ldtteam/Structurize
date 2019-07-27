@@ -53,8 +53,6 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(FMLEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(RenderEventHandler.class);
-
-
     }
 
     /**

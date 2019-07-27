@@ -4,9 +4,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
@@ -31,45 +33,130 @@ public final class LanguageHandler
     }
 
     /**
-     * Send message to collection of players.
+     * Send a message to the player.
      *
-     * @param players collection of target players
-     * @param key     translation key
-     * @param format  String.format() attributes
+     * @param player  the player to send to.
+     * @param key     the key of the message.
+     * @param message the message to send.
      */
-    public static void sendMessageToPlayers(@Nullable final Collection<PlayerEntity> players, final String key, final Object... format)
+    public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        final ITextComponent message = buildChatComponent(key, format);
-        for (final PlayerEntity player : players)
+        player.sendMessage(buildChatComponent(key, message));
+    }
+
+    public static ITextComponent buildChatComponent(final String key, final Object... message)
+    {
+        TranslationTextComponent translation = null;
+
+        int onlyArgsUntil = 0;
+        for (final Object object : message)
         {
-            player.sendMessage(message);
+            if (object instanceof ITextComponent)
+            {
+                if (onlyArgsUntil == 0)
+                {
+                    onlyArgsUntil = -1;
+                }
+                break;
+            }
+            onlyArgsUntil++;
         }
+
+        if (onlyArgsUntil >= 0)
+        {
+            final Object[] args = new Object[onlyArgsUntil];
+            System.arraycopy(message, 0, args, 0, onlyArgsUntil);
+
+            translation = new TranslationTextComponent(key, args);
+        }
+
+        for (final Object object : message)
+        {
+            if (translation == null)
+            {
+                if (object instanceof ITextComponent)
+                {
+                    translation = new TranslationTextComponent(key);
+                }
+                else
+                {
+                    translation = new TranslationTextComponent(key, object);
+                    continue;
+                }
+            }
+
+            if (object instanceof ITextComponent)
+            {
+                translation.appendSibling((ITextComponent) object);
+            }
+            else if (object instanceof String)
+            {
+                boolean isInArgs = false;
+                for (final Object obj : translation.getFormatArgs())
+                {
+                    if (obj.equals(object))
+                    {
+                        isInArgs = true;
+                        break;
+                    }
+                }
+
+                if (!isInArgs)
+                {
+                    translation.appendText((String) object);
+                }
+            }
+        }
+
+        if (translation == null)
+        {
+            translation = new TranslationTextComponent(key);
+        }
+
+        return translation;
     }
 
     /**
-     * Send a message to player.
+     * Localize a string and use String.format().
      *
-     * @param player target player
-     * @param key    translation key
-     * @param format String.format() attributes
+     * @param key  translation key.
+     * @param args Objects for String.format().
+     * @return Localized string.
      */
-    public static void sendMessageToPlayer(@NotNull final PlayerEntity player, final String key, final Object... format)
+    public static String format(final String key, final Object... args)
     {
-        player.sendMessage(buildChatComponent(key, format));
+        final String result;
+        if (args.length == 0)
+        {
+            result = new TranslationTextComponent(key).getUnformattedComponentText();
+        }
+        else
+        {
+            result = new TranslationTextComponent(key, args).getUnformattedComponentText();
+        }
+        return result.isEmpty() ? key : result;
     }
 
     /**
-     * Builds new chat component.
+     * Send message to a list of players.
      *
-     * @param key    translation key
-     * @param format String.format() attributes
-     * @return new chat component
+     * @param players the list of players.
+     * @param key     key of the message.
+     * @param message the message.
      */
-    public static ITextComponent buildChatComponent(final String key, final Object... format)
+    public static void sendPlayersMessage(@Nullable final List<PlayerEntity> players, final String key, final Object... message)
     {
-        final String buildedMessage = String.format(LanguageMap.getInstance().translateKey(key), format);
+        if (players == null || players.isEmpty())
+        {
+            return;
+        }
 
-        return new StringTextComponent(buildedMessage);
+        final ITextComponent textComponent = buildChatComponent(key, message);
+
+        for (@NotNull final PlayerEntity player : players)
+        {
+            player.sendMessage(textComponent);
+        }
     }
 
     /**

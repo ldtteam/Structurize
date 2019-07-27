@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import com.ldtteam.structurize.util.LanguageHandler;
@@ -400,36 +401,27 @@ public class LinkSessionCommand
     protected static class Leave extends AbstractCommand
     {
         private final static String NAME = "leave";
+        private final static String TARGET_ARG = "targets";
 
         protected static LiteralArgumentBuilder<CommandSource> build()
         {
-            return newLiteral(NAME);
+            return newLiteral(NAME).then(
+                newArgument(TARGET_ARG, MultipleStringArgument.multipleString((s, p) -> LinkSessionManager.INSTANCE.getSessionNamesOf(p.getUniqueID())))
+                    .executes(s -> onExecute(s)));
         }
-        /*
-         * TODO: needs custom finisher
-         * final LiteralArgumentBuilder<CommandSource> root = newLiteral(NAME);
-         * for (final String name : LinkSessionManager.INSTANCE.getSessionNamesOf(sender.getCommandSenderEntity().getUniqueID()))
-         * {
-         * // .executes(s -> onExecute(s));
-         * }
-         * return newLiteral(NAME);
-         * }
-         * private static int onExecute(final CommandContext<CommandSource> command) throws CommandSyntaxException
-         * {
-         * final ServerPlayerEntity sender = command.getSource().asPlayer();
-         * final MinecraftServer server = command.getSource().getServer();
-         * final UUID senderUUID = sender.getUniqueID();
-         * for (final String name : args)
-         * {
-         * if (server.getPlayerList().getPlayerByUsername(name) == null)
-         * {
-         * continue;
-         * }
-         * LinkSessionManager.INSTANCE.removeMemberOfSession(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), senderUUID);
-         * sender.sendMessage(new StringTextComponent("Leaving a session owned by \"" + name + "\"."));
-         * }
-         * }
-         */
 
+        private static int onExecute(final CommandContext<CommandSource> command) throws CommandSyntaxException
+        {
+            final ServerPlayerEntity sender = command.getSource().asPlayer();
+            final MinecraftServer server = command.getSource().getServer();
+            final String name = MultipleStringArgument.getResult(command, TARGET_ARG);
+
+            if (server.getPlayerList().getPlayerByUsername(name) != null)
+            {
+                LinkSessionManager.INSTANCE.removeMemberOfSession(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), sender.getUniqueID());
+                sender.sendMessage(new StringTextComponent("Leaving a session owned by \"" + name + "\"."));
+            }
+            return 1;
+        }
     }
 }

@@ -2,10 +2,10 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.ScanToolOperation;
 import com.ldtteam.structurize.util.StructurePlacementUtils;
 import net.minecraft.block.BlockState;
@@ -15,8 +15,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.mariuszgromada.math.mxparser.Argument;
@@ -280,7 +280,7 @@ public final class Manager
                 }
             }
         }
-        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) width);
+        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
