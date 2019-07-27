@@ -1,8 +1,8 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
+        maven { url = 'https://files.minecraftforge.net/maven' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
@@ -11,6 +11,11 @@ buildscript {
 
 plugins {
     id "com.matthewprenger.cursegradle" version "1.0.9"
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -63,6 +68,7 @@ dependencies {
     apiCompileOnly "com.intellij:annotations:+@jar"
     compile 'com.intellij:annotations:+@jar'
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
+    contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
 }
 
 processResources {

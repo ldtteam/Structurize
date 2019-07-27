@@ -149,10 +149,10 @@
   "com.ldtteam.structurize.network.messages.schematicsavemassage.toobig": "Schematic size is too big, can not be bigger than %s bytes",
   "com.ldtteam.structurize.gui.buildtool.decorations": "Decorations",
   "com.ldtteam.structurize.gui.buildtool.scans": "My schematics",
-  "com.ldtteam.structurize.gui.shapeTool.pickmainblock": "Pick Main Block",
-  "com.ldtteam.structurize.gui.shapeTool.pickfillblock=": "Pick Fill Block",
-  "com.ldtteam.structurize.gui.shapeTool.replace": "Replace Blocks",
-  "com.ldtteam.structurize.gui.shapeTool.ignore": "Ignore Blocks",
-  "com.ldtteam.structurize.gui.shapeTool.hollow": "Hollow",
-  "com.ldtteam.structurize.gui.shapeTool.solid": "Solid"
+  "com.ldtteam.structurize.gui.shapetool.pickmainblock": "Pick Main Block",
+  "com.ldtteam.structurize.gui.shapetool.pickfillblock=": "Pick Fill Block",
+  "com.ldtteam.structurize.gui.shapetool.replace": "Replace Blocks",
+  "com.ldtteam.structurize.gui.shapetool.ignore": "Ignore Blocks",
+  "com.ldtteam.structurize.gui.shapetool.hollow": "Hollow",
+  "com.ldtteam.structurize.gui.shapetool.solid": "Solid"
 }

@@ -239,6 +239,16 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         {
             Log.getLogger().warn("Unable to parse number for MultiBlock range or speed, considering default range/speed!", e);
         }
+
+        final TileEntity block = Minecraft.getInstance().world.getTileEntity(pos);
+        if (block instanceof TileEntityMultiBlock)
+        {
+            ((TileEntityMultiBlock) block).setSpeed(speed);
+            ((TileEntityMultiBlock) block).setRange(range);
+            ((TileEntityMultiBlock) block).setOutput(output);
+            ((TileEntityMultiBlock) block).setDirection(facing);
+        }
+
         Network.getNetwork().sendToServer(new MultiBlockChangeMessage(pos, facing, output, range, speed));
         close();
     }
