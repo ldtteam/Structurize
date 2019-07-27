@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 8,
+    "item": "structurize:clay_cactus_shingle"
+  },
+  "pattern": [
+    "I  ",
+    "SI ",
+    "PSI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:brick"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "structurize:blockcactusplank"
+    }
+  },
+  "group": "clay_shingle"
+}

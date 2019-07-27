@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 8,
+    "item": "structurize:thatched_shingle_slab"
+  },
+  "pattern": [
+    "   ",
+    "III",
+    "SSS"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:wheat"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "group": "thatched_shingle_slab"
+}

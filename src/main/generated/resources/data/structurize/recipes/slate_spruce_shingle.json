@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 8,
+    "item": "structurize:slate_spruce_shingle"
+  },
+  "pattern": [
+    "I  ",
+    "SI ",
+    "PSI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:cobblestone"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "minecraft:spruce_planks"
+    }
+  },
+  "group": "slate_shingle"
+}

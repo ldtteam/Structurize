@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:cyan_clay_shingle_slab"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:cyan_dye"
+    },
+    {
+      "tag": "structurize:clay_shingle_slab"
+    }
+  ],
+  "group": "clay_shingle_slab"
+}

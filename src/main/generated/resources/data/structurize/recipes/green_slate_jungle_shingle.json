@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:green_slate_jungle_shingle"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:green_dye"
+    },
+    {
+      "tag": "structurize:slate_jungle_shingle"
+    }
+  ],
+  "group": "slate_jungle_shingle"
+}
