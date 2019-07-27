@@ -1,5 +1,5 @@
 {
-  "itemGroup.Structurize": "Structurize",
+  "itemgroup.Structurize": "Structurize",
   "item.structurize.shapetool": "Shape Tool",
   "item.structurize.caliper": "Caliper",
   "item.possetter.firstpos": "First pos set to x=%d y=%d z=%d",

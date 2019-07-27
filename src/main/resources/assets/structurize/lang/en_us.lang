@@ -31,7 +31,7 @@ item.caliper.message.1D=line
 item.caliper.message.2D=square
 item.caliper.message.3D=cube
 
-itemGroup.structurize=Structurize
+itemgroup.structurize=Structurize
 com.ldtteam.structurize.configgui.title=structurize Config
 
 com.ldtteam.structurize.gui.buildtool.hut=Huts
