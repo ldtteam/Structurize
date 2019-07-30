@@ -16,6 +16,10 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -70,6 +74,7 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
+    compile "com.ldtteam:datagenerators:0.1.8-ALPHA"
 }
 
 processResources {

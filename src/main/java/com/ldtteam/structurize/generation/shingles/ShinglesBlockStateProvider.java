@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.generation.shingles;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.ldtteam.datagenerators.AbstractBlockStateProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
-import com.ldtteam.structurize.generation.AbstractBlockStateProvider;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.data.DataGenerator;

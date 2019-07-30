@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.generation.shingles;
 
 import com.google.gson.JsonObject;
+import com.ldtteam.datagenerators.AbstractItemModelProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
-import com.ldtteam.structurize.generation.AbstractItemModelProvider;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;

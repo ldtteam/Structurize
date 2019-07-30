@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.generation.shingles;
 
+import com.ldtteam.datagenerators.AbstractLangEntryProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
-import com.ldtteam.structurize.generation.AbstractLangEntryProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import org.jetbrains.annotations.NotNull;

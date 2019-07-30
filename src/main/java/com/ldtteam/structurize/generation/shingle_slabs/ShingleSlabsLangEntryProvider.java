@@ -1,9 +1,8 @@
 package com.ldtteam.structurize.generation.shingle_slabs;
 
+import com.ldtteam.datagenerators.AbstractLangEntryProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.decorative.BlockShingle;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
-import com.ldtteam.structurize.generation.AbstractLangEntryProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,7 @@ public class ShingleSlabsLangEntryProvider extends AbstractLangEntryProvider
                 continue;
 
             final String reference = "block.structurize." + shingleSlab.getRegistryName().getPath();
-            final String value = shingleSlab.getFaceType().getLangName() +  " Shingle Slab";
+            final String value = shingleSlab.getFaceType().getLangName() + " Shingle Slab";
 
             addLangEntry(cache, inputPath, reference, value);
         }

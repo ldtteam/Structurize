@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.generation.defaults;
 
 import com.google.gson.JsonObject;
+import com.ldtteam.datagenerators.AbstractLootTableProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.AbstractLootTableProvider;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
