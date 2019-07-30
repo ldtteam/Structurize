@@ -3,17 +3,13 @@ package com.ldtteam.structurize;
 import com.ldtteam.structures.event.RenderEventHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
-import com.ldtteam.structurize.event.ClientEventHandler;
-import com.ldtteam.structurize.event.EventSubscriber;
-import com.ldtteam.structurize.event.FMLEventHandler;
-import com.ldtteam.structurize.event.LifecycleSubscriber;
+import com.ldtteam.structurize.event.*;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +47,7 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(FMLEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(RenderEventHandler.class);
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(GatherDataEvent.class);
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(GatherDataHandler::dataGeneratorSetup);
     }
 
     /**

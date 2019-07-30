@@ -3,21 +3,17 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 /**
  * EventHandler used to generate data during the runData gradle task.
  */
-@Mod.EventBusSubscriber
 public class GatherDataHandler
 {
     /**
      * This method is for adding datagenerators. this does not run during normal client operations, only during building.
      * @param event event sent when you run the "runData" gradle task
      */
-    @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
         //Shingles
