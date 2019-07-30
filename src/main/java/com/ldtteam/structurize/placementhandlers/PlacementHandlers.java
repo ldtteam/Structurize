@@ -298,7 +298,7 @@ public final class PlacementHandlers
         public List<ItemStack> getRequiredItems(
           @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
-            if (blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD)
+            if (blockState.get(BedBlock.PART) == BedPart.HEAD)
             {
                 final List<ItemStack> list = new ArrayList<>();
                 list.add(new ItemStack(blockState.getBlock(), 1));
