@@ -40,3 +40,5 @@ tools/fix_model_angle/*.class
 
 run2/
 runServer/
+
+runClient/
