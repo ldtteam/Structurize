@@ -296,16 +296,20 @@ public final class PlacementHandlers
         public List<ItemStack> getRequiredItems(
           @NotNull final World world, @NotNull final BlockPos pos, @NotNull final IBlockState blockState, @Nullable final NBTTagCompound tileEntityData, final boolean complete)
         {
-            if (tileEntityData == null)
+            if (blockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD)
             {
-                final List<ItemStack> list = new ArrayList<>();
-                list.add(new ItemStack(Items.BED, 1, 14));
-                return list;
+                if (tileEntityData == null)
+                {
+                    final List<ItemStack> list = new ArrayList<>();
+                    list.add(new ItemStack(Items.BED, 1, 14));
+                    return list;
+                }
+                else
+                {
+                    return getItemsFromTileEntity(tileEntityData, world);
+                }
             }
-            else
-            {
-                return getItemsFromTileEntity(tileEntityData, world);
-            }
+            return Collections.emptyList();
         }
     }
 
