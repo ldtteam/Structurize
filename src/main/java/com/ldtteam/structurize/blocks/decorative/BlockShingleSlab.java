@@ -12,6 +12,9 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.IWorld;
 import org.jetbrains.annotations.NotNull;
@@ -90,6 +93,21 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     public ShingleFaceType getFaceType()
     {
         return this.faceType;
+    }
+
+    /**
+     * Make the slab and actual slab shape.
+     *
+     * @param state Current block state.
+     * @param worldIn The world the block is in.
+     * @param pos The position of the block.
+     * @param context The selection context.
+     * @return The VoxelShape of the block.
+     */
+    @Override
+    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    {
+        return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
     }
 
     /**
