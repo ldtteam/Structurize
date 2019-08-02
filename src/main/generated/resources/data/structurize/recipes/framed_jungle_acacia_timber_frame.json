@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:framed_jungle_acacia_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_jungle_acacia_timber_frame"
+    }
+  ],
+  "group": "jungle_acacia_timber_frame"
+}

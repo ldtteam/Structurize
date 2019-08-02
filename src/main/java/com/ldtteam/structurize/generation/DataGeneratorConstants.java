@@ -25,6 +25,8 @@ public class DataGeneratorConstants
     public static final String SHINGLES_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/shingle/";
     public static final String SHINGLE_SLABS_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/shingle_slab/";
 
+    public static final String TIMBER_FRAMES_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/timber_frames/";
+
     public static final String EN_US_LANG = "assets/structurize/lang/en_us.json";
 
     public static final String ITEM_MODEL_DIR = "assets/structurize/models/item/";

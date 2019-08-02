@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:one_crossed_lr_acacia_dark_oak_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:up_gated_acacia_dark_oak_timber_frame"
+    }
+  ],
+  "group": "acacia_dark_oak_timber_frame"
+}

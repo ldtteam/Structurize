@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:one_crossed_rl_birch_birch_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:one_crossed_lr_birch_birch_timber_frame"
+    }
+  ],
+  "group": "birch_birch_timber_frame"
+}

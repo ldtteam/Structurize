@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:horizontal_plain_oak_cactus_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:down_gated_oak_cactus_timber_frame"
+    }
+  ],
+  "group": "oak_cactus_timber_frame"
+}

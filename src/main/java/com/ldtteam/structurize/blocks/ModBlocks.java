@@ -5,10 +5,7 @@ import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
-import com.ldtteam.structurize.blocks.types.PaperwallType;
-import com.ldtteam.structurize.blocks.types.ShingleFaceType;
-import com.ldtteam.structurize.blocks.types.ShingleWoodType;
-import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.blocks.types.*;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -121,46 +118,23 @@ public final class ModBlocks
 
         for (final ShingleFaceType shingleFace : ShingleFaceType.values())
         {
-            final BlockShingleSlab shingleSlab = new BlockShingleSlab(shingleFace);
-            shingleSlab.registerBlock(registry);
-            shingleSlabs.add(shingleSlab);
+            shingleSlabs.add(new BlockShingleSlab(shingleFace).registerBlock(registry));
 
             for (final ShingleWoodType shingleWood : ShingleWoodType.values())
             {
-                final BlockShingle shingle = new BlockShingle(Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace);
-                shingle.registerBlock(registry);
-                shingles.add(shingle);
+                shingles.add(new BlockShingle(Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace).registerBlock(registry));
             }
         }
 
-        for (final TimberFrameType frameType : TimberFrameType.values())
+        for (final TimberFrameType blockType : TimberFrameType.values())
         {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "birch" + "_" + frameType.getName()).registerBlock(registry));
-        }
-
-        for (final TimberFrameType frameType : TimberFrameType.values())
-        {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "jungle" + "_" + frameType.getName()).registerBlock(registry));
-        }
-
-        for (final TimberFrameType frameType : TimberFrameType.values())
-        {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "oak" + "_" + frameType.getName()).registerBlock(registry));
-        }
-
-        for (final TimberFrameType frameType : TimberFrameType.values())
-        {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "dark_oak" + "_" + frameType.getName()).registerBlock(registry));
-        }
-
-        for (final TimberFrameType frameType : TimberFrameType.values())
-        {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "acacia" + "_" + frameType.getName()).registerBlock(registry));
-        }
-
-        for (final TimberFrameType frameType : TimberFrameType.values())
-        {
-            timberFrames.add(new BlockTimberFrame(BlockTimberFrame.BLOCK_NAME + "_" + "spruce" + "_" + frameType.getName()).registerBlock(registry));
+            for (final TimberFrameFrameType frameType : TimberFrameFrameType.values())
+            {
+                for (TimberFrameCentreType centreType : TimberFrameCentreType.values())
+                {
+                    timberFrames.add(new BlockTimberFrame(blockType, frameType, centreType).registerBlock(registry));
+                }
+            }
         }
 
         multiBlock = new MultiBlock().registerBlock(registry);
@@ -171,6 +145,9 @@ public final class ModBlocks
     {
         final IForgeRegistry<Item> registry = event.getRegistry();
         final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
+        final Item.Properties shingleProperties = new Item.Properties().group(ModCreativeTabs.SHINGLES);
+        final Item.Properties timberframeProperties = new Item.Properties().group(ModCreativeTabs.TIMBER_FRAMES);
+
         blockSolidSubstitution.registerItemBlock(registry, properties);
         blockSubstitution.registerItemBlock(registry, properties);
 
@@ -181,12 +158,12 @@ public final class ModBlocks
 
         for (final BlockShingle shingle : shingles)
         {
-            shingle.registerItemBlock(registry, properties);
+            shingle.registerItemBlock(registry, shingleProperties);
         }
 
         for (BlockShingleSlab shingleSlab : shingleSlabs)
         {
-            shingleSlab.registerItemBlock(registry, properties);
+            shingleSlab.registerItemBlock(registry, shingleProperties);
         }
 
         blockCactusPlank.registerItemBlock(registry, properties);
@@ -198,7 +175,7 @@ public final class ModBlocks
 
         for (final BlockTimberFrame frame : timberFrames)
         {
-            frame.registerItemBlock(registry, properties);
+            frame.registerItemBlock(registry, timberframeProperties);
         }
 
         multiBlock.registerItemBlock(registry, properties);

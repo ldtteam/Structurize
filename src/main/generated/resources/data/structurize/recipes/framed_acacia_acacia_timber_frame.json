@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:framed_acacia_acacia_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_acacia_acacia_timber_frame"
+    }
+  ],
+  "group": "acacia_acacia_timber_frame"
+}
