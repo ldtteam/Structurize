@@ -7,24 +7,25 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameType implements IStringSerializable
 {
-    PLAIN("plain", "Plain"),
-    DOUBLE_CROSSED("double_crossed", "Double Crossed"),
-    FRAMED("framed", "Framed"),
-    SIDE_FRAMED("side_framed", "Side Framed"),
-    UP_GATED("up_gated", "Upper Gate Framed"),
-    ONE_CROSSED_LR("one_crossed_lr", "Left Right Crossed"),
-    ONE_CROSSED_RL("one_crossed_rl", "Right Left Crossed"),
-    DOWN_GATED("down_gated", "Lower Gate Framed"),
-    HORIZONTAL_PLAIN("horizontal_plain", "Plain Horizontal"),
-    SIDE_FRAMED_HORIZONTAL("side_framed_horizontal", "Side Framed Horizontal");
+    PLAIN("plain", "Plain", false),
+    DOUBLE_CROSSED("double_crossed", "Double Crossed", false),
+    FRAMED("framed", "Framed", false),
+    SIDE_FRAMED("side_framed", "Side Framed", true),
+    GATED("gated", "Gate Framed", true),
+    ONE_CROSSED_LR("one_crossed_lr", "Left Right Crossed", false),
+    ONE_CROSSED_RL("one_crossed_rl", "Right Left Crossed", false),
+    HORIZONTAL_PLAIN("horizontal_plain", "Plain Horizontal", false),
+    SIDE_FRAMED_HORIZONTAL("side_framed_horizontal", "Side Framed Horizontal", true);
 
     private final String name;
     private final String langName;
+    private final boolean rotatable;
 
-    TimberFrameType(final String name, final String langName)
+    TimberFrameType(final String name, final String langName, final boolean rotatable)
     {
         this.name = name;
         this.langName = langName;
+        this.rotatable = rotatable;
     }
 
     /**
@@ -47,5 +48,10 @@ public enum TimberFrameType implements IStringSerializable
     public String getLangName()
     {
         return this.langName;
+    }
+
+    public boolean isRotatable()
+    {
+        return this.rotatable;
     }
 }

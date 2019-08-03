@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:gated_acacia_acacia_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_acacia_acacia_timber_frame"
+    }
+  ],
+  "group": "acacia_acacia_timber_frame"
+}

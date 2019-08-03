@@ -15,7 +15,8 @@ public enum TimberFrameCentreType  implements IStringSerializable
     CACTUS("cactus", "Cactus", new ResourceLocation("structurize:blocks/blockcactusplank"), new ResourceLocation("structurize:blockcactusplank")),
     //OTHER
     COBBLE_STONE("cobble_stone", "Cobblestone", new ResourceLocation("block/cobblestone"), new ResourceLocation("cobblestone")),
-    STONE("stone", "Stone", new ResourceLocation("block/stone"), new ResourceLocation("stone"));
+    STONE("stone", "Stone", new ResourceLocation("block/stone"), new ResourceLocation("stone")),
+    PAPER("paper", "Paper", new ResourceLocation("structurize:blocks/timber_frame_paper"), new ResourceLocation("paper"));
 
     final String name;
     final String langName;

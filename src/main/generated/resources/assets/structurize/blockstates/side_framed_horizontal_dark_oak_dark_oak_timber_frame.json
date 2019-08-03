@@ -1,7 +1,34 @@
 {
   "variants": {
-    "": {
-      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame"
+    "facing=north": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 90,
+      "y": 0
+    },
+    "facing=east": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 90,
+      "y": 270
+    },
+    "facing=up": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 0,
+      "y": 0
+    },
+    "facing=down": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_dark_oak_dark_oak_timber_frame",
+      "x": 180,
+      "y": 0
     }
   }
 }

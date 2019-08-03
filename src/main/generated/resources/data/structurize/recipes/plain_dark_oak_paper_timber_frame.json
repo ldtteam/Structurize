@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_dark_oak_paper_timber_frame"
+  },
+  "pattern": [
+    " F ",
+    " C ",
+    " S "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:dark_oak_planks"
+    },
+    "C": {
+      "item": "minecraft:paper"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "group": "dark_oak_paper_timber_frame"
+}
