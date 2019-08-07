@@ -43,11 +43,12 @@ public class Structurize
     {
         logger.warn("Structurize starting up");
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientEventHandler.class);
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(FMLEventHandler.class);
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(RenderEventHandler.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(GatherDataHandler::dataGeneratorSetup);
+      
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventHandler.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(FMLEventHandler.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(RenderEventHandler.class);
     }
 
     /**

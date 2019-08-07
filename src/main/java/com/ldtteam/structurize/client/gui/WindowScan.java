@@ -281,16 +281,17 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
+        final BlockPos def = Minecraft.getInstance().player.getPosition();
         try
         {
-            final int x1 = pos1x.getText().isEmpty() ? 0 : Integer.parseInt(pos1x.getText());
-            final int y1 = pos1y.getText().isEmpty() ? 0 : Integer.parseInt(pos1y.getText());
-            final int z1 = pos1z.getText().isEmpty() ? 0 : Integer.parseInt(pos1z.getText());
+            final int x1 = pos1x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos1x.getText());
+            final int y1 = pos1y.getText().isEmpty() ? def.getY() : Integer.parseInt(pos1y.getText());
+            final int z1 = pos1z.getText().isEmpty() ? def.getZ() : Integer.parseInt(pos1z.getText());
             pos1 = new BlockPos(x1, y1, z1);
 
-            final int x2 = pos2x.getText().isEmpty() ? 0 : Integer.parseInt(pos2x.getText());
-            final int y2 = pos2y.getText().isEmpty() ? 0 : Integer.parseInt(pos2y.getText());
-            final int z2 = pos2z.getText().isEmpty() ? 0 : Integer.parseInt(pos2z.getText());
+            final int x2 = pos2x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos2x.getText());
+            final int y2 = pos2y.getText().isEmpty() ? def.getY() : Integer.parseInt(pos2y.getText());
+            final int z2 = pos2z.getText().isEmpty() ? def.getZ() : Integer.parseInt(pos2z.getText());
             pos2 = new BlockPos(x2, y2, z2);
         }
         catch(final NumberFormatException e)
