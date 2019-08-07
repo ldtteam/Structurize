@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:framed_birch_cobble_stone_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_birch_cobble_stone_timber_frame"
+    }
+  ],
+  "group": "birch_cobble_stone_timber_frame"
+}

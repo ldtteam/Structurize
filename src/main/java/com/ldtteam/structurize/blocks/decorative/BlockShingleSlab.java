@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeDirectional;
-import com.ldtteam.structurize.blocks.types.ShingleSlabType;
+import com.ldtteam.structurize.blocks.types.ShingleFaceType;
+import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
@@ -11,13 +11,16 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.IWorld;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
+import static com.ldtteam.structurize.blocks.types.ShingleSlabShapeType.*;
+import static net.minecraft.util.Direction.*;
 
 /**
  * Decorative block
@@ -25,24 +28,14 @@ import java.util.Locale;
 public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockShingleSlab>
 {
     /**
-     * The bounding box of the slab.
+     * The SHAPEs of the shingle slab.
      */
-    protected static final AxisAlignedBB AABB_BOTTOM_HALF = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
-
-    /**
-     * The variants of the shingle slab.
-     */
-    public static final EnumProperty<ShingleSlabType> VARIANT = EnumProperty.create("variant", ShingleSlabType.class);
+    public static final EnumProperty<ShingleSlabShapeType> SHAPE = EnumProperty.create("shape", ShingleSlabShapeType.class);
 
     /**
      * The hardness this block has.
      */
     private static final float BLOCK_HARDNESS = 3F;
-
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "blockshingleslab";
 
     /**
      * The resistance this block has.
@@ -52,20 +45,27 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     /**
      * Amount of connections with other shingle slabs.
      */
-    private static final int NO_CONNECTIONS    = 0;
-    private static final int THREE_CONNECTIONS = 1;
-    private static final int TWO_CONNECTIONS   = 2;
-    private static final int ONE_CONNECTION    = 3;
+    private static final int FOUR_CONNECTIONS = 4;
+    private static final int THREE_CONNECTIONS = 3;
+    private static final int TWO_CONNECTIONS = 2;
+    private static final int ONE_CONNECTION = 1;
+
+    /**
+     * Registered ShingleFaceType for this block, used by the Data Generators.
+     */
+    private final ShingleFaceType faceType;
 
     /**
      * Constructor for the TimberFrame
      */
-    public BlockShingleSlab()
+    public BlockShingleSlab(final ShingleFaceType faceType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(BLOCK_NAME);
+        setRegistryName(faceType.getName() + "_shingle_slab");
+        this.faceType = faceType;
     }
 
+    // Deprecated here just means that you should not use this method when referencing a block, and instead it's blockstate <- Forge's Discord
     @Override
     public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
@@ -74,111 +74,150 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
 
     @Override
     public BlockState getStateForPlacement(
-      final BlockState state,
-      final Direction HORIZONTAL_FACING,
-      final BlockState state2,
-      final IWorld world,
-      final BlockPos pos1,
-      final BlockPos pos2,
-      final Hand hand)
+            final BlockState state,
+            final Direction HORIZONTAL_FACING,
+            final BlockState state2,
+            final IWorld world,
+            final BlockPos pos1,
+            final BlockPos pos2,
+            final Hand hand)
     {
         return getSlabShape(state, world, pos1);
     }
 
     /**
+     * Get the registered ShingleFaceType, used by the Data Generators
+     *
+     * @return the registered ShingleFaceType
+     */
+    public ShingleFaceType getFaceType()
+    {
+        return this.faceType;
+    }
+
+    /**
+     * Make the slab and actual slab shape.
+     *
+     * @param state Current block state.
+     * @param worldIn The world the block is in.
+     * @param pos The position of the block.
+     * @param context The selection context.
+     * @return The VoxelShape of the block.
+     */
+    @Override
+    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    {
+        return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
+    }
+
+    /**
      * Get the step shape of the slab
-     * @param state the state.
-     * @param world the world.
+     *
+     * @param state    the state.
+     * @param world    the world.
      * @param position the position.Re
      * @return the blockState to use.
      */
     private static BlockState getSlabShape(@NotNull final BlockState state, @NotNull final IWorld world, @NotNull final BlockPos position)
     {
-        final boolean[] connectors = new boolean[]{!(world.getBlockState(position.east()).getBlock() instanceof BlockShingleSlab),
-            !(world.getBlockState(position.west()).getBlock() instanceof BlockShingleSlab),
-            !(world.getBlockState(position.north()).getBlock() instanceof BlockShingleSlab),
-            !(world.getBlockState(position.south()).getBlock() instanceof BlockShingleSlab)};
+        final boolean north = world.getBlockState(position.north()).getBlock() instanceof BlockShingleSlab;
+        final boolean south = world.getBlockState(position.south()).getBlock() instanceof BlockShingleSlab;
+        final boolean east = world.getBlockState(position.east()).getBlock() instanceof BlockShingleSlab;
+        final boolean west = world.getBlockState(position.west()).getBlock() instanceof BlockShingleSlab;
+
+        final boolean[] connectors = new boolean[]{north, south, east, west};
 
         int amount = 0;
-        for(final boolean check: connectors)
+        for (final boolean check : connectors)
         {
-            if(check)
+            if (check)
             {
                 amount++;
             }
         }
 
-        if(amount == NO_CONNECTIONS)
+        BlockState shapeState;
+        if (amount == ONE_CONNECTION)
         {
-            return state.with(VARIANT, ShingleSlabType.TOP);
+            shapeState = state.with(SHAPE, ONE_WAY);
+            if (north)
+                return shapeState.with(HORIZONTAL_FACING, NORTH);
+            if (south)
+                return shapeState.with(HORIZONTAL_FACING, SOUTH);
+            if (east)
+                return shapeState.with(HORIZONTAL_FACING, EAST);
+            if (west)
+                return shapeState.with(HORIZONTAL_FACING, WEST);
         }
-        if(amount == THREE_CONNECTIONS)
+
+        if (amount == TWO_CONNECTIONS)
         {
-            if (connectors[0])
+            if (north && east)
             {
-                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.SOUTH);
+                shapeState = state.with(SHAPE, CURVED);
+                return shapeState.with(HORIZONTAL_FACING, WEST);
             }
-            else if (connectors[1])
+            if (north && west)
             {
-                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
+                shapeState = state.with(SHAPE, CURVED);
+                return shapeState.with(HORIZONTAL_FACING, SOUTH);
             }
-            else if (connectors[2])
+            if (south && east)
             {
-                return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.EAST);
+                shapeState = state.with(SHAPE, CURVED);
+                return shapeState.with(HORIZONTAL_FACING, NORTH);
             }
-            return state.with(VARIANT, ShingleSlabType.ONE_WAY).with(HORIZONTAL_FACING, Direction.WEST);
+            if (south && west)
+            {
+                shapeState = state.with(SHAPE, CURVED);
+                return shapeState.with(HORIZONTAL_FACING, EAST);
+            }
+            if (north && south)
+            {
+                shapeState = state.with(SHAPE, TWO_WAY);
+                return shapeState.with(HORIZONTAL_FACING, NORTH);
+            }
+            if (east && west)
+            {
+                shapeState = state.with(SHAPE, TWO_WAY);
+                return shapeState.with(HORIZONTAL_FACING, EAST);
+            }
         }
-        else if(amount == TWO_CONNECTIONS)
+
+        if (amount == THREE_CONNECTIONS)
         {
-            if (connectors[0] && connectors[1] && !connectors[2] && !connectors[3])
+            shapeState = state.with(SHAPE, THREE_WAY);
+            if (north && east && west)
             {
-                return state.with(VARIANT, ShingleSlabType.TWO_WAY).with(HORIZONTAL_FACING, Direction.EAST);
+                return shapeState.with(HORIZONTAL_FACING, NORTH);
             }
-            else if (!connectors[0] && !connectors[1] && connectors[2] && connectors[3])
+            if (south && east && west)
             {
-                return state.with(VARIANT, ShingleSlabType.TWO_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
+                return shapeState.with(HORIZONTAL_FACING, SOUTH);
             }
-            else if(!connectors[0] && connectors[1] && connectors[2] && !connectors[3])
+            if (east && north && south)
             {
-                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.WEST);
+                return shapeState.with(HORIZONTAL_FACING, EAST);
             }
-            else if(connectors[0] && !connectors[1] && !connectors[2] && connectors[3])
+            if (west && north && south)
             {
-                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.EAST);
+                return shapeState.with(HORIZONTAL_FACING, WEST);
             }
-            else if(!connectors[0] && connectors[1] && !connectors[2] && connectors[3])
-            {
-                return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.SOUTH);
-            }
-            return state.with(VARIANT, ShingleSlabType.CURVED).with(HORIZONTAL_FACING, Direction.NORTH);
         }
-        else if(amount == ONE_CONNECTION)
+
+        if (amount == FOUR_CONNECTIONS)
         {
-            if (!connectors[0] && !world.isAirBlock(position.west().down()))
-            {
-                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.NORTH);
-            }
-            else if (!connectors[1] && !world.isAirBlock(position.east().down()))
-            {
-                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.SOUTH);
-            }
-            else if (!connectors[2] && !world.isAirBlock(position.south().down()))
-            {
-                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.WEST);
-            }
-            else if (!connectors[3] && !world.isAirBlock(position.north().down()))
-            {
-                return state.with(VARIANT, ShingleSlabType.THREE_WAY).with(HORIZONTAL_FACING, Direction.EAST);
-            }
-            return state.with(VARIANT, ShingleSlabType.TWO_WAY)
-                    .with(HORIZONTAL_FACING, !connectors[0] || !connectors[1] ? Direction.NORTH : Direction.EAST);
+            shapeState = state.with(SHAPE, FOUR_WAY);
+            return shapeState;
         }
-        return state.with(VARIANT, ShingleSlabType.FOUR_WAY);
+
+        return state.with(SHAPE, TOP);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HORIZONTAL_FACING, VARIANT);
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    {
+        builder.add(HORIZONTAL_FACING, SHAPE);
     }
 
     @Override
@@ -189,7 +228,8 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
 
     @NotNull
     @Override
-    public BlockRenderLayer getRenderLayer() {
+    public BlockRenderLayer getRenderLayer()
+    {
         return BlockRenderLayer.CUTOUT;
     }
 }

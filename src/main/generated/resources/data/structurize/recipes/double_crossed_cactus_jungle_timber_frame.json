@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:double_crossed_cactus_jungle_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:plain_cactus_jungle_timber_frame"
+    }
+  ],
+  "group": "cactus_jungle_timber_frame"
+}

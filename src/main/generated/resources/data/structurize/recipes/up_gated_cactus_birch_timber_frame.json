@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:up_gated_cactus_birch_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_cactus_birch_timber_frame"
+    }
+  ],
+  "group": "cactus_birch_timber_frame"
+}

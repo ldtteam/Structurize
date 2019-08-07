@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:double_crossed_spruce_stone_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:plain_spruce_stone_timber_frame"
+    }
+  ],
+  "group": "spruce_stone_timber_frame"
+}

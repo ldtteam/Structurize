@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:side_framed_spruce_jungle_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:framed_spruce_jungle_timber_frame"
+    }
+  ],
+  "group": "spruce_jungle_timber_frame"
+}

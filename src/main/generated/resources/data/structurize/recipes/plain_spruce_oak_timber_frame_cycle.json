@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:plain_spruce_oak_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_horizontal_spruce_oak_timber_frame"
+    }
+  ],
+  "group": "spruce_oak_timber_frame"
+}

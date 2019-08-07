@@ -16,6 +16,10 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -48,6 +52,7 @@ sourceSets {
         }
         resources {
             srcDir 'src/main/resources'
+            srcDir 'src/main/generated/resources'
         }
         compileClasspath += sourceSets.main.compileClasspath
         compileClasspath += sourceSets.api.output
@@ -69,6 +74,7 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
+    compile "com.ldtteam:datagenerators:0.1.13-ALPHA"
 }
 
 processResources {
@@ -137,6 +143,20 @@ minecraft {
                 }
             }
         }
+
+        data {
+            workingDirectory project.file('runClient')
+
+            property 'forge.logging.console.level', 'info'
+
+            args '--mod', 'structurize', '--all', '--output', file('src/main/generated/resources'), '--input', file('src/main/resources')
+
+            mods {
+                structurize {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
@@ -167,7 +187,7 @@ jar {
 
     manifest {
         attributes([
-            'FMLAT': "structurize_at.cfg",
+            'FMLAT': "accesstransformer.cfg",
             'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}",
             "Specification-Title": "structurize",
             "Specification-Vendor": "structurizesareus",

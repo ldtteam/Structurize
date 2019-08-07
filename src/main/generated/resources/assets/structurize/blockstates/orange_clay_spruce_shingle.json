@@ -1,0 +1,204 @@
+{
+  "variants": {
+    "facing=north,shape=straight,half=top": {
+      "x": 180,
+      "y": 360,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=straight,half=bottom": {
+      "x": 0,
+      "y": 180,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=inner_left,half=top": {
+      "x": 180,
+      "y": 270,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=inner_left,half=bottom": {
+      "x": 0,
+      "y": 180,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=inner_right,half=top": {
+      "x": 180,
+      "y": 360,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=inner_right,half=bottom": {
+      "x": 0,
+      "y": 270,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=outer_left,half=top": {
+      "x": 180,
+      "y": 270,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=outer_left,half=bottom": {
+      "x": 0,
+      "y": 180,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=outer_right,half=top": {
+      "x": 180,
+      "y": 360,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=north,shape=outer_right,half=bottom": {
+      "x": 0,
+      "y": 270,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=straight,half=top": {
+      "x": 180,
+      "y": 180,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=straight,half=bottom": {
+      "x": 0,
+      "y": 0,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=inner_left,half=top": {
+      "x": 180,
+      "y": 90,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=inner_left,half=bottom": {
+      "x": 0,
+      "y": 0,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=inner_right,half=top": {
+      "x": 180,
+      "y": 180,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=inner_right,half=bottom": {
+      "x": 0,
+      "y": 90,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=outer_left,half=top": {
+      "x": 180,
+      "y": 90,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=outer_left,half=bottom": {
+      "x": 0,
+      "y": 0,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=outer_right,half=top": {
+      "x": 180,
+      "y": 180,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=south,shape=outer_right,half=bottom": {
+      "x": 0,
+      "y": 90,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=straight,half=top": {
+      "x": 180,
+      "y": 270,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=straight,half=bottom": {
+      "x": 0,
+      "y": 90,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=inner_left,half=top": {
+      "x": 180,
+      "y": 180,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=inner_left,half=bottom": {
+      "x": 0,
+      "y": 90,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=inner_right,half=top": {
+      "x": 180,
+      "y": 270,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=inner_right,half=bottom": {
+      "x": 0,
+      "y": 180,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=outer_left,half=top": {
+      "x": 180,
+      "y": 180,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=outer_left,half=bottom": {
+      "x": 0,
+      "y": 90,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=outer_right,half=top": {
+      "x": 180,
+      "y": 270,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=west,shape=outer_right,half=bottom": {
+      "x": 0,
+      "y": 180,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=straight,half=top": {
+      "x": 180,
+      "y": 450,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=straight,half=bottom": {
+      "x": 0,
+      "y": 270,
+      "model": "structurize:block/shingle/straight/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=inner_left,half=top": {
+      "x": 180,
+      "y": 360,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=inner_left,half=bottom": {
+      "x": 0,
+      "y": 270,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=inner_right,half=top": {
+      "x": 180,
+      "y": 450,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=inner_right,half=bottom": {
+      "x": 0,
+      "y": 360,
+      "model": "structurize:block/shingle/concave/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=outer_left,half=top": {
+      "x": 180,
+      "y": 360,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=outer_left,half=bottom": {
+      "x": 0,
+      "y": 270,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=outer_right,half=top": {
+      "x": 180,
+      "y": 450,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    },
+    "facing=east,shape=outer_right,half=bottom": {
+      "x": 0,
+      "y": 360,
+      "model": "structurize:block/shingle/convex/spruce/orange_clay_shingle"
+    }
+  }
+}

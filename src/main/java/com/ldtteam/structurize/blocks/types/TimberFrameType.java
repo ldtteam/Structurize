@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.blocks.types;
 
-
-import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,68 +7,37 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameType implements IStringSerializable
 {
-    PLAIN(0, "plain", MaterialColor.WOOD),
-    DOUBLECROSSED(1, "doublecrossed", MaterialColor.ADOBE),
-    FRAMED(2, "framed", MaterialColor.AIR),
-    SIDEFRAMED(3, "sideframed", MaterialColor.BLACK),
-    GATEFRAMED(4, "gateframed", MaterialColor.BLUE),
-    ONECROSSEDLR(5, "onecrossedlr", MaterialColor.SNOW),
-    ONECROSSEDRL(6, "onecrossedrl", MaterialColor.BROWN),
-    DOWNGATED(7, "downgated", MaterialColor.CLAY),
-    HORIZONTALPLAIN(8, "horizontalplain", MaterialColor.ICE),
-    HORIZONTALNOCAP(9, "horizontalnocap", MaterialColor.CYAN);
-    private static final TimberFrameType[] META_LOOKUP = new TimberFrameType[values().length];
-    static
-    {
-        for (final TimberFrameType enumtype : values())
-        {
-            META_LOOKUP[enumtype.getMetadata()] = enumtype;
-        }
-    }
-    private final int           meta;
-    private final String        name;
-    private final String        unlocalizedName;
-    private final MaterialColor materialColor;
+    PLAIN("plain", "Plain", false),
+    DOUBLE_CROSSED("double_crossed", "Double Crossed", false),
+    FRAMED("framed", "Framed", false),
+    SIDE_FRAMED("side_framed", "Side Framed", true),
+    UP_GATED("up_gated", "Up Gate Framed", true),
+    DOWN_GATED("down_gated", "Down Gate Framed", true),
+    ONE_CROSSED_LR("one_crossed_lr", "Left Right Crossed", false),
+    ONE_CROSSED_RL("one_crossed_rl", "Right Left Crossed", false),
+    HORIZONTAL_PLAIN("horizontal_plain", "Plain Horizontal", false),
+    SIDE_FRAMED_HORIZONTAL("side_framed_horizontal", "Side Framed Horizontal", true);
 
-    TimberFrameType(final int metaIn, final String nameIn, final MaterialColor MaterialColorIn)
-    {
-        this(metaIn, nameIn, nameIn, MaterialColorIn);
-    }
-    TimberFrameType(final int metaIn, final String nameIn, final String unlocalizedNameIn, final MaterialColor materialColorIn)
-    {
-        this.meta = metaIn;
-        this.name = nameIn;
-        this.unlocalizedName = unlocalizedNameIn;
-        this.materialColor = materialColorIn;
-    }
-    public static TimberFrameType byMetadata(final int meta)
-    {
-        int tempMeta = meta;
-        if (tempMeta < 0 || tempMeta >= META_LOOKUP.length)
-        {
-            tempMeta = 0;
-        }
+    private final String name;
+    private final String langName;
+    private final boolean rotatable;
 
-        return META_LOOKUP[tempMeta];
-    }
-    public int getMetadata()
+    TimberFrameType(final String name, final String langName, final boolean rotatable)
     {
-        return this.meta;
+        this.name = name;
+        this.langName = langName;
+        this.rotatable = rotatable;
     }
 
     /**
-     * The color which represents this entry on a map.
-     * @return the MaterialColor object.
+     * Get the Type previous to the current (used by data generators for recipes)
+     * @return the previous type.
      */
-    public MaterialColor getMaterialColor()
+    public TimberFrameType getPrevious()
     {
-        return this.materialColor;
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.name;
+        if (this.ordinal() - 1 < 0)
+            return values()[values().length - 1];
+        return values()[(this.ordinal() - 1) % values().length];
     }
 
     @NotNull
@@ -79,9 +46,13 @@ public enum TimberFrameType implements IStringSerializable
         return this.name;
     }
 
-    public String getUnlocalizedName()
+    public String getLangName()
     {
-        return this.unlocalizedName;
+        return this.langName;
     }
 
+    public boolean isRotatable()
+    {
+        return this.rotatable;
+    }
 }

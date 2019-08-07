@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_jungle_oak_timber_frame"
+  },
+  "pattern": [
+    " F ",
+    " C ",
+    " S "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:jungle_planks"
+    },
+    "C": {
+      "item": "minecraft:oak_planks"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "group": "jungle_oak_timber_frame"
+}

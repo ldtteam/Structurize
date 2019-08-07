@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:horizontal_plain_acacia_birch_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:one_crossed_rl_acacia_birch_timber_frame"
+    }
+  ],
+  "group": "acacia_birch_timber_frame"
+}

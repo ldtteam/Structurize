@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:blue_slate_acacia_shingle"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:blue_dye"
+    },
+    {
+      "tag": "structurize:slate_acacia_shingle"
+    }
+  ],
+  "group": "slate_acacia_shingle"
+}
