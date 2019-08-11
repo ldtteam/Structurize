@@ -75,6 +75,7 @@ dependencies {
     compile "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     compile "com.ldtteam:datagenerators:0.1.15-ALPHA"
+    contained "com.ldtteam:datagenerators:0.1.15-ALPHA"
 }
 
 processResources {
