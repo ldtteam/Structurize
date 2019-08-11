@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:orange_clay_oak_shingle"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:orange_dye"
+    },
+    {
+      "tag": "structurize:clay_oak_shingle"
+    }
+  ],
+  "group": "clay_oak_shingle"
+}

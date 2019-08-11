@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 8,
+    "item": "structurize:thatched_birch_shingle"
+  },
+  "pattern": [
+    "I  ",
+    "SI ",
+    "PSI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:wheat"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "group": "thatched_shingle"
+}

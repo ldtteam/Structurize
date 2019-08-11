@@ -298,16 +298,13 @@ public final class PlacementHandlers
         public List<ItemStack> getRequiredItems(
           @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
         {
-            if (tileEntityData == null)
+            if (blockState.get(BedBlock.PART) == BedPart.HEAD)
             {
                 final List<ItemStack> list = new ArrayList<>();
                 list.add(new ItemStack(blockState.getBlock(), 1));
                 return list;
             }
-            else
-            {
-                return getItemsFromTileEntity(tileEntityData, world);
-            }
+            return Collections.emptyList();
         }
     }
 

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:down_gated_spruce_dark_oak_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:up_gated_spruce_dark_oak_timber_frame"
+    }
+  ],
+  "group": "spruce_dark_oak_timber_frame"
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 8,
+    "item": "structurize:moss_slate_jungle_shingle"
+  },
+  "pattern": [
+    "I  ",
+    "SI ",
+    "PSI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:mossy_cobblestone"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "minecraft:jungle_planks"
+    }
+  },
+  "group": "moss_slate_shingle"
+}

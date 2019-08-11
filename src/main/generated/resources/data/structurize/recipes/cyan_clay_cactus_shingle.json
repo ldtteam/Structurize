@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:cyan_clay_cactus_shingle"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:cyan_dye"
+    },
+    {
+      "tag": "structurize:clay_cactus_shingle"
+    }
+  ],
+  "group": "clay_cactus_shingle"
+}

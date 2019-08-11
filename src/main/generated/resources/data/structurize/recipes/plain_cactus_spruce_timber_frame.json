@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_cactus_spruce_timber_frame"
+  },
+  "pattern": [
+    " F ",
+    " C ",
+    " S "
+  ],
+  "key": {
+    "F": {
+      "item": "structurize:blockcactusplank"
+    },
+    "C": {
+      "item": "minecraft:spruce_planks"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "group": "cactus_spruce_timber_frame"
+}

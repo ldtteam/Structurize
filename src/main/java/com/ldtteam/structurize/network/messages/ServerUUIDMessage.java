@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.network.PacketUtils;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -28,13 +27,13 @@ public class ServerUUIDMessage implements IMessage
     @Override
     public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        serverUUID = PacketUtils.readUUID(buf);
+        serverUUID = buf.readUniqueId();
     }
 
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        PacketUtils.writeUUID(buf, Manager.getServerUUID());
+        buf.writeUniqueId(Manager.getServerUUID());
     }
 
     @Nullable

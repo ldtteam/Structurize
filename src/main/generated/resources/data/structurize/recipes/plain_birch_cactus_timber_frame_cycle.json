@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:plain_birch_cactus_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_horizontal_birch_cactus_timber_frame"
+    }
+  ],
+  "group": "birch_cactus_timber_frame"
+}

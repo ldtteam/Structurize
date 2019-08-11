@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "structurize:clay_cactus_shingle",
+    "structurize:black_clay_cactus_shingle",
+    "structurize:blue_clay_cactus_shingle",
+    "structurize:brown_clay_cactus_shingle",
+    "structurize:cyan_clay_cactus_shingle",
+    "structurize:gray_clay_cactus_shingle",
+    "structurize:green_clay_cactus_shingle",
+    "structurize:light_blue_clay_cactus_shingle",
+    "structurize:light_gray_clay_cactus_shingle",
+    "structurize:lime_clay_cactus_shingle",
+    "structurize:magenta_clay_cactus_shingle",
+    "structurize:orange_clay_cactus_shingle",
+    "structurize:pink_clay_cactus_shingle",
+    "structurize:purple_clay_cactus_shingle",
+    "structurize:red_clay_cactus_shingle",
+    "structurize:white_clay_cactus_shingle",
+    "structurize:yellow_clay_cactus_shingle"
+  ]
+}

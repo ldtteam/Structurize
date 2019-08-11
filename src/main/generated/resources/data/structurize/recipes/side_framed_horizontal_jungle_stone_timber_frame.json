@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:side_framed_horizontal_jungle_stone_timber_frame"
+  },
+  "ingredients": [
+    {
+      "item": "structurize:horizontal_plain_jungle_stone_timber_frame"
+    }
+  ],
+  "group": "jungle_stone_timber_frame"
+}

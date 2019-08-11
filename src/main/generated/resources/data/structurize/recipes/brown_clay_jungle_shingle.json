@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "result": {
+    "item": "structurize:brown_clay_jungle_shingle"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:brown_dye"
+    },
+    {
+      "tag": "structurize:clay_jungle_shingle"
+    }
+  ],
+  "group": "clay_jungle_shingle"
+}

@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    },
+    "facing=east": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    },
+    "facing=south": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    },
+    "facing=west": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    },
+    "facing=up": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    },
+    "facing=down": {
+      "model": "structurize:block/timber_frames/framed_dark_oak_stone_timber_frame"
+    }
+  }
+}
