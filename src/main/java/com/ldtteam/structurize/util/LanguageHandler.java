@@ -42,7 +42,7 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key, message));
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message));
     }
 
     public static ITextComponent buildChatComponent(final String key, final Object... message)
@@ -153,7 +153,7 @@ public final class LanguageHandler
             return;
         }
 
-        final ITextComponent textComponent = buildChatComponent(key, message);
+        final ITextComponent textComponent = buildChatComponent(key.toLowerCase(Locale.US), message);
 
         for (@NotNull final PlayerEntity player : players)
         {
@@ -170,7 +170,7 @@ public final class LanguageHandler
      */
     public static String translateKeyWithFormat(final String key, final Object... format)
     {
-        return String.format(translateKey(key), format);
+        return String.format(translateKey(key.toLowerCase(Locale.US)), format);
     }
 
     /**
@@ -181,7 +181,7 @@ public final class LanguageHandler
      */
     public static String translateKey(final String key)
     {
-        return LanguageCache.getInstance().translateKey(key);
+        return LanguageCache.getInstance().translateKey(key.toLowerCase(Locale.US));
     }
 
     /**
