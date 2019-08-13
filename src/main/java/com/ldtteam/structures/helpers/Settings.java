@@ -549,7 +549,7 @@ public final class Settings
 
         if (buf.readBoolean())
         {
-            structureName = buf.readString();
+            structureName = buf.readString(32767);
         }
         else
         {
@@ -558,7 +558,7 @@ public final class Settings
         
         if (buf.readBoolean())
         {
-            staticSchematicName = buf.readString();
+            staticSchematicName = buf.readString(32767);
         }
         else
         {
@@ -578,7 +578,7 @@ public final class Settings
 
         if (buf.readBoolean())
         {
-            equation = buf.readString();
+            equation = buf.readString(32767);
         }
     }
 

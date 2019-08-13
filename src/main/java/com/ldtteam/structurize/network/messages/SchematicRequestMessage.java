@@ -46,7 +46,7 @@ public class SchematicRequestMessage implements IMessage
     @Override
     public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        filename = buf.readString();
+        filename = buf.readString(32767);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        name = buf.readString();
+        name = buf.readString(32767);
         from = buf.readBlockPos();
         to = buf.readBlockPos();
     }

@@ -144,7 +144,7 @@ public class GenerateAndPasteMessage implements IMessage
         hollow = buf.readBoolean();
         rotation = buf.readInt();
         mirror = buf.readBoolean();
-        equation = buf.readString();
+        equation = buf.readString(32767);
     }
 
     @Nullable
