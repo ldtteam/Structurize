@@ -177,7 +177,7 @@ public final class Structures
                 return;
             }
 
-            if ("modjar".equals(uri.getScheme()))
+            if ("jar".equals(uri.getScheme()))
             {
                 Log.getLogger().warn(uri);
                 try (FileSystem fileSystem = FileSystems.getFileSystem(uri))
@@ -200,7 +200,7 @@ public final class Structures
                     }
                 }
             }
-            else
+            else if (uri != null)
             {
                 final Path basePath = Paths.get(uri);
                 Log.getLogger().info("Load huts or decorations from uri");

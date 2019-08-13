@@ -46,6 +46,8 @@ public class Structurize
     public Structurize()
     {
         logger.warn("Structurize starting up");
+        config = new Configuration(ModLoadingContext.get().getActiveContainer());
+
         Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(GatherDataHandler::dataGeneratorSetup);
       
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
@@ -53,7 +55,7 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(FMLEventHandler.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(RenderEventHandler.class);
 
-        config = new Configuration(ModLoadingContext.get().getActiveContainer());
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
     }
 
     @SubscribeEvent
