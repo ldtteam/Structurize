@@ -34,7 +34,7 @@ public class Structurize
     /**
      * The config instance.
      */
-    private static final Configuration config = new Configuration(ModLoadingContext.get().getActiveContainer());
+    private static Configuration config;
 
     /**
      * Mod init, registers events to their respective busses
@@ -49,6 +49,8 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventHandler.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(FMLEventHandler.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(RenderEventHandler.class);
+
+        config = new Configuration(ModLoadingContext.get().getActiveContainer());
     }
 
     /**
