@@ -1,7 +1,11 @@
 package com.ldtteam.structurize.generation.defaults;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractLootTableProvider;
+import com.ldtteam.datagenerators.loot_table.LootTableJson;
+import com.ldtteam.datagenerators.loot_table.LootTableTypeEnum;
+import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
+import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
+import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
+import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
@@ -12,13 +16,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * This class generates the default loot_table for blocks.
  * (if a block is destroyed, it drops it's item).
  */
-public class DefaultBlockLootTableProvider extends AbstractLootTableProvider
+public class DefaultBlockLootTableProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -61,9 +66,22 @@ public class DefaultBlockLootTableProvider extends AbstractLootTableProvider
     {
         if (block.getRegistryName() != null)
         {
-            final JsonObject lootTable = createDefaultBlockDropTable(block.getRegistryName());
+
+            final EntryJson entryJson = new EntryJson();
+            entryJson.setType(EntryTypeEnum.ITEM);
+            entryJson.setName(block.getRegistryName().toString());
+
+            final PoolJson poolJson = new PoolJson();
+            poolJson.setEntries(Collections.singletonList(entryJson));
+            poolJson.setRolls(1);
+            poolJson.setConditions(Collections.singletonList(new SurvivesExplosionConditionJson()));
+
+            final LootTableJson lootTableJson = new LootTableJson();
+            lootTableJson.setType(LootTableTypeEnum.BLOCK);
+            lootTableJson.setPools(Collections.singletonList(poolJson));
+
             final Path savePath = generator.getOutputFolder().resolve(DataGeneratorConstants.LOOT_TABLES_DIR).resolve(block.getRegistryName().getPath() + ".json");
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, lootTable, savePath);
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, lootTableJson.serialize(), savePath);
         }
     }
 

@@ -1,20 +1,27 @@
 package com.ldtteam.structurize.generation.shingle_slabs;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractRecipeProvider;
+import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
+import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
+import com.ldtteam.datagenerators.recipes.RecipeResultJson;
+import com.ldtteam.datagenerators.recipes.shaped.ShapedPatternJson;
+import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
+import com.ldtteam.datagenerators.recipes.shapeless.ShaplessRecipeJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class ShingleSlabsRecipeProvider extends AbstractRecipeProvider
+public class ShingleSlabsRecipeProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -48,7 +55,7 @@ public class ShingleSlabsRecipeProvider extends AbstractRecipeProvider
     @NotNull
     public String getName()
     {
-        return "Shingles Recipes";
+        return "Shingle Slab Recipes";
     }
 
     private void createDyableShingleRecipe(final DirectoryCache cache, final BlockShingleSlab shingleSlab) throws IOException
@@ -56,19 +63,21 @@ public class ShingleSlabsRecipeProvider extends AbstractRecipeProvider
         if (shingleSlab.getRegistryName() == null)
             return;
 
-        final String name = shingleSlab.getRegistryName().getPath();
+        final ShaplessRecipeJson recipeJson = new ShaplessRecipeJson();
+
         final String groupName = shingleSlab.getFaceType().getGroup() + "_shingle_slab";
+        recipeJson.setGroup(groupName);
+        recipeJson.setResult(new RecipeResultJson(1, shingleSlab.getRegistryName().toString()));
 
-        final ShaplessIngredient dyeIngredient = new ShaplessIngredient("item", shingleSlab.getFaceType().getRecipeIngredient());
-        final ShaplessIngredient shingleIngredient = new ShaplessIngredient("tag", new ResourceLocation("structurize:" + groupName));
+        final List<RecipeIngredientKeyJson> ingredients = new ArrayList<>();
+        ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(shingleSlab.getFaceType().getRecipeIngredient(), false)));
+        ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
 
-        final JsonObject recipe = createShaplessRecipe(shingleSlab.getRegistryName(), 1, dyeIngredient, shingleIngredient);
+        recipeJson.setIngredients(ingredients);
 
-        setRecipeGroup(recipe, groupName);
+        final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(shingleSlab.getRegistryName().getPath() + ".json");
 
-        final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
-
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipe, recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
     }
 
     private void createBasicShingleRecipe(final DirectoryCache cache, final BlockShingleSlab shingleSlab) throws IOException
@@ -76,18 +85,19 @@ public class ShingleSlabsRecipeProvider extends AbstractRecipeProvider
         if (shingleSlab.getRegistryName() == null)
             return;
 
-        final String name = shingleSlab.getRegistryName().getPath();
         final String groupName = shingleSlab.getFaceType().getName() + "_shingle_slab";
+        final ShapedRecipeJson recipeJson = new ShapedRecipeJson();
+        recipeJson.setGroup(groupName);
+        recipeJson.setResult(new RecipeResultJson(8, shingleSlab.getRegistryName().toString()));
+        recipeJson.setPattern(new ShapedPatternJson("   ", "III", "SSS"));
 
-        final ShapedIngredient faceIngredient = new ShapedIngredient("item", "I", shingleSlab.getFaceType().getRecipeIngredient());
-        final ShapedIngredient stickIngredient = new ShapedIngredient("item", "S", new ResourceLocation("minecraft:stick"));
+        final Map<String, RecipeIngredientKeyJson> ingredients = new HashMap<>();
+        ingredients.put("I", new RecipeIngredientKeyJson(new RecipeIngredientJson(shingleSlab.getFaceType().getRecipeIngredient(), false)));
+        ingredients.put("S", new RecipeIngredientKeyJson(new RecipeIngredientJson("minecraft:stick", false)));
+        recipeJson.setKey(ingredients);
 
-        final JsonObject recipe = createShapedRecipe(shingleSlab.getRegistryName(), 8, "   ", "III", "SSS", faceIngredient, stickIngredient);
+        final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(shingleSlab.getRegistryName().getPath() + ".json");
 
-        setRecipeGroup(recipe, groupName);
-
-        final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
-
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipe, recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
     }
 }

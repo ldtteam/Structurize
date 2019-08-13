@@ -1,8 +1,7 @@
 package com.ldtteam.structurize.generation.timber_frames;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ldtteam.datagenerators.AbstractBlockModelProvider;
+import com.ldtteam.datagenerators.models.block.BlockModelJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
@@ -15,8 +14,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TimberFramesBlockModelProvider extends AbstractBlockModelProvider
+public class TimberFramesBlockModelProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -38,16 +39,23 @@ public class TimberFramesBlockModelProvider extends AbstractBlockModelProvider
             final File modelFile = inputPath.resolve(DataGeneratorConstants.TIMBER_FRAMES_BLOCK_MODELS_DIR + timberFrame.getTimberFrameType().getName() + ".json").toFile();
 
             final FileReader reader = new FileReader(modelFile);
-            final JsonObject modelJson = new JsonParser().parse(reader).getAsJsonObject();
+            final BlockModelJson modelJson = new BlockModelJson();
+            modelJson.deserialize(new JsonParser().parse(reader));
 
-            swapModelTexture(modelJson, "frame", timberFrame.getFrameType().getTextureLocation());
-            swapModelTexture(modelJson, "centre", timberFrame.getCentreType().getTextureLocation());
-            swapModelTexture(modelJson, "particle", timberFrame.getFrameType().getTextureLocation());
+            Map<String, String> textures = modelJson.getTextures();
+            if (textures == null)
+                textures = new HashMap<>();
+
+            textures.put("frame", timberFrame.getFrameType().getTextureLocation());
+            textures.put("centre", timberFrame.getCentreType().getTextureLocation());
+            textures.put("particle", timberFrame.getFrameType().getTextureLocation());
+
+            modelJson.setTextures(textures);
 
             final String name = timberFrame.getTimberFrameType().getName() + "_" + timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame.json";
             final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TIMBER_FRAMES_BLOCK_MODELS_DIR).resolve(name);
 
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson, saveFile);
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), saveFile);
         }
     }
 

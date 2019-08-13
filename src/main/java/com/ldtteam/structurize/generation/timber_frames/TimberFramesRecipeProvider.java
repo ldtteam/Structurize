@@ -1,8 +1,11 @@
 package com.ldtteam.structurize.generation.timber_frames;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractRecipeProvider;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
+import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
+import com.ldtteam.datagenerators.recipes.RecipeResultJson;
+import com.ldtteam.datagenerators.recipes.shaped.ShapedPatternJson;
+import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
+import com.ldtteam.datagenerators.recipes.shapeless.ShaplessRecipeJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
@@ -11,13 +14,13 @@ import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.*;
 
-public class TimberFramesRecipeProvider extends AbstractRecipeProvider
+public class TimberFramesRecipeProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -58,47 +61,56 @@ public class TimberFramesRecipeProvider extends AbstractRecipeProvider
         if (timberFrame.getRegistryName() == null)
             return;
 
+        final ShaplessRecipeJson recipeJson = new ShaplessRecipeJson();
+
+        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
+
+        recipeJson.setGroup(groupName);
+        recipeJson.setResult(new RecipeResultJson(1, timberFrame.getRegistryName().toString()));
+
+        final List<RecipeIngredientKeyJson> ingredients = new ArrayList<>();
+
+        final TimberFrameType previous = timberFrame.getTimberFrameType().getPrevious();
+        final String recipeIngredient = "structurize:" + BlockTimberFrame.getName(previous, timberFrame.getFrameType(), timberFrame.getCentreType());
+
+        ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(recipeIngredient, false)));
+
+        recipeJson.setIngredients(ingredients);
+
         String name = timberFrame.getRegistryName().getPath();
         if (timberFrame.getTimberFrameType().equals(TimberFrameType.PLAIN))
             name = timberFrame.getRegistryName().getPath() + "_cycle";
 
-        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
-
-        final TimberFrameType previous = timberFrame.getTimberFrameType().getPrevious();
-
-        final ShaplessIngredient timberFrameIngredient = new ShaplessIngredient("item",
-                new ResourceLocation(Constants.MOD_ID,
-                        BlockTimberFrame.getName(previous,
-                        timberFrame.getFrameType(),
-                        timberFrame.getCentreType())));
-
-        final JsonObject recipe = createShaplessRecipe(timberFrame.getRegistryName(), 1, timberFrameIngredient);
-
-        setRecipeGroup(recipe, groupName);
-
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipe, recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
     }
 
     private void createPlainTimberFrameRecipe(final DirectoryCache cache, final BlockTimberFrame timberFrame) throws IOException
     {
-        if (timberFrame.getRegistryName() == null)
+        if (timberFrame.getRegistryName() == null || ModItems.buildTool.getRegistryName() == null)
             return;
 
         final String name = timberFrame.getRegistryName().getPath();
         final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
 
-        final ShapedIngredient frameIngredient = new ShapedIngredient("item", "F", timberFrame.getFrameType().getRecipeIngredient());
-        final ShapedIngredient centreIngredient = new ShapedIngredient("item", "C", timberFrame.getCentreType().getRecipeIngredient());
-        final ShapedIngredient scepterIngredient = new ShapedIngredient("item", "S", ModItems.buildTool.getRegistryName());
+        final ShapedRecipeJson recipeJson = new ShapedRecipeJson();
+        recipeJson.setGroup(groupName);
+        recipeJson.setPattern(new ShapedPatternJson(" F ", " C ", " S "));
+        recipeJson.setResult(new RecipeResultJson(4, timberFrame.getRegistryName().toString()));
 
-        final JsonObject recipe = createShapedRecipe(timberFrame.getRegistryName(), 4, " F ", " C ", " S ", frameIngredient, centreIngredient, scepterIngredient);
+        final Map<String, RecipeIngredientKeyJson> ingredients = new HashMap<>();
+        final RecipeIngredientJson ingredientF = new RecipeIngredientJson(timberFrame.getFrameType().getRecipeIngredient(), false);
+        ingredients.put("F", new RecipeIngredientKeyJson(ingredientF));
+        final RecipeIngredientJson ingredientC = new RecipeIngredientJson(timberFrame.getCentreType().getRecipeIngredient(), false);
+        ingredients.put("C", new RecipeIngredientKeyJson(ingredientC));
+        final RecipeIngredientJson ingredientS = new RecipeIngredientJson(ModItems.buildTool.getRegistryName().toString(), false);
+        ingredients.put("S", new RecipeIngredientKeyJson(ingredientS));
 
-        setRecipeGroup(recipe, groupName);
+        recipeJson.setKey(ingredients);
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipe, recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
     }
 }

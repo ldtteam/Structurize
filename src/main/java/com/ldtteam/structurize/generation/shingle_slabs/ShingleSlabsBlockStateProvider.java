@@ -1,7 +1,8 @@
 package com.ldtteam.structurize.generation.shingle_slabs;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractBlockStateProvider;
+import com.ldtteam.datagenerators.blockstate.BlockstateJson;
+import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
+import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
 import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
@@ -15,8 +16,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ShingleSlabsBlockStateProvider extends AbstractBlockStateProvider
+public class ShingleSlabsBlockStateProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -44,7 +47,7 @@ public class ShingleSlabsBlockStateProvider extends AbstractBlockStateProvider
         if (shingleSlab.getRegistryName() == null)
             return;
 
-        final JsonObject blockstateJson = new JsonObject();
+        final Map<String, BlockstateVariantJson> variants = new HashMap<>();
 
         for (ShingleSlabShapeType shingleSlabShape : BlockShingleSlab.SHAPE.getAllowedValues())
         {
@@ -53,20 +56,21 @@ public class ShingleSlabsBlockStateProvider extends AbstractBlockStateProvider
                 final String variantKey = "shape=" + shingleSlabShape.getName() + ",facing=" + shingleSlabFacing.getName();
                 int y = getYFromFacing(shingleSlabFacing);
 
-                final ResourceLocation modelLocation = new ResourceLocation("structurize:block/shingle_slab/" + shingleSlab.getRegistryName().getPath() + "_" + shingleSlabShape.getName());
+                final String modelLocation = "structurize:block/shingle_slab/" + shingleSlab.getRegistryName().getPath() + "_" + shingleSlabShape.getName();
 
-                final JsonObject variantObject = new JsonObject();
-                setVariantY(variantObject, y);
-                setVariantModel(variantObject, modelLocation);
+                final BlockstateModelJson model = new BlockstateModelJson(modelLocation, 0, y);
+                final BlockstateVariantJson variant = new BlockstateVariantJson(model);
 
-                addVariantToVariants(blockstateJson, variantObject, variantKey);
+                variants.put(variantKey, variant);
             }
         }
+
+        final BlockstateJson blockstate = new BlockstateJson(variants);
 
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(DataGeneratorConstants.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve(shingleSlab.getRegistryName().getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, blockstateJson, blockstatePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, blockstate.serialize(), blockstatePath);
     }
 
     @NotNull
@@ -76,7 +80,7 @@ public class ShingleSlabsBlockStateProvider extends AbstractBlockStateProvider
         return "Shingle Slab BlockStates Provider";
     }
 
-    public int getYFromFacing(final Direction facing)
+    private int getYFromFacing(final Direction facing)
     {
         switch (facing)
         {

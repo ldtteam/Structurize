@@ -1,7 +1,8 @@
 package com.ldtteam.structurize.generation.timber_frames;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractBlockStateProvider;
+import com.ldtteam.datagenerators.blockstate.BlockstateJson;
+import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
+import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
@@ -14,8 +15,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TimberFramesBlockStateProvider extends AbstractBlockStateProvider
+public class TimberFramesBlockStateProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -43,30 +46,37 @@ public class TimberFramesBlockStateProvider extends AbstractBlockStateProvider
         if (timberFrame.getRegistryName() == null)
             return;
 
-        final JsonObject blockstateJson = new JsonObject();
+        final Map<String, BlockstateVariantJson> variants = new HashMap<>();
 
         for (final Direction direction : BlockTimberFrame.FACING.getAllowedValues())
         {
-            final ResourceLocation model = new ResourceLocation("structurize:block/timber_frames/" +
+            final String modelLocation = "structurize:block/timber_frames/" +
                     timberFrame.getTimberFrameType().getName() + "_" +
                     timberFrame.getFrameType().getName() + "_" +
-                    timberFrame.getCentreType().getName() + "_timber_frame");
+                    timberFrame.getCentreType().getName() + "_timber_frame";
 
-            final JsonObject variantObject = new JsonObject();
-            setVariantModel(variantObject, model);
+            int x = 0;
+            int y = 0;
+
             if (timberFrame.getTimberFrameType().isRotatable())
             {
-                setVariantX(variantObject, getXfromDirection(direction));
-                setVariantY(variantObject, getYfromDirection(direction));
+                x = getXfromDirection(direction);
+                y = getYfromDirection(direction);
             }
 
-            addVariantToVariants(blockstateJson, variantObject, "facing=" + direction.getName());
+            final BlockstateModelJson model = new BlockstateModelJson(modelLocation, x, y);
+
+            final BlockstateVariantJson variant = new BlockstateVariantJson(model);
+
+            variants.put("facing=" + direction.getName(), variant);
         }
+
+        final BlockstateJson blockstate = new BlockstateJson(variants);
 
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(DataGeneratorConstants.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve(timberFrame.getRegistryName().getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, blockstateJson, blockstatePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, blockstate.serialize(), blockstatePath);
 
     }
 

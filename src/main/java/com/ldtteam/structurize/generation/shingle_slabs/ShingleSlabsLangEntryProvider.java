@@ -2,6 +2,7 @@ package com.ldtteam.structurize.generation.shingle_slabs;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ldtteam.datagenerators.lang.LangJson;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
@@ -33,6 +34,12 @@ public class ShingleSlabsLangEntryProvider implements IDataProvider
         if (inputPath == null)
             return;
 
+        final File langFile = inputPath.resolve(DataGeneratorConstants.EN_US_LANG).toFile();
+        final Reader reader = new FileReader(langFile);
+
+        final LangJson langJson = new LangJson();
+        langJson.deserialize(new JsonParser().parse(reader));
+
         for (BlockShingleSlab shingleSlab : ModBlocks.getShingleSlabs())
         {
             if (shingleSlab.getRegistryName() == null)
@@ -41,8 +48,10 @@ public class ShingleSlabsLangEntryProvider implements IDataProvider
             final String reference = "block.structurize." + shingleSlab.getRegistryName().getPath();
             final String value = shingleSlab.getFaceType().getLangName() + " Shingle Slab";
 
-            addLangEntry(cache, inputPath, reference, value);
+            langJson.getLang().put(reference, value);
         }
+
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, langJson.serialize(), langFile.toPath());
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.generation.shingles;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ldtteam.datagenerators.lang.LangJson;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
@@ -33,6 +33,12 @@ public class ShinglesLangEntryProvider implements IDataProvider
         if (inputPath == null)
             return;
 
+        final File langFile = inputPath.resolve(DataGeneratorConstants.EN_US_LANG).toFile();
+        final Reader reader = new FileReader(langFile);
+
+        final LangJson langJson = new LangJson();
+        langJson.deserialize(new JsonParser().parse(reader));
+
         for (BlockShingle shingle : ModBlocks.getShingles())
         {
             if (shingle.getRegistryName() == null)
@@ -41,29 +47,10 @@ public class ShinglesLangEntryProvider implements IDataProvider
             final String reference = "block.structurize." + shingle.getRegistryName().getPath();
             final String value = shingle.getFaceType().getLangName() + " " + shingle.getWoodType().getLangName() + " Shingle";
 
-            addLangEntry(cache, inputPath, reference, value);
+            langJson.getLang().put(reference, value);
         }
-    }
 
-    /**
-     * Add a lang entry to our EN_US Lang file.
-     *
-     * @param cache The DirectoryCache provided in the act method of the IDataProvider class.
-     * @param inputPath The provided resources directory.
-     * @param reference The reference of the lang entry.
-     * @param value The value of the lang entry.
-     * @throws IOException Possibly thrown by the FileReader or the IDataProvider.save method.
-     */
-    private void addLangEntry(final DirectoryCache cache, final Path inputPath, final String reference, final String value) throws IOException
-    {
-        final File langFile = inputPath.resolve(DataGeneratorConstants.EN_US_LANG).toFile();
-
-        final Reader reader = new FileReader(langFile);
-        final JsonObject langJson = new JsonParser().parse(reader).getAsJsonObject();
-
-        langJson.addProperty(reference, value);
-
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, langJson, langFile.toPath());
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, langJson.serialize(), langFile.toPath());
     }
 
     @Override

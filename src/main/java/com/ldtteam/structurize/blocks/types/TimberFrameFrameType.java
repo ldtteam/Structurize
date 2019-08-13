@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.blocks.types;
 
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameFrameType implements IStringSerializable
@@ -12,19 +11,19 @@ public enum TimberFrameFrameType implements IStringSerializable
     JUNGLE("jungle", "Jungle"),
     SPRUCE("spruce", "Spruce"),
     DARK_OAK("dark_oak", "Dark Oak"),
-    CACTUS("cactus", "Cactus", new ResourceLocation("structurize:blocks/blockcactusplank"), new ResourceLocation("structurize:blockcactusplank"));
+    CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank");
 
     final String name;
     final String langName;
-    final ResourceLocation textureLocation;
-    final ResourceLocation recipeIngredient;
+    final String textureLocation;
+    final String recipeIngredient;
 
     TimberFrameFrameType(final String name, final String langName)
     {
-        this(name, langName, new ResourceLocation("minecraft:block/" + name + "_planks"), new ResourceLocation("minecraft:" + name + "_planks"));
+        this(name, langName, "minecraft:block/" + name + "_planks", "minecraft:" + name + "_planks");
     }
 
-    TimberFrameFrameType(final String name, final String langName, final ResourceLocation textureLocation, final ResourceLocation recipeIngredient)
+    TimberFrameFrameType(final String name, final String langName, final String textureLocation, final String recipeIngredient)
     {
         this.name = name;
         this.langName = langName;
@@ -54,7 +53,7 @@ public enum TimberFrameFrameType implements IStringSerializable
      *
      * @return textureLocation
      */
-    public ResourceLocation getTextureLocation()
+    public String getTextureLocation()
     {
         return this.textureLocation;
     }
@@ -64,7 +63,7 @@ public enum TimberFrameFrameType implements IStringSerializable
      *
      * @return recipeIngredient
      */
-    public ResourceLocation getRecipeIngredient()
+    public String getRecipeIngredient()
     {
         return this.recipeIngredient;
     }

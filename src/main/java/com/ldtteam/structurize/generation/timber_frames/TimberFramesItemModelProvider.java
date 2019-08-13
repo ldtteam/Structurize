@@ -1,19 +1,23 @@
 package com.ldtteam.structurize.generation.timber_frames;
 
-import com.google.gson.JsonObject;
-import com.ldtteam.datagenerators.AbstractItemModelProvider;
+import com.ldtteam.datagenerators.models.ModelDisplayPositionJson;
+import com.ldtteam.datagenerators.models.ModelDisplayPositionsEnum;
+import com.ldtteam.datagenerators.models.XYZDoubleListJson;
+import com.ldtteam.datagenerators.models.XYZIntListJson;
+import com.ldtteam.datagenerators.models.item.ItemModelJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TimberFramesItemModelProvider extends AbstractItemModelProvider
+public class TimberFramesItemModelProvider implements IDataProvider
 {
     private final DataGenerator generator;
 
@@ -22,66 +26,69 @@ public class TimberFramesItemModelProvider extends AbstractItemModelProvider
         this.generator = generator;
     }
 
-
     @Override
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
-        final JsonObject modelJson = new JsonObject();
-
-        setModelDisplay(modelJson);
+        final ItemModelJson modelJson = new ItemModelJson();
+        modelJson.setDisplay(getDisplay());
 
         for (BlockTimberFrame timberFrame : ModBlocks.getTimberFrames())
         {
-            setModelParent(modelJson, new ResourceLocation("structurize:block/timber_frames/" +
+            final String parent = "structurize:block/timber_frames/" +
                     timberFrame.getTimberFrameType().getName() + "_" +
                     timberFrame.getFrameType().getName() + "_" +
-                    timberFrame.getCentreType().getName() + "_timber_frame"));
+                    timberFrame.getCentreType().getName() + "_timber_frame";
+
+            modelJson.setParent(parent);
 
             if (timberFrame.getRegistryName() == null)
                 continue;
 
             final String name = timberFrame.getRegistryName().getPath();
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson, generator.getOutputFolder().resolve(DataGeneratorConstants.ITEM_MODEL_DIR).resolve(name + ".json"));
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), generator.getOutputFolder().resolve(DataGeneratorConstants.ITEM_MODEL_DIR).resolve(name + ".json"));
         }
     }
 
-    private void setModelDisplay(final JsonObject modelJson)
+    private Map<ModelDisplayPositionsEnum, ModelDisplayPositionJson> getDisplay()
     {
-        final JsonObject guiState = new JsonObject();
+        final Map<ModelDisplayPositionsEnum, ModelDisplayPositionJson> display = new HashMap<>();
 
-        setRotationForState(guiState, 30, 215, 0);
-        setTranslationForState(guiState, 0, 0, 0);
-        setScaleForState(guiState, 0.5, 0.5, 0.5);
+        // GUI
 
-        addState(modelJson, guiState, "gui");
+        final XYZIntListJson guiRotation = new XYZIntListJson(30, 215, 0);
+        final XYZDoubleListJson guiScale = new XYZDoubleListJson(0.5, 0.5, 0.5);
 
-        final JsonObject thirdPerson = new JsonObject();
+        final ModelDisplayPositionJson guiPosition = new ModelDisplayPositionJson(guiRotation, null, guiScale);
+        display.put(ModelDisplayPositionsEnum.GUI, guiPosition);
 
-        setRotationForState(thirdPerson, 0, 180, 0);
-        setTranslationForState(thirdPerson, 0, 0, 0);
-        setScaleForState(thirdPerson, 0.5, 0.5, 0.5);
+        // THIRD PERSON
 
-        addState(modelJson, thirdPerson, "thirdperson_lefthand");
-        addState(modelJson, thirdPerson, "thirdperson_righthand");
+        final XYZIntListJson thirdPersonRotation = new XYZIntListJson(0, 180, 0);
+        final XYZDoubleListJson thirdPersonScale = new XYZDoubleListJson(0.5, 0.5, 0.5);
 
-        final JsonObject firstPerson = new JsonObject();
+        final ModelDisplayPositionJson thirdPersonPosition = new ModelDisplayPositionJson(thirdPersonRotation, null, thirdPersonScale);
+        display.put(ModelDisplayPositionsEnum.THIRD_PERSON_LEFT_HAND, thirdPersonPosition);
+        display.put(ModelDisplayPositionsEnum.THIRD_PERSON_RIGHT_HAND, thirdPersonPosition);
 
-        setRotationForState(firstPerson, 0, 180, 0);
-        setTranslationForState(firstPerson, 0, 0, 0);
-        setScaleForState(firstPerson, 0.3, 0.3, 0.3);
+        // FIRST PERSON && GROUND
 
-        addState(modelJson, firstPerson, "firstperson_lefthand");
-        addState(modelJson, firstPerson, "firstperson_righthand");
-        addState(modelJson, firstPerson, "ground");
+        final XYZIntListJson firstPersonRotation = new XYZIntListJson(0, 180, 0);
+        final XYZDoubleListJson firstPersonScale = new XYZDoubleListJson(0.3, 0.3, 0.3);
 
-        final JsonObject fixed = new JsonObject();
+        final ModelDisplayPositionJson firstPersonPosition = new ModelDisplayPositionJson(firstPersonRotation, null, firstPersonScale);
+        display.put(ModelDisplayPositionsEnum.FIRST_PERSON_LEFT_HAND, firstPersonPosition);
+        display.put(ModelDisplayPositionsEnum.FIRST_PERSON_RIGHT_HAND, firstPersonPosition);
+        display.put(ModelDisplayPositionsEnum.GROUND, firstPersonPosition);
 
-        setRotationForState(fixed, 0, 0, 0);
-        setTranslationForState(fixed, 0, 2, 0);
-        setScaleForState(fixed, 1, 1, 1);
+        // FIXED
 
-        addState(modelJson, fixed, "fixed");
+        final XYZIntListJson fixedTranslation = new XYZIntListJson(0, 2, 0);
+        final XYZDoubleListJson fixedScale = new XYZDoubleListJson(1, 1, 1);
 
+        final ModelDisplayPositionJson fixedPosition = new ModelDisplayPositionJson(null, fixedTranslation, fixedScale);
+        display.put(ModelDisplayPositionsEnum.FIXED, fixedPosition);
+
+        return display;
     }
 
     @Override
