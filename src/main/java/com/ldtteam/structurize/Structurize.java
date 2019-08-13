@@ -7,9 +7,14 @@ import com.ldtteam.structurize.event.*;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
+import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +23,6 @@ import org.apache.logging.log4j.Logger;
  * The value in annotation should match an entry in the META-INF/mods.toml file.
  */
 @Mod(Constants.MOD_ID)
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Structurize
 {
     /**
@@ -42,7 +46,6 @@ public class Structurize
     public Structurize()
     {
         logger.warn("Structurize starting up");
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(GatherDataHandler::dataGeneratorSetup);
       
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
@@ -51,6 +54,26 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(RenderEventHandler.class);
 
         config = new Configuration(ModLoadingContext.get().getActiveContainer());
+    }
+
+    @SubscribeEvent
+    public static void onModInit(final FMLCommonSetupEvent event)
+    {
+        Structurize.getLogger().warn("FMLCommonSetupEvent");
+        Network.getNetwork().registerCommonMessages();
+        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
+    }
+
+    /**
+     * Called when MC loading is about to finish.
+     *
+     * @param event event
+     */
+    @SubscribeEvent
+    public static void onLoadComplete(final FMLLoadCompleteEvent event)
+    {
+        Structurize.getLogger().warn("FMLLoadCompleteEvent");
+        LanguageHandler.setMClanguageLoaded();
     }
 
     /**

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -119,12 +120,13 @@ public final class LanguageHandler
     /**
      * Localize a string and use String.format().
      *
-     * @param key  translation key.
+     * @param inputKey  translation key.
      * @param args Objects for String.format().
      * @return Localized string.
      */
-    public static String format(final String key, final Object... args)
+    public static String format(final String inputKey, final Object... args)
     {
+        final String key = inputKey.toLowerCase(Locale.US);
         final String result;
         if (args.length == 0)
         {
