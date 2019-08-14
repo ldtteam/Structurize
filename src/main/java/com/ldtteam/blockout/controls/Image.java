@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import org.lwjgl.opengl.GL11;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -199,9 +201,7 @@ public class Image extends Pane
     {
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        mc.getTextureManager().bindTexture(resourceLocation);
-
-        GlStateManager.pushMatrix();
+        setupOpenGL(resourceLocation);
 
         if (this.customSized)
         {
@@ -211,8 +211,6 @@ public class Image extends Pane
                 y,
                 imageOffsetX,
                 imageOffsetY,
-                mapWidth,
-                mapHeight,
                 imageWidth != 0 ? imageWidth : getWidth(),
                 imageHeight != 0 ? imageHeight : getHeight(),
                 mapWidth,
@@ -223,6 +221,20 @@ public class Image extends Pane
             blit(x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
-        GlStateManager.popMatrix();
+        GlStateManager.disableBlend();
+    }
+
+    /**
+     * Bind texture, set color, and enable blending.
+     *
+     * @param texture The texture to bind.
+     */
+    private void setupOpenGL(final ResourceLocation texture)
+    {
+        this.mc.getTextureManager().bindTexture(texture);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.enableBlend();
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 }

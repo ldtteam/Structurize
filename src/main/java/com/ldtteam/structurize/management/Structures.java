@@ -200,11 +200,18 @@ public final class Structures
                     }
                 }
             }
-            else if (uri != null)
+            else
             {
-                final Path basePath = Paths.get(uri);
-                Log.getLogger().info("Load huts or decorations from uri");
-                loadSchematicsForPrefix(basePath, SCHEMATICS_PREFIX);
+                try
+                {
+                    final Path basePath = Paths.get(uri);
+                    Log.getLogger().info("Load huts or decorations from uri");
+                    loadSchematicsForPrefix(basePath, SCHEMATICS_PREFIX);
+                }
+                catch (final NullPointerException | FileSystemNotFoundException ex)
+                {
+                    Log.getLogger().warn("Unable to load huts or decorations from jar.");
+                }
             }
         }
     }
