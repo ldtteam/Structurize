@@ -1,7 +1,7 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
-import net.minecraft.client.resources.I18n;
+import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,7 +113,7 @@ public class PaneParams
             }
 
             final String key = s.substring(index + 2, endIndex);
-            String replacement = I18n.format(key);
+            String replacement = LanguageHandler.format(key);
 
             if (replacement.equals(key))
             {
