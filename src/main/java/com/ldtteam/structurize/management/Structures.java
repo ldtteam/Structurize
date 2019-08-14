@@ -177,7 +177,7 @@ public final class Structures
                 return;
             }
 
-            if ("jar".equals(uri.getScheme()))
+            if ("modjar".equals(uri.getScheme()))
             {
                 Log.getLogger().warn(uri);
                 try (FileSystem fileSystem = FileSystems.getFileSystem(uri))
