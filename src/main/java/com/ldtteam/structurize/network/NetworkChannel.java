@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.network;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
@@ -89,7 +90,7 @@ public class NetworkChannel
             ctx.setPacketHandled(true);
             if (msg.getExecutionSide() != null && packetOrigin.equals(msg.getExecutionSide()))
             {
-                Structurize.getLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
+                Log.getLogger().warn("Receving {} at wrong side!", msg.getClass().getName());
                 return;
             }
             // boolean param MUST equals true if packet arrived at logical server

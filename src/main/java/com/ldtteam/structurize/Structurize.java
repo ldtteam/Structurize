@@ -1,6 +1,7 @@
 package com.ldtteam.structurize;
 
 import com.ldtteam.structures.event.RenderEventHandler;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.*;
@@ -61,7 +62,7 @@ public class Structurize
     @SubscribeEvent
     public static void onModInit(final FMLCommonSetupEvent event)
     {
-        Structurize.getLogger().warn("FMLCommonSetupEvent");
+        Log.getLogger().warn("FMLCommonSetupEvent");
         Network.getNetwork().registerCommonMessages();
         StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
     }
@@ -74,19 +75,10 @@ public class Structurize
     @SubscribeEvent
     public static void onLoadComplete(final FMLLoadCompleteEvent event)
     {
-        Structurize.getLogger().warn("FMLLoadCompleteEvent");
+        Log.getLogger().warn("FMLLoadCompleteEvent");
         LanguageHandler.setMClanguageLoaded();
     }
 
-    /**
-     * Getter for the structurize Logger.
-     *
-     * @return the logger.
-     */
-    public static Logger getLogger()
-    {
-        return logger;
-    }
 
     /**
      * Get the config handler.

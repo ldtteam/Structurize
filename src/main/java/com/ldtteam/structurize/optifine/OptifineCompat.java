@@ -2,6 +2,7 @@ package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structures.client.BlueprintTessellator;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -54,22 +55,22 @@ public class OptifineCompat
         {
             setupReflectedMethodReferences();
 
-            Structurize.getLogger().info("Optifine found. Enabling compat.");
+            Log.getLogger().info("Optifine found. Enabling compat.");
             enableOptifine = true;
         }
         catch (ClassNotFoundException e)
         {
-            Structurize.getLogger().info("Optifine not found. Disabling compat.");
+            Log.getLogger().info("Optifine not found. Disabling compat.");
             enableOptifine = false;
         }
         catch (NoSuchMethodException e)
         {
-            Structurize.getLogger().error("Optifine found. But could not access related methods.", e);
+            Log.getLogger().error("Optifine found. But could not access related methods.", e);
             enableOptifine = false;
         }
         catch (NoSuchFieldException e)
         {
-            Structurize.getLogger().error("Optifine found. But could not access related fields", e);
+            Log.getLogger().error("Optifine found. But could not access related fields", e);
             enableOptifine = false;
         }
     }
@@ -138,14 +139,14 @@ public class OptifineCompat
         }
         catch (IllegalAccessException e)
         {
-            Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
         catch (InvocationTargetException e)
         {
-            Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
     }
@@ -174,14 +175,14 @@ public class OptifineCompat
         }
         catch (IllegalAccessException e)
         {
-            Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
         catch (InvocationTargetException e)
         {
-            Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
     }
@@ -209,14 +210,14 @@ public class OptifineCompat
         }
         catch (IllegalAccessException e)
         {
-            Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
         catch (InvocationTargetException e)
         {
-            Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
 
@@ -241,20 +242,20 @@ public class OptifineCompat
         {
             if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
-                Structurize.getLogger().info("Recalculating normals in Optifine mode.");
+                Log.getLogger().info("Recalculating normals in Optifine mode.");
                 calcNormalForLayerMethod.invoke(null, tessellator.getBuilder());
             }
         }
         catch (IllegalAccessException e)
         {
-            Structurize.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
         catch (InvocationTargetException e)
         {
-            Structurize.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Structurize.getLogger().error("Disabling Optifine Compat.");
+            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
     }
