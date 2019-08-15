@@ -4,6 +4,9 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
@@ -206,11 +209,13 @@ public class Image extends Pane
         if (this.customSized)
         {
             // /Draw
-            blit(
+            drawScaledCustomSizeModalRect(
                 x,
                 y,
                 imageOffsetX,
                 imageOffsetY,
+                mapWidth,
+                mapHeight,
                 imageWidth != 0 ? imageWidth : getWidth(),
                 imageHeight != 0 ? imageHeight : getHeight(),
                 mapWidth,
@@ -222,6 +227,19 @@ public class Image extends Pane
         }
 
         GlStateManager.disableBlend();
+    }
+
+    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
+        float f = 1.0F / tileWidth;
+        float f1 = 1.0F / tileHeight;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float)uWidth) * f), (v * f1)).endVertex();
+        bufferbuilder.pos(x, y, 0.0D).tex((u * f), (v * f1)).endVertex();
+        tessellator.draw();
     }
 
     /**
