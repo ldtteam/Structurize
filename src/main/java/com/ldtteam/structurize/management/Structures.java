@@ -207,7 +207,10 @@ public final class Structures
             if ("modjar".equals(uri.getScheme()))
             {
                 final Path path = ModList.get().getModFileById(origin).getFile().getFilePath();
-                uri = URI.create("jar:file:" + path.toString());
+                Log.getLogger().warn(path.toUri().toString());
+                Log.getLogger().warn(path.toString().replace(" ", "%20").replace("\\", "/"));
+
+                uri = URI.create("jar:" + path.toUri().toString());
 
                 try (FileSystem fileSystem = FileSystems.getFileSystem(uri))
                 {
