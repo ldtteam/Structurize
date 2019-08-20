@@ -27,10 +27,7 @@ import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -274,6 +271,7 @@ public class BlueprintUtil
             List<BlockState> palette = new ArrayList<>();
             for (short i = 0; i < paletteSize; i++)
             {
+                paletteTag.getCompound(i).putString("Name", paletteTag.getCompound(i).getString("Name").toLowerCase(Locale.US));
                 palette.add(i, NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, paletteTag.getCompound(i))).getValue()));
             }
 
