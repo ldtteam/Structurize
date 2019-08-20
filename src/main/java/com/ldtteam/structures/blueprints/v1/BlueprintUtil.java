@@ -280,6 +280,7 @@ public class BlueprintUtil
                 }
                 catch (final Exception e)
                 {
+                    palette.add(i, Blocks.AIR.getDefaultState());
                     Log.getLogger().warn("Something went wrong loading block of palette at position: " + i);
                 }
             }

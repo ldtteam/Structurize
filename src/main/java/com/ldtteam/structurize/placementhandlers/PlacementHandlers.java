@@ -202,7 +202,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS;
+            return blockState.getBlock() == Blocks.GRASS_BLOCK;
         }
 
         @Override
@@ -214,7 +214,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, Blocks.GRASS.getDefaultState(), UPDATE_FLAG))
+            if (!world.setBlockState(pos, Blocks.GRASS_BLOCK.getDefaultState(), UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
