@@ -167,12 +167,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             return;
         }
 
-        this.init(pos);
+        this.init(pos, rotation);
         if (pos != null)
         {
             Settings.instance.setupStaticMode(structureName, mode);
             staticSchematicName = structureName;
-            Settings.instance.setRotation(rotation);
             this.rotation = rotation;
         }
     }
@@ -194,22 +193,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             return;
         }
 
-        this.init(pos);
+        this.init(pos, 0);
     }
 
-    private void init(final BlockPos pos)
+    private void init(final BlockPos pos, final int rot)
     {
         @Nullable final Structure structure = Settings.instance.getActiveStructure();
 
         if (structure != null)
         {
-            rotation = Settings.instance.getRotation();
+            this.rotation = Settings.instance.getRotation();
         }
         else if (pos != null)
         {
             this.pos = pos;
             Settings.instance.setPosition(pos);
-            Settings.instance.setRotation(0);
+            Settings.instance.setRotation(rot);
         }
 
         initBuildingTypeNavigation();
