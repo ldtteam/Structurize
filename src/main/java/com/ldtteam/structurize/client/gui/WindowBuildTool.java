@@ -167,13 +167,13 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             return;
         }
 
-        this.init(pos, rotation);
         if (pos != null)
         {
             Settings.instance.setupStaticMode(structureName, mode);
             staticSchematicName = structureName;
             this.rotation = rotation;
         }
+        this.init(pos, rotation);
     }
 
     /**
