@@ -1,5 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.blockout.Log;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.Dynamic;
@@ -271,8 +272,16 @@ public class BlueprintUtil
             List<BlockState> palette = new ArrayList<>();
             for (short i = 0; i < paletteSize; i++)
             {
-                paletteTag.getCompound(i).putString("Name", paletteTag.getCompound(i).getString("Name").toLowerCase(Locale.US));
-                palette.add(i, NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, paletteTag.getCompound(i))).getValue()));
+                try
+                {
+                    paletteTag.getCompound(i).putString("Name", paletteTag.getCompound(i).getString("Name").toLowerCase(Locale.US));
+                    palette.add(i,
+                      NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, paletteTag.getCompound(i))).getValue()));
+                }
+                catch (final Exception e)
+                {
+                    Log.getLogger().warn("Something went wrong loading block of palette at position: " + i);
+                }
             }
 
             // Reading Blocks
