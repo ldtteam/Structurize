@@ -56,6 +56,11 @@ public class StructurePlacementUtils
         {
             return true;
         }
+        else if ((structureBlock == Blocks.GRASS_BLOCK && worldBlock == Blocks.DIRT)
+        || worldBlock == Blocks.GRASS_BLOCK && structureBlock == Blocks.DIRT)
+        {
+            return true;
+        }
 
         //had this problem in a super flat world, causes builder to sit doing nothing because placement failed
         return blockPosition.getY() <= 0 || state == worldBlockState;
