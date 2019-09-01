@@ -191,21 +191,21 @@ public class BlueprintBlockAccess extends World implements IBlockReader
         return Minecraft.getInstance().world.getChunkProvider();
     }
 
-    @Override
-    public void playEvent(@Nullable final PlayerEntity player, final int type, final BlockPos pos, final int data)
-    {
-
-    }
-
     @Nullable
     @Override
-    public MapData func_217406_a(@NotNull final String p_217406_1_)
+    public MapData getMapData(final String mapName)
     {
         return null;
     }
 
     @Override
-    public void func_217399_a(@NotNull final MapData p_217399_1_)
+    public void registerMapData(final MapData mapDataIn)
+    {
+
+    }
+
+    @Override
+    public void playEvent(@Nullable final PlayerEntity player, final int type, final BlockPos pos, final int data)
     {
 
     }
