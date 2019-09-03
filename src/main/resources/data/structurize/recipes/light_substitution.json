@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SW ",
+    "WIW",
+    " WS"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:logs"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "structurize:blocksolidsubstitution",
+    "count": 32
+  }
+}
