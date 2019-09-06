@@ -1,13 +1,11 @@
 package com.ldtteam.structurize.proxy;
 
-import com.ldtteam.structurize.event.FMLEventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -25,12 +23,6 @@ public class CommonProxy implements IProxy
     public boolean isClient()
     {
         return false;
-    }
-
-    @Override
-    public void registerEvents()
-    {
-        MinecraftForge.EVENT_BUS.register(new FMLEventHandler());
     }
 
     @Override

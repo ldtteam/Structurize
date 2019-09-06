@@ -22,11 +22,6 @@ public interface IProxy
     boolean isClient();
 
     /**
-     * Method to register events in.
-     */
-    void registerEvents();
-
-    /**
      * Opens a build tool window.
      *
      * @param pos coordinates.

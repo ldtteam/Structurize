@@ -1,23 +1,16 @@
 package com.ldtteam.structurize;
 
-import com.ldtteam.structures.event.RenderEventHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
-import com.ldtteam.structurize.event.*;
+import com.ldtteam.structurize.event.EventSubscriber;
+import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
-import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Mod main class.
@@ -32,11 +25,6 @@ public class Structurize
     public static final IProxy proxy = DistExecutor.runForDist( () -> ClientProxy::new, () -> ServerProxy::new);
 
     /**
-     * Our mod logger.
-     */
-    private static final Logger logger = LogManager.getLogger(Constants.MOD_ID);
-
-    /**
      * The config instance.
      */
     private static Configuration config;
@@ -46,37 +34,11 @@ public class Structurize
      */
     public Structurize()
     {
-        logger.warn("Structurize starting up");
+        Log.getLogger().warn("Structurize starting up");
         config = new Configuration(ModLoadingContext.get().getActiveContainer());
 
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(GatherDataHandler::dataGeneratorSetup);
-      
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventHandler.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(FMLEventHandler.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(RenderEventHandler.class);
-
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
-    }
-
-    @SubscribeEvent
-    public static void onModInit(final FMLCommonSetupEvent event)
-    {
-        Log.getLogger().warn("FMLCommonSetupEvent");
-        Network.getNetwork().registerCommonMessages();
-        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
-    }
-
-    /**
-     * Called when MC loading is about to finish.
-     *
-     * @param event event
-     */
-    @SubscribeEvent
-    public static void onLoadComplete(final FMLLoadCompleteEvent event)
-    {
-        Log.getLogger().warn("FMLLoadCompleteEvent");
-        LanguageHandler.setMClanguageLoaded();
     }
 
 

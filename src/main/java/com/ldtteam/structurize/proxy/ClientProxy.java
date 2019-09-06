@@ -1,12 +1,10 @@
 package com.ldtteam.structurize.proxy;
 
 
-import com.ldtteam.structures.event.RenderEventHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.WindowMultiBlock;
-import com.ldtteam.structurize.event.ClientEventHandler;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
@@ -21,7 +19,6 @@ import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -35,24 +32,10 @@ import java.io.File;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientProxy extends CommonProxy
 {
-    /**
-     * Inventory description string.
-     */
-    private static final String INVENTORY = "inventory";
-
     @Override
     public boolean isClient()
     {
         return true;
-    }
-
-    @Override
-    public void registerEvents()
-    {
-        super.registerEvents();
-
-        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
-        MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
     }
 
     @Override
