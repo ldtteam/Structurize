@@ -23,7 +23,7 @@ public final class ModItems
 {
     public static Item buildTool;
     public static Item shapeTool;
-    public static Item scanTool;
+    public static AbstractItemWithPosSelector scanTool;
     public static Item caliper;
     public static Item cactusDoor;
 
@@ -50,7 +50,7 @@ public final class ModItems
 
         buildTool = new ItemBuildTool(properties);
         shapeTool = new ItemShapeTool(properties);
-        scanTool = new ItemScanTool(properties);
+        scanTool = new ItemScanTool(ModCreativeTabs.STRUCTURIZE);
         caliper = new ItemCaliper(properties);
         cactusDoor = new TallBlockItem(ModBlocks.blockCactusDoor, properties.maxStackSize(16)).setRegistryName(ModBlocks.blockCactusDoor.getRegistryName());
 

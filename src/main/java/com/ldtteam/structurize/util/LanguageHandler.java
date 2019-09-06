@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -157,6 +158,11 @@ public final class LanguageHandler
         {
             player.sendMessage(textComponent);
         }
+    }
+
+    public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
+    {
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)));
     }
 
     /**

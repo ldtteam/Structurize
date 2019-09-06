@@ -3,7 +3,6 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
@@ -12,16 +11,13 @@ import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -32,91 +28,61 @@ import java.io.OutputStream;
 import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemStructurize
+public class ItemScanTool extends AbstractItemWithPosSelector
 {
     /**
-     * Creates instance of item.
-     * @param properties the properties.
+     * Creates default scan tool item.
+     *
+     * @param itemGroup creative tab
+     */
+    public ItemScanTool(final ItemGroup itemGroup)
+    {
+        this(new Item.Properties().maxDamage(0).setNoRepair().rarity(Rarity.UNCOMMON).group(itemGroup));
+    }
+
+    /**
+     * MC constructor.
+     *
+     * @param properties properties
      */
     public ItemScanTool(final Properties properties)
     {
-        super("sceptersteel", properties.maxStackSize(1));
+        super(properties);
+        setRegistryName("sceptersteel");
     }
 
     @Override
-    public float getDestroySpeed(final ItemStack stack, final BlockState state)
+    public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn)
     {
-        return Float.MAX_VALUE;
-    }
-
-    @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
-    {
-        final ItemStack stack = playerIn.getHeldItem(handIn);
-        if (!stack.hasTag())
-        {
-            stack.setTag(new CompoundNBT());
-        }
-        final CompoundNBT compound = stack.getTag();
-
-        @NotNull final BlockPos pos1 = BlockPosUtil.readFromNBT(compound, FIRST_POS_STRING);
-        @NotNull final BlockPos pos2 = BlockPosUtil.readFromNBT(compound, SECOND_POS_STRING);
-
         if (!worldIn.isRemote)
         {
+            Log.getLogger().info(start.toString() + " | " + end.toString());
             if (playerIn.isSneaking())
             {
-                saveStructure(worldIn, pos1, pos2, playerIn, null);
+                saveStructure(worldIn, start, end, playerIn, null);
             }
         }
         else
         {
+            Log.getLogger().info(start.toString() + " | " + end.toString());
             if (!playerIn.isSneaking())
             {
-                final WindowScan window = new WindowScan(pos1, pos2);
+                final WindowScan window = new WindowScan(start, end);
                 window.open();
             }
         }
-
-        return ActionResult.newResult(ActionResultType.SUCCESS, stack);
+        return ActionResultType.SUCCESS;
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public AbstractItemWithPosSelector getRegisteredItemInstance()
     {
-        final PlayerEntity playerIn = context.getPlayer();
-        final Hand hand = context.getHand();
-        final ItemStack stack = playerIn.getHeldItem(hand);
-        final BlockPos pos = context.getPos();
-        final World world = context.getWorld();
-
-        if (!stack.hasTag())
-        {
-            stack.setTag(new CompoundNBT());
-        }
-        final CompoundNBT compound = stack.getTag();
-
-        @NotNull final BlockPos pos1 = BlockPosUtil.readFromNBT(compound, FIRST_POS_STRING);
-        @NotNull final BlockPos pos2 = pos;
-        if (pos2.distanceSq(pos1) > 0)
-        {
-            BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, pos2);
-            if (world.isRemote)
-            {
-                LanguageHandler.sendPlayerMessage(playerIn, "item.scepterSteel.point2", pos.getX(), pos.getY(), pos.getZ());
-            }
-
-            stack.setTag(compound);
-            return ActionResultType.SUCCESS;
-        }
-        return ActionResultType.FAIL;
+        return ModItems.scanTool;
     }
 
     /**
@@ -146,7 +112,7 @@ public class ItemScanTool extends AbstractItemStructurize
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = LanguageHandler.format("item.scepterSteel.scanFormat", "", currentMillisString);
+            fileName = LanguageHandler.format("item.sceptersteel.scanformat", "", currentMillisString);
         }
         else
         {
@@ -181,7 +147,7 @@ public class ItemScanTool extends AbstractItemStructurize
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = LanguageHandler.format("item.scepterSteel.scanFormat");
+            fileName = LanguageHandler.format("item.sceptersteel.scanformat");
         }
         else
         {
@@ -207,7 +173,7 @@ public class ItemScanTool extends AbstractItemStructurize
         {
             CompressedStreamTools.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             return false;
         }
