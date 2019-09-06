@@ -1,10 +1,8 @@
 package com.ldtteam.structurize.api.util;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;

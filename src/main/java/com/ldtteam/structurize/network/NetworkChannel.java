@@ -1,8 +1,6 @@
 package com.ldtteam.structurize.network;
 
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import net.minecraft.entity.Entity;

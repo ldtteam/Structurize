@@ -5,7 +5,6 @@ import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

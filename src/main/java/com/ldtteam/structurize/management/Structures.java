@@ -10,8 +10,6 @@ import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
-import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 

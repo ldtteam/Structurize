@@ -7,15 +7,12 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.datafixers.util.Unit;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.datafix.fixes.BlockStateFlatteningMap;
 import net.minecraft.util.datafix.fixes.BlockStateFlatternEntities;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 public class EntityConverter

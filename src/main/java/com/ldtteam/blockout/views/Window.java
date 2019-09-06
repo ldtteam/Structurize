@@ -3,7 +3,6 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.BOScreen;
-import net.minecraft.client.gui.screen.inventory.FurnaceScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;

@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketBuffer;

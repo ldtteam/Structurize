@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.schematic;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.material.Material;
 

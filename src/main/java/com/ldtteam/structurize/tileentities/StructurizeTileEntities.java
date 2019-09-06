@@ -2,13 +2,7 @@ package com.ldtteam.structurize.tileentities;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.DataFixerBuilder;
-import com.mojang.datafixers.DataFixerUpper;
-import com.mojang.datafixers.types.Type;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

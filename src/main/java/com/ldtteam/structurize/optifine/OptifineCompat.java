@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structures.client.BlueprintTessellator;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;

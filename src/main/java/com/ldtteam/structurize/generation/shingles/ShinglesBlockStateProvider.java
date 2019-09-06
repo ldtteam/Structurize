@@ -13,7 +13,6 @@ import net.minecraft.data.IDataProvider;
 import net.minecraft.state.properties.Half;
 import net.minecraft.state.properties.StairsShape;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

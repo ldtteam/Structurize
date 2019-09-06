@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.cactus;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.Block;

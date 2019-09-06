@@ -17,7 +17,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.List;
 import java.util.Random;

@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizePane;
 import com.ldtteam.structurize.blocks.types.PaperwallType;
 import net.minecraft.block.Block;

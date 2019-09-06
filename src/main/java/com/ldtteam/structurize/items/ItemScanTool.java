@@ -11,7 +11,6 @@ import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;

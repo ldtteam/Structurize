@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.management.StructureName;
@@ -9,7 +8,6 @@ import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.CompoundNBT;
 
 import java.io.File;
 import java.io.FileOutputStream;

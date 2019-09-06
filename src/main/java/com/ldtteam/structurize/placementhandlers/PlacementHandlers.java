@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.HALF_BLOCK;
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 
 /**
