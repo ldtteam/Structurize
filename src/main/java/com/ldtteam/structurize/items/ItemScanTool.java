@@ -61,7 +61,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     {
         if (!worldIn.isRemote)
         {
-            Log.getLogger().info(start.toString() + " | " + end.toString());
             if (playerIn.isSneaking())
             {
                 saveStructure(worldIn, start, end, playerIn, null);
@@ -69,7 +68,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         }
         else
         {
-            Log.getLogger().info(start.toString() + " | " + end.toString());
             if (!playerIn.isSneaking())
             {
                 final WindowScan window = new WindowScan(start, end);

@@ -67,7 +67,11 @@ public abstract class AbstractItemWithPosSelector extends Item
         final ItemStack itemstack = playerIn.getHeldItem(handIn);
         final CompoundNBT compound = itemstack.getOrCreateTag();
         return new ActionResult<>(
-            onAirRightClick(NBTUtil.readBlockPos(compound.getCompound(NBT_START_POS)), NBTUtil.readBlockPos(compound.getCompound(NBT_END_POS)), worldIn, playerIn),
+            onAirRightClick(
+                NBTUtil.readBlockPos(compound.getCompound(NBT_START_POS)),
+                NBTUtil.readBlockPos(compound.getCompound(NBT_END_POS)),
+                worldIn,
+                playerIn),
             itemstack);
     }
 
@@ -87,6 +91,18 @@ public abstract class AbstractItemWithPosSelector extends Item
         }
         context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
+    }
+
+    /**
+     * <p>
+     * Structurize: Prevent block breaking.
+     * <p/>
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean onBlockStartBreak(final ItemStack itemstack, final BlockPos pos, final PlayerEntity player)
+    {
+        return true;
     }
 
     /**
@@ -113,5 +129,29 @@ public abstract class AbstractItemWithPosSelector extends Item
             LanguageHandler.sendMessageToPlayer(player, START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
         return false;
+    }
+
+    /**
+     * <p>
+     * Structurize: Prevent block breaking.
+     * <p/>
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canHarvestBlock(final ItemStack stack, final BlockState state)
+    {
+        return false;
+    }
+
+    /**
+     * <p>
+     * Structurize: Prevent block breaking.
+     * <p/>
+     * {@inheritDoc}
+     */
+    @Override
+    public float getDestroySpeed(final ItemStack stack, final BlockState state)
+    {
+        return 50.0f;
     }
 }
