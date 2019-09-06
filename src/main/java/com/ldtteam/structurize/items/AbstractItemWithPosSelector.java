@@ -2,10 +2,14 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.SwordItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.ActionResult;
@@ -16,6 +20,7 @@ import net.minecraft.world.World;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+import com.google.common.collect.Multimap;
 
 /**
  * Abstract item mechanic for pos selecting
@@ -95,13 +100,14 @@ public abstract class AbstractItemWithPosSelector extends Item
 
     /**
      * <p>
-     * Structurize: Prevent block breaking.
+     * Structurize: Prevent block breaking. Captures first position.
      * <p/>
      * {@inheritDoc}
      */
     @Override
     public boolean onBlockStartBreak(final ItemStack itemstack, final BlockPos pos, final PlayerEntity player)
     {
+        itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(pos));
         return true;
     }
 
@@ -138,20 +144,8 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public boolean canHarvestBlock(final ItemStack stack, final BlockState state)
-    {
-        return false;
-    }
-
-    /**
-     * <p>
-     * Structurize: Prevent block breaking.
-     * <p/>
-     * {@inheritDoc}
-     */
-    @Override
     public float getDestroySpeed(final ItemStack stack, final BlockState state)
     {
-        return 50.0f;
+        return 40.0f;
     }
 }

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NonNls;
 public final class TranslationConstants
 {
     @NonNls
-    public static final String MAX_SCHEMATIC_SIZE_REACHED                         = "com.ldtteam.structurize.max.schematic.reached";
+    public static final String MAX_SCHEMATIC_SIZE_REACHED = "item.sceptersteel.toobig";
 
     private TranslationConstants()
     {

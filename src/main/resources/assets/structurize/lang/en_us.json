@@ -997,6 +997,7 @@
   "item.possetter.secondpos": "Second pos set to x=%d y=%d z=%d",
   "item.sceptersteel.point": "Point one saved: %d %d %d",
   "item.sceptersteel.point2": "Point two saved: %d %d %d.",
+  "item.sceptersteel.toobig": "Schematic too big, max allowed volume is %d blocks",
   "item.sceptersteel.samepoint": "That was the same point",
   "item.sceptersteel.scanfailure": "Scan failed to save",
   "item.sceptersteel.scanformat": "SCAN_%s-%s",
