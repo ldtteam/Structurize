@@ -116,8 +116,7 @@ public class BlueprintUtil
         for (final Entity entity : entities)
         {
             final Vec3d oldPos = entity.getPositionVector();
-            final CompoundNBT entityTag = new CompoundNBT();
-            entity.deserializeNBT(entityTag);
+            final CompoundNBT entityTag = entity.serializeNBT();
 
             final ListNBT posList = new ListNBT();
             posList.add(new DoubleNBT(oldPos.x - pos.getX()));
