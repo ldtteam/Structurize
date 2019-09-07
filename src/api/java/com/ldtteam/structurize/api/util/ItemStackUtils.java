@@ -53,10 +53,6 @@ public final class ItemStackUtils
                 }
             }
         }
-        else if(tileEntity instanceof BannerTileEntity)
-        {
-            items.add(((BannerTileEntity)tileEntity).getItem(tileEntity.getBlockState()));
-        }
         //todo we have to test if beds and flower pots give us the right drops!
         return items;
     }
