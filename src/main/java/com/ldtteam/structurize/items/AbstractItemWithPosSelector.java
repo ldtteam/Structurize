@@ -2,14 +2,11 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.SwordItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.ActionResult;
@@ -20,7 +17,7 @@ import net.minecraft.world.World;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
-import com.google.common.collect.Multimap;
+import com.ldtteam.structurize.api.util.Log;
 
 /**
  * Abstract item mechanic for pos selecting
@@ -94,13 +91,16 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
-        context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
+        else
+        {
+            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
+        }
         return ActionResultType.SUCCESS;
     }
 
     /**
      * <p>
-     * Structurize: Prevent block breaking. Captures first position.
+     * Structurize: Prevent block breaking client side. Captures first position client side.
      * <p/>
      * {@inheritDoc}
      */
@@ -113,19 +113,15 @@ public abstract class AbstractItemWithPosSelector extends Item
 
     /**
      * <p>
-     * Structurize: Prevent block breaking. Captures first position.
+     * Structurize: Prevent block breaking server side. Captures first position server side.
      * <p/>
      * {@inheritDoc}
      */
     @Override
     public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        final ItemStack itemstack;
-        if (player.getHeldItemMainhand().getItem().equals(getRegisteredItemInstance()))
-        {
-            itemstack = player.getHeldItemMainhand();
-        }
-        else
+        ItemStack itemstack = player.getHeldItemMainhand();
+        if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
             itemstack = player.getHeldItemOffhand();
         }
@@ -146,6 +142,6 @@ public abstract class AbstractItemWithPosSelector extends Item
     @Override
     public float getDestroySpeed(final ItemStack stack, final BlockState state)
     {
-        return 40.0f;
+        return 20.0f;
     }
 }

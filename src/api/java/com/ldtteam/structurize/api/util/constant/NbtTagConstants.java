@@ -10,12 +10,12 @@ public final class NbtTagConstants
     /**
      * Var for first pos string.
      */
-    public static final String FIRST_POS_STRING = "pos1";
+    public static final String FIRST_POS_STRING = "structurize:start_pos";
 
     /**
      * Var for second pos string.
      */
-    public static final String SECOND_POS_STRING = "pos2";
+    public static final String SECOND_POS_STRING = "structurize:end_pos";
 
     /**
      * NBT tag constants for MultiBlock tileEntities.

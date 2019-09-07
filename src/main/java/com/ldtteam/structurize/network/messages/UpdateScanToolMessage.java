@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
@@ -49,13 +49,9 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
         if (stack.getItem() == ModItems.scanTool)
         {
-            final CompoundNBT compound = stack.getTag();
-            if (compound != null)
-            {
-                BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, from);
-                BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, to);
-                stack.setTag(compound);
-            }
+            final CompoundNBT compound = stack.getOrCreateTag();
+            compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));
+            compound.put(SECOND_POS_STRING, NBTUtil.writeBlockPos(to));
         }
         this.from = from;
         this.to = to;
@@ -88,13 +84,9 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = ctxIn.getSender().getHeldItemMainhand();
         if (stack.getItem() == ModItems.scanTool)
         {
-            final CompoundNBT compound = stack.getTag();
-            if (compound != null)
-            {
-                BlockPosUtil.writeToNBT(compound, FIRST_POS_STRING, from);
-                BlockPosUtil.writeToNBT(compound, SECOND_POS_STRING, to);
-                stack.setTag(compound);
-            }
+            final CompoundNBT compound = stack.getOrCreateTag();
+            compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));
+            compound.put(SECOND_POS_STRING, NBTUtil.writeBlockPos(to));
         }
     }
 }

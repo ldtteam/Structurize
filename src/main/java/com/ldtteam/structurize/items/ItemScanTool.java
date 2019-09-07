@@ -163,7 +163,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
 
-
         final File file = new File(folder.get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());
 
@@ -176,5 +175,17 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             return false;
         }
         return true;
+    }
+
+    /**
+     * <p>
+     * Structurize: Fixes our damn wrong mechanism, don't change.
+     * <p/>
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean shouldSyncTag()
+    {
+        return false;
     }
 }
