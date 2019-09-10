@@ -6,6 +6,7 @@ import com.ldtteam.structures.lib.RenderUtil;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
@@ -82,8 +83,11 @@ public class BlueprintRenderer
 
         blockAccess.getBlueprint().getBlockInfoAsList().stream()
           .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
-          .forEach(b -> Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random,
-            ModelDataManager.getModelData(blockAccess, b.getPos())));
+          .forEach(b ->
+          {
+              Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, ModelDataManager.getModelData(blockAccess, b.getPos()));
+              Minecraft.getInstance().getBlockRendererDispatcher().renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
+          });
         tessellator.finishBuilding();
     }
 

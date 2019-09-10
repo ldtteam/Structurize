@@ -34,7 +34,7 @@ public final class StructureClientHandler
             final double renderOffsetZ = pos.getZ() - interpolatedEntityPosZ;
 
             final Vector3d renderOffset = new Vector3d(renderOffsetX, renderOffsetY, renderOffsetZ);
-            BlueprintRenderHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
+            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
         }
     }
 }
