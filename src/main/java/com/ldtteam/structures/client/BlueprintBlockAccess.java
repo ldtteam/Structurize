@@ -11,6 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
@@ -103,6 +105,19 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
+    }
+    
+    @Override
+    public IFluidState getFluidState(final BlockPos pos)
+    {
+        if (isOutsideBuildHeight(pos))
+        {
+            return Fluids.EMPTY.getDefaultState();
+        }
+        else
+        {
+            return getBlockState(pos).getFluidState();
+        }
     }
 
     @Override
