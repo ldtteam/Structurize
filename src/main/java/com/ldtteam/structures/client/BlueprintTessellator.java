@@ -86,12 +86,12 @@ public class BlueprintTessellator
         GlStateManager.texCoordPointer(LIGHT_TEX_COORD_COMPONENT_SIZE, GL_SHORT, VERTEX_SIZE, LIGHT_TEXT_COORD_COMPONENT_OFFSET);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
 
-        GlStateManager.disableCull();
+        // GlStateManager.disableCull();
     }
 
     private void postBlueprintDraw()
     {
-        GlStateManager.enableCull();
+        // GlStateManager.enableCull();
 
         for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
         {
