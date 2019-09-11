@@ -1,6 +1,8 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import com.ldtteam.blockout.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.schemas.Schema;
@@ -266,9 +268,46 @@ public class BlueprintUtil
             {
                 try
                 {
-                    paletteTag.getCompound(i).putString("Name", paletteTag.getCompound(i).getString("Name").toLowerCase(Locale.US));
-                    palette.add(i,
-                      NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, paletteTag.getCompound(i))).getValue()));
+                    final CompoundNBT nbt = paletteTag.getCompound(i);
+                    final String name = nbt.getString("Name");
+                    nbt.putString("Name", nbt.getString("Name").toLowerCase(Locale.US));
+                    if (name.contains(Constants.MOD_ID))
+                    {
+                        if (name.contains("blockshingle_"))
+                        {
+                            final String[] split = name.split(":")[1].split("_");
+                            nbt.putString("Name", "structurize:clay_" + (split.length > 2 ? split[1] + "_" + split[2] : split[1]) + "_shingle");
+                        }
+                        else if (name.contains("blockshingleslab"))
+                        {
+                            nbt.putString("Name", "structurize:clay_shingle_slab");
+                        }
+                        else if (name.contains("blocktimberframe"))
+                        {
+                            final String[] split = name.split(":")[1].split("_");
+                            String output = "structurize:" + (split.length > 3 ? split[3] : split[2]) + "_" + (split.length > 3 ? split[1] + "_" + split[2] : split[1]) + "_paper_timber_frame";
+                            output = output.replace("doublecrossed", "double_crossed");
+                            output = output.replace("sideframed", "side_framed");
+                            output = output.replace("upgated", "up_gated");
+                            output = output.replace("downgated", "down_gated");
+                            output = output.replace("onecrossedlr", "one_crossed_lr");
+                            output = output.replace("onecrossedrl", "one_crossed_rl");
+                            output = output.replace("horizontalplain", "horizontal_plain");
+                            output = output.replace("sideframedhorizontal", "side_framed_horizontal");
+
+                            nbt.putString("Name", output );
+                            Log.getLogger().warn("else");
+                            //blocktimberframe_spruce_plain
+                           // plain_spruce_paper_timber_frame
+                        }
+                        else if (name.contains("blockpaperwall") && !name.contains("_"))
+                        {
+                            nbt.putString("Name", "structurize:" + nbt.getCompound("Properties").getString("variant")+ "_blockpaperwall");
+                        }
+                    }
+
+                    final BlockState state = NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, nbt)).getValue());
+                    palette.add(i, state);
                 }
                 catch (final Exception e)
                 {
