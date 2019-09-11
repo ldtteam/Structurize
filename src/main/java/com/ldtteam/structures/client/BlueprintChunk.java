@@ -1,5 +1,7 @@
 package com.ldtteam.structures.client;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -31,6 +33,12 @@ public class BlueprintChunk extends Chunk
         super(worldIn, new ChunkPos(x, z), new Biome[0]);
         this.access = (BlueprintBlockAccess) worldIn;
     }
+    
+    @Override
+    public BlockState getBlockState(final BlockPos pos)
+    {
+        return access.getBlockState(pos);
+    }
 
     @Nullable
     @Override
@@ -44,5 +52,11 @@ public class BlueprintChunk extends Chunk
     public TileEntity getTileEntity(@NotNull final BlockPos pos)
     {
         return access.getTileEntity(pos);
+    }
+    
+    @Override
+    public IFluidState getFluidState(final BlockPos pos)
+    {
+        return access.getFluidState(pos);
     }
 }

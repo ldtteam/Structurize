@@ -14,9 +14,11 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelDataManager;
 
 import java.util.List;
@@ -86,7 +88,10 @@ public class BlueprintRenderer
           .forEach(b ->
           {
               Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, ModelDataManager.getModelData(blockAccess, b.getPos()));
-              Minecraft.getInstance().getBlockRendererDispatcher().renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
+              if (!b.getState().getBlockState().getFluidState().isEmpty())
+              {
+                  Minecraft.getInstance().getBlockRendererDispatcher().renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
+              }
           });
         tessellator.finishBuilding();
     }
@@ -102,47 +107,34 @@ public class BlueprintRenderer
     {
         //Handle things like mirror, rotation and offset.
         preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
+        
+        Minecraft.getInstance().gameRenderer.disableLightmap();
+
+        RenderHelper.enableStandardItemLighting();
+        final World previous = TileEntityRendererDispatcher.instance.world;
+        TileEntityRendererDispatcher.instance.setWorld(blockAccess);
+        TileEntityRendererDispatcher.instance.preDrawBatch();
+        //Draw tile entities.
+        tileEntities.forEach(tileEntity -> {
+            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 1f);
+            Minecraft.getInstance().gameRenderer.disableLightmap();
+            if (tileEntity.getType() == TileEntityType.BEACON || tileEntity.getType() == TileEntityType.END_GATEWAY)
+            {
+                GlStateManager.disableFog();
+            }
+        });
+        TileEntityRendererDispatcher.instance.drawBatch();
+        TileEntityRendererDispatcher.instance.setWorld(previous);
+        RenderHelper.disableStandardItemLighting();
+
+        // Draw entities
+        entities.forEach(entity -> {
+            Minecraft.getInstance().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, entity.rotationYaw, 0, true);
+            Minecraft.getInstance().gameRenderer.disableLightmap();
+        });
 
         //Draw normal blocks.
         tessellator.draw();
-
-        RenderHelper.enableStandardItemLighting();
-
-        //Draw tile entities.
-        tileEntities.forEach(tileEntity -> {
-            GlStateManager.pushMatrix();
-            int combinedLight = tileEntity.getWorld().getCombinedLight(tileEntity.getPos(), 0);
-            int lightMapX = combinedLight % 65536;
-            int lightMapY = combinedLight / 65536;
-            GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)lightMapX, (float)lightMapY);
-
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 1f);
-            GlStateManager.popMatrix();
-        });
-
-        RenderHelper.disableStandardItemLighting();
-
-        //Draw entities
-        entities.forEach(entity -> {
-            GlStateManager.pushMatrix();
-            int brightnessForRender = entity.getBrightnessForRender();
-
-            if (entity.isBurning())
-            {
-                brightnessForRender = 15728880;
-            }
-
-            int lightMapX = brightnessForRender % 65536;
-            int lightMapY = brightnessForRender / 65536;
-            GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)lightMapX, (float)lightMapY);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-            Minecraft.getInstance().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, entity.rotationYaw, 0, true);
-
-            GlStateManager.popMatrix();
-        });
 
         postBlueprintDraw();
 
