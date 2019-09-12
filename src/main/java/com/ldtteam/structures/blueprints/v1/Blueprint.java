@@ -394,7 +394,7 @@ public class Blueprint
                     {
                         continue;
                     }
-                    if (state.getBlockState().getBlock() instanceof IAnchorBlock)
+                    if (state.getBlockState().getBlock() instanceof IAnchorBlock && !foundAnchor)
                     {
                         offset = tempPos;
                         foundAnchor = true;
