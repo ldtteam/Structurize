@@ -6,6 +6,7 @@ import com.ldtteam.structurize.api.util.MathUtils;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -316,21 +317,29 @@ public final class Structures
                         relativePath = relativePath.substring(1);
                     }
 
-                    final StructureName structureName = new StructureName(relativePath);
-                    fileMap.put(structureName.toString(), fileExtension);
-                    final String md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(relativePath));
-                    if (md5 == null)
+                    try
                     {
-                        fileMap.remove(structureName.toString());
-                        Log.getLogger().error("Structures: " + structureName + " with md5 null.");
-                    }
-                    else if (isSchematicSizeValid(structureName.toString()))
-                    {
-                        md5Map.put(structureName.toString(), md5);
-                        if (Structurize.proxy instanceof ClientProxy)
+                        final StructureName structureName = new StructureName(relativePath);
+                        fileMap.put(structureName.toString(), fileExtension);
+                        final String md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(relativePath));
+                        if (md5 == null)
                         {
-                            addSchematic(structureName);
+                            fileMap.remove(structureName.toString());
+                            Log.getLogger().error("Structures: " + structureName + " with md5 null.");
                         }
+                        else if (isSchematicSizeValid(structureName.toString()))
+                        {
+                            md5Map.put(structureName.toString(), md5);
+                            if (Structurize.proxy instanceof ClientProxy)
+                            {
+                                addSchematic(structureName);
+                            }
+                        }
+                    }
+                    catch (final ResourceLocationException e)
+                    {
+                        Log.getLogger().warn("Structure failed Loading because of invalid resource name (probably capitalization issue)", e);
+                        Log.getLogger().warn(relativePath);
                     }
                 }
             }
