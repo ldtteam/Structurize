@@ -2,7 +2,6 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,7 +16,6 @@ import net.minecraft.world.World;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
-import com.ldtteam.structurize.api.util.Log;
 
 /**
  * Abstract item mechanic for pos selecting
@@ -91,10 +89,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
-        else
-        {
-            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
-        }
+        context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
     }
 
