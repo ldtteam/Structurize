@@ -380,6 +380,7 @@ public class Blueprint
 
         boolean foundAnchor = false;
         BlockPos offset = pos;
+        boolean multipleAnchors = false;
 
         for (short x = 0; x < this.sizeX; x++)
         {
@@ -394,9 +395,13 @@ public class Blueprint
                     {
                         continue;
                     }
-                    if (state.getBlockState().getBlock() instanceof IAnchorBlock && !foundAnchor)
+                    if (state.getBlockState().getBlock() instanceof IAnchorBlock)
                     {
                         offset = tempPos;
+                        if ( foundAnchor )
+                        {
+                            multipleAnchors = true;
+                        }
                         foundAnchor = true;
                     }
                     newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
@@ -451,7 +456,7 @@ public class Blueprint
             temp = resultSize;
         }
 
-        if (!foundAnchor)
+        if (!foundAnchor || multipleAnchors)
         {
             BlockPos tempSize = new BlockPos(temp.getX(), 0, temp.getZ());
             if (rotation == Rotation.CLOCKWISE_90)
