@@ -1,10 +1,8 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
-import com.mojang.datafixers.DataFixer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,10 +23,6 @@ import static com.ldtteam.structurize.api.util.constant.Constants.BUFFER_SIZE;
  */
 public final class StructureUtils
 {
-    /**
-     * Required Datafixer
-     */
-    private static DataFixer fixer;
 
     /**
      * Private constructor to hide public one.
@@ -64,7 +58,8 @@ public final class StructureUtils
     public static byte[] compress(final byte[] data)
     {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream(data.length);
-        try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream))
+        try (
+            GZIPOutputStream zipStream = new GZIPOutputStream(byteStream))
         {
             zipStream.write(data);
         }
@@ -79,8 +74,9 @@ public final class StructureUtils
     {
         final byte[] buffer = new byte[BUFFER_SIZE];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-             GZIPInputStream zipStream = new GZIPInputStream(byteStream))
+        try (
+            ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
+            GZIPInputStream zipStream = new GZIPInputStream(byteStream))
         {
             int len;
             while ((len = zipStream.read(buffer)) > 0)
@@ -151,18 +147,5 @@ public final class StructureUtils
             default:
                 return flag ? new Vec3d(xCoord, yCoord, zCoord) : vec;
         }
-    }
-
-    /**
-     * Get the Datafixer and instantiate if not existing.
-     * @return the datafixer.
-     */
-    public static DataFixer getFixer()
-    {
-        if (fixer == null)
-        {
-            fixer = DataFixesManager.getDataFixer();
-        }
-        return fixer;
     }
 }

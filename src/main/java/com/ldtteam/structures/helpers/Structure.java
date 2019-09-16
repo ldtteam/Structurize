@@ -100,7 +100,7 @@ public class Structure
         InputStream inputStream = null;
         try
         {
-            //Try the cache first
+            // Try the cache first
             if (Structures.hasMD5(correctStructureName))
             {
                 inputStream = StructureLoadingUtils.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
@@ -124,7 +124,7 @@ public class Structure
             {
                 this.md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName));
                 final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(inputStream);
-                this.blueprint = BlueprintUtil.readBlueprintFromNBT(CompoundNBT, StructureUtils.getFixer());
+                this.blueprint = BlueprintUtil.readBlueprintFromNBT(CompoundNBT);
             }
             catch (final IOException e)
             {
@@ -149,6 +149,7 @@ public class Structure
 
     /**
      * Set the blueprint externally.
+     * 
      * @param blueprint the blueprint to set.
      */
     public void setBluePrint(final Blueprint blueprint)
@@ -211,7 +212,8 @@ public class Structure
     @Nullable
     public IForgeBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() || this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
+        if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() ||
+            this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
@@ -241,7 +243,8 @@ public class Structure
     @Nullable
     public CompoundNBT getTileEntityData(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getTileEntities().length <= pos.getY() || this.blueprint.getTileEntities()[pos.getY()].length <= pos.getZ() || this.blueprint.getTileEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
+        if (this.blueprint.getTileEntities().length <= pos.getY() || this.blueprint.getTileEntities()[pos.getY()].length <= pos.getZ() ||
+            this.blueprint.getTileEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
         {
             return null;
         }
@@ -291,6 +294,7 @@ public class Structure
 
     /**
      * Set the placement settings of the structure.
+     * 
      * @param settings the settings to set.
      */
     public void setPlacementSettings(final PlacementSettings settings)
@@ -396,8 +400,8 @@ public class Structure
             {
                 return false;
             }
-        }
-        while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) && count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
+        } while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) &&
+            count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
 
         return true;
     }
@@ -424,8 +428,10 @@ public class Structure
     @Nullable
     public Item getItem()
     {
-        @Nullable final Block block = this.getBlock();
-        @Nullable final IForgeBlockState blockState = this.getBlockstate();
+        @Nullable
+        final Block block = this.getBlock();
+        @Nullable
+        final IForgeBlockState blockState = this.getBlockstate();
         if (block == null || blockState == null || block == Blocks.AIR || blockState.getBlockState().getMaterial().isLiquid())
         {
             return null;
@@ -454,7 +460,8 @@ public class Structure
             return null;
         }
 
-        @Nullable final IForgeBlockState state = this.getBlockState(progressPos);
+        @Nullable
+        final IForgeBlockState state = this.getBlockState(progressPos);
         if (state == null)
         {
             return null;
@@ -464,6 +471,7 @@ public class Structure
 
     /**
      * Calculate the current blockState in the structure.
+     * 
      * @return the current blockState or null if not there.
      */
     @Nullable
@@ -478,6 +486,7 @@ public class Structure
 
     /**
      * Get the current blockinfo.
+     * 
      * @return the current blockinfo or null if not there.
      */
     @Nullable
@@ -489,7 +498,6 @@ public class Structure
         }
         return this.getBlockInfo(this.progressPos);
     }
-
 
     /**
      * Reset the progressPos.
@@ -546,6 +554,7 @@ public class Structure
 
     /**
      * Get the world instance we're placing in.
+     * 
      * @return the world.
      */
     public World getWorld()
@@ -555,8 +564,9 @@ public class Structure
 
     /**
      * Get the size and calculate it from a rotation.
+     * 
      * @param rotation the rotation.
-     * @param mirror the mirror.
+     * @param mirror   the mirror.
      * @return the rotated size.
      */
     public BlockPos getSize(final Rotation rotation, final Mirror mirror)

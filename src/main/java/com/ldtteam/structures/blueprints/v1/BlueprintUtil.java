@@ -2,9 +2,6 @@ package com.ldtteam.structures.blueprints.v1;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.DSL.TypeReference;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -12,7 +9,6 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -32,9 +28,7 @@ import java.util.*;
  */
 public class BlueprintUtil
 {
-    private static final int DEFAULT_FIXER_IF_NOT_FOUND = 1343;
-    // values are for versions: 1.12.2, all 1.13.0-3, all 1.14.0-4
-    // private static final int[] DATA_FIXER_CASCADE = new int[] {1343, 1519, 1628, 1631, 1952, 1957, 1963, 1968, 1976};
+    private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataFixerUtils.Versions.v1_12_2.getDataVersion();
 
     /**
      * Generates a Blueprint objects from the world
@@ -232,20 +226,6 @@ public class BlueprintUtil
         return tag;
     }
 
-    private static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion)
-    {
-        return runDataFixer(dataIn, dataType, startVersion, SharedConstants.getVersion().getWorldVersion());
-    }
-
-    private static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion, final int endVersion)
-    {
-        return startVersion == endVersion
-            ? dataIn
-            : (CompoundNBT) DataFixesManager.getDataFixer()
-                .update(dataType, new Dynamic<>(NBTDynamicOps.INSTANCE, dataIn), startVersion, endVersion)
-                .getValue();
-    }
-
     private static List<BlockState> fixPalette(final int oldDataVersion, final ListNBT paletteTag)
     {
         final short paletteSize = (short) paletteTag.size();
@@ -256,16 +236,16 @@ public class BlueprintUtil
             final CompoundNBT nbt = paletteTag.getCompound(i);
             try
             {
+                final CompoundNBT fixedNbt = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_STATE, oldDataVersion);
+
                 switch (oldDataVersion)
                 {
-                    case DEFAULT_FIXER_IF_NOT_FOUND:
-                        fixPalette1343(nbt);
+                    case 1343:
+                        fixPalette1343(fixedNbt);
                     default:
                         // don't fix anything
                         break;
                 }
-
-                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.BLOCK_STATE, oldDataVersion);
 
                 final BlockState state = NBTUtil.readBlockState(fixedNbt);
                 palette.add(i, state);
@@ -310,7 +290,6 @@ public class BlueprintUtil
                 output = output.replace("sideframedhorizontal", "side_framed_horizontal");
 
                 oldBlockState.putString("Name", output);
-                Log.getLogger().warn("else");
                 // blocktimberframe_spruce_plain
                 // plain_spruce_paper_timber_frame
             }
@@ -331,9 +310,19 @@ public class BlueprintUtil
 
             try
             {
-                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
+                if (nbt.getString("id").contains("minecolonies"))
+                {
+                    tileEntities[i] = nbt;
+                    continue;
+                }
+                // no longer a block entity
+                if (nbt.getString("id").equals("minecraft:flower_pot"))
+                {
+                    tileEntities[i] = null;
+                    continue;
+                }
 
-                tileEntities[i] = fixedNbt;
+                tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
             }
             catch (Exception e)
             {
@@ -355,9 +344,7 @@ public class BlueprintUtil
 
             try
             {
-                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
-
-                entities[i] = fixedNbt;
+                entities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
             }
             catch (Exception e)
             {
@@ -376,7 +363,7 @@ public class BlueprintUtil
      * @param fixer  the data fixer.
      * @return A desserialized Blueprint
      */
-    public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
+    public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag)
     {
         final CompoundNBT tag = nbtTag;
         byte version = tag.getByte("version");
