@@ -120,11 +120,23 @@ public class DataFixerUtils
 
     public static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion, final int endVersion)
     {
+        return runDataFixer(dataIn, dataType, startVersion, endVersion, false);
+    }
+
+    public static CompoundNBT runDataFixer(
+        final CompoundNBT dataIn,
+        final TypeReference dataType,
+        final int startVersion,
+        final int endVersion,
+        final boolean debugNonBlockstate)
+    {
         return startVersion == endVersion
             ? dataIn
-            : (CompoundNBT) DataFixesManager.getDataFixer()
-                .update(dataType, new Dynamic<>(NBTDynamicOps.INSTANCE, dataIn), startVersion, endVersion)
-                .getValue();
+            : debugNonBlockstate && dataType != TypeReferences.BLOCK_STATE
+                ? runDataFixerCascade(dataIn, dataType, startVersion, endVersion)
+                : (CompoundNBT) DataFixesManager.getDataFixer()
+                    .update(dataType, new Dynamic<>(NBTDynamicOps.INSTANCE, dataIn), startVersion, endVersion)
+                    .getValue();
     }
 
     public static CompoundNBT runDataFixerCascade(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion, final int endVersion)
