@@ -1,9 +1,10 @@
 package com.ldtteam.structures.blueprints.v1;
 
-import com.ldtteam.blockout.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.DSL.TypeReference;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -32,6 +33,8 @@ import java.util.*;
 public class BlueprintUtil
 {
     private static final int DEFAULT_FIXER_IF_NOT_FOUND = 1343;
+    // values are for versions: 1.12.2, all 1.13.0-3, all 1.14.0-4
+    // private static final int[] DATA_FIXER_CASCADE = new int[] {1343, 1519, 1628, 1631, 1952, 1957, 1963, 1968, 1976};
 
     /**
      * Generates a Blueprint objects from the world
@@ -229,13 +232,25 @@ public class BlueprintUtil
         return tag;
     }
 
-    private static List<BlockState> fixPalette(final int oldDataVersionIn, final ListNBT paletteTag)
+    private static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion)
     {
-        final int currentDataVersion = SharedConstants.getVersion().getWorldVersion();
-        final int oldDataVersion = oldDataVersionIn == 0 ? DEFAULT_FIXER_IF_NOT_FOUND : oldDataVersionIn;
+        return runDataFixer(dataIn, dataType, startVersion, SharedConstants.getVersion().getWorldVersion());
+    }
 
+    private static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion, final int endVersion)
+    {
+        return startVersion == endVersion
+            ? dataIn
+            : (CompoundNBT) DataFixesManager.getDataFixer()
+                .update(dataType, new Dynamic<>(NBTDynamicOps.INSTANCE, dataIn), startVersion, endVersion)
+                .getValue();
+    }
+
+    private static List<BlockState> fixPalette(final int oldDataVersion, final ListNBT paletteTag)
+    {
         final short paletteSize = (short) paletteTag.size();
         final List<BlockState> palette = new ArrayList<>();
+
         for (short i = 0; i < paletteSize; i++)
         {
             final CompoundNBT nbt = paletteTag.getCompound(i);
@@ -244,18 +259,13 @@ public class BlueprintUtil
                 switch (oldDataVersion)
                 {
                     case DEFAULT_FIXER_IF_NOT_FOUND:
-                        fixStructurizePalette1343(nbt);
-                        break;
+                        fixPalette1343(nbt);
                     default:
                         // don't fix anything
                         break;
                 }
 
-                final CompoundNBT fixedNbt = oldDataVersion == currentDataVersion
-                    ? nbt
-                    : (CompoundNBT) DataFixesManager.getDataFixer()
-                        .update(TypeReferences.BLOCK_STATE, new Dynamic<>(NBTDynamicOps.INSTANCE, nbt), oldDataVersion, currentDataVersion)
-                        .getValue();
+                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.BLOCK_STATE, oldDataVersion);
 
                 final BlockState state = NBTUtil.readBlockState(fixedNbt);
                 palette.add(i, state);
@@ -270,7 +280,7 @@ public class BlueprintUtil
         return palette;
     }
 
-    private static void fixStructurizePalette1343(final CompoundNBT oldBlockState)
+    private static void fixPalette1343(final CompoundNBT oldBlockState)
     {
         final String name = oldBlockState.getString("Name");
         oldBlockState.putString("Name", oldBlockState.getString("Name").toLowerCase(Locale.US));
@@ -311,12 +321,9 @@ public class BlueprintUtil
         }
     }
 
-    private static CompoundNBT[] fixTileEntities(final int oldDataVersionIn, final ListNBT tileEntitiesTag)
+    private static CompoundNBT[] fixTileEntities(final int oldDataVersion, final ListNBT tileEntitiesTag)
     {
-        final int currentDataVersion = SharedConstants.getVersion().getWorldVersion();
-        final int oldDataVersion = oldDataVersionIn == 0 ? DEFAULT_FIXER_IF_NOT_FOUND : oldDataVersionIn;
-
-        CompoundNBT[] tileEntities = new CompoundNBT[tileEntitiesTag.size()];
+        final CompoundNBT[] tileEntities = new CompoundNBT[tileEntitiesTag.size()];
 
         for (short i = 0; i < tileEntities.length; i++)
         {
@@ -324,11 +331,7 @@ public class BlueprintUtil
 
             try
             {
-                final CompoundNBT fixedNbt = oldDataVersion == currentDataVersion
-                    ? nbt
-                    : (CompoundNBT) DataFixesManager.getDataFixer()
-                        .update(TypeReferences.ENTITY, new Dynamic<>(NBTDynamicOps.INSTANCE, nbt), oldDataVersion, currentDataVersion)
-                        .getValue();
+                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
 
                 tileEntities[i] = fixedNbt;
             }
@@ -342,12 +345,9 @@ public class BlueprintUtil
         return tileEntities;
     }
 
-    private static CompoundNBT[] fixEntities(final int oldDataVersionIn, final ListNBT entitiesTag)
+    private static CompoundNBT[] fixEntities(final int oldDataVersion, final ListNBT entitiesTag)
     {
-        final int currentDataVersion = SharedConstants.getVersion().getWorldVersion();
-        final int oldDataVersion = oldDataVersionIn == 0 ? DEFAULT_FIXER_IF_NOT_FOUND : oldDataVersionIn;
-
-        CompoundNBT[] entities = new CompoundNBT[entitiesTag.size()];
+        final CompoundNBT[] entities = new CompoundNBT[entitiesTag.size()];
 
         for (short i = 0; i < entities.length; i++)
         {
@@ -355,11 +355,7 @@ public class BlueprintUtil
 
             try
             {
-                final CompoundNBT fixedNbt = oldDataVersion == currentDataVersion
-                    ? nbt
-                    : (CompoundNBT) DataFixesManager.getDataFixer()
-                        .update(TypeReferences.ENTITY, new Dynamic<>(NBTDynamicOps.INSTANCE, nbt), oldDataVersion, currentDataVersion)
-                        .getValue();
+                final CompoundNBT fixedNbt = runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
 
                 entities[i] = fixedNbt;
             }
@@ -403,7 +399,7 @@ public class BlueprintUtil
                 }
             }
 
-            final int oldDataVersion = tag.getInt("mcversion");
+            final int oldDataVersion = tag.contains("mcversion") ? tag.getInt("mcversion") : DEFAULT_FIXER_IF_NOT_FOUND;
 
             // Reading Pallete
             ListNBT paletteTag = (ListNBT) tag.get("palette");
@@ -414,12 +410,10 @@ public class BlueprintUtil
             short[][][] blocks = convertSaveDataToBlocks(tag.getIntArray("blocks"), sizeX, sizeY, sizeZ);
 
             // Reading Tile Entities
-            ListNBT teTag = (ListNBT) tag.get("tile_entities");
-            CompoundNBT[] tileEntities = fixTileEntities(oldDataVersion, teTag);
+            CompoundNBT[] tileEntities = fixTileEntities(oldDataVersion, (ListNBT) tag.get("tile_entities"));
 
             // Reading Entities
-            ListNBT entitiesTag = (ListNBT) tag.get("entities");
-            CompoundNBT[] entities = fixEntities(oldDataVersion, entitiesTag);
+            CompoundNBT[] entities = fixEntities(oldDataVersion, (ListNBT) tag.get("entities"));
 
             final Blueprint schem =
                 new Blueprint(sizeX, sizeY, sizeZ, paletteSize, palette, blocks, tileEntities, requiredMods).setMissingMods(missingMods.toArray(new String[0]));
