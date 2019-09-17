@@ -33,9 +33,9 @@ public class DataFixerUtils
         v1_13_1(1628, "1.13.1", v1_13_2),
         v1_13(1519, "1.13", v1_13_1),
         // 1466 does not like block entities
-        temp2(1467, "1.13", v1_13),
-        temp(1465, "1.13", temp2),
-        v1_12_2(1343, "1.12.2", temp),
+        post1466(1467, "post1466", v1_13),
+        pre1466(1465, "pre1466", post1466),
+        v1_12_2(1343, "1.12.2", pre1466),
         v1_12_1(1241, "1.12.1", v1_12_2),
         v1_12(1139, "1.12", v1_12_1),
         v1_11_2(922, "1.11.2", v1_12),
@@ -141,7 +141,7 @@ public class DataFixerUtils
             dataType,
             startVersion,
             endVersion,
-            startVersion <= Versions.temp.getDataVersion() && Versions.temp2.getDataVersion() <= endVersion);
+            startVersion <= Versions.pre1466.getDataVersion() && Versions.post1466.getDataVersion() <= endVersion);
     }
 
     public static CompoundNBT runDataFixer(
@@ -175,9 +175,9 @@ public class DataFixerUtils
                     currentVersion.getSuccessor().getDataVersion())
                 .getValue();
             currentVersion = currentVersion.getSuccessor();
-            if (currentVersion == Versions.temp && dataType == TypeReferences.BLOCK_ENTITY)
+            if (currentVersion == Versions.pre1466 && dataType == TypeReferences.BLOCK_ENTITY)
             {
-                currentVersion = Versions.temp2;
+                currentVersion = Versions.post1466;
             }
         }
 
