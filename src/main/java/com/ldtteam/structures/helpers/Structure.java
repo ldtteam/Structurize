@@ -248,7 +248,16 @@ public class Structure
         {
             return null;
         }
-        return this.blueprint.getTileEntities()[pos.getY()][pos.getZ()][pos.getX()];
+        final CompoundNBT te = this.blueprint.getTileEntities()[pos.getY()][pos.getZ()][pos.getX()];
+        if (te != null)
+        {
+            BlockPos tePos = new BlockPos(te.getInt("x"), te.getInt("y"), te.getInt("z"));
+            tePos = tePos.add(position);
+            te.putInt("x", tePos.getX());
+            te.putInt("y", tePos.getY());
+            te.putInt("z", tePos.getZ());
+        }
+        return te;
     }
 
     /**

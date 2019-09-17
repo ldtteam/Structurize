@@ -310,13 +310,14 @@ public class BlueprintUtil
 
             try
             {
-                if (nbt.getString("id").contains("minecolonies"))
+                final String id = nbt.getString("id");
+                if (id.contains("minecolonies"))
                 {
                     tileEntities[i] = nbt;
                     continue;
                 }
                 // no longer a block entity
-                if (nbt.getString("id").equals("minecraft:flower_pot"))
+                if (id.equals("minecraft:flower_pot") || id.equals("minecraft:noteblock"))
                 {
                     tileEntities[i] = null;
                     continue;
@@ -326,7 +327,7 @@ public class BlueprintUtil
             }
             catch (Exception e)
             {
-                tileEntities[i] = nbt;
+                tileEntities[i] = null;
                 Log.getLogger().warn("Blueprint reader: something went wrong loading tile entity at position: " + i, e);
             }
         }
@@ -348,7 +349,7 @@ public class BlueprintUtil
             }
             catch (Exception e)
             {
-                entities[i] = nbt;
+                entities[i] = null;
                 Log.getLogger().warn("Blueprint reader: something went wrong loading entity at position: " + i, e);
             }
         }
