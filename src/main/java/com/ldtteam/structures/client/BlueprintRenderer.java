@@ -33,13 +33,13 @@ import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
  */
 public class BlueprintRenderer
 {
-    private static final float HALF_PERCENT_SHRINK               = 0.995F;
+    private static final float HALF_PERCENT_SHRINK = 0.995F;
 
     private final BlueprintBlockAccess blockAccess;
-    private final List<TileEntity>     tileEntities;
-    private final List<Entity>         entities;
+    private final List<TileEntity> tileEntities;
+    private final List<Entity> entities;
     private final BlueprintTessellator tessellator;
-    private final BlockPos             primaryBlockOffset;
+    private final BlockPos primaryBlockOffset;
 
     /**
      * Static factory utility method to handle the extraction of the values from the blueprint.
@@ -59,11 +59,11 @@ public class BlueprintRenderer
     }
 
     private BlueprintRenderer(
-      final BlueprintBlockAccess blockAccess,
-      final List<TileEntity> tileEntities,
-      final List<Entity> entities,
-      final BlueprintTessellator tessellator,
-      final BlockPos primaryBlockOffset)
+        final BlueprintBlockAccess blockAccess,
+        final List<TileEntity> tileEntities,
+        final List<Entity> entities,
+        final BlueprintTessellator tessellator,
+        final BlockPos primaryBlockOffset)
     {
         this.blockAccess = blockAccess;
         this.tileEntities = tileEntities;
@@ -83,45 +83,54 @@ public class BlueprintRenderer
 
         final Random random = new Random();
 
-        blockAccess.getBlueprint().getBlockInfoAsList().stream()
-          .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b)).filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
-          .forEach(b ->
-          {
-              Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(b.getState().getBlockState(), b.getPos(), blockAccess, tessellator.getBuilder(), random, ModelDataManager.getModelData(blockAccess, b.getPos()));
-              if (!b.getState().getBlockState().getFluidState().isEmpty())
-              {
-                  Minecraft.getInstance().getBlockRendererDispatcher().renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
-              }
-          });
+        blockAccess.getBlueprint()
+            .getBlockInfoAsList()
+            .stream()
+            .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
+            .filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
+            .forEach(b -> {
+                Minecraft.getInstance()
+                    .getBlockRendererDispatcher()
+                    .renderBlock(
+                        b.getState().getBlockState(),
+                        b.getPos(),
+                        blockAccess,
+                        tessellator.getBuilder(),
+                        random,
+                        ModelDataManager.getModelData(blockAccess, b.getPos()));
+                if (!b.getState().getBlockState().getFluidState().isEmpty())
+                {
+                    Minecraft.getInstance()
+                        .getBlockRendererDispatcher()
+                        .renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
+                }
+            });
         tessellator.finishBuilding();
     }
 
     /**
      * Draws an instance of the blueprint at the given position, with the given rotation, and mirroring.
      *
-     * @param rotation The rotation.
-     * @param mirror The mirroring.
+     * @param rotation      The rotation.
+     * @param mirror        The mirroring.
      * @param drawingOffset The drawing offset.
      */
     public void draw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset)
     {
-        //Handle things like mirror, rotation and offset.
+        // Handle things like mirror, rotation and offset.
         preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
-        
+
         Minecraft.getInstance().gameRenderer.disableLightmap();
 
         RenderHelper.enableStandardItemLighting();
         final World previous = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.setWorld(blockAccess);
         TileEntityRendererDispatcher.instance.preDrawBatch();
-        //Draw tile entities.
+        // Draw tile entities.
         tileEntities.forEach(tileEntity -> {
             TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 1f);
             Minecraft.getInstance().gameRenderer.disableLightmap();
-            if (tileEntity.getType() == TileEntityType.BEACON || tileEntity.getType() == TileEntityType.END_GATEWAY)
-            {
-                GlStateManager.disableFog();
-            }
+            GlStateManager.disableFog();
         });
         TileEntityRendererDispatcher.instance.drawBatch();
         TileEntityRendererDispatcher.instance.setWorld(previous);
@@ -131,13 +140,13 @@ public class BlueprintRenderer
         entities.forEach(entity -> {
             Minecraft.getInstance().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, entity.rotationYaw, 0, true);
             Minecraft.getInstance().gameRenderer.disableLightmap();
+            GlStateManager.disableFog();
         });
 
-        //Draw normal blocks.
+        // Draw normal blocks.
         tessellator.draw();
 
         postBlueprintDraw();
-
     }
 
     private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inBlueprintOffset)

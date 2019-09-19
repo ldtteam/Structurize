@@ -43,8 +43,8 @@ public final class BlueprintUtils
      * Get the tileEntity from a certain position.
      *
      * @param blueprint the blueprint they are in.
-     * @param pos      the position they are at.
-     * @param access   the world access to assign them to.
+     * @param pos       the position they are at.
+     * @param access    the world access to assign them to.
      * @return the tileEntity or null.
      */
     public static TileEntity getTileEntityFromPos(final Blueprint blueprint, final BlockPos pos, final BlueprintBlockAccess access)
@@ -61,12 +61,13 @@ public final class BlueprintUtils
     {
         try
         {
-            return BlueprintBlockInfoTransformHandler.getInstance().Transform(Optional.ofNullable(blueprintBlockInfoCache
-                                                                                                    .get(blueprint,
-                                                                                                      () -> blueprint.getBlockInfoAsList().stream()
-                                                                                                              .collect(Collectors.toMap(BlockInfo::getPos, Functions.identity())))
-                                                                                                    .get(pos))
-                                                                                .orElse(new BlockInfo(pos, Blocks.AIR.getDefaultState(), null)));
+            return BlueprintBlockInfoTransformHandler.getInstance()
+                .Transform(
+                    Optional.ofNullable(
+                        blueprintBlockInfoCache
+                            .get(blueprint, () -> blueprint.getBlockInfoAsList().stream().collect(Collectors.toMap(BlockInfo::getPos, Functions.identity())))
+                            .get(pos))
+                        .orElse(new BlockInfo(pos, Blocks.AIR.getDefaultState(), null)));
         }
         catch (ExecutionException e)
         {
@@ -78,9 +79,10 @@ public final class BlueprintUtils
 
     public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
     {
-        final List<BlockInfo> list = blueprint.getBlockInfoAsList().stream()
-          .filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() instanceof IAnchorBlock)
-          .collect(Collectors.toList());
+        final List<BlockInfo> list = blueprint.getBlockInfoAsList()
+            .stream()
+            .filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() instanceof IAnchorBlock)
+            .collect(Collectors.toList());
 
         if (list.size() != 1)
         {
@@ -92,51 +94,50 @@ public final class BlueprintUtils
     /**
      * Creates a list of tileentities located in the blueprint, placed inside that blueprints block access world.
      *
-     * @param blueprint    The blueprint whos tileentities need to be instantiated.
+     * @param blueprint   The blueprint whos tileentities need to be instantiated.
      * @param blockAccess The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
     @NotNull
     public static List<TileEntity> instantiateTileEntities(@NotNull final Blueprint blueprint, @NotNull final BlueprintBlockAccess blockAccess)
     {
-        return blueprint.getBlockInfoAsList().stream()
-                 .map(blockInfo -> BlueprintBlockInfoTransformHandler.getInstance().Transform(blockInfo))
-                 .filter(blockInfo -> blockInfo.getTileEntityData() != null)
-                 .map(blockInfo -> constructTileEntity(blockInfo, blockAccess))
-                 .filter(Objects::nonNull)
-                 .collect(
-                   Collectors.toList());
+        return blueprint.getBlockInfoAsList()
+            .stream()
+            .map(blockInfo -> BlueprintBlockInfoTransformHandler.getInstance().Transform(blockInfo))
+            .filter(blockInfo -> blockInfo.getTileEntityData() != null)
+            .map(blockInfo -> constructTileEntity(blockInfo, blockAccess))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     /**
      * Creates a list of entities located in the blueprint, placed inside that blueprints block access world.
      *
-     * @param blueprint    The blueprint whos entities need to be instantiated.
+     * @param blueprint   The blueprint whos entities need to be instantiated.
      * @param blockAccess The blueprints world.
      * @return A list of entities in the blueprint
      */
     @NotNull
     public static List<Entity> instantiateEntities(@NotNull final Blueprint blueprint, @NotNull final BlueprintBlockAccess blockAccess)
     {
-        return blueprint.getEntitiesAsList().stream()
-                 .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
-                 .map(entityInfo -> constructEntity(entityInfo, blockAccess))
-                 .filter(Objects::nonNull)
-                 .collect(Collectors.toList());
+        return blueprint.getEntitiesAsList()
+            .stream()
+            .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
+            .map(entityInfo -> constructEntity(entityInfo, blockAccess))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     @Nullable
     private static TileEntity constructTileEntity(@NotNull final BlockInfo info, @NotNull final BlueprintBlockAccess blockAccess)
     {
-        if (info.getTileEntityData() == null)
-            return null;
+        if (info.getTileEntityData() == null) return null;
 
         final String entityId = info.getTileEntityData().getString("id");
 
-        //We know that this is going to fail.
-        //Fail fast.
-        if (blackListedTileEntityIds.contains(entityId))
-            return null;
+        // We know that this is going to fail.
+        // Fail fast.
+        if (blackListedTileEntityIds.contains(entityId)) return null;
 
         try
         {
@@ -164,15 +165,15 @@ public final class BlueprintUtils
     @Nullable
     private static Entity constructEntity(@Nullable final CompoundNBT info, @NotNull final BlueprintBlockAccess blockAccess)
     {
-        if (info == null)
-            return null;
+        if (info == null) return null;
 
         final String entityId = info.getString("id");
 
-        //We know that this is going to fail.
-        //Fail fast.
-        if (blackListedEntityIds.contains(entityId))
-            return null;
+        // We know that this is going to fail.
+        // Fail fast.
+        // Nightenom: completely wrong assumption...
+        // if (blackListedEntityIds.contains(entityId))
+        // return null;
 
         try
         {
@@ -193,7 +194,7 @@ public final class BlueprintUtils
         catch (final Exception ex)
         {
             Log.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.toString(), ex);
-            blackListedEntityIds.add(entityId);
+            // blackListedEntityIds.add(entityId);
             return null;
         }
     }
