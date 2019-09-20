@@ -311,6 +311,9 @@ public class BlueprintUtil
             try
             {
                 final String id = nbt.getString("id");
+                nbt.putString("id", id.toLowerCase(Locale.US));
+                nbt.putString("Item", nbt.getString("Item".toLowerCase(Locale.US)));
+
                 if (id.contains("minecolonies"))
                 {
                     tileEntities[i] = nbt;
@@ -322,6 +325,8 @@ public class BlueprintUtil
                     tileEntities[i] = null;
                     continue;
                 }
+
+
 
                 tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
             }
@@ -361,7 +366,6 @@ public class BlueprintUtil
      * Deserializes a Blueprint form the Given CompoundNBT
      *
      * @param nbtTag The CompoundNBT containing the Blueprint Data
-     * @param fixer  the data fixer.
      * @return A desserialized Blueprint
      */
     public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag)
