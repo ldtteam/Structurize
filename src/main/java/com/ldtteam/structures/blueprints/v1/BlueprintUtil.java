@@ -311,11 +311,11 @@ public class BlueprintUtil
             try
             {
                 final String id = nbt.getString("id");
-                nbt.putString("id", id.toLowerCase(Locale.US));
-                nbt.putString("Item", nbt.getString("Item".toLowerCase(Locale.US)));
 
                 if (id.contains("minecolonies"))
                 {
+                    nbt.putString("id", id.toLowerCase(Locale.US));
+                    nbt.putString("Item", nbt.getString("Item".toLowerCase(Locale.US)));
                     tileEntities[i] = nbt;
                     continue;
                 }
