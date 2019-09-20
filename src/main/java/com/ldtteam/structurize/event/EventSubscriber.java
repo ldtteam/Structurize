@@ -8,20 +8,15 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.commands.EntryPoint;
-import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -31,19 +26,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 import org.jetbrains.annotations.NotNull;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 
 /**
  * Class with methods for receiving various forge events
  */
 public class EventSubscriber
 {
+    /**
+     * If the manager finished loading already.
+     */
+    private static boolean loaded = false;
+
     /**
      * Private constructor to hide implicit public one.
      */
@@ -67,10 +65,17 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onServerStarting(final FMLServerStartedEvent event)
+    public static void onServerStarting(@NotNull final WorldEvent.Load event)
     {
-        Log.getLogger().warn("FMLServerStartedEvent");
-        Structures.init();
+        if (!event.getWorld().isRemote())
+        {
+            if (!loaded)
+            {
+                Log.getLogger().warn("FMLServerStartedEvent");
+                Structures.init();
+                loaded = true;
+            }
+        }
     }
 
     /**
