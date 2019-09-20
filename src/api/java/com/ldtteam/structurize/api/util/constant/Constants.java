@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.api.util.constant;
 
+import net.minecraftforge.common.util.Constants.BlockFlags;
+
 /**
  * Some constants needed for the whole mod.
  */
@@ -16,7 +18,7 @@ public final class Constants
     public static final int    ROTATE_THREE_TIMES               = 3;
     public static final int    TICKS_SECOND                     = 20;
     public static final int    SECONDS_A_MINUTE                 = 60;
-    public static final int    UPDATE_FLAG                      = 0x03;
+    public static final int    UPDATE_FLAG                      = BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.BLOCK_UPDATE;
     public static final double HALF_BLOCK                       = 0.5D;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
 

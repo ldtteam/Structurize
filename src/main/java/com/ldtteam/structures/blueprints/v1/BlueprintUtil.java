@@ -1,19 +1,15 @@
 package com.ldtteam.structures.blueprints.v1;
 
-import com.ldtteam.blockout.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.schemas.Schema;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.datafix.DataFixesManager;
-import net.minecraft.util.datafix.fixes.BlockStateFlatteningMap;
+import net.minecraft.util.SharedConstants;
+import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -28,10 +24,12 @@ import java.util.*;
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
  * @since 0.1.0
- * State: not completed
+ *        State: not completed
  */
 public class BlueprintUtil
 {
+    private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataFixerUtils.Versions.v1_12_2.getDataVersion();
+
     /**
      * Generates a Blueprint objects from the world
      *
@@ -62,7 +60,7 @@ public class BlueprintUtil
     public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ, String name, String... architects)
     {
         final List<BlockState> pallete = new ArrayList<>();
-        //Allways add AIR to Pallete
+        // Allways add AIR to Pallete
         pallete.add(Blocks.AIR.getDefaultState());
         final short[][][] structure = new short[sizeY][sizeZ][sizeX];
         final List<CompoundNBT> tileEntities = new ArrayList<>();
@@ -112,8 +110,9 @@ public class BlueprintUtil
 
         final List<CompoundNBT> entitiesTag = new ArrayList<>();
 
-        final List<Entity> entities =
-          world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+        final List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(
+            null,
+            new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
 
         for (final Entity entity : entities)
         {
@@ -137,8 +136,7 @@ public class BlueprintUtil
             entitiesTag.add(entityTag);
         }
 
-        final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes,
-          requiredMods);
+        final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods);
         schem.setEntities(entitiesTag.toArray(new CompoundNBT[0]));
 
         if (name != null)
@@ -180,13 +178,13 @@ public class BlueprintUtil
         tag.put("palette", paletteTag);
 
         // Adding blocks
-        final int[] blockInt = convertBlocksToSaveData(schem.getStructure(), schem.getSizeX(), schem.getSizeY(),
-          schem.getSizeZ());
+        final int[] blockInt = convertBlocksToSaveData(schem.getStructure(), schem.getSizeX(), schem.getSizeY(), schem.getSizeZ());
         tag.putIntArray("blocks", blockInt);
 
         // Adding Tile Entities
         final ListNBT finishedTes = new ListNBT();
-        final CompoundNBT[] tes = Arrays.stream(schem.getTileEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(CompoundNBT[]::new);
+        final CompoundNBT[] tes =
+            Arrays.stream(schem.getTileEntities()).flatMap(Arrays::stream).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(CompoundNBT[]::new);
         finishedTes.addAll(Arrays.asList(tes));
         tag.put("tile_entities", finishedTes);
 
@@ -223,7 +221,140 @@ public class BlueprintUtil
             tag.put("architects", architectsTag);
         }
 
+        tag.put("mcversion", new IntNBT(SharedConstants.getVersion().getWorldVersion()));
+
         return tag;
+    }
+
+    private static List<BlockState> fixPalette(final int oldDataVersion, final ListNBT paletteTag)
+    {
+        final short paletteSize = (short) paletteTag.size();
+        final List<BlockState> palette = new ArrayList<>();
+
+        for (short i = 0; i < paletteSize; i++)
+        {
+            final CompoundNBT nbt = paletteTag.getCompound(i);
+            try
+            {
+                final CompoundNBT fixedNbt = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_STATE, oldDataVersion);
+
+                switch (oldDataVersion)
+                {
+                    case 1343:
+                        fixPalette1343(fixedNbt);
+                    default:
+                        // don't fix anything
+                        break;
+                }
+
+                final BlockState state = NBTUtil.readBlockState(fixedNbt);
+                palette.add(i, state);
+            }
+            catch (final Exception e)
+            {
+                palette.add(i, Blocks.AIR.getDefaultState());
+                Log.getLogger().warn("Blueprint reader: something went wrong loading block at position: " + i, e);
+            }
+        }
+
+        return palette;
+    }
+
+    private static void fixPalette1343(final CompoundNBT oldBlockState)
+    {
+        final String name = oldBlockState.getString("Name");
+        oldBlockState.putString("Name", oldBlockState.getString("Name").toLowerCase(Locale.US));
+        if (name.contains(Constants.MOD_ID))
+        {
+            if (name.contains("blockshingle_"))
+            {
+                final String[] split = name.split(":")[1].split("_");
+                oldBlockState.putString("Name", "structurize:clay_" + (split.length > 2 ? split[1] + "_" + split[2] : split[1]) + "_shingle");
+            }
+            else if (name.contains("blockshingleslab"))
+            {
+                oldBlockState.putString("Name", "structurize:clay_shingle_slab");
+            }
+            else if (name.contains("blocktimberframe"))
+            {
+                final String[] split = name.split(":")[1].split("_");
+                String output = "structurize:" + (split.length > 3 ? split[3] : split[2]) + "_" + (split.length > 3 ? split[1] + "_" + split[2] : split[1]) +
+                    "_paper_timber_frame";
+                output = output.replace("doublecrossed", "double_crossed");
+                output = output.replace("sideframed", "side_framed");
+                output = output.replace("upgated", "up_gated");
+                output = output.replace("downgated", "down_gated");
+                output = output.replace("onecrossedlr", "one_crossed_lr");
+                output = output.replace("onecrossedrl", "one_crossed_rl");
+                output = output.replace("horizontalplain", "horizontal_plain");
+                output = output.replace("sideframedhorizontal", "side_framed_horizontal");
+
+                oldBlockState.putString("Name", output);
+                // blocktimberframe_spruce_plain
+                // plain_spruce_paper_timber_frame
+            }
+            else if (name.contains("blockpaperwall") && !name.contains("_"))
+            {
+                oldBlockState.putString("Name", "structurize:" + oldBlockState.getCompound("Properties").getString("variant") + "_blockpaperwall");
+            }
+        }
+    }
+
+    private static CompoundNBT[] fixTileEntities(final int oldDataVersion, final ListNBT tileEntitiesTag)
+    {
+        final CompoundNBT[] tileEntities = new CompoundNBT[tileEntitiesTag.size()];
+
+        for (short i = 0; i < tileEntities.length; i++)
+        {
+            final CompoundNBT nbt = tileEntitiesTag.getCompound(i);
+
+            try
+            {
+                final String id = nbt.getString("id");
+                if (id.contains("minecolonies"))
+                {
+                    tileEntities[i] = nbt;
+                    continue;
+                }
+                // no longer a block entity
+                if (id.equals("minecraft:flower_pot") || id.equals("minecraft:noteblock"))
+                {
+                    tileEntities[i] = null;
+                    continue;
+                }
+
+                tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
+            }
+            catch (Exception e)
+            {
+                tileEntities[i] = null;
+                Log.getLogger().warn("Blueprint reader: something went wrong loading tile entity at position: " + i, e);
+            }
+        }
+
+        return tileEntities;
+    }
+
+    private static CompoundNBT[] fixEntities(final int oldDataVersion, final ListNBT entitiesTag)
+    {
+        final CompoundNBT[] entities = new CompoundNBT[entitiesTag.size()];
+
+        for (short i = 0; i < entities.length; i++)
+        {
+            final CompoundNBT nbt = entitiesTag.getCompound(i);
+
+            try
+            {
+                entities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
+            }
+            catch (Exception e)
+            {
+                entities[i] = null;
+                Log.getLogger().warn("Blueprint reader: something went wrong loading entity at position: " + i, e);
+            }
+        }
+
+        return entities;
     }
 
     /**
@@ -233,7 +364,7 @@ public class BlueprintUtil
      * @param fixer  the data fixer.
      * @return A desserialized Blueprint
      */
-    public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag, final DataFixer fixer)
+    public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag)
     {
         final CompoundNBT tag = nbtTag;
         byte version = tag.getByte("version");
@@ -251,91 +382,29 @@ public class BlueprintUtil
                 requiredMods.add((modsList.get(i)).getString());
                 if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
                 {
-                    LogManager.getLogger().warn(
-                      "Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
+                    LogManager.getLogger().warn("Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
                     missingMods.add(requiredMods.get(i));
                 }
             }
 
+            final int oldDataVersion = tag.contains("mcversion") ? tag.getInt("mcversion") : DEFAULT_FIXER_IF_NOT_FOUND;
+
             // Reading Pallete
             ListNBT paletteTag = (ListNBT) tag.get("palette");
-            //paletteTag = NBTUtil.update(fixer, DefaultTypeReferences.CHUNK, paletteTag, 1945);
-
-            final Schema schema = DataFixesManager.getDataFixer().getSchema(1450);
             short paletteSize = (short) paletteTag.size();
-            List<BlockState> palette = new ArrayList<>();
-            for (short i = 0; i < paletteSize; i++)
-            {
-                try
-                {
-                    final CompoundNBT nbt = paletteTag.getCompound(i);
-                    final String name = nbt.getString("Name");
-                    nbt.putString("Name", nbt.getString("Name").toLowerCase(Locale.US));
-                    if (name.contains(Constants.MOD_ID))
-                    {
-                        if (name.contains("blockshingle_"))
-                        {
-                            final String[] split = name.split(":")[1].split("_");
-                            nbt.putString("Name", "structurize:clay_" + (split.length > 2 ? split[1] + "_" + split[2] : split[1]) + "_shingle");
-                        }
-                        else if (name.contains("blockshingleslab"))
-                        {
-                            nbt.putString("Name", "structurize:clay_shingle_slab");
-                        }
-                        else if (name.contains("blocktimberframe"))
-                        {
-                            final String[] split = name.split(":")[1].split("_");
-                            String output = "structurize:" + (split.length > 3 ? split[3] : split[2]) + "_" + (split.length > 3 ? split[1] + "_" + split[2] : split[1]) + "_paper_timber_frame";
-                            output = output.replace("doublecrossed", "double_crossed");
-                            output = output.replace("sideframed", "side_framed");
-                            output = output.replace("upgated", "up_gated");
-                            output = output.replace("downgated", "down_gated");
-                            output = output.replace("onecrossedlr", "one_crossed_lr");
-                            output = output.replace("onecrossedrl", "one_crossed_rl");
-                            output = output.replace("horizontalplain", "horizontal_plain");
-                            output = output.replace("sideframedhorizontal", "side_framed_horizontal");
-
-                            nbt.putString("Name", output );
-                            Log.getLogger().warn("else");
-                            //blocktimberframe_spruce_plain
-                           // plain_spruce_paper_timber_frame
-                        }
-                        else if (name.contains("blockpaperwall") && !name.contains("_"))
-                        {
-                            nbt.putString("Name", "structurize:" + nbt.getCompound("Properties").getString("variant")+ "_blockpaperwall");
-                        }
-                    }
-
-                    final BlockState state = NBTUtil.readBlockState((CompoundNBT) BlockStateFlatteningMap.updateNBT(new Dynamic<>(NBTDynamicOps.INSTANCE, nbt)).getValue());
-                    palette.add(i, state);
-                }
-                catch (final Exception e)
-                {
-                    palette.add(i, Blocks.AIR.getDefaultState());
-                    Log.getLogger().warn("Something went wrong loading block of palette at position: " + i);
-                }
-            }
+            List<BlockState> palette = fixPalette(oldDataVersion, paletteTag);
 
             // Reading Blocks
             short[][][] blocks = convertSaveDataToBlocks(tag.getIntArray("blocks"), sizeX, sizeY, sizeZ);
 
             // Reading Tile Entities
-            ListNBT teTag = (ListNBT) tag.get("tile_entities");
-            CompoundNBT[] tileEntities = new CompoundNBT[teTag.size()];
-            for (short i = 0; i < tileEntities.length; i++)
-            {
-                tileEntities[i] = teTag.getCompound(i);
-            }
+            CompoundNBT[] tileEntities = fixTileEntities(oldDataVersion, (ListNBT) tag.get("tile_entities"));
 
             // Reading Entities
-            ListNBT entitiesTag = (ListNBT) tag.get("entities");
-            CompoundNBT[] entities = new CompoundNBT[entitiesTag.size()];
-            for (short i = 0; i < entities.length; i++)
-            {
-                entities[i] = entitiesTag.getCompound(i);
-            }
+            CompoundNBT[] entities = fixEntities(oldDataVersion, (ListNBT) tag.get("entities"));
 
-            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, paletteSize, palette, blocks, tileEntities, requiredMods).setMissingMods(missingMods.toArray(new String[0]));
+            final Blueprint schem =
+                new Blueprint(sizeX, sizeY, sizeZ, paletteSize, palette, blocks, tileEntities, requiredMods).setMissingMods(missingMods.toArray(new String[0]));
 
             schem.setEntities(entities);
 

@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+import com.ldtteam.structurize.api.util.Log;
 
 /**
  * Abstract item mechanic for pos selecting
@@ -95,20 +96,7 @@ public abstract class AbstractItemWithPosSelector extends Item
 
     /**
      * <p>
-     * Structurize: Prevent block breaking client side. Captures first position client side.
-     * <p/>
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onBlockStartBreak(final ItemStack itemstack, final BlockPos pos, final PlayerEntity player)
-    {
-        itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(pos));
-        return true;
-    }
-
-    /**
-     * <p>
-     * Structurize: Prevent block breaking server side. Captures first position server side.
+     * Structurize: Prevent block breaking server side.
      * <p/>
      * {@inheritDoc}
      */
@@ -126,17 +114,5 @@ public abstract class AbstractItemWithPosSelector extends Item
             LanguageHandler.sendMessageToPlayer(player, START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
         return false;
-    }
-
-    /**
-     * <p>
-     * Structurize: Prevent block breaking.
-     * <p/>
-     * {@inheritDoc}
-     */
-    @Override
-    public float getDestroySpeed(final ItemStack stack, final BlockState state)
-    {
-        return 20.0f;
     }
 }
