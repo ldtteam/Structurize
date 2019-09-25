@@ -243,7 +243,7 @@ public final class Structures
                 }
                 catch (final NullPointerException | FileSystemNotFoundException ex)
                 {
-                    Log.getLogger().warn("Unable to load huts or decorations from jar.");
+                    Log.getLogger().warn("Unable to load huts or decorations from jar.", ex);
                 }
             }
         }
