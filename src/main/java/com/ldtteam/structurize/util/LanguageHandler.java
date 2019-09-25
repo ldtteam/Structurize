@@ -119,8 +119,8 @@ public final class LanguageHandler
     /**
      * Localize a string and use String.format().
      *
-     * @param inputKey  translation key.
-     * @param args Objects for String.format().
+     * @param inputKey translation key.
+     * @param args     Objects for String.format().
      * @return Localized string.
      */
     public static String format(final String inputKey, final Object... args)
@@ -154,7 +154,7 @@ public final class LanguageHandler
 
         final ITextComponent textComponent = buildChatComponent(key.toLowerCase(Locale.US), message);
 
-        for (@NotNull final PlayerEntity player : players)
+        for (final PlayerEntity player : players)
         {
             player.sendMessage(textComponent);
         }
@@ -197,6 +197,11 @@ public final class LanguageHandler
         LanguageCache.getInstance().languageMap = null;
     }
 
+    public static void loadLangPath(final String path)
+    {
+        LanguageCache.getInstance().load(path);
+    }
+
     // TODO: javadoc, move constants
     private static class LanguageCache
     {
@@ -207,21 +212,28 @@ public final class LanguageHandler
         private LanguageCache()
         {
             final String fileLoc = "assets/structurize/lang/%s.json";
+            load(fileLoc);
+        }
+
+        private void load(final String path)
+        {
             final String defaultLocale = "en_us";
 
-            //Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
-            String locale = DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+            // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
+            String locale =
+                DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
 
             if (locale == null)
             {
                 locale = defaultLocale;
             }
-            InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(fileLoc, locale));
+            InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(fileLoc, defaultLocale));
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
-            languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>(){
+            languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
+            {
             }.getType());
         }
 
