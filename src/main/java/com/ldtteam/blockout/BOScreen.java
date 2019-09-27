@@ -17,6 +17,7 @@ public class BOScreen extends Screen
     protected int x = 0;
     protected int y = 0;
     public static boolean isMouseLeftDown = false;
+    private boolean isOpen = false;
 
     /**
      * Create a GuiScreen from a BlockOut window.
@@ -167,7 +168,6 @@ public class BOScreen extends Screen
         y = (height - window.getHeight()) / 2;
 
         minecraft.keyboardListener.enableRepeatEvents(true);
-        window.onOpened();
     }
 
     @Override
@@ -175,11 +175,19 @@ public class BOScreen extends Screen
     {
         if (minecraft != null)
         {
-            window.onUpdate();
-
-            if (!minecraft.player.isAlive() || minecraft.player.dead)
+            if (!isOpen)
             {
-                minecraft.player.closeScreen();
+                window.onOpened();
+                isOpen = true;
+            }
+            else
+            {
+                window.onUpdate();
+
+                if (!minecraft.player.isAlive() || minecraft.player.dead)
+                {
+                    minecraft.player.closeScreen();
+                }
             }
         }
     }
