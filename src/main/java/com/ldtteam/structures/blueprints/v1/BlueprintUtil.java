@@ -10,6 +10,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.datafix.TypeReferences;
+import net.minecraft.util.datafix.fixes.ChunkPaletteFormat;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -319,14 +321,12 @@ public class BlueprintUtil
                     tileEntities[i] = nbt;
                     continue;
                 }
-                // no longer a block entity
+                // no longer a block entity, fixed in #fixCross1343()
                 if (id.equals("minecraft:flower_pot") || id.equals("minecraft:noteblock"))
                 {
-                    tileEntities[i] = null;
+                    tileEntities[i] = nbt;
                     continue;
                 }
-
-
 
                 tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
             }
@@ -362,6 +362,104 @@ public class BlueprintUtil
         return entities;
     }
 
+    private static List<BlockPos> searchForBlockIdInBlocks(final short idToCheck, final short[][][] blocks)
+    {
+        final List<BlockPos> result = new ArrayList<>();
+        for (short y = 0; y < blocks.length; y++)
+        {
+            final short[][] temp = blocks[y];
+            for (short z = 0; z < temp.length; z++)
+            {
+                final short[] temp2 = temp[z];
+                for (short x = 0; x < temp2.length; x++)
+                {
+                    final short id = temp2[x];
+                    if (id == idToCheck)
+                    {
+                        result.add(new BlockPos(x, y, z));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Map<Integer, BlockPos> searchForTEposInTEs(final List<BlockPos> blockPosToFind, final CompoundNBT[] tileEntities)
+    {
+        final Map<Integer, BlockPos> result = new HashMap<>();
+        for (int i = 0; i < tileEntities.length; i++)
+        {
+            final CompoundNBT compound = tileEntities[i];
+            if (compound != null)
+            {
+                final BlockPos bp = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+                if (blockPosToFind.contains(bp))
+                {
+                    result.put(i, bp);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static void teToBlockStateFix(
+        final List<BlockState> palette,
+        final short[][][] blocks,
+        final CompoundNBT[] tileEntities,
+        final short paletteIndex,
+        final Function<CompoundNBT, CompoundNBT> dataFixer)
+    {
+        final Map<Integer, BlockPos> teToReplace = searchForTEposInTEs(searchForBlockIdInBlocks(paletteIndex, blocks), tileEntities);
+        final Map<BlockState, Short> newBlocksToBlockId = new HashMap<>();
+        boolean paletteFull = false;
+
+        palette.set(paletteIndex, null);
+        for (final Map.Entry<Integer, BlockPos> e : teToReplace.entrySet())
+        {
+            final CompoundNBT teCompound = tileEntities[e.getKey()];
+            tileEntities[e.getKey()] = null;
+            final CompoundNBT newBScompound = dataFixer.apply(teCompound);
+            final BlockState newBlockState = NBTUtil.readBlockState(newBScompound);
+            final short newBlockId = paletteFull ? newBlocksToBlockId.getOrDefault(newBlockState, (short) palette.size()) : paletteIndex;
+            if (newBlockId == palette.size())
+            {
+                palette.add(newBlockId, newBlockState);
+                newBlocksToBlockId.put(newBlockState, newBlockId);
+            }
+            else if (!paletteFull)
+            {
+                palette.set(newBlockId, newBlockState);
+                newBlocksToBlockId.put(newBlockState, newBlockId);
+                paletteFull = true;
+            }
+            blocks[e.getValue().getY()][e.getValue().getZ()][e.getValue().getX()] = newBlockId;
+        }
+    }
+
+    private static void fixCross1343(final List<BlockState> palette, final short[][][] blocks, final CompoundNBT[] tileEntities, final CompoundNBT[] entities)
+    {
+        final int oldSize = palette.size();
+        for (short i = 0; i < oldSize; i++)
+        {
+            final BlockState bs = palette.get(i);
+            if (bs.getBlock() == Blocks.POTTED_CACTUS) // flower pot fix
+            {
+                teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
+                    final String type = teCompound.getString("Item") + teCompound.getInt("Data");
+                    return (CompoundNBT) ChunkPaletteFormat.FLOWER_POT_MAP.getOrDefault(type, ChunkPaletteFormat.FLOWER_POT_MAP.get("minecraft:air0"))
+                        .getValue();
+                });
+            }
+            else if (bs.getBlock() == Blocks.NOTE_BLOCK) // note block fix
+            {
+                teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
+                    final String type = Boolean.toString(teCompound.getBoolean("powered")) + (byte) Math.min(Math.max(teCompound.getInt("note"), 0), 24);
+                    return (CompoundNBT) ChunkPaletteFormat.NOTE_BLOCK_MAP.getOrDefault(type, ChunkPaletteFormat.NOTE_BLOCK_MAP.get("false0")).getValue();
+                });
+            }
+        }
+    }
+
     /**
      * Deserializes a Blueprint form the Given CompoundNBT
      *
@@ -395,7 +493,6 @@ public class BlueprintUtil
 
             // Reading Pallete
             ListNBT paletteTag = (ListNBT) tag.get("palette");
-            short paletteSize = (short) paletteTag.size();
             List<BlockState> palette = fixPalette(oldDataVersion, paletteTag);
 
             // Reading Blocks
@@ -407,8 +504,13 @@ public class BlueprintUtil
             // Reading Entities
             CompoundNBT[] entities = fixEntities(oldDataVersion, (ListNBT) tag.get("entities"));
 
-            final Blueprint schem =
-                new Blueprint(sizeX, sizeY, sizeZ, paletteSize, palette, blocks, tileEntities, requiredMods).setMissingMods(missingMods.toArray(new String[0]));
+            if (oldDataVersion == DEFAULT_FIXER_IF_NOT_FOUND)
+            {
+                fixCross1343(palette, blocks, tileEntities, entities);
+            }
+
+            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods)
+                .setMissingMods(missingMods.toArray(new String[0]));
 
             schem.setEntities(entities);
 
