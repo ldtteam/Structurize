@@ -141,7 +141,7 @@ public class DataFixerUtils
             dataType,
             startVersion,
             endVersion,
-            startVersion <= Versions.pre1466.getDataVersion() && Versions.post1466.getDataVersion() <= endVersion);
+            startVersion <= Versions.pre1466.getDataVersion() && Versions.post1466.getDataVersion() <= endVersion && dataType == TypeReferences.BLOCK_ENTITY);
     }
 
     public static CompoundNBT runDataFixer(
