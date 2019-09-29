@@ -52,7 +52,7 @@ public class StructurePlacementUtils
         {
             return structureBlock == worldBlock;
         }
-        else if (structureBlock instanceof StairsBlock && state == worldBlockState)
+        else if (structureBlock instanceof StairsBlock && state.getBlockState() == worldBlockState)
         {
             return true;
         }
@@ -63,7 +63,7 @@ public class StructurePlacementUtils
         }
 
         //had this problem in a super flat world, causes builder to sit doing nothing because placement failed
-        return blockPosition.getY() <= 0 || state == worldBlockState;
+        return blockPosition.getY() <= 0 || structureBlock == worldBlock;
     }
 
     /**
