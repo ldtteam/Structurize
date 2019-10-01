@@ -77,6 +77,7 @@ public class StructurizeStylesMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
+        Structures.init();
         Structures.setAllowPlayerSchematics(allowPlayerSchematics);
         Structures.setMD5s(md5Map);
     }
