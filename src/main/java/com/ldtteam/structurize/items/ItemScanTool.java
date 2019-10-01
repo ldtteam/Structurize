@@ -176,16 +176,4 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         }
         return true;
     }
-
-    /**
-     * <p>
-     * Structurize: Fixes our damn wrong mechanism, don't change.
-     * <p/>
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean shouldSyncTag()
-    {
-        return false;
-    }
 }
