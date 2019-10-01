@@ -72,7 +72,7 @@ public class BlueprintUtil
         for (final BlockPos mutablePos : BlockPos.getAllInBoxMutable(pos, pos.add(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
-            String modName = state.getBlockState().getBlock().getRegistryName().getNamespace();
+            String modName = state.getBlock().getRegistryName().getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()), z = (short) (mutablePos.getZ() - pos.getZ());
 
@@ -175,7 +175,7 @@ public class BlueprintUtil
         final ListNBT paletteTag = new ListNBT();
         for (short i = 0; i < schem.getPalleteSize(); i++)
         {
-            paletteTag.add(NBTUtil.writeBlockState(palette[i].getBlockState()));
+            paletteTag.add(NBTUtil.writeBlockState(palette[i]));
         }
         tag.put("palette", paletteTag);
 

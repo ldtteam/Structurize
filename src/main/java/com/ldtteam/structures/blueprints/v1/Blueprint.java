@@ -368,7 +368,7 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).getBlockState().mirror(mirror).rotate(rotation));
+            palette.add(i, this.palette.get(i).mirror(mirror).rotate(rotation));
         }
 
         final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
@@ -391,14 +391,14 @@ public class Blueprint
                     final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).add(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
-                    if (state.getBlockState().getBlock() == Blocks.STRUCTURE_VOID)
+                    if (state.getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;
                     }
-                    if (state.getBlockState().getBlock() instanceof IAnchorBlock)
+                    if (state.getBlock() instanceof IAnchorBlock)
                     {
                         offset = tempPos;
-                        if ( foundAnchor )
+                        if (foundAnchor)
                         {
                             multipleAnchors = true;
                         }
@@ -438,7 +438,7 @@ public class Blueprint
             {
                 temp = new BlockPos(minX > 0 ? -resultSize.getX() : resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
             }
-            
+
             Rotation theRotation = rotation;
             if (rotation == Rotation.CLOCKWISE_90)
             {
@@ -478,7 +478,6 @@ public class Blueprint
         sizeX = newSizeX;
         sizeY = newSizeY;
         sizeZ = newSizeZ;
-
 
         this.structure = newStructure;
         this.entities = newEntities;
@@ -628,7 +627,7 @@ public class Blueprint
             case COUNTERCLOCKWISE_90:
                 return new Vec3d(zCoord, vec.y, 1.0D - xCoord);
             case CLOCKWISE_90:
-                return new Vec3d(1.0D - zCoord, vec.y,  xCoord);
+                return new Vec3d(1.0D - zCoord, vec.y, xCoord);
             case CLOCKWISE_180:
                 return new Vec3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
             default:

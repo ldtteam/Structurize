@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.extensions.IForgeBlockState;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -34,26 +33,23 @@ public final class BlockUtils
      * Predicated to determine if a block is free to place.
      */
     @NotNull
-    private static final List<BiPredicate<Block, IForgeBlockState>> freeToPlaceBlocks =
-      Arrays.asList(
+    private static final List<BiPredicate<Block, BlockState>> freeToPlaceBlocks = Arrays.asList(
         (block, iBlockState) -> block.equals(Blocks.AIR),
-        (block, iBlockState) -> iBlockState.getBlockState().getMaterial().isLiquid(),
+        (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
         (block, iBlockState) -> BlockUtils.isWater(block.getDefaultState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
         (block, iBlockState) -> block.equals(Blocks.GRASS),
-        (block, iBlockState) -> block instanceof DoorBlock
-                                  && iBlockState != null
-                                  && iBlockState.getBlockState().get(BooleanProperty.create("upper"))
+        (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper"))
 
-      );
+    );
 
     /**
      * Private constructor to hide the public one.
      */
     private BlockUtils()
     {
-        //Hides implicit constructor.
+        // Hides implicit constructor.
     }
 
     /**
@@ -106,14 +102,14 @@ public final class BlockUtils
      * @param location the location it is at.
      * @return the IBlockState of the filler block.
      */
-    public static IForgeBlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
+    public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
     {
-        final IForgeBlockState filler = world.getBiome(location).getSurfaceBuilderConfig().getTop();
-        if (filler.getBlockState().getBlock() == Blocks.SAND)
+        final BlockState filler = world.getBiome(location).getSurfaceBuilderConfig().getTop();
+        if (filler.getBlock() == Blocks.SAND)
         {
             return Blocks.SANDSTONE.getDefaultState();
         }
-        if (filler.getBlockState().getBlock() instanceof FallingBlock)
+        if (filler.getBlock() instanceof FallingBlock)
         {
             return Blocks.DIRT.getDefaultState();
         }
@@ -126,17 +122,16 @@ public final class BlockUtils
      * @param iBlockState block state to be checked.
      * @return true if is water.
      */
-    public static boolean isWater(final IForgeBlockState iBlockState)
+    public static boolean isWater(final BlockState iBlockState)
     {
-        return Objects.equals(iBlockState, Blocks.WATER.getDefaultState())
-                 || Objects.equals(iBlockState, Blocks.WATER.getDefaultState());
+        return Objects.equals(iBlockState, Blocks.WATER.getDefaultState()) || Objects.equals(iBlockState, Blocks.WATER.getDefaultState());
     }
 
-    private static Item getItem(@NotNull final IForgeBlockState forgeBlockState)
+    private static Item getItem(@NotNull final BlockState forgeBlockState)
     {
-        //todo test if beds and banners work and huge mushroom and doors and some redstone things too.
-        final BlockState blockState = forgeBlockState.getBlockState();
-        if (blockState.getBlockState().getBlock().equals(Blocks.LAVA))
+        // todo test if beds and banners work and huge mushroom and doors and some redstone things too.
+        final BlockState blockState = forgeBlockState;
+        if (blockState.getBlock().equals(Blocks.LAVA))
         {
             return Items.LAVA_BUCKET;
         }
@@ -249,11 +244,11 @@ public final class BlockUtils
      * @param blockState the block and state we are creating an ItemStack for.
      * @return ItemStack fromt the BlockState.
      */
-    public static ItemStack getItemStackFromBlockState(@NotNull final IForgeBlockState blockState)
+    public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
     {
-        if (blockState.getBlockState().getBlock() instanceof IFluidBlock)
+        if (blockState.getBlock() instanceof IFluidBlock)
         {
-            return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlockState().getBlock()).getFluid(), 1000));
+            return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
         }
         final Item item = getItem(blockState);
 
@@ -262,7 +257,7 @@ public final class BlockUtils
             return null;
         }
 
-        return new ItemStack(blockState.getBlockState().getBlock(), 1);
+        return new ItemStack(blockState.getBlock(), 1);
     }
 
     /**
@@ -274,7 +269,12 @@ public final class BlockUtils
      * @param blockState the blockState in the world.
      * @param here       the position.
      */
-    public static void handleCorrectBlockPlacement(final World world, final FakePlayer fakePlayer, final ItemStack itemStack, final BlockState blockState, final BlockPos here)
+    public static void handleCorrectBlockPlacement(
+        final World world,
+        final FakePlayer fakePlayer,
+        final ItemStack itemStack,
+        final BlockState blockState,
+        final BlockPos here)
     {
         final ItemStack stackToPlace = itemStack.copy();
         stackToPlace.setCount(stackToPlace.getMaxStackSize());
@@ -282,13 +282,13 @@ public final class BlockUtils
 
         if (itemStack.getItem() instanceof BedItem)
         {
-            //todo beds?
-            //fakePlayer.rotationYaw = blockState.getBlockState().get(BedBlock.).getHorizontalIndex() * 90;
+            // todo beds?
+            // fakePlayer.rotationYaw = blockState.get(BedBlock.).getHorizontalIndex() * 90;
         }
 
-        //todo does placing down slabs and doors still work? and slabs?
+        // todo does placing down slabs and doors still work? and slabs?
         final Direction facing = (itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH);
-        ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0,0,0), facing, here, true)));
+        ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)));
 
         final BlockState newBlockState = world.getBlockState(here);
         if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
@@ -298,8 +298,8 @@ public final class BlockUtils
             transformation = transformation.with(StairsBlock.SHAPE, blockState.get(StairsBlock.SHAPE));
             world.setBlockState(here, transformation);
         }
-        else if (newBlockState.getBlock() instanceof HorizontalBlock && blockState.getBlock() instanceof HorizontalBlock
-                   && !(blockState.getBlock() instanceof BedBlock))
+        else if (newBlockState.getBlock() instanceof HorizontalBlock && blockState.getBlock() instanceof HorizontalBlock &&
+            !(blockState.getBlock() instanceof BedBlock))
         {
             final BlockState transformation = newBlockState.with(HorizontalBlock.HORIZONTAL_FACING, blockState.get(HorizontalBlock.HORIZONTAL_FACING));
             world.setBlockState(here, transformation);

@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.util;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.extensions.IForgeBlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,7 +19,7 @@ public class BlockInfo
      * The blockstate to be placed.
      */
     @Nullable
-    private final IForgeBlockState state;
+    private final BlockState state;
 
     /**
      * The tileEntity information we need.
@@ -33,7 +33,7 @@ public class BlockInfo
      * @param state the state.
      * @param tileEntityData the tileEntity data.
      */
-    public BlockInfo(final BlockPos pos, @Nullable final IForgeBlockState state, @Nullable final CompoundNBT tileEntityData)
+    public BlockInfo(final BlockPos pos, @Nullable final BlockState state, @Nullable final CompoundNBT tileEntityData)
     {
         this.pos = pos;
         this.state = state;
@@ -46,7 +46,7 @@ public class BlockInfo
     }
 
     @Nullable
-    public IForgeBlockState getState()
+    public BlockState getState()
     {
         return state;
     }

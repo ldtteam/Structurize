@@ -79,10 +79,8 @@ public final class BlueprintUtils
 
     public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
     {
-        final List<BlockInfo> list = blueprint.getBlockInfoAsList()
-            .stream()
-            .filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() instanceof IAnchorBlock)
-            .collect(Collectors.toList());
+        final List<BlockInfo> list =
+            blueprint.getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {

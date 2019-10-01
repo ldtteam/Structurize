@@ -51,20 +51,12 @@ public interface IProxy
     void openBuildToolWindow(final BlockPos pos, final String structureName, final int rotation);
 
     /**
-     * Opens a clipboard window.
-     *
-     * @param colonyId the management id.
-     */
-    void openClipBoardWindow(int colonyId);
-
-    /**
      * Get the file representation of the additional schematics' folder.
      *
      * @return the folder for the schematic
      */
     @Nullable
     File getSchematicsFolder();
-
 
     /**
      * Method to get a side specific world from a message context anywhere.
@@ -88,9 +80,4 @@ public interface IProxy
      * @param pos coordinates.
      */
     void openMultiBlockWindow(final BlockPos pos);
-
-    /**
-     * Inititalize optifine on the right side.
-     */
-    void initializeOptifine();
 }

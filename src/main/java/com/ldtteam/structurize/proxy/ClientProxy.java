@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.proxy;
 
-
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -113,8 +112,9 @@ public class ClientProxy extends CommonProxy
         }
 
         // if the world schematics folder exists we use it
-        // otherwise we use the minecraft folder  /structurize/schematics if on the physical client on the logical server
-        final File worldSchematicFolder = new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
+        // otherwise we use the minecraft folder /structurize/schematics if on the physical client on the logical server
+        final File worldSchematicFolder =
+            new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
 
         if (!worldSchematicFolder.exists())
         {
@@ -148,11 +148,5 @@ public class ClientProxy extends CommonProxy
     {
         @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
         window.open();
-    }
-
-    @Override
-    public void initializeOptifine()
-    {
-        OptifineCompat.getInstance().intialize();
     }
 }

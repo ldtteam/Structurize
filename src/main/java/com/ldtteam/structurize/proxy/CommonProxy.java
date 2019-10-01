@@ -58,14 +58,6 @@ public class CommonProxy implements IProxy
     }
 
     @Override
-    public void openClipBoardWindow(final int colonyId)
-    {
-        /*
-         * Intentionally left empty.
-         */
-    }
-
-    @Override
     public File getSchematicsFolder()
     {
         return null;
@@ -91,11 +83,5 @@ public class CommonProxy implements IProxy
         /*
          * Intentionally left empty.
          */
-    }
-
-    @Override
-    public void initializeOptifine()
-    {
-        //Noop by default.
     }
 }

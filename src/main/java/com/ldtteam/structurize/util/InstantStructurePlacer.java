@@ -114,7 +114,7 @@ public class InstantStructurePlacer
                 for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final BlockState localState = this.structure.getBlockState(localPos).getBlockState();
+                    final BlockState localState = this.structure.getBlockState(localPos);
                     if (localState == null)
                     {
                         continue;
@@ -210,7 +210,7 @@ public class InstantStructurePlacer
     {
         for (@NotNull final BlockPos coords : delayedBlocks)
         {
-            final BlockState localState = this.structure.getBlockState(coords).getBlockState();
+            final BlockState localState = this.structure.getBlockState(coords);
             final BlockPos newWorldPos = structure.getPosition().add(coords);
             storage.addPositionStorage(coords, world);
             final BlockInfo info = this.structure.getBlockInfo(coords);
@@ -228,7 +228,12 @@ public class InstantStructurePlacer
      * @param complete       if complete with it.
      * @param tileEntityData the tileEntity.
      */
-    public void handleBlockPlacement(final World world, final BlockPos pos, final BlockState localState, final boolean complete, final CompoundNBT tileEntityData)
+    public void handleBlockPlacement(
+        final World world,
+        final BlockPos pos,
+        final BlockState localState,
+        final boolean complete,
+        final CompoundNBT tileEntityData)
     {
         for (final IPlacementHandler handlers : PlacementHandlers.handlers)
         {

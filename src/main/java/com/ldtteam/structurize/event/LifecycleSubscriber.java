@@ -7,21 +7,39 @@ import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 public class LifecycleSubscriber
 {
+    /**
+     * Called when mod is being initialized.
+     *
+     * @param event event
+     */
     @SubscribeEvent
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Log.getLogger().warn("FMLCommonSetupEvent");
         Network.getNetwork().registerCommonMessages();
         StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
+    }
+
+    /**
+     * Called when client app is initialized.
+     *
+     * @param event event
+     */
+    @SubscribeEvent
+    public static void onClientInit(final FMLClientSetupEvent event)
+    {
+        OptifineCompat.getInstance().intialize();
     }
 
     /**
@@ -38,12 +56,13 @@ public class LifecycleSubscriber
 
     /**
      * This method is for adding datagenerators. this does not run during normal client operations, only during building.
+     * 
      * @param event event sent when you run the "runData" gradle task
      */
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        //Shingles
+        // Shingles
         event.getGenerator().addProvider(new ShinglesBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesBlockModelProvider(event.getGenerator()));
@@ -51,7 +70,7 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ShinglesRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesTagsProvider(event.getGenerator()));
 
-        //Shingle Slabs
+        // Shingle Slabs
         event.getGenerator().addProvider(new ShingleSlabsBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsBlockModelProvider(event.getGenerator()));
@@ -59,15 +78,14 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ShingleSlabsRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsTagsProvider(event.getGenerator()));
 
-        //Timber Frames
+        // Timber Frames
         event.getGenerator().addProvider(new TimberFramesBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
 
-
-        //Default
+        // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
     }
 }

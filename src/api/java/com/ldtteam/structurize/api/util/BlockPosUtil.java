@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.api.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
 import net.minecraft.nbt.CompoundNBT;
@@ -8,7 +9,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.extensions.IForgeBlockState;
 import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
@@ -20,7 +20,7 @@ public final class BlockPosUtil
 {
     private BlockPosUtil()
     {
-        //Hide default constructor.
+        // Hide default constructor.
     }
 
     /**
@@ -72,7 +72,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * this checks that you are not in liquid.  Will check for all liquids, even
+     * this checks that you are not in liquid. Will check for all liquids, even
      * those from other mods before TP
      *
      * @param blockPos for the current block LOC
@@ -102,8 +102,7 @@ public final class BlockPosUtil
         final long result = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff;
         if (result < 0)
         {
-            throw new IllegalStateException("max-sqrt is to high! Failure to catch overflow with "
-                                              + xDiff + " | " + yDiff + " | " + zDiff);
+            throw new IllegalStateException("max-sqrt is to high! Failure to catch overflow with " + xDiff + " | " + yDiff + " | " + zDiff);
         }
         return result;
     }
@@ -127,7 +126,7 @@ public final class BlockPosUtil
      * @param coords Coordinates of the block.
      * @return Metadata of the block at the given coordinates.
      */
-    public static IForgeBlockState getBlockState(@NotNull final World world, @NotNull final BlockPos coords)
+    public static BlockState getBlockState(@NotNull final World world, @NotNull final BlockPos coords)
     {
         return world.getBlockState(coords);
     }
@@ -141,9 +140,9 @@ public final class BlockPosUtil
      * @param flag    Flag to set.
      * @return True if block is placed, otherwise false.
      */
-    public static boolean setBlock(@NotNull final World worldIn, @NotNull final BlockPos coords, final IForgeBlockState state, final int flag)
+    public static boolean setBlock(@NotNull final World worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
     {
-        return worldIn.setBlockState(coords, state.getBlockState(), flag);
+        return worldIn.setBlockState(coords, state, flag);
     }
 
     /**

@@ -87,22 +87,22 @@ public class BlueprintRenderer
             .getBlockInfoAsList()
             .stream()
             .map(b -> BlueprintBlockInfoTransformHandler.getInstance().Transform(b))
-            .filter(blockInfo -> blockInfo.getState().getBlockState().getBlock() != ModBlocks.blockSubstitution)
+            .filter(blockInfo -> blockInfo.getState().getBlock() != ModBlocks.blockSubstitution)
             .forEach(b -> {
                 Minecraft.getInstance()
                     .getBlockRendererDispatcher()
                     .renderBlock(
-                        b.getState().getBlockState(),
+                        b.getState(),
                         b.getPos(),
                         blockAccess,
                         tessellator.getBuilder(),
                         random,
                         ModelDataManager.getModelData(blockAccess, b.getPos()));
-                if (!b.getState().getBlockState().getFluidState().isEmpty())
+                if (!b.getState().getFluidState().isEmpty())
                 {
                     Minecraft.getInstance()
                         .getBlockRendererDispatcher()
-                        .renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getBlockState().getFluidState());
+                        .renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
                 }
             });
         tessellator.finishBuilding();

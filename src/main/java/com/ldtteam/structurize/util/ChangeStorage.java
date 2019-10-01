@@ -58,13 +58,13 @@ public class ChangeStorage
     {
         this.player = player;
 
-        for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
+        for (int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
             for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
             {
                 for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
-                    final BlockPos place = new BlockPos(x,y,z);
+                    final BlockPos place = new BlockPos(x, y, z);
                     blocks.put(place, new PositionStorage(world.getBlockState(place), world.getTileEntity(place)));
                 }
             }
@@ -115,7 +115,7 @@ public class ChangeStorage
         int count = 0;
         for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
         {
-            world.setBlockState(entry.getKey(), entry.getValue().getState().getBlockState());
+            world.setBlockState(entry.getKey(), entry.getValue().getState());
             if (entry.getValue().getEntity() != null)
             {
                 world.setTileEntity(entry.getKey(), entry.getValue().getEntity());

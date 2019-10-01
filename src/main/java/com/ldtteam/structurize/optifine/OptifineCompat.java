@@ -28,7 +28,7 @@ public class OptifineCompat
     private Method endUpdateChunksMethod;
 
     private boolean currentShadowPassFieldValue = false;
-    private Field   isShadowPassField;
+    private Field isShadowPassField;
 
     public static OptifineCompat getInstance()
     {
@@ -44,7 +44,6 @@ public class OptifineCompat
     /**
      * Initializes the compat layer.
      * Makes sure that all relevant classes are available as well as all required methods.
-     *
      * Will disable compat if either a class is missing, or a method is missing.
      * This ensures that if, optifines structure changes we do not crash and just disable the compat.
      */
@@ -78,12 +77,12 @@ public class OptifineCompat
      * Performs the reflective access to the Optifine related methods.
      *
      * @throws ClassNotFoundException Thrown when a optifine class is missing.
-     * @throws NoSuchMethodException Thrown when a optifine method is missing.
-     * @throws NoSuchFieldException Thrown when a optifine field is missing.
+     * @throws NoSuchMethodException  Thrown when a optifine method is missing.
+     * @throws NoSuchFieldException   Thrown when a optifine field is missing.
      */
     private void setupReflectedMethodReferences() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException
     {
-        final Class<?> configClass = Class.forName("Config");
+        final Class<?> configClass = Class.forName("net.optifine.Config");
         final Class<?> shaderRenderClass = Class.forName("net.optifine.shaders.ShadersRender");
         final Class<?> sVertexBuilderClass = Class.forName("net.optifine.shaders.SVertexBuilder");
         final Class<?> shadersClass = Class.forName("net.optifine.shaders.Shaders");
