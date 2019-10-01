@@ -56,12 +56,6 @@ public abstract class AbstractItemWithPosSelector extends Item
      */
     public abstract AbstractItemWithPosSelector getRegisteredItemInstance();
 
-    /**
-     * <p>
-     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick()}.
-     * <p/>
-     * {@inheritDoc}
-     */
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
     {
@@ -90,7 +84,12 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
-        context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
+
+        final CompoundNBT compoundNBT = context.getItem().getOrCreateTag();
+        compoundNBT.put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
+        context.getItem().setTag(compoundNBT);
+        context.getPlayer().inventory.markDirty();
+
         return ActionResultType.SUCCESS;
     }
 
@@ -108,7 +107,12 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             itemstack = player.getHeldItemOffhand();
         }
-        itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(pos));
+
+        final CompoundNBT compoundNBT = itemstack.getOrCreateTag();
+        compoundNBT.put(NBT_START_POS, NBTUtil.writeBlockPos(pos));
+        itemstack.setTag(compoundNBT);
+        player.inventory.markDirty();
+
         if (player.getEntityWorld().isRemote())
         {
             LanguageHandler.sendMessageToPlayer(player, START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
