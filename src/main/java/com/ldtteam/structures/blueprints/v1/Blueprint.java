@@ -91,14 +91,14 @@ public class Blueprint
      * @param requiredMods the required mods.
      */
     protected Blueprint(
-      short sizeX,
-      short sizeY,
-      short sizeZ,
-      short palleteSize,
-      List<BlockState> pallete,
-      short[][][] structure,
-      CompoundNBT[] tileEntities,
-      List<String> requiredMods)
+        short sizeX,
+        short sizeY,
+        short sizeZ,
+        short palleteSize,
+        List<BlockState> pallete,
+        short[][][] structure,
+        CompoundNBT[] tileEntities,
+        List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -140,7 +140,7 @@ public class Blueprint
 
     /**
      * @return the Size of the Structure on the X-Axis (without rotation and/or
-     * mirroring)
+     *         mirroring)
      */
     public short getSizeX()
     {
@@ -149,7 +149,7 @@ public class Blueprint
 
     /**
      * @return the Size of the Structure on the Y-Axis (without rotation and/or
-     * mirroring)
+     *         mirroring)
      */
     public short getSizeY()
     {
@@ -158,7 +158,7 @@ public class Blueprint
 
     /**
      * @return the Size of the Structure on the Z-Axis (without rotation and/or
-     * mirroring)
+     *         mirroring)
      */
     public short getSizeZ()
     {
@@ -211,7 +211,7 @@ public class Blueprint
 
     /**
      * @return the structure (without rotation and/or mirroring)
-     * The Coordinate order is: y, z, x
+     *         The Coordinate order is: y, z, x
      */
     public short[][][] getStructure()
     {
@@ -220,7 +220,7 @@ public class Blueprint
 
     /**
      * @return an array of serialized TileEntities (posX, posY and posZ tags have
-     * been localized to coordinates within the structure)
+     *         been localized to coordinates within the structure)
      */
     public CompoundNBT[][][] getTileEntities()
     {
@@ -229,7 +229,7 @@ public class Blueprint
 
     /**
      * @return an array of serialized TileEntities (the Pos tag has
-     * been localized to coordinates within the structure)
+     *         been localized to coordinates within the structure)
      */
     public CompoundNBT[] getEntities()
     {
@@ -263,6 +263,7 @@ public class Blueprint
 
     /**
      * Sets the name of the Structure
+     * 
      * @param name the name to set.
      * @return this object.
      */
@@ -282,6 +283,7 @@ public class Blueprint
 
     /**
      * Sets an Array of all architects for this structure
+     * 
      * @param architects an array of architects.
      * @return this blueprint.
      */
@@ -293,7 +295,7 @@ public class Blueprint
 
     /**
      * @return An Array of all missing mods that are required to generate this
-     * structure (only works if structure was loaded from file)
+     *         structure (only works if structure was loaded from file)
      */
     public String[] getMissingMods()
     {
@@ -302,6 +304,7 @@ public class Blueprint
 
     /**
      * Sets the missing mods
+     * 
      * @param missingMods the missing mods list.
      * @return this object.
      */
@@ -351,7 +354,7 @@ public class Blueprint
      * @param rotation times to rotateWithMirror.
      * @param pos      the pos to rotateWithMirror it around.
      * @param mirror   the mirror.
-     * @param world the world.
+     * @param world    the world.
      * @return the new offset.
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
@@ -557,7 +560,12 @@ public class Blueprint
      * @param mirror     the mirror.
      * @return the updated nbt.
      */
-    private CompoundNBT transformEntityInfoWithSettings(final CompoundNBT entityInfo, final World world, final BlockPos pos, final Rotation rotation, final Mirror mirror)
+    private CompoundNBT transformEntityInfoWithSettings(
+        final CompoundNBT entityInfo,
+        final World world,
+        final BlockPos pos,
+        final Rotation rotation,
+        final Mirror mirror)
     {
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
@@ -584,13 +592,10 @@ public class Blueprint
                 }
                 else
                 {
-                    finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z,
-                      (float) rotationYaw, finalEntity.rotationPitch);
+                    finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.rotationPitch);
                 }
 
-                final CompoundNBT CompoundNBT = new CompoundNBT();
-                finalEntity.deserializeNBT(CompoundNBT);
-                return CompoundNBT;
+                return finalEntity.serializeNBT();
             }
         }
         return null;

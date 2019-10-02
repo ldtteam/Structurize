@@ -191,7 +191,7 @@ public class InstantStructurePlacer
                 }
                 catch (final RuntimeException e)
                 {
-                    Log.getLogger().info("Couldn't restore entitiy", e);
+                    Log.getLogger().info("Couldn't restore entity", e);
                 }
             }
         }
