@@ -32,7 +32,7 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
 
     public BlockShingle(final BlockState modelState, final ShingleWoodType woodType, final ShingleFaceType faceType)
     {
-        super(modelState, Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(modelState, Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
         setRegistryName(faceType.getName() + "_" + woodType.getName() + "_shingle");
         this.woodType = woodType;
         this.faceType = faceType;
