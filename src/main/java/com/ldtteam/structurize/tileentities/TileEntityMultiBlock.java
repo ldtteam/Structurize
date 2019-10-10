@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.tileentities;
 
 import com.google.common.primitives.Ints;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.PushReaction;
@@ -177,11 +178,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
                 final BlockPos posToGoFrom = blockToGoFrom > 0 ? pos.offset(currentDirection, blockToGoFrom) : pos.offset(currentOutPutDirection, Math.abs(blockToGoFrom));
                 if (world.isAirBlock(posToGo))
                 {
-                    final BlockState tempState = world.getBlockState(posToGoFrom);
+                    BlockState tempState = world.getBlockState(posToGoFrom);
                     if (blockToMove.getBlock() == tempState.getBlock() && world.isBlockLoaded(posToGoFrom) && world.isBlockLoaded(posToGo))
                     {
                         pushEntitiesIfNecessary(posToGo, pos);
-                        world.setBlockState(posToGo, tempState);
+
+                        tempState = Block.getValidBlockForPosition(tempState, this.world, posToGo);
+                        world.setBlockState(posToGo, tempState, 67);
+                        this.world.neighborChanged(posToGo, tempState.getBlock(), posToGo);
+
                         world.removeBlock(posToGoFrom, false);
                     }
                 }
