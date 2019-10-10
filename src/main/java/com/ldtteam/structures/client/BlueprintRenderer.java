@@ -20,6 +20,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.List;
 import java.util.Random;
@@ -97,7 +98,7 @@ public class BlueprintRenderer
                         blockAccess,
                         tessellator.getBuilder(),
                         random,
-                        ModelDataManager.getModelData(blockAccess, b.getPos()));
+                      EmptyModelData.INSTANCE);
                 if (!b.getState().getFluidState().isEmpty())
                 {
                     Minecraft.getInstance()
