@@ -1037,5 +1037,8 @@
   "structurize.config.maxcachedschematics.comment": "Max amount of schematics to be cached on the server",
   "structurize.config.maxcachedschematics": "Max Cached Schematics",
   "structurize.config.maxoperationspertick.comment": "Max world operations per tick (Max blocks to place, remove or replace)",
-  "structurize.config.maxoperationspertick": "Max Operations Per Tick"
+  "structurize.config.maxoperationspertick": "Max Operations Per Tick",
+  "com.structurize.command.playernotfound": "Couldn't find player for which to save the scan!",
+  "com.structurize.command.scan.success": "Succesfully scanned via command!",
+  "com.structurize.command.scan.no.perm": "No permission to scan via command, use the tool!"
 }

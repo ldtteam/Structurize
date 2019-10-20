@@ -49,7 +49,10 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.MuteChannel.build())
             .addNode(LinkSessionCommand.RemovePlayer.build())
             .addNode(LinkSessionCommand.SendMessage.build());
-        final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID).addNode(linkSession).addNode(UpdateSchematicsCommand.build());
+        final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID)
+                                              .addNode(linkSession)
+                                              .addNode(UpdateSchematicsCommand.build())
+                                              .addNode(ScanCommand.build());
 
         dispatcher.register(structurizeRoot.build());
     }
