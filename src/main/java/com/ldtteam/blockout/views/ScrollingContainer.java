@@ -37,8 +37,7 @@ public class ScrollingContainer extends View
     {
         contentHeight = 0;
 
-        for (@NotNull
-        final Pane child : children)
+        for (@NotNull final Pane child : children)
         {
             if (child != null)
             {
@@ -46,6 +45,16 @@ public class ScrollingContainer extends View
             }
         }
 
+        // Recompute scroll
+        setScrollY(scrollY);
+    }
+
+    /**
+     * Compute the height in pixels of the container.
+     */
+    public void setContentHeight(final int size)
+    {
+        contentHeight = size;
         // Recompute scroll
         setScrollY(scrollY);
     }
