@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
 
     <button id="previousBuildingType" size="15 15" pos="0 0" label="&lt;"/>
-    <dropdown id="buildingType" size="114 15" pos="13 0" dropDownSize="140 75">
+    <dropdown id="buildingType" size="114 15" pos="13 0" maxContentHeight="75" dropDownSize="140 75">
         <view size="100% 15">
             <label id="id" size="100% 100%" label="" pos="0 0"/>
             <button id="button" size="100% 100%" label="" pos="0 0"/>
