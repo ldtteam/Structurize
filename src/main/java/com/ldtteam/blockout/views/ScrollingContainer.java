@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -98,6 +99,7 @@ public class ScrollingContainer extends View
 
     public void setScrollY(final int offset)
     {
+        Log.getLogger().warn("offset before: " + offset);
         scrollY = offset;
 
         final int maxScrollY = getMaxScrollY();
@@ -110,6 +112,7 @@ public class ScrollingContainer extends View
         {
             scrollY = 0;
         }
+        Log.getLogger().warn("scroll y after: " + scrollY);
     }
 
     public int getContentHeight()

@@ -1,6 +1,7 @@
 package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 
@@ -24,6 +25,7 @@ public class ScrollingListContainer extends ScrollingContainer
      */
     public void refreshElementPanes(final ScrollingList.DataProvider dataProvider, final PaneParams listNodeParams, final int height)
     {
+        Log.getLogger().warn("scroll y before: " + scrollY);
         final int numElements = (dataProvider != null) ? dataProvider.getElementCount() : 0;
         if (dataProvider != null)
         {
