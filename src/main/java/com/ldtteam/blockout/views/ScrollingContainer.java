@@ -68,6 +68,7 @@ public class ScrollingContainer extends View
     @Override
     public void drawSelf(final int mx, final int my)
     {
+        Log.getLogger().warn("sc" + scrollY);
         scissorsStart();
 
         // Translate the scroll
@@ -99,7 +100,6 @@ public class ScrollingContainer extends View
 
     public void setScrollY(final int offset)
     {
-        Log.getLogger().warn("offset before: " + offset);
         scrollY = offset;
 
         final int maxScrollY = getMaxScrollY();
@@ -112,7 +112,6 @@ public class ScrollingContainer extends View
         {
             scrollY = 0;
         }
-        Log.getLogger().warn("scroll y after: " + scrollY);
     }
 
     public int getContentHeight()

@@ -25,7 +25,6 @@ public class ScrollingListContainer extends ScrollingContainer
      */
     public void refreshElementPanes(final ScrollingList.DataProvider dataProvider, final PaneParams listNodeParams, final int height)
     {
-        Log.getLogger().warn("scroll y before: " + scrollY);
         final int numElements = (dataProvider != null) ? dataProvider.getElementCount() : 0;
         if (dataProvider != null)
         {
@@ -63,6 +62,7 @@ public class ScrollingListContainer extends ScrollingContainer
             removeChild(children.get(numElements));
         }
 
+        Log.getLogger().warn("height" + numElements * listElementHeight);
         setContentHeight(numElements * listElementHeight);
     }
 
