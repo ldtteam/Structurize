@@ -2,10 +2,12 @@ package com.ldtteam.structures.client;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -71,7 +73,12 @@ public class BlueprintBlockAccess extends World implements IBlockAccess
     @Override
     public IBlockState getBlockState(@NotNull final BlockPos pos)
     {
-        return BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
+        final IBlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
+        if (state.getBlock() == ModBlocks.blockSolidSubstitution)
+        {
+            return Blocks.DIRT.getDefaultState();
+        }
+        return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
 
     @Override
