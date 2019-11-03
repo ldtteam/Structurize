@@ -104,6 +104,10 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     public BlockState getBlockState(@NotNull final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
+        if (state.getBlock() == ModBlocks.blockSolidSubstitution)
+        {
+            return Blocks.DIRT.getDefaultState();
+        }
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
     
