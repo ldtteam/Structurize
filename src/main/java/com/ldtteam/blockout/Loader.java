@@ -10,13 +10,8 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import com.ldtteam.blockout.controls.ButtonImage;
-import com.ldtteam.blockout.controls.ButtonVanilla;
-import com.ldtteam.blockout.controls.Image;
-import com.ldtteam.blockout.controls.ItemIcon;
-import com.ldtteam.blockout.controls.Label;
-import com.ldtteam.blockout.controls.Text;
-import com.ldtteam.blockout.controls.TextFieldVanilla;
+
+import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.Box;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.blockout.views.Group;
@@ -58,6 +53,7 @@ public final class Loader
         register("switch", SwitchView.class);
         register("dropdown", DropDownList.class);
         register("overlay", OverlayView.class);
+        register("gradient", Gradient.class);
     }
 
     private Loader()

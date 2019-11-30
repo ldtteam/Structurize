@@ -86,6 +86,7 @@
             <xs:element name="label" type="labelType"/>
             <xs:element name="input" type="inputType"/>
             <xs:element name="image" type="imageType"/>
+            <xs:element name="gradient" type="gradientType"/>
             <xs:element name="box" type="boxType"/>
             <xs:element name="itemicon" type="itemIconType"/>
             <xs:element name="switch" type="switchType"/>
@@ -216,6 +217,16 @@
                 <xs:attribute name="source" type="xs:string"/>
                 <xs:attribute name="imageoffset" type="fixedSizePair"/>
                 <xs:attribute name="imagesize" type="fixedSizePair"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <gradient> -->
+    <xs:complexType name="gradientType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="gradientstart" type="xs:integer"/>
+                <xs:attribute name="gradientend" type="xs:integer"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
