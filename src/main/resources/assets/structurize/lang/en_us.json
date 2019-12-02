@@ -981,7 +981,7 @@
   "com.ldtteam.structurize.gui.scantool.to": "To:",
   "com.ldtteam.structurize.gui.shapetool.hollow": "Hollow",
   "com.ldtteam.structurize.gui.shapetool.ignore": "Ignore Blocks",
-  "com.ldtteam.structurize.gui.shapetool.pickfillblock=": "Pick Fill Block",
+  "com.ldtteam.structurize.gui.shapetool.pickfillblock": "Pick Fill Block",
   "com.ldtteam.structurize.gui.shapetool.pickmainblock": "Pick Main Block",
   "com.ldtteam.structurize.gui.shapetool.replace": "Replace Blocks",
   "com.ldtteam.structurize.gui.shapetool.solid": "Solid",
