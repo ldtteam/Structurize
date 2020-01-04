@@ -87,6 +87,7 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
+                translation.appendSibling(new StringTextComponent(" "));
                 translation.appendSibling((ITextComponent) object);
             }
             else if (object instanceof String)
@@ -103,7 +104,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.appendText((String) object);
+                    translation.appendText(" " + object);
                 }
             }
         }
