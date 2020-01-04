@@ -112,6 +112,13 @@ public final class PlacementHandlers
             final boolean complete)
         {
             final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
+            for (final IPlacementHandler handler : PlacementHandlers.handlers)
+            {
+                if (handler.canHandle(world, pos, newBlockState))
+                {
+                    return handler.getRequiredItems(world, pos, newBlockState, tileEntityData, complete);
+                }
+            }
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(newBlockState));
             return itemList;
