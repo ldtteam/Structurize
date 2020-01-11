@@ -7,9 +7,6 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -70,7 +67,7 @@ public final class BlueprintHandler
      * @param mirror        its mirror.
      * @param drawingOffset its offset.
      */
-    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final MatrixStack stack, final float partialTicks)
+    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final MatrixStack stack, final float partialTicks)
     {
         if (blueprint == null)
         {
@@ -105,10 +102,8 @@ public final class BlueprintHandler
         final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         for (final BlockPos coord : points)
         {
-            final BlockPos pos = coord.down();
-            Vec3d vec = new Vec3d(pos).subtract(projectedView);
-            final Vector3d renderOffset = new Vector3d(vec.x, vec.y, vec.z);
-            draw(blueprint, Rotation.NONE, Mirror.NONE, renderOffset, stack, partialTicks);
+            final Vec3d vec = new Vec3d(coord.down()).subtract(projectedView);
+            draw(blueprint, Rotation.NONE, Mirror.NONE, vec, stack, partialTicks);
         }
     }
 }

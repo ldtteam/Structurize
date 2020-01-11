@@ -3,9 +3,6 @@ package com.ldtteam.structures.client;
 import com.ldtteam.structures.helpers.Structure;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -30,10 +27,9 @@ public final class StructureClientHandler
         if (perspectiveEntity != null)
         {
             final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-            Vec3d vec = new Vec3d(pos).subtract(projectedView);
+            final Vec3d vec = new Vec3d(pos).subtract(projectedView);
 
-            final Vector3d renderOffset = new Vector3d(vec.x, vec.y, vec.z);
-            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset, stack, partialTicks);
+            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), vec, stack, partialTicks);
         }
     }
 }

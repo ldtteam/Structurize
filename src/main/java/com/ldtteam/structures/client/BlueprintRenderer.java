@@ -22,7 +22,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.List;
-import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
@@ -119,26 +118,28 @@ public class BlueprintRenderer
      * @param mirror        The mirroring.
      * @param drawingOffset The drawing offset.
      */
-    public void draw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final MatrixStack matrixStack, final float partialTicks)
+    public void draw(final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final MatrixStack matrixStack, final float partialTicks)
     {
         // Handle things like mirror, rotation and offset.
         preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
 
-        Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
+        //Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
 
-        RenderHelper.func_227780_a_();
-        final World previous = TileEntityRendererDispatcher.instance.world;
-        TileEntityRendererDispatcher.instance.func_217665_a(previous,Minecraft.getInstance().textureManager, Minecraft.getInstance().fontRenderer, Minecraft.getInstance().getRenderManager().info, Minecraft.getInstance().objectMouseOver);
+        //RenderHelper.func_227780_a_();
+        //final World previous = TileEntityRendererDispatcher.instance.world;
+        //TileEntityRendererDispatcher.instance.func_217665_a(previous,Minecraft.getInstance().textureManager, Minecraft.getInstance().fontRenderer, Minecraft.getInstance().getRenderManager().info, Minecraft.getInstance().objectMouseOver);
 
         // Draw tile entities.
 
-        tileEntities.forEach(tileEntity -> {
+        /*tileEntities.forEach(tileEntity -> {
             //float, matrixstack, rendertypebuffer
             TileEntityRendererDispatcher.instance.func_228850_a_(tileEntity, 1f, matrixStack, Minecraft.getInstance().func_228019_au_().func_228487_b_());
             Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
             RenderSystem.disableFog();
         });
-        //todo RenderHelper.disableStandardItemLighting();
+        RenderHelper.disableStandardItemLighting();*/
+
+        final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
 
         // Draw entities
         entities.forEach(entity -> {
@@ -146,9 +147,8 @@ public class BlueprintRenderer
             double d1 = MathHelper.lerp((double)partialTicks, entity.lastTickPosY, entity.func_226278_cu_());
             double d2 = MathHelper.lerp((double)partialTicks, entity.lastTickPosZ, entity.func_226281_cx_());
             float f = MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
-            Minecraft.getInstance().getRenderManager().func_229084_a_(entity, d0 - drawingOffset.x, d1 - drawingOffset.y, d2 - drawingOffset.z, f, partialTicks, matrixStack, Minecraft.getInstance().func_228019_au_().func_228487_b_(), Minecraft.getInstance().getRenderManager().func_229085_a_(entity, partialTicks));
+            Minecraft.getInstance().getRenderManager().func_229084_a_(entity, d0 - drawingOffset.x , d1 - drawingOffset.y, d2 - drawingOffset.z, f, partialTicks, matrixStack, Minecraft.getInstance().func_228019_au_().func_228487_b_(), Minecraft.getInstance().getRenderManager().func_229085_a_(entity, partialTicks));
 
-            Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
             RenderSystem.disableFog();
         });
 
@@ -158,7 +158,7 @@ public class BlueprintRenderer
         postBlueprintDraw();
     }
 
-    private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inBlueprintOffset)
+    private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final BlockPos inBlueprintOffset)
     {
         Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
         RenderSystem.pushMatrix();
@@ -169,7 +169,6 @@ public class BlueprintRenderer
 
         RenderUtil.applyRotationToYAxis(rotation);
         RenderUtil.applyMirror(mirror, inBlueprintOffset);
-
         RenderSystem.scaled(HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
