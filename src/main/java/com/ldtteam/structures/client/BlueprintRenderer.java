@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
@@ -125,6 +126,7 @@ public class BlueprintRenderer
         TileEntityRendererDispatcher.instance.setWorld(blockAccess);
         TileEntityRendererDispatcher.instance.preDrawBatch();
         // Draw tile entities.
+        WorldRenderer
         tileEntities.forEach(tileEntity -> {
             TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 1f);
             Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();

@@ -7,10 +7,10 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3d;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +31,7 @@ public final class BlueprintHandler
     private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
       CacheBuilder.newBuilder()
         .maximumSize(50)
-        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().getTessellator().getBuffer().deleteGlBuffers())
+        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().getTessellator().getBuffer().close())
         .build();
 
     /**
@@ -99,18 +99,12 @@ public final class BlueprintHandler
             return;
         }
 
-        final PlayerEntity perspectiveEntity = Minecraft.getInstance().player;
-        final double interpolatedEntityPosX = perspectiveEntity.lastTickPosX + (perspectiveEntity.posX - perspectiveEntity.lastTickPosX) * partialTicks;
-        final double interpolatedEntityPosY = perspectiveEntity.lastTickPosY + (perspectiveEntity.posY - perspectiveEntity.lastTickPosY) * partialTicks;
-        final double interpolatedEntityPosZ = perspectiveEntity.lastTickPosZ + (perspectiveEntity.posZ - perspectiveEntity.lastTickPosZ) * partialTicks;
-
+        final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         for (final BlockPos coord : points)
         {
             final BlockPos pos = coord.down();
-            final double renderOffsetX = pos.getX() - interpolatedEntityPosX;
-            final double renderOffsetY = pos.getY() - interpolatedEntityPosY - perspectiveEntity.getEyeHeight();
-            final double renderOffsetZ = pos.getZ() - interpolatedEntityPosZ;
-            final Vector3d renderOffset = new Vector3d(renderOffsetX, renderOffsetY, renderOffsetZ);
+            Vec3d vec = new Vec3d(pos).subtract(projectedView);
+            final Vector3d renderOffset = new Vector3d(vec.x, vec.y, vec.z);
             draw(blueprint, Rotation.NONE, Mirror.NONE, renderOffset);
         }
     }

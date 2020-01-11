@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,15 +26,10 @@ public final class StructureClientHandler
     {
         if (perspectiveEntity != null)
         {
-            final double interpolatedEntityPosX = perspectiveEntity.lastTickPosX + (perspectiveEntity.posX - perspectiveEntity.lastTickPosX) * partialTicks;
-            final double interpolatedEntityPosY = perspectiveEntity.lastTickPosY + (perspectiveEntity.posY - perspectiveEntity.lastTickPosY) * partialTicks;
-            final double interpolatedEntityPosZ = perspectiveEntity.lastTickPosZ + (perspectiveEntity.posZ - perspectiveEntity.lastTickPosZ) * partialTicks;
+            final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+            Vec3d vec = new Vec3d(pos).subtract(projectedView);
 
-            final double renderOffsetX = pos.getX() - interpolatedEntityPosX;
-            final double renderOffsetY = pos.getY() - interpolatedEntityPosY - perspectiveEntity.getEyeHeight();
-            final double renderOffsetZ = pos.getZ() - interpolatedEntityPosZ;
-
-            final Vector3d renderOffset = new Vector3d(renderOffsetX, renderOffsetY, renderOffsetZ);
+            final Vector3d renderOffset = new Vector3d(vec.x, vec.y, vec.z);
             BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), renderOffset);
         }
     }
