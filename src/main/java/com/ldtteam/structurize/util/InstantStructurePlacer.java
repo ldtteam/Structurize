@@ -173,9 +173,7 @@ public class InstantStructurePlacer
 
                             if (entity instanceof HangingEntity)
                             {
-                                entity.posX = worldPos.x;
-                                entity.posY = worldPos.y;
-                                entity.posZ = worldPos.z;
+                                entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
 
                                 final BlockPos hanging = ((HangingEntity) entity).getHangingPosition();
                                 entity.setPosition(hanging.getX() + pos.getX(), hanging.getY() + pos.getY(), hanging.getZ() + pos.getZ());

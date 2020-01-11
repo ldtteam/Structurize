@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +31,7 @@ public class BlueprintChunk extends Chunk
      */
     public BlueprintChunk(final World worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new Biome[0]);
+        super(worldIn, new ChunkPos(x, z), new BiomeContainer(new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
     

@@ -6,7 +6,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.VertexBufferUploader;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
@@ -30,20 +31,18 @@ public class BlueprintTessellator
     private static final int   DEFAULT_BUFFER_SIZE               = 2097152;
 
     private final BufferBuilder        builder;
-    private final VertexBuffer         buffer      = new VertexBuffer(DefaultVertexFormats.BLOCK);
-    private final VertexBufferUploader vboUploader = new VertexBufferUploader();
-    private       boolean              isReadOnly  = false;
+    private final VertexBuffer              buffer      = new VertexBuffer(DefaultVertexFormats.BLOCK);
+    private       boolean                   isReadOnly  = false;
 
     public BlueprintTessellator()
     {
         this.builder = new BufferBuilder(DEFAULT_BUFFER_SIZE);
-        this.vboUploader.setVertexBuffer(buffer);
     }
 
     /**
      * Draws the data set up in this tessellator and resets the state to prepare for new drawing.
      */
-    public void draw()
+    public void draw(Matrix4f stack)
     {
         RenderSystem.pushMatrix();
 
@@ -53,7 +52,7 @@ public class BlueprintTessellator
 
         Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
 
-        this.buffer.drawArrays(GL_QUADS);
+        this.buffer.func_227874_a_(stack, GL_QUADS);
 
         postBlueprintDraw();
 
@@ -152,7 +151,7 @@ public class BlueprintTessellator
             //Tell optifine that we are loading a new instance into the GPU.
             //This ensures that normals are calculated so that we know in which direction a face is facing. (Aka what is outside and what inside)
             OptifineCompat.getInstance().beforeBuilderUpload(this);
-            this.vboUploader.draw(this.builder);
+            WorldVertexBufferUploader.draw(this.builder);
             this.isReadOnly = true;
         }
         else

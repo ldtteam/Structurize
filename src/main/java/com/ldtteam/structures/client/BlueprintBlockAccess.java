@@ -82,12 +82,6 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
-    public int getCombinedLight(@NotNull final BlockPos pos, final int lightValue)
-    {
-        return 15 << 20 | 15 << 4;
-    }
-
-    @Override
     public int getLight(@NotNull final BlockPos pos)
     {
         return 15;
@@ -151,6 +145,12 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
+    public Biome func_225604_a_(final int p_225604_1_, final int p_225604_2_, final int p_225604_3_)
+    {
+        return null;
+    }
+
+    @Override
     public boolean isAirBlock(@NotNull final BlockPos pos)
     {
         return getBlockState(pos).getBlockState().getBlock() instanceof AirBlock;
@@ -160,13 +160,6 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     public boolean isAreaLoaded(final BlockPos p_isAreaLoaded_1_, final int p_isAreaLoaded_2_)
     {
         return true;
-    }
-
-    @NotNull
-    @Override
-    public Biome getBiome(@NotNull final BlockPos pos)
-    {
-        return Biomes.PLAINS;
     }
 
     @NotNull
@@ -212,13 +205,13 @@ public class BlueprintBlockAccess extends World implements IBlockReader
 
     @Nullable
     @Override
-    public MapData getMapData(final String mapName)
+    public MapData func_217406_a(final String p_217406_1_)
     {
         return null;
     }
 
     @Override
-    public void registerMapData(final MapData mapDataIn)
+    public void func_217399_a(final MapData p_217399_1_)
     {
 
     }

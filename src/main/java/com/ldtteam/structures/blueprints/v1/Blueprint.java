@@ -584,10 +584,7 @@ public class Blueprint
                     final BlockPos currentPos = ((HangingEntity) finalEntity).getHangingPosition();
                     final BlockPos entityPos = Blueprint.transformedBlockPos(currentPos.getX(), currentPos.getY(), currentPos.getZ(), mirror, rotation).add(pos);
 
-                    finalEntity.posX = entityVec.x;
-                    finalEntity.posY = entityVec.y;
-                    finalEntity.posZ = entityVec.z;
-
+                    finalEntity.setPosition(entityVec.x, entityVec.y, entityVec.z);
                     finalEntity.setPosition(entityPos.getX(), entityPos.getY(), entityPos.getZ());
                 }
                 else

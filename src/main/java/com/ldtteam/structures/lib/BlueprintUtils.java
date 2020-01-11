@@ -148,7 +148,7 @@ public final class BlueprintUtils
 
             if (entity != null)
             {
-                entity.setWorld(blockAccess);
+                entity.func_226984_a_(blockAccess, info.getPos());
             }
             return entity;
         }
