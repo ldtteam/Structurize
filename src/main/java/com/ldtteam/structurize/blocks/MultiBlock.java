@@ -7,12 +7,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -49,16 +49,21 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     }
 
     @Override
-    public boolean onBlockActivated(
-      final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit)
+    public ActionResultType func_225533_a_(
+      final BlockState state,
+      final World worldIn,
+      final BlockPos pos,
+      final PlayerEntity player,
+      final Hand hand,
+      final BlockRayTraceResult ray)
     {
         if (worldIn.isRemote)
         {
             new WindowMultiBlock(pos).open();
         }
-        return true;
+        return ActionResultType.SUCCESS;
     }
-
+    
     @Override
     public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
     {

@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 

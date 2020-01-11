@@ -147,12 +147,12 @@ public final class BlockPosUtil
 
     /**
      * Create a method for using a {@link BlockPos} when using {@link
-     * BlockPos.MutableBlockPos#setPos(int, int, int)}.
+     * BlockPos.Mutable#setPos(int, int, int)}.
      *
-     * @param pos    {@link BlockPos.MutableBlockPos}.
+     * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
      */
-    public static void set(@NotNull final BlockPos.MutableBlockPos pos, @NotNull final BlockPos newPos)
+    public static void set(@NotNull final BlockPos.Mutable pos, @NotNull final BlockPos newPos)
     {
         pos.setPos(newPos.getX(), newPos.getY(), newPos.getZ());
     }

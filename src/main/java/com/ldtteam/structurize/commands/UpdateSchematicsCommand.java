@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
 import java.io.File;
@@ -106,13 +106,13 @@ public class UpdateSchematicsCommand extends AbstractCommand
             final ListNBT requiredMods = new ListNBT();
             for (final String str : mods)
             {
-                requiredMods.add(new StringNBT(str));
+                requiredMods.add(StringNBT.func_229705_a_(str));
             }
 
             bluePrintCompound.put("palette", pallete);
             bluePrintCompound.put("required_mods", requiredMods);
 
-            final MutableBlockPos pos = new MutableBlockPos();
+            final Mutable pos = new Mutable();
             final short[][][] dataArray = new short[size[1]][size[2]][size[0]];
 
             if (addStructureVoid)
@@ -148,7 +148,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             bluePrintCompound.putIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
             bluePrintCompound.put("tile_entities", tileEntities);
             bluePrintCompound.put("architects", new ListNBT());
-            bluePrintCompound.put("name", new StringNBT(input.getName().replaceAll("\\.nbt", "")));
+            bluePrintCompound.put("name", (StringNBT.func_229705_a_(input.getName().replaceAll("\\.nbt", ""))));
             bluePrintCompound.putInt("version", 1);
 
             final ListNBT newEntities = new ListNBT();
@@ -174,7 +174,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         }
     }
 
-    private static void updatePos(final MutableBlockPos pos, final CompoundNBT comp)
+    private static void updatePos(final Mutable pos, final CompoundNBT comp)
     {
         final ListNBT list = comp.getList("pos", NBT.TAG_INT);
         pos.setPos(list.getInt(0), list.getInt(1), list.getInt(2));
