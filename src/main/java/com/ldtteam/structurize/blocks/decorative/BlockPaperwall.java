@@ -9,14 +9,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.registries.IForgeRegistry;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The paperwall block class defining the paperwall.
@@ -58,13 +56,6 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
     {
         registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
-    }
-
-    @NotNull
-    @Override
-    public BlockRenderLayer getRenderLayer()
-    {
-        return BlockRenderLayer.TRANSLUCENT;
     }
 
     @Override

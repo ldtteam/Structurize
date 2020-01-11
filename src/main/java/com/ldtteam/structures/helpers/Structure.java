@@ -71,7 +71,7 @@ public class Structure
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
-    protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
+    protected final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
 
     /**
      * Constuctor of Structure, tries to create a new structure.

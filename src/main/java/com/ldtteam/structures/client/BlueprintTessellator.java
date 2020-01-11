@@ -3,12 +3,15 @@ package com.ldtteam.structures.client;
 import com.ldtteam.structurize.api.util.constant.OpenGlHelper;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.VertexBufferUploader;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -42,13 +45,13 @@ public class BlueprintTessellator
      */
     public void draw()
     {
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
 
         this.buffer.bindBuffer();
 
         preBlueprintDraw();
 
-        GlStateManager.bindTexture(Minecraft.getInstance().getTextureMap().getGlTextureId());
+        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
 
         this.buffer.drawArrays(GL_QUADS);
 
@@ -56,21 +59,21 @@ public class BlueprintTessellator
 
         this.buffer.unbindBuffer();
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private static void preBlueprintDraw()
     {
         OptifineCompat.getInstance().preBlueprintDraw();
 
-        GlStateManager.enableClientState(GL_VERTEX_ARRAY);
+        GL11.glEnableClientState(GL_VERTEX_ARRAY);
 
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-        GlStateManager.enableClientState(GL_TEXTURE_COORD_ARRAY);
+        GL11.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.enableClientState(GL_TEXTURE_COORD_ARRAY);
+        GL11.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-        GlStateManager.enableClientState(GL_COLOR_ARRAY);
+        GL11.glEnableClientState(GL_COLOR_ARRAY);
 
         //Optifine uses its one vertexformats.
         //It handles the setting of the pointers itself.
@@ -79,11 +82,11 @@ public class BlueprintTessellator
             return;
         }
 
-        GlStateManager.vertexPointer(VERTEX_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, VERTEX_COMPONENT_OFFSET);
-        GlStateManager.colorPointer(COLOR_COMPONENT_SIZE, GL_UNSIGNED_BYTE, VERTEX_SIZE, COLOR_COMPONENT_OFFSET);
-        GlStateManager.texCoordPointer(TEX_COORD_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, TEX_COORD_COMPONENT_OFFSET);
+        GL11.glVertexPointer(VERTEX_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, VERTEX_COMPONENT_OFFSET);
+        GL11.glColorPointer(COLOR_COMPONENT_SIZE, GL_UNSIGNED_BYTE, VERTEX_SIZE, COLOR_COMPONENT_OFFSET);
+        GL11.glTexCoordPointer(TEX_COORD_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, TEX_COORD_COMPONENT_OFFSET);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.texCoordPointer(LIGHT_TEX_COORD_COMPONENT_SIZE, GL_SHORT, VERTEX_SIZE, LIGHT_TEXT_COORD_COMPONENT_OFFSET);
+        GL11.glTexCoordPointer(LIGHT_TEX_COORD_COMPONENT_SIZE, GL_SHORT, VERTEX_SIZE, LIGHT_TEXT_COORD_COMPONENT_OFFSET);
         OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
 
         // GlStateManager.disableCull();
@@ -93,7 +96,7 @@ public class BlueprintTessellator
     {
         // GlStateManager.enableCull();
 
-        for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
+        for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.func_227894_c_())
         {
             final VertexFormatElement.Usage vfeUsage = vertexformatelement.getUsage();
             final int formatIndex = vertexformatelement.getIndex();
@@ -101,16 +104,16 @@ public class BlueprintTessellator
             switch (vfeUsage)
             {
                 case POSITION:
-                    GlStateManager.disableClientState(GL_VERTEX_ARRAY);
+                    GL11.glDisableClientState(GL_VERTEX_ARRAY);
                     break;
                 case UV:
                     OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + formatIndex);
-                    GlStateManager.disableClientState(GL_TEXTURE_COORD_ARRAY);
+                    GL11.glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                     OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
                     break;
                 case COLOR:
-                    GlStateManager.disableClientState(GL_COLOR_ARRAY);
-                    GlStateManager.clearCurrentColor();
+                    GL11.glDisableClientState(GL_COLOR_ARRAY);
+                    GlStateManager.func_227628_P_();
                     break;
                 default:
                     //NOOP

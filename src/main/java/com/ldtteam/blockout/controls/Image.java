@@ -2,8 +2,8 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -202,7 +202,7 @@ public class Image extends Pane
     @Override
     public void drawSelf(final int mx, final int my)
     {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         setupOpenGL(resourceLocation);
 
@@ -226,7 +226,8 @@ public class Image extends Pane
             blit(x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
-        GlStateManager.disableBlend();
+
+        RenderSystem.disableBlend();
     }
 
     public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
@@ -235,10 +236,10 @@ public class Image extends Pane
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float)uWidth) * f), (v * f1)).endVertex();
-        bufferbuilder.pos(x, y, 0.0D).tex((u * f), (v * f1)).endVertex();
+        bufferbuilder.func_225582_a_(x, (y + height), 0.0D).func_225583_a_((u * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.func_225582_a_((x + width), (y + height), 0.0D).func_225583_a_(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.func_225582_a_((x + width), y, 0.0D).func_225583_a_(((u + (float)uWidth) * f), (v * f1)).endVertex();
+        bufferbuilder.func_225582_a_(x, y, 0.0D).func_225583_a_((u * f), (v * f1)).endVertex();
         tessellator.draw();
     }
 
@@ -250,9 +251,9 @@ public class Image extends Pane
     private void setupOpenGL(final ResourceLocation texture)
     {
         this.mc.getTextureManager().bindTexture(texture);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 }

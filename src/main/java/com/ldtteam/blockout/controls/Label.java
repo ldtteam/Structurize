@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 /**
  * BlockOut label pane. Used to render a piece of text.
@@ -99,12 +100,12 @@ public class Label extends AbstractTextElement
             offsetY = (getHeight() - getTextHeight()) / 2;
         }
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translated((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
-        GlStateManager.scalef((float) scale, (float) scale, (float) scale);
+        RenderSystem.pushMatrix();
+        RenderSystem.translated((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
+        RenderSystem.scalef((float) scale, (float) scale, (float) scale);
         mc.getTextureManager().bindTexture(TEXTURE);
         drawString(labelText, 0, 0, color, shadow);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     /**

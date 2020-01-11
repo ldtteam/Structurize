@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.views.View;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -410,23 +411,23 @@ public class TextField extends Pane
             }
 
             final Tessellator tessellator = Tessellator.getInstance();
-            GlStateManager.color4f(0.0F, 0.0F, 255.0F, 255.0F);
-            GlStateManager.disableTexture();
-            GlStateManager.enableColorLogicOp();
-            GlStateManager.logicOp(GL11.GL_OR_REVERSE);
+            RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+            RenderSystem.disableTexture();
+            RenderSystem.enableColorLogicOp();
+            GL11.glLogicOp(GL11.GL_OR_REVERSE);
             final BufferBuilder vertexBuffer = tessellator.getBuffer();
 
             // There are several to choose from, look at DefaultVertexFormats for more info
             vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
             // Since our points do not have any u,v this seems to be the correct code
-            vertexBuffer.pos((double) selectionStartX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionEndX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionEndX, (double) drawY - 1, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionStartX, (double) drawY - 1, 0.0D).endVertex();
+            vertexBuffer.func_225582_a_((double) selectionStartX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
+            vertexBuffer.func_225582_a_((double) selectionEndX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
+            vertexBuffer.func_225582_a_((double) selectionEndX, (double) drawY - 1, 0.0D).endVertex();
+            vertexBuffer.func_225582_a_((double) selectionStartX, (double) drawY - 1, 0.0D).endVertex();
             tessellator.draw();
-            GlStateManager.disableColorLogicOp();
-            GlStateManager.enableTexture();
+            RenderSystem.disableColorLogicOp();
+            RenderSystem.enableTexture();
         }
     }
 

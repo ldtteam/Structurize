@@ -1,6 +1,7 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
@@ -55,10 +56,10 @@ public class BOScreen extends Screen
 
         setScale(minecraft);
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float) x, (float) y, 0);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float) x, (float) y, 0);
         window.draw(mx - x, my - y);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     @Override

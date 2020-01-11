@@ -1,7 +1,7 @@
 package com.ldtteam.blockout;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.BufferBuilder;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
@@ -63,17 +63,17 @@ public final class Render
         final BufferBuilder vertexBuffer = tessellator.getBuffer();
 
         vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         GL11.glLineWidth(lineWidth);
-        GlStateManager.color4f(r, g, b, a);
+        RenderSystem.color4f(r, g, b, a);
 
         // Since our points do not have any u,v this seems to be the correct code
-        vertexBuffer.pos(x1, y2, 0.0D).endVertex();
-        vertexBuffer.pos(x2, y2, 0.0D).endVertex();
-        vertexBuffer.pos(x2, y1, 0.0D).endVertex();
-        vertexBuffer.pos(x1, y1, 0.0D).endVertex();
+        vertexBuffer.func_225582_a_(x1, y2, 0.0D).endVertex();
+        vertexBuffer.func_225582_a_(x2, y2, 0.0D).endVertex();
+        vertexBuffer.func_225582_a_(x2, y1, 0.0D).endVertex();
+        vertexBuffer.func_225582_a_(x1, y1, 0.0D).endVertex();
 
         tessellator.draw();
-        GlStateManager.enableTexture();
+        RenderSystem.enableTexture();
     }
 }

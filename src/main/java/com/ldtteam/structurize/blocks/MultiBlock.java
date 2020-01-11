@@ -63,7 +63,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
         }
         return ActionResultType.SUCCESS;
     }
-    
+
     @Override
     public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
     {
@@ -89,11 +89,5 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     public TileEntity createTileEntity(final BlockState state, final IBlockReader world)
     {
         return new TileEntityMultiBlock();
-    }
-
-    @Override
-    public boolean doesSideBlockRendering(final BlockState state, final IEnviromentBlockReader world, final BlockPos pos, final Direction face)
-    {
-        return false;
     }
 }

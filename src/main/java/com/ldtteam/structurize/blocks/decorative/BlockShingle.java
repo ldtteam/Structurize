@@ -6,8 +6,6 @@ import com.ldtteam.structurize.blocks.types.ShingleWoodType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.state.properties.StairsShape;
-import net.minecraft.util.BlockRenderLayer;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Class defining the general shingle.
@@ -36,13 +34,6 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
         setRegistryName(faceType.getName() + "_" + woodType.getName() + "_shingle");
         this.woodType = woodType;
         this.faceType = faceType;
-    }
-
-    @NotNull
-    @Override
-    public BlockRenderLayer getRenderLayer()
-    {
-        return BlockRenderLayer.CUTOUT;
     }
 
     /**

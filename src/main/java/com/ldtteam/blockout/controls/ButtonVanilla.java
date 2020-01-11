@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -64,7 +65,7 @@ public class ButtonVanilla extends Button
     public void drawSelf(final int mx, final int my)
     {
         mc.getTextureManager().bindTexture(TEXTURE);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         final boolean isMouseOver = isPointInPane(mx, my);
 
@@ -86,9 +87,9 @@ public class ButtonVanilla extends Button
             v = DISABLED_TEXTURE_V;
         }
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         if (width == DEFAULT_BUTTON_WIDTH && height == DEFAULT_BUTTON_HEIGHT)
         {
@@ -122,6 +123,6 @@ public class ButtonVanilla extends Button
 
         drawCenteredString(this.mc.fontRenderer, label, x + width / 2, y + (height - this.mc.fontRenderer.FONT_HEIGHT) / 2, textColor);
 
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
     }
 }

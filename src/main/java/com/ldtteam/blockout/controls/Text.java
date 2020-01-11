@@ -2,6 +2,8 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -203,12 +205,12 @@ public class Text extends AbstractTextElement
                 }
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef((float) (getX() + offsetX), (float) (getY() + offsetY), 0);
-            GlStateManager.scalef((float) scale, (float) scale, (float) scale);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float) (getX() + offsetX), (float) (getY() + offsetY), 0);
+            RenderSystem.scalef((float) scale, (float) scale, (float) scale);
             mc.getTextureManager().bindTexture(TEXTURE);
             drawString(s, 0, 0, textColor, shadow);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
 
             offsetY += getLineHeight() + scaledLinespace;
 

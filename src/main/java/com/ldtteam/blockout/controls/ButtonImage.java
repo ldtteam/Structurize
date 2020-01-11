@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
@@ -552,7 +553,7 @@ public class ButtonImage extends Button
         // Draw
         blit(x, y, offsetX, offsetY, w, h, mapWidth, mapHeight);
 
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
     }
 
     /**
@@ -587,10 +588,10 @@ public class ButtonImage extends Button
                 offsetY += (getHeight() - getTextHeight()) / 2;
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.scaled(textScale, textScale, textScale);
+            RenderSystem.pushMatrix();
+            RenderSystem.scaled(textScale, textScale, textScale);
             drawString(label, (float) (getX() + offsetX), (float) (getY() + offsetY), color, shadow);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 
@@ -604,16 +605,16 @@ public class ButtonImage extends Button
         this.mc.getTextureManager().bindTexture(texture);
         if (this.enabled || this.imageDisabled != null)
         {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
         else
         {
-            GlStateManager.color4f(HALF, HALF, HALF, 1.0F);
+            RenderSystem.color4f(HALF, HALF, HALF, 1.0F);
         }
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     /**

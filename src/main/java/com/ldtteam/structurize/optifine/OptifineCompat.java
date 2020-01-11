@@ -3,7 +3,6 @@ package com.ldtteam.structurize.optifine;
 import com.ldtteam.structures.client.BlueprintTessellator;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -90,10 +89,10 @@ public class OptifineCompat
         isShadersEnabledMethod = configClass.getMethod("isShaders");
         isShadersEnabledMethod.setAccessible(true);
 
-        preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", BlockRenderLayer.class);
+        //todo preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", BlockRenderLayer.class);
         preRenderChunkLayerMethod.setAccessible(true);
 
-        postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", BlockRenderLayer.class);
+        //todo postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", BlockRenderLayer.class);
         postRenderChunkLayerMethod.setAccessible(true);
 
         setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
@@ -132,7 +131,8 @@ public class OptifineCompat
                 isShadowPassField.set(null, false);
 
                 beginUpdateChunksMethod.invoke(null);
-                preRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
+                //todo
+                //preRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
             }
         }
         catch (IllegalAccessException e)
@@ -165,7 +165,7 @@ public class OptifineCompat
         {
             if ((Boolean) isShadersEnabledMethod.invoke(null))
             {
-                postRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
+                //todo postRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
                 endUpdateChunksMethod.invoke(null);
 
                 isShadowPassField.set(null, currentShadowPassFieldValue);

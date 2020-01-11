@@ -6,13 +6,17 @@ import com.ldtteam.structures.lib.RenderUtil;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.IWaterLoggable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Mirror;
@@ -103,7 +107,7 @@ public class BlueprintRenderer
                 {
                     Minecraft.getInstance()
                         .getBlockRendererDispatcher()
-                        .renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
+                        .func_228794_a_(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
                 }
             });
         tessellator.finishBuilding();
@@ -121,17 +125,18 @@ public class BlueprintRenderer
         // Handle things like mirror, rotation and offset.
         preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
 
-        Minecraft.getInstance().gameRenderer.disableLightmap();
 
-        RenderHelper.enableStandardItemLighting();
+        Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
+
+        RenderHelper.func_227780_a_();
         final World previous = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.setWorld(blockAccess);
         TileEntityRendererDispatcher.instance.preDrawBatch();
         // Draw tile entities.
         tileEntities.forEach(tileEntity -> {
             TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ(), 1f);
-            Minecraft.getInstance().gameRenderer.disableLightmap();
-            GlStateManager.disableFog();
+            Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
+            RenderSystem.disableFog();
         });
         TileEntityRendererDispatcher.instance.drawBatch();
         TileEntityRendererDispatcher.instance.setWorld(previous);
@@ -139,9 +144,9 @@ public class BlueprintRenderer
 
         // Draw entities
         entities.forEach(entity -> {
-            Minecraft.getInstance().getRenderManager().renderEntity(entity, entity.posX, entity.posY, entity.posZ, entity.rotationYaw, 0, true);
-            Minecraft.getInstance().gameRenderer.disableLightmap();
-            GlStateManager.disableFog();
+            Minecraft.getInstance().getRenderManager().renderEntity(entity, entity.getPositionVec().x, entity.getPositionVec().y, entity.getPositionVec().z, entity.rotationYaw, 0, true);
+            Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
+            RenderSystem.disableFog();
         });
 
         // Draw normal blocks.
@@ -152,31 +157,29 @@ public class BlueprintRenderer
 
     private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vector3d drawingOffset, final BlockPos inBlueprintOffset)
     {
-        final ITextureObject textureObject = Minecraft.getInstance().getTextureMap();
-        GlStateManager.bindTexture(textureObject.getGlTextureId());
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translated(drawingOffset.x, drawingOffset.y, drawingOffset.z);
+        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(drawingOffset.x, drawingOffset.y, drawingOffset.z);
 
         final BlockPos rotateInBlueprintOffset = inBlueprintOffset.rotate(rotation);
-        GlStateManager.translated(-rotateInBlueprintOffset.getX(), -rotateInBlueprintOffset.getY(), -rotateInBlueprintOffset.getZ());
+        RenderSystem.translated(-rotateInBlueprintOffset.getX(), -rotateInBlueprintOffset.getY(), -rotateInBlueprintOffset.getZ());
 
         RenderUtil.applyRotationToYAxis(rotation);
         RenderUtil.applyMirror(mirror, inBlueprintOffset);
 
-        GlStateManager.scaled(HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.clearCurrentColor();
-        GlStateManager.pushMatrix();
+        RenderSystem.scaled(HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK, HALF_PERCENT_SHRINK);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.clearCurrentColor();
+        RenderSystem.pushMatrix();
     }
 
     private static void postBlueprintDraw()
     {
-        GlStateManager.popMatrix();
-        GlStateManager.clearCurrentColor();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
+        RenderSystem.clearCurrentColor();
+        RenderSystem.disableBlend();
+        RenderSystem.popMatrix();
     }
 
     public BlueprintBlockAccess getBlockAccess()

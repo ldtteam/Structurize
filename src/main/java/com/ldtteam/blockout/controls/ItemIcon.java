@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -76,10 +77,10 @@ public class ItemIcon extends Pane
     {
         if (itemStack != null)
         {
-            GlStateManager.pushMatrix();
-            RenderHelper.enableGUIStandardItemLighting();
+            RenderSystem.pushMatrix();
+            RenderHelper.func_227780_a_();
             drawItemStack(itemStack, x, y);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 
@@ -99,8 +100,8 @@ public class ItemIcon extends Pane
 
         final ItemRenderer itemRender = mc.getItemRenderer();
 
-        GlStateManager.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
-        GlStateManager.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+        RenderSystem.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
+        RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
 
         FontRenderer font = stack.getItem().getFontRenderer(stack);
         if (font == null)

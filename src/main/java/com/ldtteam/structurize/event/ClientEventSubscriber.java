@@ -5,11 +5,13 @@ import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -123,25 +125,25 @@ public class ClientEventSubscriber
             z2++;
         }
 
-        final double renderPosX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) event.getPartialTicks();
-        final double renderPosY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) event.getPartialTicks();
-        final double renderPosZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) event.getPartialTicks();
+        final Vec3d eyePos = player.getEyePosition(event.getPartialTicks());
+        final double renderPosX = player.lastTickPosX + (eyePos.x - player.lastTickPosX) * (double) event.getPartialTicks();
+        final double renderPosY = player.lastTickPosY + (eyePos.y - player.lastTickPosY) * (double) event.getPartialTicks();
+        final double renderPosZ = player.lastTickPosZ + (eyePos.z - player.lastTickPosZ) * (double) event.getPartialTicks();
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO);
-        GlStateManager.lineWidth(2.0F);
-        GlStateManager.disableTexture();
-        GlStateManager.depthMask(false);
+        RenderSystem.lineWidth(2.0F);
+        RenderSystem.disableTexture();
+        RenderSystem.depthMask(false);
 
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1 - player.getEyeHeight(), z1, x2, y2 - player.getEyeHeight(), z2);
-        WorldRenderer.drawSelectionBoundingBox(axisalignedbb.grow(0.002D).offset(-renderPosX, -renderPosY, -renderPosZ), 1.0F, 1.0F, 1.0F, 1.0F);
-
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
+        BoxRenderer.drawSelectionBoundingBox(axisalignedbb.grow(0.002D).offset(-renderPosX, -renderPosY, -renderPosZ), 1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
     }
 }

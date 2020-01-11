@@ -5,6 +5,7 @@ import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -64,12 +65,12 @@ public class View extends Pane
     public void drawSelf(final int mx, final int my)
     {
         // Translate the drawing origin to our x,y.
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
 
-        GlStateManager.translatef((float) paddedX, (float) paddedY, 0.0f);
+        RenderSystem.translatef((float) paddedX, (float) paddedY, 0.0f);
 
         // Translate Mouse into the View
         final int drawX = mx - paddedX;
@@ -77,7 +78,7 @@ public class View extends Pane
 
         children.stream().filter(this::childIsVisible).forEach(child -> child.draw(drawX, drawY));
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.SharedConstants;
 
 /**
@@ -85,15 +85,15 @@ public class TextFieldVanilla extends TextField
             fill(x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
             fill(x, y, x + width, y + height, backgroundInnerColor);
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(BACKGROUND_X_TRANSLATE, (float) ((height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2.0), 0);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(BACKGROUND_X_TRANSLATE, (float) ((height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2.0), 0);
         }
 
         super.drawSelf(mx, my);
 
         if (backgroundEnabled)
         {
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 

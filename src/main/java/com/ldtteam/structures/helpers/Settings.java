@@ -20,7 +20,7 @@ public final class Settings
      * Single instance of this class.
      */
     public static final Settings                 instance = new Settings();
-    private final       BlockPos.MutableBlockPos offset   = new BlockPos.MutableBlockPos();
+    private final       BlockPos.Mutable offset   = new BlockPos.Mutable();
 
     /**
      * The position of the structure.
