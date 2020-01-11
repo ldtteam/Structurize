@@ -24,6 +24,8 @@ public class DataFixerUtils
      */
     public enum Versions
     {
+        v1_15_1(2227, "1.15.1", null),
+        v1_15(2225, "1.15", null),
         v1_14_4(1976, "1.14.4", null),
         v1_14_3(1968, "1.14.3", v1_14_4),
         v1_14_2(1963, "1.14.2", v1_14_3),
