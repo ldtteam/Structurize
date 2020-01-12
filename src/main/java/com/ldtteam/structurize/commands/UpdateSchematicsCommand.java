@@ -106,7 +106,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             final ListNBT requiredMods = new ListNBT();
             for (final String str : mods)
             {
-                requiredMods.add(StringNBT.func_229705_a_(str));
+                requiredMods.add(StringNBT.of(str));
             }
 
             bluePrintCompound.put("palette", pallete);
@@ -148,7 +148,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             bluePrintCompound.putIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
             bluePrintCompound.put("tile_entities", tileEntities);
             bluePrintCompound.put("architects", new ListNBT());
-            bluePrintCompound.put("name", (StringNBT.func_229705_a_(input.getName().replaceAll("\\.nbt", ""))));
+            bluePrintCompound.put("name", (StringNBT.of(input.getName().replaceAll("\\.nbt", ""))));
             bluePrintCompound.putInt("version", 1);
 
             final ListNBT newEntities = new ListNBT();

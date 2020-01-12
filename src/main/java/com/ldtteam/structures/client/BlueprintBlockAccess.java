@@ -145,9 +145,9 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
-    public Biome func_225604_a_(final int p_225604_1_, final int p_225604_2_, final int p_225604_3_)
+    public Biome getGeneratorStoredBiome(final int p_225604_1_, final int p_225604_2_, final int p_225604_3_)
     {
-        return null;
+        return Biomes.DEFAULT;
     }
 
     @Override
@@ -205,13 +205,13 @@ public class BlueprintBlockAccess extends World implements IBlockReader
 
     @Nullable
     @Override
-    public MapData func_217406_a(final String p_217406_1_)
+    public MapData getMapData(final String p_217406_1_)
     {
         return null;
     }
 
     @Override
-    public void func_217399_a(final MapData p_217399_1_)
+    public void registerMapData(final MapData p_217399_1_)
     {
 
     }

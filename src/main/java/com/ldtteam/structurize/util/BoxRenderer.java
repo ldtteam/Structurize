@@ -40,31 +40,31 @@ public class BoxRenderer
     final Matrix4f matrix)
     {
         //lower base
-        buffer.func_227888_a_(matrix, minX, minY, minZ).func_227885_a_(red, green, blue, 0.0F).endVertex();
-        buffer.func_227888_a_(matrix, minX, minY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, maxX, minY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, maxX, minY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, minX, minY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, minX, minY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
 
         //first leg
-        buffer.func_227888_a_(matrix, minX, maxY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         //upper base
-        buffer.func_227888_a_(matrix, maxX, maxY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, maxX, maxY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, minX, maxY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, minX, maxY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         //links runter
-        buffer.func_227888_a_(matrix, minX, maxY, maxZ).func_227885_a_(red, green, blue, 0.0F).endVertex();
-        buffer.func_227888_a_(matrix, minX, minY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, maxX, minY, maxZ).func_227885_a_(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
 
         //rechts runter
-        buffer.func_227888_a_(matrix, maxX, maxY, maxZ).func_227885_a_(red, green, blue, 0.0F).endVertex();
-        buffer.func_227888_a_(matrix, maxX, maxY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
-        buffer.func_227888_a_(matrix, maxX, minY, minZ).func_227885_a_(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
     }
 
     /**

@@ -61,14 +61,14 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     {
         if (!worldIn.isRemote)
         {
-            if (playerIn.func_225608_bj_())
+            if (playerIn.isSneaking())
             {
                 saveStructure(worldIn, start, end, playerIn, null);
             }
         }
         else
         {
-            if (!playerIn.func_225608_bj_())
+            if (!playerIn.isSneaking())
             {
                 final WindowScan window = new WindowScan(start, end);
                 window.open();

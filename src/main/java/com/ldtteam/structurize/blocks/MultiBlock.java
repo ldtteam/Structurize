@@ -49,7 +49,7 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     }
 
     @Override
-    public ActionResultType func_225533_a_(
+    public ActionResultType onUse(
       final BlockState state,
       final World worldIn,
       final BlockPos pos,

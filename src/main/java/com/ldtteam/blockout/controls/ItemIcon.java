@@ -78,7 +78,7 @@ public class ItemIcon extends Pane
         if (itemStack != null)
         {
             RenderSystem.pushMatrix();
-            RenderHelper.func_227780_a_();
+            RenderHelper.disableStandardItemLighting();
             drawItemStack(itemStack, x, y);
             RenderSystem.popMatrix();
         }

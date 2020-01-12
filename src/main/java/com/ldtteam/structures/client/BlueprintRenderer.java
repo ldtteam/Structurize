@@ -187,7 +187,7 @@ public class BlueprintRenderer
         final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
 
         // Draw entities
-        entities.forEach(entity -> {
+        /*entities.forEach(entity -> {
             double d0 = MathHelper.lerp((double)partialTicks, entity.lastTickPosX, entity.func_226277_ct_());
             double d1 = MathHelper.lerp((double)partialTicks, entity.lastTickPosY, entity.func_226278_cu_());
             double d2 = MathHelper.lerp((double)partialTicks, entity.lastTickPosZ, entity.func_226281_cx_());
@@ -195,7 +195,7 @@ public class BlueprintRenderer
             Minecraft.getInstance().getRenderManager().func_229084_a_(entity, d0 - drawingOffset.x , d1 - drawingOffset.y, d2 - drawingOffset.z, f, partialTicks, matrixStack, Minecraft.getInstance().func_228019_au_().func_228487_b_(), Minecraft.getInstance().getRenderManager().func_229085_a_(entity, partialTicks));
 
             RenderSystem.disableFog();
-        });
+        });*/
 
         // Draw normal blocks.
         startedLayers.forEach(layer -> {

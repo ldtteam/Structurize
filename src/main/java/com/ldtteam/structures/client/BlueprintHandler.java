@@ -77,7 +77,7 @@ public final class BlueprintHandler
 
         try
         {
-            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint, stack)).draw(rotation, mirror, drawingOffset, stack, partialTicks);
+            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint)).draw(rotation, mirror, drawingOffset, stack, partialTicks);
         }
         catch (ExecutionException e)
         {

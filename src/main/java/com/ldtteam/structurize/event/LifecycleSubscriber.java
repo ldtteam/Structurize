@@ -43,10 +43,10 @@ public class LifecycleSubscriber
     public static void onClientInit(final FMLClientSetupEvent event)
     {
         OptifineCompat.getInstance().intialize();
-        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.func_228643_e_()));
-        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.func_228643_e_()));
-        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.func_228643_e_()));
-        ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.func_228645_f_()));
+        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
     }
 
     /**
