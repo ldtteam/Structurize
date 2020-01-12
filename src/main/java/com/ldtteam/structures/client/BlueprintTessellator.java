@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.inventory.container.PlayerContainer;
+
 import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -50,9 +52,9 @@ public class BlueprintTessellator
 
         preBlueprintDraw();
 
-        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.BLOCK_ATLAS_TEXTURE);
 
-        this.buffer.func_227874_a_(stack, GL_QUADS);
+        this.buffer.draw(new Matrix4f(), GL_QUADS);
 
         postBlueprintDraw();
 
@@ -95,7 +97,7 @@ public class BlueprintTessellator
     {
         // GlStateManager.enableCull();
 
-        for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.func_227894_c_())
+        for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
         {
             final VertexFormatElement.Usage vfeUsage = vertexformatelement.getUsage();
             final int formatIndex = vertexformatelement.getIndex();
@@ -112,7 +114,7 @@ public class BlueprintTessellator
                     break;
                 case COLOR:
                     GL11.glDisableClientState(GL_COLOR_ARRAY);
-                    GlStateManager.func_227628_P_();
+                    GlStateManager.disableColorLogicOp();
                     break;
                 default:
                     //NOOP
