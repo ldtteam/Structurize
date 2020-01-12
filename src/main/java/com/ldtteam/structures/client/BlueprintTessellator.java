@@ -48,17 +48,16 @@ public class BlueprintTessellator
     {
         RenderSystem.pushMatrix();
 
-        this.buffer.bindBuffer();
-
-        preBlueprintDraw();
-
         Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.BLOCK_ATLAS_TEXTURE);
 
-        this.buffer.draw(new Matrix4f(), GL_QUADS);
+        final Matrix4f matrix4f = new Matrix4f();
+        matrix4f.loadIdentity();
 
-        postBlueprintDraw();
-
-        this.buffer.unbindBuffer();
+        buffer.bindBuffer();
+        DefaultVertexFormats.BLOCK.startDrawing(0L);
+        buffer.draw(matrix4f, 7);
+        VertexBuffer.unbindBuffer();
+        DefaultVertexFormats.BLOCK.endDrawing();
 
         RenderSystem.popMatrix();
     }
@@ -67,28 +66,7 @@ public class BlueprintTessellator
     {
         OptifineCompat.getInstance().preBlueprintDraw();
 
-        GL11.glEnableClientState(GL_VERTEX_ARRAY);
-
-        OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-        GL11.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GL11.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-        GL11.glEnableClientState(GL_COLOR_ARRAY);
-
-        //Optifine uses its one vertexformats.
-        //It handles the setting of the pointers itself.
-        if (OptifineCompat.getInstance().setupArrayPointers())
-        {
-            return;
-        }
-
-        GL11.glVertexPointer(VERTEX_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, VERTEX_COMPONENT_OFFSET);
-        GL11.glColorPointer(COLOR_COMPONENT_SIZE, GL_UNSIGNED_BYTE, VERTEX_SIZE, COLOR_COMPONENT_OFFSET);
-        GL11.glTexCoordPointer(TEX_COORD_COMPONENT_SIZE, GL_FLOAT, VERTEX_SIZE, TEX_COORD_COMPONENT_OFFSET);
-        OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GL11.glTexCoordPointer(LIGHT_TEX_COORD_COMPONENT_SIZE, GL_SHORT, VERTEX_SIZE, LIGHT_TEXT_COORD_COMPONENT_OFFSET);
-        OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+        //DefaultVertexFormats.BLOCK.startDrawing();
 
         // GlStateManager.disableCull();
     }
@@ -97,7 +75,7 @@ public class BlueprintTessellator
     {
         // GlStateManager.enableCull();
 
-        for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
+        /*for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
         {
             final VertexFormatElement.Usage vfeUsage = vertexformatelement.getUsage();
             final int formatIndex = vertexformatelement.getIndex();
@@ -120,7 +98,9 @@ public class BlueprintTessellator
                     //NOOP
                     break;
             }
-        }
+        }*/
+
+        DefaultVertexFormats.BLOCK.endDrawing();
 
         //Disable the pointers again.
         OptifineCompat.getInstance().postBlueprintDraw();
@@ -153,7 +133,7 @@ public class BlueprintTessellator
             //Tell optifine that we are loading a new instance into the GPU.
             //This ensures that normals are calculated so that we know in which direction a face is facing. (Aka what is outside and what inside)
             OptifineCompat.getInstance().beforeBuilderUpload(this);
-            WorldVertexBufferUploader.draw(this.builder);
+            buffer.submitUpload(builder);
             this.isReadOnly = true;
         }
         else

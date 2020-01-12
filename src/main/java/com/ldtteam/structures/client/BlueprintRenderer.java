@@ -2,6 +2,7 @@ package com.ldtteam.structures.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structures.lib.RenderUtil;
@@ -37,6 +38,7 @@ import net.minecraftforge.client.model.data.IModelData;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
@@ -54,8 +56,9 @@ public class BlueprintRenderer
     private final List<Entity> entities;
     private final Map<RenderType, BlueprintTessellator> blueprintTessellatorMap;
     private boolean isEmpty = true;
-    private final List<RenderType> startedLayers = Lists.newLinkedList();
-    private final BlockPos                  primaryBlockOffset;
+    private final Set<RenderType> startedLayers = Sets.newLinkedHashSet();
+    private final Set<RenderType> usedLayers    = Sets.newLinkedHashSet();
+    private final BlockPos        primaryBlockOffset;
 
     /**
      * Static factory utility method to handle the extraction of the values from the blueprint.
@@ -123,7 +126,7 @@ public class BlueprintRenderer
 
                     if (blockrendererdispatcher.renderFluid(blockpos2, blockAccess, bufferbuilder, ifluidstate)) {
                         isEmpty = false;
-                        startedLayers.add(rendertype);
+                        usedLayers.add(rendertype);
                     }
                 }
 
@@ -138,7 +141,7 @@ public class BlueprintRenderer
                     matrixstack.translate((double)(blockpos2.getX() & 15), (double)(blockpos2.getY() & 15), (double)(blockpos2.getZ() & 15));
                     if (blockrendererdispatcher.renderModel(blockstate, blockpos2, blockAccess, matrixstack, bufferbuilder, true, random, modelData)) {
                         isEmpty = false;
-                        startedLayers.add(rendertype);
+                        usedLayers.add(rendertype);
                     }
 
                     matrixstack.pop();
@@ -147,7 +150,7 @@ public class BlueprintRenderer
         }
         net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
 
-        if (startedLayers.contains(RenderType.getTranslucent())) {
+        if (usedLayers.contains(RenderType.getTranslucent())) {
             BufferBuilder bufferbuilder1 = blueprintTessellatorMap.get(RenderType.getTranslucent()).getBuilder();
             bufferbuilder1.sortVertexData(0,0,0);
         }
@@ -198,8 +201,8 @@ public class BlueprintRenderer
         });*/
 
         // Draw normal blocks.
-        startedLayers.forEach(layer -> {
-            this.blueprintTessellatorMap.get(layer).draw(matrixStack.peek().getModel());
+        usedLayers.forEach(layer -> {
+            this.blueprintTessellatorMap.get(layer).draw(new MatrixStack().peek().getModel());
         });
 
         postBlueprintDraw();
