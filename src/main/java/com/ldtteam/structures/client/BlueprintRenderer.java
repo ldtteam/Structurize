@@ -78,11 +78,13 @@ public class BlueprintRenderer
      */
     private void setup(final MatrixStack matrixStack)
     {
-        tessellator.startBuilding();
+        //tessellator.startBuilding();
+
+        final MatrixStack runningStack = new MatrixStack();
 
         final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
         final Vec3d viewPosition = activeRenderInfo.getProjectedView();
-        final IRenderTypeBuffer.Impl buffer =  Minecraft.getInstance().func_228019_au_().func_228487_b_();
+        final IRenderTypeBuffer.Impl buffer =  IRenderTypeBuffer.func_228455_a_(tessellator.getBuilder());
         blockAccess.getBlueprint()
             .getBlockInfoAsList()
             .stream()
@@ -96,17 +98,17 @@ public class BlueprintRenderer
                     .getBlockRendererDispatcher()
                     .renderBlock(
                         b.getState(),
-                        matrixStack,
+                        runningStack,
                         buffer,
                       Minecraft.getInstance().getRenderManager().func_229085_a_(Minecraft.getInstance().player, 1f),
                       OverlayTexture.field_229196_a_,
                       EmptyModelData.INSTANCE);
-                if (!b.getState().getFluidState().isEmpty())
+/*                if (!b.getState().getFluidState().isEmpty())
                 {
                     Minecraft.getInstance()
                         .getBlockRendererDispatcher()
                         .func_228794_a_(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
-                }
+                }*/
             });
         tessellator.finishBuilding();
     }
