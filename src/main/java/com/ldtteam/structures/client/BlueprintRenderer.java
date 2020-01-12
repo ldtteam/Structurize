@@ -246,4 +246,9 @@ public class BlueprintRenderer
         return primaryBlockOffset;
     }
 
+    public void close()
+    {
+        blueprintTessellatorMap.values().forEach(t -> t.getBuffer().close());
+    }
+
 }

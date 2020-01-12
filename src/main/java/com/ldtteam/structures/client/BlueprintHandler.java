@@ -31,7 +31,7 @@ public final class BlueprintHandler
     private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
       CacheBuilder.newBuilder()
         .maximumSize(50)
-        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().getTessellator().getBuffer().close())
+        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().close())
         .build();
 
     /**
