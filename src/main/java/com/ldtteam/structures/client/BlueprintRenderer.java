@@ -124,10 +124,10 @@ public class BlueprintRenderer
                         tessellator.startBuilding();
                     }
 
-                    if (blockrendererdispatcher.renderFluid(blockpos2, blockAccess, bufferbuilder, ifluidstate)) {
-                        isEmpty = false;
-                        usedLayers.add(rendertype);
-                    }
+                    //if (blockrendererdispatcher.renderFluid(blockpos2, blockAccess, bufferbuilder, ifluidstate)) {
+                        //isEmpty = false;
+                        //usedLayers.add(rendertype);
+                    //}
                 }
 
                 if (blockstate.getRenderType() != BlockRenderType.INVISIBLE && RenderTypeLookup.canRenderInLayer(blockstate, rendertype)) {
