@@ -101,9 +101,7 @@ public class BlueprintRenderer
                       EmptyModelData.INSTANCE);
                 if (!b.getState().getFluidState().isEmpty())
                 {
-                    Minecraft.getInstance()
-                        .getBlockRendererDispatcher()
-                        .renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
+                    //Minecraft.getInstance().getBlockRendererDispatcher().renderFluid(b.getPos(), blockAccess, tessellator.getBuilder(), b.getState().getFluidState());
                 }
             });
         tessellator.finishBuilding();
