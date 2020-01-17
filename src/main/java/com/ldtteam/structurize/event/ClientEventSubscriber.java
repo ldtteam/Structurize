@@ -133,9 +133,9 @@ public class ClientEventSubscriber
         final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
         final Vec3d viewPosition = activeRenderInfo.getProjectedView();
         final MatrixStack matrix = event.getMatrixStack();
-        matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-
         matrix.push();
+        matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
+        
         final Matrix4f matrix4f = matrix.peek().getModel();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
         BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);
