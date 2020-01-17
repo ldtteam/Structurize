@@ -1,42 +1,25 @@
 package com.ldtteam.structures.client;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structures.lib.RenderUtil;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.storage.loot.IRandomRange;
-
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -54,7 +37,7 @@ public class BlueprintRenderer
     private final BlueprintBlockAccess blockAccess;
     private final List<TileEntity> tileEntities;
     private final List<Entity> entities;
-    private final Map<RenderType, BlueprintTessellator> blueprintTessellatorMap;
+    private final BlueprintTessellator blueprintTessellator;
     private boolean isEmpty = true;
     private final Set<RenderType> startedLayers = Sets.newLinkedHashSet();
     private final Set<RenderType> usedLayers    = Sets.newLinkedHashSet();
@@ -64,50 +47,70 @@ public class BlueprintRenderer
      * Static factory utility method to handle the extraction of the values from the blueprint.
      *
      * @param blueprint The blueprint to create an instance for.
+     * @param pos
      * @return The renderer.
      */
-    public static BlueprintRenderer buildRendererForBlueprint(final Blueprint blueprint)
+    public static BlueprintRenderer buildRendererForBlueprint(final Blueprint blueprint, final BlockPos pos, final MatrixStack stack)
     {
         final BlueprintBlockAccess blockAccess = new BlueprintBlockAccess(blueprint);
         final List<TileEntity> tileEntities = BlueprintUtils.instantiateTileEntities(blueprint, blockAccess);
         final List<Entity> entities = BlueprintUtils.instantiateEntities(blueprint, blockAccess);
         final BlueprintTessellator blueprintTessellator = new BlueprintTessellator();
         final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
-        return new BlueprintRenderer(blockAccess, tileEntities, entities, blueprintTessellator, primaryBlockOffset);
+        return new BlueprintRenderer(blockAccess, tileEntities, entities, blueprintTessellator, primaryBlockOffset, pos, stack);
     }
 
     private BlueprintRenderer(
-        final BlueprintBlockAccess blockAccess,
-        final List<TileEntity> tileEntities,
-        final List<Entity> entities,
-        final BlueprintTessellator tessellator,
-        final BlockPos primaryBlockOffset)
+      final BlueprintBlockAccess blockAccess,
+      final List<TileEntity> tileEntities,
+      final List<Entity> entities,
+      final BlueprintTessellator tessellator,
+      final BlockPos primaryBlockOffset, final BlockPos pos, final MatrixStack stack)
     {
         this.blockAccess = blockAccess;
         this.tileEntities = tileEntities;
         this.entities = entities;
-        this.blueprintTessellatorMap = Maps.newHashMap();
+        this.blueprintTessellator = tessellator;
         this.primaryBlockOffset = primaryBlockOffset;
 
-        this.setup();
+        this.setup(pos, stack);
     }
 
     /**
      * Sets up the renders VBO
+     * @param pos the pos to render it at.
+     * @param matrixStack
      */
-    private void setup()
+    private void setup(final BlockPos pos, final MatrixStack matrixStack)
     {
-        final MatrixStack runningStack = new MatrixStack();
-
-        final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
-        final Vec3d viewPosition = activeRenderInfo.getProjectedView();
-
-        MatrixStack matrixstack = new MatrixStack();
+        final Vec3d viewPosition =  Minecraft.getInstance().getRenderManager().info.getProjectedView();
         BlockModelRenderer.enableCache();
-        Random random = new Random();
-        BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+        final BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+        double x = pos.getX() - getPrimaryBlockOffset().getX();
+        double y = pos.getY() - getPrimaryBlockOffset().getY();
+        double z = pos.getZ() - getPrimaryBlockOffset().getZ();
 
-        for(BlockInfo blockInfo : blockAccess.getBlueprint()
+        final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        final Random random = new Random();
+        buffer.begin(7, DefaultVertexFormats.BLOCK);
+        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+
+        for(BlockInfo blockInfo : blockAccess.getBlueprint().getBlockInfoAsList())
+        {
+            BlockPos blockpos1 = blockInfo.getPos();
+            int d3 = (int) (x + blockpos1.getX());
+            int d4 = (int) (y + blockpos1.getY());
+            int d5 = (int) (z + blockpos1.getZ());
+            matrixStack.push();
+            matrixStack.translate  (d3, d4, d5 );
+            matrixStack.translate  (-viewPosition.getX(), -viewPosition.getY(), - viewPosition.getZ());
+            blockrendererdispatcher.renderBlock(blockInfo.getState(), blockpos1, blockAccess, matrixStack, buffer, true, random);
+            matrixStack.pop();
+        }
+
+        Tessellator.getInstance().draw();
+
+        /*for(BlockInfo blockInfo : blockAccess.getBlueprint()
                                                  .getBlockInfoAsList()) {
             final BlockPos blockpos2 = blockInfo.getPos();
             BlockState blockstate = blockInfo.getState();
@@ -156,23 +159,22 @@ public class BlueprintRenderer
         }
 
         startedLayers.stream().map(this.blueprintTessellatorMap::get).forEach(BlueprintTessellator::finishBuilding);
-        BlockModelRenderer.disableCache();
+        BlockModelRenderer.disableCache();*/
     }
 
     /**
      * Draws an instance of the blueprint at the given position, with the given rotation, and mirroring.
-     *
-     * @param rotation      The rotation.
+     *  @param rotation      The rotation.
      * @param mirror        The mirroring.
      * @param drawingOffset The drawing offset.
      */
-    public void draw(final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final MatrixStack matrixStack, final float partialTicks)
+    public void draw(final Rotation rotation, final Mirror mirror, final BlockPos drawingOffset, final MatrixStack matrixStack, final float partialTicks)
     {
         // Handle things like mirror, rotation and offset.
-        preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
+        //preBlueprintDraw(rotation, mirror, drawingOffset, primaryBlockOffset);
 
         //Minecraft.getInstance().gameRenderer.func_228384_l_().disableLightmap();
-
+        setup(drawingOffset, matrixStack);
         //RenderHelper.func_227780_a_();
         //final World previous = TileEntityRendererDispatcher.instance.world;
         //TileEntityRendererDispatcher.instance.func_217665_a(previous,Minecraft.getInstance().textureManager, Minecraft.getInstance().fontRenderer, Minecraft.getInstance().getRenderManager().info, Minecraft.getInstance().objectMouseOver);
@@ -199,13 +201,13 @@ public class BlueprintRenderer
 
             RenderSystem.disableFog();
         });*/
-
+        blueprintTessellator.draw(matrixStack);
         // Draw normal blocks.
-        usedLayers.forEach(layer -> {
+        /*usedLayers.forEach(layer -> {
             this.blueprintTessellatorMap.get(layer).draw(new MatrixStack().peek().getModel());
-        });
+        });*/
 
-        postBlueprintDraw();
+        //postBlueprintDraw();
     }
 
     private static void preBlueprintDraw(final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final BlockPos inBlueprintOffset)
@@ -251,7 +253,7 @@ public class BlueprintRenderer
 
     public void close()
     {
-        blueprintTessellatorMap.values().forEach(t -> t.getBuffer().close());
+        blueprintTessellator.getBuffer().close();
     }
 
 }

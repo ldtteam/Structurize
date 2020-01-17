@@ -26,10 +26,7 @@ public final class StructureClientHandler
     {
         if (perspectiveEntity != null)
         {
-            final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-            final Vec3d vec = new Vec3d(pos).subtract(projectedView);
-
-            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), vec, stack, partialTicks);
+            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), pos, stack, partialTicks);
         }
     }
 }

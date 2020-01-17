@@ -2,6 +2,7 @@ package com.ldtteam.structures.client;
 
 import com.ldtteam.structurize.api.util.constant.OpenGlHelper;
 import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -43,8 +44,9 @@ public class BlueprintTessellator
 
     /**
      * Draws the data set up in this tessellator and resets the state to prepare for new drawing.
+     * @param stack
      */
-    public void draw(Matrix4f stack)
+    public void draw(MatrixStack stack)
     {
         RenderSystem.pushMatrix();
 

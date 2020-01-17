@@ -61,13 +61,12 @@ public final class BlueprintHandler
 
     /**
      * Draw a blueprint with a rotation, mirror and offset.
-     *
-     * @param blueprint      the wayPointBlueprint to draw.
+     *  @param blueprint      the wayPointBlueprint to draw.
      * @param rotation      its rotation.
      * @param mirror        its mirror.
-     * @param drawingOffset its offset.
+     * @param pos its position.
      */
-    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final Vec3d drawingOffset, final MatrixStack stack, final float partialTicks)
+    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final BlockPos pos, final MatrixStack stack, final float partialTicks)
     {
         if (blueprint == null)
         {
@@ -77,7 +76,7 @@ public final class BlueprintHandler
 
         try
         {
-            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint)).draw(rotation, mirror, drawingOffset, stack, partialTicks);
+            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint, pos, stack)).draw(rotation, mirror, pos, stack, partialTicks);
         }
         catch (ExecutionException e)
         {
@@ -99,11 +98,9 @@ public final class BlueprintHandler
             return;
         }
 
-        final Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         for (final BlockPos coord : points)
         {
-            final Vec3d vec = new Vec3d(coord.down()).subtract(projectedView);
-            draw(blueprint, Rotation.NONE, Mirror.NONE, vec, stack, partialTicks);
+            draw(blueprint, Rotation.NONE, Mirror.NONE, coord.down(), stack, partialTicks);
         }
     }
 }
