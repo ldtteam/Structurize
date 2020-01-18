@@ -1,29 +1,18 @@
 package com.ldtteam.structures.client;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
-import com.ldtteam.structures.lib.RenderUtil;
 import com.ldtteam.structurize.util.BlockInfo;
+import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.entity.Entity;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -73,17 +62,11 @@ public class BlueprintRenderer
         {
             matrixStack.push();
             matrixStack.translate(x-viewPosition.getX(), y-viewPosition.getY(), z-viewPosition.getZ());
-
+            final Matrix4f model = matrixStack.peek().getModel();
             BlockState state = blockInfo.getState();
 
             final BlockPos blockPos = blockInfo.getPos();
             matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-
-            final IFluidState fluidState = state.getFluidState();
-            if (!fluidState.isEmpty())
-            {
-                blockrendererdispatcher.renderFluid(blockPos, blockAccess, buffer.getBuffer(RenderTypeLookup.getFluidLayer(fluidState)), fluidState);
-            }
 
             blockrendererdispatcher.renderBlock(state,
               blockPos,
@@ -92,10 +75,18 @@ public class BlueprintRenderer
               buffer.getBuffer(RenderTypeLookup.getEntityBlockLayer(state)),
               true,
               random);
-
+            matrixStack.translate(-blockPos.getX(), -blockPos.getY(), -blockPos.getZ());
             matrixStack.pop();
 
+            matrixStack.push();
+            final IFluidState fluidState = state.getFluidState();
+            if (!fluidState.isEmpty())
+            {
+                FluidRenderer.render(model, blockAccess, blockPos, buffer.getBuffer(RenderTypeLookup.getFluidLayer(fluidState)), fluidState);
+            }
+            matrixStack.pop();
         }
+
         buffer.draw();
 
         BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess).forEach(entity -> {
@@ -103,7 +94,7 @@ public class BlueprintRenderer
             double cleanY = MathHelper.lerp(partialTicks, entity.lastTickPosY, entity.getY());
             double cleanZ = MathHelper.lerp(partialTicks, entity.lastTickPosZ, entity.getZ());
             float rot = MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
-            Minecraft.getInstance().getRenderManager().render(entity, cleanX+x-viewPosition.getX(), cleanY+y-viewPosition.getY() ,cleanZ+z-viewPosition.getZ(), rot, 0, matrixStack, buffer, 15);
+            Minecraft.getInstance().getRenderManager().render(entity, cleanX+x-viewPosition.getX(), cleanY+y-viewPosition.getY() ,cleanZ+z-viewPosition.getZ(), rot, 0, matrixStack, buffer, 200);
         });
     }
 }
