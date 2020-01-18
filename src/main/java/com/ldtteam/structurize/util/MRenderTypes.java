@@ -33,7 +33,7 @@ public final class MRenderTypes extends RenderType
      */
     public static RenderType customLineRenderer()
     {
-        return of("lines", DefaultVertexFormats.POSITION_COLOR, 3, 256,
+        return of("structurizelines", DefaultVertexFormats.POSITION_COLOR, 3, 256,
           RenderType.State.builder().lineWidth(new RenderState.LineState(OptionalDouble.empty())).build(false));
     }
 }

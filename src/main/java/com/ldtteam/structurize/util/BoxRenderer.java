@@ -3,10 +3,7 @@ package com.ldtteam.structurize.util;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
-
-import java.util.OptionalDouble;
 
 /**
  * Helper class to render boxes.
