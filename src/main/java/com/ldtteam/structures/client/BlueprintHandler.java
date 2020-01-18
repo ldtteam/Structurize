@@ -2,15 +2,12 @@ package com.ldtteam.structures.client;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,13 +28,7 @@ public final class BlueprintHandler
     private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
       CacheBuilder.newBuilder()
         .maximumSize(50)
-        .removalListener((RemovalListener<Blueprint, BlueprintRenderer>) notification -> notification.getValue().close())
         .build();
-
-    /**
-     * Cached entity renderer.
-     */
-    //private RenderManager entityRenderer;
 
     /**
      * Private constructor to hide public one.
@@ -76,7 +67,7 @@ public final class BlueprintHandler
 
         try
         {
-            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint, pos, stack)).draw(rotation, mirror, pos, stack, partialTicks);
+            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint)).draw(pos, stack, partialTicks);
         }
         catch (ExecutionException e)
         {

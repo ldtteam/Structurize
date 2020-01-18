@@ -21,6 +21,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
@@ -28,6 +29,7 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.storage.MapData;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,9 +91,21 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
+    public int getLightLevel(@NotNull final LightType lightType, @NotNull final BlockPos pos)
+    {
+        return 15;
+    }
+
+    @Override
+    public int getColor(final BlockPos pos, final ColorResolver resolver)
+    {
+        return Minecraft.getInstance().world.getColor(pos, resolver);
+    }
+
+    @Override
     public float getBrightness(@NotNull final BlockPos pos)
     {
-        return 1f;
+        return 15f;
     }
 
     @NotNull
@@ -106,8 +120,9 @@ public class BlueprintBlockAccess extends World implements IBlockReader
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
     
+    @NotNull
     @Override
-    public IFluidState getFluidState(final BlockPos pos)
+    public IFluidState getFluidState(@NotNull final BlockPos pos)
     {
         if (isOutsideBuildHeight(pos))
         {

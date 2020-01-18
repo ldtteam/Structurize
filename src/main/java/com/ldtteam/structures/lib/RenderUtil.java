@@ -1,7 +1,9 @@
 package com.ldtteam.structures.lib;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -18,9 +20,9 @@ public final class RenderUtil
         throw new IllegalArgumentException("Utility Class");
     }
 
-    public static void applyRotationToYAxis(@NotNull final Rotation rotation)
+    public static void applyRotationToYAxis(@NotNull final Rotation rotation, final MatrixStack stack)
     {
-        RenderSystem.translated(0.5F, 0F, 0.5F);
+        //stack.scale(0.5F, 0F, 0.5F);
 
         float angle;
         switch (rotation)
@@ -42,25 +44,25 @@ public final class RenderUtil
                 break;
         }
 
-        RenderSystem.rotatef(angle, 0, 1, 0);
+        stack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(angle));
 
-        RenderSystem.translated(-0.5F, 0F, -0.5F);
+        //stack.scale(-0.5F, 0F, -0.5F);
     }
 
-    public static void applyMirror(@NotNull final Mirror mirror, @NotNull final BlockPos appliedPrimaryBlockOff)
+    public static void applyMirror(@NotNull final Mirror mirror, @NotNull final BlockPos appliedPrimaryBlockOff, final MatrixStack stack)
     {
         switch (mirror)
         {
             case NONE:
-                RenderSystem.scaled(1, 1, 1);
+                stack.scale(1, 1, 1);
                 break;
             case FRONT_BACK:
-                RenderSystem.translated((2 * appliedPrimaryBlockOff.getX()) + 1, 0, 0);
-                RenderSystem.scaled(-1, 1, 1);
+                stack.translate((2 * appliedPrimaryBlockOff.getX()) + 1, 0, 0);
+                stack.scale(-1, 1, 1);
                 break;
             case LEFT_RIGHT:
-                RenderSystem.translated(0, 0, (2 * appliedPrimaryBlockOff.getZ()) + 1);
-                RenderSystem.scaled(1, 1, -1);
+                stack.translate(0, 0, (2 * appliedPrimaryBlockOff.getZ()) + 1);
+                stack.scale(1, 1, -1);
                 break;
             default:
                 //Should never occur.

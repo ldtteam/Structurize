@@ -1,5 +1,6 @@
 package com.ldtteam.structures.helpers;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
@@ -7,6 +8,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -274,6 +276,7 @@ public final class Settings
         else
         {
             this.structure = structure;
+            structure.rotate(structure.getSettings().getRotation(), structure.world, pos, structure.getSettings().getMirror());
         }
     }
 
@@ -352,7 +355,15 @@ public final class Settings
      */
     public void setRotation(final int rotation)
     {
+        if (structure != null && this.rotation != 0)
+        {
+            structure.rotate(Rotation.values()[Rotation.values().length - BlockPosUtil.getRotationFromRotations(this.rotation).ordinal()], structure.world, pos, Mirror.NONE);
+        }
         this.rotation = rotation;
+        if (structure != null)
+        {
+            structure.rotate(BlockPosUtil.getRotationFromRotations(rotation), structure.world, pos, Mirror.NONE);
+        }
     }
 
     /**
@@ -364,9 +375,19 @@ public final class Settings
         {
             return;
         }
+        if (isMirrored)
+        {
+            structure.rotate(Rotation.NONE, structure.world, pos, structure.getSettings().getMirror());
+        }
+
         isMirrored = !isMirrored;
         structure.getSettings().setMirror(getMirror());
         structure.setPlacementSettings(structure.getSettings());
+
+        if (isMirrored)
+        {
+            structure.rotate(Rotation.NONE, structure.world, pos, structure.getSettings().getMirror());
+        }
     }
 
     /**

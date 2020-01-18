@@ -1,10 +1,12 @@
 package com.ldtteam.structurize.util;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Tessellator;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
+
+import java.util.OptionalDouble;
 
 /**
  * Helper class to render boxes.
@@ -18,15 +20,15 @@ public class BoxRenderer
 
     public static void drawBoundingBox(final Matrix4f matrix4f, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float red, float green, float blue, float alpha)
     {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
-        drawBoundingBox(bufferbuilder, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha, matrix4f);
-        tessellator.draw();
+        IRenderTypeBuffer.Impl bufferbuilder = Minecraft.getInstance().getBufferBuilders().getEntityVertexConsumers();
+
+        drawBoundingBox(bufferbuilder.getBuffer(MRenderTypes.customLineRenderer()), minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha, matrix4f);
+
+        bufferbuilder.draw();
     }
 
     public static void drawBoundingBox(
-      BufferBuilder buffer,
+      IVertexBuilder buffer,
       float minX,
       float minY,
       float minZ,
