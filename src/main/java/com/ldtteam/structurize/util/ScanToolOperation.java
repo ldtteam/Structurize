@@ -10,6 +10,7 @@ import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -200,10 +201,13 @@ public class ScanToolOperation
                         count++;
 
                         storage.addPositionStorage(here, world);
-                        world.removeBlock(here, false);
                         if (operation == OperationType.REPLACE_BLOCK)
                         {
                             BlockUtils.handleCorrectBlockPlacement(world, fakePlayer, secondBlock, blockState, here);
+                        }
+                        else
+                        {
+                            world.removeBlock(here, false);
                         }
 
                         if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())

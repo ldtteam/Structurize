@@ -5,9 +5,7 @@ import net.minecraft.block.*;
 import net.minecraft.item.*;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -287,7 +285,16 @@ public final class BlockUtils
         }
 
         final Direction facing = (itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH);
-        ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, false)));
+
+        if (stackToPlace.getItem() instanceof BlockItem)
+        {
+            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)))), 0x02);
+        }
+        else
+        {
+            world.removeBlock(here, false);
+            ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)));
+        }
 
         final BlockState newBlockState = world.getBlockState(here);
         if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
@@ -295,54 +302,54 @@ public final class BlockUtils
             BlockState transformation = newBlockState.with(StairsBlock.FACING, blockState.get(StairsBlock.FACING));
             transformation = transformation.with(StairsBlock.HALF, blockState.get(StairsBlock.HALF));
             transformation = transformation.with(StairsBlock.SHAPE, blockState.get(StairsBlock.SHAPE));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof HorizontalBlock && blockState.getBlock() instanceof HorizontalBlock &&
             !(blockState.getBlock() instanceof BedBlock))
         {
             final BlockState transformation = newBlockState.with(HorizontalBlock.HORIZONTAL_FACING, blockState.get(HorizontalBlock.HORIZONTAL_FACING));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof DirectionalBlock && blockState.getBlock() instanceof DirectionalBlock)
         {
             final BlockState transformation = newBlockState.with(DirectionalBlock.FACING, blockState.get(DirectionalBlock.FACING));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof SlabBlock && blockState.getBlock() instanceof SlabBlock)
         {
             final BlockState transformation;
             transformation = newBlockState.with(SlabBlock.TYPE, blockState.get(SlabBlock.TYPE));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof LogBlock && blockState.getBlock() instanceof LogBlock)
         {
             final BlockState transformation = newBlockState.with(LogBlock.AXIS, blockState.get(LogBlock.AXIS));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof RotatedPillarBlock && blockState.getBlock() instanceof RotatedPillarBlock)
         {
             final BlockState transformation = newBlockState.with(RotatedPillarBlock.AXIS, blockState.get(RotatedPillarBlock.AXIS));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof TrapDoorBlock && blockState.getBlock() instanceof TrapDoorBlock)
         {
             BlockState transformation = newBlockState.with(TrapDoorBlock.HALF, blockState.get(TrapDoorBlock.HALF));
             transformation = transformation.with(TrapDoorBlock.HORIZONTAL_FACING, blockState.get(TrapDoorBlock.HORIZONTAL_FACING));
             transformation = transformation.with(TrapDoorBlock.OPEN, blockState.get(TrapDoorBlock.OPEN));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (newBlockState.getBlock() instanceof DoorBlock && blockState.getBlock() instanceof DoorBlock)
         {
             final BlockState transformation = newBlockState.with(DoorBlock.FACING, blockState.get(DoorBlock.FACING));
-            world.setBlockState(here, transformation);
+            world.setBlockState(here, transformation, 0x02);
         }
         else if (stackToPlace.getItem() == Items.LAVA_BUCKET)
         {
-            world.setBlockState(here, Blocks.LAVA.getDefaultState());
+            world.setBlockState(here, Blocks.LAVA.getDefaultState(), 0x02);
         }
         else if (stackToPlace.getItem() == Items.WATER_BUCKET)
         {
-            world.setBlockState(here, Blocks.WATER.getDefaultState());
+            world.setBlockState(here, Blocks.WATER.getDefaultState(), 0x02);
         }
     }
 }
