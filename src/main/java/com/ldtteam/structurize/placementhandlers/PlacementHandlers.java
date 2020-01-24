@@ -759,7 +759,7 @@ public final class PlacementHandlers
                 final TileEntity newTile = TileEntity.create(tileEntityData);
                 if (newTile != null)
                 {
-                    newTile.setWorld(world, pos);
+                    newTile.setWorldAndPos(world, pos);
                     newTile.rotate(settings.rotation);
                     newTile.mirror(settings.mirror);
                 }

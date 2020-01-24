@@ -57,22 +57,22 @@ public class BlueprintRenderer
 
         final Random random = new Random();
 
-        final IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        final IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
         for (BlockInfo blockInfo : blockAccess.getBlueprint().getBlockInfoAsList())
         {
             matrixStack.push();
             matrixStack.translate(x-viewPosition.getX(), y-viewPosition.getY(), z-viewPosition.getZ());
-            final Matrix4f model = matrixStack.peek().getModel();
+            final Matrix4f model = matrixStack.getLast().getPositionMatrix();
             BlockState state = blockInfo.getState();
 
             final BlockPos blockPos = blockInfo.getPos();
             matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-            blockrendererdispatcher.renderBlock(state,
+            blockrendererdispatcher.renderModel(state,
               blockPos,
               blockAccess,
               matrixStack,
-              buffer.getBuffer(RenderTypeLookup.getEntityBlockLayer(state)),
+              buffer.getBuffer(RenderTypeLookup.getRenderType(state)),
               true,
               random);
             matrixStack.translate(-blockPos.getX(), -blockPos.getY(), -blockPos.getZ());
@@ -82,19 +82,19 @@ public class BlueprintRenderer
             final IFluidState fluidState = state.getFluidState();
             if (!fluidState.isEmpty())
             {
-                FluidRenderer.render(model, blockAccess, blockPos, buffer.getBuffer(RenderTypeLookup.getFluidLayer(fluidState)), fluidState);
+                FluidRenderer.render(model, blockAccess, blockPos, buffer.getBuffer(RenderTypeLookup.getRenderType(fluidState)), fluidState);
             }
             matrixStack.pop();
         }
 
-        buffer.draw();
+        buffer.finish();
 
         BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess).forEach(entity -> {
-            double cleanX = MathHelper.lerp(partialTicks, entity.lastTickPosX, entity.getX());
-            double cleanY = MathHelper.lerp(partialTicks, entity.lastTickPosY, entity.getY());
-            double cleanZ = MathHelper.lerp(partialTicks, entity.lastTickPosZ, entity.getZ());
+            double cleanX = MathHelper.lerp(partialTicks, entity.lastTickPosX, entity.getPosX());
+            double cleanY = MathHelper.lerp(partialTicks, entity.lastTickPosY, entity.getPosY());
+            double cleanZ = MathHelper.lerp(partialTicks, entity.lastTickPosZ, entity.getPosZ());
             float rot = MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
-            Minecraft.getInstance().getRenderManager().render(entity, cleanX+x-viewPosition.getX(), cleanY+y-viewPosition.getY() ,cleanZ+z-viewPosition.getZ(), rot, 0, matrixStack, buffer, 200);
+            Minecraft.getInstance().getRenderManager().renderEntityStatic(entity, cleanX+x-viewPosition.getX(), cleanY+y-viewPosition.getY() ,cleanZ+z-viewPosition.getZ(), rot, 0, matrixStack, buffer, 200);
         });
     }
 }

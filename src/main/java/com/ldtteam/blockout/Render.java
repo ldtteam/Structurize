@@ -68,10 +68,10 @@ public final class Render
         RenderSystem.color4f(r, g, b, a);
 
         // Since our points do not have any u,v this seems to be the correct code
-        vertexBuffer.vertex(x1, y2, 0.0D).endVertex();
-        vertexBuffer.vertex(x2, y2, 0.0D).endVertex();
-        vertexBuffer.vertex(x2, y1, 0.0D).endVertex();
-        vertexBuffer.vertex(x1, y1, 0.0D).endVertex();
+        vertexBuffer.pos(x1, y2, 0.0D).endVertex();
+        vertexBuffer.pos(x2, y2, 0.0D).endVertex();
+        vertexBuffer.pos(x2, y1, 0.0D).endVertex();
+        vertexBuffer.pos(x1, y1, 0.0D).endVertex();
 
         tessellator.draw();
         RenderSystem.enableTexture();

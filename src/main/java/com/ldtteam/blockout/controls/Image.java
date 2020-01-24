@@ -236,10 +236,10 @@ public class Image extends Pane
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.vertex(x, (y + height), 0.0D).texture((u * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.vertex((x + width), (y + height), 0.0D).texture(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.vertex((x + width), y, 0.0D).texture(((u + (float)uWidth) * f), (v * f1)).endVertex();
-        bufferbuilder.vertex(x, y, 0.0D).texture((u * f), (v * f1)).endVertex();
+        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float)uWidth) * f), (v * f1)).endVertex();
+        bufferbuilder.pos(x, y, 0.0D).tex((u * f), (v * f1)).endVertex();
         tessellator.draw();
     }
 

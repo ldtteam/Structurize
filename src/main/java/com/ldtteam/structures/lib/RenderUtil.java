@@ -44,7 +44,7 @@ public final class RenderUtil
                 break;
         }
 
-        stack.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(angle));
+        stack.rotate(Vector3f.YP.rotationDegrees(angle));
 
         //stack.scale(-0.5F, 0F, -0.5F);
     }

@@ -265,18 +265,18 @@ public class FluidRenderer
       float textY,
       int light)
     {
-        iVertexBuilder.vertex(matrix4f, x, y, z)
+        iVertexBuilder.pos(matrix4f, x, y, z)
           .color(red, green, blue, alpha)
-          .texture(textX, textY)
-          .light(light)
+          .tex(textX, textY)
+          .lightmap(light)
           .normal(0.0F, 1.0F, 0.0F)
           .endVertex();
     }
 
     private static int getLight(ILightReader p_228795_1_, BlockPos p_228795_2_)
     {
-        int i = WorldRenderer.getLightmapCoordinates(p_228795_1_, p_228795_2_);
-        int j = WorldRenderer.getLightmapCoordinates(p_228795_1_, p_228795_2_.up());
+        int i = WorldRenderer.getCombinedLight(p_228795_1_, p_228795_2_);
+        int j = WorldRenderer.getCombinedLight(p_228795_1_, p_228795_2_.up());
         int k = i & 255;
         int l = j & 255;
         int i1 = i >> 16 & 255;

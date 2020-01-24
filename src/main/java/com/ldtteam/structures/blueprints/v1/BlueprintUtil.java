@@ -122,9 +122,9 @@ public class BlueprintUtil
             final CompoundNBT entityTag = entity.serializeNBT();
 
             final ListNBT posList = new ListNBT();
-            posList.add(DoubleNBT.of(oldPos.x - pos.getX()));
-            posList.add(DoubleNBT.of(oldPos.y - pos.getY()));
-            posList.add(DoubleNBT.of(oldPos.z - pos.getZ()));
+            posList.add(DoubleNBT.valueOf(oldPos.x - pos.getX()));
+            posList.add(DoubleNBT.valueOf(oldPos.y - pos.getY()));
+            posList.add(DoubleNBT.valueOf(oldPos.z - pos.getZ()));
 
             BlockPos entityPos = entity.getPosition();
             if (entity instanceof HangingEntity)
@@ -132,9 +132,9 @@ public class BlueprintUtil
                 entityPos = ((HangingEntity) entity).getHangingPosition();
             }
             entityTag.put("Pos", posList);
-            entityTag.put("TileX", IntNBT.of(entityPos.getX() - pos.getX()));
-            entityTag.put("TileY", IntNBT.of(entityPos.getY() - pos.getY()));
-            entityTag.put("TileZ", IntNBT.of(entityPos.getZ() - pos.getZ()));
+            entityTag.put("TileX", IntNBT.valueOf(entityPos.getX() - pos.getX()));
+            entityTag.put("TileY", IntNBT.valueOf(entityPos.getY() - pos.getY()));
+            entityTag.put("TileZ", IntNBT.valueOf(entityPos.getZ() - pos.getZ()));
             entitiesTag.add(entityTag);
         }
 
@@ -202,7 +202,7 @@ public class BlueprintUtil
         for (String requiredMod : requiredMods)
         {
             // modsList.set(i,);
-            modsList.add(StringNBT.of(requiredMod));
+            modsList.add(StringNBT.valueOf(requiredMod));
         }
         tag.put("required_mods", modsList);
 
@@ -218,12 +218,12 @@ public class BlueprintUtil
             final ListNBT architectsTag = new ListNBT();
             for (final String architect : architects)
             {
-                architectsTag.add(StringNBT.of(architect));
+                architectsTag.add(StringNBT.valueOf(architect));
             }
             tag.put("architects", architectsTag);
         }
 
-        tag.put("mcversion", IntNBT.of(SharedConstants.getVersion().getWorldVersion()));
+        tag.put("mcversion", IntNBT.valueOf(SharedConstants.getVersion().getWorldVersion()));
 
         return tag;
     }

@@ -17,11 +17,11 @@ public class BoxRenderer
 
     public static void drawBoundingBox(final Matrix4f matrix4f, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float red, float green, float blue, float alpha)
     {
-        IRenderTypeBuffer.Impl bufferbuilder = Minecraft.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        IRenderTypeBuffer.Impl bufferbuilder = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
 
         drawBoundingBox(bufferbuilder.getBuffer(MRenderTypes.customLineRenderer()), minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha, matrix4f);
 
-        bufferbuilder.draw();
+        bufferbuilder.finish();
     }
 
     public static void drawBoundingBox(
@@ -39,31 +39,31 @@ public class BoxRenderer
     final Matrix4f matrix)
     {
         //lower base
-        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, 0.0F).endVertex();
-        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, minY, minZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.pos(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
 
         //first leg
-        buffer.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         //upper base
-        buffer.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         //links runter
-        buffer.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
-        buffer.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, minX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.pos(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
 
         //rechts runter
-        buffer.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
-        buffer.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, maxY, maxZ).color(red, green, blue, 0.0F).endVertex();
+        buffer.pos(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        buffer.pos(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
     }
 
     /**

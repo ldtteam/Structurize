@@ -96,7 +96,7 @@ public class ClientEventSubscriber
         matrix.push();
         matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
         
-        final Matrix4f matrix4f = matrix.peek().getModel();
+        final Matrix4f matrix4f = matrix.getLast().getPositionMatrix();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
         BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);
         matrix.pop();

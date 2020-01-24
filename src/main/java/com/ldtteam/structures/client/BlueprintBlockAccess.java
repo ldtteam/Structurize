@@ -91,21 +91,21 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
-    public int getLightLevel(@NotNull final LightType lightType, @NotNull final BlockPos pos)
+    public float getBrightness(@NotNull final BlockPos pos)
+    {
+        return 15f;
+    }
+
+    @Override
+    public int getLightFor(@NotNull final LightType lightType, @NotNull final BlockPos pos)
     {
         return 15;
     }
 
     @Override
-    public int getColor(final BlockPos pos, final ColorResolver resolver)
+    public int getBlockColor(final BlockPos pos, final ColorResolver resolver)
     {
-        return Minecraft.getInstance().world.getColor(pos, resolver);
-    }
-
-    @Override
-    public float getBrightness(@NotNull final BlockPos pos)
-    {
-        return 15f;
+        return Minecraft.getInstance().world.getBlockColor(pos, resolver);
     }
 
     @NotNull
@@ -161,7 +161,7 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     }
 
     @Override
-    public Biome getGeneratorStoredBiome(final int p_225604_1_, final int p_225604_2_, final int p_225604_3_)
+    public Biome getNoiseBiomeRaw(final int x, final int y, final int z)
     {
         return Biomes.DEFAULT;
     }
