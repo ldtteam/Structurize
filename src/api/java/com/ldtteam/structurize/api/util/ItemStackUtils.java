@@ -53,7 +53,6 @@ public final class ItemStackUtils
                 }
             }
         }
-        //todo we have to test if beds and flower pots give us the right drops!
         return items;
     }
 

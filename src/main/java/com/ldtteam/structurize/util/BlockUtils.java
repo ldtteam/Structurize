@@ -4,6 +4,7 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import net.minecraft.block.*;
 import net.minecraft.item.*;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
@@ -280,15 +281,13 @@ public final class BlockUtils
         stackToPlace.setCount(stackToPlace.getMaxStackSize());
         fakePlayer.setHeldItem(Hand.MAIN_HAND, stackToPlace);
 
-        if (itemStack.getItem() instanceof BedItem)
+        if (stackToPlace.getItem().isIn(ItemTags.BEDS) && blockState.has(HorizontalBlock.HORIZONTAL_FACING))
         {
-            // todo beds?
-            // fakePlayer.rotationYaw = blockState.get(BedBlock.).getHorizontalIndex() * 90;
+            fakePlayer.rotationYaw = blockState.get(HorizontalBlock.HORIZONTAL_FACING).getHorizontalIndex() * 90;
         }
 
-        // todo does placing down slabs and doors still work? and slabs?
         final Direction facing = (itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH);
-        ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)));
+        ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, false)));
 
         final BlockState newBlockState = world.getBlockState(here);
         if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
