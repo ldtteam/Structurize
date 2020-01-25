@@ -143,6 +143,18 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public boolean mouseDragged(
+      final double startX,
+      final double startY,
+      final int speed,
+      final double x,
+      final double y)
+    {
+        window.onMouseDrag(startX, startY, speed, x, y);
+        return super.mouseDragged(startX, startY, speed, x, y);
+    }
+
+    @Override
     public boolean mouseReleased(final double mxIn, final double myIn, final int keyCode)
     {
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)

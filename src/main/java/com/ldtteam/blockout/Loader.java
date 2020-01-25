@@ -12,15 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.ldtteam.blockout.controls.*;
-import com.ldtteam.blockout.views.Box;
-import com.ldtteam.blockout.views.DropDownList;
-import com.ldtteam.blockout.views.Group;
-import com.ldtteam.blockout.views.OverlayView;
-import com.ldtteam.blockout.views.ScrollingGroup;
-import com.ldtteam.blockout.views.ScrollingList;
-import com.ldtteam.blockout.views.SwitchView;
-import com.ldtteam.blockout.views.View;
-import com.ldtteam.blockout.views.Window;
+import com.ldtteam.blockout.views.*;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -54,6 +46,7 @@ public final class Loader
         register("dropdown", DropDownList.class);
         register("overlay", OverlayView.class);
         register("gradient", Gradient.class);
+        register("dragView", DragView.class);
     }
 
     private Loader()

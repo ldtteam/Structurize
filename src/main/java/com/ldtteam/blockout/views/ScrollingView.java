@@ -3,6 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Scrollbar;
+import net.minecraft.client.gui.advancements.AdvancementsScreen;
 import org.jetbrains.annotations.NotNull;
 
 /**

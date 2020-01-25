@@ -2,7 +2,6 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.NotNull;
 

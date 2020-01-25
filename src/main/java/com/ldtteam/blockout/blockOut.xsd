@@ -72,11 +72,24 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <!-- <drag> -->
+    <xs:complexType name="dragType">
+        <xs:complexContent>
+            <xs:extension base="viewType">
+                <xs:attribute name="minx" type="xs:decimal"/>
+                <xs:attribute name="maxx" type="xs:decimal"/>
+                <xs:attribute name="miny" type="xs:decimal"/>
+                <xs:attribute name="maxy" type="xs:decimal"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <!-- Master group for all panes that can be used -->
     <xs:group name="paneContainerGroup">
         <xs:choice>
             <xs:element name="layout" type="layoutElementType"/>
             <xs:element name="view" type="viewType"/>
+            <xs:element name="dragview" type="dragType"/>
             <xs:element name="group" type="groupType"/>
             <!-- xs:element name="scrollgroup"  type="scrollGroupType"/ -->
             <xs:element name="list" type="listType"/>

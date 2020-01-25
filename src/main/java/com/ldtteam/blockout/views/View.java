@@ -286,4 +286,17 @@ public class View extends Pane
     {
         children.remove(child);
     }
+
+    /**
+     * Mouse drag.
+     * @param startX start pos x.
+     * @param startY start pos y.
+     * @param speed drag speed.
+     * @param x current x.
+     * @param y current y.
+     */
+    public void onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
+    {
+
+    }
 }
