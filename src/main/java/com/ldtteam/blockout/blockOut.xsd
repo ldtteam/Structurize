@@ -76,10 +76,6 @@
     <xs:complexType name="dragType">
         <xs:complexContent>
             <xs:extension base="viewType">
-                <xs:attribute name="minx" type="xs:decimal"/>
-                <xs:attribute name="maxx" type="xs:decimal"/>
-                <xs:attribute name="miny" type="xs:decimal"/>
-                <xs:attribute name="maxy" type="xs:decimal"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

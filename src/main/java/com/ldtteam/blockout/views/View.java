@@ -6,6 +6,7 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -287,16 +288,19 @@ public class View extends Pane
         children.remove(child);
     }
 
-    /**
-     * Mouse drag.
-     * @param startX start pos x.
-     * @param startY start pos y.
-     * @param speed drag speed.
-     * @param x current x.
-     * @param y current y.
-     */
-    public void onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
+    @Override
+    public void onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-
+        final int mxChild = (int) (x - this.x - padding);
+        final int myChild = (int) (y - this.y - padding);
+        final Pane clickedPane = findPaneForClick(mxChild, myChild);
+        if (clickedPane != null)
+        {
+            clickedPane.onMouseDrag(x, y, speed, deltaX, deltaY);
+        }
+        else
+        {
+            super.onMouseDrag(x, y, speed, deltaX, deltaY);
+        }
     }
 }

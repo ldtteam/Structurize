@@ -144,14 +144,14 @@ public class BOScreen extends Screen
 
     @Override
     public boolean mouseDragged(
-      final double startX,
-      final double startY,
-      final int speed,
       final double x,
-      final double y)
+      final double y,
+      final int speed,
+      final double deltaX,
+      final double deltaY)
     {
-        window.onMouseDrag(startX, startY, speed, x, y);
-        return super.mouseDragged(startX, startY, speed, x, y);
+        window.onMouseDrag(x, y, speed, deltaX, deltaY);
+        return super.mouseDragged(x, y, speed, deltaX, deltaY);
     }
 
     @Override

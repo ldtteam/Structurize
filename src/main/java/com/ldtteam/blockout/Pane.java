@@ -728,4 +728,17 @@ public class Pane extends AbstractGui
             return mc.fontRenderer.drawString(text, x, y, color);
         }
     }
+
+    /**
+     * Mouse drag.
+     * @param x pos x.
+     * @param y pos y.
+     * @param speed drag speed.
+     * @param deltaX relative x.
+     * @param deltaY relative y.
+     */
+    public void onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    {
+
+    }
 }
