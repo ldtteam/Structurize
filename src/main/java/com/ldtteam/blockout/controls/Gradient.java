@@ -1,7 +1,6 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 /**
@@ -36,6 +35,17 @@ public class Gradient extends AbstractTextElement
 
         // match textColor by default
         gradientEnd = params.getColorAttribute("gradientend", gradientEnd);
+    }
+
+    /**
+     * Set the gradient color.
+     * @param start the start color.
+     * @param end the end color.
+     */
+    public void setGradient(final int start, final int end)
+    {
+        this.gradientEnd = start;
+        this.gradientEnd = end;
     }
 
     @Override
