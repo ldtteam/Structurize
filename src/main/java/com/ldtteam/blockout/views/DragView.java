@@ -44,20 +44,20 @@ public class DragView extends View
     public void parseChildren(final PaneParams params)
     {
         super.parseChildren(params);
-        computeContentHeight();
+        computeContentSize();
     }
 
     @Override
     public void addChild(final Pane child)
     {
         super.addChild(child);
-        computeContentHeight();
+        computeContentSize();
     }
 
     /**
      * Compute the height in pixels of the container.
      */
-    private void computeContentHeight()
+    private void computeContentSize()
     {
         contentHeight = 0;
         contentWidth = 0;
@@ -111,8 +111,8 @@ public class DragView extends View
     @Override
     public void onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
     {
-        setScrollY(scrollY + y);
-        setScrollX(scrollX + x);
+        setScrollY(scrollY - y);
+        setScrollX(scrollX - x);
     }
 
     private void setScrollY(final double offset)

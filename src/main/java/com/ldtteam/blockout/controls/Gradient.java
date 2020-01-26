@@ -44,7 +44,7 @@ public class Gradient extends AbstractTextElement
      */
     public void setGradient(final int start, final int end)
     {
-        this.gradientEnd = start;
+        this.gradientStart = start;
         this.gradientEnd = end;
     }
 
