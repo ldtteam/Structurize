@@ -47,6 +47,13 @@ public class DragView extends View
         computeContentHeight();
     }
 
+    @Override
+    public void addChild(final Pane child)
+    {
+        super.addChild(child);
+        computeContentHeight();
+    }
+
     /**
      * Compute the height in pixels of the container.
      */
