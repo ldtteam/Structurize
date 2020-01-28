@@ -32,20 +32,40 @@ public class Gradient extends AbstractTextElement
     {
         super(params);
         gradientStart = params.getIntAttribute("gradientstart", gradientStart);
-
-        // match textColor by default
         gradientEnd = params.getColorAttribute("gradientend", gradientEnd);
     }
 
     /**
-     * Set the gradient color.
-     * @param start the start color.
-     * @param end the end color.
+     * Set the gradient start color.
+     * @param red the red.
+     * @param blue the blue.
+     * @param green the green.
+     * @param alpha the alpha value.
      */
-    public void setGradient(final int start, final int end)
+    public void setGradientStart(final int red, final int green, final int blue, final int alpha)
     {
-        this.gradientStart = start;
-        this.gradientEnd = end;
+        this.gradientStart = rgbaToInt(red, green, blue, alpha);
+    }
+
+    /**
+     * Set the gradient end color.
+     * @param red the red.
+     * @param blue the blue.
+     * @param green the green.
+     * @param alpha the alpha value.
+     */
+    public void setGradientEnd(final int red, final int green, final int blue, final int alpha)
+    {
+        this.gradientEnd = rgbaToInt(red, green, blue, alpha);
+    }
+
+    private int rgbaToInt(final int red, final int green, final int blue, final int alpha)
+    {
+        int color = red;
+        color = (color << 8) + green;
+        color = (color << 8) + blue;
+        color = (color << 8) + alpha;
+        return color;
     }
 
     @Override
