@@ -72,8 +72,8 @@ public class DragView extends View
         }
 
         // Recompute scroll
-        setScrollY(scrollY + contentHeight/2);
-        setScrollX(scrollX + contentWidth/2);
+        setScrollY(scrollY);
+        setScrollX(scrollX);
     }
 
     private int getMaxScrollY()
