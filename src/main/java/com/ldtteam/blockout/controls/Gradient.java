@@ -61,10 +61,10 @@ public class Gradient extends AbstractTextElement
 
     private int rgbaToInt(final int red, final int green, final int blue, final int alpha)
     {
-        int color = red;
+        int color = alpha;
+        color = (color << 8) + red;
         color = (color << 8) + green;
         color = (color << 8) + blue;
-        color = (color << 8) + alpha;
         return color;
     }
 
