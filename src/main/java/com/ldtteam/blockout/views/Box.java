@@ -32,6 +32,21 @@ public class Box extends View
         color = params.getColorAttribute("color", color);
     }
 
+    /**
+     * Set the color of the box.
+     * @param red the red.
+     * @param green the green.
+     * @param blue the blue.
+     */
+    public void setColor(final int red, final int green, final int blue)
+    {
+        int color = 255;
+        color = (color << 8) + red;
+        color = (color << 8) + green;
+        color = (color << 8) + blue;
+        this.color = color;
+    }
+
     @Override
     public void drawSelf(final int mx, final int my)
     {
