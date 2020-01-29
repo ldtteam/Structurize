@@ -53,4 +53,21 @@ public final class Color
         final Integer i = nameToColorMap.get(name.toLowerCase(Locale.ENGLISH));
         return i != null ? i : def;
     }
+
+    /**
+     * Get the int from rgba.
+     * @param red the red.
+     * @param green the green.
+     * @param blue the blue.
+     * @param alpha the transparency.
+     * @return the accumulated int.
+     */
+    public static int rgbaToInt(final int red, final int green, final int blue, final int alpha)
+    {
+        int color = alpha;
+        color = (color << 8) + red;
+        color = (color << 8) + green;
+        color = (color << 8) + blue;
+        return color;
+    }
 }

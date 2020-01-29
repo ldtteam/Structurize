@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Render;
 import org.jetbrains.annotations.NotNull;
@@ -40,11 +41,7 @@ public class Box extends View
      */
     public void setColor(final int red, final int green, final int blue)
     {
-        int color = 255;
-        color = (color << 8) + red;
-        color = (color << 8) + green;
-        color = (color << 8) + blue;
-        this.color = color;
+        this.color = Color.rgbaToInt(red, green, blue, 255);
     }
 
     @Override

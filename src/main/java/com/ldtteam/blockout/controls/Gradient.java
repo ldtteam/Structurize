@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.controls;
 
+import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -44,7 +45,7 @@ public class Gradient extends AbstractTextElement
      */
     public void setGradientStart(final int red, final int green, final int blue, final int alpha)
     {
-        this.gradientStart = rgbaToInt(red, green, blue, alpha);
+        this.gradientStart = Color.rgbaToInt(red, green, blue, alpha);
     }
 
     /**
@@ -56,16 +57,7 @@ public class Gradient extends AbstractTextElement
      */
     public void setGradientEnd(final int red, final int green, final int blue, final int alpha)
     {
-        this.gradientEnd = rgbaToInt(red, green, blue, alpha);
-    }
-
-    private int rgbaToInt(final int red, final int green, final int blue, final int alpha)
-    {
-        int color = alpha;
-        color = (color << 8) + red;
-        color = (color << 8) + green;
-        color = (color << 8) + blue;
-        return color;
+        this.gradientEnd = Color.rgbaToInt(red, green, blue, alpha);
     }
 
     @Override
