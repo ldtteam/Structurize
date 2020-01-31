@@ -52,7 +52,7 @@ public final class BlueprintUtils
         final BlockInfo blockInfo = getBlockInfoFromPos(blueprint, pos);
         if (blockInfo.getTileEntityData() != null)
         {
-            return TileEntity.create(blockInfo.getTileEntityData());
+            return constructTileEntity(blockInfo, access);
         }
         return null;
     }
@@ -135,7 +135,7 @@ public final class BlueprintUtils
 
         // We know that this is going to fail.
         // Fail fast.
-        if (blackListedTileEntityIds.contains(entityId)) return null;
+        // if (blackListedTileEntityIds.contains(entityId)) return null;
 
         try
         {
@@ -155,7 +155,7 @@ public final class BlueprintUtils
         catch (final Exception ex)
         {
             Log.getLogger().error("Could not create tile entity: " + entityId + " with nbt: " + info.toString(), ex);
-            blackListedTileEntityIds.add(entityId);
+            // blackListedTileEntityIds.add(entityId);
             return null;
         }
     }
