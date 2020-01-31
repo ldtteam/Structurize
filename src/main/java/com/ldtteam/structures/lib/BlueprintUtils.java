@@ -39,6 +39,11 @@ public final class BlueprintUtils
         throw new IllegalArgumentException("Utils class");
     }
 
+    public static void clearCacheForBlueprint(final Blueprint blueprint)
+    {
+        blueprintBlockInfoCache.invalidate(blueprint);
+    }
+
     /**
      * Get the tileEntity from a certain position.
      *

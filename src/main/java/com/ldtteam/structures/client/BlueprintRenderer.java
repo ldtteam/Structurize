@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
@@ -47,8 +48,8 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final BlueprintBlockAccess blockAccess;
-    private final List<Entity> entities;
-    private final List<TileEntity> tileEntities;
+    private List<Entity> entities;
+    private List<TileEntity> tileEntities;
     private final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.getBlockRenderTypes().stream().collect(Collectors.toMap((p_228934_0_) -> {
         return p_228934_0_;
     }, (p_228933_0_) -> {
@@ -70,8 +71,15 @@ public class BlueprintRenderer implements AutoCloseable
     private BlueprintRenderer(final BlueprintBlockAccess blockAccess)
     {
         this.blockAccess = blockAccess;
-        this.entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
-        this.tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
+        init();
+    }
+
+    private void init()
+    {
+        LOGGER.info("rerun");
+        BlueprintUtils.clearCacheForBlueprint(blockAccess.getBlueprint());
+        entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
+        tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
 
         final BlockRendererDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
         final Random random = new Random();
@@ -120,6 +128,15 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlockPos pos, final MatrixStack matrixStack, final float partialTicks)
     {
+        if (Settings.instance.shouldRefresh())
+        {
+            init();
+        }
+        if (entities == null || tileEntities == null || blockAccess == null)
+        {
+            return;
+        }
+
         final Minecraft mc = Minecraft.getInstance();
         final Vec3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
         final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint());

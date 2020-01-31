@@ -80,6 +80,8 @@ public final class Settings
      */
     private WindowBuildTool.FreeMode freeMode = null;
 
+    private boolean shouldRefresh = false;
+
     /**
      * Private constructor to hide implicit one.
      */
@@ -88,6 +90,18 @@ public final class Settings
         /*
          * Intentionally left empty.
          */
+    }
+
+    public boolean shouldRefresh()
+    {
+        final boolean ret = shouldRefresh;
+        shouldRefresh = false;
+        return ret;
+    }
+
+    public void scheduleRefresh()
+    {
+        shouldRefresh = true;
     }
 
     /**
@@ -364,6 +378,7 @@ public final class Settings
         {
             structure.rotate(BlockPosUtil.getRotationFromRotations(rotation), structure.world, pos, Mirror.NONE);
         }
+        scheduleRefresh();
     }
 
     /**
@@ -388,6 +403,7 @@ public final class Settings
         {
             structure.rotate(Rotation.NONE, structure.world, pos, structure.getSettings().getMirror());
         }
+        scheduleRefresh();
     }
 
     /**
@@ -520,7 +536,7 @@ public final class Settings
         frequency = buf.readInt();
 
         // enums
-        
+
         if (buf.readBoolean())
         {
             shape = Shape.values()[buf.readInt()];
@@ -529,7 +545,7 @@ public final class Settings
         {
             shape = Shape.CUBE;
         }
-        
+
         if (buf.readBoolean())
         {
             freeMode = WindowBuildTool.FreeMode.values()[buf.readInt()];
@@ -558,7 +574,7 @@ public final class Settings
         {
             pos = null;
         }
-        
+
         if (buf.readBoolean())
         {
             box = new Tuple<>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
@@ -576,7 +592,7 @@ public final class Settings
         {
             structureName = null;
         }
-        
+
         if (buf.readBoolean())
         {
             staticSchematicName = buf.readString(32767);
