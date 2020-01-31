@@ -76,7 +76,6 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void init()
     {
-        LOGGER.info("rerun");
         BlueprintUtils.clearCacheForBlueprint(blockAccess.getBlueprint());
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
