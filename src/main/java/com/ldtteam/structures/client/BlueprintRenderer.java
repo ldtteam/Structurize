@@ -88,7 +88,6 @@ public class BlueprintRenderer implements AutoCloseable
                 {
                     final BlockState state = blockInfo.getState();
                     final BlockPos blockPos = blockInfo.getPos();
-                    // final TileEntity tileEnt = blockInfo.getTileEntityData() == null ? null : TileEntity.create(blockInfo.getTileEntityData());
                     final IFluidState fluidState = state.getFluidState();
 
                     matrixStack.push();
@@ -103,9 +102,6 @@ public class BlueprintRenderer implements AutoCloseable
                     {
                         FluidRenderer.render(blockAccess, blockPos, buffer, fluidState);
                     }
-
-                    // tileEntityRendererDispatcher.func_228850_a_(tileEnt, partialTicks, matrixStack, irendertypebuffer$impl);
-                    // our world class needs fixes, TEs not used that much now
 
                     matrixStack.pop();
                 }
