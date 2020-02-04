@@ -4,7 +4,6 @@ import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,7 +13,6 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -39,8 +37,8 @@ public class ClientEventSubscriber
             StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition(), event.getMatrixStack());
 
             final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
-            BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
-            BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ()) ;
+            final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
+            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ());
 
             renderBox(pos, pos.add(size).subtract(new BlockPos(1, 1, 1)), player, event);
         }
@@ -95,7 +93,7 @@ public class ClientEventSubscriber
         final MatrixStack matrix = event.getMatrixStack();
         matrix.push();
         matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-        
+
         final Matrix4f matrix4f = matrix.getLast().getPositionMatrix();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
         BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);

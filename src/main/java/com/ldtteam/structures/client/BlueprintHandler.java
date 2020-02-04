@@ -2,6 +2,8 @@ package com.ldtteam.structures.client;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -22,13 +24,19 @@ public final class BlueprintHandler
      */
     private static final BlueprintHandler ourInstance = new BlueprintHandler();
 
+    private final RemovalListener<Blueprint, BlueprintRenderer> removalListener = new RemovalListener<Blueprint, BlueprintRenderer>()
+    {
+        @Override
+        public void onRemoval(final RemovalNotification<Blueprint, BlueprintRenderer> notification)
+        {
+            notification.getValue().close();
+        }
+    };
     /**
      * The builder cache.
      */
     private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
-      CacheBuilder.newBuilder()
-        .maximumSize(50)
-        .build();
+        CacheBuilder.newBuilder().maximumSize(50).removalListener(removalListener).build();
 
     /**
      * Private constructor to hide public one.
@@ -52,12 +60,19 @@ public final class BlueprintHandler
 
     /**
      * Draw a blueprint with a rotation, mirror and offset.
-     *  @param blueprint      the wayPointBlueprint to draw.
-     * @param rotation      its rotation.
-     * @param mirror        its mirror.
-     * @param pos its position.
+     *
+     * @param blueprint the wayPointBlueprint to draw.
+     * @param rotation  its rotation.
+     * @param mirror    its mirror.
+     * @param pos       its position.
      */
-    public void draw(final Blueprint blueprint, final Rotation rotation, final Mirror mirror, final BlockPos pos, final MatrixStack stack, final float partialTicks)
+    public void draw(
+        final Blueprint blueprint,
+        final Rotation rotation,
+        final Mirror mirror,
+        final BlockPos pos,
+        final MatrixStack stack,
+        final float partialTicks)
     {
         if (blueprint == null)
         {
@@ -80,7 +95,7 @@ public final class BlueprintHandler
      *
      * @param points       the points to render it at.
      * @param partialTicks the partial ticks.
-     * @param blueprint the blueprint.
+     * @param blueprint    the blueprint.
      */
     public void drawBlueprintAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Blueprint blueprint, final MatrixStack stack)
     {

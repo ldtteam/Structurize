@@ -26,7 +26,7 @@ import net.minecraft.world.ILightReader;
  */
 public class FluidRenderer
 {
-    public static boolean render(final Matrix4f matrix, final ILightReader blockAccess, final BlockPos pos, final IVertexBuilder iVertexBuilder, final IFluidState fluidState)
+    public static boolean render(final ILightReader blockAccess, final BlockPos pos, final IVertexBuilder iVertexBuilder, final IFluidState fluidState)
     {
         boolean isLava = fluidState.isTagged(FluidTags.LAVA);
         TextureAtlasSprite[] atextureatlassprite = net.minecraftforge.client.ForgeHooksClient.getFluidSprites(blockAccess, pos, fluidState);
@@ -90,14 +90,14 @@ public class FluidRenderer
                     float f21 = (float) MathHelper.atan2(vec3d.z, vec3d.x) - ((float) Math.PI / 2F);
                     float f22 = MathHelper.sin(f21) * 0.25F;
                     float f23 = MathHelper.cos(f21) * 0.25F;
-                    f13 = textureatlassprite.getInterpolatedU( (8.0F + (-f23 - f22) * 16.0F));
-                    f17 = textureatlassprite.getInterpolatedV( (8.0F + (-f23 + f22) * 16.0F));
-                    f14 = textureatlassprite.getInterpolatedU( (8.0F + (-f23 + f22) * 16.0F));
-                    f18 = textureatlassprite.getInterpolatedV( (8.0F + (f23 + f22) * 16.0F));
-                    f15 = textureatlassprite.getInterpolatedU( (8.0F + (f23 + f22) * 16.0F));
-                    f19 = textureatlassprite.getInterpolatedV( (8.0F + (f23 - f22) * 16.0F));
-                    f16 = textureatlassprite.getInterpolatedU( (8.0F + (f23 - f22) * 16.0F));
-                    f20 = textureatlassprite.getInterpolatedV( (8.0F + (-f23 - f22) * 16.0F));
+                    f13 = textureatlassprite.getInterpolatedU((8.0F + (-f23 - f22) * 16.0F));
+                    f17 = textureatlassprite.getInterpolatedV((8.0F + (-f23 + f22) * 16.0F));
+                    f14 = textureatlassprite.getInterpolatedU((8.0F + (-f23 + f22) * 16.0F));
+                    f18 = textureatlassprite.getInterpolatedV((8.0F + (f23 + f22) * 16.0F));
+                    f15 = textureatlassprite.getInterpolatedU((8.0F + (f23 + f22) * 16.0F));
+                    f19 = textureatlassprite.getInterpolatedV((8.0F + (f23 - f22) * 16.0F));
+                    f16 = textureatlassprite.getInterpolatedU((8.0F + (f23 - f22) * 16.0F));
+                    f20 = textureatlassprite.getInterpolatedV((8.0F + (-f23 - f22) * 16.0F));
                 }
 
                 float f43 = (f13 + f14 + f15 + f16) / 4.0F;
@@ -117,16 +117,16 @@ public class FluidRenderer
                 float f25 = 1.0F * red;
                 float f26 = 1.0F * green;
                 float f27 = 1.0F * blue;
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 0.0f, posY + fluidHeight, posZ + 0.0f, f25, f26, f27, alpha, f13, f17, j);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 0.0f, posY + fluidHeightS, posZ + 1.0f, f25, f26, f27, alpha, f14, f18, j);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + fluidHeightSE, posZ + 1.0f, f25, f26, f27, alpha, f15, f19, j);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + fluidHeightE, posZ + 0.0f, f25, f26, f27, alpha, f16, f20, j);
+                FluidRenderer.vertex(iVertexBuilder, posX + 0.0f, posY + fluidHeight, posZ + 0.0f, f25, f26, f27, alpha, f13, f17, j);
+                FluidRenderer.vertex(iVertexBuilder, posX + 0.0f, posY + fluidHeightS, posZ + 1.0f, f25, f26, f27, alpha, f14, f18, j);
+                FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + fluidHeightSE, posZ + 1.0f, f25, f26, f27, alpha, f15, f19, j);
+                FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + fluidHeightE, posZ + 0.0f, f25, f26, f27, alpha, f16, f20, j);
                 if (fluidState.shouldRenderSides(blockAccess, pos.up()))
                 {
-                    FluidRenderer.vertex(iVertexBuilder, matrix, posX + 0.0f, posY + fluidHeight, posZ + 0.0f, f25, f26, f27, alpha, f13, f17, j);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + fluidHeightE, posZ + 0.0f, f25, f26, f27, alpha, f16, f20, j);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + fluidHeightSE, posZ + 1.0f, f25, f26, f27, alpha, f15, f19, j);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, posX + 0.0f, posY + fluidHeightS, posZ + 1.0f, f25, f26, f27, alpha, f14, f18, j);
+                    FluidRenderer.vertex(iVertexBuilder, posX + 0.0f, posY + fluidHeight, posZ + 0.0f, f25, f26, f27, alpha, f13, f17, j);
+                    FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + fluidHeightE, posZ + 0.0f, f25, f26, f27, alpha, f16, f20, j);
+                    FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + fluidHeightSE, posZ + 1.0f, f25, f26, f27, alpha, f15, f19, j);
+                    FluidRenderer.vertex(iVertexBuilder, posX + 0.0f, posY + fluidHeightS, posZ + 1.0f, f25, f26, f27, alpha, f14, f18, j);
                 }
             }
 
@@ -140,10 +140,10 @@ public class FluidRenderer
                 float f40 = 0.5F * red;
                 float f41 = 0.5F * green;
                 float f42 = 0.5F * blue;
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX, posY + waterDepth, posZ + 1.0f, f40, f41, f42, alpha, f34, f39, i1);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX, posY + waterDepth, posZ, f40, f41, f42, alpha, f34, f37, i1);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + waterDepth, posZ, f40, f41, f42, alpha, f35, f37, i1);
-                FluidRenderer.vertex(iVertexBuilder, matrix, posX + 1.0f, posY + waterDepth, posZ + 1.0f, f40, f41, f42, alpha, f35, f39, i1);
+                FluidRenderer.vertex(iVertexBuilder, posX, posY + waterDepth, posZ + 1.0f, f40, f41, f42, alpha, f34, f39, i1);
+                FluidRenderer.vertex(iVertexBuilder, posX, posY + waterDepth, posZ, f40, f41, f42, alpha, f34, f37, i1);
+                FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + waterDepth, posZ, f40, f41, f42, alpha, f35, f37, i1);
+                FluidRenderer.vertex(iVertexBuilder, posX + 1.0f, posY + waterDepth, posZ + 1.0f, f40, f41, f42, alpha, f35, f39, i1);
                 needDepthRendering = true;
             }
 
@@ -218,24 +218,24 @@ public class FluidRenderer
 
                     float f48 = textureatlassprite2.getInterpolatedU(0.0D);
                     float f49 = textureatlassprite2.getInterpolatedU(8.0D);
-                    float f50 = textureatlassprite2.getInterpolatedV( ((1.0F - height) * 16.0F * 0.5F));
-                    float f28 = textureatlassprite2.getInterpolatedV( ((1.0F - fHeight) * 16.0F * 0.5F));
+                    float f50 = textureatlassprite2.getInterpolatedV(((1.0F - height) * 16.0F * 0.5F));
+                    float f28 = textureatlassprite2.getInterpolatedV(((1.0F - fHeight) * 16.0F * 0.5F));
                     float f29 = textureatlassprite2.getInterpolatedV(8.0D);
                     int k = FluidRenderer.getLight(blockAccess, blockpos);
                     float f30 = l < 2 ? 0.8F : 0.6F;
                     float r = 1.0F * f30 * red;
                     float g = 1.0F * f30 * green;
                     float b = 1.0F * f30 * blue;
-                    FluidRenderer.vertex(iVertexBuilder, matrix, x, posY + height, z, r, g, b, alpha, f48, f50, k);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, offsetX, posY + fHeight, offsetZ, r, g, b, alpha, f49, f28, k);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, offsetX, posY + waterDepth, offsetZ, r, g, b, alpha, f49, f29, k);
-                    FluidRenderer.vertex(iVertexBuilder, matrix, x, posY + waterDepth, z, r, g, b, alpha, f48, f29, k);
+                    FluidRenderer.vertex(iVertexBuilder, x, posY + height, z, r, g, b, alpha, f48, f50, k);
+                    FluidRenderer.vertex(iVertexBuilder, offsetX, posY + fHeight, offsetZ, r, g, b, alpha, f49, f28, k);
+                    FluidRenderer.vertex(iVertexBuilder, offsetX, posY + waterDepth, offsetZ, r, g, b, alpha, f49, f29, k);
+                    FluidRenderer.vertex(iVertexBuilder, x, posY + waterDepth, z, r, g, b, alpha, f48, f29, k);
                     if (textureatlassprite2 != ModelBakery.LOCATION_WATER_OVERLAY.getSprite())
                     {
-                        FluidRenderer.vertex(iVertexBuilder, matrix, x, posY + waterDepth, z, r, g, b, alpha, f48, f29, k);
-                        FluidRenderer.vertex(iVertexBuilder, matrix, offsetX, posY + waterDepth, offsetZ, r, g, b, alpha, f49, f29, k);
-                        FluidRenderer.vertex(iVertexBuilder, matrix, offsetX, posY + fHeight, offsetZ, r, g, b, alpha, f49, f28, k);
-                        FluidRenderer.vertex(iVertexBuilder, matrix, x, posY + height, z, r, g, b, alpha, f48, f50, k);
+                        FluidRenderer.vertex(iVertexBuilder, x, posY + waterDepth, z, r, g, b, alpha, f48, f29, k);
+                        FluidRenderer.vertex(iVertexBuilder, offsetX, posY + waterDepth, offsetZ, r, g, b, alpha, f49, f29, k);
+                        FluidRenderer.vertex(iVertexBuilder, offsetX, posY + fHeight, offsetZ, r, g, b, alpha, f49, f28, k);
+                        FluidRenderer.vertex(iVertexBuilder, x, posY + height, z, r, g, b, alpha, f48, f50, k);
                     }
                 }
             }
@@ -252,25 +252,19 @@ public class FluidRenderer
     }
 
     private static void vertex(
-      IVertexBuilder iVertexBuilder,
-      final Matrix4f matrix4f,
-      float x,
-      float y,
-      float z,
-      float red,
-      float green,
-      float blue,
-      float alpha,
-      float textX,
-      float textY,
-      int light)
+        IVertexBuilder iVertexBuilder,
+        float x,
+        float y,
+        float z,
+        float red,
+        float green,
+        float blue,
+        float alpha,
+        float textX,
+        float textY,
+        int light)
     {
-        iVertexBuilder.pos(matrix4f, x, y, z)
-          .color(red, green, blue, alpha)
-          .tex(textX, textY)
-          .lightmap(light)
-          .normal(0.0F, 1.0F, 0.0F)
-          .endVertex();
+        iVertexBuilder.pos(x, y, z).color(red, green, blue, alpha).tex(textX, textY).lightmap(light).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 
     private static int getLight(ILightReader p_228795_1_, BlockPos p_228795_2_)
