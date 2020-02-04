@@ -397,7 +397,6 @@ public final class Settings
 
         isMirrored = !isMirrored;
         structure.getSettings().setMirror(getMirror());
-        structure.setPlacementSettings(structure.getSettings());
 
         if (isMirrored)
         {
