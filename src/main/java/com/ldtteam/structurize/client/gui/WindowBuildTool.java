@@ -812,7 +812,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         if (!Settings.instance.isStaticSchematicMode())
         {
-            if (schematics.get(schematicsDropDownList.getSelectedIndex()).equals(Settings.instance.getStructureName()))
+            if (schematics.get(schematicsDropDownList.getSelectedIndex()).equals(Settings.instance.getStructureName()) &&
+                Settings.instance.getActiveStructure() != null)
             {
                 return;
             }

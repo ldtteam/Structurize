@@ -46,6 +46,7 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 public class BlueprintRenderer implements AutoCloseable
 {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
@@ -159,7 +160,6 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), rawPosMatrix);
 
-        final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
         final IRenderTypeBuffer.Impl renderBufferSource = renderBuffers.getBufferSource();
 
         // Entities
