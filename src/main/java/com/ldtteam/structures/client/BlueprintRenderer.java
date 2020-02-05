@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.Blocks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.block.BlockRenderType;
@@ -94,7 +96,12 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 try
                 {
-                    final BlockState state = blockInfo.getState();
+                    BlockState state = blockInfo.getState();
+                    if (state.getBlock() == ModBlocks.blockSubstitution)
+                    {
+                        state = Blocks.AIR.getDefaultState();
+                    }
+
                     final BlockPos blockPos = blockInfo.getPos();
                     final IFluidState fluidState = state.getFluidState();
 
