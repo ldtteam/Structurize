@@ -1,7 +1,6 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 /**
@@ -18,6 +17,11 @@ public class Label extends AbstractTextElement
      * The color the label has when hovering it with the mouse.
      */
     protected int hoverColor = 0xffffff;
+
+    /**
+     * Whether to wrap text around or not
+     */
+    protected boolean wrap = false;
 
     /**
      * Standard constructor which instantiates a new label.
@@ -40,6 +44,8 @@ public class Label extends AbstractTextElement
 
         // match textColor by default
         hoverColor = params.getColorAttribute("hovercolor", textColor);
+
+        wrap = params.getBooleanAttribute("wrap", wrap);
 
         if (width == 0)
         {
@@ -104,7 +110,16 @@ public class Label extends AbstractTextElement
         RenderSystem.translated((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
         RenderSystem.scalef((float) scale, (float) scale, (float) scale);
         mc.getTextureManager().bindTexture(TEXTURE);
-        drawString(labelText, 0, 0, color, shadow);
+
+        if (labelText != null && wrap)
+        {
+            mc.fontRenderer.drawSplitString(labelText, 0, 0, width, color);
+        }
+        else
+        {
+            drawString(labelText, 0, 0, color, shadow);
+        }
+
         RenderSystem.popMatrix();
     }
 
