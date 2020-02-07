@@ -64,12 +64,12 @@ public class ZoomDragView extends View
         return yIn * scale - scrollY;
     }
 
-    private double calcAbsoluteX(final double xIn)
+    private double calcRelativeX(final double xIn)
     {
         return (xIn - x + scrollX) / scale + x;
     }
 
-    private double calcAbsoluteY(final double yIn)
+    private double calcRelativeY(final double yIn)
     {
         return (yIn - y + scrollY) / scale + y;
     }
@@ -130,7 +130,7 @@ public class ZoomDragView extends View
         RenderSystem.translated(-scrollX, -scrollY, 0.0d);
         RenderSystem.translated((1 - scale) * x, (1 - scale) * y, 0.0d);
         RenderSystem.scaled(scale, scale, 1.0d);
-        super.drawSelf((int) calcAbsoluteX(mx), (int) calcAbsoluteY(my));
+        super.drawSelf((int) calcRelativeX(mx), (int) calcRelativeY(my));
         RenderSystem.popMatrix();
 
         scissorsEnd();
@@ -149,7 +149,7 @@ public class ZoomDragView extends View
     @Override
     public boolean onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
     {
-        final boolean childResult = super.onMouseDrag(calcAbsoluteX(startX), calcAbsoluteY(startY), speed, calcAbsoluteX(x), calcAbsoluteY(y));
+        final boolean childResult = super.onMouseDrag(calcRelativeX(startX), calcRelativeY(startY), speed, calcRelativeX(x), calcRelativeY(y));
         if (!childResult && dragEnabled)
         {
             setScrollX(scrollX - x * dragFactor);
@@ -177,24 +177,24 @@ public class ZoomDragView extends View
     @Override
     public boolean click(final int mx, final int my)
     {
-        return super.click((int) calcAbsoluteX(mx), (int) calcAbsoluteY(my));
+        return super.click((int) calcRelativeX(mx), (int) calcRelativeY(my));
     }
 
     @Override
     public Pane findPaneForClick(final int mx, final int my)
     {
-        return super.findPaneForClick((int) calcAbsoluteX(mx), (int) calcAbsoluteY(my));
+        return super.findPaneForClick((int) calcRelativeX(mx), (int) calcRelativeY(my));
     }
 
     @Override
     public void handleHover(final int mx, final int my)
     {
-        super.handleHover((int) calcAbsoluteX(mx), (int) calcAbsoluteY(my));
+        super.handleHover((int) calcRelativeX(mx), (int) calcRelativeY(my));
     }
 
     @Override
     public boolean rightClick(final int mx, final int my)
     {
-        return super.rightClick((int) calcAbsoluteX(mx), (int) calcAbsoluteY(my));
+        return super.rightClick((int) calcRelativeX(mx), (int) calcRelativeY(my));
     }
 }
