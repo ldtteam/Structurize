@@ -144,11 +144,11 @@ public class Scrollbar extends Pane
     }
 
     @Override
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final int mx, final int my)
     {
         if (getContentHeightDiff() <= 0)
         {
-            return;
+            return true;
         }
 
         final int barHeight = getBarHeight();
@@ -169,6 +169,7 @@ public class Scrollbar extends Pane
             barClickY = my - scrollBarStartY;
             barClicked = true;
         }
+        return true;
     }
 
     private int getContentHeightDiff()

@@ -187,9 +187,10 @@ public class Window extends View
      * @param mx Mouse X position
      * @param my Mouse Y position
      */
-    public void onMouseReleased(final int mx, final int my)
+    public boolean onMouseReleased(final int mx, final int my)
     {
         // Can be overridden
+        return false;
     }
 
     /**

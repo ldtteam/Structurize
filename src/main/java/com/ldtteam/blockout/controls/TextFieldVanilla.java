@@ -98,7 +98,7 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final int mx, final int my)
     {
         int mouseX = mx;
 
@@ -108,6 +108,7 @@ public class TextFieldVanilla extends TextField
         }
 
         super.handleClick(mouseX, my);
+        return true;
     }
 
     /*

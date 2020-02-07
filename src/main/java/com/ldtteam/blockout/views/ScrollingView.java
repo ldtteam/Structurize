@@ -75,9 +75,10 @@ public class ScrollingView extends View
     }
 
     @Override
-    public void scrollInput(final double wheel)
+    public boolean scrollInput(final double wheel, final double mx, final double my)
     {
         this.setScrollY(getScrollY() - (int) wheel);
+        return true;
     }
 
     public ScrollingContainer getContainer()

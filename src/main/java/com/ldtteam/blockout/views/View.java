@@ -83,15 +83,19 @@ public class View extends Pane
     }
 
     @Override
-    public void scrollInput(final double wheel)
+    public boolean scrollInput(final double wheel, final double mx, final double my)
     {
+        final int mxChild = (int) mx - x - padding;
+        final int myChild = (int) my - y - padding;
+
         for (final Pane child : new ArrayList<>(children))
         {
-            if (child != null)
+            if (child != null && child.isPointInPane(mxChild, myChild))
             {
-                child.scrollInput(wheel);
+                return child.scrollInput(wheel, mx, my);
             }
         }
+        return false;
     }
 
     @Override
@@ -140,36 +144,36 @@ public class View extends Pane
 
     // Mouse
     @Override
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final int mx, final int my)
     {
         final int mxChild = mx - x - padding;
         final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+
+        for (final Pane child : new ArrayList<>(children))
         {
-            clickedPane.rightClick(mxChild, myChild);
+            if (child != null && child.isPointInPane(mxChild, myChild))
+            {
+                return child.rightClick(mxChild, myChild);
+            }
         }
-        else
-        {
-            super.rightClick(mx, my);
-        }
+        return false;
     }
 
     // Mouse
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final int mx, final int my)
     {
         final int mxChild = mx - x - padding;
         final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+
+        for (final Pane child : new ArrayList<>(children))
         {
-            clickedPane.click(mxChild, myChild);
+            if (child != null && child.isPointInPane(mxChild, myChild))
+            {
+                return child.click(mxChild, myChild);
+            }
         }
-        else
-        {
-            super.click(mx, my);
-        }
+        return false;
     }
 
     /**
@@ -289,18 +293,18 @@ public class View extends Pane
     }
 
     @Override
-    public void onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-        final int mxChild = (int) (x - this.x - padding);
-        final int myChild = (int) (y - this.y - padding);
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+        final double mxChild = x - this.x - padding;
+        final double myChild = y - this.y - padding;
+
+        for (final Pane child : new ArrayList<>(children))
         {
-            clickedPane.onMouseDrag(x, y, speed, deltaX, deltaY);
+            if (child != null && child.isPointInPane((int) mxChild, (int) myChild))
+            {
+                return child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY);
+            }
         }
-        else
-        {
-            super.onMouseDrag(x, y, speed, deltaX, deltaY);
-        }
+        return false;
     }
 }

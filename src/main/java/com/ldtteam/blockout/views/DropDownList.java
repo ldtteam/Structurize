@@ -310,9 +310,9 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final int mx, final int my)
     {
-        button.click(mx, my);
+        return button.click(mx, my);
     }
 
     /**

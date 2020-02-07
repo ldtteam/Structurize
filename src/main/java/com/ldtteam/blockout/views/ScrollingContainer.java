@@ -79,10 +79,10 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final int mx, final int my)
     {
         // Offset click by the scroll amounts; we'll adjust it back on clickSelf
-        super.click(mx, my + scrollY);
+        return super.click(mx, my + scrollY);
     }
 
     @Override

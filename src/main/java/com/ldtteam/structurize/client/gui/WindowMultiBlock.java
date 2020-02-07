@@ -254,7 +254,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
     }
 
     @Override
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final int mx, final int my)
     {
         Pane pane = this.findPaneForClick(mx, my);
         if (pane instanceof View)
@@ -289,7 +289,9 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
                     break;
             }
             enable(output, newFacing, true);
+            return true;
         }
+        return false;
     }
 
     /**

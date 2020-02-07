@@ -250,14 +250,6 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Is pane visible and enabled.
-     */
-    public boolean isOn()
-    {
-        return enabled && visible;
-    }
-
-    /**
      * Enable and show this pane.
      */
     public void on()
@@ -361,7 +353,7 @@ public class Pane extends AbstractGui
      * @param my point y.
      * @return true if the point is in the pane.
      */
-    protected boolean isPointInPane(final int mx, final int my)
+    public boolean isPointInPane(final int mx, final int my)
     {
         return mx >= x && mx < (x + width) && my >= y && my < (y + height);
     }
@@ -480,10 +472,10 @@ public class Pane extends AbstractGui
      * @param mx mouse X coordinate, relative to parent's top-left.
      * @param my mouse Y coordinate, relative to parent's top-left.
      */
-    public void click(final int mx, final int my)
+    public boolean click(final int mx, final int my)
     {
         setLastClickedPane(this);
-        handleClick(mx - x, my - y);
+        return handleClick(mx - x, my - y);
     }
 
     /**
@@ -494,10 +486,10 @@ public class Pane extends AbstractGui
      * @param mx mouse X coordinate, relative to parent's top-left.
      * @param my mouse Y coordinate, relative to parent's top-left.
      */
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final int mx, final int my)
     {
         setLastClickedPane(this);
-        handleRightClick(mx - x, my - y);
+        return handleRightClick(mx - x, my - y);
     }
 
     /**
@@ -518,9 +510,10 @@ public class Pane extends AbstractGui
      * @param mx mouse X coordinate, relative to Pane's top-left.
      * @param my mouse Y coordinate, relative to Pane's top-left.
      */
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final int mx, final int my)
     {
         // Can be overloaded
+        return false;
     }
 
     /**
@@ -531,9 +524,10 @@ public class Pane extends AbstractGui
      * @param mx mouse X coordinate, relative to Pane's top-left.
      * @param my mouse Y coordinate, relative to Pane's top-left.
      */
-    public void handleRightClick(final int mx, final int my)
+    public boolean handleRightClick(final int mx, final int my)
     {
         // Can be overloaded
+        return false;
     }
 
     /**
@@ -644,11 +638,12 @@ public class Pane extends AbstractGui
      *
      * @param wheel minus for down, plus for up.
      */
-    public void scrollInput(final double wheel)
+    public boolean scrollInput(final double wheel, final double mx, final double my)
     {
         /**
          * Can be overwritten by child classes
          */
+        return false;
     }
 
     /**
@@ -737,8 +732,8 @@ public class Pane extends AbstractGui
      * @param deltaX relative x.
      * @param deltaY relative y.
      */
-    public void onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-
+        return false;
     }
 }

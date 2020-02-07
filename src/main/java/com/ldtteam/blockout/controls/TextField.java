@@ -441,11 +441,11 @@ public class TextField extends Pane
     }
 
     @Override
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final int mx, final int my)
     {
         if (mx < 0)
         {
-            return;
+            return false;
         }
 
         final String visibleString = mc.fontRenderer.trimStringToWidth(text.substring(scrollOffset), getInternalWidth());
@@ -457,6 +457,7 @@ public class TextField extends Pane
         setFocus();
         scrollOffset = oldScrollOffset;
         setCursorPosition(trimmedString.length() + scrollOffset);
+        return true;
     }
 
     @Override

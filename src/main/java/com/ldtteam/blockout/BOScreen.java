@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -111,15 +110,14 @@ public class BOScreen extends Screen
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
-            window.click(mx, my);
             isMouseLeftDown = true;
+            return window.click(mx, my);
         }
         else if (keyCode == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
         {
-            window.rightClick(mx, my);
+            return window.rightClick(mx, my);
         }
-        // TODO: needs propagation
-        return true;
+        return false;
     }
 
     @Override
@@ -127,10 +125,9 @@ public class BOScreen extends Screen
     {
         if (scrollDiff != 0)
         {
-            window.scrollInput(scrollDiff*10);
+            return window.scrollInput(scrollDiff * 10, mx, my);
         }
-        // TODO: needs propagation
-        return true;
+        return false;
     }
 
     @Override
@@ -143,15 +140,9 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public boolean mouseDragged(
-      final double x,
-      final double y,
-      final int speed,
-      final double deltaX,
-      final double deltaY)
+    public boolean mouseDragged(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-        window.onMouseDrag(x, y, speed, deltaX, deltaY);
-        return super.mouseDragged(x, y, speed, deltaX, deltaY);
+        return window.onMouseDrag(x, y, speed, deltaX, deltaY);
     }
 
     @Override
@@ -160,11 +151,10 @@ public class BOScreen extends Screen
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
-            window.onMouseReleased((int) mxIn - x, (int) myIn - y);
             isMouseLeftDown = false;
+            return window.onMouseReleased((int) mxIn - x, (int) myIn - y);
         }
-        // TODO: needs propagation
-        return true;
+        return false;
     }
 
     @Deprecated
