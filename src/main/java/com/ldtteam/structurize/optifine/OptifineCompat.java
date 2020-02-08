@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.optifine;
 
-import com.ldtteam.structures.client.BlueprintTessellator;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraftforge.api.distmarker.Dist;
@@ -228,6 +227,7 @@ public class OptifineCompat
      *
      * @param tessellator The tessellator that is about to be uploaded to the GPU.
      */
+    /*
     @OnlyIn(Dist.CLIENT)
     public void beforeBuilderUpload(BlueprintTessellator tessellator)
     {
@@ -257,4 +257,5 @@ public class OptifineCompat
             enableOptifine = false;
         }
     }
+    */
 }
