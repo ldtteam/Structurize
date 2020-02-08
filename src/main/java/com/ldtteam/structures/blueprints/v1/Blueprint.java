@@ -371,11 +371,11 @@ public class Blueprint
     {
         cacheBlockInfo = new ArrayList<>(getVolume());
         cacheBlockInfoMap = new HashMap<>(getVolume());
-        for (short x = 0; x < this.sizeX; x++)
+        for (short y = 0; y < this.sizeY; y++)
         {
-            for (short y = 0; y < this.sizeY; y++)
+            for (short z = 0; z < this.sizeZ; z++)
             {
-                for (short z = 0; z < this.sizeZ; z++)
+                for (short x = 0; x < this.sizeX; x++)
                 {
                     final BlockPos tempPos = new BlockPos(x, y, z);
                     final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
