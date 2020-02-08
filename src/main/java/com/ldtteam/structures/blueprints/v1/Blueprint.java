@@ -81,8 +81,15 @@ public class Blueprint
      */
     private CompoundNBT[] entities = new CompoundNBT[0];
 
+    /**
+     * Various caches for storing block data in prepared structures
+     */
     private List<BlockInfo> cacheBlockInfo = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
+
+    /**
+     * Cache for storing rotate/mirror anchor
+     */
     private BlockPos cachePrimaryOffset = null;
 
     /**
@@ -341,21 +348,26 @@ public class Blueprint
     {
         if (cacheBlockInfo == null)
         {
-            getBlockInfoAsList0();
+            buildBlockInfoCaches();
         }
         return cacheBlockInfo;
     }
 
+    /**
+     * Get a map of all blockpos->blockInfo objects in the blueprint.
+     *
+     * @return a map of all blockpos->blockInfo (position, blockState, tileEntityData).
+     */
     public final Map<BlockPos, BlockInfo> getBlockInfoAsMap()
     {
         if (cacheBlockInfoMap == null)
         {
-            getBlockInfoAsList0();
+            buildBlockInfoCaches();
         }
         return cacheBlockInfoMap;
     }
 
-    private final void getBlockInfoAsList0()
+    private final void buildBlockInfoCaches()
     {
         cacheBlockInfo = new ArrayList<>(getVolume());
         cacheBlockInfoMap = new HashMap<>(getVolume());
@@ -378,12 +390,12 @@ public class Blueprint
     {
         if (cachePrimaryOffset == null)
         {
-            cachePrimaryOffset = getPrimaryBlockOffset0();
+            cachePrimaryOffset = findPrimaryBlockOffset();
         }
         return cachePrimaryOffset;
     }
 
-    private final BlockPos getPrimaryBlockOffset0()
+    private final BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list =
             getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());

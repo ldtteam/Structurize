@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -17,6 +19,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientEventSubscriber
@@ -137,5 +140,20 @@ public class ClientEventSubscriber
         matrix.pop();
 
         RenderSystem.disableDepthTest();
+    }
+
+    /**
+     * Used to catch the clientTickEvent.
+     * Call renderer cache cleaning every 5 secs (100 ticks).
+     *
+     * @param event the catched event.
+     */
+    @SubscribeEvent
+    public static void onClientTickEvent(final ClientTickEvent event)
+    {
+        if (Minecraft.getInstance().world.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        {
+            BlueprintHandler.getInstance().cleanCache();
+        }
     }
 }

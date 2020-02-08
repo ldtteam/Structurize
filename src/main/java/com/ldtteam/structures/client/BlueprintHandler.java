@@ -21,7 +21,7 @@ public final class BlueprintHandler
      */
     private static final BlueprintHandler ourInstance = new BlueprintHandler();
     private static final int CACHE_SIZE = 30;
-    private static final long CACHE_EVICT_TIME = 45_000_000_000L;
+    private static final long CACHE_EVICT_TIME = 45_000L;
 
     private final Int2ObjectArrayMap<SoftReference<BlueprintRenderer>> rendererCache = new Int2ObjectArrayMap<>(CACHE_SIZE);
     private final Int2LongArrayMap evictTimeCache = new Int2LongArrayMap(CACHE_SIZE);
@@ -64,7 +64,6 @@ public final class BlueprintHandler
         final int blueprintHash = blueprint.hashCode();
         final SoftReference<BlueprintRenderer> rendererRef = rendererCache.get(blueprintHash);
         final BlueprintRenderer renderer;
-        final long now = System.nanoTime();
 
         if (rendererRef == null || rendererRef.get() == null)
         {
@@ -76,13 +75,21 @@ public final class BlueprintHandler
             renderer = rendererRef.get();
         }
 
-        evictTimeCache.put(blueprintHash, now);
+        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
         renderer.updateBlueprint(blueprint);
         renderer.draw(pos, stack, partialTicks);
 
+        Minecraft.getInstance().getProfiler().endSection();
+    }
+
+    /**
+     * Cleans entries that are older than CACHE_EVICT_TIME.
+     */
+    public void cleanCache()
+    {
         for (final Int2LongMap.Entry entry : evictTimeCache.int2LongEntrySet())
         {
-            if (entry.getLongValue() + CACHE_EVICT_TIME < now)
+            if (entry.getLongValue() + CACHE_EVICT_TIME < System.currentTimeMillis())
             {
                 final int removeHash = entry.getIntKey();
                 final SoftReference<BlueprintRenderer> removeRendererRef = rendererCache.remove(removeHash);
@@ -93,8 +100,6 @@ public final class BlueprintHandler
                 }
             }
         }
-
-        Minecraft.getInstance().getProfiler().endSection();
     }
 
     /**

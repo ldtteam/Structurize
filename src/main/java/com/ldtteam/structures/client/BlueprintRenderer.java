@@ -77,9 +77,14 @@ public class BlueprintRenderer implements AutoCloseable
         init();
     }
 
+    /**
+     * Updates blueprint reference if it has same hash.
+     *
+     * @param blueprint blueprint from active structure
+     */
     public void updateBlueprint(final Blueprint blueprint)
     {
-        if (blockAccess.getBlueprint() != blueprint)
+        if (blockAccess.getBlueprint() != blueprint && blockAccess.getBlueprint().hashCode() == blueprint.hashCode())
         {
             blockAccess.setBlueprint(blueprint);
             Settings.instance.scheduleRefresh();
