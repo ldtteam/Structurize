@@ -3,10 +3,7 @@ package com.ldtteam.structurize.proxy;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.client.gui.WindowMultiBlock;
-import com.ldtteam.structurize.client.gui.WindowBuildTool;
-import com.ldtteam.structurize.client.gui.WindowScan;
-import com.ldtteam.structurize.client.gui.WindowShapeTool;
+import com.ldtteam.structurize.client.gui.*;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.optifine.OptifineCompat;
@@ -147,6 +144,13 @@ public class ClientProxy extends CommonProxy
     public void openMultiBlockWindow(@Nullable final BlockPos pos)
     {
         @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
+        window.open();
+    }
+
+    @Override
+    public void openPlaceholderBlockWindow(@Nullable final BlockPos pos)
+    {
+        @Nullable final WindowPlaceholderblock window = new WindowPlaceholderblock(pos);
         window.open();
     }
 }

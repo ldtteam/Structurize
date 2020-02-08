@@ -10,7 +10,7 @@ public class BlockCactusPlank extends AbstractBlockStructurize<BlockCactusPlank>
 
     public BlockCactusPlank()
     {
-        super(Block.Properties.from(Blocks.OAK_DOOR));
+        super(Block.Properties.from(Blocks.OAK_PLANKS));
         setRegistryName(BLOCK_NAME);
     }
 }

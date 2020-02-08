@@ -1,0 +1,204 @@
+package com.ldtteam.structurize.client.gui;
+
+import com.google.common.collect.ImmutableList;
+import com.ldtteam.blockout.Color;
+import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.controls.*;
+import com.ldtteam.blockout.views.ScrollingList;
+import com.ldtteam.blockout.views.Window;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.network.messages.UpdatePlaceholderBlockMessage;
+import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+
+/**
+ * Window for the replace block GUI.
+ */
+public class WindowPlaceholderblock extends Window implements ButtonHandler
+{
+    private static final String BUTTON_DONE          = "done";
+    private static final String BUTTON_CANCEL        = "cancel";
+    private static final String INPUT_NAME           = "name";
+    private static final String WINDOW_REPLACE_BLOCK = ":gui/windowreplaceblock.xml";
+
+    /**
+     * The stack to replace.
+     */
+    private ItemStack from;
+
+    /**
+     * The position.
+     */
+    private final BlockPos pos;
+
+    /**
+     * White color.
+     */
+    private static final int WHITE     = Color.getByName("white", 0);
+
+    /**
+     * List of all item stacks in the game.
+     */
+    private final List<ItemStack> allItems = new ArrayList<>();
+
+    /**
+     * Resource scrolling list.
+     */
+    private final ScrollingList resourceList;
+
+    /**
+     * The filter for the resource list.
+     */
+    private String filter = "";
+
+    /**
+     * Create the replacement GUI.
+     * @param pos the pos.
+     */
+    public WindowPlaceholderblock(final BlockPos pos)
+    {
+        super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
+
+        final TileEntityPlaceholder te = (TileEntityPlaceholder) Minecraft.getInstance().world.getTileEntity(pos);
+        if (te != null)
+        {
+            this.from = te.getStack();
+        }
+
+        this.pos = pos;
+        resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
+    }
+
+    @Override
+    public void onOpened()
+    {
+        if (this.from == null)
+        {
+            close();
+        }
+
+        findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
+        findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText(from.getDisplayName().getUnformattedComponentText());
+        findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
+        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(new ItemStack(Blocks.AIR).getDisplayName().getUnformattedComponentText());
+        updateResources();
+    }
+
+    private void updateResources()
+    {
+        allItems.clear();
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+            .map(ItemStack::new)
+            .filter(stack -> (stack.getItem() instanceof BlockItem) && (filter.isEmpty() || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))).collect(Collectors.toList())));
+
+        final List<ItemStack> specialBlockList = new ArrayList<>();
+        specialBlockList.add(new ItemStack(Items.WATER_BUCKET));
+        specialBlockList.add(new ItemStack(Items.LAVA_BUCKET));
+        specialBlockList.add(new ItemStack(Items.MILK_BUCKET));
+
+        allItems.addAll(specialBlockList.stream().filter(
+                stack -> filter.isEmpty()
+                        || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                        || stack.getDisplayName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                .collect(Collectors.toList()));
+        updateResourceList();
+    }
+
+    @Override
+    public boolean onKeyTyped(final char ch, final int key)
+    {
+        final boolean result = super.onKeyTyped(ch, key);
+        final String name = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText();
+        if (!name.isEmpty())
+        {
+            filter = name;
+        }
+        updateResources();
+        return result;
+    }
+
+    @Override
+    public void onButtonClicked(@NotNull final Button button)
+    {
+        switch (button.getID())
+        {
+            case BUTTON_DONE:
+            {
+                final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
+                if (!ItemStackUtils.isEmpty(to))
+                {
+                    final TileEntityPlaceholder te = (TileEntityPlaceholder) Minecraft.getInstance().world.getTileEntity(pos);
+                    if (te != null)
+                    {
+                        te.setStack(to);
+                        Network.getNetwork().sendToServer(new UpdatePlaceholderBlockMessage(pos, to));
+                        close();
+                    }
+                }
+                break;
+            }
+            case BUTTON_CANCEL:
+                close();
+                break;
+            case BUTTON_SELECT:
+            {
+                final int row = resourceList.getListElementIndexByPane(button);
+                final ItemStack to = allItems.get(row);
+                findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
+                findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(to.getDisplayName().getUnformattedComponentText());
+                break;
+            }
+        }
+    }
+
+    public void updateResourceList()
+    {
+        resourceList.enable();
+        resourceList.show();
+        final List<ItemStack> tempRes = new ArrayList<>(allItems);
+
+        //Creates a dataProvider for the unemployed resourceList.
+        resourceList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            /**
+             * The number of rows of the list.
+             * @return the number.
+             */
+            @Override
+            public int getElementCount()
+            {
+                return tempRes.size();
+            }
+
+            /**
+             * Inserts the elements into each row.
+             * @param index the index of the row/list element.
+             * @param rowPane the parent Pane for the row, containing the elements to update.
+             */
+            @Override
+            public void updateElement(final int index, @NotNull final Pane rowPane)
+            {
+                final ItemStack resource = tempRes.get(index);
+                final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
+                resourceLabel.setLabelText(resource.getDisplayName().getUnformattedComponentText());
+                resourceLabel.setColor(WHITE, WHITE);
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
+            }
+        });
+    }
+}
