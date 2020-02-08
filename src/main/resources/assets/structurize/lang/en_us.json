@@ -1040,5 +1040,6 @@
   "structurize.config.maxoperationspertick": "Max Operations Per Tick",
   "com.structurize.command.playernotfound": "Couldn't find player for which to save the scan!",
   "com.structurize.command.scan.success": "Succesfully scanned via command!",
-  "com.structurize.command.scan.no.perm": "No permission to scan via command, use the tool!"
+  "com.structurize.command.scan.no.perm": "No permission to scan via command, use the tool!",
+  "block.structurize.placeholderblock": "Placeholder"
 }

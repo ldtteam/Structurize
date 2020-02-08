@@ -59,6 +59,7 @@ public class NetworkChannel
         registerMessage(++idx, StructurizeStylesMessage.class);
         registerMessage(++idx, UndoMessage.class);
         registerMessage(++idx, UpdateScanToolMessage.class);
+        registerMessage(++idx, UpdatePlaceholderBlockMessage.class);
     }
 
     /**

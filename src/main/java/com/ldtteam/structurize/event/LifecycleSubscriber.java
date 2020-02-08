@@ -4,16 +4,20 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
 import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.ldtteam.structurize.tileentities.StructurizeTileEntities;
+import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
@@ -47,6 +51,7 @@ public class LifecycleSubscriber
         ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
         ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
         ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.translucent()));
+        ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
     }
 
     /**

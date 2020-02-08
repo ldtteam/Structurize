@@ -80,4 +80,11 @@ public interface IProxy
      * @param pos coordinates.
      */
     void openMultiBlockWindow(final BlockPos pos);
+
+    /**
+     * Opens a placerholder block window.
+     *
+     * @param pos coordinates.
+     */
+    void openPlaceholderBlockWindow(final BlockPos pos);
 }
