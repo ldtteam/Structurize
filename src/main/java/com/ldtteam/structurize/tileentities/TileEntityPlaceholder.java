@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class TileEntityPlaceholder extends TileEntity
 {
     /**
-     * Max block range.
+     * The block to render.
      */
     private ItemStack block = new ItemStack(ModBlocks.placeholderBlock, 1);
 
