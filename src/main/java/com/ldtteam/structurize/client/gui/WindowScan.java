@@ -1,10 +1,5 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.structurize.network.messages.*;
-import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.ItemStorage;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.Button;
@@ -12,8 +7,13 @@ import com.ldtteam.blockout.controls.ItemIcon;
 import com.ldtteam.blockout.controls.Label;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.ScrollingList;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.ItemStorage;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -30,6 +30,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
@@ -256,7 +257,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Structurize.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name));
+        Structurize.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true));
         Settings.instance.setBox(null);
         close();
     }
