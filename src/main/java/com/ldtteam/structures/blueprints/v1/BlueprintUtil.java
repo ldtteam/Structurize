@@ -1,16 +1,10 @@
 package com.ldtteam.structures.blueprints.v1;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
-
-import net.minecraft.entity.EntityHanging;
-import net.minecraft.nbt.*;
-import org.apache.logging.log4j.LogManager;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityHanging;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
@@ -20,6 +14,14 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
+import org.apache.logging.log4j.LogManager;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -38,9 +40,9 @@ public class BlueprintUtil
      * @param sizeZ The Size on the Z-Axis
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ)
+    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ)
     {
-        return createBlueprint(world, pos, sizeX, sizeY, sizeZ, null);
+        return createBlueprint(world, pos, saveEntities, sizeX, sizeY, sizeZ, null);
     }
 
     /**
@@ -55,7 +57,7 @@ public class BlueprintUtil
      * @param architects an Array of Architects for the structure
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ, String name, String... architects)
+    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ, String name, String... architects)
     {
         final List<IBlockState> pallete = new ArrayList<>();
         //Allways add AIR to Pallete
@@ -106,8 +108,12 @@ public class BlueprintUtil
 
         final List<NBTTagCompound> entitiesTag = new ArrayList<>();
 
-        final List<Entity> entities =
-          world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+        List<Entity> entities = new ArrayList<>();
+        if (saveEntities)
+        {
+            entities =
+              world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+        }
 
         for (final Entity entity : entities)
         {

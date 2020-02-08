@@ -1,31 +1,18 @@
 package com.ldtteam.structurize.items;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.List;
-
-import com.ldtteam.structurize.util.StructureLoadingUtils;
-import org.jetbrains.annotations.NotNull;
-
+import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -38,6 +25,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.List;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 
 /**
  * Item used to scan structures.
@@ -79,7 +77,7 @@ public class ItemScanTool extends AbstractItemStructurize
         {
             if (playerIn.isSneaking())
             {
-                saveStructure(worldIn, pos1, pos2, playerIn, null);
+                saveStructure(worldIn, pos1, pos2, playerIn, null, true);
             }
         }
         else
@@ -140,6 +138,27 @@ public class ItemScanTool extends AbstractItemStructurize
      */
     public static void saveStructure(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final EntityPlayer player, final String name)
     {
+        saveStructure(world, from, to, player, name, true);
+    }
+
+    /**
+     * Scan the structure and save it to the disk.
+     *
+     * @param world  Current world.
+     * @param from   First corner.
+     * @param to     Second corner.
+     * @param player causing this action.
+     * @param name   the name of it.
+     * @param saveEntities whether to scan in entities
+     */
+    public static void saveStructure(
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      @NotNull final EntityPlayer player,
+      final String name,
+      final boolean saveEntities)
+    {
         final BlockPos blockpos =
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
@@ -163,9 +182,23 @@ public class ItemScanTool extends AbstractItemStructurize
             fileName = name;
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
         Structurize.getNetwork().sendTo(
           new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (EntityPlayerMP) player);
+    }
+
+    /**
+     * Save a structure on the server.
+     *
+     * @param world the world.
+     * @param from  the start position.
+     * @param to    the end position.
+     * @param name  the name.
+     * @return true if succesful.
+     */
+    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name)
+    {
+        return saveStructureOnServer(world, from, to, name, true);
     }
 
     /**
@@ -174,9 +207,10 @@ public class ItemScanTool extends AbstractItemStructurize
      * @param from the start position.
      * @param to the end position.
      * @param name the name.
+     * @param saveEntities whether to scan in entities
      * @return true if succesful.
      */
-    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name)
+    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name, final boolean saveEntities)
     {
         final BlockPos blockpos =
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
@@ -208,7 +242,7 @@ public class ItemScanTool extends AbstractItemStructurize
             return false;
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
 
 
         final File file = new File(folder.get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);

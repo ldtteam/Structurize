@@ -30,6 +30,11 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
     private String name;
 
     /**
+     * Whether to scan entities
+     */
+    private boolean saveEntities = true;
+
+    /**
      * Empty public constructor.
      */
     public ScanOnServerMessage()
@@ -37,13 +42,13 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
         super();
     }
 
-
-    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name)
+    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities)
     {
         super();
         this.from = from;
         this.to = to;
         this.name = name;
+        this.saveEntities = saveEntities;
     }
 
     @Override
@@ -52,6 +57,7 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
         name = ByteBufUtils.readUTF8String(buf);
         from = BlockPosUtil.readFromByteBuf(buf);
         to = BlockPosUtil.readFromByteBuf(buf);
+        saveEntities = buf.readBoolean();
     }
 
     @Override
@@ -60,11 +66,12 @@ public class ScanOnServerMessage extends AbstractMessage<ScanOnServerMessage, IM
         ByteBufUtils.writeUTF8String(buf, name);
         BlockPosUtil.writeToByteBuf(buf, from);
         BlockPosUtil.writeToByteBuf(buf, to);
+        buf.writeBoolean(saveEntities);
     }
 
     @Override
     public void messageOnServerThread(final ScanOnServerMessage message, final EntityPlayerMP player)
     {
-        ItemScanTool.saveStructure(player.getEntityWorld(), message.from, message.to, player, message.name);
+        ItemScanTool.saveStructure(player.getEntityWorld(), message.from, message.to, player, message.name, message.saveEntities);
     }
 }
