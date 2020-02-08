@@ -1,16 +1,15 @@
 package com.ldtteam.structures.client;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
-
+import java.lang.ref.SoftReference;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * The Blueprint render handler on the client side.
@@ -21,20 +20,11 @@ public final class BlueprintHandler
      * A static instance on the client.
      */
     private static final BlueprintHandler ourInstance = new BlueprintHandler();
+    private static final int CACHE_SIZE = 30;
+    private static final long CACHE_EVICT_TIME = 45_000_000_000L;
 
-    private final RemovalListener<Blueprint, BlueprintRenderer> removalListener = new RemovalListener<Blueprint, BlueprintRenderer>()
-    {
-        @Override
-        public void onRemoval(final RemovalNotification<Blueprint, BlueprintRenderer> notification)
-        {
-            notification.getValue().close();
-        }
-    };
-    /**
-     * The builder cache.
-     */
-    private final Cache<Blueprint, BlueprintRenderer> blueprintBufferBuilderCache =
-        CacheBuilder.newBuilder().maximumSize(50).removalListener(removalListener).build();
+    private final Int2ObjectArrayMap<SoftReference<BlueprintRenderer>> rendererCache = new Int2ObjectArrayMap<>(CACHE_SIZE);
+    private final Int2LongArrayMap evictTimeCache = new Int2LongArrayMap(CACHE_SIZE);
 
     /**
      * Private constructor to hide public one.
@@ -62,26 +52,49 @@ public final class BlueprintHandler
      * @param blueprint the wayPointBlueprint to draw.
      * @param pos       its position.
      */
-    public void draw(
-        final Blueprint blueprint,
-        final BlockPos pos,
-        final MatrixStack stack,
-        final float partialTicks)
+    public void draw(final Blueprint blueprint, final BlockPos pos, final MatrixStack stack, final float partialTicks)
     {
         if (blueprint == null)
         {
             Log.getLogger().warn("Trying to draw null blueprint!");
             return;
         }
+        Minecraft.getInstance().getProfiler().startSection("struct_render_cache");
 
-        try
+        final int blueprintHash = blueprint.hashCode();
+        final SoftReference<BlueprintRenderer> rendererRef = rendererCache.get(blueprintHash);
+        final BlueprintRenderer renderer;
+        final long now = System.nanoTime();
+
+        if (rendererRef == null || rendererRef.get() == null)
         {
-            blueprintBufferBuilderCache.get(blueprint, () -> BlueprintRenderer.buildRendererForBlueprint(blueprint)).draw(pos, stack, partialTicks);
+            renderer = BlueprintRenderer.buildRendererForBlueprint(blueprint);
+            rendererCache.put(blueprintHash, new SoftReference<>(renderer));
         }
-        catch (ExecutionException e)
+        else
         {
-            Log.getLogger().error(e);
+            renderer = rendererRef.get();
         }
+
+        evictTimeCache.put(blueprintHash, now);
+        renderer.updateBlueprint(blueprint);
+        renderer.draw(pos, stack, partialTicks);
+
+        for (final Int2LongMap.Entry entry : evictTimeCache.int2LongEntrySet())
+        {
+            if (entry.getLongValue() + CACHE_EVICT_TIME < now)
+            {
+                final int removeHash = entry.getIntKey();
+                final SoftReference<BlueprintRenderer> removeRendererRef = rendererCache.remove(removeHash);
+                evictTimeCache.remove(removeHash);
+                if (removeRendererRef != null && removeRendererRef.get() != null)
+                {
+                    removeRendererRef.get().close();
+                }
+            }
+        }
+
+        Minecraft.getInstance().getProfiler().endSection();
     }
 
     /**

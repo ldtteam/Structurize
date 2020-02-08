@@ -212,12 +212,7 @@ public class Structure
     @Nullable
     public BlockState getBlockState(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getStructure().length <= pos.getY() || this.blueprint.getStructure()[pos.getY()].length <= pos.getZ() ||
-            this.blueprint.getStructure()[pos.getY()][pos.getZ()].length <= pos.getX())
-        {
-            return null;
-        }
-        return this.blueprint.getPalette()[this.blueprint.getStructure()[pos.getY()][pos.getZ()][pos.getX()] & 0xFFFF];
+        return getBlockInfo(pos).getState();
     }
 
     /**
@@ -229,9 +224,7 @@ public class Structure
     @NotNull
     public BlockInfo getBlockInfo(@NotNull final BlockPos pos)
     {
-        final BlockState state = getBlockState(pos);
-        final CompoundNBT compound = this.getTileEntityData(pos);
-        return new BlockInfo(pos, state, compound);
+        return blueprint.getBlockInfoAsMap().get(pos);
     }
 
     /**
@@ -243,21 +236,7 @@ public class Structure
     @Nullable
     public CompoundNBT getTileEntityData(@NotNull final BlockPos pos)
     {
-        if (this.blueprint.getTileEntities().length <= pos.getY() || this.blueprint.getTileEntities()[pos.getY()].length <= pos.getZ() ||
-            this.blueprint.getTileEntities()[pos.getY()][pos.getZ()].length <= pos.getX())
-        {
-            return null;
-        }
-        final CompoundNBT te = this.blueprint.getTileEntities()[pos.getY()][pos.getZ()][pos.getX()];
-        if (te != null)
-        {
-            BlockPos tePos = new BlockPos(te.getInt("x"), te.getInt("y"), te.getInt("z"));
-            tePos = tePos.add(position);
-            te.putInt("x", tePos.getX());
-            te.putInt("y", tePos.getY());
-            te.putInt("z", tePos.getZ());
-        }
-        return te;
+        return getBlockInfo(pos).getTileEntityData();
     }
 
     /**

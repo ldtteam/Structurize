@@ -77,9 +77,17 @@ public class BlueprintRenderer implements AutoCloseable
         init();
     }
 
+    public void updateBlueprint(final Blueprint blueprint)
+    {
+        if (blockAccess.getBlueprint() != blueprint)
+        {
+            blockAccess.setBlueprint(blueprint);
+            Settings.instance.scheduleRefresh();
+        }
+    }
+
     private void init()
     {
-        BlueprintUtils.clearCacheForBlueprint(blockAccess.getBlueprint());
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
 
@@ -135,15 +143,13 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlockPos pos, final MatrixStack matrixStack, final float partialTicks)
     {
+        Minecraft.getInstance().getProfiler().startSection("struct_render_init");
         if (Settings.instance.shouldRefresh())
         {
             init();
         }
-        if (entities == null || tileEntities == null || blockAccess == null)
-        {
-            return;
-        }
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
         final Vec3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
         final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint());
@@ -160,6 +166,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Render blocks
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish");
         renderBlockLayer(RenderType.solid(), rawPosMatrix);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, mc.gameSettings.mipmapLevels > 0);
@@ -167,6 +174,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), rawPosMatrix);
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities");
         final IRenderTypeBuffer.Impl renderBufferSource = renderBuffers.getBufferSource();
 
         // Entities
@@ -186,6 +194,7 @@ public class BlueprintRenderer implements AutoCloseable
                     renderBufferSource,
                     200));
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities_finish");
         renderBufferSource.finish(RenderType.entitySolid(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
         renderBufferSource.finish(RenderType.entityCutout(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
         renderBufferSource.finish(RenderType.entityCutoutNoCull(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
@@ -193,6 +202,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Block entities
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blockentities");
         final ActiveRenderInfo oldActiveRenderInfo = TileEntityRendererDispatcher.instance.renderInfo;
         final World oldWorld = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.renderInfo = new ActiveRenderInfo();
@@ -208,6 +218,7 @@ public class BlueprintRenderer implements AutoCloseable
         TileEntityRendererDispatcher.instance.renderInfo = oldActiveRenderInfo;
         TileEntityRendererDispatcher.instance.world = oldWorld;
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blockentities_finish");
         renderBufferSource.finish(RenderType.solid());
         renderBufferSource.finish(Atlases.getSolidBlockType());
         renderBufferSource.finish(Atlases.getCutoutBlockType());
@@ -226,9 +237,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.lines());
         renderBufferSource.finish();
 
+        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
         renderBlockLayer(RenderType.translucent(), rawPosMatrix);
 
         matrixStack.pop();
+        Minecraft.getInstance().getProfiler().endSection();
     }
 
     @Override

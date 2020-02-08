@@ -30,6 +30,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
+        Minecraft.getInstance().getProfiler().startSection("struct_render");
         final Structure structure = Settings.instance.getActiveStructure();
         final ClientPlayerEntity player = Minecraft.getInstance().player;
 
@@ -73,13 +74,16 @@ public class ClientEventSubscriber
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
             final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ());
 
+            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
             renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), player, event);
         }
 
         if (Settings.instance.getBox() != null)
         {
+            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
             renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), player, event);
         }
+        Minecraft.getInstance().getProfiler().endSection();
     }
 
     private static void renderBox(final BlockPos posA, final BlockPos posB, final ClientPlayerEntity player, final RenderWorldLastEvent event)

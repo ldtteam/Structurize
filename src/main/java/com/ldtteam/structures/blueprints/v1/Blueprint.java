@@ -1,5 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.structures.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
@@ -17,7 +18,9 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -77,6 +80,10 @@ public class Blueprint
      * The entities.
      */
     private CompoundNBT[] entities = new CompoundNBT[0];
+
+    private List<BlockInfo> cacheBlockInfo = null;
+    private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
+    private BlockPos cachePrimaryOffset = null;
 
     /**
      * Constructor of a new Blueprint.
@@ -207,6 +214,7 @@ public class Blueprint
         }
 
         this.structure[pos.getY()][pos.getZ()][pos.getX()] = (short) index;
+        cacheReset();
     }
 
     /**
@@ -263,7 +271,7 @@ public class Blueprint
 
     /**
      * Sets the name of the Structure
-     * 
+     *
      * @param name the name to set.
      * @return this object.
      */
@@ -331,7 +339,26 @@ public class Blueprint
      */
     public final List<BlockInfo> getBlockInfoAsList()
     {
-        final List<BlockInfo> list = new ArrayList<>();
+        if (cacheBlockInfo == null)
+        {
+            getBlockInfoAsList0();
+        }
+        return cacheBlockInfo;
+    }
+
+    public final Map<BlockPos, BlockInfo> getBlockInfoAsMap()
+    {
+        if (cacheBlockInfoMap == null)
+        {
+            getBlockInfoAsList0();
+        }
+        return cacheBlockInfoMap;
+    }
+
+    private final void getBlockInfoAsList0()
+    {
+        cacheBlockInfo = new ArrayList<>(getVolume());
+        cacheBlockInfoMap = new HashMap<>(getVolume());
         for (short x = 0; x < this.sizeX; x++)
         {
             for (short y = 0; y < this.sizeY; y++)
@@ -339,13 +366,40 @@ public class Blueprint
                 for (short z = 0; z < this.sizeZ; z++)
                 {
                     final BlockPos tempPos = new BlockPos(x, y, z);
-                    final short value = structure[y][z][x];
-                    final BlockState state = palette.get(value & 0xFFFF);
-                    list.add(new BlockInfo(tempPos, state, tileEntities[y][z][x]));
+                    final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
+                    cacheBlockInfo.add(blockInfo);
+                    cacheBlockInfoMap.put(tempPos, blockInfo);
                 }
             }
         }
-        return list;
+    }
+
+    public final BlockPos getPrimaryBlockOffset()
+    {
+        if (cachePrimaryOffset == null)
+        {
+            cachePrimaryOffset = getPrimaryBlockOffset0();
+        }
+        return cachePrimaryOffset;
+    }
+
+    private final BlockPos getPrimaryBlockOffset0()
+    {
+        final List<BlockInfo> list =
+            getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
+
+        if (list.size() != 1)
+        {
+            return new BlockPos(sizeX / 2, 0, sizeZ / 2);
+        }
+        return BlueprintBlockInfoTransformHandler.getInstance().Transform(list.get(0)).getPos();
+    }
+
+    private final void cacheReset()
+    {
+        cacheBlockInfo = null;
+        cachePrimaryOffset = null;
+        cacheBlockInfoMap = null;
     }
 
     /**
@@ -486,6 +540,7 @@ public class Blueprint
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
 
+        cacheReset();
         return offset;
     }
 
@@ -635,5 +690,40 @@ public class Blueprint
             default:
                 return flag ? new Vec3d(xCoord, vec.y, zCoord) : vec;
         }
+    }
+
+    private int getVolume()
+    {
+        return (int) sizeX * sizeY * sizeZ;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + palleteSize;
+        result = prime * result + getVolume();
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null || !(obj instanceof Blueprint))
+        {
+            return false;
+        }
+        final Blueprint other = (Blueprint) obj;
+        if (!name.equals(other.name) || palleteSize != other.palleteSize || getVolume() != other.getVolume())
+        {
+            return false;
+        }
+        return true;
     }
 }
