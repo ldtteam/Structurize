@@ -39,7 +39,7 @@ public class Scrollbar extends Pane
     /**
      * The height the bar is clicked.
      */
-    protected int barClickY = 0;
+    protected double barClickY = 0;
 
     /**
      * True if the bar is clicked at the moment.
@@ -94,15 +94,15 @@ public class Scrollbar extends Pane
             return;
         }
 
-        final int barClickYNow = getScrollBarYPos() + barClickY;
-        final int deltaFromClickPos = my - barClickYNow;
+        final double barClickYNow = getScrollBarYPos() + barClickY;
+        final double deltaFromClickPos = my - barClickYNow;
 
         if (deltaFromClickPos == 0)
         {
             return;
         }
 
-        final int scaledY = deltaFromClickPos * container.getMaxScrollY() / getHeight();
+        final double scaledY = deltaFromClickPos * container.getMaxScrollY() / getHeight();
         container.scrollBy(scaledY);
 
         if (container.getScrollY() == 0 || container.getScrollY() == container.getMaxScrollY())
@@ -133,7 +133,7 @@ public class Scrollbar extends Pane
         // Scroll Area Back
         fill(scrollBarBackX2, y + getHeight() + offsetY, scrollBarBackX1, y + offsetY, scrollbarBackground);
 
-        final int scrollBarStartY = y + getScrollBarYPos();
+        final int scrollBarStartY = y + (int) getScrollBarYPos();
         final int scrollBarEndY = scrollBarStartY + getBarHeight();
 
         // Scroll Bar (Bottom/Right Edge line) - Fill whole Scroll area
@@ -144,7 +144,7 @@ public class Scrollbar extends Pane
     }
 
     @Override
-    public boolean handleClick(final int mx, final int my)
+    public boolean handleClick(final double mx, final double my)
     {
         if (getContentHeightDiff() <= 0)
         {
@@ -153,8 +153,8 @@ public class Scrollbar extends Pane
 
         final int barHeight = getBarHeight();
 
-        final int scrollBarStartY = getScrollBarYPos();
-        final int scrollBarEndY = scrollBarStartY + barHeight;
+        final double scrollBarStartY = getScrollBarYPos();
+        final double scrollBarEndY = scrollBarStartY + barHeight;
 
         if (my < scrollBarStartY)
         {
@@ -182,7 +182,7 @@ public class Scrollbar extends Pane
         return Math.max(Math.min(MAXIMUM_HEIGHT, getHeight() / 2), (getHeight() * getHeight()) / container.getContentHeight());
     }
 
-    private int getScrollBarYPos()
+    private double getScrollBarYPos()
     {
         return container.getScrollY() * (getHeight() - getBarHeight()) / getContentHeightDiff();
     }

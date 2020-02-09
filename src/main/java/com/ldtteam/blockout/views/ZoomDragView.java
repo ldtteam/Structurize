@@ -175,26 +175,26 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public boolean click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        return super.click((int) calcRelativeX(mx), (int) calcRelativeY(my));
+        return super.click(calcRelativeX(mx), calcRelativeY(my));
     }
 
     @Override
-    public Pane findPaneForClick(final int mx, final int my)
+    public Pane findPaneForClick(final double mx, final double my)
     {
-        return super.findPaneForClick((int) calcRelativeX(mx), (int) calcRelativeY(my));
+        return super.findPaneForClick(calcRelativeX(mx), calcRelativeY(my));
     }
 
     @Override
-    public void handleHover(final int mx, final int my)
+    public void handleHover(final double mx, final double my)
     {
-        super.handleHover((int) calcRelativeX(mx), (int) calcRelativeY(my));
+        super.handleHover(calcRelativeX(mx), calcRelativeY(my));
     }
 
     @Override
-    public boolean rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
-        return super.rightClick((int) calcRelativeX(mx), (int) calcRelativeY(my));
+        return super.rightClick(calcRelativeX(mx), calcRelativeY(my));
     }
 }

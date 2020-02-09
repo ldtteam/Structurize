@@ -4,9 +4,7 @@ import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -88,7 +86,7 @@ public class View extends Pane
         final int mxChild = (int) mx - x - padding;
         final int myChild = (int) my - y - padding;
 
-        for (final Pane child : new ArrayList<>(children))
+        for (final Pane child : children)
         {
             if (child != null && child.isPointInPane(mxChild, myChild))
             {
@@ -99,9 +97,9 @@ public class View extends Pane
     }
 
     @Override
-    public void handleHover(final int mx, final int my)
+    public void handleHover(final double mx, final double my)
     {
-        for (final Pane child : new ArrayList<>(children))
+        for (final Pane child : children)
         {
             if (child != null)
             {
@@ -144,12 +142,12 @@ public class View extends Pane
 
     // Mouse
     @Override
-    public boolean rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
 
-        for (final Pane child : new ArrayList<>(children))
+        for (final Pane child : children)
         {
             if (child != null && child.isPointInPane(mxChild, myChild))
             {
@@ -161,12 +159,12 @@ public class View extends Pane
 
     // Mouse
     @Override
-    public boolean click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
 
-        for (final Pane child : new ArrayList<>(children))
+        for (final Pane child : children)
         {
             if (child != null && child.isPointInPane(mxChild, myChild))
             {
@@ -185,7 +183,7 @@ public class View extends Pane
      * @return a Pane that will handle a click action.
      */
     @Nullable
-    public Pane findPaneForClick(final int mx, final int my)
+    public Pane findPaneForClick(final double mx, final double my)
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
 
@@ -210,7 +208,8 @@ public class View extends Pane
 
     protected boolean childIsVisible(final Pane child)
     {
-        return child.getX() < getInteriorWidth() && child.getY() < getInteriorHeight() && (child.getX() + child.getWidth()) >= 0 && (child.getY() + child.getHeight()) >= 0;
+        return child.getX() < getInteriorWidth() && child.getY() < getInteriorHeight() && (child.getX() + child.getWidth()) >= 0 &&
+            (child.getY() + child.getHeight()) >= 0;
     }
 
     public int getInteriorWidth()
@@ -298,7 +297,7 @@ public class View extends Pane
         final double mxChild = x - this.x - padding;
         final double myChild = y - this.y - padding;
 
-        for (final Pane child : new ArrayList<>(children))
+        for (final Pane child : children)
         {
             if (child != null && child.isPointInPane((int) mxChild, (int) myChild))
             {

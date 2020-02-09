@@ -94,14 +94,14 @@ public class ScrollingListContainer extends ScrollingContainer
      * @return a Pane that will handle a click action.
      */
     @Override
-    public Pane findPaneForClick(final int mx, final int my)
+    public Pane findPaneForClick(final double mx, final double my)
     {
         if (children.isEmpty() || listElementHeight == 0)
         {
             return null;
         }
 
-        final int listElement = my / listElementHeight;
+        final int listElement = (int) my / listElementHeight;
         if (listElement < children.size())
         {
             final Pane child = children.get(listElement);

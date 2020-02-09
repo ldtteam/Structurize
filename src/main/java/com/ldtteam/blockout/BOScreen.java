@@ -62,14 +62,13 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public boolean keyPressed(final int key, final int p_keyPressed_2_, final int p_keyPressed_3_)
+    public boolean keyPressed(final int key, final int scanCode, final int modifiers)
     {
-        if (key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_TAB || key == GLFW.GLFW_KEY_BACKSPACE ||
-            key == GLFW.GLFW_KEY_INSERT || key == GLFW.GLFW_KEY_DELETE || key == GLFW.GLFW_KEY_RIGHT || key == GLFW.GLFW_KEY_LEFT || key == GLFW.GLFW_KEY_DOWN ||
-            key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_PAGE_UP || key == GLFW.GLFW_KEY_PAGE_DOWN || key == GLFW.GLFW_KEY_HOME || key == GLFW.GLFW_KEY_END ||
-            // key == GLFW.GLFW_KEY_CAPS_LOCK ||
-            // key == GLFW.GLFW_KEY_SCROLL_LOCK ||
-            // key == GLFW.GLFW_KEY_NUM_LOCK ||
+        if (key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_TAB ||
+            key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_INSERT || key == GLFW.GLFW_KEY_DELETE || key == GLFW.GLFW_KEY_RIGHT ||
+            key == GLFW.GLFW_KEY_LEFT || key == GLFW.GLFW_KEY_DOWN || key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_PAGE_UP ||
+            key == GLFW.GLFW_KEY_PAGE_DOWN || key == GLFW.GLFW_KEY_HOME || key == GLFW.GLFW_KEY_END ||
+            // key == GLFW.GLFW_KEY_CAPS_LOCK || key == GLFW.GLFW_KEY_SCROLL_LOCK || key == GLFW.GLFW_KEY_NUM_LOCK ||
             key == GLFW.GLFW_KEY_PRINT_SCREEN || key == GLFW.GLFW_KEY_PAUSE || key == GLFW.GLFW_KEY_F1 || key == GLFW.GLFW_KEY_F2 || key == GLFW.GLFW_KEY_F3 ||
             key == GLFW.GLFW_KEY_F4 || key == GLFW.GLFW_KEY_F5 || key == GLFW.GLFW_KEY_F6 || key == GLFW.GLFW_KEY_F7 || key == GLFW.GLFW_KEY_F8 ||
             key == GLFW.GLFW_KEY_F9 || key == GLFW.GLFW_KEY_F10 || key == GLFW.GLFW_KEY_F11 || key == GLFW.GLFW_KEY_F12 ||
@@ -81,14 +80,10 @@ public class BOScreen extends Screen
             // key == GLFW.GLFW_KEY_KP_7 || key == GLFW.GLFW_KEY_KP_8 || key == GLFW.GLFW_KEY_KP_9 || key == GLFW.GLFW_KEY_KP_DECIMAL ||
             // key == GLFW.GLFW_KEY_KP_DIVIDE || key == GLFW.GLFW_KEY_KP_MULTIPLY || key == GLFW.GLFW_KEY_KP_SUBTRACT ||
             // key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_KP_ENTER || key == GLFW.GLFW_KEY_KP_EQUAL ||
-            // key == GLFW.GLFW_KEY_LEFT_SHIFT ||
-            // key == GLFW.GLFW_KEY_LEFT_CONTROL ||
-            // key == GLFW.GLFW_KEY_LEFT_ALT ||
-            // key == GLFW.GLFW_KEY_LEFT_SUPER ||
-            // key == GLFW.GLFW_KEY_RIGHT_SHIFT ||
-            // key == GLFW.GLFW_KEY_RIGHT_CONTROL ||
-            // key == GLFW.GLFW_KEY_RIGHT_ALT ||
-            // key == GLFW.GLFW_KEY_RIGHT_SUPER ||
+            // key == GLFW.GLFW_KEY_LEFT_SHIFT || key == GLFW.GLFW_KEY_LEFT_CONTROL ||
+            // key == GLFW.GLFW_KEY_LEFT_ALT || key == GLFW.GLFW_KEY_LEFT_SUPER ||
+            // key == GLFW.GLFW_KEY_RIGHT_SHIFT || key == GLFW.GLFW_KEY_RIGHT_CONTROL ||
+            // key == GLFW.GLFW_KEY_RIGHT_ALT || key == GLFW.GLFW_KEY_RIGHT_SUPER ||
             key == GLFW.GLFW_KEY_MENU)
         {
             return window.onKeyTyped('\0', key);
@@ -105,8 +100,8 @@ public class BOScreen extends Screen
     @Override
     public boolean mouseClicked(final double mxIn, final double myIn, final int keyCode)
     {
-        final int mx = (int) mxIn - x;
-        final int my = (int) myIn - y;
+        final double mx = mxIn - x;
+        final double my = myIn - y;
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
@@ -136,13 +131,13 @@ public class BOScreen extends Screen
         // final int mx = (int) (super.minecraft.mouseHelper.getMouseX() * super.width / super.minecraft.mainWindow.getWidth()) - x;
         // final int my = (int) (super.height - super.minecraft.mouseHelper.getMouseY() * super.height /
         // super.minecraft.mainWindow.getHeight()) - 1 - y;
-        window.handleHover((int) mxIn - x, (int) myIn - y);
+        window.handleHover(mxIn - x, myIn - y);
     }
 
     @Override
-    public boolean mouseDragged(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    public boolean mouseDragged(final double xIn, final double yIn, final int speed, final double deltaX, final double deltaY)
     {
-        return window.onMouseDrag(x, y, speed, deltaX, deltaY);
+        return window.onMouseDrag(xIn, yIn, speed, deltaX, deltaY);
     }
 
     @Override
@@ -152,16 +147,9 @@ public class BOScreen extends Screen
         {
             // Adjust coordinate to origin of window
             isMouseLeftDown = false;
-            return window.onMouseReleased((int) mxIn - x, (int) myIn - y);
+            return window.onMouseReleased(mxIn - x, myIn - y);
         }
         return false;
-    }
-
-    @Deprecated
-    protected void mouseClickMove(final int mx, final int my, final int buttons, final long timeElapsed)
-    {
-        // Can be overridden
-        throw new RuntimeException("deprecated blockout error"); // not ported but available
     }
 
     @Override

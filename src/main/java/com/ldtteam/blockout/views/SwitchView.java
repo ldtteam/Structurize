@@ -66,7 +66,7 @@ public class SwitchView extends View
 
     @Nullable
     @Override
-    public Pane findPaneForClick(final int mx, final int my)
+    public Pane findPaneForClick(final double mx, final double my)
     {
         if (currentView != null && currentView.canHandleClick(mx, my))
         {

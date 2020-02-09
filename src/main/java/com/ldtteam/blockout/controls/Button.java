@@ -71,7 +71,7 @@ public class Button extends Pane
      * @param my mouse Y coordinate, relative to Pane's top-left
      */
     @Override
-    public boolean handleClick(final int mx, final int my)
+    public boolean handleClick(final double mx, final double my)
     {
         mc.getSoundHandler().play(SimpleSound.music(SoundEvents.UI_BUTTON_CLICK));
 

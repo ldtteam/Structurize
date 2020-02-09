@@ -31,10 +31,10 @@ public class OverlayView extends View
      * hide the view when click on.
      */
     @Override
-    public boolean click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
 
         for (final Pane child : children)
         {
@@ -52,10 +52,10 @@ public class OverlayView extends View
      * hide the view when click on.
      */
     @Override
-    public boolean rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
 
         for (final Pane child : children)
         {

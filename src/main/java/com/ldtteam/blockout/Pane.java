@@ -347,13 +347,13 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Is a point relative to the parent's origin within the pane?.
+     * Is a point relative to the parent's origin within the pane?
      *
      * @param mx point x.
      * @param my point y.
      * @return true if the point is in the pane.
      */
-    public boolean isPointInPane(final int mx, final int my)
+    public boolean isPointInPane(final double mx, final double my)
     {
         return mx >= x && mx < (x + width) && my >= y && my < (y + height);
     }
@@ -376,22 +376,22 @@ public class Pane extends AbstractGui
      * if it matches the specified type.
      * Performs a depth-first search on the hierarchy of Panes and Views.
      *
-     * @param id   ID of Pane to find.
+     * @param idIn ID of Pane to find.
      * @param type Class of the desired Pane type.
      * @param <T>  The type of pane returned.
      * @return a Pane of the given ID, if it matches the specified type.
      */
-    public final <T extends Pane> T findPaneOfTypeByID(final String id, @NotNull final Class<T> type)
+    public final <T extends Pane> T findPaneOfTypeByID(final String idIn, @NotNull final Class<T> type)
     {
         @Nullable
-        final Pane p = findPaneByID(id);
+        final Pane p = findPaneByID(idIn);
         try
         {
             return type.cast(p);
         }
         catch (final ClassCastException e)
         {
-            throw new IllegalArgumentException(String.format("No pane with id %s and type %s was found.", id, type), e);
+            throw new IllegalArgumentException(String.format("No pane with id %s and type %s was found.", idIn, type), e);
         }
     }
 
@@ -401,13 +401,13 @@ public class Pane extends AbstractGui
      * Returns the first Pane of a given ID.
      * Performs a depth-first search on the hierarchy of Panes and Views.
      *
-     * @param id ID of Pane to find.
+     * @param idIn ID of Pane to find.
      * @return a Pane of the given ID.
      */
     @Nullable
-    public Pane findPaneByID(final String id)
+    public Pane findPaneByID(final String idIn)
     {
-        return this.id.equals(id) ? this : null;
+        return id.equals(idIn) ? this : null;
     }
 
     /**
@@ -471,8 +471,9 @@ public class Pane extends AbstractGui
      *
      * @param mx mouse X coordinate, relative to parent's top-left.
      * @param my mouse Y coordinate, relative to parent's top-left.
+     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
         setLastClickedPane(this);
         return handleClick(mx - x, my - y);
@@ -485,8 +486,9 @@ public class Pane extends AbstractGui
      *
      * @param mx mouse X coordinate, relative to parent's top-left.
      * @param my mouse Y coordinate, relative to parent's top-left.
+     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
         setLastClickedPane(this);
         return handleRightClick(mx - x, my - y);
@@ -509,8 +511,9 @@ public class Pane extends AbstractGui
      *
      * @param mx mouse X coordinate, relative to Pane's top-left.
      * @param my mouse Y coordinate, relative to Pane's top-left.
+     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean handleClick(final int mx, final int my)
+    public boolean handleClick(final double mx, final double my)
     {
         // Can be overloaded
         return false;
@@ -523,8 +526,9 @@ public class Pane extends AbstractGui
      *
      * @param mx mouse X coordinate, relative to Pane's top-left.
      * @param my mouse Y coordinate, relative to Pane's top-left.
+     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean handleRightClick(final int mx, final int my)
+    public boolean handleRightClick(final double mx, final double my)
     {
         // Can be overloaded
         return false;
@@ -537,7 +541,7 @@ public class Pane extends AbstractGui
      * @param my int y position.
      * @return true if so.
      */
-    public boolean canHandleClick(final int mx, final int my)
+    public boolean canHandleClick(final double mx, final double my)
     {
         return visible && enabled && isPointInPane(mx, my);
     }
@@ -545,9 +549,9 @@ public class Pane extends AbstractGui
     /**
      * Called when a key is pressed.
      *
-     * @param ch  the character.
-     * @param key the key.
-     * @return false at all times - do nothing.
+     * @param ch  the character
+     * @param key the key
+     * @return true if event was used or propagation needs to be stopped
      */
     public boolean onKeyTyped(final char ch, final int key)
     {
@@ -594,7 +598,11 @@ public class Pane extends AbstractGui
         scissorsInfoStack.push(info);
 
         final double scale = BOScreen.getScale();
-        GL11.glScissor((int) (info.x * scale), (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)), (int) (info.width * scale), (int) (info.height * scale));
+        GL11.glScissor(
+            (int) (info.x * scale),
+            (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+            (int) (info.width * scale),
+            (int) (info.height * scale));
     }
 
     /**
@@ -629,7 +637,11 @@ public class Pane extends AbstractGui
 
             final ScissorsInfo info = scissorsInfoStack.peek();
             final double scale = BOScreen.getScale();
-            GL11.glScissor((int) (info.x * scale), (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)), (int) (info.width * scale), (int) (info.height * scale));
+            GL11.glScissor(
+                (int) (info.x * scale),
+                (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+                (int) (info.width * scale),
+                (int) (info.height * scale));
         }
     }
 
@@ -637,6 +649,9 @@ public class Pane extends AbstractGui
      * Wheel input.
      *
      * @param wheel minus for down, plus for up.
+     * @param mx    mouse x
+     * @param my    mouse y
+     * @return true if event was used or propagation needs to be stopped
      */
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
@@ -676,7 +691,7 @@ public class Pane extends AbstractGui
      * Handle onHover element, element must be visible.
      * TODO: bug: must have pos set from xml (or be not in a group)
      */
-    public void handleHover(final int mx, final int my)
+    public void handleHover(final double mx, final double my)
     {
         if (onHover == null)
         {
@@ -726,13 +741,15 @@ public class Pane extends AbstractGui
 
     /**
      * Mouse drag.
-     * @param x pos x.
-     * @param y pos y.
-     * @param speed drag speed.
-     * @param deltaX relative x.
-     * @param deltaY relative y.
+     *
+     * @param mx     mouse start x
+     * @param my     mouse start y
+     * @param speed  drag speed
+     * @param deltaX relative x
+     * @param deltaY relative y
+     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    public boolean onMouseDrag(final double mx, final double my, final int speed, final double deltaX, final double deltaY)
     {
         return false;
     }
