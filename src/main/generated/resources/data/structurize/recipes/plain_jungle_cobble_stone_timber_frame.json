@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 4,
-    "item": "structurize:plain_jungle_cobble_stone_timber_frame"
-  },
+  "group": "jungle_cobble_stone_timber_frame",
   "pattern": [
     " F ",
     " C ",
     " S "
   ],
   "key": {
-    "F": {
-      "item": "minecraft:jungle_planks"
-    },
     "C": {
-      "item": "minecraft:cobblestone"
+      "item": "cobblestone"
     },
     "S": {
       "item": "structurize:sceptergold"
+    },
+    "F": {
+      "item": "minecraft:jungle_planks"
     }
   },
-  "group": "jungle_cobble_stone_timber_frame"
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_jungle_cobble_stone_timber_frame"
+  }
 }

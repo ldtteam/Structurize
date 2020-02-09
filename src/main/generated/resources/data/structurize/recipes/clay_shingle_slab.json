@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:clay_shingle_slab"
-  },
+  "group": "clay_shingle_slab",
   "pattern": [
     "   ",
     "III",
     "SSS"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:brick"
-    },
     "S": {
       "item": "minecraft:stick"
+    },
+    "I": {
+      "item": "minecraft:brick"
     }
   },
-  "group": "clay_shingle_slab"
+  "result": {
+    "count": 8,
+    "item": "structurize:clay_shingle_slab"
+  }
 }

@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 4,
-    "item": "structurize:plain_acacia_paper_timber_frame"
-  },
+  "group": "acacia_paper_timber_frame",
   "pattern": [
     " F ",
     " C ",
     " S "
   ],
   "key": {
-    "F": {
-      "item": "minecraft:acacia_planks"
-    },
     "C": {
-      "item": "minecraft:paper"
+      "item": "paper"
     },
     "S": {
       "item": "structurize:sceptergold"
+    },
+    "F": {
+      "item": "minecraft:acacia_planks"
     }
   },
-  "group": "acacia_paper_timber_frame"
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_acacia_paper_timber_frame"
+  }
 }

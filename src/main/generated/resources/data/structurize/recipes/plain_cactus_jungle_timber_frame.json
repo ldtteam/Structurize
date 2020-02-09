@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 4,
-    "item": "structurize:plain_cactus_jungle_timber_frame"
-  },
+  "group": "cactus_jungle_timber_frame",
   "pattern": [
     " F ",
     " C ",
     " S "
   ],
   "key": {
-    "F": {
-      "item": "structurize:blockcactusplank"
-    },
     "C": {
       "item": "minecraft:jungle_planks"
     },
     "S": {
       "item": "structurize:sceptergold"
+    },
+    "F": {
+      "item": "structurize:blockcactusplank"
     }
   },
-  "group": "cactus_jungle_timber_frame"
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_cactus_jungle_timber_frame"
+  }
 }

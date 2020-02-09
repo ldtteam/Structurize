@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:framed_dark_oak_cobble_stone_timber_frame"
-  },
+  "group": "dark_oak_cobble_stone_timber_frame",
   "ingredients": [
     {
       "item": "structurize:double_crossed_dark_oak_cobble_stone_timber_frame"
     }
   ],
-  "group": "dark_oak_cobble_stone_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:framed_dark_oak_cobble_stone_timber_frame"
+  }
 }

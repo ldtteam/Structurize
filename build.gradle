@@ -146,6 +146,7 @@ minecraft {
             mods {
                 structurize {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }

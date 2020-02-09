@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:thatched_jungle_shingle"
-  },
+  "group": "thatched_shingle",
   "pattern": [
     "I  ",
     "SI ",
     "PSI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:wheat"
+    "P": {
+      "item": "minecraft:jungle_planks"
     },
     "S": {
       "item": "minecraft:stick"
     },
-    "P": {
-      "item": "minecraft:jungle_planks"
+    "I": {
+      "item": "minecraft:wheat"
     }
   },
-  "group": "thatched_shingle"
+  "result": {
+    "count": 8,
+    "item": "structurize:thatched_jungle_shingle"
+  }
 }

@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:one_crossed_lr_cactus_cactus_timber_frame"
-  },
+  "group": "cactus_cactus_timber_frame",
   "ingredients": [
     {
       "item": "structurize:down_gated_cactus_cactus_timber_frame"
     }
   ],
-  "group": "cactus_cactus_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:one_crossed_lr_cactus_cactus_timber_frame"
+  }
 }

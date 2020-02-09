@@ -2,16 +2,16 @@
   "type": "minecraft:block",
   "pools": [
     {
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "structurize:orange_clay_acacia_shingle"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
         }
       ]
     }

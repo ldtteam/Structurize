@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:green_clay_shingle_slab"
-  },
+  "group": "clay_shingle_slab",
   "ingredients": [
     {
       "item": "minecraft:green_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:clay_shingle_slab"
     }
   ],
-  "group": "clay_shingle_slab"
+  "result": {
+    "count": 1,
+    "item": "structurize:green_clay_shingle_slab"
+  }
 }

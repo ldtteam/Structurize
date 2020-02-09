@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:white_clay_jungle_shingle"
-  },
+  "group": "clay_jungle_shingle",
   "ingredients": [
     {
       "item": "minecraft:white_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:clay_jungle_shingle"
     }
   ],
-  "group": "clay_jungle_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:white_clay_jungle_shingle"
+  }
 }

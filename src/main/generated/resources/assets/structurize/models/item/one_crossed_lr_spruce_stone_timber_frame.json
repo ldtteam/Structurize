@@ -1,4 +1,5 @@
 {
+  "parent": "structurize:block/timber_frames/one_crossed_lr_spruce_stone_timber_frame",
   "display": {
     "gui": {
       "rotation": [
@@ -6,66 +7,10 @@
         215,
         0
       ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
       "scale": [
         0.5,
         0.5,
         0.5
-      ]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.5,
-        0.5,
-        0.5
-      ]
-    },
-    "thirdperson_righthand": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.5,
-        0.5,
-        0.5
-      ]
-    },
-    "firstperson_lefthand": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.3,
-        0.3,
-        0.3
       ]
     },
     "firstperson_righthand": {
@@ -74,15 +19,22 @@
         180,
         0
       ],
-      "translation": [
-        0,
-        0,
-        0
-      ],
       "scale": [
         0.3,
         0.3,
         0.3
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
       ]
     },
     "ground": {
@@ -91,9 +43,16 @@
         180,
         0
       ],
-      "translation": [
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
         0,
-        0,
+        180,
         0
       ],
       "scale": [
@@ -103,11 +62,6 @@
       ]
     },
     "fixed": {
-      "rotation": [
-        0,
-        0,
-        0
-      ],
       "translation": [
         0,
         2,
@@ -118,7 +72,18 @@
         1.0,
         1.0
       ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
     }
-  },
-  "parent": "structurize:block/timber_frames/one_crossed_lr_spruce_stone_timber_frame"
+  }
 }
