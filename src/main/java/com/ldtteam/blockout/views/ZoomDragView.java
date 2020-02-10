@@ -1,11 +1,15 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.math.MathHelper;
 
+/**
+ * Zoomable and scrollable "online map"-like view
+ */
 public class ZoomDragView extends View
 {
     private double scrollX = 0d;
@@ -18,10 +22,10 @@ public class ZoomDragView extends View
     private double dragFactor = 1d;
     private boolean dragEnabled = true;
 
-    private double zoomFactor = 0.01d;
+    private double zoomFactor = 1.1d;
     private boolean zoomEnabled = true;
-    private double minScale = zoomFactor;
-    private double maxScale = 50d;
+    private double minScale = 0.2d;
+    private double maxScale = 2d;
 
     /**
      * Required default constructor.
@@ -177,10 +181,14 @@ public class ZoomDragView extends View
         final boolean childResult = super.scrollInput(wheel, mx, my);
         if (!childResult && zoomEnabled)
         {
-            scale += wheel * zoomFactor;
+            final double childX = mx - x;
+            final double childY = my - y;
+            final double oldX = (childX + scrollX) / scale;
+            final double oldY = (childY + scrollY) / scale;
+            scale = wheel < 0 ? scale / zoomFactor : scale * zoomFactor;
             scale = MathHelper.clamp(scale, minScale, maxScale);
-            setScrollY(scrollY);
-            setScrollX(scrollX);
+            setScrollX(oldX * scale - childX);
+            setScrollY(oldY * scale - childY);
             return true;
         }
         return childResult;
@@ -199,9 +207,9 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public void handleHover(final double mx, final double my)
+    public boolean handleHover(final double mx, final double my)
     {
-        super.handleHover(calcRelativeX(mx), calcRelativeY(my));
+        return super.handleHover(calcRelativeX(mx), calcRelativeY(my));
     }
 
     @Override

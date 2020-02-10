@@ -690,8 +690,12 @@ public class Pane extends AbstractGui
     /**
      * Handle onHover element, element must be visible.
      * TODO: bug: must have pos set from xml (or be not in a group)
+     *
+     * @param mx mouse x
+     * @param my mouse y
+     * @return true if event was used or propagation needs to be stopped
      */
-    public void handleHover(final double mx, final double my)
+    public boolean handleHover(final double mx, final double my)
     {
         if (onHover == null)
         {
@@ -701,30 +705,22 @@ public class Pane extends AbstractGui
             }
             else
             {
-                return;
+                return false;
             }
         }
         if (!this.isVisible())
         {
             if (onHover.isVisible())
             {
-                onHover.off();
+                onHover.hide();
             }
-            return;
-        }
-        if (onHover.isPointInPane(mx, my) && onHover.isVisible())
-        {
-            return;
+            return false;
         }
         if (this.isPointInPane(mx, my) && !onHover.isVisible())
         {
-            onHover.on();
-            return;
+            onHover.show();
         }
-        if (!this.isPointInPane(mx, my) && onHover.isVisible())
-        {
-            onHover.off();
-        }
+        return true;
     }
 
     protected int drawString(final String text, final float x, final float y, final int color, final boolean shadow)

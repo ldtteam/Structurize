@@ -2,6 +2,7 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -10,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 /**
@@ -84,24 +87,13 @@ public class View extends Pane
     @Override
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        final int mxChild = (int) mx - x - padding;
-        final int myChild = (int) my - y - padding;
-
-        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.scrollInput(wheel, mxChild, myChild))
-            .orElse(false);
+        return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild));
     }
 
     @Override
-    public void handleHover(final double mx, final double my)
+    public boolean handleHover(final double mx, final double my)
     {
-        final double mxChild = mx - x - padding;
-        final double myChild = my - y - padding;
-
-        reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .ifPresent(child -> child.handleHover(mxChild, myChild));
+        return mousePointableEventHandler(mx, my, Pane::handleHover);
     }
 
     @Nullable
@@ -139,26 +131,14 @@ public class View extends Pane
     @Override
     public boolean rightClick(final double mx, final double my)
     {
-        final double mxChild = mx - x - padding;
-        final double myChild = my - y - padding;
-
-        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.rightClick(mxChild, myChild))
-            .orElse(false);
+        return mouseClickableEventHandler(mx, my, Pane::rightClick);
     }
 
     // Mouse
     @Override
     public boolean click(final double mx, final double my)
     {
-        final double mxChild = mx - x - padding;
-        final double myChild = my - y - padding;
-
-        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.click(mxChild, myChild))
-            .orElse(false);
+        return mouseClickableEventHandler(mx, my, Pane::click);
     }
 
     /**
@@ -172,7 +152,12 @@ public class View extends Pane
     @Nullable
     public Pane findPaneForClick(final double mx, final double my)
     {
-        return reverseChildIterationStream().filter(child -> child.canHandleClick(mx, my)).findFirst().orElse(null);
+        final AtomicReference<Pane> result = new AtomicReference<>();
+        mouseClickableEventHandler(mx, my, (child, mxChild, myChild) -> {
+            result.set(child);
+            return true;
+        });
+        return result.get();
     }
 
     @Override
@@ -269,18 +254,59 @@ public class View extends Pane
     @Override
     public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-        final double mxChild = x - this.x - padding;
-        final double myChild = y - this.y - padding;
-
-        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY))
-            .orElse(false);
+        return mousePointableEventHandler(x, y, (child, mxChild, myChild) -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY));
     }
 
-    protected Stream<Pane> reverseChildIterationStream()
+    /**
+     * Select first children using reverse iteration over {@link #children} that is enabled
+     * {@link Pane#canHandleClick(double, double)}.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mouseClickableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
+    {
+        return mouseEventProcessor(mx, my, Pane::canHandleClick, eventCallback);
+    }
+
+    /**
+     * Select first children using reverse iteration over {@link #children} that is rendered
+     * {@link Pane#isPointInPane(double, double)}.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mousePointableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
+    {
+        return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallback);
+    }
+
+    /**
+     * Select first children using reverse iteration over {@link #children} that is accepted by panePredicate.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param panePredicate test child pane if it can accept current event
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate, final MouseEventCallback eventCallback)
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
-        return Stream.generate(it::previous).limit(children.size());
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
+        while (it.hasPrevious())
+        {
+            final Pane child = it.previous();
+            if (panePredicate.accept(child, mxChild, myChild))
+            {
+                return eventCallback.accept(child, mxChild, myChild);
+            }
+        }
+        return false;
     }
 }

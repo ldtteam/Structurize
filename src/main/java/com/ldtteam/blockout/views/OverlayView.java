@@ -33,13 +33,7 @@ public class OverlayView extends View
     @Override
     public boolean click(final double mx, final double my)
     {
-        final double mxChild = mx - x - padding;
-        final double myChild = my - y - padding;
-
-        if (reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.click(mxChild, myChild))
-            .orElse(false))
+        if (super.click(mx, my))
         {
             return true;
         }
@@ -54,13 +48,7 @@ public class OverlayView extends View
     @Override
     public boolean rightClick(final double mx, final double my)
     {
-        final double mxChild = mx - x - padding;
-        final double myChild = my - y - padding;
-
-        if (reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
-            .findFirst()
-            .map(child -> child.rightClick(mxChild, myChild))
-            .orElse(false))
+        if (super.rightClick(mx, my))
         {
             return true;
         }
