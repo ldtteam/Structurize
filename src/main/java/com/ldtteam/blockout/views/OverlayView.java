@@ -36,12 +36,12 @@ public class OverlayView extends View
         final double mxChild = mx - x - padding;
         final double myChild = my - y - padding;
 
-        for (final Pane child : children)
+        if (reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.click(mxChild, myChild))
+            .orElse(false))
         {
-            if (child != null && child.isPointInPane(mxChild, myChild))
-            {
-                return child.click(mxChild, myChild);
-            }
+            return true;
         }
 
         hide();
@@ -57,12 +57,12 @@ public class OverlayView extends View
         final double mxChild = mx - x - padding;
         final double myChild = my - y - padding;
 
-        for (final Pane child : children)
+        if (reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.rightClick(mxChild, myChild))
+            .orElse(false))
         {
-            if (child != null && child.isPointInPane(mxChild, myChild))
-            {
-                return child.rightClick(mxChild, myChild);
-            }
+            return true;
         }
 
         hide();

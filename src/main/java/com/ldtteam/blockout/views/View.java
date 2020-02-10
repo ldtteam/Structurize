@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Stream;
 
 /**
  * A View is a Pane which can contain other Panes.
@@ -86,27 +87,21 @@ public class View extends Pane
         final int mxChild = (int) mx - x - padding;
         final int myChild = (int) my - y - padding;
 
-        for (final Pane child : children)
-        {
-            if (child != null && child.isPointInPane(mxChild, myChild))
-            {
-                return child.scrollInput(wheel, mx, my);
-            }
-        }
-        return false;
+        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.scrollInput(wheel, mxChild, myChild))
+            .orElse(false);
     }
 
     @Override
     public void handleHover(final double mx, final double my)
     {
-        for (final Pane child : children)
-        {
-            if (child != null)
-            {
-                child.handleHover(mx, my);
-            }
-        }
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
 
+        reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .ifPresent(child -> child.handleHover(mxChild, myChild));
     }
 
     @Nullable
@@ -147,14 +142,10 @@ public class View extends Pane
         final double mxChild = mx - x - padding;
         final double myChild = my - y - padding;
 
-        for (final Pane child : children)
-        {
-            if (child != null && child.isPointInPane(mxChild, myChild))
-            {
-                return child.rightClick(mxChild, myChild);
-            }
-        }
-        return false;
+        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.rightClick(mxChild, myChild))
+            .orElse(false);
     }
 
     // Mouse
@@ -164,14 +155,10 @@ public class View extends Pane
         final double mxChild = mx - x - padding;
         final double myChild = my - y - padding;
 
-        for (final Pane child : children)
-        {
-            if (child != null && child.isPointInPane(mxChild, myChild))
-            {
-                return child.click(mxChild, myChild);
-            }
-        }
-        return false;
+        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.click(mxChild, myChild))
+            .orElse(false);
     }
 
     /**
@@ -185,19 +172,7 @@ public class View extends Pane
     @Nullable
     public Pane findPaneForClick(final double mx, final double my)
     {
-        final ListIterator<Pane> it = children.listIterator(children.size());
-
-        // Iterate in reverse, since Panes later in the list draw on top of earlier panes.
-        while (it.hasPrevious())
-        {
-            final Pane child = it.previous();
-            if (child.canHandleClick(mx, my))
-            {
-                return child;
-            }
-        }
-
-        return null;
+        return reverseChildIterationStream().filter(child -> child.canHandleClick(mx, my)).findFirst().orElse(null);
     }
 
     @Override
@@ -297,13 +272,15 @@ public class View extends Pane
         final double mxChild = x - this.x - padding;
         final double myChild = y - this.y - padding;
 
-        for (final Pane child : children)
-        {
-            if (child != null && child.isPointInPane((int) mxChild, (int) myChild))
-            {
-                return child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY);
-            }
-        }
-        return false;
+        return reverseChildIterationStream().filter(child -> child.isPointInPane(mxChild, myChild))
+            .findFirst()
+            .map(child -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY))
+            .orElse(false);
+    }
+
+    protected Stream<Pane> reverseChildIterationStream()
+    {
+        final ListIterator<Pane> it = children.listIterator(children.size());
+        return Stream.generate(it::previous).limit(children.size());
     }
 }

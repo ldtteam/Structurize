@@ -355,7 +355,7 @@ public class Pane extends AbstractGui
      */
     public boolean isPointInPane(final double mx, final double my)
     {
-        return mx >= x && mx < (x + width) && my >= y && my < (y + height);
+        return isVisible() && mx >= x && mx < (x + width) && my >= y && my < (y + height);
     }
 
     // Dimensions

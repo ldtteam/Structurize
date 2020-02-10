@@ -20,6 +20,7 @@ public class ZoomDragView extends View
 
     private double zoomFactor = 0.01d;
     private boolean zoomEnabled = true;
+    private double minScale = zoomFactor;
     private double maxScale = 50d;
 
     /**
@@ -42,6 +43,7 @@ public class ZoomDragView extends View
         dragEnabled = params.getBooleanAttribute("dragenabled", dragEnabled);
         zoomFactor = params.getDoubleAttribute("zoomfactor", zoomFactor);
         zoomEnabled = params.getBooleanAttribute("zoomenabled", zoomEnabled);
+        minScale = params.getDoubleAttribute("minscale", minScale);
         maxScale = params.getDoubleAttribute("maxscale", maxScale);
     }
 
@@ -166,7 +168,7 @@ public class ZoomDragView extends View
         if (!childResult && zoomEnabled)
         {
             scale += wheel * zoomFactor;
-            scale = MathHelper.clamp(scale, zoomFactor, maxScale);
+            scale = MathHelper.clamp(scale, minScale, maxScale);
             setScrollY(scrollY);
             setScrollX(scrollX);
             return true;
