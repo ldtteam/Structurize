@@ -52,25 +52,35 @@ public class ZoomDragView extends View
     {
         return calcInverseAbsoluteX(child.getX()) < getInteriorWidth() && calcInverseAbsoluteY(child.getY()) < getInteriorHeight() &&
             calcInverseAbsoluteX(child.getX() + child.getWidth()) >= 0 && calcInverseAbsoluteY(child.getY() + child.getHeight()) >= 0;
-        // return child.getX() < getWidth() + scrollX && child.getY() < getHeight() + scrollY && (child.getY() + child.getHeight()) >=
-        // scrollY && (child.getX() + child.getWidth()) >= scrollX;
     }
 
+    /**
+     * Converts X of child to scaled and scrolled X in absolute coordinates.
+     */
     private double calcInverseAbsoluteX(final double xIn)
     {
         return xIn * scale - scrollX;
     }
 
+    /**
+     * Converts Y of child to scaled and scrolled Y in absolute coordinates.
+     */
     private double calcInverseAbsoluteY(final double yIn)
     {
         return yIn * scale - scrollY;
     }
 
+    /**
+     * Converts X from event to unscaled and unscrolled X for child in relative (top-left) coordinates.
+     */
     private double calcRelativeX(final double xIn)
     {
         return (xIn - x + scrollX) / scale + x;
     }
 
+    /**
+     * Converts Y from event to unscaled and unscrolled Y for child in relative (top-left) coordinates.
+     */
     private double calcRelativeY(final double yIn)
     {
         return (yIn - y + scrollY) / scale + y;
