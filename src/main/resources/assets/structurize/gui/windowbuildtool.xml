@@ -32,7 +32,7 @@
     <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
     <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
 
-    <zoomdragview size="96 128" pos="160 80">
+    <view size="96 128" pos="160 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>
         <buttonimage id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 0"/>
         <buttonimage id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="32" pos="64 0"/>
@@ -44,7 +44,7 @@
         <buttonimage id="plus" source="structurize:textures/gui/buildtool/plus.png" size="32" pos="64 64"/>
         <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="0 96"/>
         <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
-    </zoomdragview>
+    </view>
 
     <buttonimage id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
     <buttonimage id="pastenice" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
