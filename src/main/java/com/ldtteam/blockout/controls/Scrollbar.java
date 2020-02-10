@@ -148,7 +148,7 @@ public class Scrollbar extends Pane
     {
         if (getContentHeightDiff() <= 0)
         {
-            return true;
+            return false;
         }
 
         final int barHeight = getBarHeight();
