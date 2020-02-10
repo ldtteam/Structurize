@@ -81,7 +81,7 @@
     </xs:complexType>
 
     <!-- <zoom> -->
-    <xs:complexType name="zoomType">
+    <xs:complexType name="zoomDragType">
         <xs:complexContent>
             <xs:extension base="viewType">
             </xs:extension>
@@ -93,8 +93,7 @@
         <xs:choice>
             <xs:element name="layout" type="layoutElementType"/>
             <xs:element name="view" type="viewType"/>
-            <xs:element name="dragview" type="dragType"/>
-            <xs:element name="zoomview" type="dragType"/>
+            <xs:element name="zoomdragview" type="zoomDragType"/>
             <xs:element name="group" type="groupType"/>
             <!-- xs:element name="scrollgroup"  type="scrollGroupType"/ -->
             <xs:element name="list" type="listType"/>
