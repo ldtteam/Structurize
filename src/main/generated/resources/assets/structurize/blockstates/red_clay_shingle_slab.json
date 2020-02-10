@@ -1,100 +1,94 @@
 {
   "variants": {
-    "shape=top,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top"
-    },
-    "shape=top,facing=south": {
-      "y": 90,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top"
-    },
-    "shape=top,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top"
-    },
-    "shape=top,facing=east": {
-      "y": 0,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top"
-    },
-    "shape=one_way,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way"
-    },
-    "shape=one_way,facing=south": {
-      "y": 90,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way"
-    },
-    "shape=one_way,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way"
-    },
-    "shape=one_way,facing=east": {
-      "y": 0,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way"
-    },
-    "shape=two_way,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way"
-    },
-    "shape=two_way,facing=south": {
-      "y": 90,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way"
-    },
-    "shape=two_way,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way"
-    },
     "shape=two_way,facing=east": {
-      "y": 0,
       "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way"
     },
-    "shape=three_way,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way"
+    "shape=curved,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved",
+      "y": 270
     },
-    "shape=three_way,facing=south": {
-      "y": 90,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way"
-    },
-    "shape=three_way,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way"
+    "shape=curved,facing=east": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved"
     },
     "shape=three_way,facing=east": {
-      "y": 0,
       "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way"
     },
-    "shape=four_way,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way"
+    "shape=top,facing=west": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top",
+      "y": 180
     },
-    "shape=four_way,facing=south": {
-      "y": 90,
+    "shape=one_way,facing=west": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way",
+      "y": 180
+    },
+    "shape=four_way,facing=east": {
       "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way"
     },
     "shape=four_way,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way"
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way",
+      "y": 180
     },
-    "shape=four_way,facing=east": {
-      "y": 0,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way"
+    "shape=top,facing=south": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top",
+      "y": 90
     },
-    "shape=curved,facing=north": {
-      "y": 270,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved"
+    "shape=two_way,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way",
+      "y": 270
+    },
+    "shape=three_way,facing=west": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way",
+      "y": 180
+    },
+    "shape=one_way,facing=east": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way"
+    },
+    "shape=one_way,facing=south": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way",
+      "y": 90
+    },
+    "shape=four_way,facing=south": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way",
+      "y": 90
+    },
+    "shape=three_way,facing=south": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way",
+      "y": 90
+    },
+    "shape=three_way,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_three_way",
+      "y": 270
+    },
+    "shape=four_way,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_four_way",
+      "y": 270
+    },
+    "shape=two_way,facing=west": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way",
+      "y": 180
     },
     "shape=curved,facing=south": {
-      "y": 90,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved"
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved",
+      "y": 90
+    },
+    "shape=top,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top",
+      "y": 270
+    },
+    "shape=one_way,facing=north": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_one_way",
+      "y": 270
+    },
+    "shape=top,facing=east": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_top"
+    },
+    "shape=two_way,facing=south": {
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_two_way",
+      "y": 90
     },
     "shape=curved,facing=west": {
-      "y": 180,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved"
-    },
-    "shape=curved,facing=east": {
-      "y": 0,
-      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved"
+      "model": "structurize:block/shingle_slab/red_clay_shingle_slab_curved",
+      "y": 180
     }
   }
 }

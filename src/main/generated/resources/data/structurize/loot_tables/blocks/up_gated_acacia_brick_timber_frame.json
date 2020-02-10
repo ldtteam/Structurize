@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "structurize:up_gated_acacia_brick_timber_frame"
+        }
+      ]
+    }
+  ]
+}

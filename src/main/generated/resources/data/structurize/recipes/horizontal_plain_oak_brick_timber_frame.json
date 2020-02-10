@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "oak_brick_timber_frame",
+  "ingredients": [
+    {
+      "item": "structurize:one_crossed_rl_oak_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "structurize:horizontal_plain_oak_brick_timber_frame"
+  }
+}

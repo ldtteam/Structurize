@@ -1,0 +1,89 @@
+{
+  "parent": "structurize:block/timber_frames/side_framed_cactus_brick_timber_frame",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        215,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "fixed": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  }
+}

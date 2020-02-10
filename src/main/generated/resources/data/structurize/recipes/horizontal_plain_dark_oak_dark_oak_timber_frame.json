@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:horizontal_plain_dark_oak_dark_oak_timber_frame"
-  },
+  "group": "dark_oak_dark_oak_timber_frame",
   "ingredients": [
     {
       "item": "structurize:one_crossed_rl_dark_oak_dark_oak_timber_frame"
     }
   ],
-  "group": "dark_oak_dark_oak_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:horizontal_plain_dark_oak_dark_oak_timber_frame"
+  }
 }

@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:pink_clay_cactus_shingle"
-  },
+  "group": "clay_cactus_shingle",
   "ingredients": [
     {
       "item": "minecraft:pink_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:clay_cactus_shingle"
     }
   ],
-  "group": "clay_cactus_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:pink_clay_cactus_shingle"
+  }
 }

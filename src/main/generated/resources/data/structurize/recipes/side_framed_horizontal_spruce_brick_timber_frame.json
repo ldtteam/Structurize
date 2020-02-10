@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "spruce_brick_timber_frame",
+  "ingredients": [
+    {
+      "item": "structurize:horizontal_plain_spruce_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "structurize:side_framed_horizontal_spruce_brick_timber_frame"
+  }
+}

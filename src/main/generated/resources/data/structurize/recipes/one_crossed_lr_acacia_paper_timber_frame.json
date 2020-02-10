@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:one_crossed_lr_acacia_paper_timber_frame"
-  },
+  "group": "acacia_paper_timber_frame",
   "ingredients": [
     {
       "item": "structurize:down_gated_acacia_paper_timber_frame"
     }
   ],
-  "group": "acacia_paper_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:one_crossed_lr_acacia_paper_timber_frame"
+  }
 }

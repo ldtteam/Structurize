@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:slate_dark_oak_shingle"
-  },
+  "group": "slate_shingle",
   "pattern": [
     "I  ",
     "SI ",
     "PSI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:cobblestone"
+    "P": {
+      "item": "minecraft:dark_oak_planks"
     },
     "S": {
       "item": "minecraft:stick"
     },
-    "P": {
-      "item": "minecraft:dark_oak_planks"
+    "I": {
+      "item": "minecraft:cobblestone"
     }
   },
-  "group": "slate_shingle"
+  "result": {
+    "count": 8,
+    "item": "structurize:slate_dark_oak_shingle"
+  }
 }

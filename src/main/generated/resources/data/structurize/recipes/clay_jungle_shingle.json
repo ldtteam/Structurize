@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:clay_jungle_shingle"
-  },
+  "group": "clay_shingle",
   "pattern": [
     "I  ",
     "SI ",
     "PSI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:brick"
+    "P": {
+      "item": "minecraft:jungle_planks"
     },
     "S": {
       "item": "minecraft:stick"
     },
-    "P": {
-      "item": "minecraft:jungle_planks"
+    "I": {
+      "item": "minecraft:brick"
     }
   },
-  "group": "clay_shingle"
+  "result": {
+    "count": 8,
+    "item": "structurize:clay_jungle_shingle"
+  }
 }

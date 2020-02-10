@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:blue_slate_spruce_shingle"
-  },
+  "group": "slate_spruce_shingle",
   "ingredients": [
     {
       "item": "minecraft:blue_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:slate_spruce_shingle"
     }
   ],
-  "group": "slate_spruce_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:blue_slate_spruce_shingle"
+  }
 }

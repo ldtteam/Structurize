@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:down_gated_birch_birch_timber_frame"
-  },
+  "group": "birch_birch_timber_frame",
   "ingredients": [
     {
       "item": "structurize:up_gated_birch_birch_timber_frame"
     }
   ],
-  "group": "birch_birch_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:down_gated_birch_birch_timber_frame"
+  }
 }

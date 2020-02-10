@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:horizontal_plain_acacia_cactus_timber_frame"
-  },
+  "group": "acacia_cactus_timber_frame",
   "ingredients": [
     {
       "item": "structurize:one_crossed_rl_acacia_cactus_timber_frame"
     }
   ],
-  "group": "acacia_cactus_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:horizontal_plain_acacia_cactus_timber_frame"
+  }
 }

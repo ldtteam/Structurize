@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:plain_jungle_oak_timber_frame"
-  },
+  "group": "jungle_oak_timber_frame",
   "ingredients": [
     {
       "item": "structurize:side_framed_horizontal_jungle_oak_timber_frame"
     }
   ],
-  "group": "jungle_oak_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:plain_jungle_oak_timber_frame"
+  }
 }

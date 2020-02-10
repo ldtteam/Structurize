@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:moss_slate_oak_shingle"
-  },
+  "group": "moss_slate_shingle",
   "pattern": [
     "I  ",
     "SI ",
     "PSI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:mossy_cobblestone"
+    "P": {
+      "item": "minecraft:oak_planks"
     },
     "S": {
       "item": "minecraft:stick"
     },
-    "P": {
-      "item": "minecraft:oak_planks"
+    "I": {
+      "item": "minecraft:mossy_cobblestone"
     }
   },
-  "group": "moss_slate_shingle"
+  "result": {
+    "count": 8,
+    "item": "structurize:moss_slate_oak_shingle"
+  }
 }

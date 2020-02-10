@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:purple_slate_shingle_slab"
-  },
+  "group": "slate_shingle_slab",
   "ingredients": [
     {
       "item": "minecraft:purple_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:slate_shingle_slab"
     }
   ],
-  "group": "slate_shingle_slab"
+  "result": {
+    "count": 1,
+    "item": "structurize:purple_slate_shingle_slab"
+  }
 }

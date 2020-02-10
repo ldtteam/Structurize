@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:slate_shingle_slab"
-  },
+  "group": "slate_shingle_slab",
   "pattern": [
     "   ",
     "III",
     "SSS"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:cobblestone"
-    },
     "S": {
       "item": "minecraft:stick"
+    },
+    "I": {
+      "item": "minecraft:cobblestone"
     }
   },
-  "group": "slate_shingle_slab"
+  "result": {
+    "count": 8,
+    "item": "structurize:slate_shingle_slab"
+  }
 }

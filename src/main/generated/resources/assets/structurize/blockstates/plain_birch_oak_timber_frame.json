@@ -1,21 +1,21 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
-    },
     "facing=east": {
       "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
     },
     "facing=south": {
       "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
     },
-    "facing=west": {
+    "facing=down": {
+      "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
+    },
+    "facing=north": {
       "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
     },
     "facing=up": {
       "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
     },
-    "facing=down": {
+    "facing=west": {
       "model": "structurize:block/timber_frames/plain_birch_oak_timber_frame"
     }
   }

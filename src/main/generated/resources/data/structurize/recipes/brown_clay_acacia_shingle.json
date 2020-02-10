@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:brown_clay_acacia_shingle"
-  },
+  "group": "clay_acacia_shingle",
   "ingredients": [
     {
       "item": "minecraft:brown_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:clay_acacia_shingle"
     }
   ],
-  "group": "clay_acacia_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:brown_clay_acacia_shingle"
+  }
 }

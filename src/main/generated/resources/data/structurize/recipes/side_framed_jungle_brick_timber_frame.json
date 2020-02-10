@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "jungle_brick_timber_frame",
+  "ingredients": [
+    {
+      "item": "structurize:framed_jungle_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "structurize:side_framed_jungle_brick_timber_frame"
+  }
+}

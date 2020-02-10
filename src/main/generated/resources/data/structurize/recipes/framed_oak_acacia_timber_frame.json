@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:framed_oak_acacia_timber_frame"
-  },
+  "group": "oak_acacia_timber_frame",
   "ingredients": [
     {
       "item": "structurize:double_crossed_oak_acacia_timber_frame"
     }
   ],
-  "group": "oak_acacia_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:framed_oak_acacia_timber_frame"
+  }
 }
