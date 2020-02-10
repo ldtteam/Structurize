@@ -22,7 +22,6 @@ public final class Settings
      * Single instance of this class.
      */
     public static final Settings                 instance = new Settings();
-    private final       BlockPos.Mutable offset   = new BlockPos.Mutable();
 
     /**
      * The position of the structure.
@@ -290,7 +289,7 @@ public final class Settings
         else
         {
             this.structure = structure;
-            structure.rotate(structure.getSettings().getRotation(), structure.world, pos, structure.getSettings().getMirror());
+            this.structure.rotate(BlockPosUtil.getRotationFromRotations(rotation), structure.world, pos, isMirrored ? Mirror.FRONT_BACK : Mirror.NONE);
         }
     }
 
@@ -300,7 +299,6 @@ public final class Settings
     public void reset()
     {
         structure = null;
-        offset.setPos(0, 0, 0);
         rotation = 0;
         isMirrored = false;
         staticSchematicMode = false;
@@ -319,7 +317,6 @@ public final class Settings
     public void softReset()
     {
         structure = null;
-        offset.setPos(0, 0, 0);
         staticSchematicMode = false;
         staticSchematicName = null;
         freeMode = null;
@@ -369,14 +366,13 @@ public final class Settings
      */
     public void setRotation(final int rotation)
     {
-        if (structure != null && this.rotation != 0)
-        {
-            structure.rotate(Rotation.values()[Rotation.values().length - BlockPosUtil.getRotationFromRotations(this.rotation).ordinal()], structure.world, pos, Mirror.NONE);
-        }
+        int offset = rotation - this.rotation;
+
         this.rotation = rotation;
         if (structure != null)
         {
-            structure.rotate(BlockPosUtil.getRotationFromRotations(rotation), structure.world, pos, Mirror.NONE);
+            structure.rotate(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, structure.world, pos, Mirror.NONE);
+            structure.getSettings().setRotation(BlockPosUtil.getRotationFromRotations(rotation));
         }
         scheduleRefresh();
     }
@@ -390,18 +386,10 @@ public final class Settings
         {
             return;
         }
-        if (isMirrored)
-        {
-            structure.rotate(Rotation.NONE, structure.world, pos, structure.getSettings().getMirror());
-        }
 
         isMirrored = !isMirrored;
+        structure.rotate(Rotation.NONE, structure.world, pos, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT);
         structure.getSettings().setMirror(getMirror());
-
-        if (isMirrored)
-        {
-            structure.rotate(Rotation.NONE, structure.world, pos, structure.getSettings().getMirror());
-        }
         scheduleRefresh();
     }
 
@@ -554,17 +542,6 @@ public final class Settings
             freeMode = null;
         }
 
-        // block pos
-
-        if (buf.readBoolean())
-        {
-            offset.setPos(buf.readInt(), buf.readInt(), buf.readInt());
-        }
-        else
-        {
-            offset.setPos(0, 0, 0);
-        }
-
         if (buf.readBoolean())
         {
             pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
@@ -646,16 +623,6 @@ public final class Settings
         if (freeMode != null)
         {
             buf.writeInt(freeMode.ordinal());
-        }
-
-        // block pos
-
-        buf.writeBoolean(!offset.equals(BlockPos.ZERO));
-        if (!offset.equals(BlockPos.ZERO))
-        {
-            buf.writeInt(offset.getX());
-            buf.writeInt(offset.getY());
-            buf.writeInt(offset.getZ());
         }
 
         buf.writeBoolean(pos != null);

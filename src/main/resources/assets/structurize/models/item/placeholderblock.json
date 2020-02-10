@@ -1,0 +1,6 @@
+{
+  "parent": "structurize:block/placeholderblock",
+  "textures": {
+    "layer0": "structurize:blocks/placeholderblock"
+  }
+}

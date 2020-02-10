@@ -7,8 +7,6 @@ import com.google.common.cache.RemovalNotification;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
@@ -62,14 +60,10 @@ public final class BlueprintHandler
      * Draw a blueprint with a rotation, mirror and offset.
      *
      * @param blueprint the wayPointBlueprint to draw.
-     * @param rotation  its rotation.
-     * @param mirror    its mirror.
      * @param pos       its position.
      */
     public void draw(
         final Blueprint blueprint,
-        final Rotation rotation,
-        final Mirror mirror,
         final BlockPos pos,
         final MatrixStack stack,
         final float partialTicks)
@@ -106,7 +100,7 @@ public final class BlueprintHandler
 
         for (final BlockPos coord : points)
         {
-            draw(blueprint, Rotation.NONE, Mirror.NONE, coord.down(), stack, partialTicks);
+            draw(blueprint, coord.down(), stack, partialTicks);
         }
     }
 }

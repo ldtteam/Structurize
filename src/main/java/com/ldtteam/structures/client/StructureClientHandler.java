@@ -25,7 +25,7 @@ public final class StructureClientHandler
     {
         if (perspectiveEntity != null)
         {
-            BlueprintHandler.getInstance().draw(structure.getBluePrint(), structure.getSettings().getRotation(), structure.getSettings().getMirror(), pos, stack, partialTicks);
+            BlueprintHandler.getInstance().draw(structure.getBluePrint(), pos, stack, partialTicks);
         }
     }
 }

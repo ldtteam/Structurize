@@ -9,6 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
@@ -34,13 +35,45 @@ public class ClientEventSubscriber
 
         if (structure != null)
         {
-            StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition(), event.getMatrixStack());
+            BlockPos offset = new BlockPos(0, 0, 0);
+            switch (Settings.instance.getRotation())
+            {
+                case 1:
+                    if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                    {
+                        offset = offset.north();
+                    }
+                    offset = offset.west();
+                    break;
+                case 2:
+                    if (Settings.instance.getMirror() != Mirror.FRONT_BACK)
+                    {
+                        offset = offset.west();
+                    }
+                    offset = offset.north();
+                    break;
+                case 3:
+                    if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                    {
+                        offset = offset.south();
+                    }
+                    offset = offset.north();
+                    break;
+                default:
+                    if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                    {
+                        offset = offset.west();
+                    }
+                    break;
+            }
+
+            StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition().subtract(offset), event.getMatrixStack());
 
             final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
             final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ());
 
-            renderBox(pos, pos.add(size).subtract(new BlockPos(1, 1, 1)), player, event);
+            renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), player, event);
         }
 
         if (Settings.instance.getBox() != null)

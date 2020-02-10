@@ -1111,4 +1111,11 @@
   "block.structurize.framed_cactus_cobble_stone_timber_frame": "Framed Cactus Cobblestone Timber Frame",
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame"
+  "structurize.config.maxcachedschematics": "Max Cached Schematics",
+  "structurize.config.maxoperationspertick.comment": "Max world operations per tick (Max blocks to place, remove or replace)",
+  "structurize.config.maxoperationspertick": "Max Operations Per Tick",
+  "com.structurize.command.playernotfound": "Couldn't find player for which to save the scan!",
+  "com.structurize.command.scan.success": "Succesfully scanned via command!",
+  "com.structurize.command.scan.no.perm": "No permission to scan via command, use the tool!",
+  "block.structurize.placeholderblock": "Placeholder"
 }
