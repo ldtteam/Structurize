@@ -6,7 +6,6 @@ import com.ldtteam.blockout.views.View;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
@@ -441,15 +440,15 @@ public class TextField extends Pane
     }
 
     @Override
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final double mx, final double my)
     {
         if (mx < 0)
         {
-            return;
+            return false;
         }
 
         final String visibleString = mc.fontRenderer.trimStringToWidth(text.substring(scrollOffset), getInternalWidth());
-        final String trimmedString = mc.fontRenderer.trimStringToWidth(visibleString, mx);
+        final String trimmedString = mc.fontRenderer.trimStringToWidth(visibleString, (int) mx);
 
         // Cache and restore scrollOffset when we change focus via click,
         // because onFocus() sets the cursor (and thus scroll offset) to the end.
@@ -457,6 +456,7 @@ public class TextField extends Pane
         setFocus();
         scrollOffset = oldScrollOffset;
         setCursorPosition(trimmedString.length() + scrollOffset);
+        return true;
     }
 
     @Override
