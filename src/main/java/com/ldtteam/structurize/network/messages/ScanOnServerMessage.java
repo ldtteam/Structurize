@@ -29,6 +29,11 @@ public class ScanOnServerMessage implements IMessage
     private String name;
 
     /**
+     * Whether to scan entities
+     */
+    private boolean saveEntities = true;
+
+    /**
      * Empty public constructor.
      */
     public ScanOnServerMessage()
@@ -36,13 +41,13 @@ public class ScanOnServerMessage implements IMessage
         super();
     }
 
-
-    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name)
+    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities)
     {
         super();
         this.from = from;
         this.to = to;
         this.name = name;
+        this.saveEntities = saveEntities;
     }
 
     @Override
@@ -51,6 +56,7 @@ public class ScanOnServerMessage implements IMessage
         name = buf.readString(32767);
         from = buf.readBlockPos();
         to = buf.readBlockPos();
+        saveEntities = buf.readBoolean();
     }
 
     @Override
@@ -59,6 +65,7 @@ public class ScanOnServerMessage implements IMessage
         buf.writeString(name);
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
+        buf.writeBoolean(saveEntities);
     }
 
     @Nullable
@@ -71,6 +78,6 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name);
+        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name, saveEntities);
     }
 }

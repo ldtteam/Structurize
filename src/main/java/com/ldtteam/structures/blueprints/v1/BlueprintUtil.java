@@ -42,9 +42,9 @@ public class BlueprintUtil
      * @param sizeZ The Size on the Z-Axis
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ)
+    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ)
     {
-        return createBlueprint(world, pos, sizeX, sizeY, sizeZ, null);
+        return createBlueprint(world, pos, saveEntities, sizeX, sizeY, sizeZ, null);
     }
 
     /**
@@ -59,7 +59,7 @@ public class BlueprintUtil
      * @param architects an Array of Architects for the structure
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ, String name, String... architects)
+    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ, String name, String... architects)
     {
         final List<BlockState> pallete = new ArrayList<>();
         // Allways add AIR to Pallete
@@ -112,9 +112,12 @@ public class BlueprintUtil
 
         final List<CompoundNBT> entitiesTag = new ArrayList<>();
 
-        final List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(
-            null,
-            new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+        List<Entity> entities = new ArrayList<>();
+        if (saveEntities)
+        {
+            entities =
+              world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+        }
 
         for (final Entity entity : entities)
         {
