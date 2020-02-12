@@ -4,7 +4,6 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.Item;
@@ -55,11 +54,11 @@ public class ItemIcon extends Pane
     /**
      * Set the item of the icon.
      *
-     * @param itemStack the itemstack to set.
+     * @param itemStackIn the itemstack to set.
      */
-    public void setItem(final ItemStack itemStack)
+    public void setItem(final ItemStack itemStackIn)
     {
-        this.itemStack = itemStack;
+        this.itemStack = itemStackIn;
     }
 
     /**

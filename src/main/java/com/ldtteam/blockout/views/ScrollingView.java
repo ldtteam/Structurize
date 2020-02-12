@@ -3,7 +3,6 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Scrollbar;
-import net.minecraft.client.gui.advancements.AdvancementsScreen;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -68,16 +67,18 @@ public class ScrollingView extends View
     public void setSize(final int w, final int h)
     {
         super.setSize(w, h);
-        container
-            .setSize(getInteriorWidth() - scrollbarWidth + (scrollbar.getScrollOffsetX() > scrollbarWidth ? scrollbarWidth : scrollbar.getScrollOffsetX()), getInteriorHeight());
+        container.setSize(
+            getInteriorWidth() - scrollbarWidth + (scrollbar.getScrollOffsetX() > scrollbarWidth ? scrollbarWidth : scrollbar.getScrollOffsetX()),
+            getInteriorHeight());
         scrollbar.setPosition(getInteriorWidth() - scrollbarWidth, 0);
         scrollbar.setSize(scrollbarWidth, getInteriorHeight());
     }
 
     @Override
-    public void scrollInput(final double wheel)
+    public boolean scrollInput(final double wheel, final double mx, final double my)
     {
         this.setScrollY(getScrollY() - (int) wheel);
+        return true;
     }
 
     public ScrollingContainer getContainer()
@@ -106,12 +107,12 @@ public class ScrollingView extends View
         return true;
     }
 
-    public int getScrollY()
+    public double getScrollY()
     {
         return container.getScrollY();
     }
 
-    public void setScrollY(final int offset)
+    public void setScrollY(final double offset)
     {
         container.setScrollY(offset);
     }

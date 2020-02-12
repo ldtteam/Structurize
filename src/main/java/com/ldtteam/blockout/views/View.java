@@ -2,16 +2,18 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Loader;
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 /**
  * A View is a Pane which can contain other Panes.
@@ -83,28 +85,15 @@ public class View extends Pane
     }
 
     @Override
-    public void scrollInput(final double wheel)
+    public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        for (final Pane child : new ArrayList<>(children))
-        {
-            if (child != null)
-            {
-                child.scrollInput(wheel);
-            }
-        }
+        return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild));
     }
 
     @Override
-    public void handleHover(final int mx, final int my)
+    public boolean handleHover(final double mx, final double my)
     {
-        for (final Pane child : new ArrayList<>(children))
-        {
-            if (child != null)
-            {
-                child.handleHover(mx, my);
-            }
-        }
-
+        return mousePointableEventHandler(mx, my, Pane::handleHover);
     }
 
     @Nullable
@@ -140,36 +129,16 @@ public class View extends Pane
 
     // Mouse
     @Override
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
-        {
-            clickedPane.rightClick(mxChild, myChild);
-        }
-        else
-        {
-            super.rightClick(mx, my);
-        }
+        return mouseClickableEventHandler(mx, my, Pane::rightClick);
     }
 
     // Mouse
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
-        {
-            clickedPane.click(mxChild, myChild);
-        }
-        else
-        {
-            super.click(mx, my);
-        }
+        return mouseClickableEventHandler(mx, my, Pane::click);
     }
 
     /**
@@ -181,21 +150,14 @@ public class View extends Pane
      * @return a Pane that will handle a click action.
      */
     @Nullable
-    public Pane findPaneForClick(final int mx, final int my)
+    public Pane findPaneForClick(final double mx, final double my)
     {
-        final ListIterator<Pane> it = children.listIterator(children.size());
-
-        // Iterate in reverse, since Panes later in the list draw on top of earlier panes.
-        while (it.hasPrevious())
-        {
-            final Pane child = it.previous();
-            if (child.canHandleClick(mx, my))
-            {
-                return child;
-            }
-        }
-
-        return null;
+        final AtomicReference<Pane> result = new AtomicReference<>();
+        mouseClickableEventHandler(mx, my, (child, mxChild, myChild) -> {
+            result.set(child);
+            return true;
+        });
+        return result.get();
     }
 
     @Override
@@ -206,7 +168,8 @@ public class View extends Pane
 
     protected boolean childIsVisible(final Pane child)
     {
-        return child.getX() < getInteriorWidth() && child.getY() < getInteriorHeight() && (child.getX() + child.getWidth()) >= 0 && (child.getY() + child.getHeight()) >= 0;
+        return child.getX() < getInteriorWidth() && child.getY() < getInteriorHeight() && (child.getX() + child.getWidth()) >= 0 &&
+            (child.getY() + child.getHeight()) >= 0;
     }
 
     public int getInteriorWidth()
@@ -289,18 +252,61 @@ public class View extends Pane
     }
 
     @Override
-    public void onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
+    public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-        final int mxChild = (int) (x - this.x - padding);
-        final int myChild = (int) (y - this.y - padding);
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+        return mousePointableEventHandler(x, y, (child, mxChild, myChild) -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY));
+    }
+
+    /**
+     * Select first children using reverse iteration over {@link #children} that is enabled
+     * {@link Pane#canHandleClick(double, double)}.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mouseClickableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
+    {
+        return mouseEventProcessor(mx, my, Pane::canHandleClick, eventCallback);
+    }
+
+    /**
+     * Select first children using reverse iteration over {@link #children} that is rendered
+     * {@link Pane#isPointInPane(double, double)}.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mousePointableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
+    {
+        return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallback);
+    }
+
+    /**
+     * Select first children using reverse iteration over {@link #children} that is accepted by panePredicate.
+     *
+     * @param mx            mouse x relative to parent
+     * @param my            mouse y relative to parent
+     * @param panePredicate test child pane if it can accept current event
+     * @param eventCallback event callback
+     * @return true if event was used or propagation needs to be stopped
+     */
+    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate, final MouseEventCallback eventCallback)
+    {
+        final ListIterator<Pane> it = children.listIterator(children.size());
+        final double mxChild = mx - x - padding;
+        final double myChild = my - y - padding;
+        while (it.hasPrevious())
         {
-            clickedPane.onMouseDrag(x, y, speed, deltaX, deltaY);
+            final Pane child = it.previous();
+            if (panePredicate.accept(child, mxChild, myChild))
+            {
+                return eventCallback.accept(child, mxChild, myChild);
+            }
         }
-        else
-        {
-            super.onMouseDrag(x, y, speed, deltaX, deltaY);
-        }
+        return false;
     }
 }

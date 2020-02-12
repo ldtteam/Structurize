@@ -138,7 +138,8 @@ public class Window extends View
 
     private void updateDebugging()
     {
-        debugging = isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && isKeyDown(GLFW.GLFW_KEY_LEFT_ALT) && (isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_SUPER));
+        debugging = isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && isKeyDown(GLFW.GLFW_KEY_LEFT_ALT) &&
+            (isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_SUPER));
     }
 
     /**
@@ -187,9 +188,10 @@ public class Window extends View
      * @param mx Mouse X position
      * @param my Mouse Y position
      */
-    public void onMouseReleased(final int mx, final int my)
+    public boolean onMouseReleased(final double mx, final double my)
     {
         // Can be overridden
+        return false;
     }
 
     /**
@@ -209,7 +211,6 @@ public class Window extends View
         {
             return true;
         }
-
 
         return onUnhandledKeyTyped(ch, key);
     }

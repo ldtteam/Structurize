@@ -4,8 +4,8 @@ import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
-import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -19,6 +19,81 @@ public class BOScreen extends Screen
     protected int y = 0;
     public static boolean isMouseLeftDown = false;
     private boolean isOpen = false;
+    private static final BitArray ACCEPTED_KEY_PRESSED_MAP = new BitArray(1, GLFW.GLFW_KEY_LAST + 1);
+
+    static
+    {
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_ESCAPE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_ENTER, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_TAB, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_BACKSPACE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_INSERT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_DELETE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_DOWN, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_UP, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAGE_UP, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAGE_DOWN, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_HOME, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_END, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_CAPS_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_SCROLL_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_NUM_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PRINT_SCREEN, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAUSE, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F1, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F2, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F3, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F4, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F5, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F6, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F7, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F8, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F9, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F10, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F11, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F12, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F13, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F14, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F15, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F16, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F17, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F18, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F19, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F20, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F21, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F22, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F23, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F24, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F25, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_0, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_1, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_2, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_3, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_4, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_5, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_6, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_7, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_8, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_9, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_DECIMAL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_DIVIDE, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_MULTIPLY, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_SUBTRACT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_ADD, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_ENTER, 1);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_EQUAL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_SHIFT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_CONTROL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_ALT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_SUPER, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_SHIFT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_CONTROL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_ALT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_SUPER, 0);
+        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_MENU, 1);
+    }
 
     /**
      * Create a GuiScreen from a BlockOut window.
@@ -63,38 +138,14 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public boolean keyPressed(final int key, final int p_keyPressed_2_, final int p_keyPressed_3_)
+    public boolean keyPressed(final int key, final int scanCode, final int modifiers)
     {
-        if (key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_TAB || key == GLFW.GLFW_KEY_BACKSPACE ||
-            key == GLFW.GLFW_KEY_INSERT || key == GLFW.GLFW_KEY_DELETE || key == GLFW.GLFW_KEY_RIGHT || key == GLFW.GLFW_KEY_LEFT || key == GLFW.GLFW_KEY_DOWN ||
-            key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_PAGE_UP || key == GLFW.GLFW_KEY_PAGE_DOWN || key == GLFW.GLFW_KEY_HOME || key == GLFW.GLFW_KEY_END ||
-            // key == GLFW.GLFW_KEY_CAPS_LOCK ||
-            // key == GLFW.GLFW_KEY_SCROLL_LOCK ||
-            // key == GLFW.GLFW_KEY_NUM_LOCK ||
-            key == GLFW.GLFW_KEY_PRINT_SCREEN || key == GLFW.GLFW_KEY_PAUSE || key == GLFW.GLFW_KEY_F1 || key == GLFW.GLFW_KEY_F2 || key == GLFW.GLFW_KEY_F3 ||
-            key == GLFW.GLFW_KEY_F4 || key == GLFW.GLFW_KEY_F5 || key == GLFW.GLFW_KEY_F6 || key == GLFW.GLFW_KEY_F7 || key == GLFW.GLFW_KEY_F8 ||
-            key == GLFW.GLFW_KEY_F9 || key == GLFW.GLFW_KEY_F10 || key == GLFW.GLFW_KEY_F11 || key == GLFW.GLFW_KEY_F12 ||
-            // key == GLFW.GLFW_KEY_F13 || key == GLFW.GLFW_KEY_F14 || key == GLFW.GLFW_KEY_F15 || key == GLFW.GLFW_KEY_F16 ||
-            // key == GLFW.GLFW_KEY_F17 || key == GLFW.GLFW_KEY_F18 || key == GLFW.GLFW_KEY_F19 || key == GLFW.GLFW_KEY_F20 ||
-            // key == GLFW.GLFW_KEY_F21 || key == GLFW.GLFW_KEY_F22 || key == GLFW.GLFW_KEY_F23 || key == GLFW.GLFW_KEY_F24 ||
-            // key == GLFW.GLFW_KEY_F25 || key == GLFW.GLFW_KEY_KP_0 || key == GLFW.GLFW_KEY_KP_1 || key == GLFW.GLFW_KEY_KP_2 ||
-            // key == GLFW.GLFW_KEY_KP_3 || key == GLFW.GLFW_KEY_KP_4 || key == GLFW.GLFW_KEY_KP_5 || key == GLFW.GLFW_KEY_KP_6 ||
-            // key == GLFW.GLFW_KEY_KP_7 || key == GLFW.GLFW_KEY_KP_8 || key == GLFW.GLFW_KEY_KP_9 || key == GLFW.GLFW_KEY_KP_DECIMAL ||
-            // key == GLFW.GLFW_KEY_KP_DIVIDE || key == GLFW.GLFW_KEY_KP_MULTIPLY || key == GLFW.GLFW_KEY_KP_SUBTRACT ||
-            // key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_KP_ENTER || key == GLFW.GLFW_KEY_KP_EQUAL ||
-            // key == GLFW.GLFW_KEY_LEFT_SHIFT ||
-            // key == GLFW.GLFW_KEY_LEFT_CONTROL ||
-            // key == GLFW.GLFW_KEY_LEFT_ALT ||
-            // key == GLFW.GLFW_KEY_LEFT_SUPER ||
-            // key == GLFW.GLFW_KEY_RIGHT_SHIFT ||
-            // key == GLFW.GLFW_KEY_RIGHT_CONTROL ||
-            // key == GLFW.GLFW_KEY_RIGHT_ALT ||
-            // key == GLFW.GLFW_KEY_RIGHT_SUPER ||
-            key == GLFW.GLFW_KEY_MENU)
+        // keys without printable representation
+        if (ACCEPTED_KEY_PRESSED_MAP.getAt(key) == 1)
         {
             return window.onKeyTyped('\0', key);
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -106,20 +157,19 @@ public class BOScreen extends Screen
     @Override
     public boolean mouseClicked(final double mxIn, final double myIn, final int keyCode)
     {
-        final int mx = (int) mxIn - x;
-        final int my = (int) myIn - y;
+        final double mx = mxIn - x;
+        final double my = myIn - y;
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
-            window.click(mx, my);
             isMouseLeftDown = true;
+            return window.click(mx, my);
         }
         else if (keyCode == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
         {
-            window.rightClick(mx, my);
+            return window.rightClick(mx, my);
         }
-        // TODO: needs propagation
-        return true;
+        return false;
     }
 
     @Override
@@ -127,10 +177,9 @@ public class BOScreen extends Screen
     {
         if (scrollDiff != 0)
         {
-            window.scrollInput(scrollDiff*10);
+            return window.scrollInput(scrollDiff * 10, mx - x, my - y);
         }
-        // TODO: needs propagation
-        return true;
+        return false;
     }
 
     @Override
@@ -139,19 +188,13 @@ public class BOScreen extends Screen
         // final int mx = (int) (super.minecraft.mouseHelper.getMouseX() * super.width / super.minecraft.mainWindow.getWidth()) - x;
         // final int my = (int) (super.height - super.minecraft.mouseHelper.getMouseY() * super.height /
         // super.minecraft.mainWindow.getHeight()) - 1 - y;
-        window.handleHover((int) mxIn - x, (int) myIn - y);
+        window.handleHover(mxIn - x, myIn - y);
     }
 
     @Override
-    public boolean mouseDragged(
-      final double x,
-      final double y,
-      final int speed,
-      final double deltaX,
-      final double deltaY)
+    public boolean mouseDragged(final double xIn, final double yIn, final int speed, final double deltaX, final double deltaY)
     {
-        window.onMouseDrag(x, y, speed, deltaX, deltaY);
-        return super.mouseDragged(x, y, speed, deltaX, deltaY);
+        return window.onMouseDrag(xIn - x, yIn - y, speed, deltaX, deltaY);
     }
 
     @Override
@@ -160,18 +203,10 @@ public class BOScreen extends Screen
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
-            window.onMouseReleased((int) mxIn - x, (int) myIn - y);
             isMouseLeftDown = false;
+            return window.onMouseReleased(mxIn - x, myIn - y);
         }
-        // TODO: needs propagation
-        return true;
-    }
-
-    @Deprecated
-    protected void mouseClickMove(final int mx, final int my, final int buttons, final long timeElapsed)
-    {
-        // Can be overridden
-        throw new RuntimeException("deprecated blockout error"); // not ported but available
+        return false;
     }
 
     @Override

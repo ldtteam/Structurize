@@ -226,19 +226,29 @@ public class Image extends Pane
             blit(x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
-
         RenderSystem.disableBlend();
     }
 
-    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
-        float f = 1.0F / tileWidth;
-        float f1 = 1.0F / tileHeight;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+    public static void drawScaledCustomSizeModalRect(
+        final int x,
+        final int y,
+        final float u,
+        final float v,
+        final int uWidth,
+        final int vHeight,
+        final int width,
+        final int height,
+        final float tileWidth,
+        final float tileHeight)
+    {
+        final float f = 1.0F / tileWidth;
+        final float f1 = 1.0F / tileHeight;
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float)uWidth) * f), ((v + (float)vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float)uWidth) * f), (v * f1)).endVertex();
+        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float) vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float) uWidth) * f), ((v + (float) vHeight) * f1)).endVertex();
+        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float) uWidth) * f), (v * f1)).endVertex();
         bufferbuilder.pos(x, y, 0.0D).tex((u * f), (v * f1)).endVertex();
         tessellator.draw();
     }

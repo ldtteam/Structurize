@@ -2,7 +2,6 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
