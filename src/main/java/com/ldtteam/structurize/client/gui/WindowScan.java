@@ -257,7 +257,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name));
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true));
         Settings.instance.setBox(null);
         close();
     }
