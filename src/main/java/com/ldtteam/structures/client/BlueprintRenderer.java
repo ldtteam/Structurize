@@ -146,7 +146,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         final Minecraft mc = Minecraft.getInstance();
         final Vec3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
-        final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint());
+        final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint()).getA();
         final int x = pos.getX() - primaryBlockOffset.getX();
         final int y = pos.getY() - primaryBlockOffset.getY();
         final int z = pos.getZ() - primaryBlockOffset.getZ();

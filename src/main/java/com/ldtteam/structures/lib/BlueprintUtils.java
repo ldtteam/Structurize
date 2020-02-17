@@ -16,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,16 +83,21 @@ public final class BlueprintUtils
         return new BlockInfo(pos, Blocks.AIR.getDefaultState(), null);
     }
 
-    public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
+    /**
+     * Get the primary offset.
+     * @param blueprint the blueprint.
+     * @return a tuple, the offset, and true if its a custom one.
+     */
+    public static Tuple<BlockPos, Boolean> getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
     {
         final List<BlockInfo> list =
             blueprint.getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {
-            return new BlockPos(blueprint.getSizeX() / 2, 0, blueprint.getSizeZ() / 2);
+            return new Tuple<>(new BlockPos(blueprint.getSizeX() / 2, 0, blueprint.getSizeZ() / 2), false);
         }
-        return BlueprintBlockInfoTransformHandler.getInstance().Transform(list.get(0)).getPos();
+        return new Tuple<>(list.get(0).getPos(), true);
     }
 
     /**
