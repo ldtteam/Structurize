@@ -308,6 +308,16 @@ public final class BlockUtils
             transformation = transformation.with(FourWayBlock.WATERLOGGED, blockState.get(FourWayBlock.WATERLOGGED));
             world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
+        else if (newBlockState.getBlock() instanceof SixWayBlock && blockState.getBlock() instanceof SixWayBlock)
+        {
+            BlockState transformation = newBlockState.with(SixWayBlock.EAST, blockState.get(SixWayBlock.EAST));
+            transformation = transformation.with(SixWayBlock.NORTH, blockState.get(SixWayBlock.NORTH));
+            transformation = transformation.with(SixWayBlock.WEST, blockState.get(SixWayBlock.WEST));
+            transformation = transformation.with(SixWayBlock.SOUTH, blockState.get(SixWayBlock.SOUTH));
+            transformation = transformation.with(SixWayBlock.UP, blockState.get(SixWayBlock.UP));
+            transformation = transformation.with(SixWayBlock.DOWN, blockState.get(SixWayBlock.DOWN));
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+        }
         else if (newBlockState.getBlock() instanceof BlockTimberFrame && blockState.getBlock() instanceof BlockTimberFrame)
         {
             final BlockState transformation = newBlockState.with(BlockTimberFrame.FACING, blockState.get(BlockTimberFrame.FACING));
