@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -288,7 +289,7 @@ public final class BlockUtils
 
         if (stackToPlace.getItem() instanceof BlockItem)
         {
-            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)))), 0x02);
+            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)))), Constants.BlockFlags.BLOCK_UPDATE);
         }
         else
         {
@@ -297,59 +298,68 @@ public final class BlockUtils
         }
 
         final BlockState newBlockState = world.getBlockState(here);
+        if (newBlockState.getBlock() instanceof  FourWayBlock && blockState.getBlock() instanceof FourWayBlock)
+        {
+            BlockState transformation = newBlockState.with(FourWayBlock.EAST, blockState.get(FourWayBlock.EAST));
+            transformation = transformation.with(FourWayBlock.NORTH, blockState.get(FourWayBlock.NORTH));
+            transformation = transformation.with(FourWayBlock.WEST, blockState.get(FourWayBlock.WEST));
+            transformation = transformation.with(FourWayBlock.SOUTH, blockState.get(FourWayBlock.SOUTH));
+            transformation = transformation.with(FourWayBlock.WATERLOGGED, blockState.get(FourWayBlock.WATERLOGGED));
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+        }
         if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
         {
             BlockState transformation = newBlockState.with(StairsBlock.FACING, blockState.get(StairsBlock.FACING));
             transformation = transformation.with(StairsBlock.HALF, blockState.get(StairsBlock.HALF));
             transformation = transformation.with(StairsBlock.SHAPE, blockState.get(StairsBlock.SHAPE));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof HorizontalBlock && blockState.getBlock() instanceof HorizontalBlock &&
             !(blockState.getBlock() instanceof BedBlock))
         {
             final BlockState transformation = newBlockState.with(HorizontalBlock.HORIZONTAL_FACING, blockState.get(HorizontalBlock.HORIZONTAL_FACING));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof DirectionalBlock && blockState.getBlock() instanceof DirectionalBlock)
         {
             final BlockState transformation = newBlockState.with(DirectionalBlock.FACING, blockState.get(DirectionalBlock.FACING));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof SlabBlock && blockState.getBlock() instanceof SlabBlock)
         {
             final BlockState transformation;
             transformation = newBlockState.with(SlabBlock.TYPE, blockState.get(SlabBlock.TYPE));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof LogBlock && blockState.getBlock() instanceof LogBlock)
         {
             final BlockState transformation = newBlockState.with(LogBlock.AXIS, blockState.get(LogBlock.AXIS));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof RotatedPillarBlock && blockState.getBlock() instanceof RotatedPillarBlock)
         {
             final BlockState transformation = newBlockState.with(RotatedPillarBlock.AXIS, blockState.get(RotatedPillarBlock.AXIS));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof TrapDoorBlock && blockState.getBlock() instanceof TrapDoorBlock)
         {
             BlockState transformation = newBlockState.with(TrapDoorBlock.HALF, blockState.get(TrapDoorBlock.HALF));
             transformation = transformation.with(TrapDoorBlock.HORIZONTAL_FACING, blockState.get(TrapDoorBlock.HORIZONTAL_FACING));
             transformation = transformation.with(TrapDoorBlock.OPEN, blockState.get(TrapDoorBlock.OPEN));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof DoorBlock && blockState.getBlock() instanceof DoorBlock)
         {
             final BlockState transformation = newBlockState.with(DoorBlock.FACING, blockState.get(DoorBlock.FACING));
-            world.setBlockState(here, transformation, 0x02);
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (stackToPlace.getItem() == Items.LAVA_BUCKET)
         {
-            world.setBlockState(here, Blocks.LAVA.getDefaultState(), 0x02);
+            world.setBlockState(here, Blocks.LAVA.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (stackToPlace.getItem() == Items.WATER_BUCKET)
         {
-            world.setBlockState(here, Blocks.WATER.getDefaultState(), 0x02);
+            world.setBlockState(here, Blocks.WATER.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
         }
     }
 }
