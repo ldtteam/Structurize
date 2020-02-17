@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
 import net.minecraft.item.*;
 import net.minecraft.state.BooleanProperty;
@@ -307,7 +308,12 @@ public final class BlockUtils
             transformation = transformation.with(FourWayBlock.WATERLOGGED, blockState.get(FourWayBlock.WATERLOGGED));
             world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
-        if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
+        else if (newBlockState.getBlock() instanceof BlockTimberFrame && blockState.getBlock() instanceof BlockTimberFrame)
+        {
+            final BlockState transformation = newBlockState.with(BlockTimberFrame.FACING, blockState.get(BlockTimberFrame.FACING));
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+        }
+        else if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
         {
             BlockState transformation = newBlockState.with(StairsBlock.FACING, blockState.get(StairsBlock.FACING));
             transformation = transformation.with(StairsBlock.HALF, blockState.get(StairsBlock.HALF));
