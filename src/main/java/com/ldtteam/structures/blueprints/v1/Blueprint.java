@@ -1,6 +1,5 @@
 package com.ldtteam.structures.blueprints.v1;
 
-import com.ldtteam.structures.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.BlockInfo;
@@ -12,6 +11,7 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -90,7 +90,7 @@ public class Blueprint
     /**
      * Cache for storing rotate/mirror anchor
      */
-    private BlockPos cachePrimaryOffset = null;
+    private Tuple<BlockPos, Boolean> cachePrimaryOffset = null;
 
     /**
      * Constructor of a new Blueprint.
@@ -386,7 +386,7 @@ public class Blueprint
         }
     }
 
-    public final BlockPos getPrimaryBlockOffset()
+    public final Tuple<BlockPos, Boolean> getPrimaryBlockOffset()
     {
         if (cachePrimaryOffset == null)
         {
@@ -395,16 +395,16 @@ public class Blueprint
         return cachePrimaryOffset;
     }
 
-    private final BlockPos findPrimaryBlockOffset()
+    private final Tuple<BlockPos, Boolean> findPrimaryBlockOffset()
     {
         final List<BlockInfo> list =
             getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {
-            return new BlockPos(sizeX / 2, 0, sizeZ / 2);
+            return new Tuple<>(new BlockPos(getSizeX() / 2, 0, getSizeZ() / 2), false);
         }
-        return BlueprintBlockInfoTransformHandler.getInstance().Transform(list.get(0)).getPos();
+        return new Tuple<>(list.get(0).getPos(), true);
     }
 
     private final void cacheReset()
