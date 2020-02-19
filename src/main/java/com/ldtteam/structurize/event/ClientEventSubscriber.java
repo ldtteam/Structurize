@@ -156,7 +156,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void onClientTickEvent(final ClientTickEvent event)
     {
-        if (Minecraft.getInstance().world.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        if (Minecraft.getInstance().world != null && Minecraft.getInstance().world.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
         {
             BlueprintHandler.getInstance().cleanCache();
         }
