@@ -1,7 +1,6 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import java.util.ArrayList;
@@ -148,9 +147,11 @@ public class Text extends AbstractTextElement
             }
             else
             {
-                formattedText = Collections
-                    .unmodifiableList(
-                        mc.fontRenderer.listFormattedStringToWidth(textContent, (int) (getWidth() / scale)).stream().filter(Objects::nonNull).collect(Collectors.toList()));
+                formattedText = Collections.unmodifiableList(
+                    mc.fontRenderer.listFormattedStringToWidth(textContent, (int) (getWidth() / scale))
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()));
             }
 
             final int numLines = formattedText.size();

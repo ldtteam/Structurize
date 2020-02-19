@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 4,
-    "item": "structurize:plain_dark_oak_birch_timber_frame"
-  },
+  "group": "dark_oak_birch_timber_frame",
   "pattern": [
     " F ",
     " C ",
     " S "
   ],
   "key": {
-    "F": {
-      "item": "minecraft:dark_oak_planks"
-    },
     "C": {
       "item": "minecraft:birch_planks"
     },
     "S": {
       "item": "structurize:sceptergold"
+    },
+    "F": {
+      "item": "minecraft:dark_oak_planks"
     }
   },
-  "group": "dark_oak_birch_timber_frame"
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_dark_oak_birch_timber_frame"
+  }
 }

@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:framed_spruce_jungle_timber_frame"
-  },
+  "group": "spruce_jungle_timber_frame",
   "ingredients": [
     {
       "item": "structurize:double_crossed_spruce_jungle_timber_frame"
     }
   ],
-  "group": "spruce_jungle_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:framed_spruce_jungle_timber_frame"
+  }
 }

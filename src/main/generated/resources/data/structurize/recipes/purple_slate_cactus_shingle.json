@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:purple_slate_cactus_shingle"
-  },
+  "group": "slate_cactus_shingle",
   "ingredients": [
     {
       "item": "minecraft:purple_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:slate_cactus_shingle"
     }
   ],
-  "group": "slate_cactus_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:purple_slate_cactus_shingle"
+  }
 }

@@ -58,6 +58,8 @@ public final class ModBlocks
 
     public static MultiBlock multiBlock;
 
+    public static PlaceholderBlock placeholderBlock;
+
     public static List<BlockTimberFrame> getTimberFrames()
     {
         return new ArrayList<>(timberFrames);
@@ -138,6 +140,8 @@ public final class ModBlocks
         }
 
         multiBlock = new MultiBlock().registerBlock(registry);
+
+        placeholderBlock = new PlaceholderBlock().registerBlock(registry);
     }
 
     @SubscribeEvent
@@ -179,5 +183,7 @@ public final class ModBlocks
         }
 
         multiBlock.registerItemBlock(registry, properties);
+
+        placeholderBlock.registerItemBlock(registry, properties);
     }
 }

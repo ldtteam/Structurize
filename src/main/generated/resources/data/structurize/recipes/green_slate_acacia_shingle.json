@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:green_slate_acacia_shingle"
-  },
+  "group": "slate_acacia_shingle",
   "ingredients": [
     {
       "item": "minecraft:green_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:slate_acacia_shingle"
     }
   ],
-  "group": "slate_acacia_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:green_slate_acacia_shingle"
+  }
 }

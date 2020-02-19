@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified"
-           elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
     <xs:element name="window" type="windowType"/>
     <xs:element name="layout" type="layoutType"/>
 
@@ -72,10 +71,16 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- <drag> -->
-    <xs:complexType name="dragType">
+    <!-- <zoom> -->
+    <xs:complexType name="zoomDragType">
         <xs:complexContent>
             <xs:extension base="viewType">
+                <xs:attribute name="dragFactor" type="xs:double"/>
+                <xs:attribute name="dragEnabled" type="xs:boolean"/>
+                <xs:attribute name="zoomFactor" type="xs:double"/>
+                <xs:attribute name="zoomEnabled" type="xs:boolean"/>
+                <xs:attribute name="minScale" type="xs:double"/>
+                <xs:attribute name="maxScale" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -85,9 +90,9 @@
         <xs:choice>
             <xs:element name="layout" type="layoutElementType"/>
             <xs:element name="view" type="viewType"/>
-            <xs:element name="dragview" type="dragType"/>
+            <xs:element name="zoomdragview" type="zoomDragType"/>
             <xs:element name="group" type="groupType"/>
-            <!-- xs:element name="scrollgroup"  type="scrollGroupType"/ -->
+            <!-- xs:element name="scrollgroup" type="scrollGroupType"/ -->
             <xs:element name="list" type="listType"/>
             <xs:element name="button" type="buttonType"/>
             <xs:element name="buttonimage" type="buttonImageType"/>

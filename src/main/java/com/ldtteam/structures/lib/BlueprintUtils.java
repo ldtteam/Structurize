@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +56,12 @@ public final class BlueprintUtils
         return blockInfo == null ? new BlockInfo(pos, Blocks.AIR.getDefaultState(), null) : blockInfo;
     }
 
-    public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
+    /**
+     * Get the primary offset.
+     * @param blueprint the blueprint.
+     * @return a tuple, the offset, and true if its a custom one.
+     */
+    public static Tuple<BlockPos, Boolean> getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
     {
         return blueprint.getPrimaryBlockOffset();
     }

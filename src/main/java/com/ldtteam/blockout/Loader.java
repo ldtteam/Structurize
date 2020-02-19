@@ -46,7 +46,7 @@ public final class Loader
         register("dropdown", DropDownList.class);
         register("overlay", OverlayView.class);
         register("gradient", Gradient.class);
-        register("dragView", DragView.class);
+        register("zoomdragview", ZoomDragView.class);
     }
 
     private Loader()

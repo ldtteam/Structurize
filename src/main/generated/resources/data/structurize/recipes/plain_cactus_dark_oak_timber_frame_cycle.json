@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:plain_cactus_dark_oak_timber_frame"
-  },
+  "group": "cactus_dark_oak_timber_frame",
   "ingredients": [
     {
       "item": "structurize:side_framed_horizontal_cactus_dark_oak_timber_frame"
     }
   ],
-  "group": "cactus_dark_oak_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:plain_cactus_dark_oak_timber_frame"
+  }
 }

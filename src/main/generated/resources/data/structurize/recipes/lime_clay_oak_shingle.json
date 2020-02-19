@@ -1,8 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:lime_clay_oak_shingle"
-  },
+  "group": "clay_oak_shingle",
   "ingredients": [
     {
       "item": "minecraft:lime_dye"
@@ -11,5 +9,8 @@
       "tag": "structurize:clay_oak_shingle"
     }
   ],
-  "group": "clay_oak_shingle"
+  "result": {
+    "count": 1,
+    "item": "structurize:lime_clay_oak_shingle"
+  }
 }

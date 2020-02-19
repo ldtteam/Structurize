@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "oak_brick_timber_frame",
+  "ingredients": [
+    {
+      "item": "structurize:up_gated_oak_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "structurize:down_gated_oak_brick_timber_frame"
+  }
+}

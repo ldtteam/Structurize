@@ -1,10 +1,14 @@
 package com.ldtteam.blockout.views;
 
+import java.util.function.Consumer;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.controls.*;
+import com.ldtteam.blockout.controls.Button;
+import com.ldtteam.blockout.controls.ButtonHandler;
+import com.ldtteam.blockout.controls.ButtonImage;
+import com.ldtteam.blockout.controls.ButtonVanilla;
+import com.ldtteam.blockout.controls.Label;
 import org.jetbrains.annotations.NotNull;
-import java.util.function.Consumer;
 
 /**
  * A DropDownList is a Button which when click display a ScrollingList below it.
@@ -109,11 +113,11 @@ public class DropDownList extends View implements ButtonHandler
      * <p>
      * The list is shown or hidden depending of the previous state.
      *
-     * @param button which have been clicked on.
+     * @param buttonIn which have been clicked on.
      */
-    public void onButtonClicked(@NotNull final Button button)
+    public void onButtonClicked(@NotNull final Button buttonIn)
     {
-        if (button == this.button)
+        if (buttonIn == button)
         {
             if (overlay.isVisible())
             {
@@ -122,13 +126,13 @@ public class DropDownList extends View implements ButtonHandler
             else
             {
                 overlay.setSize(this.getWindow().getInteriorWidth(), this.getWindow().getInteriorHeight());
-                overlay.putInside(button.getWindow());
+                overlay.putInside(buttonIn.getWindow());
                 open();
             }
         }
         else
         {
-            onButtonClickedFromList(button);
+            onButtonClickedFromList(buttonIn);
         }
     }
 
@@ -153,11 +157,11 @@ public class DropDownList extends View implements ButtonHandler
     /**
      * handle when a button in the list have been clicked on.
      *
-     * @param button which have been clicked on.
+     * @param buttonIn which have been clicked on.
      */
-    private void onButtonClickedFromList(@NotNull final Button button)
+    private void onButtonClickedFromList(@NotNull final Button buttonIn)
     {
-        final Label idLabel = button.getParent().findPaneOfTypeByID("id", Label.class);
+        final Label idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Label.class);
         if (idLabel != null)
         {
             final int index = Integer.parseInt(idLabel.getLabelText());
@@ -310,9 +314,9 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        button.click(mx, my);
+        return button.click(mx, my);
     }
 
     /**
@@ -333,5 +337,11 @@ public class DropDownList extends View implements ButtonHandler
         int getElementCount();
 
         String getLabel(final int index);
+    }
+
+    @Override
+    public boolean isPointInPane(final double mx, final double my)
+    {
+        return super.isPointInPane(mx, my) || (overlay.isVisible() && list.isPointInPane(mx, my));
     }
 }

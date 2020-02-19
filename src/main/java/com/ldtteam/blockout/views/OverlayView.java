@@ -31,38 +31,30 @@ public class OverlayView extends View
      * hide the view when click on.
      */
     @Override
-    public void click(final int mx, final int my)
+    public boolean click(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+        if (super.click(mx, my))
         {
-            clickedPane.click(mxChild, myChild);
+            return true;
         }
-        else
-        {
-            hide();
-        }
+
+        hide();
+        return false;
     }
 
     /**
      * hide the view when click on.
      */
     @Override
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
-        final int mxChild = mx - x - padding;
-        final int myChild = my - y - padding;
-        final Pane clickedPane = findPaneForClick(mxChild, myChild);
-        if (clickedPane != null)
+        if (super.rightClick(mx, my))
         {
-            clickedPane.rightClick(mxChild, myChild);
+            return true;
         }
-        else
-        {
-            hide();
-        }
+
+        hide();
+        return false;
     }
 
     /**

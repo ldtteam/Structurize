@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "spruce_brick_timber_frame",
+  "pattern": [
+    " F ",
+    " C ",
+    " S "
+  ],
+  "key": {
+    "C": {
+      "item": "brick"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    },
+    "F": {
+      "item": "minecraft:spruce_planks"
+    }
+  },
+  "result": {
+    "count": 4,
+    "item": "structurize:plain_spruce_brick_timber_frame"
+  }
+}

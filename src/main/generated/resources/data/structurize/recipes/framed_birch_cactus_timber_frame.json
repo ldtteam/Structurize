@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:framed_birch_cactus_timber_frame"
-  },
+  "group": "birch_cactus_timber_frame",
   "ingredients": [
     {
       "item": "structurize:double_crossed_birch_cactus_timber_frame"
     }
   ],
-  "group": "birch_cactus_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:framed_birch_cactus_timber_frame"
+  }
 }

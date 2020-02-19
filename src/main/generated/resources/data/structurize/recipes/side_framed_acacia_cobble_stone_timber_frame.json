@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "result": {
-    "item": "structurize:side_framed_acacia_cobble_stone_timber_frame"
-  },
+  "group": "acacia_cobble_stone_timber_frame",
   "ingredients": [
     {
       "item": "structurize:framed_acacia_cobble_stone_timber_frame"
     }
   ],
-  "group": "acacia_cobble_stone_timber_frame"
+  "result": {
+    "count": 1,
+    "item": "structurize:side_framed_acacia_cobble_stone_timber_frame"
+  }
 }

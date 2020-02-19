@@ -84,4 +84,12 @@ public class CommonProxy implements IProxy
          * Intentionally left empty.
          */
     }
+
+    @Override
+    public void openPlaceholderBlockWindow(final BlockPos pos)
+    {
+        /*
+         * Intentionally left empty.
+         */
+    }
 }

@@ -3,13 +3,13 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -63,7 +63,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         {
             if (playerIn.isShiftKeyDown())
             {
-                saveStructure(worldIn, start, end, playerIn, null);
+                saveStructure(worldIn, start, end, playerIn, null, true);
             }
         }
         else
@@ -94,6 +94,27 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      */
     public static void saveStructure(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final PlayerEntity player, final String name)
     {
+        saveStructure(world, from, to, player, name, true);
+    }
+
+    /**
+     * Scan the structure and save it to the disk.
+     *
+     * @param world        Current world.
+     * @param from         First corner.
+     * @param to           Second corner.
+     * @param player       causing this action.
+     * @param name         the name of it.
+     * @param saveEntities whether to scan in entities
+     */
+    public static void saveStructure(
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      @NotNull final PlayerEntity player,
+      final String name,
+      final boolean saveEntities)
+    {
         final BlockPos blockpos =
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
@@ -117,19 +138,35 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             fileName = name;
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
         Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
 
     /**
      * Save a structure on the server.
+     *
      * @param world the world.
-     * @param from the start position.
-     * @param to the end position.
-     * @param name the name.
+     * @param from  the start position.
+     * @param to    the end position.
+     * @param name  the name.
      * @return true if succesful.
      */
     public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name)
+    {
+        return saveStructureOnServer(world, from, to, name, true);
+    }
+
+    /**
+     * Save a structure on the server.
+     *
+     * @param world        the world.
+     * @param from         the start position.
+     * @param to           the end position.
+     * @param name         the name.
+     * @param saveEntities whether to scan in entities
+     * @return true if succesful.
+     */
+    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name, final boolean saveEntities)
     {
         final BlockPos blockpos =
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
@@ -161,7 +198,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             return false;
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name);
 
         final File file = new File(folder.get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());

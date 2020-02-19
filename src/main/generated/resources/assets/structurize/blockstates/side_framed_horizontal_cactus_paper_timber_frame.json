@@ -1,10 +1,5 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
-      "x": 90,
-      "y": 0
-    },
     "facing=east": {
       "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
       "x": 90,
@@ -15,20 +10,21 @@
       "x": 90,
       "y": 180
     },
+    "facing=down": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame"
+    },
     "facing=west": {
       "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
       "x": 90,
       "y": 270
-    },
-    "facing=up": {
-      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
-      "x": 0,
-      "y": 0
-    },
-    "facing=down": {
-      "model": "structurize:block/timber_frames/side_framed_horizontal_cactus_paper_timber_frame",
-      "x": 180,
-      "y": 0
     }
   }
 }

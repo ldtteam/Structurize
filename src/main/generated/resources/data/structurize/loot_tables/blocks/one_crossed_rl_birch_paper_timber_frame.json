@@ -2,16 +2,16 @@
   "type": "minecraft:block",
   "pools": [
     {
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "structurize:one_crossed_rl_birch_paper_timber_frame"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
         }
       ]
     }

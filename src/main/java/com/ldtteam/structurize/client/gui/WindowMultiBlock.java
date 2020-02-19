@@ -82,7 +82,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
 
     private void init()
     {
-        //Register all necessary buttons with the window.
+        // Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
@@ -122,10 +122,12 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
                 findPaneOfTypeByID(BUTTON_DOWN, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_DOWN)));
                 break;
             case NORTH:
-                findPaneOfTypeByID(BUTTON_FORWARD, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_FORWARD)));
+                findPaneOfTypeByID(BUTTON_FORWARD, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_FORWARD)));
                 break;
             case SOUTH:
-                findPaneOfTypeByID(BUTTON_BACKWARD, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_BACKWARD)));
+                findPaneOfTypeByID(BUTTON_BACKWARD, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_BACKWARD)));
                 break;
             case EAST:
                 findPaneOfTypeByID(BUTTON_RIGHT, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_RIGHT)));
@@ -142,19 +144,24 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         switch (newFacing)
         {
             case DOWN:
-                findPaneOfTypeByID(BUTTON_DOWN, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_DOWN + color)));
+                findPaneOfTypeByID(BUTTON_DOWN, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_DOWN + color)));
                 break;
             case NORTH:
-                findPaneOfTypeByID(BUTTON_FORWARD, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_FORWARD + color)));
+                findPaneOfTypeByID(BUTTON_FORWARD, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_FORWARD + color)));
                 break;
             case SOUTH:
-                findPaneOfTypeByID(BUTTON_BACKWARD, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_BACKWARD + color)));
+                findPaneOfTypeByID(BUTTON_BACKWARD, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_BACKWARD + color)));
                 break;
             case EAST:
-                findPaneOfTypeByID(BUTTON_RIGHT, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_RIGHT + color)));
+                findPaneOfTypeByID(BUTTON_RIGHT, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_RIGHT + color)));
                 break;
             case WEST:
-                findPaneOfTypeByID(BUTTON_LEFT, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_LEFT + color)));
+                findPaneOfTypeByID(BUTTON_LEFT, ButtonImage.class)
+                    .setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_LEFT + color)));
                 break;
             default:
                 findPaneOfTypeByID(BUTTON_UP, ButtonImage.class).setImage(new ResourceLocation(Constants.MOD_ID, String.format(RES_STRING, BUTTON_UP + color)));
@@ -254,7 +261,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
     }
 
     @Override
-    public void rightClick(final int mx, final int my)
+    public boolean rightClick(final double mx, final double my)
     {
         Pane pane = this.findPaneForClick(mx, my);
         if (pane instanceof View)
@@ -289,7 +296,9 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
                     break;
             }
             enable(output, newFacing, true);
+            return true;
         }
+        return false;
     }
 
     /**

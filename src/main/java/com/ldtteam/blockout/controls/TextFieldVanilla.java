@@ -98,9 +98,9 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
-    public void handleClick(final int mx, final int my)
+    public boolean handleClick(final double mx, final double my)
     {
-        int mouseX = mx;
+        double mouseX = mx;
 
         if (backgroundEnabled)
         {
@@ -108,6 +108,7 @@ public class TextFieldVanilla extends TextField
         }
 
         super.handleClick(mouseX, my);
+        return true;
     }
 
     /*

@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
-  "result": {
-    "count": 8,
-    "item": "structurize:moss_slate_shingle_slab"
-  },
+  "group": "moss_slate_shingle_slab",
   "pattern": [
     "   ",
     "III",
     "SSS"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:mossy_cobblestone"
-    },
     "S": {
       "item": "minecraft:stick"
+    },
+    "I": {
+      "item": "minecraft:mossy_cobblestone"
     }
   },
-  "group": "moss_slate_shingle_slab"
+  "result": {
+    "count": 8,
+    "item": "structurize:moss_slate_shingle_slab"
+  }
 }
