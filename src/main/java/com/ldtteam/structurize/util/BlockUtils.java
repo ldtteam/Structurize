@@ -288,7 +288,7 @@ public final class BlockUtils
 
         final Direction facing = (itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH);
 
-        if (stackToPlace.getItem() instanceof BlockItem)
+        if (stackToPlace.getItem() instanceof BlockItem && !(((BlockItem) stackToPlace.getItem()).getBlock() instanceof AbstractButtonBlock))
         {
             world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)))), Constants.BlockFlags.BLOCK_UPDATE);
         }
@@ -299,6 +299,11 @@ public final class BlockUtils
         }
 
         final BlockState newBlockState = world.getBlockState(here);
+        if (newBlockState.getBlock() instanceof AbstractButtonBlock && blockState.getBlock() instanceof AbstractButtonBlock)
+        {
+            BlockState transformation = newBlockState.with(AbstractButtonBlock.FACE, blockState.get(AbstractButtonBlock.FACE));
+            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+        }
         if (newBlockState.getBlock() instanceof  FourWayBlock && blockState.getBlock() instanceof FourWayBlock)
         {
             BlockState transformation = newBlockState.with(FourWayBlock.EAST, blockState.get(FourWayBlock.EAST));
