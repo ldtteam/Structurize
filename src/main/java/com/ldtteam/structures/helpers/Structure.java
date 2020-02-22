@@ -532,7 +532,7 @@ public class Structure
      */
     public void setLocalPosition(@NotNull final BlockPos localPosition)
     {
-        BlockPosUtil.set(this.progressPos, localPosition);
+        this.progressPos.setPos(localPosition.getX() % blueprint.getSizeX(), localPosition.getY() % blueprint.getSizeY(), localPosition.getZ() % blueprint.getSizeZ());
     }
 
     /**
