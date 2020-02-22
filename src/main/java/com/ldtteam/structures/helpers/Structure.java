@@ -335,16 +335,15 @@ public class Structure
         {
             this.progressPos.setPos(-1, 0, 0);
         }
-        Log.getLogger().warn(this.progressPos.getX() + "/" + this.blueprint.getSizeX() + " " + this.progressPos.getY() + "/" + this.blueprint.getSizeY() + " " + this.progressPos.getZ() + "/" + this.blueprint.getSizeZ());
 
         this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() == this.blueprint.getSizeX())
+        if (this.progressPos.getX() >= this.blueprint.getSizeX())
         {
             this.progressPos.setPos(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
-            if (this.progressPos.getZ() == this.blueprint.getSizeZ())
+            if (this.progressPos.getZ() >= this.blueprint.getSizeZ())
             {
                 this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
-                if (this.progressPos.getY() == this.blueprint.getSizeY())
+                if (this.progressPos.getY() >= this.blueprint.getSizeY())
                 {
                     this.reset();
                     return false;
@@ -366,16 +365,15 @@ public class Structure
         {
             this.progressPos.setPos(this.blueprint.getSizeX(), this.blueprint.getSizeY() - 1, this.blueprint.getSizeZ() - 1);
         }
-        Log.getLogger().warn(this.progressPos.getX() + "/" + this.blueprint.getSizeX() + " " + this.progressPos.getY() + "/" + this.blueprint.getSizeY() + " " + this.progressPos.getZ() + "/" + this.blueprint.getSizeZ());
 
         this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() == -1)
+        if (this.progressPos.getX() <= -1)
         {
             this.progressPos.setPos(this.blueprint.getSizeX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
-            if (this.progressPos.getZ() == -1)
+            if (this.progressPos.getZ() <= -1)
             {
                 this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, this.blueprint.getSizeZ() - 1);
-                if (this.progressPos.getY() == -1)
+                if (this.progressPos.getY() <= -1)
                 {
                     this.reset();
                     return false;
