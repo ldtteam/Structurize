@@ -345,6 +345,7 @@ public class Structure
         {
             this.progressPos.setPos(-1, 0, 0);
         }
+        Log.getLogger().warn(this.progressPos.getX() + "/" + this.blueprint.getSizeX() + " " + this.progressPos.getY() + "/" + this.blueprint.getSizeY() + " " + this.progressPos.getZ() + "/" + this.blueprint.getSizeZ());
 
         this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
         if (this.progressPos.getX() == this.blueprint.getSizeX())
@@ -375,6 +376,7 @@ public class Structure
         {
             this.progressPos.setPos(this.blueprint.getSizeX(), this.blueprint.getSizeY() - 1, this.blueprint.getSizeZ() - 1);
         }
+        Log.getLogger().warn(this.progressPos.getX() + "/" + this.blueprint.getSizeX() + " " + this.progressPos.getY() + "/" + this.blueprint.getSizeY() + " " + this.progressPos.getZ() + "/" + this.blueprint.getSizeZ());
 
         this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
         if (this.progressPos.getX() == -1)
