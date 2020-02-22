@@ -48,6 +48,7 @@ public class ShinglesBlockModelProvider implements IDataProvider
                 final BlockModelJson modelJson = new BlockModelJson();
                 modelJson.deserialize(new JsonParser().parse(reader));
 
+                modelJson.setAmbientOcclusion(false);
                 Map<String, String> textures = modelJson.getTextures();
                 if (textures == null)
                     textures = new HashMap<>();
