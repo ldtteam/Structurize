@@ -13,18 +13,6 @@
         0.5
       ]
     },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "scale": [
-        0.3,
-        0.3,
-        0.3
-      ]
-    },
     "thirdperson_lefthand": {
       "rotation": [
         0,
@@ -37,7 +25,7 @@
         0.5
       ]
     },
-    "ground": {
+    "firstperson_lefthand": {
       "rotation": [
         0,
         180,
@@ -49,7 +37,7 @@
         0.3
       ]
     },
-    "firstperson_lefthand": {
+    "firstperson_righthand": {
       "rotation": [
         0,
         180,
@@ -83,6 +71,18 @@
         0.5,
         0.5,
         0.5
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
       ]
     }
   }
