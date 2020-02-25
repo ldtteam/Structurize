@@ -282,7 +282,7 @@ public final class Settings
      */
     public void setActiveSchematic(final Structure structure)
     {
-        if (structure == null)
+        if (structure == null || structure.getBluePrint() == null)
         {
             reset();
         }

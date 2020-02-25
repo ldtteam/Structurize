@@ -21,8 +21,7 @@ public class ItemCaliper extends AbstractItemStructurize
     private static final String ITEM_CALIPER_MESSAGE_SAME   = "item.caliper.message.same";
     private static final String ITEM_CALIPER_MESSAGE_BASE   = "item.caliper.message.base";
     private static final String ITEM_CALIPER_MESSAGE_BY     = "item.caliper.message.by";
-    private static final String ITEM_CALIPER_MESSAGE_DIRLEN = "item.caliper.message.directLength";
-    private static final String ITEM_CALIPER_MESSAGE_XD     = "item.caliper.message.%sD";
+    private static final String ITEM_CALIPER_MESSAGE_XD     = "item.caliper.message.%sd";
 
     private BlockPos startPosition;
 
@@ -114,13 +113,9 @@ public class ItemCaliper extends AbstractItemStructurize
         }
         msg.delete(msg.length() - by.length(), msg.length());
 
-        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString(), LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag))));
-        if (flag > 1)
-        {
-            msg.append(LanguageHandler.format(ITEM_CALIPER_MESSAGE_DIRLEN,
-                (double) Math.round(1000 * Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2) + Math.pow(disZ, 2))) / 1000));
-        }
-
+        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
+        msg.append(" ");
+        msg.append(LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
         LanguageHandler.sendPlayerMessage(playerIn, msg.toString());
         return ActionResultType.SUCCESS;
     }

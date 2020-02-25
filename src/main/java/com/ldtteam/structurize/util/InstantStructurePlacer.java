@@ -170,18 +170,8 @@ public class InstantStructurePlacer
 
                             entity.setUniqueId(UUID.randomUUID());
                             final Vec3d worldPos = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
+                            entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
 
-                            if (entity instanceof HangingEntity)
-                            {
-                                entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
-
-                                final BlockPos hanging = ((HangingEntity) entity).getHangingPosition();
-                                entity.setPosition(hanging.getX() + pos.getX(), hanging.getY() + pos.getY(), hanging.getZ() + pos.getZ());
-                            }
-                            else
-                            {
-                                entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
-                            }
                             world.addEntity(entity);
                             storage.addToBeKilledEntity(entity);
                         }

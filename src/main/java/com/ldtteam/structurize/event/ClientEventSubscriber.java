@@ -48,30 +48,45 @@ public class ClientEventSubscriber
                 switch (Settings.instance.getRotation())
                 {
                     case 1:
-                        if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+
+                        if (Settings.instance.getMirror() == Mirror.FRONT_BACK && structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
                             offset = offset.north();
                         }
-                        offset = offset.west();
+                        if (structure.getBluePrint().getSizeX() % 2 == 0)
+                        {
+                            offset = offset.west();
+                        }
                         break;
                     case 2:
-                        if (Settings.instance.getMirror() != Mirror.FRONT_BACK)
+                        if (Settings.instance.getMirror() != Mirror.FRONT_BACK && structure.getBluePrint().getSizeX() % 2 == 0)
                         {
                             offset = offset.west();
                         }
-                        offset = offset.north();
+
+                        if (structure.getBluePrint().getSizeZ() % 2 == 0)
+                        {
+                            offset = offset.north();
+                        }
+
                         break;
                     case 3:
-                        if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                        if (structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
-                            offset = offset.south();
+                            if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                            {
+                                offset = offset.south();
+                            }
+                            offset = offset.north();
                         }
-                        offset = offset.north();
                         break;
                     default:
-                        if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                        if (structure.getBluePrint().getSizeX() % 2 == 0)
                         {
-                            offset = offset.west();
+                            if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
+                            {
+                                offset = offset.west();
+                            }
                         }
                         break;
                 }

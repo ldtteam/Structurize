@@ -47,11 +47,11 @@ public class ShingleSlabsBlockModelProvider implements IDataProvider
                 final FileReader reader = new FileReader(modelFile);
                 final BlockModelJson modelJson = new BlockModelJson();
                 modelJson.deserialize(new JsonParser().parse(reader));
+                modelJson.setAmbientOcclusion(false);
 
                 Map<String, String> textures = modelJson.getTextures();
                 if (textures == null)
                     textures = new HashMap<>();
-
 
                 textures.put("1", shingleSlab.getFaceType().getTexture(1));
                 textures.put("2", shingleSlab.getFaceType().getTexture(2));
