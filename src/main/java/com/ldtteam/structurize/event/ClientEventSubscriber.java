@@ -25,7 +25,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientEventSubscriber
 {
-
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
      *
@@ -48,7 +47,6 @@ public class ClientEventSubscriber
                 switch (Settings.instance.getRotation())
                 {
                     case 1:
-
                         if (Settings.instance.getMirror() == Mirror.FRONT_BACK && structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
                             offset = offset.north();
@@ -58,18 +56,18 @@ public class ClientEventSubscriber
                             offset = offset.west();
                         }
                         break;
+
                     case 2:
                         if (Settings.instance.getMirror() != Mirror.FRONT_BACK && structure.getBluePrint().getSizeX() % 2 == 0)
                         {
                             offset = offset.west();
                         }
-
                         if (structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
                             offset = offset.north();
                         }
-
                         break;
+
                     case 3:
                         if (structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
@@ -80,6 +78,7 @@ public class ClientEventSubscriber
                             offset = offset.north();
                         }
                         break;
+
                     default:
                         if (structure.getBluePrint().getSizeX() % 2 == 0)
                         {
@@ -92,10 +91,15 @@ public class ClientEventSubscriber
                 }
             }
 
-            StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition().subtract(offset), event.getMatrixStack());
+            StructureClientHandler.renderStructure(structure,
+                event.getPartialTicks(),
+                Settings.instance.getPosition().subtract(offset),
+                event.getMatrixStack());
 
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset.getA());
-            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ());
+            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(),
+                structure.getBluePrint().getSizeY(),
+                structure.getBluePrint().getSizeZ());
 
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
             renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), player, event);
@@ -109,7 +113,10 @@ public class ClientEventSubscriber
         Minecraft.getInstance().getProfiler().endSection();
     }
 
-    private static void renderBox(final BlockPos posA, final BlockPos posB, final ClientPlayerEntity player, final RenderWorldLastEvent event)
+    private static void renderBox(final BlockPos posA,
+        final BlockPos posB,
+        final ClientPlayerEntity player,
+        final RenderWorldLastEvent event)
     {
         int x1 = posA.getX();
         int y1 = posA.getY();
@@ -154,7 +161,7 @@ public class ClientEventSubscriber
         matrix.push();
         matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
 
-        final Matrix4f matrix4f = matrix.getLast().getPositionMatrix();
+        final Matrix4f matrix4f = matrix.getLast().getMatrix();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
         BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);
         matrix.pop();

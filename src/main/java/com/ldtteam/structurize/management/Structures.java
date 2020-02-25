@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.management;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.MathUtils;
+import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
@@ -13,7 +15,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,7 +24,6 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static com.ldtteam.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
 import static com.ldtteam.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
 
@@ -111,7 +111,7 @@ public final class Structures
      */
     private Structures()
     {
-        //Hide implicit public constructor.
+        // Hide implicit public constructor.
     }
 
     /**
@@ -120,6 +120,16 @@ public final class Structures
     public static void init()
     {
         loadStyleMaps();
+    }
+
+    /**
+     * Calls {@link #init()} and resends the data to everyone online.
+     * RUN ONLY FROM LOGICAL SERVER
+     */
+    public static void reload()
+    {
+        init();
+        Network.getNetwork().sendToEveryone(new StructurizeStylesMessage());
     }
 
     /**
@@ -260,7 +270,6 @@ public final class Structures
             return;
         }
 
-
         schematicsMap.remove(SCHEMATICS_SCAN);
 
         for (final File clientSchems : StructureLoadingUtils.getClientSchematicsFolders())
@@ -338,7 +347,8 @@ public final class Structures
                     }
                     catch (final ResourceLocationException e)
                     {
-                        Log.getLogger().warn("Structure failed Loading because of invalid resource name (probably capitalization issue)", e);
+                        Log.getLogger()
+                            .warn("Structure failed Loading because of invalid resource name (probably capitalization issue)", e);
                         Log.getLogger().warn(relativePath);
                     }
                 }
@@ -468,11 +478,14 @@ public final class Structures
             return null;
         }
 
-
         for (final File clientSchems : StructureLoadingUtils.getClientSchematicsFolders())
         {
-            final File structureFile = clientSchems.toPath().resolve(structureName.toString() + getFileExtension(structureName.toString())).toFile();
-            final File newStructureFile = clientSchems.toPath().resolve(newStructureName.toString() + getFileExtension(structureName.toString())).toFile();
+            final File structureFile = clientSchems.toPath()
+                .resolve(structureName.toString() + getFileExtension(structureName.toString()))
+                .toFile();
+            final File newStructureFile = clientSchems.toPath()
+                .resolve(newStructureName.toString() + getFileExtension(structureName.toString()))
+                .toFile();
             checkDirectory(newStructureFile.getParentFile());
             if (structureFile.renameTo(newStructureFile))
             {
@@ -725,7 +738,8 @@ public final class Structures
                 Log.getLogger().warn("Could not store schematic in cache");
                 return false;
             }
-            Log.getLogger().info("Recieved piece: " + piece + " of: " + pieces + " with the size: " + bytes.length + " and ID: " + id.toString());
+            Log.getLogger()
+                .info("Recieved piece: " + piece + " of: " + pieces + " with the size: " + bytes.length + " and ID: " + id.toString());
             final Map<Integer, byte[]> schemPieces;
             if (schematicPieces.containsKey(id))
             {
@@ -750,8 +764,7 @@ public final class Structures
                 {
                     try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream())
                     {
-                        schemPieces.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry ->
-                        {
+                        schemPieces.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
                             try
                             {
                                 outputStream.write(entry.getValue());
@@ -803,7 +816,9 @@ public final class Structures
             Log.getLogger().info("Structures.handleSaveSchematicMessage: received new schematic md5:" + md5);
             for (final File cachedSchems : StructureLoadingUtils.getCachedSchematicsFolders())
             {
-                final File schematicFile = cachedSchems.toPath().resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION_NEW).toFile();
+                final File schematicFile = cachedSchems.toPath()
+                    .resolve(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5 + SCHEMATIC_EXTENSION_NEW)
+                    .toFile();
                 checkDirectory(schematicFile.getParentFile());
                 try (OutputStream outputstream = new FileOutputStream(schematicFile))
                 {
@@ -853,7 +868,7 @@ public final class Structures
             return true;
         }
 
-        //md5Set contain only the unused one
+        // md5Set contain only the unused one
         final Iterator<String> iterator = md5Set.iterator();
         while (iterator.hasNext() && md5Set.size() >= maxCachedSchematics)
         {
@@ -916,7 +931,10 @@ public final class Structures
             return false;
         }
 
-        final File structureFileBlueprint = Structurize.proxy.getSchematicsFolder().toPath().resolve(structureName.toString() + SCHEMATIC_EXTENSION_NEW).toFile();
+        final File structureFileBlueprint = Structurize.proxy.getSchematicsFolder()
+            .toPath()
+            .resolve(structureName.toString() + SCHEMATIC_EXTENSION_NEW)
+            .toFile();
         if (structureFileBlueprint.delete())
         {
             md5Map.remove(structureName.toString());
