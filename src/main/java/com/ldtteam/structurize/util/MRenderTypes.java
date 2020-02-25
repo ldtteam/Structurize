@@ -13,27 +13,39 @@ public final class MRenderTypes extends RenderType
 {
     /**
      * Private constructor to hide implicit one.
-     * @param name the name of the rendertype.
+     *
+     * @param name   the name of the rendertype.
      * @param format its format.
-     * @param id1 no idea.
-     * @param id2 no idea.
-     * @param b1 no idea.
-     * @param b2 no idea.
-     * @param b3 no idea.
-     * @param state the rendertype state.
+     * @param id1    no idea.
+     * @param id2    no idea.
+     * @param b1     no idea.
+     * @param b2     no idea.
+     * @param b3     no idea.
+     * @param state  the rendertype state.
      */
-    private MRenderTypes(final String name, final VertexFormat format, final int id1, final int id2, final boolean b1, final boolean b2, final Runnable b3, final Runnable state)
+    private MRenderTypes(final String name,
+        final VertexFormat format,
+        final int id1,
+        final int id2,
+        final boolean b1,
+        final boolean b2,
+        final Runnable b3,
+        final Runnable state)
     {
         super(name, format, id1, id2, b1, b2, b3, state);
     }
 
     /**
      * Custom line renderer type.
+     *
      * @return the renderType which is created.
      */
     public static RenderType customLineRenderer()
     {
-        return get("structurizelines", DefaultVertexFormats.POSITION_COLOR, 3, 256,
-          RenderType.State.builder().line(new RenderState.LineState(OptionalDouble.empty())).build(false));
+        return makeType("structurizelines",
+            DefaultVertexFormats.POSITION_COLOR,
+            3,
+            256,
+            RenderType.State.getBuilder().line(new RenderState.LineState(OptionalDouble.empty())).build(false));
     }
 }

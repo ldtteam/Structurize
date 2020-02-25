@@ -11,7 +11,6 @@ import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.tileentities.StructurizeTileEntities;
-import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.renderer.RenderType;
@@ -47,10 +46,10 @@ public class LifecycleSubscriber
     public static void onClientInit(final FMLClientSetupEvent event)
     {
         OptifineCompat.getInstance().intialize();
-        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
-        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
-        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
-        ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.translucent()));
+        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
         ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
     }
 
@@ -68,7 +67,7 @@ public class LifecycleSubscriber
 
     /**
      * This method is for adding datagenerators. this does not run during normal client operations, only during building.
-     * 
+     *
      * @param event event sent when you run the "runData" gradle task
      */
     @SubscribeEvent
