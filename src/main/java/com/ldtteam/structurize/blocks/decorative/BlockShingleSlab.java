@@ -105,7 +105,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     @Override
     public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
     {
-        return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
+        return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.9D, 7.9D, 15.9D);
     }
 
     /**
