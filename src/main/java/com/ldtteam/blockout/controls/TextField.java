@@ -417,7 +417,7 @@ public class TextField extends Pane
             final BufferBuilder vertexBuffer = tessellator.getBuffer();
 
             // There are several to choose from, look at DefaultVertexFormats for more info
-            vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
             // Since our points do not have any u,v this seems to be the correct code
             vertexBuffer.pos((double) selectionStartX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
