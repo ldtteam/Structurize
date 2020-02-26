@@ -46,7 +46,7 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     /**
      * The blueprint with the info we need.
      */
-    private final Blueprint blueprint;
+    private Blueprint blueprint;
 
     /**
      * Constructor to create a new world/blockAccess
@@ -68,6 +68,11 @@ public class BlueprintBlockAccess extends World implements IBlockReader
     public Blueprint getBlueprint()
     {
         return blueprint;
+    }
+
+    public void setBlueprint(final Blueprint blueprintIn)
+    {
+        blueprint = blueprintIn;
     }
 
     @Nullable
@@ -119,7 +124,7 @@ public class BlueprintBlockAccess extends World implements IBlockReader
         }
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
-    
+
     @NotNull
     @Override
     public IFluidState getFluidState(@NotNull final BlockPos pos)

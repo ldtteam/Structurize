@@ -11,13 +11,16 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -77,6 +80,17 @@ public class Blueprint
      * The entities.
      */
     private CompoundNBT[] entities = new CompoundNBT[0];
+
+    /**
+     * Various caches for storing block data in prepared structures
+     */
+    private List<BlockInfo> cacheBlockInfo = null;
+    private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
+
+    /**
+     * Cache for storing rotate/mirror anchor
+     */
+    private Tuple<BlockPos, Boolean> cachePrimaryOffset = null;
 
     /**
      * Constructor of a new Blueprint.
@@ -207,6 +221,7 @@ public class Blueprint
         }
 
         this.structure[pos.getY()][pos.getZ()][pos.getX()] = (short) index;
+        cacheReset();
     }
 
     /**
@@ -263,7 +278,7 @@ public class Blueprint
 
     /**
      * Sets the name of the Structure
-     * 
+     *
      * @param name the name to set.
      * @return this object.
      */
@@ -331,21 +346,72 @@ public class Blueprint
      */
     public final List<BlockInfo> getBlockInfoAsList()
     {
-        final List<BlockInfo> list = new ArrayList<>();
-        for (short x = 0; x < this.sizeX; x++)
+        if (cacheBlockInfo == null)
         {
-            for (short y = 0; y < this.sizeY; y++)
+            buildBlockInfoCaches();
+        }
+        return cacheBlockInfo;
+    }
+
+    /**
+     * Get a map of all blockpos->blockInfo objects in the blueprint.
+     *
+     * @return a map of all blockpos->blockInfo (position, blockState, tileEntityData).
+     */
+    public final Map<BlockPos, BlockInfo> getBlockInfoAsMap()
+    {
+        if (cacheBlockInfoMap == null)
+        {
+            buildBlockInfoCaches();
+        }
+        return cacheBlockInfoMap;
+    }
+
+    private final void buildBlockInfoCaches()
+    {
+        cacheBlockInfo = new ArrayList<>(getVolume());
+        cacheBlockInfoMap = new HashMap<>(getVolume());
+        for (short y = 0; y < this.sizeY; y++)
+        {
+            for (short z = 0; z < this.sizeZ; z++)
             {
-                for (short z = 0; z < this.sizeZ; z++)
+                for (short x = 0; x < this.sizeX; x++)
                 {
                     final BlockPos tempPos = new BlockPos(x, y, z);
-                    final short value = structure[y][z][x];
-                    final BlockState state = palette.get(value & 0xFFFF);
-                    list.add(new BlockInfo(tempPos, state, tileEntities[y][z][x]));
+                    final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
+                    cacheBlockInfo.add(blockInfo);
+                    cacheBlockInfoMap.put(tempPos, blockInfo);
                 }
             }
         }
-        return list;
+    }
+
+    public final Tuple<BlockPos, Boolean> getPrimaryBlockOffset()
+    {
+        if (cachePrimaryOffset == null)
+        {
+            cachePrimaryOffset = findPrimaryBlockOffset();
+        }
+        return cachePrimaryOffset;
+    }
+
+    private final Tuple<BlockPos, Boolean> findPrimaryBlockOffset()
+    {
+        final List<BlockInfo> list =
+            getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
+
+        if (list.size() != 1)
+        {
+            return new Tuple<>(new BlockPos(getSizeX() / 2, 0, getSizeZ() / 2), false);
+        }
+        return new Tuple<>(list.get(0).getPos(), true);
+    }
+
+    private final void cacheReset()
+    {
+        cacheBlockInfo = null;
+        cachePrimaryOffset = null;
+        cacheBlockInfoMap = null;
     }
 
     /**
@@ -486,6 +552,7 @@ public class Blueprint
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
 
+        cacheReset();
         return offset;
     }
 
@@ -631,5 +698,40 @@ public class Blueprint
             default:
                 return flag ? new Vec3d(xCoord, vec.y, zCoord) : vec;
         }
+    }
+
+    private int getVolume()
+    {
+        return (int) sizeX * sizeY * sizeZ;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + palleteSize;
+        result = prime * result + getVolume();
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null || !(obj instanceof Blueprint))
+        {
+            return false;
+        }
+        final Blueprint other = (Blueprint) obj;
+        if (!name.equals(other.name) || palleteSize != other.palleteSize || getVolume() != other.getVolume())
+        {
+            return false;
+        }
+        return true;
     }
 }

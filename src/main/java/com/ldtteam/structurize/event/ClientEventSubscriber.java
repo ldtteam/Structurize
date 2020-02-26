@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,11 +20,11 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientEventSubscriber
 {
-
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
      *
@@ -31,6 +33,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
+        Minecraft.getInstance().getProfiler().startSection("struct_render");
         final Structure structure = Settings.instance.getActiveStructure();
         final ClientPlayerEntity player = Minecraft.getInstance().player;
 
@@ -44,7 +47,6 @@ public class ClientEventSubscriber
                 switch (Settings.instance.getRotation())
                 {
                     case 1:
-
                         if (Settings.instance.getMirror() == Mirror.FRONT_BACK && structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
                             offset = offset.north();
@@ -54,18 +56,18 @@ public class ClientEventSubscriber
                             offset = offset.west();
                         }
                         break;
+
                     case 2:
                         if (Settings.instance.getMirror() != Mirror.FRONT_BACK && structure.getBluePrint().getSizeX() % 2 == 0)
                         {
                             offset = offset.west();
                         }
-
                         if (structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
                             offset = offset.north();
                         }
-
                         break;
+
                     case 3:
                         if (structure.getBluePrint().getSizeZ() % 2 == 0)
                         {
@@ -76,6 +78,7 @@ public class ClientEventSubscriber
                             offset = offset.north();
                         }
                         break;
+
                     default:
                         if (structure.getBluePrint().getSizeX() % 2 == 0)
                         {
@@ -88,21 +91,32 @@ public class ClientEventSubscriber
                 }
             }
 
-            StructureClientHandler.renderStructure(structure, event.getPartialTicks(), Settings.instance.getPosition().subtract(offset), event.getMatrixStack());
+            StructureClientHandler.renderStructure(structure,
+                event.getPartialTicks(),
+                Settings.instance.getPosition().subtract(offset),
+                event.getMatrixStack());
 
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset.getA());
-            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(), structure.getBluePrint().getSizeY(), structure.getBluePrint().getSizeZ());
+            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(),
+                structure.getBluePrint().getSizeY(),
+                structure.getBluePrint().getSizeZ());
 
+            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
             renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), player, event);
         }
 
         if (Settings.instance.getBox() != null)
         {
+            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
             renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), player, event);
         }
+        Minecraft.getInstance().getProfiler().endSection();
     }
 
-    private static void renderBox(final BlockPos posA, final BlockPos posB, final ClientPlayerEntity player, final RenderWorldLastEvent event)
+    private static void renderBox(final BlockPos posA,
+        final BlockPos posB,
+        final ClientPlayerEntity player,
+        final RenderWorldLastEvent event)
     {
         int x1 = posA.getX();
         int y1 = posA.getY();
@@ -147,11 +161,26 @@ public class ClientEventSubscriber
         matrix.push();
         matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
 
-        final Matrix4f matrix4f = matrix.getLast().getPositionMatrix();
+        final Matrix4f matrix4f = matrix.getLast().getMatrix();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
         BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);
         matrix.pop();
 
         RenderSystem.disableDepthTest();
+    }
+
+    /**
+     * Used to catch the clientTickEvent.
+     * Call renderer cache cleaning every 5 secs (100 ticks).
+     *
+     * @param event the catched event.
+     */
+    @SubscribeEvent
+    public static void onClientTickEvent(final ClientTickEvent event)
+    {
+        if (Minecraft.getInstance().world != null && Minecraft.getInstance().world.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        {
+            BlueprintHandler.getInstance().cleanCache();
+        }
     }
 }

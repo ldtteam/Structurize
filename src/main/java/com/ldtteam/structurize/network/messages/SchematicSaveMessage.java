@@ -10,9 +10,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.UUID;
-
 import static com.ldtteam.structurize.api.util.constant.Constants.MAX_AMOUNT_OF_PIECES;
 
 /**
@@ -23,7 +21,7 @@ public class SchematicSaveMessage implements IMessage
     /**
      * The schematic data.
      */
-    private              byte[] data           = null;
+    private byte[] data = null;
 
     /**
      * The amount of pieces.
@@ -55,10 +53,11 @@ public class SchematicSaveMessage implements IMessage
      */
     /**
      * Send a schematic between client and server or server and client.
-     * @param data the schematic.
-     * @param id the unique id.
+     *
+     * @param data   the schematic.
+     * @param id     the unique id.
      * @param pieces the amount of pieces.
-     * @param piece the current piece.
+     * @param piece  the current piece.
      */
     public SchematicSaveMessage(final byte[] data, final UUID id, final int pieces, final int piece)
     {
@@ -117,8 +116,9 @@ public class SchematicSaveMessage implements IMessage
 
             if (pieces > MAX_AMOUNT_OF_PIECES)
             {
-                Log.getLogger().error("Schematic has more than 10 pieces, discarding.");
-                ctxIn.getSender().sendMessage(new StringTextComponent("Schematic has more than 10 pieces, that's too big!"));
+                Log.getLogger().error("Schematic has more than {} pieces, discarding.", MAX_AMOUNT_OF_PIECES);
+                ctxIn.getSender()
+                    .sendMessage(new StringTextComponent("Schematic has more than " + MAX_AMOUNT_OF_PIECES + " pieces, that's too big!"));
                 return;
             }
 

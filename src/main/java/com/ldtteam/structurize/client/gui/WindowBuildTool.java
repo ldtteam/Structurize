@@ -151,6 +151,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private String staticSchematicName = "";
 
     /**
+     * Blocks executing of {@link #changeSchematic()} until necessary
+     */
+    private boolean init = true;
+
+    /**
      * Creates a window build tool for a specific structure.
      *
      * @param pos           the position.
@@ -198,7 +203,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
     private void init(final BlockPos pos, final int rot)
     {
-        @Nullable final Structure structure = Settings.instance.getActiveStructure();
+        @Nullable
+        final Structure structure = Settings.instance.getActiveStructure();
 
         if (structure != null)
         {
@@ -215,7 +221,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         initStyleNavigation();
         initSchematicNavigation();
 
-        //Register all necessary buttons with the window.
+        // Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
@@ -273,8 +279,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (Manager.isSchematicDownloaded())
         {
             Manager.setSchematicDownloaded(false);
-            changeSchematic();
         }
+
+        init = false;
+        changeSchematic();
     }
 
     public void pasteNice()
@@ -309,7 +317,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final StructureName structureName = new StructureName(sname);
         if (structureName.getPrefix().equals(Structures.SCHEMATICS_SCAN) && ServerLifecycleHooks.getCurrentServer() == null)
         {
-            //We need to check that the server have it too using the md5
+            // We need to check that the server have it too using the md5
             requestAndPlaceScannedSchematic(structureName, true, complete);
         }
         else
@@ -343,7 +351,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             {
                 return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.decorations");
             }
-            //should be a something else.
+            // should be a something else.
             return getSectionName(name);
         }
     }
@@ -799,7 +807,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         updateRotation(rotation);
     }
 
-
     /*
      * ---------------- Miscellaneous ----------------
      */
@@ -810,6 +817,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void changeSchematic()
     {
+        if (init)
+        {
+            return;
+        }
+
         if (!Settings.instance.isStaticSchematicMode())
         {
             if (schematics.get(schematicsDropDownList.getSelectedIndex()).equals(Settings.instance.getStructureName()) &&
@@ -1037,7 +1049,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Log.getLogger().warn("BuilderTool: Can not send schematic without md5: " + structureName);
         }
     }
-
 
     /**
      * Override if place without paste is required.

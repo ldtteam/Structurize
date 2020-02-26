@@ -14,7 +14,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,7 +44,6 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onServerStarting(final FMLServerStartingEvent event)
     {
-        Log.getLogger().warn("FMLServerStartingEvent");
         EntryPoint.register(event.getCommandDispatcher());
     }
 
