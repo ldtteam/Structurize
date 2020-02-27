@@ -236,7 +236,7 @@ public class Structure
     @Nullable
     public CompoundNBT getTileEntityData(@NotNull final BlockPos pos)
     {
-        final CompoundNBT te = getBlockInfo(pos).getTileEntityData();
+        final CompoundNBT te = getBlockInfo(pos).getTileEntityData().copy();
         if (te != null)
         {
             final BlockPos tePos = pos.add(position);
