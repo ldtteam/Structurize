@@ -239,7 +239,7 @@ public class Structure
         final CompoundNBT te = getBlockInfo(pos).getTileEntityData();
         if (te != null)
         {
-            final BlockPos tePos = new BlockPos(te.getInt("x"), te.getInt("y"), te.getInt("z")).add(position);
+            final BlockPos tePos = pos.add(position);
             te.putInt("x", tePos.getX());
             te.putInt("y", tePos.getY());
             te.putInt("z", tePos.getZ());
