@@ -753,23 +753,13 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final TileEntity tileEntity = world.getTileEntity(pos);
-            if (tileEntity == null)
+            final TileEntity newTile = TileEntity.create(tileEntityData);
+            if (newTile != null)
             {
-                final TileEntity newTile = TileEntity.create(tileEntityData);
-                if (newTile != null)
-                {
-                    newTile.setWorldAndPos(world, pos);
-                    newTile.rotate(settings.rotation);
-                    newTile.mirror(settings.mirror);
-                }
-            }
-            else
-            {
-                tileEntity.read(tileEntityData);
-                world.setTileEntity(pos, tileEntity);
-                tileEntity.rotate(settings.rotation);
-                tileEntity.mirror(settings.mirror);
+                newTile.setWorldAndPos(world, pos);
+                world.setTileEntity(pos, newTile);
+                newTile.rotate(settings.rotation);
+                newTile.mirror(settings.mirror);
             }
         }
     }
