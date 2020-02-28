@@ -610,6 +610,10 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
+                if (tileEntityData != null)
+                {
+                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                }
                 return ActionProcessingResult.ACCEPT;
             }
 
@@ -658,14 +662,14 @@ public final class PlacementHandlers
             final boolean complete,
             final BlockPos centerPos)
         {
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos);
-            }
-
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
+            }
+
+            if (tileEntityData != null)
+            {
+                handleTileEntityPlacement(tileEntityData, world, pos);
             }
 
             return blockState;
@@ -708,6 +712,10 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
+                if (tileEntityData != null)
+                {
+                    handleTileEntityPlacement(tileEntityData, world, pos);
+                }
                 return ActionProcessingResult.ACCEPT;
             }
 
