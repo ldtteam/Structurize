@@ -29,8 +29,9 @@ public class BlockInfo
 
     /**
      * Creator of the block info class.
-     * @param pos the position.
-     * @param state the state.
+     *
+     * @param pos            the position.
+     * @param state          the state.
      * @param tileEntityData the tileEntity data.
      */
     public BlockInfo(final BlockPos pos, @Nullable final BlockState state, @Nullable final CompoundNBT tileEntityData)
@@ -55,5 +56,10 @@ public class BlockInfo
     public CompoundNBT getTileEntityData()
     {
         return tileEntityData;
+    }
+
+    public boolean hasTileEntityData()
+    {
+        return tileEntityData != null;
     }
 }

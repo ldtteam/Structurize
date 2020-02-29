@@ -22,7 +22,6 @@ import net.minecraft.world.World;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -236,14 +235,16 @@ public class Structure
     @Nullable
     public CompoundNBT getTileEntityData(@NotNull final BlockPos pos)
     {
-        final CompoundNBT te = getBlockInfo(pos).getTileEntityData().copy();
-        if (te != null)
+        if (!getBlockInfo(pos).hasTileEntityData())
         {
-            final BlockPos tePos = pos.add(position);
-            te.putInt("x", tePos.getX());
-            te.putInt("y", tePos.getY());
-            te.putInt("z", tePos.getZ());
+            return null;
         }
+
+        final CompoundNBT te = getBlockInfo(pos).getTileEntityData().copy();
+        final BlockPos tePos = pos.add(position);
+        te.putInt("x", tePos.getX());
+        te.putInt("y", tePos.getY());
+        te.putInt("z", tePos.getZ());
         return te;
     }
 
@@ -396,8 +397,8 @@ public class Structure
             {
                 return false;
             }
-        } while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition())) &&
-            count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
+        } while (StructurePlacementUtils.isStructureBlockEqualWorldBlock(world, getBlockPosition(), getBlockState(getLocalPosition()))
+            && count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
 
         return true;
     }
@@ -519,7 +520,9 @@ public class Structure
      */
     public void setLocalPosition(@NotNull final BlockPos localPosition)
     {
-        this.progressPos.setPos(localPosition.getX() % blueprint.getSizeX(), localPosition.getY() % blueprint.getSizeY(), localPosition.getZ() % blueprint.getSizeZ());
+        this.progressPos.setPos(localPosition.getX() % blueprint.getSizeX(),
+            localPosition.getY() % blueprint.getSizeY(),
+            localPosition.getZ() % blueprint.getSizeZ());
     }
 
     /**
