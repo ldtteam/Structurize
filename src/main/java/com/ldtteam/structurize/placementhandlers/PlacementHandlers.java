@@ -610,6 +610,10 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
+                if (tileEntityData != null)
+                {
+                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                }
                 return ActionProcessingResult.ACCEPT;
             }
 
@@ -658,14 +662,14 @@ public final class PlacementHandlers
             final boolean complete,
             final BlockPos centerPos)
         {
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos);
-            }
-
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
+            }
+
+            if (tileEntityData != null)
+            {
+                handleTileEntityPlacement(tileEntityData, world, pos);
             }
 
             return blockState;
@@ -708,6 +712,10 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
+                if (tileEntityData != null)
+                {
+                    handleTileEntityPlacement(tileEntityData, world, pos);
+                }
                 return ActionProcessingResult.ACCEPT;
             }
 
@@ -753,23 +761,13 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final TileEntity tileEntity = world.getTileEntity(pos);
-            if (tileEntity == null)
+            final TileEntity newTile = TileEntity.create(tileEntityData);
+            if (newTile != null)
             {
-                final TileEntity newTile = TileEntity.create(tileEntityData);
-                if (newTile != null)
-                {
-                    newTile.setWorldAndPos(world, pos);
-                    newTile.rotate(settings.rotation);
-                    newTile.mirror(settings.mirror);
-                }
-            }
-            else
-            {
-                tileEntity.read(tileEntityData);
-                world.setTileEntity(pos, tileEntity);
-                tileEntity.rotate(settings.rotation);
-                tileEntity.mirror(settings.mirror);
+                newTile.setWorldAndPos(world, pos);
+                world.setTileEntity(pos, newTile);
+                newTile.rotate(settings.rotation);
+                newTile.mirror(settings.mirror);
             }
         }
     }
