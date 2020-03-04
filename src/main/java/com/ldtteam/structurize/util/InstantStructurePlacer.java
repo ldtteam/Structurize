@@ -123,7 +123,7 @@ public class InstantStructurePlacer
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
-                    if ((localBlock == ModBlocks.blockSubstitution && !this.complete) || localBlock instanceof IAnchorBlock)
+                    if ((localBlock == ModBlocks.blockSubstitution && !this.complete) || (localBlock instanceof IAnchorBlock && !this.complete))
                     {
                         continue;
                     }
