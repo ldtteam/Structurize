@@ -2,7 +2,6 @@ package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
-import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
@@ -21,7 +20,7 @@ public final class Settings
     /**
      * Single instance of this class.
      */
-    public static final Settings                 instance = new Settings();
+    public static final Settings instance = new Settings();
 
     /**
      * The position of the structure.
@@ -74,11 +73,6 @@ public final class Settings
      */
     private Tuple<ItemStack, ItemStack> stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
 
-    /**
-     * Possible free to place structure.
-     */
-    private WindowBuildTool.FreeMode freeMode = null;
-
     private boolean shouldRefresh = false;
 
     /**
@@ -101,19 +95,6 @@ public final class Settings
     public void scheduleRefresh()
     {
         shouldRefresh = true;
-    }
-
-    /**
-     * Set up the static mode.
-     *
-     * @param name     the name of the schematic.
-     * @param freeMode the mode.
-     */
-    public void setupStaticMode(final String name, final WindowBuildTool.FreeMode freeMode)
-    {
-        this.staticSchematicMode = true;
-        this.staticSchematicName = name;
-        this.freeMode = freeMode;
     }
 
     /**
@@ -303,7 +284,6 @@ public final class Settings
         isMirrored = false;
         staticSchematicMode = false;
         staticSchematicName = null;
-        freeMode = null;
         hollow = false;
         structureName = null;
         pos = null;
@@ -319,7 +299,6 @@ public final class Settings
         structure = null;
         staticSchematicMode = false;
         staticSchematicName = null;
-        freeMode = null;
         hollow = false;
         pos = null;
         box = null;
@@ -431,16 +410,6 @@ public final class Settings
     }
 
     /**
-     * Getter of the mode in static mode.
-     *
-     * @return the FreeMode (enum).
-     */
-    public WindowBuildTool.FreeMode getFreeMode()
-    {
-        return freeMode;
-    }
-
-    /**
      * Sets the current shape.
      *
      * @param s the name of the shape.
@@ -535,15 +504,6 @@ public final class Settings
 
         if (buf.readBoolean())
         {
-            freeMode = WindowBuildTool.FreeMode.values()[buf.readInt()];
-        }
-        else
-        {
-            freeMode = null;
-        }
-
-        if (buf.readBoolean())
-        {
             pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
         }
         else
@@ -617,12 +577,6 @@ public final class Settings
         if (shape != null)
         {
             buf.writeInt(shape.ordinal());
-        }
-
-        buf.writeBoolean(freeMode != null);
-        if (freeMode != null)
-        {
-            buf.writeInt(freeMode.ordinal());
         }
 
         buf.writeBoolean(pos != null);
