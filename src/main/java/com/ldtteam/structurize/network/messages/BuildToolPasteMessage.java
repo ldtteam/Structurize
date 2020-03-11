@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.StructurePlacementUtils;
@@ -46,13 +45,12 @@ public class BuildToolPasteMessage implements IMessage
      * @param isHut         true if hut, false if decoration
      * @param mirror        the mirror of the building or decoration.
      * @param complete      paste it complete (with structure blocks) or without.
-     * @param freeMode      the free mode type.
      */
     public BuildToolPasteMessage(
       final String structureName,
       final String workOrderName, final BlockPos pos,
       final Rotation rotation, final boolean isHut,
-      final Mirror mirror, final boolean complete, final WindowBuildTool.FreeMode freeMode)
+      final Mirror mirror, final boolean complete)
     {
         super();
         this.structureName = structureName;
