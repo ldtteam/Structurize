@@ -54,8 +54,8 @@ public class ZoomDragView extends View
     @Override
     protected boolean childIsVisible(@NotNull final Pane child)
     {
-        return calcInverseAbsoluteX(child.getX()) < getInteriorWidth() && calcInverseAbsoluteY(child.getY()) < getInteriorHeight() &&
-            calcInverseAbsoluteX(child.getX() + child.getWidth()) >= 0 && calcInverseAbsoluteY(child.getY() + child.getHeight()) >= 0;
+        return calcInverseAbsoluteX(child.getX()) < getInteriorWidth() && calcInverseAbsoluteY(child.getY()) < getInteriorHeight()
+            && calcInverseAbsoluteX(child.getX() + child.getWidth()) >= 0 && calcInverseAbsoluteY(child.getY() + child.getHeight()) >= 0;
     }
 
     /**
@@ -107,7 +107,7 @@ public class ZoomDragView extends View
     /**
      * Compute the height in pixels of the container.
      */
-    private void computeContentSize()
+    protected void computeContentSize()
     {
         contentHeight = 0;
         contentWidth = 0;
@@ -137,6 +137,14 @@ public class ZoomDragView extends View
         return Math.max(0, (double) contentWidth * scale - getWidth());
     }
 
+    protected void abstractDrawSelfPre(final int mx, final int my)
+    {
+    }
+
+    protected void abstractDrawSelfPost(final int mx, final int my)
+    {
+    }
+
     @Override
     public void drawSelf(final int mx, final int my)
     {
@@ -146,7 +154,9 @@ public class ZoomDragView extends View
         RenderSystem.translated(-scrollX, -scrollY, 0.0d);
         RenderSystem.translated((1 - scale) * x, (1 - scale) * y, 0.0d);
         RenderSystem.scaled(scale, scale, 1.0d);
+        abstractDrawSelfPre(mx, my);
         super.drawSelf((int) calcRelativeX(mx), (int) calcRelativeY(my));
+        abstractDrawSelfPost(mx, my);
         RenderSystem.popMatrix();
 
         scissorsEnd();
@@ -165,7 +175,8 @@ public class ZoomDragView extends View
     @Override
     public boolean onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
     {
-        final boolean childResult = super.onMouseDrag(calcRelativeX(startX), calcRelativeY(startY), speed, calcRelativeX(x), calcRelativeY(y));
+        final boolean childResult = super.onMouseDrag(calcRelativeX(
+            startX), calcRelativeY(startY), speed, calcRelativeX(x), calcRelativeY(y));
         if (!childResult && dragEnabled)
         {
             setScrollX(scrollX - x * dragFactor);
@@ -216,5 +227,10 @@ public class ZoomDragView extends View
     public boolean rightClick(final double mx, final double my)
     {
         return super.rightClick(calcRelativeX(mx), calcRelativeY(my));
+    }
+
+    public void treeViewHelperAddChild(final Pane child)
+    {
+        super.addChild(child);
     }
 }

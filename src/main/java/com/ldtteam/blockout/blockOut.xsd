@@ -71,20 +71,6 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- <zoom> -->
-    <xs:complexType name="zoomDragType">
-        <xs:complexContent>
-            <xs:extension base="viewType">
-                <xs:attribute name="dragFactor" type="xs:double"/>
-                <xs:attribute name="dragEnabled" type="xs:boolean"/>
-                <xs:attribute name="zoomFactor" type="xs:double"/>
-                <xs:attribute name="zoomEnabled" type="xs:boolean"/>
-                <xs:attribute name="minScale" type="xs:double"/>
-                <xs:attribute name="maxScale" type="xs:double"/>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
     <!-- Master group for all panes that can be used -->
     <xs:group name="paneContainerGroup">
         <xs:choice>
@@ -105,6 +91,7 @@
             <xs:element name="itemicon" type="itemIconType"/>
             <xs:element name="switch" type="switchType"/>
             <xs:element name="dropdown" type="dropdownType"/>
+            <xs:element name="treeview" type="treeViewType"/>
         </xs:choice>
     </xs:group>
 
@@ -270,6 +257,33 @@
                 <xs:attribute name="dropDownSize" type="fixedSizePair"/>
                 <xs:attribute name="source" type="xs:string"/>
                 <xs:attribute name="textcolor" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <zoom> -->
+    <xs:complexType name="zoomDragType">
+        <xs:complexContent>
+            <xs:extension base="viewType">
+                <xs:attribute name="dragFactor" type="xs:double"/>
+                <xs:attribute name="dragEnabled" type="xs:boolean"/>
+                <xs:attribute name="zoomFactor" type="xs:double"/>
+                <xs:attribute name="zoomEnabled" type="xs:boolean"/>
+                <xs:attribute name="minScale" type="xs:double"/>
+                <xs:attribute name="maxScale" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <tree> -->
+    <xs:complexType name="treeViewType">
+        <xs:complexContent>
+            <xs:extension base="zoomDragType">
+                <xs:group ref="paneContainerGroup" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:attribute name="nodeVertDist" type="xs:integer"/>
+                <xs:attribute name="nodeToLineHorizDist" type="xs:integer"/>
+                <xs:attribute name="lineSize" type="xs:integer"/>
+                <xs:attribute name="linePackedColor" type="xs:integer"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

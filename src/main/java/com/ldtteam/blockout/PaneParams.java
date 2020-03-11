@@ -18,7 +18,8 @@ import static com.ldtteam.blockout.Log.getLogger;
 public class PaneParams
 {
     private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern RGBA_PATTERN = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern RGBA_PATTERN = Pattern
+        .compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
     private static final char HASH_CHAR = '#';
     private final Node node;
     private View parentView;
@@ -155,6 +156,11 @@ public class PaneParams
     private Node getAttribute(final String name)
     {
         return node.getAttributes().getNamedItem(name);
+    }
+
+    public boolean hasAttribute(final String name)
+    {
+        return node.getAttributes().getNamedItem(name) != null;
     }
 
     /**
