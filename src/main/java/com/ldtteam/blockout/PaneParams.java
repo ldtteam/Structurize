@@ -157,6 +157,11 @@ public class PaneParams
         return node.getAttributes().getNamedItem(name);
     }
 
+    public boolean hasAttribute(final String name)
+    {
+        return node.getAttributes().getNamedItem(name) != null;
+    }
+
     /**
      * Get the localized string attribute from the name.
      *

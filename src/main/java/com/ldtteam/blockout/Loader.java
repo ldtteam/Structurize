@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +46,7 @@ public final class Loader
         register("overlay", OverlayView.class);
         register("gradient", Gradient.class);
         register("zoomdragview", ZoomDragView.class);
+        register("treeview", TreeView.class);
     }
 
     private Loader()
