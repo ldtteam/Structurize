@@ -65,8 +65,7 @@ public final class Loader
 
         if (paneConstructorMap.containsKey(key))
         {
-            throw new IllegalArgumentException("Duplicate pane type '" + name + "' of style '" + style
-                + "' when registering Pane class mapping for " + paneClass.getName());
+            throw new IllegalArgumentException("Duplicate pane type '" + name + "' of style '" + style + "' when registering Pane class mapping for " + paneClass.getName());
         }
 
         try
@@ -76,9 +75,7 @@ public final class Loader
         }
         catch (final NoSuchMethodException exception)
         {
-            throw new IllegalArgumentException(
-                "Missing (XMLNode) constructor for type '" + name + "' when adding Pane class mapping for " + paneClass.getName(),
-                exception);
+            throw new IllegalArgumentException("Missing (XMLNode) constructor for type '" + name + "' when adding Pane class mapping for " + paneClass.getName(), exception);
         }
     }
 
@@ -236,12 +233,11 @@ public final class Loader
     {
         try
         {
-            InputStream is = DistExecutor.callWhenOn(Dist.CLIENT,
-                () -> () -> Minecraft.getInstance().getResourceManager().getResource(res).getInputStream());
+            InputStream is = DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().getResourceManager().getResource(res).getInputStream());
             if (is == null)
             {
-                is = DistExecutor.callWhenOn(Dist.DEDICATED_SERVER,
-                    () -> () -> Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath())));
+                is = DistExecutor
+                    .callWhenOn(Dist.DEDICATED_SERVER, () -> () -> Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath())));
             }
             return is;
         }
