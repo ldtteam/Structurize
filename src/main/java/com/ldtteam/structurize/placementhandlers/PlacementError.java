@@ -10,12 +10,12 @@ import java.util.Map;
 
 public class PlacementError
 {
-
     public enum PlacementErrorType
     {
         NOT_SOLID,
         INSIDE_COLONY,
-        NEEDS_AIR_ABOVE
+        NEEDS_AIR_ABOVE,
+        NOT_WATER
     }
 
     private PlacementErrorType type;
@@ -73,8 +73,7 @@ public class PlacementError
         return outputListStringBuilder.toString();
     }
 
-    public static Map<PlacementErrorType, List<BlockPos>> partitionPlacementErrorsByErrorType(
-            List<PlacementError> placementErrorList)
+    public static Map<PlacementErrorType, List<BlockPos>> partitionPlacementErrorsByErrorType(List<PlacementError> placementErrorList)
     {
         final Map<PlacementErrorType, List<BlockPos>> blockPosListByErrorTypeMap = new EnumMap<>(PlacementErrorType.class);
         for (final PlacementError placementError : placementErrorList)
@@ -92,5 +91,4 @@ public class PlacementError
         }
         return blockPosListByErrorTypeMap;
     }
-
 }
