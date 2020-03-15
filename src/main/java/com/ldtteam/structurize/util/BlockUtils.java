@@ -125,7 +125,7 @@ public final class BlockUtils
      */
     public static boolean isWater(final BlockState iBlockState)
     {
-        return Objects.equals(iBlockState, Blocks.WATER.getDefaultState()) || Objects.equals(iBlockState, Blocks.WATER.getDefaultState());
+        return iBlockState.getBlock() == Blocks.WATER;
     }
 
     private static Item getItem(@NotNull final BlockState forgeBlockState)
