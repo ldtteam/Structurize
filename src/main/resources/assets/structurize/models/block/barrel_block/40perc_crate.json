@@ -5,7 +5,7 @@
 		"1": "block/glass",
 		"2": "block/stone",
 		"3": "block/oak_planks",
-		"4": "minecolonies:blocks/barrel_block/compost",
+		"4": "structurize:blocks/barrel_block/compost",
 		"particle": "block/oak_log"
 	},
 	"elements": [
