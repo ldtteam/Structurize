@@ -266,7 +266,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         Pane pane = this.findPaneForClick(mx, my);
         if (pane instanceof View)
         {
-            pane = ((View) pane).findPaneForClick(mx - pane.getX(), my - pane.getY());
+            pane = ((View) pane).findPaneForClick(mx, my);
         }
         if (pane instanceof ButtonImage && pane.isEnabled())
         {
