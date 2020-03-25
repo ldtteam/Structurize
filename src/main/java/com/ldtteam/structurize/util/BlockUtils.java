@@ -252,10 +252,9 @@ public final class BlockUtils
             return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
         }
         final Item item = getItem(blockState);
-
-        if (item == null)
+        if (item != Items.AIR)
         {
-            return null;
+            return new ItemStack(item, 1);
         }
 
         return new ItemStack(blockState.getBlock(), 1);
