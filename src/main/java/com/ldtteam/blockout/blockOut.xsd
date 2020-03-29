@@ -243,6 +243,7 @@
                 <xs:attribute name="colordisabled" type="xs:string"/>
                 <xs:attribute name="shadow" type="xs:boolean"/>
                 <xs:attribute name="tab" type="xs:string"/>
+                <xs:attribute name="cover" type="xs:string"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
