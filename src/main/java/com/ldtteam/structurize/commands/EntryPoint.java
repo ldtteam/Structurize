@@ -22,7 +22,6 @@ public class EntryPoint extends AbstractCommand
      * mc execute command
      * client sided commands are not possible now (as of 25-06-2019)
      */
-
     /**
      * Private constructor to hide implicit public one.
      */
@@ -49,10 +48,10 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.MuteChannel.build())
             .addNode(LinkSessionCommand.RemovePlayer.build())
             .addNode(LinkSessionCommand.SendMessage.build());
-        final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID)
-                                              .addNode(linkSession)
-                                              .addNode(UpdateSchematicsCommand.build())
-                                              .addNode(ScanCommand.build());
+        final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID).addNode(linkSession)
+            .addNode(UpdateSchematicsCommand.build())
+            .addNode(ScanCommand.build())
+            .addNode(SSLoginCommand.build());
 
         dispatcher.register(structurizeRoot.build());
     }

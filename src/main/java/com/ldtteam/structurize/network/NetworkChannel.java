@@ -35,7 +35,10 @@ public class NetworkChannel
      */
     public NetworkChannel(final String channelName)
     {
-        rawChannel = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MOD_ID, channelName), () -> LATEST_PROTO_VER, ACCEPTED_PROTO_VERS::equals, ACCEPTED_PROTO_VERS::equals);
+        rawChannel = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MOD_ID, channelName),
+            () -> LATEST_PROTO_VER,
+            ACCEPTED_PROTO_VERS::equals,
+            ACCEPTED_PROTO_VERS::equals);
     }
 
     /**
@@ -60,6 +63,7 @@ public class NetworkChannel
         registerMessage(++idx, UndoMessage.class);
         registerMessage(++idx, UpdateScanToolMessage.class);
         registerMessage(++idx, UpdatePlaceholderBlockMessage.class);
+        registerMessage(++idx, SSLoginMessage.class);
     }
 
     /**
