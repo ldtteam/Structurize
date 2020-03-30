@@ -2,8 +2,14 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.PlayerContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -598,11 +604,26 @@ public class Pane extends AbstractGui
         scissorsInfoStack.push(info);
 
         final double scale = BOScreen.getScale();
+        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
         GL11.glScissor(
             (int) (info.x * scale),
-            (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
             (int) (info.width * scale),
             (int) (info.height * scale));
+
+        RenderSystem.pushMatrix();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        this.drawTexturedModalRect(new Vector2d(-10, -10),
+                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()),
+                new Vector2d(x, y),
+                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()),
+                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()));
+        RenderSystem.disableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.popMatrix();
     }
 
     /**
@@ -629,6 +650,7 @@ public class Pane extends AbstractGui
     {
         scissorsInfoStack.pop();
 
+        GL11.glPopAttrib();
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         if (!scissorsInfoStack.isEmpty())
@@ -637,9 +659,10 @@ public class Pane extends AbstractGui
 
             final ScissorsInfo info = scissorsInfoStack.peek();
             final double scale = BOScreen.getScale();
+            GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
             GL11.glScissor(
                 (int) (info.x * scale),
-                (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+                (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
                 (int) (info.width * scale),
                 (int) (info.height * scale));
         }
@@ -748,5 +771,72 @@ public class Pane extends AbstractGui
     public boolean onMouseDrag(final double mx, final double my, final int speed, final double deltaX, final double deltaY)
     {
         return false;
+    }
+
+    private void drawTexturedModalRect(
+            @NotNull final Vector2d origin,
+            @NotNull final Vector2d size,
+            @NotNull final Vector2d inTexturePosition,
+            @NotNull final Vector2d inTextureSize,
+            @NotNull final Vector2d textureSize)
+    {
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableLighting();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.color4f(1, 1, 1, 1);
+
+        double x = origin.getX();
+        double y = origin.getY();
+        double width = size.getX();
+        double height = size.getY();
+        float textureX = (float) inTexturePosition.getX();
+        float textureY = (float) inTexturePosition.getY();
+        float textureWidth = (float) (inTextureSize.getX() / textureSize.getX());
+        float textureHeight = (float) (inTextureSize.getY() / textureSize.getY());
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder
+                .pos(x + 0, y + height, 0)
+                .tex(textureX, textureY + textureHeight)
+                .endVertex();
+        bufferbuilder
+                .pos(x + width, y + height, 0)
+                .tex(textureX + textureWidth, textureY + textureHeight)
+                .endVertex();
+        bufferbuilder
+                .pos(x + width, y + 0, 0)
+                .tex(textureX + textureWidth, textureY)
+                .endVertex();
+        bufferbuilder
+                .pos(x + 0, y + 0, 0)
+                .tex(textureX, textureY)
+                .endVertex();
+        tessellator.draw();
+
+        RenderSystem.disableBlend();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.enableLighting();
+        RenderSystem.popMatrix();
+    }
+
+    private static final class Vector2d {
+        private final double x,y;
+
+        private Vector2d(final double x, final double y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public double getX() {
+            return x;
+        }
+
+        public double getY() {
+            return y;
+        }
     }
 }
