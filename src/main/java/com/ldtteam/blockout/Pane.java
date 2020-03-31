@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
 import java.nio.FloatBuffer;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -598,9 +599,10 @@ public class Pane extends AbstractGui
         scissorsInfoStack.push(info);
 
         final double scale = BOScreen.getScale();
+        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
         GL11.glScissor(
             (int) (info.x * scale),
-            (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
             (int) (info.width * scale),
             (int) (info.height * scale));
     }
@@ -629,6 +631,7 @@ public class Pane extends AbstractGui
     {
         scissorsInfoStack.pop();
 
+        GL11.glPopAttrib();
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         if (!scissorsInfoStack.isEmpty())
@@ -637,9 +640,10 @@ public class Pane extends AbstractGui
 
             final ScissorsInfo info = scissorsInfoStack.peek();
             final double scale = BOScreen.getScale();
+            GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
             GL11.glScissor(
                 (int) (info.x * scale),
-                (int) (mc.mainWindow.getHeight() - ((info.y + info.height) * scale)),
+                (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
                 (int) (info.width * scale),
                 (int) (info.height * scale));
         }
