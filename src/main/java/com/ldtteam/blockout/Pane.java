@@ -2,18 +2,13 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.inventory.container.PlayerContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
 import java.nio.FloatBuffer;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
