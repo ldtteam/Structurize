@@ -610,20 +610,6 @@ public class Pane extends AbstractGui
             (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
             (int) (info.width * scale),
             (int) (info.height * scale));
-
-        RenderSystem.pushMatrix();
-        RenderSystem.enableAlphaTest();
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-        this.drawTexturedModalRect(new Vector2d(-10, -10),
-                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()),
-                new Vector2d(x, y),
-                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()),
-                new Vector2d(Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight()));
-        RenderSystem.disableBlend();
-        RenderSystem.disableAlphaTest();
-        RenderSystem.popMatrix();
     }
 
     /**
