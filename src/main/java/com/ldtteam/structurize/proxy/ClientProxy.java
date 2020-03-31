@@ -6,7 +6,6 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.*;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;

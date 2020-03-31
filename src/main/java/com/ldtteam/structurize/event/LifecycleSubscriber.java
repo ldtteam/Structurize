@@ -9,7 +9,6 @@ import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.tileentities.StructurizeTileEntities;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -45,7 +44,6 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onClientInit(final FMLClientSetupEvent event)
     {
-        OptifineCompat.getInstance().intialize();
         ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
