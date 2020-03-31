@@ -89,10 +89,10 @@ public class OptifineCompat
         isShadersEnabledMethod.setAccessible(true);
 
         //todo preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", BlockRenderLayer.class);
-        preRenderChunkLayerMethod.setAccessible(true);
+        //preRenderChunkLayerMethod.setAccessible(true);
 
         //todo postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", BlockRenderLayer.class);
-        postRenderChunkLayerMethod.setAccessible(true);
+        //postRenderChunkLayerMethod.setAccessible(true);
 
         setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
         setupArrayPointersVboMethod.setAccessible(true);
