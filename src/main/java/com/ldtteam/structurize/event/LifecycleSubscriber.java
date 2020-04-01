@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
@@ -9,6 +8,7 @@ import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.tileentities.StructurizeTileEntities;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -31,7 +31,6 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onModInit(final FMLCommonSetupEvent event)
     {
-        Log.getLogger().warn("FMLCommonSetupEvent");
         Network.getNetwork().registerCommonMessages();
         StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
     }
@@ -49,6 +48,7 @@ public class LifecycleSubscriber
         ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
         ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
+        OptifineCompat.getInstance().intialize();
     }
 
     /**
@@ -59,7 +59,6 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onLoadComplete(final FMLLoadCompleteEvent event)
     {
-        Log.getLogger().warn("FMLLoadCompleteEvent");
         LanguageHandler.setMClanguageLoaded();
     }
 

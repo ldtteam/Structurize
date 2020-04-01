@@ -8,6 +8,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -142,6 +143,7 @@ public class BlueprintRenderer implements AutoCloseable
                 }
             }
             buffer.finishDrawing();
+            OptifineCompat.getInstance().beforeBuilderUpload(buffer);
             vertexBuffers.get(renderType).upload(buffer);
         }
     }
@@ -156,6 +158,8 @@ public class BlueprintRenderer implements AutoCloseable
         {
             init();
         }
+        OptifineCompat.getInstance().preBlueprintDraw();
+        OptifineCompat.getInstance().setupArrayPointers();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
@@ -247,6 +251,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
 
         matrixStack.pop();
+        OptifineCompat.getInstance().postBlueprintDraw();
         Minecraft.getInstance().getProfiler().endSection();
     }
 
@@ -263,8 +268,10 @@ public class BlueprintRenderer implements AutoCloseable
         layerRenderType.setupRenderState();
 
         buffer.bindBuffer();
+        OptifineCompat.getInstance().preLayerDraw(layerRenderType);
         DefaultVertexFormats.BLOCK.setupBufferState(0);
         buffer.draw(rawPosMatrix, layerRenderType.getDrawMode());
+        OptifineCompat.getInstance().postLayerDraw(layerRenderType);
 
         VertexBuffer.unbindBuffer();
         RenderSystem.clearCurrentColor();
