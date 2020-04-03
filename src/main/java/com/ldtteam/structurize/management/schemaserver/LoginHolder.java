@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Scanner;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.management.schemaserver.utils.URIUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
@@ -15,6 +16,7 @@ import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
@@ -83,12 +85,14 @@ public class LoginHolder
 
     private static void tryLogin(final AuthorizationGrant authCredentials) throws Exception
     {
-        final TokenRequest request = new TokenRequest(authApiMetadata.getTokenEndpointURI(),
+        final TokenRequest request = new TokenRequest(URIUtils.ensureHttps(authApiMetadata.getTokenEndpointURI()),
             clientAuth,
             authCredentials,
-            new Scope("schematic_auth"));
+            new Scope("schematic_service", "friends", "openid", "profile", "offline_access"));
 
-        final TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
+        final HTTPRequest httpRequest = request.toHTTPRequest();
+        httpRequest.setFollowRedirects(true);
+        final TokenResponse response = TokenResponse.parse(httpRequest.send());
 
         if (!response.indicatesSuccess())
         {
