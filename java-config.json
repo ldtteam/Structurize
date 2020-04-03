@@ -1,0 +1,7 @@
+{
+  "dateLibrary": "java8",
+  "hideGenerationTimestamp": true,
+  "modelPackage": "com.ldtteam.server.schematics.models",
+  "apiPackage": "com.ldtteam.server.schematics.api",
+  "invokerPackage": "com.ldtteam.server.schematics"
+}

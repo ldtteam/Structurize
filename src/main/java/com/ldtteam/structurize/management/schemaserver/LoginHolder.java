@@ -3,6 +3,10 @@ package com.ldtteam.structurize.management.schemaserver;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Scanner;
+import java.util.UUID;
+
+import com.ldtteam.server.schematics.Configuration;
+import com.ldtteam.server.schematics.api.SimpleScanApi;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.schemaserver.utils.URIUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
@@ -107,6 +111,17 @@ public class LoginHolder
         // Get the access token, the server may also return a refresh token
         final AccessToken accessToken = successResponse.getTokens().getAccessToken();
         final RefreshToken refreshToken = successResponse.getTokens().getRefreshToken();
+
+        //TODO: @Nightenom.
+        //This setups the API to use the token.
+        //You will need to refresh this as the token has a lifetime of 3600 seconds
+        //Refresh the token better early then to late. Simply call this method again to update the new access token.
+        //No need to recreate the api instances
+        Configuration.getDefaultApiClient().setAccessToken(accessToken.getValue());
+        //This requests the scan using a random UUID, will never work but is an example!.
+        //All api instances will need to be recreated when a user logs out.
+        (new SimpleScanApi()).simpleScanIdIdGet(UUID.randomUUID());
+
         Log.getLogger().warn("login at {} rt {}", accessToken.toJSONString(), refreshToken.toJSONString());
     }
 

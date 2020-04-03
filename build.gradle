@@ -6,11 +6,15 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'de.undercouch:gradle-download-task:1.0'
     }
 }
 
+import de.undercouch.gradle.tasks.download.Download
+
 plugins {
     id "com.matthewprenger.cursegradle" version "1.1.0"
+    id 'org.hidetake.swagger.generator' version '2.18.2'
 }
 
 repositories {
@@ -52,6 +56,7 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
+            srcDir 'src/main/generated/java'
         }
         resources {
             srcDir 'src/main/resources'
@@ -80,14 +85,54 @@ dependencies {
     implementation "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     implementation "com.ldtteam:datagenerators:0.1.33-ALPHA"
+
+    implementation 'io.swagger:swagger-annotations:1.5.22'
+    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.19'
+    compile 'io.swagger.core.v3:swagger-annotations:2.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.5'
+    compile 'io.gsonfire:gson-fire:1.8.3'
 }
+
+task downloadSwagger(type: Download) {
+    src 'https://api.schematics.ldtteam.com/swagger/v2/swagger.yaml'
+    dest buildDir
+}
+
+task patchSwagger(type: Copy) {
+    dependsOn downloadSwagger
+    from 'build/swagger.yaml'
+    into 'build/swagger-patched'
+    filter { line -> line.replaceAll('security-definitions', 'securityDefinitions') }
+}
+
+swaggerSources {
+    schematics {
+        inputFile = file("build/swagger-patched/swagger.yaml");
+        code {
+            language = 'java'
+            configFile = file("$rootDir/java-config.json")
+            dependsOn patchSwagger
+            dependsOn validation
+        }
+    }
+}
+
+task runSwaggerClientGen(type: Copy) {
+    dependsOn swaggerSources.schematics.code
+    from 'build/swagger-code-schematics/src/main/java'
+    into 'src/main/generated/java'
+}
+
+tasks.validateSwaggerSchematics.enabled false
+
+compileJava.dependsOn tasks.runSwaggerClientGen
 
 version = '1.15.2' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
 group = 'com.ldtteam' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
