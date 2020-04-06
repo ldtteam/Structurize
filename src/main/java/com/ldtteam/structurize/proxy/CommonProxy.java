@@ -11,13 +11,11 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 /**
  * CommonProxy of the structurize mod (Server and Client).
  */
 @Mod.EventBusSubscriber
-public class CommonProxy implements IProxy
+public abstract class CommonProxy implements IProxy
 {
     @Override
     public boolean isClient()
@@ -55,12 +53,6 @@ public class CommonProxy implements IProxy
         /*
          * Intentionally left empty.
          */
-    }
-
-    @Override
-    public File getSchematicsFolder()
-    {
-        return null;
     }
 
     @Nullable

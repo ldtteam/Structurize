@@ -42,6 +42,7 @@ public class TextField extends Pane
     protected int scrollOffset = 0;
     protected int selectionEnd = 0;
     protected int cursorBlinkCounter = 0;
+    protected boolean isEnterTab = false;
 
     /**
      * Simple public constructor to instantiate.
@@ -68,6 +69,7 @@ public class TextField extends Pane
         tabNextPaneID = params.getStringAttribute("tab", null);
         final String cover = params.getStringAttribute("cover");
         replacementCharacter = cover.isEmpty() ? '\0' : cover.charAt(0);
+        isEnterTab = params.getBooleanAttribute("enterToTab", isEnterTab);
     }
 
     public Filter getFilter()
@@ -233,6 +235,12 @@ public class TextField extends Pane
             case GLFW.GLFW_KEY_LEFT:
                 return handleArrowKeys(key);
 
+            case GLFW.GLFW_KEY_ENTER:
+            case GLFW.GLFW_KEY_KP_ENTER:
+                if (!isEnterTab)
+                {
+                    return handleChar(c);
+                }
             case GLFW.GLFW_KEY_TAB:
                 return handleTab();
 

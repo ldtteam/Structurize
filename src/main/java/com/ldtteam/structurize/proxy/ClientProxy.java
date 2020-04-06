@@ -13,13 +13,13 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 
 /**
@@ -47,7 +47,8 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        @Nullable final WindowBuildTool window = new WindowBuildTool(pos);
+        @Nullable
+        final WindowBuildTool window = new WindowBuildTool(pos);
         window.open();
     }
 
@@ -59,7 +60,8 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        @Nullable final WindowShapeTool window = new WindowShapeTool(pos);
+        @Nullable
+        final WindowShapeTool window = new WindowShapeTool(pos);
         window.open();
     }
 
@@ -71,7 +73,8 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        @Nullable final WindowScan window = new WindowScan(pos1, pos2);
+        @Nullable
+        final WindowScan window = new WindowScan(pos1, pos2);
         window.open();
     }
 
@@ -88,7 +91,8 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        @Nullable final WindowBuildTool window = new WindowBuildTool(pos, structureName, rotation);
+        @Nullable
+        final WindowBuildTool window = new WindowBuildTool(pos, structureName, rotation);
         window.open();
     }
 
@@ -110,8 +114,8 @@ public class ClientProxy extends CommonProxy
 
         // if the world schematics folder exists we use it
         // otherwise we use the minecraft folder /structurize/schematics if on the physical client on the logical server
-        final File worldSchematicFolder =
-            new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
+        final File worldSchematicFolder = new File(
+            ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
 
         if (!worldSchematicFolder.exists())
         {
@@ -143,14 +147,24 @@ public class ClientProxy extends CommonProxy
     @Override
     public void openMultiBlockWindow(@Nullable final BlockPos pos)
     {
-        @Nullable final WindowMultiBlock window = new WindowMultiBlock(pos);
+        @Nullable
+        final WindowMultiBlock window = new WindowMultiBlock(pos);
         window.open();
     }
 
     @Override
     public void openPlaceholderBlockWindow(@Nullable final BlockPos pos)
     {
-        @Nullable final WindowPlaceholderblock window = new WindowPlaceholderblock(pos);
+        @Nullable
+        final WindowPlaceholderblock window = new WindowPlaceholderblock(pos);
         window.open();
+    }
+
+    @Override
+    public void notifyClientOrServerOps(final ITextComponent message)
+    {
+        Minecraft.getInstance().execute(() -> {
+            Minecraft.getInstance().player.sendMessage(message);
+        });
     }
 }

@@ -163,7 +163,12 @@ public final class LanguageHandler
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)));
+        player.sendMessage(prepareMessage(key, format));
+    }
+
+    public static StringTextComponent prepareMessage(final String key, final Object... format)
+    {
+        return new StringTextComponent(translateKeyWithFormat(key, format));
     }
 
     /**
@@ -175,7 +180,7 @@ public final class LanguageHandler
      */
     public static String translateKeyWithFormat(final String key, final Object... format)
     {
-        return String.format(translateKey(key.toLowerCase(Locale.US)), format);
+        return String.format(translateKey(key), format);
     }
 
     /**
@@ -221,8 +226,8 @@ public final class LanguageHandler
             final String defaultLocale = "en_us";
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
-            String locale =
-                DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+            String locale = DistExecutor.callWhenOn(Dist.CLIENT,
+                () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
 
             if (locale == null)
             {
@@ -234,8 +239,7 @@ public final class LanguageHandler
                 is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
-            {
-            }.getType());
+            {}.getType());
         }
 
         private static LanguageCache getInstance()

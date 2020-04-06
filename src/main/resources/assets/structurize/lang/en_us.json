@@ -1112,5 +1112,9 @@
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
   "com.ldtteam.structurize.gui.sslogin.username": "Username:",
   "com.ldtteam.structurize.gui.sslogin.password": "Password:",
-  "com.ldtteam.structurize.gui.sslogin.login": "LOGIN"
+  "com.ldtteam.structurize.gui.sslogin.login": "LOGIN",
+  "structurize.sslogin.login_error": "Login failed: %s",
+  "structurize.sslogin.refresh_error": "Refresh failed, please relogin: %s",
+  "structurize.sslogin.success": "Successful login for account \"%s\"",
+  "structurize.sslogin.user_not_loggedin": "To use this feature you need to login first using /structurize schemaServer login"
 }
