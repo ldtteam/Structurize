@@ -44,6 +44,14 @@ public class Box extends View
         this.color = Color.rgbaToInt(red, green, blue, 255);
     }
 
+    /**
+     * Setter for the line width property.
+     * @param lineWidth
+     */
+    public void setLineWidth(final float lineWidth) {
+        this.lineWidth = lineWidth;
+    }
+
     @Override
     public void drawSelf(final int mx, final int my)
     {
