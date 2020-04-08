@@ -331,7 +331,7 @@ public class BlueprintUtil
                     continue;
                 }
 
-                tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
+                tileEntities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion) : nbt;
             }
             catch (Exception e)
             {
@@ -353,7 +353,9 @@ public class BlueprintUtil
 
             try
             {
-                entities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
+                final String id = nbt.getString("id");
+
+                entities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion) : nbt;
             }
             catch (Exception e)
             {
