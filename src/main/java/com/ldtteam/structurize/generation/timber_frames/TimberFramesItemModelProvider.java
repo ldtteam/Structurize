@@ -45,7 +45,7 @@ public class TimberFramesItemModelProvider implements IDataProvider
                 continue;
 
             final String name = timberFrame.getRegistryName().getPath();
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), generator.getOutputFolder().resolve(DataGeneratorConstants.ITEM_MODEL_DIR).resolve(name + ".json"));
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), generator.getOutputFolder().resolve(DataGeneratorConstants.ITEM_MODEL_DIR).resolve(name + ".json"));
         }
     }
 
@@ -55,38 +55,53 @@ public class TimberFramesItemModelProvider implements IDataProvider
 
         // GUI
 
-        final XYZIntListJson guiRotation = new XYZIntListJson(30, 215, 0);
-        final XYZDoubleListJson guiScale = new XYZDoubleListJson(0.5, 0.5, 0.5);
+        final XYZIntListJson guiRotation = new XYZIntListJson(30, 225, 0);
+        final XYZDoubleListJson guiTranslation = new XYZDoubleListJson(0, 0.5, 0);
+        final XYZDoubleListJson guiScale = new XYZDoubleListJson(0.625, 0.625, 0.625);
 
-        final ModelDisplayPositionJson guiPosition = new ModelDisplayPositionJson(guiRotation, null, guiScale);
+        final ModelDisplayPositionJson guiPosition = new ModelDisplayPositionJson(guiRotation, guiTranslation, guiScale);
         display.put(ModelDisplayPositionsEnum.GUI, guiPosition);
 
         // THIRD PERSON
 
-        final XYZIntListJson thirdPersonRotation = new XYZIntListJson(0, 180, 0);
-        final XYZDoubleListJson thirdPersonScale = new XYZDoubleListJson(0.5, 0.5, 0.5);
+        final XYZIntListJson thirdPersonRotation = new XYZIntListJson(75, 45, 0);
+        final XYZDoubleListJson thirdPersonTranslation = new XYZDoubleListJson(0, 2.5, 0);
+        final XYZDoubleListJson thirdPersonScale = new XYZDoubleListJson(0.375, 0.375, 0.375);
 
-        final ModelDisplayPositionJson thirdPersonPosition = new ModelDisplayPositionJson(thirdPersonRotation, null, thirdPersonScale);
+        final ModelDisplayPositionJson thirdPersonPosition = new ModelDisplayPositionJson(thirdPersonRotation, thirdPersonTranslation, thirdPersonScale);
         display.put(ModelDisplayPositionsEnum.THIRD_PERSON_LEFT_HAND, thirdPersonPosition);
         display.put(ModelDisplayPositionsEnum.THIRD_PERSON_RIGHT_HAND, thirdPersonPosition);
 
         // FIRST PERSON && GROUND
 
-        final XYZIntListJson firstPersonRotation = new XYZIntListJson(0, 180, 0);
-        final XYZDoubleListJson firstPersonScale = new XYZDoubleListJson(0.3, 0.3, 0.3);
+        final XYZIntListJson firstPersonRotation = new XYZIntListJson(0, 225, 0);
+        final XYZDoubleListJson firstPersonScale = new XYZDoubleListJson(0.4, 0.4, 0.4);
 
         final ModelDisplayPositionJson firstPersonPosition = new ModelDisplayPositionJson(firstPersonRotation, null, firstPersonScale);
         display.put(ModelDisplayPositionsEnum.FIRST_PERSON_LEFT_HAND, firstPersonPosition);
         display.put(ModelDisplayPositionsEnum.FIRST_PERSON_RIGHT_HAND, firstPersonPosition);
+
+        // Ground
+
+        final XYZDoubleListJson groundTranslation = new XYZDoubleListJson(0, 3, 0);
+        final XYZDoubleListJson groundScale = new XYZDoubleListJson(0.25, 0.25, 0.25);
+
+        final ModelDisplayPositionJson groundPosition = new ModelDisplayPositionJson(null, groundTranslation, groundScale);
         display.put(ModelDisplayPositionsEnum.GROUND, firstPersonPosition);
 
         // FIXED
 
-        final XYZIntListJson fixedTranslation = new XYZIntListJson(0, 2, 0);
-        final XYZDoubleListJson fixedScale = new XYZDoubleListJson(1, 1, 1);
+        final XYZDoubleListJson fixedScale = new XYZDoubleListJson(0.5, 0.5, 0.5);
 
-        final ModelDisplayPositionJson fixedPosition = new ModelDisplayPositionJson(null, fixedTranslation, fixedScale);
+        final ModelDisplayPositionJson fixedPosition = new ModelDisplayPositionJson(null, null, fixedScale);
         display.put(ModelDisplayPositionsEnum.FIXED, fixedPosition);
+
+        // HEAD
+
+        final XYZDoubleListJson headScale = new XYZDoubleListJson(1.03, 1.03, 1.03);
+
+        final ModelDisplayPositionJson headPosition = new ModelDisplayPositionJson(null, null, headScale);
+        display.put(ModelDisplayPositionsEnum.HEAD, headPosition);
 
         return display;
     }

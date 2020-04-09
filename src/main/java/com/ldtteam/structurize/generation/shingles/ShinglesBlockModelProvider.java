@@ -64,7 +64,7 @@ public class ShinglesBlockModelProvider implements IDataProvider
                 final String name = shingle.getFaceType().getName() + "_shingle" + ".json";
                 final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.SHINGLES_BLOCK_MODELS_DIR + shapeType + "/" + shingle.getWoodType().getName()).resolve(name);
 
-                IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), saveFile);
+                IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), saveFile);
             }
         }
     }
