@@ -39,6 +39,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlocks(ModBlocks.getPaperwalls(), cache);
         saveBlocks(ModBlocks.getShingles(), cache);
         saveBlocks(ModBlocks.getShingleSlabs(), cache);
+        saveBlocks(ModBlocks.getFloatingCarpets(), cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
