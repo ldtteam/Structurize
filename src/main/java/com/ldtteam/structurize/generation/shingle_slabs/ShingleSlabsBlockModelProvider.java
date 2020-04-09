@@ -62,7 +62,7 @@ public class ShingleSlabsBlockModelProvider implements IDataProvider
 
                 final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.SHINGLE_SLABS_BLOCK_MODELS_DIR + shingleSlab.getRegistryName().getPath() + "_" + shingleSlabShape.getName() + ".json");
 
-                IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), saveFile);
+                IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), saveFile);
             }
         }
     }

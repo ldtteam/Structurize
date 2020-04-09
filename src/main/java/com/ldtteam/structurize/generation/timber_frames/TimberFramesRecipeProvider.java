@@ -18,7 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TimberFramesRecipeProvider implements IDataProvider
 {
@@ -37,7 +40,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
         if (inputPath == null)
             return;
 
-        for ( int i = 0; i < ModBlocks.getTimberFrames().size(); i++ )
+        for (int i = 0; i < ModBlocks.getTimberFrames().size(); i++)
         {
             final BlockTimberFrame timberFrame = ModBlocks.getTimberFrames().get(i);
 
@@ -83,7 +86,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(recipeJson), recipePath);
     }
 
     private void createPlainTimberFrameRecipe(final DirectoryCache cache, final BlockTimberFrame timberFrame) throws IOException
@@ -111,6 +114,6 @@ public class TimberFramesRecipeProvider implements IDataProvider
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(name + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(recipeJson), recipePath);
     }
 }

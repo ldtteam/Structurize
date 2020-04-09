@@ -9,6 +9,9 @@ import com.ldtteam.structurize.blocks.types.*;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,6 +43,7 @@ public final class ModBlocks
     private static final List<BlockPaperwall>   paperwalls   = new ArrayList<>();
     private static final List<BlockShingle> shingles = new ArrayList<>();
     private static final List<BlockShingleSlab> shingleSlabs = new ArrayList<>();
+    private static final List<BlockFloatingCarpet> floatingCarpets = new ArrayList<>();
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
@@ -78,6 +82,11 @@ public final class ModBlocks
     public static List<BlockShingleSlab> getShingleSlabs()
     {
         return new ArrayList<>(shingleSlabs);
+    }
+
+    public static List<BlockFloatingCarpet> getFloatingCarpets()
+    {
+        return new ArrayList<>(floatingCarpets);
     }
 
     /**
@@ -139,6 +148,11 @@ public final class ModBlocks
             }
         }
 
+        for (final DyeColor color : DyeColor.values())
+        {
+            floatingCarpets.add(new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)).registerBlock(registry));
+        }
+
         multiBlock = new MultiBlock().registerBlock(registry);
 
         placeholderBlock = new PlaceholderBlock().registerBlock(registry);
@@ -180,6 +194,11 @@ public final class ModBlocks
         for (final BlockTimberFrame frame : timberFrames)
         {
             frame.registerItemBlock(registry, timberframeProperties);
+        }
+
+        for (final BlockFloatingCarpet carpet : floatingCarpets)
+        {
+            carpet.registerItemBlock(registry, properties);
         }
 
         multiBlock.registerItemBlock(registry, properties);

@@ -69,7 +69,7 @@ public class ShingleSlabsBlockStateProvider implements IDataProvider
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(DataGeneratorConstants.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve(shingleSlab.getRegistryName().getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, blockstate.serialize(), blockstatePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(blockstate), blockstatePath);
     }
 
     @NotNull

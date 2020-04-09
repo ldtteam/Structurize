@@ -6,6 +6,7 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
+import com.ldtteam.structurize.generation.floating_carpets.*;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
@@ -48,6 +49,7 @@ public class LifecycleSubscriber
         ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
+        ModBlocks.getFloatingCarpets().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
     }
 
@@ -93,6 +95,13 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
+
+        // Floating Carpets
+        event.getGenerator().addProvider(new FloatingCarpetsBlockStateProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new FloatingCarpetsItemModelProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new FloatingCarpetsLangEntryProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new FloatingCarpetsRecipeProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new FloatingCarpetsTagsProvider(event.getGenerator()));
 
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));

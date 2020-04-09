@@ -55,7 +55,7 @@ public class TimberFramesBlockModelProvider implements IDataProvider
             final String name = timberFrame.getTimberFrameType().getName() + "_" + timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame.json";
             final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TIMBER_FRAMES_BLOCK_MODELS_DIR).resolve(name);
 
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, modelJson.serialize(), saveFile);
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), saveFile);
         }
     }
 
