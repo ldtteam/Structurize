@@ -1,10 +1,12 @@
 package com.ldtteam.structures.client;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.client.RenderUtils.BuiltBuffer;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -45,7 +47,7 @@ import net.minecraftforge.client.model.data.EmptyModelData;
  * The renderer for blueprint.
  * Holds all information required to render a blueprint.
  */
-public class BlueprintRenderer implements AutoCloseable
+public class BlueprintRenderer
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
@@ -53,13 +55,7 @@ public class BlueprintRenderer implements AutoCloseable
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
     private List<TileEntity> tileEntities;
-    private final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.getBlockRenderTypes()
-        .stream()
-        .collect(Collectors.toMap((p_228934_0_) -> {
-            return p_228934_0_;
-        }, (p_228933_0_) -> {
-            return new VertexBuffer(DefaultVertexFormats.BLOCK);
-        }));
+    private final Map<RenderType, BuiltBuffer> vertexBuffers = new HashMap<>();
 
     /**
      * Static factory utility method to handle the extraction of the values from the blueprint.
@@ -105,8 +101,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         for (final RenderType renderType : RenderType.getBlockRenderTypes())
         {
-            final BufferBuilder buffer = new BufferBuilder(renderType.getBufferSize());
-            buffer.begin(renderType.getDrawMode(), renderType.getVertexFormat());
+            final BufferBuilder buffer = RenderUtils.createAndBeginBuffer(renderType);
             for (final BlockInfo blockInfo : blocks)
             {
                 try
@@ -141,8 +136,7 @@ public class BlueprintRenderer implements AutoCloseable
                     LOGGER.error("Error while trying to render structure part: " + e.getMessage(), e.getCause());
                 }
             }
-            buffer.finishDrawing();
-            vertexBuffers.get(renderType).upload(buffer);
+            vertexBuffers.put(renderType, RenderUtils.finishBuffer(buffer, renderType));
         }
     }
 
@@ -250,26 +244,12 @@ public class BlueprintRenderer implements AutoCloseable
         Minecraft.getInstance().getProfiler().endSection();
     }
 
-    @Override
-    public void close()
-    {
-        vertexBuffers.values().forEach(buffer -> buffer.close());
-    }
-
     private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f rawPosMatrix)
     {
-        final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
-
-        layerRenderType.setupRenderState();
-
-        buffer.bindBuffer();
-        DefaultVertexFormats.BLOCK.setupBufferState(0);
-        buffer.draw(rawPosMatrix, layerRenderType.getDrawMode());
-
-        VertexBuffer.unbindBuffer();
-        RenderSystem.clearCurrentColor();
-        DefaultVertexFormats.BLOCK.clearBufferState();
-
-        layerRenderType.clearRenderState();
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.multMatrix(rawPosMatrix);
+        RenderUtils.drawBuiltBuffer(vertexBuffers.get(layerRenderType));
+        RenderSystem.popMatrix();
     }
 }

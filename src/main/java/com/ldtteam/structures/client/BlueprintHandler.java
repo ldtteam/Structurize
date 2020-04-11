@@ -92,12 +92,8 @@ public final class BlueprintHandler
             if (entry.getLongValue() + CACHE_EVICT_TIME < System.currentTimeMillis())
             {
                 final int removeHash = entry.getIntKey();
-                final SoftReference<BlueprintRenderer> removeRendererRef = rendererCache.remove(removeHash);
+                rendererCache.remove(removeHash);
                 evictTimeCache.remove(removeHash);
-                if (removeRendererRef != null && removeRendererRef.get() != null)
-                {
-                    removeRendererRef.get().close();
-                }
             }
         }
     }
@@ -109,7 +105,10 @@ public final class BlueprintHandler
      * @param partialTicks the partial ticks.
      * @param blueprint    the blueprint.
      */
-    public void drawBlueprintAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Blueprint blueprint, final MatrixStack stack)
+    public void drawBlueprintAtListOfPositions(final List<BlockPos> points,
+        final float partialTicks,
+        final Blueprint blueprint,
+        final MatrixStack stack)
     {
         if (points.isEmpty())
         {
