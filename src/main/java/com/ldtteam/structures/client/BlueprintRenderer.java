@@ -3,6 +3,7 @@ package com.ldtteam.structures.client;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
@@ -49,17 +50,18 @@ public class BlueprintRenderer implements AutoCloseable
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
-
-    private final BlueprintBlockAccess blockAccess;
-    private List<Entity> entities;
-    private List<TileEntity> tileEntities;
-    private final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.getBlockRenderTypes()
+    private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.getBlockRenderTypes()
         .stream()
         .collect(Collectors.toMap((p_228934_0_) -> {
             return p_228934_0_;
         }, (p_228933_0_) -> {
             return new VertexBuffer(DefaultVertexFormats.BLOCK);
         }));
+
+    private final BlueprintBlockAccess blockAccess;
+    private List<Entity> entities;
+    private List<TileEntity> tileEntities;
+    private Map<RenderType, VertexBuffer> vertexBuffers;
 
     /**
      * Static factory utility method to handle the extraction of the values from the blueprint.
@@ -95,6 +97,7 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void init()
     {
+        clearVertexBuffers();
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
 
@@ -102,6 +105,7 @@ public class BlueprintRenderer implements AutoCloseable
         final Random random = new Random();
         final MatrixStack matrixStack = new MatrixStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
+        final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();
 
         for (final RenderType renderType : RenderType.getBlockRenderTypes())
         {
@@ -142,8 +146,9 @@ public class BlueprintRenderer implements AutoCloseable
                 }
             }
             buffer.finishDrawing();
-            vertexBuffers.get(renderType).upload(buffer);
+            newVertexBuffers.get(renderType).upload(buffer);
         }
+        vertexBuffers = newVertexBuffers;
     }
 
     /**
@@ -250,10 +255,22 @@ public class BlueprintRenderer implements AutoCloseable
         Minecraft.getInstance().getProfiler().endSection();
     }
 
+    /**
+     * Clears GL references and frees GL objects.
+     */
+    private void clearVertexBuffers()
+    {
+        if (vertexBuffers != null)
+        {
+            vertexBuffers.values().forEach(buffer -> buffer.close());
+            vertexBuffers = null;
+        }
+    }
+
     @Override
     public void close()
     {
-        vertexBuffers.values().forEach(buffer -> buffer.close());
+        clearVertexBuffers();
     }
 
     private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f rawPosMatrix)
