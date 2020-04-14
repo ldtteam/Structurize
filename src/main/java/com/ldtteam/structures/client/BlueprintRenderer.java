@@ -97,6 +97,7 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void init()
     {
+        clearVertexBuffers();
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
 
@@ -147,8 +148,6 @@ public class BlueprintRenderer implements AutoCloseable
             buffer.finishDrawing();
             newVertexBuffers.get(renderType).upload(buffer);
         }
-
-        clearVertexBuffers();
         vertexBuffers = newVertexBuffers;
     }
 
