@@ -52,6 +52,8 @@ public final class ModBlocks
      * Utility blocks.
      */
 
+    public static BlockBarrel blockDecoBarrel;
+
     public static BlockCactusPlank      blockCactusPlank;
     public static BlockCactusDoor       blockCactusDoor;
     public static BlockCactusTrapdoor   blockCactusTrapdoor;
@@ -120,6 +122,8 @@ public final class ModBlocks
 
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
+
+        blockDecoBarrel = new BlockBarrel().registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {
