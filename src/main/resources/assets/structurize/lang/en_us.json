@@ -147,6 +147,7 @@
   "block.structurize.down_gated_oak_stone_timber_frame": "Down Gate Framed Oak Stone Timber Frame",
   "block.structurize.gated_acacia_paper_timber_frame": "Gate Framed Acacia Paper Timber Frame",
   "block.structurize.up_gated_jungle_dark_oak_timber_frame": "Up Gate Framed Jungle Dark Oak Timber Frame",
+  "block.structurize.blockbarreldeco_onside": "Barrel Horizontal",
   "block.structurize.birch_blockpaperwall": "Birch Paperwall",
   "block.structurize.framed_oak_paper_timber_frame": "Framed Oak Paper Timber Frame",
   "block.structurize.side_framed_oak_brick_timber_frame": "Side Framed Oak Brick Timber Frame",
@@ -792,6 +793,7 @@
   "block.structurize.light_gray_clay_jungle_shingle": "Light Gray Clay Jungle Shingle",
   "block.structurize.plain_dark_oak_brick_timber_frame": "Plain Dark Oak Brick Timber Frame",
   "block.structurize.horizontal_plain_jungle_stone_timber_frame": "Plain Horizontal Jungle Stone Timber Frame",
+  "block.structurize.blockbarreldeco_standing": "Barrel Vertical",
   "block.structurize.one_crossed_rl_cactus_oak_timber_frame": "Right Left Crossed Cactus Oak Timber Frame",
   "block.structurize.up_gated_acacia_stone_timber_frame": "Up Gate Framed Acacia Stone Timber Frame",
   "block.structurize.double_crossed_birch_birch_timber_frame": "Double Crossed Birch Birch Timber Frame",
@@ -1125,7 +1127,5 @@
   "block.structurize.one_crossed_rl_acacia_birch_timber_frame": "Right Left Crossed Acacia Birch Timber Frame",
   "block.structurize.framed_cactus_cobble_stone_timber_frame": "Framed Cactus Cobblestone Timber Frame",
   "block.structurize.multiblock": "Multi-Piston",
-  "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
-  "block.structurize.blockbarreldeco_onside": "Barrel Horizontal",
-  "block.structurize.blockbarreldeco_standing": "Barrel Vertical"
+  "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame"
 }
