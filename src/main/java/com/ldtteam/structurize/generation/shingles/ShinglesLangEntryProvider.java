@@ -50,7 +50,7 @@ public class ShinglesLangEntryProvider implements IDataProvider
             langJson.getLang().put(reference, value);
         }
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, langJson.serialize(), langFile.toPath());
+        IDataProvider.save(DataGeneratorConstants.GSONLang, cache, langJson.serialize(), langFile.toPath());
     }
 
     @Override

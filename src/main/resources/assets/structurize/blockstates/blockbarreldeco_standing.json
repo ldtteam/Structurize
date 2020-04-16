@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "structurize:block/barrel_dec/barreldeco_standing"
+    },
+    "facing=west": {
+      "model": "structurize:block/barrel_dec/barreldeco_standing",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "structurize:block/barrel_dec/barreldeco_standing",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "structurize:block/barrel_dec/barreldeco_standing",
+      "y": 270
+    }
+  }
+}
