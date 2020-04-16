@@ -158,8 +158,6 @@ public class BlueprintRenderer implements AutoCloseable
         {
             init();
         }
-        OptifineCompat.getInstance().preBlueprintDraw();
-        OptifineCompat.getInstance().setupArrayPointers();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
@@ -178,6 +176,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Render blocks
 
+        OptifineCompat.getInstance().preBlueprintDraw();
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish");
         renderBlockLayer(RenderType.getSolid(), rawPosMatrix);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
@@ -185,6 +184,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.getCutoutMipped(), rawPosMatrix);
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.getCutout(), rawPosMatrix);
+        OptifineCompat.getInstance().postBlueprintDraw();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities");
         final IRenderTypeBuffer.Impl renderBufferSource = renderBuffers.getBufferSource();
@@ -251,7 +251,6 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
 
         matrixStack.pop();
-        OptifineCompat.getInstance().postBlueprintDraw();
         Minecraft.getInstance().getProfiler().endSection();
     }
 
@@ -266,17 +265,18 @@ public class BlueprintRenderer implements AutoCloseable
         final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
 
         layerRenderType.setupRenderState();
+        OptifineCompat.getInstance().preLayerDraw(layerRenderType);
 
         buffer.bindBuffer();
-        OptifineCompat.getInstance().preLayerDraw(layerRenderType);
         DefaultVertexFormats.BLOCK.setupBufferState(0);
+        OptifineCompat.getInstance().setupArrayPointers();
         buffer.draw(rawPosMatrix, layerRenderType.getDrawMode());
-        OptifineCompat.getInstance().postLayerDraw(layerRenderType);
 
         VertexBuffer.unbindBuffer();
         RenderSystem.clearCurrentColor();
         DefaultVertexFormats.BLOCK.clearBufferState();
 
+        OptifineCompat.getInstance().postLayerDraw(layerRenderType);
         layerRenderType.clearRenderState();
     }
 }
