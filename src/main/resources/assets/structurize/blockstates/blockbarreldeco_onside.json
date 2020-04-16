@@ -1,17 +1,17 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "structurize:block/barrel_dec/barreldeco_onside"
-    },
     "facing=south": {
-      "model": "structurize:block/barrel_dec/barreldeco_onside",
-      "y": 90
+      "model": "structurize:block/barrel_dec/barreldeco_onside"
     },
     "facing=west": {
       "model": "structurize:block/barrel_dec/barreldeco_onside",
-      "y": 180
+      "y": 90
     },
     "facing=north": {
+      "model": "structurize:block/barrel_dec/barreldeco_onside",
+      "y": 180
+    },
+    "facing=east": {
       "model": "structurize:block/barrel_dec/barreldeco_onside",
       "y": 270
     }

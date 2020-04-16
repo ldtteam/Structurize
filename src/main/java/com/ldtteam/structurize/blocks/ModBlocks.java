@@ -52,7 +52,8 @@ public final class ModBlocks
      * Utility blocks.
      */
 
-    public static BlockBarrel blockDecoBarrel;
+    public static BlockBarrel blockDecoBarrel_onside;
+    public static BlockBarrel blockDecoBarrel_standing;
 
     public static BlockCactusPlank      blockCactusPlank;
     public static BlockCactusDoor       blockCactusDoor;
@@ -123,7 +124,8 @@ public final class ModBlocks
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
 
-        blockDecoBarrel = new BlockBarrel().registerBlock(registry);
+        blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
+        blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {
@@ -194,6 +196,8 @@ public final class ModBlocks
         blockCactusSlab.registerItemBlock(registry, properties);
         blockCactusFence.registerItemBlock(registry, properties);
         blockCactusFenceGate.registerItemBlock(registry, properties);
+        blockDecoBarrel_onside.registerItemBlock(registry, properties);
+        blockDecoBarrel_standing.registerItemBlock(registry, properties);
 
         for (final BlockTimberFrame frame : timberFrames)
         {

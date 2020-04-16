@@ -9,7 +9,8 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 public class DataGeneratorConstants
 {
 
-    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final Gson GSON     = new GsonBuilder().disableHtmlEscaping().create();
+    public static final Gson GSONLang = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
     private static final String DATAPACK_DIR = "data/" + Constants.MOD_ID + "/";
     private static final String RESOURCEPACK_DIR = "assets/" + Constants.MOD_ID + "/";
