@@ -31,7 +31,7 @@ public class PlaceholderBlock extends AbstractBlockStructurizeDirectional<Placeh
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context)
     {
-        return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite());
+        return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing());
     }
 
     @Override
