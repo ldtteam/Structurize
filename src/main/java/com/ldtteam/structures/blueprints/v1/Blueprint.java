@@ -387,6 +387,11 @@ public class Blueprint
         }
     }
 
+    /**
+     * Sets the primary offset for the blueprint
+     *
+     * @param cachePrimaryOffset the primary offset
+     */
     public void setCachePrimaryOffset(final Tuple<BlockPos, Boolean> cachePrimaryOffset)
     {
         this.cachePrimaryOffset = cachePrimaryOffset;
@@ -413,6 +418,11 @@ public class Blueprint
         return new Tuple<>(list.get(0).getPos(), true);
     }
 
+    /**
+     * Reset the cache
+     *
+     * @param resetPrimaryOffset Reset the primary offset as well or not.
+     */
     private final void cacheReset(final boolean resetPrimaryOffset)
     {
         cacheBlockInfo = null;

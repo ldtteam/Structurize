@@ -119,6 +119,12 @@ public class ClientEventSubscriber
         Minecraft.getInstance().getProfiler().endSection();
     }
 
+    /**
+     * Render a box around the given position in the Red colour.
+     *
+     * @param anchorPos The anchorPos
+     * @param event The RenderWorldLastEvent event
+     */
     private static void renderAnchorPos(final BlockPos anchorPos,  final RenderWorldLastEvent event)
     {
         RenderSystem.disableDepthTest();
@@ -128,6 +134,13 @@ public class ClientEventSubscriber
         RenderSystem.enableCull();
     }
 
+    /**
+     * Render a white box around two positions
+     *
+     * @param posA The first Position
+     * @param posB The second Position
+     * @param event The event
+     */
     private static void renderBox(final BlockPos posA,
                                   final BlockPos posB,
                                   final RenderWorldLastEvent event)
@@ -135,6 +148,16 @@ public class ClientEventSubscriber
         renderBox(posA, posB, event, 1, 1, 1);
     }
 
+    /***
+     * Render a box around two positions
+     *
+     * @param posA First position
+     * @param posB Second position
+     * @param event The Event
+     * @param red red colour float 0 - 1
+     * @param green green colour float 0 - 1
+     * @param blue blue colour float 0 - 1
+     */
     private static void renderBox(final BlockPos posA,
                                   final BlockPos posB,
                                   final RenderWorldLastEvent event,
