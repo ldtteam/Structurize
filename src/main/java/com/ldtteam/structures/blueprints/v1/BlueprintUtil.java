@@ -34,6 +34,8 @@ public class BlueprintUtil
 {
     private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataFixerUtils.Versions.v1_12_2.getDataVersion();
 
+    private static final String NBT_OPTIONAL_DATA_TAG = "optional_data";
+
     /**
      * Generates a Blueprint objects from the world
      *
@@ -216,10 +218,10 @@ public class BlueprintUtil
 
         tag.put("mcversion", IntNBT.valueOf(SharedConstants.getVersion().getWorldVersion()));
 
-        tag.put("optional_data", new CompoundNBT());
-        tag.getCompound("optional_data").put(Constants.MOD_ID, new CompoundNBT());
-        BlockPosUtil.writeToNBT(tag.getCompound("optional_data").getCompound(Constants.MOD_ID), "primary_offset", schem.getPrimaryBlockOffset().getA());
-        tag.getCompound("optional_data").getCompound(Constants.MOD_ID).putBoolean("primary_offset_is_anchor", schem.getPrimaryBlockOffset().getB());
+        tag.put(NBT_OPTIONAL_DATA_TAG, new CompoundNBT());
+        tag.getCompound(NBT_OPTIONAL_DATA_TAG).put(Constants.MOD_ID, new CompoundNBT());
+        BlockPosUtil.writeToNBT(tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID), "primary_offset", schem.getPrimaryBlockOffset().getA());
+        tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID).putBoolean("primary_offset_is_anchor", schem.getPrimaryBlockOffset().getB());
 
         return tag;
     }
@@ -527,12 +529,12 @@ public class BlueprintUtil
                 schem.setArchitects(architects);
             }
 
-            if (tag.keySet().contains("optional_data"))
+            if (tag.keySet().contains(NBT_OPTIONAL_DATA_TAG))
             {
-                if (tag.getCompound("optional_data").keySet().contains(Constants.MOD_ID))
+                if (tag.getCompound(NBT_OPTIONAL_DATA_TAG).keySet().contains(Constants.MOD_ID))
                 {
-                    BlockPos offsetPos = BlockPosUtil.readFromNBT(tag.getCompound("optional_data").getCompound(Constants.MOD_ID), "primary_offset");
-                    Boolean offsetIsAnchor = tag.getCompound("optional_data").getCompound(Constants.MOD_ID).getBoolean("primary_offset_is_anchor");
+                    BlockPos offsetPos = BlockPosUtil.readFromNBT(tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID), "primary_offset");
+                    Boolean offsetIsAnchor = tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID).getBoolean("primary_offset_is_anchor");
                     schem.setCachePrimaryOffset(new Tuple<>(offsetPos, offsetIsAnchor));
                 }
             }
