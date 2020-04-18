@@ -69,7 +69,6 @@ public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntity
             }
 
             matrixStack.translate(0.5, 0.5, 0.5);
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(BASIC_ROTATION * facing.getHorizontalIndex() + 180));
             matrixStack.translate(-0.5, -0.5, -0.5);
 
             if (!stack.isItemEqual(te.getStack()))

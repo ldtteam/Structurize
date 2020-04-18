@@ -12,6 +12,8 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Class used to store.
  */
@@ -31,6 +33,7 @@ public final class Settings
     private Structure structure     = null;
     private int       rotation      = 0;
     private String    structureName = null;
+    private Optional<BlockPos> anchorPos = Optional.empty();
 
     /**
      * The style index to use currently.
@@ -662,5 +665,23 @@ public final class Settings
     public void setStyle(final String style)
     {
         this.style = style;
+    }
+
+    /**
+     * Get the currently Anchor Position
+     * @return Optional anchor position
+     */
+    public Optional<BlockPos> getAnchorPos()
+    {
+        return anchorPos;
+    }
+
+    /**
+     * Set the currently Anchor Position
+     * @param anchorPos Optional anchor position
+     */
+    public void setAnchorPos(final Optional<BlockPos> anchorPos)
+    {
+        this.anchorPos = anchorPos;
     }
 }
