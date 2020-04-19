@@ -467,7 +467,6 @@ public class Blueprint
 
         this.palette = palette;
 
-        BlockPos offset = pos;
         for (short x = 0; x < this.sizeX; x++)
         {
             for (short y = 0; y < this.sizeY; y++)
@@ -480,10 +479,6 @@ public class Blueprint
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;
-                    }
-                    if (state.getBlock() instanceof IAnchorBlock)
-                    {
-                        offset = tempPos;
                     }
                     newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
 
@@ -521,7 +516,7 @@ public class Blueprint
         this.tileEntities = newTileEntities;
 
         cacheReset(false);
-        return offset;
+        return getPrimaryBlockOffset().getA();
     }
 
     /**
