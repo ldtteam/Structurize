@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Basic proxy interface.
@@ -39,8 +40,9 @@ public interface IProxy
      * Opens a scan tool window.
      * @param pos1 first pos.
      * @param pos2 second pos.
+     * @param anchorPos Optional anchor position.
      */
-    void openScanToolWindow(final BlockPos pos1, final BlockPos pos2);
+    void openScanToolWindow(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos);
 
     /**
      * Opens a build tool window for a specific structure.

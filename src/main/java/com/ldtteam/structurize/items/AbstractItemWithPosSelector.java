@@ -47,7 +47,24 @@ public abstract class AbstractItemWithPosSelector extends Item
      * @param playerIn event player
      * @return event result, typically success
      */
-    public abstract ActionResultType onAirRightClick(BlockPos start, BlockPos end, World worldIn, PlayerEntity playerIn);
+    public ActionResultType onAirRightClick(BlockPos start, BlockPos end, World worldIn, PlayerEntity playerIn)
+    {
+        return ActionResultType.PASS;
+    }
+
+    /**
+     * Is called when player air-right-clicks with item.
+     *
+     * @param start    first pos
+     * @param end      second pos
+     * @param worldIn  event world
+     * @param playerIn event player
+     * @return event result, typically success
+     */
+    public ActionResultType onAirRightClick(BlockPos start, BlockPos end, World worldIn, PlayerEntity playerIn, ItemStack itemStack)
+    {
+        return onAirRightClick(start, end, worldIn, playerIn);
+    }
 
     /**
      * Uses to search for correct itemstack in both hands.
@@ -58,7 +75,7 @@ public abstract class AbstractItemWithPosSelector extends Item
 
     /**
      * <p>
-     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick()}.
+     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, World, PlayerEntity, ItemStack)}.
      * <p/>
      * {@inheritDoc}
      */
@@ -72,19 +89,30 @@ public abstract class AbstractItemWithPosSelector extends Item
                 NBTUtil.readBlockPos(compound.getCompound(NBT_START_POS)),
                 NBTUtil.readBlockPos(compound.getCompound(NBT_END_POS)),
                 worldIn,
-                playerIn),
+                playerIn,
+                itemstack),
             itemstack);
     }
 
     /**
      * <p>
-     * Structurize: Captures second position.
+     * Structurize: Captures second position or Anchor Pos.
      * <p/>
      * {@inheritDoc}
      */
     @Override
     public ActionResultType onItemUse(final ItemUseContext context)
     {
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown())
+        {
+            final ActionResultType result = onSpecialUse(context);
+
+            if (result != ActionResultType.PASS)
+            {
+                return result;
+            }
+        }
+
         final BlockPos pos = context.getPos();
         if (context.getWorld().isRemote())
         {
@@ -92,6 +120,17 @@ public abstract class AbstractItemWithPosSelector extends Item
         }
         context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
+    }
+
+    /**
+     * Called when onItemUse is called while player is shifting
+     *
+     * @param context the ItemUseContext
+     * @return ActionResult
+     */
+    public ActionResultType onSpecialUse(final ItemUseContext context)
+    {
+        return ActionResultType.PASS;
     }
 
     /**

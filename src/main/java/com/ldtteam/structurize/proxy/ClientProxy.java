@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Client side proxy.
@@ -63,14 +64,14 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void openScanToolWindow(@Nullable final BlockPos pos1, @Nullable final BlockPos pos2)
+    public void openScanToolWindow(@Nullable final BlockPos pos1, @Nullable final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         if (pos1 == null || pos2 == null)
         {
             return;
         }
 
-        @Nullable final WindowScan window = new WindowScan(pos1, pos2);
+        @Nullable final WindowScan window = new WindowScan(pos1, pos2, anchorPos);
         window.open();
     }
 

@@ -9,19 +9,19 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.NotNull;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class ClientEventSubscriber
 {
@@ -102,21 +102,68 @@ public class ClientEventSubscriber
                 structure.getBluePrint().getSizeZ());
 
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
-            renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), player, event);
+
+            // Used to render a red box around a structures Primary offset (primary block)
+            renderAnchorPos(primaryOffset.getA().add(pos), event);
+
+            renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), event);
         }
 
         if (Settings.instance.getBox() != null)
         {
+            // Used to render a red box around a scan's Primary offset (primary block)
+            Settings.instance.getAnchorPos().ifPresent(pos -> renderAnchorPos(pos, event));
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
-            renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), player, event);
+            renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), event);
         }
         Minecraft.getInstance().getProfiler().endSection();
     }
 
+    /**
+     * Render a box around the given position in the Red colour.
+     *
+     * @param anchorPos The anchorPos
+     * @param event The RenderWorldLastEvent event
+     */
+    private static void renderAnchorPos(final BlockPos anchorPos,  final RenderWorldLastEvent event)
+    {
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableCull();
+        renderBox(anchorPos, anchorPos, event, 1, 0, 0);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableCull();
+    }
+
+    /**
+     * Render a white box around two positions
+     *
+     * @param posA The first Position
+     * @param posB The second Position
+     * @param event The event
+     */
     private static void renderBox(final BlockPos posA,
-        final BlockPos posB,
-        final ClientPlayerEntity player,
-        final RenderWorldLastEvent event)
+                                  final BlockPos posB,
+                                  final RenderWorldLastEvent event)
+    {
+        renderBox(posA, posB, event, 1, 1, 1);
+    }
+
+    /***
+     * Render a box around two positions
+     *
+     * @param posA First position
+     * @param posB Second position
+     * @param event The Event
+     * @param red red colour float 0 - 1
+     * @param green green colour float 0 - 1
+     * @param blue blue colour float 0 - 1
+     */
+    private static void renderBox(final BlockPos posA,
+                                  final BlockPos posB,
+                                  final RenderWorldLastEvent event,
+                                  final float red,
+                                  final float green,
+                                  final float blue)
     {
         int x1 = posA.getX();
         int y1 = posA.getY();
@@ -163,7 +210,7 @@ public class ClientEventSubscriber
 
         final Matrix4f matrix4f = matrix.getLast().getMatrix();
         final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
-        BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), 1.0F, 1.0F, 1.0F, 1.0F);
+        BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), red, green, blue, 1.0F);
         matrix.pop();
 
         RenderSystem.disableDepthTest();

@@ -8,6 +8,8 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Send the scan message for a player to the server.
  */
@@ -22,6 +24,11 @@ public class ScanOnServerMessage implements IMessage
      * Position to scan to.
      */
     private BlockPos to;
+
+    /**
+     * The Anchor Pos.
+     */
+    private Optional<BlockPos> anchorPos = Optional.empty();
 
     /**
      * Name of the file.
@@ -41,13 +48,14 @@ public class ScanOnServerMessage implements IMessage
         super();
     }
 
-    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities)
+    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities, final Optional<BlockPos> anchorPos)
     {
         super();
         this.from = from;
         this.to = to;
         this.name = name;
         this.saveEntities = saveEntities;
+        this.anchorPos = anchorPos;
     }
 
     @Override
@@ -57,6 +65,10 @@ public class ScanOnServerMessage implements IMessage
         from = buf.readBlockPos();
         to = buf.readBlockPos();
         saveEntities = buf.readBoolean();
+        if (buf.readBoolean())
+        {
+            this.anchorPos = Optional.of(buf.readBlockPos());
+        }
     }
 
     @Override
@@ -66,6 +78,8 @@ public class ScanOnServerMessage implements IMessage
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
         buf.writeBoolean(saveEntities);
+        buf.writeBoolean(anchorPos.isPresent());
+        anchorPos.ifPresent(buf::writeBlockPos);
     }
 
     @Nullable
@@ -78,6 +92,6 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name, saveEntities);
+        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name, saveEntities, this.anchorPos);
     }
 }

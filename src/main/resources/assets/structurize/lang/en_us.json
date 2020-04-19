@@ -869,6 +869,7 @@
   "block.structurize.side_framed_horizontal_spruce_dark_oak_timber_frame": "Side Framed Horizontal Spruce Dark Oak Timber Frame",
   "com.ldtteam.structurize.gui.shapetool.solid": "Solid",
   "item.possetter.secondpos": "Second pos set to x=%d y=%d z=%d",
+  "item.possetter.anchorpos": "Anchor pos set to x=%d y=%d z=%d",
   "block.structurize.side_framed_spruce_cactus_timber_frame": "Side Framed Spruce Cactus Timber Frame",
   "block.structurize.horizontal_plain_spruce_birch_timber_frame": "Plain Horizontal Spruce Birch Timber Frame",
   "block.structurize.double_crossed_jungle_paper_timber_frame": "Double Crossed Jungle Paper Timber Frame",
