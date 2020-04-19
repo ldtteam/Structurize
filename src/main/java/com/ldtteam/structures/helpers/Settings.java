@@ -556,6 +556,11 @@ public final class Settings
         {
             equation = buf.readString(32767);
         }
+
+        if (buf.readBoolean())
+        {
+            anchorPos = Optional.of(buf.readBlockPos());
+        }
     }
 
     /**
@@ -629,6 +634,9 @@ public final class Settings
         {
             buf.writeString(equation);
         }
+
+        buf.writeBoolean(anchorPos.isPresent());
+        anchorPos.ifPresent(buf::writeBlockPos);
     }
 
     /**

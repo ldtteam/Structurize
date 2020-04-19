@@ -218,10 +218,14 @@ public class BlueprintUtil
 
         tag.put("mcversion", IntNBT.valueOf(SharedConstants.getVersion().getWorldVersion()));
 
-        tag.put(NBT_OPTIONAL_DATA_TAG, new CompoundNBT());
-        tag.getCompound(NBT_OPTIONAL_DATA_TAG).put(Constants.MOD_ID, new CompoundNBT());
-        BlockPosUtil.writeToNBT(tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID), "primary_offset", schem.getPrimaryBlockOffset().getA());
-        tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID).putBoolean("primary_offset_is_anchor", schem.getPrimaryBlockOffset().getB());
+        final CompoundNBT optionalTag = new CompoundNBT();
+        final CompoundNBT structurizeTag = new CompoundNBT();
+
+        BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset().getA());
+        structurizeTag.putBoolean("primary_offset_is_anchor", schem.getPrimaryBlockOffset().getB());
+
+        optionalTag.put(Constants.MOD_ID, structurizeTag);
+        tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
 
         return tag;
     }
@@ -531,10 +535,12 @@ public class BlueprintUtil
 
             if (tag.keySet().contains(NBT_OPTIONAL_DATA_TAG))
             {
-                if (tag.getCompound(NBT_OPTIONAL_DATA_TAG).keySet().contains(Constants.MOD_ID))
+                final CompoundNBT optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
+                if (optionalTag.keySet().contains(Constants.MOD_ID))
                 {
-                    BlockPos offsetPos = BlockPosUtil.readFromNBT(tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID), "primary_offset");
-                    Boolean offsetIsAnchor = tag.getCompound(NBT_OPTIONAL_DATA_TAG).getCompound(Constants.MOD_ID).getBoolean("primary_offset_is_anchor");
+                    final CompoundNBT structurizeTag = optionalTag.getCompound(Constants.MOD_ID);
+                    BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
+                    Boolean offsetIsAnchor = structurizeTag.getBoolean("primary_offset_is_anchor");
                     schem.setCachePrimaryOffset(new Tuple<>(offsetPos, offsetIsAnchor));
                 }
             }
