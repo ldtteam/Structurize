@@ -23,13 +23,10 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -702,10 +699,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Check if the player inventory has a block matching the schematic.
+     * Check if the player inventory has a certain hut.
      *
      * @param inventory the player inventory.
-     * @param hut       the schematic name.
+     * @param hut       the hut.
      * @return true if so.
      */
     public boolean hasMatchingBlock(@NotNull final PlayerInventory inventory, final String hut)

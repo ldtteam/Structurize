@@ -6,6 +6,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +18,8 @@ import java.util.regex.Pattern;
  */
 public class StructureName
 {
+    public static List<String> HUTS = new ArrayList<>();
+
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
     /**
@@ -101,7 +106,7 @@ public class StructureName
         {
             hut = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
-            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR)
+            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
             {
                 section = hut;
             }
