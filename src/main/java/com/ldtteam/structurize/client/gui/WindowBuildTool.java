@@ -240,7 +240,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
-                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || inventoryHasHut(inventory, section))
+                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || hasMatchingBlock(inventory, section))
                 {
                     sections.add(section);
                 }
@@ -702,16 +702,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Check if the player inventory has a certain hut.
+     * Check if the player inventory has a block matching the schematic.
      *
      * @param inventory the player inventory.
-     * @param hut       the hut.
+     * @param hut       the schematic name.
      * @return true if so.
      */
-    private static boolean inventoryHasHut(@NotNull final PlayerInventory inventory, final String hut)
+    public boolean hasMatchingBlock(@NotNull final PlayerInventory inventory, final String hut)
     {
-        ;
-        return inventory.hasItemStack(new ItemStack(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, HUT_PREFIX + hut))));
+        return true;
     }
 
     /*
