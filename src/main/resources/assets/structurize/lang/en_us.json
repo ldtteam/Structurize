@@ -961,6 +961,7 @@
   "block.structurize.horizontal_plain_oak_cactus_timber_frame": "Plain Horizontal Oak Cactus Timber Frame",
   "block.structurize.down_gated_acacia_birch_timber_frame": "Down Gate Framed Acacia Birch Timber Frame",
   "item.sceptersteel.scansuccess": "Scan successfully saved as %s",
+  "item.sceptersteel.badanchorpos": "Scan Tool's Anchor pos is outside scanned area! Please move using Shift-Right Click!",
   "block.structurize.down_gated_dark_oak_cobble_stone_timber_frame": "Down Gate Framed Dark Oak Cobblestone Timber Frame",
   "block.structurize.lime_clay_shingle_slab": "Lime Clay Shingle Slab",
   "block.structurize.up_gated_dark_oak_oak_timber_frame": "Up Gate Framed Dark Oak Oak Timber Frame",
