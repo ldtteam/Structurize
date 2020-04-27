@@ -23,13 +23,10 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -240,7 +237,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
-                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || inventoryHasHut(inventory, section))
+                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || hasMatchingBlock(inventory, section))
                 {
                     sections.add(section);
                 }
@@ -708,10 +705,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param hut       the hut.
      * @return true if so.
      */
-    private static boolean inventoryHasHut(@NotNull final PlayerInventory inventory, final String hut)
+    public boolean hasMatchingBlock(@NotNull final PlayerInventory inventory, final String hut)
     {
-        ;
-        return inventory.hasItemStack(new ItemStack(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, HUT_PREFIX + hut))));
+        return true;
     }
 
     /*

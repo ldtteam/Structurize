@@ -63,15 +63,25 @@ public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntity
         if (te.getWorld().getBlockState(te.getPos()).getBlock() instanceof PlaceholderBlock)
         {
             final Direction facing = te.getWorld().getBlockState(te.getPos()).get(PlaceholderBlock.HORIZONTAL_FACING);
+            if (this.state.has(PlaceholderBlock.HORIZONTAL_FACING))
+            {
+                if (this.state.get(PlaceholderBlock.HORIZONTAL_FACING) != facing)
+                {
+                    this.state = this.state.with(PlaceholderBlock.HORIZONTAL_FACING, facing);
+                }
 
+            }
             matrixStack.translate(0.5, 0.5, 0.5);
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(BASIC_ROTATION * facing.getHorizontalIndex() + 180));
             matrixStack.translate(-0.5, -0.5, -0.5);
 
             if (!stack.isItemEqual(te.getStack()))
             {
                 stack = te.getStack();
-                state = BlockUtils.getBlockStateFromStack(stack);
+                this.state = BlockUtils.getBlockStateFromStack(stack);
+                if (this.state.has(PlaceholderBlock.HORIZONTAL_FACING))
+                {
+                    this.state = this.state.with(PlaceholderBlock.HORIZONTAL_FACING, facing);
+                }
             }
         }
 

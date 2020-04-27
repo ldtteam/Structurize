@@ -16,6 +16,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Command for opening WindowScanTool or scanning a structure into a file
  */
@@ -62,77 +64,98 @@ public class ScanCommand extends AbstractCommand
     private static final String POS2 = "pos2";
 
     /**
-     * Execute the scan command code.
-     *
-     * @param context the command context.
-     * @return 1 if successful, 0 if unsuccessful.
-     *
-     * @throws CommandSyntaxException possible issues.
+     * Anchor position command argument.
      */
-    private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
-    {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
-        final GameProfile profile;
-        if (context.getNodes().size() > 4)
-        {
-            profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
-        }
-        else
-        {
-            profile = null;
-        }
+    private static final String ANCHOR_POS = "anchor_pos";
 
-        @Nullable final World world = context.getSource().getWorld();
-        if (context.getSource().getEntity() instanceof PlayerEntity && !context.getSource().asPlayer().isCreative())
+    private static int execute(final CommandSource source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
+    {
+        @Nullable final World world = source.getWorld();
+        if (source.getEntity() instanceof PlayerEntity && !source.asPlayer().isCreative())
         {
-            context.getSource().sendErrorMessage(new StringTextComponent(NO_PERMISSION_MESSAGE));
+            source.sendErrorMessage(new StringTextComponent(NO_PERMISSION_MESSAGE));
         }
 
         final PlayerEntity player;
-        if (profile != null)
+        if (profile != null && world.getServer() != null)
         {
             player = world.getServer().getPlayerList().getPlayerByUUID(profile.getId());
             if (player == null)
             {
-                context.getSource().sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
+                source.sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
                 return 0;
             }
-        }
-        else if (context.getSource().getEntity() instanceof PlayerEntity)
+        } 
+        else if (source.getEntity() instanceof PlayerEntity)
         {
-            player = context.getSource().asPlayer();
-        }
+            player = source.asPlayer();
+        } 
         else
         {
-            context.getSource().sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
+            source.sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND));
             return 0;
         }
 
-        final String name;
-        if (context.getNodes().size() > 5)
-        {
-            name = StringArgumentType.getString(context, FILE_NAME);
-        }
-        else
-        {
-            name = null;
-        }
-
-        ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name);
-        context.getSource().sendErrorMessage(new TranslationTextComponent(SCAN_SUCCESS_MESSAGE));
+        ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name, true, anchorPos);
+        source.sendErrorMessage(new TranslationTextComponent(SCAN_SUCCESS_MESSAGE));
         return 1;
+    }
+
+    private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        return execute(context.getSource(), from, to, Optional.empty(), null, null);
+    }
+
+    private static int onExecuteWithAnchor(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getBlockPos(context, ANCHOR_POS);
+        return execute(context.getSource(), from, to, Optional.of(anchorPos), null, null);
+    }
+
+    private static int onExecuteWithPlayerName(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
+        return execute(context.getSource(), from, to, Optional.empty(), profile, null);
+    }
+
+    private static int onExecuteWithPlayerNameAndFileName(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
+        String name = StringArgumentType.getString(context, FILE_NAME);
+        return execute(context.getSource(), from, to, Optional.empty(), profile, name);
+    }
+
+    private static int onExecuteWithPlayerNameAndFileNameAndAnchorPos(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getBlockPos(context, ANCHOR_POS);
+        GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
+        String name = StringArgumentType.getString(context, FILE_NAME);
+        return execute(context.getSource(), from, to, Optional.of(anchorPos), profile, name);
     }
 
     protected static LiteralArgumentBuilder<CommandSource> build()
     {
         return newLiteral(NAME)
-                 .then(newArgument(POS1, BlockPosArgument.blockPos())
-                         .then(newArgument(POS2, BlockPosArgument.blockPos())
-                                 .executes(ScanCommand::onExecute)
-                                 .then(newArgument(PLAYER_NAME, GameProfileArgument.gameProfile())
-                                         .executes(ScanCommand::onExecute)
-                                         .then(newArgument(FILE_NAME, StringArgumentType.word())
-                                                 .executes(ScanCommand::onExecute)))));
+                .then(newArgument(POS1, BlockPosArgument.blockPos())
+                        .then(newArgument(POS2, BlockPosArgument.blockPos())
+                                .executes(ScanCommand::onExecute)
+                                .then(newArgument(ANCHOR_POS, BlockPosArgument.blockPos())
+                                        .executes(ScanCommand::onExecuteWithAnchor))
+                                .then(newArgument(PLAYER_NAME, GameProfileArgument.gameProfile())
+                                        .executes(ScanCommand::onExecuteWithPlayerName)
+                                        .then(newArgument(FILE_NAME, StringArgumentType.word())
+                                                .executes(ScanCommand::onExecuteWithPlayerNameAndFileName)
+                                                .then(newArgument(ANCHOR_POS, BlockPosArgument.blockPos())
+                                                        .executes(ScanCommand::onExecuteWithPlayerNameAndFileNameAndAnchorPos))))));
     }
 }

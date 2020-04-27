@@ -32,7 +32,7 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
-    public void openScanToolWindow(final BlockPos pos1, final BlockPos pos2)
+    public void openScanToolWindow(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         /*
          * Intentionally left empty.

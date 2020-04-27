@@ -43,8 +43,7 @@ public class ShinglesRecipeProvider implements IDataProvider
             if (!shingle.getFaceType().isDyed())
             {
                 createBasicShingleRecipe(cache, shingle);
-            }
-            else
+            } else
             {
                 createDyableShingleRecipe(cache, shingle);
             }
@@ -77,7 +76,7 @@ public class ShinglesRecipeProvider implements IDataProvider
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(shingle.getRegistryName().getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(recipeJson), recipePath);
     }
 
     private void createBasicShingleRecipe(final DirectoryCache cache, final BlockShingle shingle) throws IOException
@@ -99,6 +98,6 @@ public class ShinglesRecipeProvider implements IDataProvider
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(shingle.getRegistryName().getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, recipeJson.serialize(), recipePath);
+        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(recipeJson), recipePath);
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.feature.template.Template;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,7 +222,7 @@ public class Blueprint
         }
 
         this.structure[pos.getY()][pos.getZ()][pos.getX()] = (short) index;
-        cacheReset();
+        cacheReset(true);
     }
 
     /**
@@ -386,6 +387,16 @@ public class Blueprint
         }
     }
 
+    /**
+     * Sets the primary offset for the blueprint
+     *
+     * @param cachePrimaryOffset the primary offset
+     */
+    public void setCachePrimaryOffset(final Tuple<BlockPos, Boolean> cachePrimaryOffset)
+    {
+        this.cachePrimaryOffset = cachePrimaryOffset;
+    }
+
     public final Tuple<BlockPos, Boolean> getPrimaryBlockOffset()
     {
         if (cachePrimaryOffset == null)
@@ -407,10 +418,18 @@ public class Blueprint
         return new Tuple<>(list.get(0).getPos(), true);
     }
 
-    private final void cacheReset()
+    /**
+     * Reset the cache
+     *
+     * @param resetPrimaryOffset Reset the primary offset as well or not.
+     */
+    private final void cacheReset(final boolean resetPrimaryOffset)
     {
         cacheBlockInfo = null;
-        cachePrimaryOffset = null;
+        if (resetPrimaryOffset)
+        {
+            cachePrimaryOffset = null;
+        }
         cacheBlockInfoMap = null;
     }
 
@@ -425,6 +444,7 @@ public class Blueprint
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
     {
+        final Tuple<BlockPos, Boolean> primaryOffset = getPrimaryBlockOffset();
         final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
         final short newSizeX = (short) resultSize.getX();
         final short newSizeY = (short) resultSize.getY();
@@ -447,10 +467,6 @@ public class Blueprint
 
         this.palette = palette;
 
-        boolean foundAnchor = false;
-        BlockPos offset = pos;
-        boolean multipleAnchors = false;
-
         for (short x = 0; x < this.sizeX; x++)
         {
             for (short y = 0; y < this.sizeY; y++)
@@ -463,15 +479,6 @@ public class Blueprint
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;
-                    }
-                    if (state.getBlock() instanceof IAnchorBlock)
-                    {
-                        offset = tempPos;
-                        if (foundAnchor)
-                        {
-                            multipleAnchors = true;
-                        }
-                        foundAnchor = true;
                     }
                     newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
 
@@ -496,53 +503,9 @@ public class Blueprint
             }
         }
 
-        BlockPos temp;
-        if (rotation.equals(Rotation.CLOCKWISE_90) || rotation.equals(Rotation.COUNTERCLOCKWISE_90) || mirror.equals(Mirror.FRONT_BACK))
-        {
-            if (minX == minZ)
-            {
-                temp = new BlockPos(resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
-            }
-            else
-            {
-                temp = new BlockPos(minX > 0 ? -resultSize.getX() : resultSize.getX(), resultSize.getY(), minZ > 0 ? -resultSize.getZ() : resultSize.getZ());
-            }
+        BlockPos newOffsetPos = Template.getTransformedPos(primaryOffset.getA(), mirror, rotation, new BlockPos(0, 0, 0));
 
-            Rotation theRotation = rotation;
-            if (rotation == Rotation.CLOCKWISE_90)
-            {
-                theRotation = Rotation.COUNTERCLOCKWISE_90;
-            }
-            else if (rotation == Rotation.COUNTERCLOCKWISE_90)
-            {
-                theRotation = Rotation.CLOCKWISE_90;
-            }
-
-            temp = temp.rotate(theRotation);
-        }
-        else
-        {
-            temp = resultSize;
-        }
-
-        if (!foundAnchor || multipleAnchors)
-        {
-            BlockPos tempSize = new BlockPos(temp.getX(), 0, temp.getZ());
-            if (rotation == Rotation.CLOCKWISE_90)
-            {
-                tempSize = new BlockPos(-temp.getZ(), 0, temp.getX());
-            }
-            if (rotation == Rotation.CLOCKWISE_180)
-            {
-                tempSize = new BlockPos(-temp.getX(), 0, -temp.getZ());
-            }
-            if (rotation == Rotation.COUNTERCLOCKWISE_90)
-            {
-                tempSize = new BlockPos(temp.getZ(), 0, -temp.getX());
-            }
-
-            offset = new BlockPos(tempSize.getX() / 2, 0, tempSize.getZ() / 2).add(minX, minY, minZ);
-        }
+        setCachePrimaryOffset(new Tuple<>(newOffsetPos.add(minX, minY, minZ), primaryOffset.getB()));
 
         sizeX = newSizeX;
         sizeY = newSizeY;
@@ -552,8 +515,8 @@ public class Blueprint
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
 
-        cacheReset();
-        return offset;
+        cacheReset(false);
+        return getPrimaryBlockOffset().getA();
     }
 
     /**

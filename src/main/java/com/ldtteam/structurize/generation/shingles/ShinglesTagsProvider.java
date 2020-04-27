@@ -45,8 +45,8 @@ public class ShinglesTagsProvider implements IDataProvider
                 final Path itemsTagsPath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TAGS_DIR).resolve("items").resolve(name);
                 final Path blocksTagsPath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TAGS_DIR).resolve("blocks").resolve(name);
 
-                IDataProvider.save(DataGeneratorConstants.GSON, cache, tagJson.serialize(), itemsTagsPath);
-                IDataProvider.save(DataGeneratorConstants.GSON, cache, tagJson.serialize(), blocksTagsPath);
+                IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(tagJson), itemsTagsPath);
+                IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(tagJson), blocksTagsPath);
             }
         }
     }

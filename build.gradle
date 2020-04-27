@@ -84,7 +84,7 @@ dependencies {
     implementation 'com.intellij:annotations:+@jar'
     implementation "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
     contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
-    implementation "com.ldtteam:datagenerators:0.1.33-ALPHA"
+    implementation "com.ldtteam:datagenerators:0.1.35-ALPHA"
 
     implementation 'io.swagger:swagger-annotations:1.5.22'
     swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.19'
@@ -256,11 +256,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifact reobfArtifact
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
 }

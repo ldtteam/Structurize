@@ -39,6 +39,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlocks(ModBlocks.getPaperwalls(), cache);
         saveBlocks(ModBlocks.getShingles(), cache);
         saveBlocks(ModBlocks.getShingleSlabs(), cache);
+        saveBlocks(ModBlocks.getFloatingCarpets(), cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
@@ -50,6 +51,8 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.blockCactusSlab, cache);
         saveBlock(ModBlocks.blockCactusFence, cache);
         saveBlock(ModBlocks.blockCactusFenceGate, cache);
+        saveBlock(ModBlocks.blockDecoBarrel_onside, cache);
+        saveBlock(ModBlocks.blockDecoBarrel_standing, cache);
 
         saveBlock(ModBlocks.multiBlock, cache);
     }
@@ -81,7 +84,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
             lootTableJson.setPools(Collections.singletonList(poolJson));
 
             final Path savePath = generator.getOutputFolder().resolve(DataGeneratorConstants.LOOT_TABLES_DIR).resolve(block.getRegistryName().getPath() + ".json");
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, lootTableJson.serialize(), savePath);
+            IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(lootTableJson), savePath);
         }
     }
 

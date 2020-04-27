@@ -6,7 +6,6 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.*;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,6 +20,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Client side proxy.
@@ -66,15 +66,15 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void openScanToolWindow(@Nullable final BlockPos pos1, @Nullable final BlockPos pos2)
+    public void openScanToolWindow(@Nullable final BlockPos pos1, @Nullable final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         if (pos1 == null || pos2 == null)
         {
             return;
         }
 
-        @Nullable
-        final WindowScan window = new WindowScan(pos1, pos2);
+
+        @Nullable final WindowScan window = new WindowScan(pos1, pos2, anchorPos);
         window.open();
     }
 
