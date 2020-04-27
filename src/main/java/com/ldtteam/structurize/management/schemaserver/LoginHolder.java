@@ -118,7 +118,7 @@ public class LoginHolder
     /**
      * Helper which mimics {@link #runAuthorized(Consumer, Consumer, boolean)} but is without checking and validating access token.
      *
-     * @param task       job which needs access token
+     * @param task       job to run
      * @param mainThread whether run on main thread or in minecraft thread executor
      */
     public static void runUnuthorized(final Runnable task, final boolean mainThread)
