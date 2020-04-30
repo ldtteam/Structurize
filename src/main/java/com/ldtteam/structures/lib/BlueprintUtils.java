@@ -4,6 +4,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.client.BlueprintBlockAccess;
 import com.ldtteam.structures.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structures.client.BlueprintEntityInfoTransformHandler;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.Blocks;
@@ -61,7 +62,7 @@ public final class BlueprintUtils
      * @param blueprint the blueprint.
      * @return a tuple, the offset, and true if its a custom one.
      */
-    public static Tuple<BlockPos, Boolean> getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
+    public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
     {
         return blueprint.getPrimaryBlockOffset();
     }
