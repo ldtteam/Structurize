@@ -3,6 +3,7 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
@@ -22,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiPredicate;
 
 /**
@@ -384,6 +384,25 @@ public final class BlockUtils
         else if (stackToPlace.getItem() == Items.WATER_BUCKET)
         {
             world.setBlockState(here, Blocks.WATER.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
+        }
+    }
+
+    /**
+     * Removes the fluid from the given position.
+     * 
+     * @param world the world to remove the fluid from.
+     * @param pos   the position where to remove the fluid.
+     */
+    public static void removeFluid(World world, BlockPos pos)
+    {
+    	final BlockState state = world.getBlockState(pos);
+        final Block block = state.getBlock();
+        if (block instanceof IBucketPickupHandler && ((IBucketPickupHandler)block).pickupFluid(world, pos, state) != Fluids.EMPTY)
+        {
+        }
+        else if (block instanceof FlowingFluidBlock)
+        {
+            world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
         }
     }
 }

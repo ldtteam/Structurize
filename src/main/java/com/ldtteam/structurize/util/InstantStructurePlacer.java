@@ -12,12 +12,9 @@ import com.ldtteam.structurize.placementhandlers.PlacementHandlers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -188,19 +185,11 @@ public class InstantStructurePlacer
 
                     if (localState.getMaterial().isSolid())
                     {
-                        this.handleBlockPlacement(world, worldPos, localState, complete, structure.getTileEntityData(localPos));
+                        handleBlockPlacement(world, worldPos, localState, complete, structure.getTileEntityData(localPos));
                     }
                     else
                     {
-                        final BlockState worldState = world.getBlockState(worldPos);
-                        final Block worldBlock = worldState.getBlock();
-                        if (worldBlock instanceof IBucketPickupHandler && ((IBucketPickupHandler)worldBlock).pickupFluid(world, worldPos, worldState) != Fluids.EMPTY)
-                        {
-                        }
-                        else if (worldBlock instanceof FlowingFluidBlock)
-                        {
-                            world.setBlockState(worldPos, Blocks.AIR.getDefaultState(), 3);
-                        }
+                        BlockUtils.removeFluid(world, worldPos);
                         delayedBlocks.add(localPos);
                     }
 
@@ -214,7 +203,7 @@ public class InstantStructurePlacer
             }
             currentPos = new BlockPos(0, y, 0);
         }
-        this.handleDelayedBlocks(delayedBlocks, storage, world);
+        handleDelayedBlocks(delayedBlocks, storage, world);
 
         for (final CompoundNBT compound : this.structure.getEntityData())
         {
@@ -265,14 +254,14 @@ public class InstantStructurePlacer
     {
         for (@NotNull final BlockPos coords : delayedBlocks)
         {
-            final BlockState localState = this.structure.getBlockState(coords);
+            final BlockState localState = structure.getBlockState(coords);
             final BlockPos newWorldPos = structure.getPosition().add(coords);
             if (storage != null)
             {
                 storage.addPositionStorage(coords, world);
             }
             final BlockInfo info = this.structure.getBlockInfo(coords);
-            this.handleBlockPlacement(world, newWorldPos, localState, this.complete, info == null ? null : info.getTileEntityData());
+            handleBlockPlacement(world, newWorldPos, localState, this.complete, info == null ? null : info.getTileEntityData());
         }
     }
 
