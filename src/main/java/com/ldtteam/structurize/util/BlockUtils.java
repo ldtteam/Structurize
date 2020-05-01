@@ -395,7 +395,7 @@ public final class BlockUtils
      */
     public static void removeFluid(World world, BlockPos pos)
     {
-    	final BlockState state = world.getBlockState(pos);
+        final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
         if (block instanceof IBucketPickupHandler && ((IBucketPickupHandler)block).pickupFluid(world, pos, state) != Fluids.EMPTY)
         {

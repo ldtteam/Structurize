@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Interface for using the structure codebase.
@@ -127,28 +127,28 @@ public class InstantStructurePlacer
     }
 
     /**
-	 * Place a structure into the world.
-	 *
-	 * @param world    the placing player.
-	 * @param storage  the change storage.
-	 * @param inputPos the start pos.
-	 * @return the last pos.
-	 */
+     * Place a structure into the world.
+     *
+     * @param world    the placing player.
+     * @param storage  the change storage.
+     * @param inputPos the start pos.
+     * @return the last pos.
+     */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
     {
-        return placeStructure(world, storage, inputPos, block -> block == ModBlocks.blockSubstitution || block instanceof IAnchorBlock);
+        return placeStructure(world, storage, inputPos, (structure, block) -> block == ModBlocks.blockSubstitution || block instanceof IAnchorBlock);
     }
 
     /**
-	 * 
-	 * @param world             the placing player.
-	 * @param storage           storage the change storage.
-	 * @param inputPos          the start pos.
-	 * @param skipIfNotComplete a function that determines whether to skip a block
-	 *                          if complete is false.
-	 * @return the last pos.
-	 */
-    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, Function<Block, Boolean> skipIfNotComplete)
+     * 
+     * @param world             the placing player.
+     * @param storage           storage the change storage.
+     * @param inputPos          the start pos.
+     * @param skipIfNotComplete a function that determines whether to skip a block
+     *                          if complete is false.
+     * @return the last pos.
+     */
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, BiFunction<Structure, Block, Boolean> skipIfNotComplete)
     {
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
@@ -172,7 +172,7 @@ public class InstantStructurePlacer
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
-                    if (!complete && skipIfNotComplete.apply(localBlock))
+                    if (!complete && skipIfNotComplete.apply(structure, localBlock))
                     {
                         continue;
                     }
