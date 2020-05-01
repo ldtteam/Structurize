@@ -204,6 +204,18 @@ public class ScanToolOperation
                         if (blockState.getBlock() instanceof IBucketPickupHandler || blockState.getBlock() instanceof FlowingFluidBlock)
                         {
                             BlockUtils.removeFluid(world, here);
+                            if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
+                            {
+                            	if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+                                {
+                                    currentPos = new BlockPos(x, y, z);
+                                    return false;
+                                }
+                            	else
+                            	{
+                            	    continue;
+                            	}
+                            }
                         }
 
                         if (operation == OperationType.REPLACE_BLOCK)
@@ -232,15 +244,17 @@ public class ScanToolOperation
     /**
      * Is this the correct block to remove it or replace it.
      *
-     * @param worldStack   the world stack to check.
-     * @param worldState   the world state to check.
-     * @param compareStack the comparison stack.
+     * @param replacementStack   the world stack to check.
+     * @param worldState         the world state to check.
+     * @param compareStack       the comparison stack.
      * @return true if so.
      */
-    private static boolean correctBlockToRemoveOrReplace(final ItemStack worldStack, final BlockState worldState, final ItemStack compareStack)
+    private static boolean correctBlockToRemoveOrReplace(final ItemStack replacementStack, final BlockState worldState, final ItemStack compareStack)
     {
-        return (worldStack != null && worldStack.isItemEqual(compareStack)
+        return (replacementStack != null && replacementStack.isItemEqual(compareStack)
                   || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getFluid())
+                  || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof FlowingFluidBlock
+                  && ((BucketItem)compareStack.getItem()).getFluid() == ((FlowingFluidBlock)worldState.getBlock()).getFluid())
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
     }
 
