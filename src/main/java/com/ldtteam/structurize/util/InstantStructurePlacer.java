@@ -206,10 +206,7 @@ public class InstantStructurePlacer
 
                     if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
                     {
-                    	if (storage != null)
-                        {
-                            handleDelayedBlocks(delayedBlocks, storage, world);
-                        }
+                        handleDelayedBlocks(delayedBlocks, storage, world);
                         return new BlockPos(x, y, z);
                     }
                 }
