@@ -397,10 +397,7 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if (block instanceof IBucketPickupHandler && ((IBucketPickupHandler)block).pickupFluid(world, pos, state) != Fluids.EMPTY)
-        {
-        }
-        else if (block instanceof FlowingFluidBlock)
+        if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).pickupFluid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
         {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
         }
