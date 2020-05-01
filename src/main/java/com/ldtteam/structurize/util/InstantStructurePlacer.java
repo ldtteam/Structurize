@@ -136,7 +136,8 @@ public class InstantStructurePlacer
      */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
     {
-        return placeStructure(world, storage, inputPos, (structure, block) -> block == ModBlocks.blockSubstitution || block instanceof IAnchorBlock);
+        return placeStructure(world, storage, inputPos, (structure, pos) -> structure.getBlockState(pos).getBlock() == ModBlocks.blockSubstitution
+                                                                           || structure.getBlockState(pos).getBlock() instanceof IAnchorBlock);
     }
 
     /**
@@ -148,7 +149,7 @@ public class InstantStructurePlacer
      *                          if complete is false.
      * @return the last pos.
      */
-    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, BiFunction<Structure, Block, Boolean> skipIfNotComplete)
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, BiFunction<Structure, BlockPos, Boolean> skipIfNotComplete)
     {
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
@@ -172,7 +173,7 @@ public class InstantStructurePlacer
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
-                    if (!complete && skipIfNotComplete.apply(structure, localBlock))
+                    if (!complete && skipIfNotComplete.apply(structure, localPos))
                     {
                         continue;
                     }
