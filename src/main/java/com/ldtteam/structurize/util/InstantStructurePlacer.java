@@ -173,6 +173,7 @@ public class InstantStructurePlacer
 
                     if (!complete && skipIfNotComplete.apply(structure, localPos))
                     {
+                    	BlockUtils.removeFluid(world, worldPos);
                         continue;
                     }
                     count++;
