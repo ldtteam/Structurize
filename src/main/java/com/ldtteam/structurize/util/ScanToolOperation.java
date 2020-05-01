@@ -206,15 +206,15 @@ public class ScanToolOperation
                             BlockUtils.removeFluid(world, here);
                             if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
                             {
-                            	if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+                                if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
                                 {
                                     currentPos = new BlockPos(x, y, z);
                                     return false;
                                 }
-                            	else
-                            	{
-                            	    continue;
-                            	}
+                                else
+                                {
+                                    continue;
+                                }
                             }
                         }
 
