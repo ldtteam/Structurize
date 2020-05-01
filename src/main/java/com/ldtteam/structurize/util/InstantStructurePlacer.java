@@ -169,7 +169,6 @@ public class InstantStructurePlacer
                     {
                         continue;
                     }
-                    final Block localBlock = localState.getBlock();
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
