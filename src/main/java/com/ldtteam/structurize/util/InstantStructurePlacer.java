@@ -8,14 +8,19 @@ import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.placementhandlers.IPlacementHandler;
 import com.ldtteam.structurize.placementhandlers.PlacementHandlers;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -25,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Interface for using the structure codebase.
@@ -77,6 +83,38 @@ public class InstantStructurePlacer
     }
 
     /**
+     * Load a structure into this world
+     * and place it in the right position and rotation.
+     *
+     * @param worldObj  the world to load it in
+     * @param name      the structures name
+     * @param pos       coordinates
+     * @param rotation  the rotation.
+     * @param mirror    the mirror used.
+     * @param complete  paste it complete (with structure blocks) or without
+     * @param player    the placing player.
+     */
+    public static void loadAndPlaceStructureWithRotation(
+      final World worldObj, @NotNull final String name,
+      @NotNull final BlockPos pos, final Rotation rotation,
+      @NotNull final Mirror mirror, final boolean complete,
+      final ServerPlayerEntity player)
+    {
+        try
+        {
+            @NotNull final Structure structure = new Structure(worldObj, name, new PlacementSettings(mirror, rotation));
+            structure.setPosition(pos);
+            structure.rotate(rotation, worldObj, pos, mirror);
+            @NotNull final InstantStructurePlacer structureWrapper = new InstantStructurePlacer(structure);
+            structureWrapper.setupStructurePlacement(pos.subtract(structure.getOffset()), complete, player);
+        }
+        catch (final IllegalStateException e)
+        {
+            Log.getLogger().warn("Could not load structure!", e);
+        }
+    }
+
+    /**
      * Setup the structure placement and add to buffer.
      *
      * @param pos      the world anchor.
@@ -92,14 +130,28 @@ public class InstantStructurePlacer
     }
 
     /**
-     * Place a structure into the world.
-     *
-     * @param world the placing player.
-     * @param storage the change storage.
-     * @param inputPos the start pos.
-     * @return the last pos.
-     */
+	 * Place a structure into the world.
+	 *
+	 * @param world    the placing player.
+	 * @param storage  the change storage.
+	 * @param inputPos the start pos.
+	 * @return the last pos.
+	 */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
+    {
+        return placeStructure(world, storage, inputPos, block -> block == ModBlocks.blockSubstitution || block instanceof IAnchorBlock);
+    }
+
+    /**
+	 * 
+	 * @param world             the placing player.
+	 * @param storage           storage the change storage.
+	 * @param inputPos          the start pos.
+	 * @param skipIfNotComplete a function that determines whether to skip a block
+	 *                          if complete is false.
+	 * @return the last pos.
+	 */
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, Function<Block, Boolean> skipIfNotComplete)
     {
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
@@ -123,26 +175,41 @@ public class InstantStructurePlacer
 
                     final BlockPos worldPos = structure.getPosition().add(localPos);
 
-                    if ((localBlock == ModBlocks.blockSubstitution && !this.complete) || (localBlock instanceof IAnchorBlock && !this.complete))
+                    if (!complete && skipIfNotComplete.apply(localBlock))
                     {
                         continue;
                     }
                     count++;
 
-                    storage.addPositionStorage(worldPos, world);
+                    if (storage != null)
+                    {
+                        storage.addPositionStorage(worldPos, world);
+                    }
 
                     if (localState.getMaterial().isSolid())
                     {
-                        this.handleBlockPlacement(world, worldPos, localState, this.complete, this.structure.getTileEntityData(localPos));
+                        this.handleBlockPlacement(world, worldPos, localState, complete, structure.getTileEntityData(localPos));
                     }
                     else
                     {
+                        final BlockState worldState = world.getBlockState(worldPos);
+                        final Block worldBlock = worldState.getBlock();
+                        if (worldBlock instanceof IBucketPickupHandler && ((IBucketPickupHandler)worldBlock).pickupFluid(world, worldPos, worldState) != Fluids.EMPTY)
+                        {
+                        }
+                        else if (worldBlock instanceof FlowingFluidBlock)
+                        {
+                            world.setBlockState(worldPos, Blocks.AIR.getDefaultState(), 3);
+                        }
                         delayedBlocks.add(localPos);
                     }
 
                     if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
                     {
-                        this.handleDelayedBlocks(delayedBlocks, storage, world);
+                    	if (storage != null)
+                        {
+                            handleDelayedBlocks(delayedBlocks, storage, world);
+                        }
                         return new BlockPos(x, y, z);
                     }
                 }
@@ -173,7 +240,10 @@ public class InstantStructurePlacer
                             entity.setPosition(worldPos.x, worldPos.y, worldPos.z);
 
                             world.addEntity(entity);
-                            storage.addToBeKilledEntity(entity);
+                            if (storage != null)
+                            {
+                                storage.addToBeKilledEntity(entity);
+                            }
                         }
                     }
                 }
@@ -200,7 +270,10 @@ public class InstantStructurePlacer
         {
             final BlockState localState = this.structure.getBlockState(coords);
             final BlockPos newWorldPos = structure.getPosition().add(coords);
-            storage.addPositionStorage(coords, world);
+            if (storage != null)
+            {
+                storage.addPositionStorage(coords, world);
+            }
             final BlockInfo info = this.structure.getBlockInfo(coords);
             this.handleBlockPlacement(world, newWorldPos, localState, this.complete, info == null ? null : info.getTileEntityData());
         }
@@ -281,5 +354,15 @@ public class InstantStructurePlacer
     public void setComplete(final boolean complete)
     {
         this.complete = complete;
+    }
+
+    /**
+     * Checks whether this placement is complete.
+     * 
+     * @return whether this placement is complete.
+     */
+    public boolean getComplete()
+    {
+        return complete;
     }
 }
