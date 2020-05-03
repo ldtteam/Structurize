@@ -103,7 +103,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     @Override
     public ActionResultType onItemUse(final ItemUseContext context)
     {
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown())
+        if (context.getPlayer() != null && context.getPlayer().isSneaking())
         {
             final ActionResultType result = onSpecialUse(context);
 
