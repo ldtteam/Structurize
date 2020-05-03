@@ -9,6 +9,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -146,6 +147,7 @@ public class BlueprintRenderer implements AutoCloseable
                 }
             }
             buffer.finishDrawing();
+            OptifineCompat.getInstance().beforeBuilderUpload(buffer);
             newVertexBuffers.get(renderType).upload(buffer);
         }
         vertexBuffers = newVertexBuffers;
@@ -156,6 +158,8 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlockPos pos, final MatrixStack matrixStack, final float partialTicks)
     {
+        OptifineCompat.getInstance().preBlueprintDraw();
+
         Minecraft.getInstance().getProfiler().startSection("struct_render_init");
         if (Settings.instance.shouldRefresh())
         {
@@ -187,29 +191,37 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.getCutout(), rawPosMatrix);
 
+        OptifineCompat.getInstance().endTerrainBeginEntities();
+
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities");
         final IRenderTypeBuffer.Impl renderBufferSource = renderBuffers.getBufferSource();
 
         // Entities
 
         // if clipping etc., see WorldRenderer for what's missing
-        entities.forEach(entity -> Minecraft.getInstance()
-            .getRenderManager()
-            .renderEntityStatic(entity,
-                entity.getPosX(),
-                entity.getPosY(),
-                entity.getPosZ(),
-                MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw),
-                0,
-                matrixStack,
-                renderBufferSource,
-                200));
+        entities.forEach(entity -> {
+            OptifineCompat.getInstance().preRenderEntity(entity);
+
+            Minecraft.getInstance()
+                .getRenderManager()
+                .renderEntityStatic(entity,
+                    entity.getPosX(),
+                    entity.getPosY(),
+                    entity.getPosZ(),
+                    MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw),
+                    0,
+                    matrixStack,
+                    renderBufferSource,
+                    200);
+        });
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities_finish");
         renderBufferSource.finish(RenderType.getEntitySolid(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
         renderBufferSource.finish(RenderType.getEntityCutout(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
         renderBufferSource.finish(RenderType.getEntityCutoutNoCull(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
         renderBufferSource.finish(RenderType.getEntitySmoothCutout(AtlasTexture.LOCATION_BLOCKS_TEXTURE));
+
+        OptifineCompat.getInstance().endEntitiesBeginBlockEntities();
 
         // Block entities
 
@@ -223,6 +235,9 @@ public class BlueprintRenderer implements AutoCloseable
             final BlockPos tePos = tileEntity.getPos();
             matrixStack.push();
             matrixStack.translate(tePos.getX(), tePos.getY(), tePos.getZ());
+
+            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
+
             TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.pop();
         });
@@ -248,8 +263,13 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.getLines());
         renderBufferSource.finish();
 
+        OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
+
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
+
+        OptifineCompat.getInstance().endWater();
+        OptifineCompat.getInstance().postBlueprintDraw();
 
         matrixStack.pop();
         Minecraft.getInstance().getProfiler().endSection();
@@ -278,15 +298,18 @@ public class BlueprintRenderer implements AutoCloseable
         final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
 
         layerRenderType.setupRenderState();
+        OptifineCompat.getInstance().preLayerDraw(layerRenderType);
 
         buffer.bindBuffer();
         DefaultVertexFormats.BLOCK.setupBufferState(0);
+        OptifineCompat.getInstance().setupArrayPointers();
         buffer.draw(rawPosMatrix, layerRenderType.getDrawMode());
 
         VertexBuffer.unbindBuffer();
         RenderSystem.clearCurrentColor();
         DefaultVertexFormats.BLOCK.clearBufferState();
 
+        OptifineCompat.getInstance().postLayerDraw(layerRenderType);
         layerRenderType.clearRenderState();
     }
 }

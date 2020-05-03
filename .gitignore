@@ -26,3 +26,5 @@
 /runServer
 .cache
 /libs
+
+/src/main/generated/java
