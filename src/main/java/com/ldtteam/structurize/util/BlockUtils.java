@@ -207,6 +207,10 @@ public final class BlockUtils
             }
             return Items.MELON_SEEDS;
         }
+        else if (blockState.getBlock() == Blocks.BAMBOO_SAPLING)
+        {
+            return Items.BAMBOO;
+        }
         else
         {
             return GameData.getBlockItemMap().get(blockState.getBlock());
@@ -252,7 +256,7 @@ public final class BlockUtils
             return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
         }
         final Item item = getItem(blockState);
-        if (item != Items.AIR)
+        if (item != Items.AIR && item != null)
         {
             return new ItemStack(item, 1);
         }

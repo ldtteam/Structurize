@@ -1,5 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.block.BlockState;
@@ -9,6 +10,7 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SharedConstants;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.datafix.fixes.ChunkPaletteFormat;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -32,20 +34,7 @@ public class BlueprintUtil
 {
     private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataFixerUtils.Versions.v1_12_2.getDataVersion();
 
-    /**
-     * Generates a Blueprint objects from the world
-     *
-     * @param world The World that is used for the Blueprint
-     * @param pos   The Position of the Blueprint
-     * @param sizeX The Size on the X-Axis
-     * @param sizeY The Size on the Y-Axis
-     * @param sizeZ The Size on the Z-Axis
-     * @return the generated Blueprint
-     */
-    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ)
-    {
-        return createBlueprint(world, pos, saveEntities, sizeX, sizeY, sizeZ, null);
-    }
+    private static final String NBT_OPTIONAL_DATA_TAG = "optional_data";
 
     /**
      * Generates a Blueprint objects from the world
@@ -56,10 +45,9 @@ public class BlueprintUtil
      * @param sizeY      The Size on the Y-Axis
      * @param sizeZ      The Size on the Z-Axis
      * @param name       a Name for the Structure
-     * @param architects an Array of Architects for the structure
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ, String name, String... architects)
+    public static Blueprint createBlueprint(World world, BlockPos pos, final boolean saveEntities, short sizeX, short sizeY, short sizeZ, String name, Optional<BlockPos> anchorPos)
     {
         final List<BlockState> pallete = new ArrayList<>();
         // Allways add AIR to Pallete
@@ -144,14 +132,16 @@ public class BlueprintUtil
         final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods);
         schem.setEntities(entitiesTag.toArray(new CompoundNBT[0]));
 
+        if (anchorPos.isPresent())
+        {
+            BlockPos relativeAnchorPos = new BlockPos(anchorPos.get().subtract(pos));
+
+            schem.setCachePrimaryOffset(relativeAnchorPos);
+        }
+
         if (name != null)
         {
             schem.setName(name);
-        }
-
-        if (architects != null)
-        {
-            schem.setArchitects(architects);
         }
 
         return schem;
@@ -227,6 +217,14 @@ public class BlueprintUtil
         }
 
         tag.put("mcversion", IntNBT.valueOf(SharedConstants.getVersion().getWorldVersion()));
+
+        final CompoundNBT optionalTag = new CompoundNBT();
+        final CompoundNBT structurizeTag = new CompoundNBT();
+
+        BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset());
+
+        optionalTag.put(Constants.MOD_ID, structurizeTag);
+        tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
 
         return tag;
     }
@@ -331,7 +329,7 @@ public class BlueprintUtil
                     continue;
                 }
 
-                tileEntities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion);
+                tileEntities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion) : nbt;
             }
             catch (Exception e)
             {
@@ -353,7 +351,9 @@ public class BlueprintUtil
 
             try
             {
-                entities[i] = DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion);
+                final String id = nbt.getString("id");
+
+                entities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion) : nbt;
             }
             catch (Exception e)
             {
@@ -530,6 +530,17 @@ public class BlueprintUtil
                     architects[i] = architectsTag.getString(i);
                 }
                 schem.setArchitects(architects);
+            }
+
+            if (tag.keySet().contains(NBT_OPTIONAL_DATA_TAG))
+            {
+                final CompoundNBT optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
+                if (optionalTag.keySet().contains(Constants.MOD_ID))
+                {
+                    final CompoundNBT structurizeTag = optionalTag.getCompound(Constants.MOD_ID);
+                    BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
+                    schem.setCachePrimaryOffset(offsetPos);
+                }
             }
 
             return schem;

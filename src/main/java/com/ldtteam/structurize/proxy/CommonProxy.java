@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * CommonProxy of the structurize mod (Server and Client).
@@ -34,7 +35,7 @@ public class CommonProxy implements IProxy
     }
 
     @Override
-    public void openScanToolWindow(final BlockPos pos1, final BlockPos pos2)
+    public void openScanToolWindow(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         /*
          * Intentionally left empty.

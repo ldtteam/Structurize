@@ -76,6 +76,11 @@ public class WindowScan extends AbstractWindowSkeleton
     private BlockPos pos2;
 
     /**
+     * The anchor pos.
+     */
+    private Optional<BlockPos> anchorPos;
+
+    /**
      * Filter for the block and entity lists.
      */
     private String filter = "";
@@ -109,11 +114,12 @@ public class WindowScan extends AbstractWindowSkeleton
      * @param pos1 the first pos.
      * @param pos2 the second pos.
      */
-    public WindowScan(final BlockPos pos1, final BlockPos pos2)
+    public WindowScan(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         super(Constants.MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
         this.pos1 = pos1;
         this.pos2 = pos2;
+        this.anchorPos = anchorPos;
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::discardClicked);
         registerButton(BUTTON_SHOW_RES, this::showResClicked);
@@ -228,6 +234,7 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2y.setText(String.valueOf(pos2.getY()));
         pos2z.setText(String.valueOf(pos2.getZ()));
 
+        Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
 
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
@@ -238,6 +245,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void discardClicked()
     {
+        Settings.instance.setAnchorPos(Optional.empty());
         Settings.instance.setBox(null);
         close();
     }
@@ -257,7 +265,8 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true));
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, this.anchorPos));
+        Settings.instance.setAnchorPos(Optional.empty());
         Settings.instance.setBox(null);
         close();
     }
@@ -301,6 +310,7 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
+        Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
