@@ -3,6 +3,8 @@ package com.ldtteam.structurize.optifine;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +23,15 @@ public class OptifineCompat
     private Method preRenderChunkLayerMethod;
     private Method postRenderChunkLayerMethod;
     private Method endTerrainMethod;
+    private Method beginEntitiesMethod;
+    private Method nextEntityMethod;
+    private Method endEntitiesMethod;
+    private Method beginBlockEntitiesMethod;
+    private Method nextBlockEntityMethod;
+    private Method endBlockEntitiesMethod;
+    private Method preWaterMethod;
+    private Method beginWaterMethod;
+    private Method endWaterMethod;
 
     private boolean currentShadowPassFieldValue = false;
     private Field isShadowPassField;
@@ -88,14 +99,20 @@ public class OptifineCompat
         isShadersEnabledMethod = configClass.getMethod("isShaders");
         isShadersEnabledMethod.setAccessible(true);
 
+        isShadowPassField = shadersClass.getField("isShadowPass");
+        isShadowPassField.setAccessible(true);
+
+        isRenderingWorldField = shadersClass.getField("isRenderingWorld");
+        isRenderingWorldField.setAccessible(true);
+
         calcNormalForLayerMethod = sVertexBuilderClass.getMethod("calcNormalChunkLayer", BufferBuilder.class);
         calcNormalForLayerMethod.setAccessible(true);
 
-        setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
-        setupArrayPointersVboMethod.setAccessible(true);
-
         preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", RenderType.class);
         preRenderChunkLayerMethod.setAccessible(true);
+
+        setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
+        setupArrayPointersVboMethod.setAccessible(true);
 
         postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", RenderType.class);
         postRenderChunkLayerMethod.setAccessible(true);
@@ -103,76 +120,32 @@ public class OptifineCompat
         endTerrainMethod = shaderRenderClass.getMethod("endTerrain");
         endTerrainMethod.setAccessible(true);
 
-        isShadowPassField = shadersClass.getField("isShadowPass");
-        isShadowPassField.setAccessible(true);
+        beginEntitiesMethod = shadersClass.getMethod("beginEntities");
+        beginEntitiesMethod.setAccessible(true);
 
-        isRenderingWorldField = shadersClass.getField("isRenderingWorld");
-        isRenderingWorldField.setAccessible(true);
-    }
+        nextEntityMethod = shadersClass.getMethod("nextEntity", Entity.class);
+        nextEntityMethod.setAccessible(true);
 
-    /**
-     * Call to setup the shader in Optifine.
-     * Checks if the compat is enabled or not.
-     */
-    public void preBlueprintDraw()
-    {
-        tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                currentShadowPassFieldValue = isShadowPassField.getBoolean(null);
-                isShadowPassField.set(null, false);
+        endEntitiesMethod = shadersClass.getMethod("endEntities");
+        endEntitiesMethod.setAccessible(true);
 
-                currentIsRenderingWorldFieldValue = isRenderingWorldField.getBoolean(null);
-                isRenderingWorldField.set(null, true);
-            }
-        });
-    }
+        beginBlockEntitiesMethod = shadersClass.getMethod("beginBlockEntities");
+        beginBlockEntitiesMethod.setAccessible(true);
 
-    /**
-     * Call to disable the shader
-     * Checks if the compat is enabled or not.
-     */
-    public void postBlueprintDraw()
-    {
-        tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                endTerrainMethod.invoke(null);
+        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", TileEntity.class);
+        nextBlockEntityMethod.setAccessible(true);
 
-                isShadowPassField.set(null, currentShadowPassFieldValue);
-                isRenderingWorldField.set(null, currentIsRenderingWorldFieldValue);
-            }
-        });
-    }
+        endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
+        endBlockEntitiesMethod.setAccessible(true);
 
-    /**
-     * Setups layer rendering.
-     *
-     * @param layer block layer rendertype
-     */
-    public void preLayerDraw(final RenderType layer)
-    {
-        tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                preRenderChunkLayerMethod.invoke(null, layer);
-            }
-        });
-    }
+        preWaterMethod = shadersClass.getMethod("preWater");
+        preWaterMethod.setAccessible(true);
 
-    /**
-     * Finishes layer rendering.
-     *
-     * @param layer block layer rendertype
-     */
-    public void postLayerDraw(final RenderType layer)
-    {
-        tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                postRenderChunkLayerMethod.invoke(null, layer);
-            }
-        });
+        beginWaterMethod = shadersClass.getMethod("beginWater");
+        beginWaterMethod.setAccessible(true);
+
+        endWaterMethod = shadersClass.getMethod("endWater");
+        endWaterMethod.setAccessible(true);
     }
 
     /**
@@ -184,10 +157,34 @@ public class OptifineCompat
     public void beforeBuilderUpload(final BufferBuilder bufferBuilder)
     {
         tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                calcNormalForLayerMethod.invoke(null, bufferBuilder);
-            }
+            calcNormalForLayerMethod.invoke(null, bufferBuilder);
+        });
+    }
+
+    /**
+     * Call to setup the shader in Optifine.
+     * Checks if the compat is enabled or not.
+     */
+    public void preBlueprintDraw()
+    {
+        tryRunIfShadersEnabled(() -> {
+            currentShadowPassFieldValue = isShadowPassField.getBoolean(null);
+            isShadowPassField.set(null, false);
+
+            currentIsRenderingWorldFieldValue = isRenderingWorldField.getBoolean(null);
+            isRenderingWorldField.set(null, true);
+        });
+    }
+
+    /**
+     * Setups layer rendering.
+     *
+     * @param layer block layer rendertype
+     */
+    public void preLayerDraw(final RenderType layer)
+    {
+        tryRunIfShadersEnabled(() -> {
+            preRenderChunkLayerMethod.invoke(null, layer);
         });
     }
 
@@ -196,16 +193,115 @@ public class OptifineCompat
      */
     public void setupArrayPointers()
     {
+        tryRunIfShadersEnabled(() -> {
+            setupArrayPointersVboMethod.invoke(null);
+        });
+    }
+
+    /**
+     * Finishes layer rendering.
+     *
+     * @param layer block layer rendertype
+     */
+    public void postLayerDraw(final RenderType layer)
+    {
+        tryRunIfShadersEnabled(() -> {
+            postRenderChunkLayerMethod.invoke(null, layer);
+        });
+    }
+
+    public void endTerrainBeginEntities()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endTerrainMethod.invoke(null);
+            beginEntitiesMethod.invoke(null);
+        });
+    }
+
+    public void preRenderEntity(final Entity entity)
+    {
+        tryRunIfShadersEnabled(() -> {
+            nextEntityMethod.invoke(null, entity);
+        });
+    }
+
+    public void endEntitiesBeginBlockEntities()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endEntitiesMethod.invoke(null);
+            beginBlockEntitiesMethod.invoke(null);
+        });
+    }
+
+    public void preRenderBlockEntity(final TileEntity blockEntity)
+    {
+        tryRunIfShadersEnabled(() -> {
+            nextBlockEntityMethod.invoke(null, blockEntity);
+        });
+    }
+
+    public void endBlockEntitiesPreWaterBeginWater()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endBlockEntitiesMethod.invoke(null);
+            preWaterMethod.invoke(null);
+            beginWaterMethod.invoke(null);
+        });
+    }
+
+    public void endWater()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endWaterMethod.invoke(null);
+        });
+    }
+
+    /**
+     * Call to disable the shader
+     * Checks if the compat is enabled or not.
+     */
+    public void postBlueprintDraw()
+    {
+        tryRunIfShadersEnabled(() -> {
+            isShadowPassField.set(null, currentShadowPassFieldValue);
+            isRenderingWorldField.set(null, currentIsRenderingWorldFieldValue);
+        });
+    }
+
+    /**
+     * Checks if the compat is enabled and if shaders are disabled. Then tries to run supplied code runnable.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code runnable to run
+     */
+    private void tryRunIfShadersDisabled(final ReflectionRunnable code)
+    {
         tryRun(() -> {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
+            if (!(Boolean) isShadersEnabledMethod.invoke(null))
             {
-                setupArrayPointersVboMethod.invoke(null);
+                code.run();
             }
         });
     }
 
     /**
-     * Checks if the compat is enabled or not. Then tries to run supplied code runnable.
+     * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied code runnable.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code runnable to run
+     */
+    private void tryRunIfShadersEnabled(final ReflectionRunnable code)
+    {
+        tryRun(() -> {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
+            {
+                code.run();
+            }
+        });
+    }
+
+    /**
+     * Checks if the compat is enabled. Then tries to run supplied code runnable.
      * Catches any ReflectiveOperationException so we can disable compat layer securely.
      *
      * @param code runnable to run
