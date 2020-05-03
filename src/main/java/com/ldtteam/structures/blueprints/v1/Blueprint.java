@@ -91,7 +91,7 @@ public class Blueprint
     /**
      * Cache for storing rotate/mirror anchor
      */
-    private Tuple<BlockPos, Boolean> cachePrimaryOffset = null;
+    private BlockPos cachePrimaryOffset = null;
 
     /**
      * Constructor of a new Blueprint.
@@ -392,12 +392,12 @@ public class Blueprint
      *
      * @param cachePrimaryOffset the primary offset
      */
-    public void setCachePrimaryOffset(final Tuple<BlockPos, Boolean> cachePrimaryOffset)
+    public void setCachePrimaryOffset(final BlockPos cachePrimaryOffset)
     {
         this.cachePrimaryOffset = cachePrimaryOffset;
     }
 
-    public final Tuple<BlockPos, Boolean> getPrimaryBlockOffset()
+    public final BlockPos getPrimaryBlockOffset()
     {
         if (cachePrimaryOffset == null)
         {
@@ -406,16 +406,16 @@ public class Blueprint
         return cachePrimaryOffset;
     }
 
-    private final Tuple<BlockPos, Boolean> findPrimaryBlockOffset()
+    private final BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list =
             getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {
-            return new Tuple<>(new BlockPos(getSizeX() / 2, 0, getSizeZ() / 2), false);
+            return new BlockPos(getSizeX() / 2, 0, getSizeZ() / 2);
         }
-        return new Tuple<>(list.get(0).getPos(), true);
+        return list.get(0).getPos();
     }
 
     /**
@@ -444,7 +444,7 @@ public class Blueprint
      */
     public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
     {
-        final Tuple<BlockPos, Boolean> primaryOffset = getPrimaryBlockOffset();
+        final BlockPos primaryOffset = getPrimaryBlockOffset();
         final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
         final short newSizeX = (short) resultSize.getX();
         final short newSizeY = (short) resultSize.getY();
@@ -503,9 +503,9 @@ public class Blueprint
             }
         }
 
-        BlockPos newOffsetPos = Template.getTransformedPos(primaryOffset.getA(), mirror, rotation, new BlockPos(0, 0, 0));
+        BlockPos newOffsetPos = Template.getTransformedPos(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
 
-        setCachePrimaryOffset(new Tuple<>(newOffsetPos.add(minX, minY, minZ), primaryOffset.getB()));
+        setCachePrimaryOffset(newOffsetPos.add(minX, minY, minZ));
 
         sizeX = newSizeX;
         sizeY = newSizeY;
@@ -516,7 +516,7 @@ public class Blueprint
         this.tileEntities = newTileEntities;
 
         cacheReset(false);
-        return getPrimaryBlockOffset().getA();
+        return getPrimaryBlockOffset();
     }
 
     /**

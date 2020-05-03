@@ -200,12 +200,14 @@ public final class BlockUtils
         }
         else if (blockState.getBlock() instanceof StemBlock)
         {
-            final ItemStack stack = ((StemBlock) blockState.getBlock()).getItem(null, null, blockState);
-            if (!ItemStackUtils.isEmpty(stack))
+            if (blockState.getBlock() == Blocks.PUMPKIN)
             {
-                return stack.getItem();
+                return Items.PUMPKIN_SEEDS;
             }
-            return Items.MELON_SEEDS;
+            else
+            {
+                return blockState.getBlock()== Blocks.MELON ? Items.MELON_SEEDS : null;
+            }
         }
         else if (blockState.getBlock() == Blocks.BAMBOO_SAPLING)
         {

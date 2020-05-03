@@ -2,9 +2,9 @@ package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,15 +18,26 @@ public class OptifineCompat
     private static OptifineCompat ourInstance = new OptifineCompat();
 
     private Method isShadersEnabledMethod;
+    private Method calcNormalForLayerMethod;
+    private Method setupArrayPointersVboMethod;
     private Method preRenderChunkLayerMethod;
     private Method postRenderChunkLayerMethod;
-    private Method setupArrayPointersVboMethod;
-    private Method calcNormalForLayerMethod;
-    private Method beginUpdateChunksMethod;
-    private Method endUpdateChunksMethod;
+    private Method endTerrainMethod;
+    private Method beginEntitiesMethod;
+    private Method nextEntityMethod;
+    private Method endEntitiesMethod;
+    private Method beginBlockEntitiesMethod;
+    private Method nextBlockEntityMethod;
+    private Method endBlockEntitiesMethod;
+    private Method preWaterMethod;
+    private Method beginWaterMethod;
+    private Method endWaterMethod;
 
     private boolean currentShadowPassFieldValue = false;
     private Field isShadowPassField;
+
+    private boolean currentIsRenderingWorldFieldValue = false;
+    private Field isRenderingWorldField;
 
     public static OptifineCompat getInstance()
     {
@@ -54,17 +65,17 @@ public class OptifineCompat
             Log.getLogger().info("Optifine found. Enabling compat.");
             enableOptifine = true;
         }
-        catch (ClassNotFoundException e)
+        catch (final ClassNotFoundException e)
         {
             Log.getLogger().info("Optifine not found. Disabling compat.");
             enableOptifine = false;
         }
-        catch (NoSuchMethodException e)
+        catch (final NoSuchMethodException e)
         {
             Log.getLogger().error("Optifine found. But could not access related methods.", e);
             enableOptifine = false;
         }
-        catch (NoSuchFieldException e)
+        catch (final NoSuchFieldException e)
         {
             Log.getLogger().error("Optifine found. But could not access related fields", e);
             enableOptifine = false;
@@ -88,148 +99,214 @@ public class OptifineCompat
         isShadersEnabledMethod = configClass.getMethod("isShaders");
         isShadersEnabledMethod.setAccessible(true);
 
-        //todo preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", BlockRenderLayer.class);
-        //preRenderChunkLayerMethod.setAccessible(true);
+        isShadowPassField = shadersClass.getField("isShadowPass");
+        isShadowPassField.setAccessible(true);
 
-        //todo postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", BlockRenderLayer.class);
-        //postRenderChunkLayerMethod.setAccessible(true);
-
-        setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
-        setupArrayPointersVboMethod.setAccessible(true);
+        isRenderingWorldField = shadersClass.getField("isRenderingWorld");
+        isRenderingWorldField.setAccessible(true);
 
         calcNormalForLayerMethod = sVertexBuilderClass.getMethod("calcNormalChunkLayer", BufferBuilder.class);
         calcNormalForLayerMethod.setAccessible(true);
 
-        beginUpdateChunksMethod = shadersClass.getMethod("beginUpdateChunks");
-        beginUpdateChunksMethod.setAccessible(true);
+        preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", RenderType.class);
+        preRenderChunkLayerMethod.setAccessible(true);
 
-        endUpdateChunksMethod = shadersClass.getMethod("endUpdateChunks");
-        endUpdateChunksMethod.setAccessible(true);
+        setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
+        setupArrayPointersVboMethod.setAccessible(true);
 
-        isShadowPassField = shadersClass.getField("isShadowPass");
-        isShadowPassField.setAccessible(true);
-    }
+        postRenderChunkLayerMethod = shaderRenderClass.getMethod("postRenderChunkLayer", RenderType.class);
+        postRenderChunkLayerMethod.setAccessible(true);
 
-    /**
-     * Call to setup the shader in Optifine.
-     * Checks if the compat is enabled or not.
-     */
-    @OnlyIn(Dist.CLIENT)
-    public void preBlueprintDraw()
-    {
-        if (!enableOptifine)
-        {
-            return;
-        }
+        endTerrainMethod = shaderRenderClass.getMethod("endTerrain");
+        endTerrainMethod.setAccessible(true);
 
-        try
-        {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                currentShadowPassFieldValue = (boolean) isShadowPassField.get(null);
-                isShadowPassField.set(null, false);
+        beginEntitiesMethod = shadersClass.getMethod("beginEntities");
+        beginEntitiesMethod.setAccessible(true);
 
-                beginUpdateChunksMethod.invoke(null);
-                //todo
-                //preRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
-            }
-        }
-        catch (IllegalAccessException e)
-        {
-            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-        catch (InvocationTargetException e)
-        {
-            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-    }
+        nextEntityMethod = shadersClass.getMethod("nextEntity", Entity.class);
+        nextEntityMethod.setAccessible(true);
 
-    /**
-     * Call to disable the shader
-     * Checks if the compat is enabled or not.
-     */
-    @OnlyIn(Dist.CLIENT)
-    public void postBlueprintDraw()
-    {
-        if (!enableOptifine)
-        {
-            return;
-        }
+        endEntitiesMethod = shadersClass.getMethod("endEntities");
+        endEntitiesMethod.setAccessible(true);
 
-        try
-        {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                //todo postRenderChunkLayerMethod.invoke(null, BlockRenderLayer.TRANSLUCENT);
-                endUpdateChunksMethod.invoke(null);
+        beginBlockEntitiesMethod = shadersClass.getMethod("beginBlockEntities");
+        beginBlockEntitiesMethod.setAccessible(true);
 
-                isShadowPassField.set(null, currentShadowPassFieldValue);
-            }
-        }
-        catch (IllegalAccessException e)
-        {
-            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-        catch (InvocationTargetException e)
-        {
-            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-    }
+        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", TileEntity.class);
+        nextBlockEntityMethod.setAccessible(true);
 
-    /**
-     * Called to setup the pointers in the arrays.
-     *
-     * @return True when optifine is enabled and setup completed, false when not.
-     */
-    @OnlyIn(Dist.CLIENT)
-    public boolean setupArrayPointers()
-    {
-        if (!enableOptifine)
-        {
-            return false;
-        }
+        endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
+        endBlockEntitiesMethod.setAccessible(true);
 
-        try
-        {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                setupArrayPointersVboMethod.invoke(null);
-                return true;
-            }
-        }
-        catch (IllegalAccessException e)
-        {
-            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-        catch (InvocationTargetException e)
-        {
-            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
+        preWaterMethod = shadersClass.getMethod("preWater");
+        preWaterMethod.setAccessible(true);
 
-        return false;
+        beginWaterMethod = shadersClass.getMethod("beginWater");
+        beginWaterMethod.setAccessible(true);
+
+        endWaterMethod = shadersClass.getMethod("endWater");
+        endWaterMethod.setAccessible(true);
     }
 
     /**
      * Called to handle the buffer information for optifine.
      * Calculates the normals of the faces.
      *
-     * @param tessellator The tessellator that is about to be uploaded to the GPU.
+     * @param bufferBuilder The bufferBuilder that is about to be uploaded to the GPU.
      */
-    /*
-    @OnlyIn(Dist.CLIENT)
-    public void beforeBuilderUpload(BlueprintTessellator tessellator)
+    public void beforeBuilderUpload(final BufferBuilder bufferBuilder)
+    {
+        tryRun(() -> {
+            calcNormalForLayerMethod.invoke(null, bufferBuilder);
+        });
+    }
+
+    /**
+     * Call to setup the shader in Optifine.
+     * Checks if the compat is enabled or not.
+     */
+    public void preBlueprintDraw()
+    {
+        tryRunIfShadersEnabled(() -> {
+            currentShadowPassFieldValue = isShadowPassField.getBoolean(null);
+            isShadowPassField.set(null, false);
+
+            currentIsRenderingWorldFieldValue = isRenderingWorldField.getBoolean(null);
+            isRenderingWorldField.set(null, true);
+        });
+    }
+
+    /**
+     * Setups layer rendering.
+     *
+     * @param layer block layer rendertype
+     */
+    public void preLayerDraw(final RenderType layer)
+    {
+        tryRunIfShadersEnabled(() -> {
+            preRenderChunkLayerMethod.invoke(null, layer);
+        });
+    }
+
+    /**
+     * Called to setup the pointers in the arrays.
+     */
+    public void setupArrayPointers()
+    {
+        tryRunIfShadersEnabled(() -> {
+            setupArrayPointersVboMethod.invoke(null);
+        });
+    }
+
+    /**
+     * Finishes layer rendering.
+     *
+     * @param layer block layer rendertype
+     */
+    public void postLayerDraw(final RenderType layer)
+    {
+        tryRunIfShadersEnabled(() -> {
+            postRenderChunkLayerMethod.invoke(null, layer);
+        });
+    }
+
+    public void endTerrainBeginEntities()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endTerrainMethod.invoke(null);
+            beginEntitiesMethod.invoke(null);
+        });
+    }
+
+    public void preRenderEntity(final Entity entity)
+    {
+        tryRunIfShadersEnabled(() -> {
+            nextEntityMethod.invoke(null, entity);
+        });
+    }
+
+    public void endEntitiesBeginBlockEntities()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endEntitiesMethod.invoke(null);
+            beginBlockEntitiesMethod.invoke(null);
+        });
+    }
+
+    public void preRenderBlockEntity(final TileEntity blockEntity)
+    {
+        tryRunIfShadersEnabled(() -> {
+            nextBlockEntityMethod.invoke(null, blockEntity);
+        });
+    }
+
+    public void endBlockEntitiesPreWaterBeginWater()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endBlockEntitiesMethod.invoke(null);
+            preWaterMethod.invoke(null);
+            beginWaterMethod.invoke(null);
+        });
+    }
+
+    public void endWater()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endWaterMethod.invoke(null);
+        });
+    }
+
+    /**
+     * Call to disable the shader
+     * Checks if the compat is enabled or not.
+     */
+    public void postBlueprintDraw()
+    {
+        tryRunIfShadersEnabled(() -> {
+            isShadowPassField.set(null, currentShadowPassFieldValue);
+            isRenderingWorldField.set(null, currentIsRenderingWorldFieldValue);
+        });
+    }
+
+    /**
+     * Checks if the compat is enabled and if shaders are disabled. Then tries to run supplied code runnable.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code runnable to run
+     */
+    private void tryRunIfShadersDisabled(final ReflectionRunnable code)
+    {
+        tryRun(() -> {
+            if (!(Boolean) isShadersEnabledMethod.invoke(null))
+            {
+                code.run();
+            }
+        });
+    }
+
+    /**
+     * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied code runnable.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code runnable to run
+     */
+    private void tryRunIfShadersEnabled(final ReflectionRunnable code)
+    {
+        tryRun(() -> {
+            if ((Boolean) isShadersEnabledMethod.invoke(null))
+            {
+                code.run();
+            }
+        });
+    }
+
+    /**
+     * Checks if the compat is enabled. Then tries to run supplied code runnable.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code runnable to run
+     */
+    private void tryRun(final ReflectionRunnable code)
     {
         if (!enableOptifine)
         {
@@ -238,24 +315,23 @@ public class OptifineCompat
 
         try
         {
-            if ((Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                Log.getLogger().info("Recalculating normals in Optifine mode.");
-                calcNormalForLayerMethod.invoke(null, tessellator.getBuilder());
-            }
+            code.run();
         }
-        catch (IllegalAccessException e)
+        catch (final ReflectiveOperationException e)
         {
-            Log.getLogger().error("Failed to access Optifine related rendering methods.", e);
-            Log.getLogger().error("Disabling Optifine Compat.");
-            enableOptifine = false;
-        }
-        catch (InvocationTargetException e)
-        {
-            Log.getLogger().error("Failed to invoke Optifine related rendering methods.", e);
+            Log.getLogger().error("Failed to access Optifine related rendering things.", e);
             Log.getLogger().error("Disabling Optifine Compat.");
             enableOptifine = false;
         }
     }
-    */
+
+    @FunctionalInterface
+    private interface ReflectionRunnable
+    {
+        /**
+         * @throws ReflectiveOperationException if any reflection operation failed for any reason
+         * @see Runnable#run()
+         */
+        void run() throws ReflectiveOperationException;
+    }
 }

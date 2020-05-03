@@ -13,8 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -35,68 +33,18 @@ public class ClientEventSubscriber
     {
         Minecraft.getInstance().getProfiler().startSection("struct_render");
         final Structure structure = Settings.instance.getActiveStructure();
-        final ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (structure != null)
         {
             BlockPos offset = new BlockPos(0, 0, 0);
-            final Tuple<BlockPos, Boolean> primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
-
-            if (!primaryOffset.getB())
-            {
-                switch (Settings.instance.getRotation())
-                {
-                    case 1:
-                        if (Settings.instance.getMirror() == Mirror.FRONT_BACK && structure.getBluePrint().getSizeZ() % 2 == 0)
-                        {
-                            offset = offset.north();
-                        }
-                        if (structure.getBluePrint().getSizeX() % 2 == 0)
-                        {
-                            offset = offset.west();
-                        }
-                        break;
-
-                    case 2:
-                        if (Settings.instance.getMirror() != Mirror.FRONT_BACK && structure.getBluePrint().getSizeX() % 2 == 0)
-                        {
-                            offset = offset.west();
-                        }
-                        if (structure.getBluePrint().getSizeZ() % 2 == 0)
-                        {
-                            offset = offset.north();
-                        }
-                        break;
-
-                    case 3:
-                        if (structure.getBluePrint().getSizeZ() % 2 == 0)
-                        {
-                            if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
-                            {
-                                offset = offset.south();
-                            }
-                            offset = offset.north();
-                        }
-                        break;
-
-                    default:
-                        if (structure.getBluePrint().getSizeX() % 2 == 0)
-                        {
-                            if (Settings.instance.getMirror() == Mirror.FRONT_BACK)
-                            {
-                                offset = offset.west();
-                            }
-                        }
-                        break;
-                }
-            }
+            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
 
             StructureClientHandler.renderStructure(structure,
                 event.getPartialTicks(),
                 Settings.instance.getPosition().subtract(offset),
                 event.getMatrixStack());
 
-            final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset.getA());
+            final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
             final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(),
                 structure.getBluePrint().getSizeY(),
                 structure.getBluePrint().getSizeZ());
@@ -104,7 +52,7 @@ public class ClientEventSubscriber
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
 
             // Used to render a red box around a structures Primary offset (primary block)
-            renderAnchorPos(primaryOffset.getA().add(pos), event);
+            renderAnchorPos(primaryOffset.add(pos), event);
 
             renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), event);
         }

@@ -136,7 +136,7 @@ public class BlueprintUtil
         {
             BlockPos relativeAnchorPos = new BlockPos(anchorPos.get().subtract(pos));
 
-            schem.setCachePrimaryOffset(new Tuple<>(relativeAnchorPos, true));
+            schem.setCachePrimaryOffset(relativeAnchorPos);
         }
 
         if (name != null)
@@ -221,8 +221,7 @@ public class BlueprintUtil
         final CompoundNBT optionalTag = new CompoundNBT();
         final CompoundNBT structurizeTag = new CompoundNBT();
 
-        BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset().getA());
-        structurizeTag.putBoolean("primary_offset_is_anchor", schem.getPrimaryBlockOffset().getB());
+        BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset());
 
         optionalTag.put(Constants.MOD_ID, structurizeTag);
         tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
@@ -540,8 +539,7 @@ public class BlueprintUtil
                 {
                     final CompoundNBT structurizeTag = optionalTag.getCompound(Constants.MOD_ID);
                     BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
-                    Boolean offsetIsAnchor = structurizeTag.getBoolean("primary_offset_is_anchor");
-                    schem.setCachePrimaryOffset(new Tuple<>(offsetPos, offsetIsAnchor));
+                    schem.setCachePrimaryOffset(offsetPos);
                 }
             }
 

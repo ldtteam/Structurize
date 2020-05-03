@@ -27,4 +27,4 @@
 .cache
 /libs
 
-src/main/generated/java
+/src/main/generated/java

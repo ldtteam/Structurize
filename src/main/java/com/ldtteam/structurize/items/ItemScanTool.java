@@ -20,7 +20,6 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -66,14 +65,14 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         Optional<BlockPos> anchorPos = itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
         if (!worldIn.isRemote)
         {
-            if (playerIn.isShiftKeyDown())
+            if (playerIn.isSneaking())
             {
                 saveStructure(worldIn, start, end, playerIn, null, true, anchorPos);
             }
         }
         else
         {
-            if (!playerIn.isShiftKeyDown())
+            if (!playerIn.isSneaking())
             {
                 final WindowScan window = new WindowScan(start, end, anchorPos);
                 window.open();
@@ -97,7 +96,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param player causing this action.
      * @param name   the name of it.
      */
-    public static void saveStructure(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final PlayerEntity player, final String name)
+    public static void saveStructure(@NotNull final World world,
+        @NotNull final BlockPos from,
+        @NotNull final BlockPos to,
+        @NotNull final PlayerEntity player,
+        final String name)
     {
         saveStructure(world, from, to, player, name, true, Optional.empty());
     }
@@ -181,7 +184,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param name  the name.
      * @return true if succesful.
      */
-    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name)
+    public static boolean saveStructureOnServer(@NotNull final World world,
+        @NotNull final BlockPos from,
+        @NotNull final BlockPos to,
+        final String name)
     {
         return saveStructureOnServer(world, from, to, name, true);
     }
@@ -196,12 +202,18 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param saveEntities whether to scan in entities
      * @return true if succesful.
      */
-    public static boolean saveStructureOnServer(@NotNull final World world, @NotNull final BlockPos from, @NotNull final BlockPos to, final String name, final boolean saveEntities)
+    public static boolean saveStructureOnServer(@NotNull final World world,
+        @NotNull final BlockPos from,
+        @NotNull final BlockPos to,
+        final String name,
+        final boolean saveEntities)
     {
-        final BlockPos blockpos =
-          new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
-        final BlockPos blockpos1 =
-          new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
+        final BlockPos blockpos = new BlockPos(Math.min(from.getX(), to.getX()),
+            Math.min(from.getY(), to.getY()),
+            Math.min(from.getZ(), to.getZ()));
+        final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
+            Math.max(from.getY(), to.getY()),
+            Math.max(from.getZ(), to.getZ()));
         final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > MAX_SCHEMATIC_SIZE)
         {
