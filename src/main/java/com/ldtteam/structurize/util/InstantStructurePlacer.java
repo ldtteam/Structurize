@@ -153,7 +153,7 @@ public class InstantStructurePlacer
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
         final BlockPos endPos = new BlockPos(this.structure.getWidth(), this.structure.getHeight(), this.structure.getLength());
-        BlockPos currentPos = new BlockPos(inputPos.getX(), inputPos.getY() > 0 ? endPos.getY() - inputPos.getY() : endPos.getY() - 1, inputPos.getZ());
+        BlockPos currentPos = new BlockPos(inputPos.getX(), inputPos.equals(BlockPos.ZERO) ? endPos.getY() - 1 : inputPos.getY(), inputPos.getZ());
         int count = 0;
 
         for (int y = currentPos.getY(); y >= 0; y--)
@@ -163,7 +163,7 @@ public class InstantStructurePlacer
                 for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final BlockState localState = this.structure.getBlockState(localPos);
+                    final BlockState localState = structure.getBlockState(localPos);
                     if (localState == null)
                     {
                         continue;
