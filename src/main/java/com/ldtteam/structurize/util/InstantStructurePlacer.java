@@ -140,6 +140,7 @@ public class InstantStructurePlacer
     }
 
     /**
+     * Place a structure into the world.
      * 
      * @param world             the placing player.
      * @param storage           storage the change storage.
