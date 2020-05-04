@@ -11,6 +11,8 @@ import com.ldtteam.structurize.placementhandlers.PlacementHandlers;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -154,10 +156,38 @@ public class InstantStructurePlacer
         structure.setLocalPosition(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
         final BlockPos endPos = new BlockPos(this.structure.getWidth(), this.structure.getHeight(), this.structure.getLength());
-        BlockPos currentPos = new BlockPos(inputPos.getX(), inputPos.equals(BlockPos.ZERO) ? endPos.getY() - 1 : inputPos.getY(), inputPos.getZ());
-        int count = 0;
+        BlockPos currentPos = new BlockPos(0, inputPos.getY(), 0);
+        for (int y = currentPos.getY(); y < endPos.getY(); y++)
+        {
+            for (int x = currentPos.getX(); x < endPos.getX(); x++)
+            {
+                for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
+                {
+                    @NotNull final BlockPos localPos = new BlockPos(x, y, z);
+                    final BlockState localState = structure.getBlockState(localPos);
+                    if (localState == null)
+                    {
+                        continue;
+                    }
 
-        for (int y = currentPos.getY(); y >= 0; y--)
+                    final BlockPos worldPos = structure.getPosition().add(localPos);
+                    final BlockState worldState = world.getBlockState(worldPos);
+                    // checking whether the fluid is the same overall likely cause a bigger performance impact than just removing it
+                    // and replacing it in the rare cases where it would have matched.
+                    if (worldState.getBlock() instanceof IBucketPickupHandler || worldState.getBlock() instanceof FlowingFluidBlock
+                      && localState.getBlock() != ModBlocks.blockSubstitution)
+                    {
+                        BlockUtils.removeFluid(world, worldPos);
+                    }
+                }
+                currentPos = new BlockPos(x, y, 0);
+            }
+            currentPos = new BlockPos(0, y, 0);
+        }
+
+        currentPos = new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ());
+        int count = 0;
+        for (int y = currentPos.getY(); y < endPos.getY(); y++)
         {
             for (int x = currentPos.getX(); x < endPos.getX(); x++)
             {
@@ -189,7 +219,6 @@ public class InstantStructurePlacer
                     }
                     else
                     {
-                        BlockUtils.removeFluid(world, worldPos);
                         delayedBlocks.add(localPos);
                     }
 
