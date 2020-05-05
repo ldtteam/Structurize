@@ -118,39 +118,4 @@ public class StructurePlacementUtils
             Log.getLogger().warn("Could not load structure!", e);
         }
     }
-
-    /**
-     * Load a structure into this world
-     * and place it in the right position and rotation.
-     *
-     * @param worldObj  the world to load it in
-     * @param name      the structures name
-     * @param pos       coordinates
-     * @param rotation  the rotation.
-     * @param mirror    the mirror used.
-     * @param complete  paste it complete (with structure blocks) or without
-     * @param player    the placing player.
-     */
-    public static void loadAndPlaceStructureWithRotation(
-      final World worldObj,
-      @NotNull final String name,
-      @NotNull final BlockPos pos,
-      final Rotation rotation,
-      @NotNull final Mirror mirror,
-      final boolean complete,
-      final ServerPlayerEntity player)
-    {
-        try
-        {
-            @NotNull final Structure structure = new Structure(worldObj, name, new PlacementSettings(mirror, rotation));
-            structure.setPosition(pos);
-            structure.rotate(rotation, worldObj, pos, mirror);
-            @NotNull final InstantStructurePlacer structureWrapper = new InstantStructurePlacer(structure);
-            structureWrapper.setupStructurePlacement(pos.subtract(structure.getOffset()), complete, player);
-        }
-        catch (final IllegalStateException e)
-        {
-            Log.getLogger().warn("Could not load structure!", e);
-        }
-    }
 }

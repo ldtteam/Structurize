@@ -4,13 +4,13 @@ import com.ldtteam.structurize.Structurize;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -201,6 +201,23 @@ public class ScanToolOperation
                         count++;
 
                         storage.addPositionStorage(here, world);
+                        if (blockState.getBlock() instanceof IBucketPickupHandler || blockState.getBlock() instanceof FlowingFluidBlock)
+                        {
+                            BlockUtils.removeFluid(world, here);
+                            if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
+                            {
+                                if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+                                {
+                                    currentPos = new BlockPos(x, y, z);
+                                    return false;
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+
                         if (operation == OperationType.REPLACE_BLOCK)
                         {
                             BlockUtils.handleCorrectBlockPlacement(world, fakePlayer, secondBlock, blockState, here);
@@ -227,16 +244,17 @@ public class ScanToolOperation
     /**
      * Is this the correct block to remove it or replace it.
      *
-     * @param worldStack   the world stack to check.
-     * @param worldState   the world state to check.
-     * @param compareStack the comparison stack.
+     * @param replacementStack   the world stack to check.
+     * @param worldState         the world state to check.
+     * @param compareStack       the comparison stack.
      * @return true if so.
      */
-    private static boolean correctBlockToRemoveOrReplace(final ItemStack worldStack, final BlockState worldState, final ItemStack compareStack)
+    private static boolean correctBlockToRemoveOrReplace(final ItemStack replacementStack, final BlockState worldState, final ItemStack compareStack)
     {
-        return (worldStack != null && worldStack.isItemEqual(compareStack)
-                  || (compareStack.getItem() == Items.LAVA_BUCKET && worldState.getBlock() == Blocks.LAVA)
-                  || (compareStack.getItem() == Items.WATER_BUCKET && worldState.getBlock() == Blocks.WATER)
+        return (replacementStack != null && replacementStack.isItemEqual(compareStack)
+                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getFluid())
+                  || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof FlowingFluidBlock
+                  && ((BucketItem)compareStack.getItem()).getFluid() == ((FlowingFluidBlock)worldState.getBlock()).getFluid())
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
     }
 
