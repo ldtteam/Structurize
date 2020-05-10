@@ -226,6 +226,8 @@
   "block.structurize.red_clay_cactus_shingle": "Red Clay Cactus Shingle",
   "block.structurize.side_framed_dark_oak_oak_timber_frame": "Side Framed Dark Oak Oak Timber Frame",
   "com.ldtteam.structurize.gui.scantool.select": "Select",
+  "com.ldtteam.structurize.gui.placeholder.addtag": "Add Tag",
+  "com.ldtteam.structurize.gui.placeholder.inputtag": "Put a tag name to add below",
   "block.structurize.double_crossed_dark_oak_dark_oak_timber_frame": "Double Crossed Dark Oak Dark Oak Timber Frame",
   "block.structurize.side_framed_horizontal_oak_cactus_timber_frame": "Side Framed Horizontal Oak Cactus Timber Frame",
   "block.structurize.down_gated_oak_acacia_timber_frame": "Down Gate Framed Oak Acacia Timber Frame",

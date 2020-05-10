@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
-import net.minecraft.block.FurnaceBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -9,6 +8,9 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Message to remove a block from the world.
@@ -26,6 +28,11 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     private ItemStack block;
 
     /**
+     * The list of tags
+     */
+    private List<String> tagStringList = new ArrayList<>();
+
+    /**
      * Empty constructor used when registering the message.
      */
     public UpdatePlaceholderBlockMessage()
@@ -38,11 +45,12 @@ public class UpdatePlaceholderBlockMessage implements IMessage
      * @param pos coordinate.
      * @param stack the block to remove.
      */
-    public UpdatePlaceholderBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack)
+    public UpdatePlaceholderBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack, final List<String> tagStringList)
     {
         super();
         this.pos = pos;
         this.block = stack;
+        this.tagStringList = tagStringList;
     }
 
     @Override
@@ -50,6 +58,11 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     {
         pos = buf.readBlockPos();
         block = buf.readItemStack();
+        int size = buf.readInt();
+        for (int i = 0; i < size; i++)
+        {
+            tagStringList.add(buf.readString());
+        }
     }
 
     @Override
@@ -57,6 +70,11 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     {
         buf.writeBlockPos(pos);
         buf.writeItemStack(block);
+        buf.writeInt(tagStringList.size());
+        for (final String tag : tagStringList)
+        {
+            buf.writeString(tag);
+        }
     }
 
     @Nullable
@@ -78,6 +96,7 @@ public class UpdatePlaceholderBlockMessage implements IMessage
         if (te != null)
         {
             te.setStack(block);
+            te.setTagList(tagStringList);
         }
     }
 }
