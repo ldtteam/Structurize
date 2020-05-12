@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.client.gui.WindowPlaceholderblock;
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -45,7 +44,7 @@ public class PlaceholderBlock extends AbstractBlockStructurizeDirectional<Placeh
     {
         if (worldIn.isRemote)
         {
-            new WindowPlaceholderblock(pos).open();
+            // new WindowPlaceholderblock(pos).open();
         }
         return ActionResultType.SUCCESS;
     }

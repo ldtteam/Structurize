@@ -4,8 +4,10 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
+import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -130,6 +131,8 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             if (te instanceof IBlueprintDataProvider)
             {
                 BlockPosUtil.writeToNBT(context.getItem().getOrCreateTag(), TAG_ACHNOR_POS, context.getPos());
+                ClientEventSubscriber.tagAnchor = context.getPos();
+                ClientEventSubscriber.tagPosList = null;
                 LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
                 return ActionResultType.SUCCESS;
             }
@@ -140,60 +143,79 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             }
         }
 
-        BlockPos anchorPos = getAnchorPos(context.getItem());
-        String currentTag = getCurrentTag(context.getItem());
+        return ActionResultType.SUCCESS;
+    }
+
+    @Override
+    public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
+    {
+        if (!worldIn.isRemote())
+        {
+            return false;
+        }
+
+        final ItemStack stack = player.getHeldItemMainhand();
+        if (stack.getItem() != ModItems.tagTool || player == null || worldIn == null)
+        {
+            return false;
+        }
+
+        BlockPos anchorPos = getAnchorPos(stack);
+        String currentTag = getCurrentTag(stack);
 
         if (anchorPos == null)
         {
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.noanchor");
-            return ActionResultType.FAIL;
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.noanchor");
+            return false;
         }
 
         if (currentTag.isEmpty())
         {
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.notag");
-            return ActionResultType.FAIL;
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.notag");
+            return false;
         }
 
         // Apply tag to item
-        BlockPos pos = context.getPos();
+        BlockPos relativePos = pos.subtract(anchorPos);
 
-        final TileEntity te = context.getWorld().getTileEntity(anchorPos);
+        final TileEntity te = worldIn.getTileEntity(anchorPos);
         if (!(te instanceof IBlueprintDataProvider))
         {
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
-            context.getItem().getOrCreateTag().remove(TAG_ACHNOR_POS);
-            return ActionResultType.FAIL;
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
+            stack.getOrCreateTag().remove(TAG_ACHNOR_POS);
+            return false;
         }
 
         // add/remove tags
         Map<BlockPos, List<String>> tagPosMap = ((IBlueprintDataProvider) te).getPositionedTags();
 
-        if (!tagPosMap.containsKey(pos))
+        if (!tagPosMap.containsKey(relativePos))
         {
-            ((IBlueprintDataProvider) te).addTag(pos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, pos, anchorPos));
+            ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
+            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              context.getWorld().getBlockState(pos).getBlock().getTranslationKey()));
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
+              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
         }
-        else if (!tagPosMap.get(pos).contains(currentTag))
+        else if (!tagPosMap.get(relativePos).contains(currentTag))
         {
-            ((IBlueprintDataProvider) te).addTag(pos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, pos, anchorPos));
+            ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
+            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              context.getWorld().getBlockState(pos).getBlock().getTranslationKey()));
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
+              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
         }
         else
         {
-            ((IBlueprintDataProvider) te).removeTag(pos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, pos, anchorPos));
+            ((IBlueprintDataProvider) te).removeTag(relativePos, currentTag);
+            Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
-              context.getWorld().getBlockState(pos).getBlock().getTranslationKey()));
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
+              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
         }
 
-        return ActionResultType.SUCCESS;
+        ClientEventSubscriber.tagPosList = null;
+
+        return false;
     }
 }

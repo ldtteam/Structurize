@@ -6,6 +6,7 @@ import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -122,6 +123,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
                 dataTE.removeTag(toRemove, tag);
                 Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, tag, toRemove, anchorPos));
+                ClientEventSubscriber.tagPosList = null;
             }
             updateResourceList();
         }
@@ -190,7 +192,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                     final BlockPos pos = positionsList.get(index);
                     final List<String> tags = dataTE.getPositionedTags().get(pos);
 
-                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(pos));
+                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)));
                     rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
 
                     final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);

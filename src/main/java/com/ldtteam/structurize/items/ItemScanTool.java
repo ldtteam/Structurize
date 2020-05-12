@@ -2,6 +2,7 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
@@ -281,6 +282,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
+
+        TileEntity te = context.getWorld().getTileEntity(context.getPos());
+        if (te instanceof IBlueprintDataProvider)
+        {
+            Settings.instance.setStructureName(((IBlueprintDataProvider) te).getSchematicName());
+            Settings.instance.setBox(((IBlueprintDataProvider) te).getCornerPositions());
+            context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
+            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
+        }
+
         context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
     }

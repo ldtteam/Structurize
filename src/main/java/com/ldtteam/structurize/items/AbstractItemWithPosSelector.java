@@ -16,17 +16,16 @@ import net.minecraft.world.World;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
-import com.ldtteam.structurize.api.util.Log;
 
 /**
  * Abstract item mechanic for pos selecting
  */
 public abstract class AbstractItemWithPosSelector extends Item
 {
-    private static final String NBT_START_POS = FIRST_POS_STRING;
-    private static final String NBT_END_POS = SECOND_POS_STRING;
+    public static final  String NBT_START_POS  = FIRST_POS_STRING;
+    public static final  String NBT_END_POS    = SECOND_POS_STRING;
     private static final String START_POS_TKEY = "item.possetter.firstpos";
-    private static final String END_POS_TKEY = "item.possetter.secondpos";
+    private static final String END_POS_TKEY   = "item.possetter.secondpos";
 
     /**
      * MC redirect.

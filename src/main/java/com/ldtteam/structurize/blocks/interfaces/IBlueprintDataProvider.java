@@ -4,6 +4,7 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -22,6 +23,7 @@ public interface IBlueprintDataProvider
     public final static String TAG_TAG_NAME       = "tagName";
     public final static String TAG_TAG_NAME_LIST  = "tagNameList";
     public final static String TAG_POS_TAG_MAP    = "posTagMap";
+    public final static String TAG_BLUEPRINTDATA  = "blueprintDataProvider";
 
     /**
      * Gets the schematic name, required to be saved
@@ -38,9 +40,9 @@ public interface IBlueprintDataProvider
     public void setSchematicName(final String name);
 
     /**
-     * Gets the map of blockpos and its applied tags.
+     * Gets the map of blockpos and its applied tags. Positions are relative to the anchorpos, use pos + anchor bos to obtain real world coords.
      *
-     * @return
+     * @return tagPosMap
      */
     public Map<BlockPos, List<String>> getPositionedTags();
 
@@ -67,15 +69,27 @@ public interface IBlueprintDataProvider
     /**
      * Default write to nbt
      */
-    default CompoundNBT writeSchematicDataToNBT()
+    default void writeSchematicDataToNBT(final CompoundNBT originalCompound)
     {
         CompoundNBT compoundNBT = new CompoundNBT();
         compoundNBT.putString(TAG_SCHEMATIC_NAME, getSchematicName());
         BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_ONE, getCornerPositions().getA());
         BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_TWO, getCornerPositions().getB());
 
+        writeMapToCompound(compoundNBT, getPositionedTags());
+        originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
+    }
+
+    /**
+     * Writes the given tag pos map to nbt
+     *
+     * @param compoundNBT compound to write to
+     * @param tagPosMap   map to write
+     */
+    static void writeMapToCompound(final CompoundNBT compoundNBT, Map<BlockPos, List<String>> tagPosMap)
+    {
         ListNBT tagPosList = new ListNBT();
-        for (Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
+        for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
         {
             CompoundNBT posTagCompound = new CompoundNBT();
             BlockPosUtil.writeToNBT(posTagCompound, TAG_TAG_POS, entry.getKey());
@@ -93,16 +107,20 @@ public interface IBlueprintDataProvider
         }
 
         compoundNBT.put(TAG_POS_TAG_MAP, tagPosList);
-        return compoundNBT;
     }
 
     /**
      * Default read schematic data from nbt
-     *
-     * @param compoundNBT compound to read from
      */
-    default void readSchematicDataFromNBT(final CompoundNBT compoundNBT)
+    default void readSchematicDataFromNBT(final CompoundNBT originalCompound)
     {
+        if (!originalCompound.contains(TAG_BLUEPRINTDATA))
+        {
+            return;
+        }
+
+        CompoundNBT compoundNBT = originalCompound.getCompound(TAG_BLUEPRINTDATA);
+
         // Read schematic name
         setSchematicName(compoundNBT.getString(TAG_SCHEMATIC_NAME));
 
@@ -112,7 +130,23 @@ public interface IBlueprintDataProvider
         setCorners(corner1, corner2);
 
         // Read tagPosMap
+        setPositionedTags(readTagPosMapFrom(compoundNBT));
+    }
+
+    /**
+     * Reads the tagPosmap from nbt
+     *
+     * @param compoundNBT compound to read from
+     * @return map of positions and tags
+     */
+    static Map<BlockPos, List<String>> readTagPosMapFrom(final CompoundNBT compoundNBT)
+    {
         final Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+        if (!compoundNBT.contains(TAG_POS_TAG_MAP))
+        {
+            return tagPosMap;
+        }
+
         final ListNBT tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Constants.NBT.TAG_COMPOUND);
 
         for (final INBT tagPosMapEntry : tagPosMapNBT)
@@ -142,7 +176,7 @@ public interface IBlueprintDataProvider
             tagPosMap.put(tagPos, new ArrayList<>(tagList));
         }
 
-        setPositionedTags(tagPosMap);
+        return tagPosMap;
     }
 
     /**
@@ -184,4 +218,46 @@ public interface IBlueprintDataProvider
         }
         setPositionedTags(data);
     }
+
+    /**
+     * Gets the tag pos map with real world coords
+     *
+     * @return the tag pos map with current world coords
+     */
+    default public Map<BlockPos, List<String>> getWorldTagPosMap()
+    {
+        Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+
+        for (Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
+        {
+            tagPosMap.put(entry.getKey().add(getPos()), entry.getValue());
+        }
+
+        return tagPosMap;
+    }
+
+    /**
+     * Converts a relative pos to its real world pos
+     *
+     * @param relativePos
+     * @return
+     */
+    default public BlockPos getRealWorldPos(final BlockPos relativePos)
+    {
+        return relativePos.add(getPos());
+    }
+
+    /**
+     * Gets the TE's world position
+     *
+     * @return position
+     */
+    public BlockPos getPos();
+
+    /**
+     * Gets the update packet, needed for initial placement through schematic paste
+     *
+     * @return client update packet
+     */
+    public SUpdateTileEntityPacket getUpdatePacket();
 }

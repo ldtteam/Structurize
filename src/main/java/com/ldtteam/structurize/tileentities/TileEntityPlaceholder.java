@@ -4,15 +4,11 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,10 +40,8 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
     public void read(final CompoundNBT compound)
     {
         super.read(compound);
-        if (compound.contains(TAG_SCHEMATIC_DATA))
-        {
-            readSchematicDataFromNBT(compound.getCompound(TAG_SCHEMATIC_DATA));
-        }
+        readSchematicDataFromNBT(compound);
+
         this.block = ItemStack.read(compound.getCompound(TAG_CONTAINED_BLOCK));
     }
 
@@ -56,7 +50,7 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
     public CompoundNBT write(final CompoundNBT compound)
     {
         super.write(compound);
-        compound.put(TAG_SCHEMATIC_DATA, writeSchematicDataToNBT());
+        writeSchematicDataToNBT(compound);
         compound.put(TAG_CONTAINED_BLOCK, this.block.write(new CompoundNBT()));
         return compound;
     }
@@ -80,8 +74,19 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
         return write(new CompoundNBT());
     }
 
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket()
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        this.write(nbt);
+
+        // the number here is generally ignored for non-vanilla TileEntities, 0 is safest
+        return new SUpdateTileEntityPacket(this.getPos(), 0, nbt);
+    }
+
     /**
      * Get the stack of this placerholder.
+     *
      * @return the stack.
      */
     public ItemStack getStack()
@@ -91,6 +96,7 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
 
     /**
      * Set the stack to the placerholder.
+     *
      * @param to the stack to set.
      */
     public void setStack(final ItemStack to)

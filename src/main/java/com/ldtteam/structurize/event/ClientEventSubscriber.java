@@ -15,7 +15,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -39,8 +38,8 @@ import java.util.Map;
 
 public class ClientEventSubscriber
 {
-    private static Map<BlockPos, List<String>> tagPosList = null;
-    private static BlockPos                    tagAnchor;
+    public static Map<BlockPos, List<String>> tagPosList = null;
+    public static BlockPos                    tagAnchor;
 
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
@@ -90,6 +89,7 @@ public class ClientEventSubscriber
         if (player.getHeldItem(Hand.MAIN_HAND).getItem() != ModItems.tagTool)
         {
             tagPosList = null;
+            tagAnchor = null;
             return;
         }
 
@@ -117,7 +117,8 @@ public class ClientEventSubscriber
             }
 
             IBlueprintDataProvider dataProvider = (IBlueprintDataProvider) te;
-            tagPosList = dataProvider.getPositionedTags();
+
+            tagPosList = dataProvider.getWorldTagPosMap();
         }
 
         renderAnchorPos(tagAnchor, event);
@@ -291,8 +292,8 @@ public class ClientEventSubscriber
         matrix.push();
         matrix.translate((double) posA.getX() + 0.375, (double) posA.getY() + 0.375, (double) posA.getZ() + 0.375);
 
-        renderDebugText(text, matrix);
-        //fontrenderer.drawString(text, text.length(), 500+ fontrenderer.FONT_HEIGHT, Color.WHITE.getRGB());
+        //renderDebugText(text, matrix);
+        fontrenderer.drawString(text, 200, 100, Color.WHITE.getRGB());
 
         matrix.pop();
 

@@ -236,7 +236,10 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
-
+        if (Settings.instance.getStructureName() != null)
+        {
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(Settings.instance.getStructureName());
+        }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 

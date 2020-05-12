@@ -1,7 +1,9 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,21 +13,16 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -85,7 +82,7 @@ public class Blueprint
     /**
      * Various caches for storing block data in prepared structures
      */
-    private List<BlockInfo> cacheBlockInfo = null;
+    private List<BlockInfo>          cacheBlockInfo    = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
 
     /**
@@ -106,14 +103,14 @@ public class Blueprint
      * @param requiredMods the required mods.
      */
     protected Blueprint(
-        short sizeX,
-        short sizeY,
-        short sizeZ,
-        short palleteSize,
-        List<BlockState> pallete,
-        short[][][] structure,
-        CompoundNBT[] tileEntities,
-        List<String> requiredMods)
+      short sizeX,
+      short sizeY,
+      short sizeZ,
+      short palleteSize,
+      List<BlockState> pallete,
+      short[][][] structure,
+      CompoundNBT[] tileEntities,
+      List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -154,8 +151,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the X-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the X-Axis (without rotation and/or mirroring)
      */
     public short getSizeX()
     {
@@ -163,8 +159,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the Y-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the Y-Axis (without rotation and/or mirroring)
      */
     public short getSizeY()
     {
@@ -172,8 +167,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the Z-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the Z-Axis (without rotation and/or mirroring)
      */
     public short getSizeZ()
     {
@@ -226,8 +220,7 @@ public class Blueprint
     }
 
     /**
-     * @return the structure (without rotation and/or mirroring)
-     *         The Coordinate order is: y, z, x
+     * @return the structure (without rotation and/or mirroring) The Coordinate order is: y, z, x
      */
     public short[][][] getStructure()
     {
@@ -235,8 +228,7 @@ public class Blueprint
     }
 
     /**
-     * @return an array of serialized TileEntities (posX, posY and posZ tags have
-     *         been localized to coordinates within the structure)
+     * @return an array of serialized TileEntities (posX, posY and posZ tags have been localized to coordinates within the structure)
      */
     public CompoundNBT[][][] getTileEntities()
     {
@@ -244,8 +236,7 @@ public class Blueprint
     }
 
     /**
-     * @return an array of serialized TileEntities (the Pos tag has
-     *         been localized to coordinates within the structure)
+     * @return an array of serialized TileEntities (the Pos tag has been localized to coordinates within the structure)
      */
     public CompoundNBT[] getEntities()
     {
@@ -253,8 +244,7 @@ public class Blueprint
     }
 
     /**
-     * @param entities an array of serialized TileEntities (the Pos tag need to
-     *                 be localized to coordinates within the structure)
+     * @param entities an array of serialized TileEntities (the Pos tag need to be localized to coordinates within the structure)
      */
     public void setEntities(CompoundNBT[] entities)
     {
@@ -299,7 +289,7 @@ public class Blueprint
 
     /**
      * Sets an Array of all architects for this structure
-     * 
+     *
      * @param architects an array of architects.
      * @return this blueprint.
      */
@@ -310,8 +300,7 @@ public class Blueprint
     }
 
     /**
-     * @return An Array of all missing mods that are required to generate this
-     *         structure (only works if structure was loaded from file)
+     * @return An Array of all missing mods that are required to generate this structure (only works if structure was loaded from file)
      */
     public String[] getMissingMods()
     {
@@ -320,7 +309,7 @@ public class Blueprint
 
     /**
      * Sets the missing mods
-     * 
+     *
      * @param missingMods the missing mods list.
      * @return this object.
      */
@@ -409,7 +398,7 @@ public class Blueprint
     private final BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list =
-            getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
+          getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {
@@ -488,6 +477,31 @@ public class Blueprint
                         compound.putInt("x", tempPos.getX());
                         compound.putInt("y", tempPos.getY());
                         compound.putInt("z", tempPos.getZ());
+
+                        if (compound.contains(TAG_BLUEPRINTDATA))
+                        {
+                            CompoundNBT dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
+
+                            // Rotate tag map
+                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(dataCompound);
+                            final Map<BlockPos, List<String>> newTagPosMap = new HashMap<>();
+
+                            for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
+                            {
+                                BlockPos newPos = transformedBlockPos(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), mirror, rotation);
+                                newTagPosMap.put(newPos, entry.getValue());
+                            }
+
+                            IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
+
+                            // Rotate corners
+                            BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
+                            BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
+                            corner1 = transformedBlockPos(corner1.getX(), corner1.getY(), corner1.getZ(), mirror, rotation);
+                            corner2 = transformedBlockPos(corner2.getX(), corner2.getY(), corner2.getZ(), mirror, rotation);
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
+                        }
                     }
                     newTileEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = compound;
                 }
@@ -591,11 +605,11 @@ public class Blueprint
      * @return the updated nbt.
      */
     private CompoundNBT transformEntityInfoWithSettings(
-        final CompoundNBT entityInfo,
-        final World world,
-        final BlockPos pos,
-        final Rotation rotation,
-        final Mirror mirror)
+      final CompoundNBT entityInfo,
+      final World world,
+      final BlockPos pos,
+      final Rotation rotation,
+      final Mirror mirror)
     {
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
