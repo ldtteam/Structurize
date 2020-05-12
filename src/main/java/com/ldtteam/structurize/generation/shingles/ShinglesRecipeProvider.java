@@ -70,7 +70,8 @@ public class ShinglesRecipeProvider implements IDataProvider
 
         final List<RecipeIngredientKeyJson> ingredients = new ArrayList<>();
         ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(shingle.getFaceType().getRecipeIngredient(), false)));
-        for(int i = 0; i < 8; i++) {
+        for(int i = 0; i < 8; i++)
+        {
             ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
         }
         recipeJson.setIngredients(ingredients);
