@@ -21,11 +21,12 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModItems
 {
-    public static Item buildTool;
-    public static Item shapeTool;
+    public static Item                        buildTool;
+    public static Item                        shapeTool;
     public static AbstractItemWithPosSelector scanTool;
-    public static Item caliper;
-    public static Item cactusDoor;
+    public static AbstractItemWithPosSelector tagTool;
+    public static Item                        caliper;
+    public static Item                        cactusDoor;
 
     /**
      * Private constructor to hide the implicit public one.
@@ -51,12 +52,14 @@ public final class ModItems
         buildTool = new ItemBuildTool(properties);
         shapeTool = new ItemShapeTool(properties);
         scanTool = new ItemScanTool(ModCreativeTabs.STRUCTURIZE);
+        tagTool = new ItemTagTool(ModCreativeTabs.STRUCTURIZE);
         caliper = new ItemCaliper(properties);
         cactusDoor = new TallBlockItem(ModBlocks.blockCactusDoor, properties.maxStackSize(16)).setRegistryName(ModBlocks.blockCactusDoor.getRegistryName());
 
         registry.register(buildTool);
         registry.register(shapeTool);
         registry.register(scanTool);
+        registry.register(tagTool);
         registry.register(caliper);
         registry.register(cactusDoor);
     }

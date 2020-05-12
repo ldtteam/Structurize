@@ -5,6 +5,7 @@ import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -16,10 +17,12 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTUtil;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -36,7 +39,7 @@ import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX
 public class ItemScanTool extends AbstractItemWithPosSelector
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
-    private static final String NBT_ANCHOR_POS = "structurize:anchor_pos";
+    private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
 
     /**
      * Creates default scan tool item.
@@ -62,7 +65,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     @Override
     public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
     {
-        Optional<BlockPos> anchorPos = itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
+        Optional<BlockPos> anchorPos =
+          itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
         if (!worldIn.isRemote)
         {
             if (playerIn.isSneaking())
@@ -96,11 +100,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param player causing this action.
      * @param name   the name of it.
      */
-    public static void saveStructure(@NotNull final World world,
-        @NotNull final BlockPos from,
-        @NotNull final BlockPos to,
-        @NotNull final PlayerEntity player,
-        final String name)
+    public static void saveStructure(
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      @NotNull final PlayerEntity player,
+      final String name)
     {
         saveStructure(world, from, to, player, name, true, Optional.empty());
     }
@@ -116,13 +121,13 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param saveEntities whether to scan in entities
      */
     public static void saveStructure(
-            @NotNull final World world,
-            @NotNull final BlockPos from,
-            @NotNull final BlockPos to,
-            @NotNull final PlayerEntity player,
-            final String name,
-            final boolean saveEntities,
-            final Optional<BlockPos> anchorPos)
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      @NotNull final PlayerEntity player,
+      final String name,
+      final boolean saveEntities,
+      final Optional<BlockPos> anchorPos)
     {
         if (anchorPos.isPresent())
         {
@@ -171,6 +176,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             fileName = name;
         }
 
+        if (anchorPos.isPresent())
+        {
+            final TileEntity te = world.getTileEntity(anchorPos.get());
+            if (te instanceof IBlueprintDataProvider)
+            {
+                ((IBlueprintDataProvider) te).setSchematicName(fileName);
+                ((IBlueprintDataProvider) te).setCorners(from.subtract(anchorPos.get()), to.subtract(anchorPos.get()));
+            }
+        }
+
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name, anchorPos);
         Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
@@ -184,10 +199,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param name  the name.
      * @return true if succesful.
      */
-    public static boolean saveStructureOnServer(@NotNull final World world,
-        @NotNull final BlockPos from,
-        @NotNull final BlockPos to,
-        final String name)
+    public static boolean saveStructureOnServer(
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      final String name)
     {
         return saveStructureOnServer(world, from, to, name, true);
     }
@@ -202,18 +218,19 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param saveEntities whether to scan in entities
      * @return true if succesful.
      */
-    public static boolean saveStructureOnServer(@NotNull final World world,
-        @NotNull final BlockPos from,
-        @NotNull final BlockPos to,
-        final String name,
-        final boolean saveEntities)
+    public static boolean saveStructureOnServer(
+      @NotNull final World world,
+      @NotNull final BlockPos from,
+      @NotNull final BlockPos to,
+      final String name,
+      final boolean saveEntities)
     {
         final BlockPos blockpos = new BlockPos(Math.min(from.getX(), to.getX()),
-            Math.min(from.getY(), to.getY()),
-            Math.min(from.getZ(), to.getZ()));
+          Math.min(from.getY(), to.getY()),
+          Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
-            Math.max(from.getY(), to.getY()),
-            Math.max(from.getZ(), to.getZ()));
+          Math.max(from.getY(), to.getY()),
+          Math.max(from.getZ(), to.getZ()));
         final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > MAX_SCHEMATIC_SIZE)
         {

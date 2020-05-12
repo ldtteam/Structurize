@@ -96,7 +96,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
         if (te != null)
         {
             te.setStack(block);
-            te.setTagList(tagStringList);
         }
     }
 }

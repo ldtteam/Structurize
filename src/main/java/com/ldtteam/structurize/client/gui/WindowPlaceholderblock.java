@@ -9,6 +9,7 @@ import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.network.messages.UpdatePlaceholderBlockMessage;
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import net.minecraft.block.Blocks;
@@ -91,7 +92,7 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         if (te != null)
         {
             this.from = te.getStack();
-            this.tagStringList = te.getTagList();
+            this.tagStringList = ((IBlueprintDataProvider) te).getPositionedTags().get(pos);
         }
 
         this.pos = pos;
@@ -166,7 +167,7 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
                     if (te != null)
                     {
                         te.setStack(to);
-                        te.setTagList(tagStringList);
+                        ((IBlueprintDataProvider) te).getPositionedTags().put(pos, tagStringList);
                         Network.getNetwork().sendToServer(new UpdatePlaceholderBlockMessage(pos, to, tagStringList));
                         close();
                     }
