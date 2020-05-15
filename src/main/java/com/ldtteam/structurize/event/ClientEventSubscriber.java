@@ -16,9 +16,11 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -30,9 +32,8 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -125,8 +126,8 @@ public class ClientEventSubscriber
 
         for (Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
         {
-            renderDebugText(entry.getKey(), entry.getValue().toString(), event.getMatrixStack());
             renderBox(entry.getKey(), entry.getKey(), event);
+            renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack());
         }
     }
 
@@ -227,13 +228,20 @@ public class ClientEventSubscriber
         RenderSystem.disableDepthTest();
     }
 
-    private static void renderDebugText(final BlockPos pos, final String text, final MatrixStack matrixStack)
+    /**
+     * Renders the given list of strings, 3 elements a row.
+     *
+     * @param pos         position to render at
+     * @param text        text list
+     * @param matrixStack stack to use
+     */
+    private static void renderDebugText(final BlockPos pos, final List<String> text, final MatrixStack matrixStack)
     {
         final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
         final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
 
         matrixStack.push();
-        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5);
+        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY(), (double) pos.getZ() + 0.5);
         matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
 
         matrixStack.translate(0.0F, 0.75F, 0.0F);
@@ -254,7 +262,24 @@ public class ClientEventSubscriber
         final Matrix4f matrix4f = matrixStack.getLast().getMatrix();
 
         final IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        fontrenderer.renderString(text, -fontrenderer.getStringWidth(text) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
+
+        List<String> toRender = new ArrayList<>();
+        for (final String element : text)
+        {
+            if (toRender.size() >= 3)
+            {
+                // Render text
+                fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
+                matrixStack.translate(0.0F, 10F, 0.0F);
+                toRender.clear();
+            }
+            toRender.add(element);
+        }
+
+        if (!toRender.isEmpty())
+        {
+            fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
+        }
 
         buffer.finish();
         RenderSystem.disableBlend();
