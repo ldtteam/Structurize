@@ -59,11 +59,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     @Override
     public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
     {
-        if (!worldIn.isRemote)
-        {
-
-        }
-        else
+        if (worldIn.isRemote)
         {
             final BlockPos anchorPos = getAnchorPos(itemStack);
             if (anchorPos == null)

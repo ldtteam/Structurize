@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.placementhandlers;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -30,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
-import static com.ldtteam.structurize.tileentities.TileEntityPlaceholder.TAG_CONTAINED_BLOCK;
 
 /**
  * Class containing all placement handler implementations.
@@ -746,59 +744,6 @@ public final class PlacementHandlers
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
-        }
-    }
-
-    public static class PlaceholderPlacementHandler implements IPlacementHandler
-    {
-
-        @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
-        {
-            return blockState.getBlock() == ModBlocks.placeholderBlock;
-        }
-
-        @Override
-        public Object handle(
-          @NotNull final World world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
-          @Nullable final CompoundNBT tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
-        {
-            if (tileEntityData != null)
-            {
-                if (tileEntityData.contains(TAG_CONTAINED_BLOCK))
-                {
-                    ItemStack contained = ItemStack.read(tileEntityData.getCompound(TAG_CONTAINED_BLOCK));
-                    if (!ItemStackUtils.isEmpty(contained))
-                    {
-                        BlockState stateToPlace = BlockUtils.getBlockStateFromStack(contained);
-                    }
-                }
-            }
-
-            return blockState;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          @NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState, @Nullable final CompoundNBT tileEntityData, final boolean complete)
-        {
-            List<ItemStack> neededItems = new ArrayList<>();
-            if (tileEntityData != null)
-            {
-                if (tileEntityData.contains(TAG_CONTAINED_BLOCK))
-                {
-                    ItemStack contained = ItemStack.read(tileEntityData.getCompound(TAG_CONTAINED_BLOCK));
-                    if (!ItemStackUtils.isEmpty(contained))
-                    {
-                        neededItems.add(contained);
-                    }
-                }
-            }
-            return neededItems;
         }
     }
 
