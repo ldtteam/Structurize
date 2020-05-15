@@ -122,16 +122,12 @@ public class ClientEventSubscriber
         }
 
         renderAnchorPos(tagAnchor, event);
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
 
         for (Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
         {
-            renderBoxWithText(entry.getKey(), entry.getKey(), event, 0, 0, 1, entry.getValue().toString());
+            renderDebugText(entry.getKey(), entry.getValue().toString(), event.getMatrixStack());
+            renderBox(entry.getKey(), entry.getKey(), event);
         }
-
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
     }
 
     /**
@@ -231,80 +227,15 @@ public class ClientEventSubscriber
         RenderSystem.disableDepthTest();
     }
 
-    private static void renderBoxWithText(
-      final BlockPos posA,
-      final BlockPos posB,
-      final RenderWorldLastEvent event,
-      final float red,
-      final float green,
-      final float blue,
-      final String text)
-    {
-        int x1 = posA.getX();
-        int y1 = posA.getY();
-        int z1 = posA.getZ();
-
-        int x2 = posB.getX();
-        int y2 = posB.getY();
-        int z2 = posB.getZ();
-
-        if (x1 > x2)
-        {
-            x1++;
-        }
-        else
-        {
-            x2++;
-        }
-
-        if (y1 > y2)
-        {
-            y1++;
-        }
-        else
-        {
-            y2++;
-        }
-
-        if (z1 > z2)
-        {
-            z1++;
-        }
-        else
-        {
-            z2++;
-        }
-
-        RenderSystem.enableDepthTest();
-
-        final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
-        final Vec3d viewPosition = activeRenderInfo.getProjectedView();
-        final MatrixStack matrix = event.getMatrixStack();
-        matrix.push();
-        matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-
-        final Matrix4f matrix4f = matrix.getLast().getMatrix();
-        final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
-        BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), red, green, blue, 1.0F);
-        matrix.pop();
-
-        final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-        matrix.push();
-        matrix.translate((double) posA.getX() + 0.375, (double) posA.getY() + 0.375, (double) posA.getZ() + 0.375);
-
-        //renderDebugText(text, matrix);
-        fontrenderer.drawString(text, 200, 100, Color.WHITE.getRGB());
-
-        matrix.pop();
-
-        RenderSystem.disableDepthTest();
-    }
-
-    private static void renderDebugText(final String text, final MatrixStack matrixStack)
+    private static void renderDebugText(final BlockPos pos, final String text, final MatrixStack matrixStack)
     {
         final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
+        final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
 
         matrixStack.push();
+        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5);
+        matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
+
         matrixStack.translate(0.0F, 0.75F, 0.0F);
         RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
 
@@ -313,37 +244,20 @@ public class ClientEventSubscriber
         matrixStack.scale(-0.014F, -0.014F, 0.014F);
         matrixStack.translate(0.0F, 18F, 0.0F);
 
-        RenderSystem.depthMask(false);
-
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
           GlStateManager.SourceFactor.SRC_ALPHA,
           GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
           GlStateManager.SourceFactor.ONE,
           GlStateManager.DestFactor.ZERO);
-        RenderSystem.disableTexture();
-
-        final int i = fontrenderer.getStringWidth(text);
 
         final Matrix4f matrix4f = matrixStack.getLast().getMatrix();
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder vertexBuffer = tessellator.getBuffer();
-        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-        vertexBuffer.pos(matrix4f, (-i - 1), -5.0f, 0.0f).color(0.0F, 0.0F, 0.0F, 0.7F).endVertex();
-        vertexBuffer.pos(matrix4f, (-i - 1), 12.0f, 0.0f).color(0.0F, 0.0F, 0.0F, 0.7F).endVertex();
-        vertexBuffer.pos(matrix4f, (i + 1), 12.0f, 0.0f).color(0.0F, 0.0F, 0.0F, 0.7F).endVertex();
-        vertexBuffer.pos(matrix4f, (i + 1), -5.0f, 0.0f).color(0.0F, 0.0F, 0.0F, 0.7F).endVertex();
-        tessellator.draw();
-
-        RenderSystem.enableTexture();
 
         final IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        matrixStack.translate(0.0F, -5F, 0.0F);
-        fontrenderer.renderString(text, -fontrenderer.getStringWidth(text) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, false, 0, 15728880);
+        fontrenderer.renderString(text, -fontrenderer.getStringWidth(text) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
 
-        RenderSystem.depthMask(true);
         buffer.finish();
-
+        RenderSystem.disableBlend();
         matrixStack.pop();
     }
 
