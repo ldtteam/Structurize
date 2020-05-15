@@ -42,10 +42,6 @@ public class PlaceholderBlock extends AbstractBlockStructurizeDirectional<Placeh
       final Hand hand,
       final BlockRayTraceResult ray)
     {
-        if (worldIn.isRemote)
-        {
-            // new WindowPlaceholderblock(pos).open();
-        }
         return ActionResultType.SUCCESS;
     }
 
