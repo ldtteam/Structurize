@@ -1,27 +1,25 @@
 package com.ldtteam.structurize.tileentities;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This Class is about the placeholder tileEntity.
  */
-public class TileEntityPlaceholder extends TileEntity
+public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataProvider
 {
-    public static final String TAG_NBT_LIST = "struct_tag";
+    public static final String TAG_SCHEMATIC_DATA  = "schematic_data";
+    public static final String TAG_CONTAINED_BLOCK = "displayblock";
 
     /**
      * The block to render.
@@ -42,18 +40,9 @@ public class TileEntityPlaceholder extends TileEntity
     public void read(final CompoundNBT compound)
     {
         super.read(compound);
+        readSchematicDataFromNBT(compound);
 
-        if (compound.contains(TAG_NBT_LIST))
-        {
-            ListNBT nbtList = compound.getList(TAG_NBT_LIST, Constants.NBT.TAG_COMPOUND);
-
-            for (final INBT nbt : nbtList)
-            {
-                tagList.add(((CompoundNBT) nbt).getString(TAG_NBT_LIST));
-            }
-        }
-
-        this.block = ItemStack.read(compound.getCompound("displayblock"));
+        this.block = ItemStack.read(compound.getCompound(TAG_CONTAINED_BLOCK));
     }
 
     @NotNull
@@ -61,18 +50,8 @@ public class TileEntityPlaceholder extends TileEntity
     public CompoundNBT write(final CompoundNBT compound)
     {
         super.write(compound);
-
-        ListNBT nbtList = new ListNBT();
-
-        for (final String name : tagList)
-        {
-            CompoundNBT stringCompound = new CompoundNBT();
-            stringCompound.putString(TAG_NBT_LIST, name);
-            nbtList.add(stringCompound);
-        }
-
-        compound.put(TAG_NBT_LIST, nbtList);
-        compound.put("displayblock", this.block.write(new CompoundNBT()));
+        writeSchematicDataToNBT(compound);
+        compound.put(TAG_CONTAINED_BLOCK, this.block.write(new CompoundNBT()));
         return compound;
     }
 
@@ -95,8 +74,19 @@ public class TileEntityPlaceholder extends TileEntity
         return write(new CompoundNBT());
     }
 
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket()
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        this.write(nbt);
+
+        // the number here is generally ignored for non-vanilla TileEntities, 0 is safest
+        return new SUpdateTileEntityPacket(this.getPos(), 0, nbt);
+    }
+
     /**
      * Get the stack of this placerholder.
+     *
      * @return the stack.
      */
     public ItemStack getStack()
@@ -106,6 +96,7 @@ public class TileEntityPlaceholder extends TileEntity
 
     /**
      * Set the stack to the placerholder.
+     *
      * @param to the stack to set.
      */
     public void setStack(final ItemStack to)
@@ -114,34 +105,52 @@ public class TileEntityPlaceholder extends TileEntity
         this.markDirty();
     }
 
-    /**
-     * Checks if the given tag is present
-     *
-     * @param tag tag to check
-     * @return true if tag exists
-     */
-    public boolean hasTag(final String tag)
+    private String schematicName = "";
+
+    @Override
+    public String getSchematicName()
     {
-        return tagList.contains(tag);
+        return schematicName;
     }
 
-    /**
-     * Sets the list of tags
-     *
-     * @param tagList list to set
-     */
-    public void setTagList(final List<String> tagList)
+    @Override
+    public void setSchematicName(final String name)
     {
-        this.tagList = new HashSet<>(tagList);
+        schematicName = name;
     }
 
-    /**
-     * Get the existing list of tags.
-     *
-     * @return taglist
-     */
-    public List<String> getTagList()
+    private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+
+    @Override
+    public Map<BlockPos, List<String>> getPositionedTags()
     {
-        return new ArrayList<>(tagList);
+        return tagPosMap;
+    }
+
+    @Override
+    public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
+    {
+        tagPosMap = positionedTags;
+    }
+
+    private BlockPos corner1 = BlockPos.ZERO;
+    private BlockPos corner2 = BlockPos.ZERO;
+
+    @Override
+    public Tuple<BlockPos, BlockPos> getCornerPositions()
+    {
+        if (corner1 == BlockPos.ZERO || corner2 == BlockPos.ZERO)
+        {
+            return new Tuple<>(pos, pos);
+        }
+
+        return new Tuple<>(corner1, corner2);
+    }
+
+    @Override
+    public void setCorners(final BlockPos pos1, final BlockPos pos2)
+    {
+        corner1 = pos1;
+        corner2 = pos2;
     }
 }
