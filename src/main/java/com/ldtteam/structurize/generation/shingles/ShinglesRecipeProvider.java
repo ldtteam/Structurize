@@ -66,12 +66,14 @@ public class ShinglesRecipeProvider implements IDataProvider
 
         final String groupName = shingle.getFaceType().getGroup() + "_" + shingle.getWoodType().getName() + "_shingle";
         recipeJson.setGroup(groupName);
-        recipeJson.setResult(new RecipeResultJson(1, shingle.getRegistryName().toString()));
+        recipeJson.setResult(new RecipeResultJson(8, shingle.getRegistryName().toString()));
 
         final List<RecipeIngredientKeyJson> ingredients = new ArrayList<>();
         ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(shingle.getFaceType().getRecipeIngredient(), false)));
-        ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
-
+        for(int i = 0; i < 8; i++)
+        {
+            ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
+        }
         recipeJson.setIngredients(ingredients);
 
         final Path recipePath = this.generator.getOutputFolder().resolve(DataGeneratorConstants.RECIPES_DIR).resolve(shingle.getRegistryName().getPath() + ".json");
