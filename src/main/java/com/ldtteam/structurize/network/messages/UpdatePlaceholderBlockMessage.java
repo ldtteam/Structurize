@@ -59,10 +59,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
         pos = buf.readBlockPos();
         block = buf.readItemStack();
         int size = buf.readInt();
-        for (int i = 0; i < size; i++)
-        {
-            tagStringList.add(buf.readString());
-        }
     }
 
     @Override
