@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structures.helpers.Structure;
+import com.ldtteam.structures.helpers.BlueprintIterator;
+import com.ldtteam.structures.helpers.CreativeStructureHandler;
+import com.ldtteam.structures.helpers.IStructureHandler;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -36,9 +38,14 @@ import java.util.function.BiFunction;
 public class InstantStructurePlacer
 {
     /**
-     * The structure of this placer.
+     * The structure iterator.
      */
-    protected final Structure structure;
+    protected final BlueprintIterator iterator;
+
+    /**
+     * The handler.
+     */
+    protected final IStructureHandler handler;
 
     /**
      * If complete or not.
@@ -46,13 +53,14 @@ public class InstantStructurePlacer
     private boolean complete = false;
 
     /**
-     * Create a new instnat structure placer.
+     * Create a new instant structure placer.
      *
-     * @param structure the structure to place.
+     * @param handler the structure handler.
      */
-    public InstantStructurePlacer(final Structure structure)
+    public InstantStructurePlacer(final IStructureHandler handler)
     {
-        this.structure = structure;
+        this.iterator = new BlueprintIterator(handler);
+        this.handler = handler;
     }
 
     /**
@@ -62,18 +70,18 @@ public class InstantStructurePlacer
      */
     public void removeStructure(@NotNull final BlockPos pos)
     {
-        structure.setLocalPosition(pos);
-        for (int j = 0; j < this.structure.getHeight(); j++)
+        iterator.setProgressPos(new BlockPos(0, 0, 0));
+        for (int j = 0; j < this.handler.getBluePrint().getSizeY(); j++)
         {
-            for (int k = 0; k < this.structure.getLength(); k++)
+            for (int k = 0; k < this.handler.getBluePrint().getSizeZ(); k++)
             {
-                for (int i = 0; i < this.structure.getWidth(); i++)
+                for (int i = 0; i < this.handler.getBluePrint().getSizeZ(); i++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(i, j, k);
                     final BlockPos worldPos = pos.add(localPos);
-                    if (!structure.getWorld().isAirBlock(worldPos))
+                    if (!handler.getWorld().isAirBlock(worldPos))
                     {
-                        structure.getWorld().removeBlock(worldPos, false);
+                        handler.getWorld().removeBlock(worldPos, false);
                     }
                 }
             }
@@ -100,11 +108,11 @@ public class InstantStructurePlacer
     {
         try
         {
-            @NotNull final Structure structure = new Structure(worldObj, name, new PlacementSettings(mirror, rotation));
-            structure.setPosition(pos);
-            structure.rotate(rotation, worldObj, pos, mirror);
-            @NotNull final InstantStructurePlacer structureWrapper = new InstantStructurePlacer(structure);
-            structureWrapper.setupStructurePlacement(pos.subtract(structure.getOffset()), complete, player);
+            @NotNull final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, new PlacementSettings(mirror, rotation));
+            structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
+
+            @NotNull final InstantStructurePlacer instantPlacer = new InstantStructurePlacer(structure);
+            instantPlacer.setupStructurePlacement(complete, player);
         }
         catch (final IllegalStateException e)
         {
@@ -115,15 +123,12 @@ public class InstantStructurePlacer
     /**
      * Setup the structure placement and add to buffer.
      *
-     * @param pos      the world anchor.
      * @param complete if complete or not.
      * @param player   the issuing player.
      */
-    public void setupStructurePlacement(@NotNull final BlockPos pos, final boolean complete, final ServerPlayerEntity player)
+    public void setupStructurePlacement(final boolean complete, final ServerPlayerEntity player)
     {
-        structure.setLocalPosition(pos);
         this.complete = complete;
-        structure.setPosition(pos);
         Manager.addToQueue(new ScanToolOperation(this, player));
     }
 
@@ -137,8 +142,8 @@ public class InstantStructurePlacer
      */
     public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos)
     {
-        return placeStructure(world, storage, inputPos, (structure, pos) -> structure.getBlockState(pos).getBlock() == ModBlocks.blockSubstitution
-                                                                           || structure.getBlockState(pos).getBlock() instanceof IAnchorBlock);
+        return placeStructure(world, storage, inputPos, (structure, pos) -> structure.getBluePrint()
+          .getBlockState(pos).getBlock() == ModBlocks.blockSubstitution || structure.getBluePrint().getBlockState(pos).getBlock() instanceof IAnchorBlock);
     }
 
     /**
@@ -151,11 +156,11 @@ public class InstantStructurePlacer
      *                          if complete is false.
      * @return the last pos.
      */
-    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, BiFunction<Structure, BlockPos, Boolean> skipIfNotComplete)
+    public BlockPos placeStructure(final World world, final ChangeStorage storage, final BlockPos inputPos, BiFunction<IStructureHandler, BlockPos, Boolean> skipIfNotComplete)
     {
-        structure.setLocalPosition(inputPos);
+        iterator.setProgressPos(inputPos);
         @NotNull final List<BlockPos> delayedBlocks = new ArrayList<>();
-        final BlockPos endPos = new BlockPos(this.structure.getWidth(), this.structure.getHeight(), this.structure.getLength());
+        final BlockPos endPos = new BlockPos(this.handler.getBluePrint().getSizeX(), this.handler.getBluePrint().getSizeY(), this.handler.getBluePrint().getSizeZ());
         BlockPos currentPos = new BlockPos(0, inputPos.getY(), 0);
         for (int y = currentPos.getY(); y < endPos.getY(); y++)
         {
@@ -164,13 +169,13 @@ public class InstantStructurePlacer
                 for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final BlockState localState = structure.getBlockState(localPos);
+                    final BlockState localState = handler.getBluePrint().getBlockState(localPos);
                     if (localState == null)
                     {
                         continue;
                     }
 
-                    final BlockPos worldPos = structure.getPosition().add(localPos);
+                    final BlockPos worldPos = handler.getPosition().add(localPos).subtract(handler.getBluePrint().getPrimaryBlockOffset());
                     final BlockState worldState = world.getBlockState(worldPos);
                     // checking whether the fluid is the same overall likely cause a bigger performance impact than just removing it
                     // and replacing it in the rare cases where it would have matched.
@@ -194,15 +199,15 @@ public class InstantStructurePlacer
                 for (int z = currentPos.getZ(); z < endPos.getZ(); z++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(x, y, z);
-                    final BlockState localState = structure.getBlockState(localPos);
+                    final BlockState localState = handler.getBluePrint().getBlockState(localPos);
                     if (localState == null)
                     {
                         continue;
                     }
 
-                    final BlockPos worldPos = structure.getPosition().add(localPos);
+                    final BlockPos worldPos = handler.getPosition().add(localPos).subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    if (!complete && skipIfNotComplete.apply(structure, localPos))
+                    if (!complete && skipIfNotComplete.apply(handler, localPos))
                     {
                         continue;
                     }
@@ -215,7 +220,7 @@ public class InstantStructurePlacer
 
                     if (localState.getMaterial().isSolid())
                     {
-                        handleBlockPlacement(world, worldPos, localState, complete, structure.getTileEntityData(localPos));
+                        handleBlockPlacement(world, worldPos, localState, complete, handler.getBluePrint().getTileEntityData(worldPos, localPos));
                     }
                     else
                     {
@@ -234,13 +239,13 @@ public class InstantStructurePlacer
         }
         handleDelayedBlocks(delayedBlocks, storage, world);
 
-        for (final CompoundNBT compound : this.structure.getEntityData())
+        for (final CompoundNBT compound : this.handler.getBluePrint().getEntities())
         {
             if (compound != null)
             {
                 try
                 {
-                    final BlockPos pos = this.structure.getPosition();
+                    final BlockPos pos = this.handler.getPosition().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
                     if (type.isPresent())
@@ -283,13 +288,13 @@ public class InstantStructurePlacer
     {
         for (@NotNull final BlockPos coords : delayedBlocks)
         {
-            final BlockState localState = structure.getBlockState(coords);
-            final BlockPos newWorldPos = structure.getPosition().add(coords);
+            final BlockState localState = handler.getBluePrint().getBlockState(coords);
+            final BlockPos newWorldPos = handler.getPosition().add(coords).subtract(handler.getBluePrint().getPrimaryBlockOffset());
             if (storage != null)
             {
                 storage.addPositionStorage(coords, world);
             }
-            final BlockInfo info = this.structure.getBlockInfo(coords);
+            final BlockInfo info = this.handler.getBluePrint().getBlockInfoAsMap().get(coords);
             handleBlockPlacement(world, newWorldPos, localState, this.complete, info == null ? null : info.getTileEntityData());
         }
     }
@@ -315,7 +320,7 @@ public class InstantStructurePlacer
         {
             if (handlers.canHandle(world, pos, localState))
             {
-                handlers.handle(world, pos, localState, tileEntityData, complete, structure.getPosition(), structure.getSettings());
+                handlers.handle(world, pos, localState, tileEntityData, complete, handler.getPosition(), handler.getSettings());
                 return;
             }
         }
@@ -329,23 +334,23 @@ public class InstantStructurePlacer
      */
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {
-        structure.setLocalPosition(pos);
-        for (int j = 0; j < this.structure.getHeight(); j++)
+        iterator.setProgressPos(new BlockPos(0, 0, 0));
+        for (int j = 0; j < this.handler.getBluePrint().getSizeY(); j++)
         {
-            for (int k = 0; k < this.structure.getLength(); k++)
+            for (int k = 0; k < this.handler.getBluePrint().getSizeZ(); k++)
             {
-                for (int i = 0; i < this.structure.getWidth(); i++)
+                for (int i = 0; i < this.handler.getBluePrint().getSizeX(); i++)
                 {
                     @NotNull final BlockPos localPos = new BlockPos(i, j, k);
 
                     final BlockPos worldPos = pos.add(localPos);
 
-                    if (worldPos.getY() <= pos.getY() && !structure.getWorld().getBlockState(worldPos.down()).getMaterial().isSolid())
+                    if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.down()).getMaterial().isSolid())
                     {
                         return false;
                     }
 
-                    final BlockState worldState = structure.getWorld().getBlockState(worldPos);
+                    final BlockState worldState = handler.getWorld().getBlockState(worldPos);
                     if (worldState.getBlock() == Blocks.BEDROCK)
                     {
                         return false;

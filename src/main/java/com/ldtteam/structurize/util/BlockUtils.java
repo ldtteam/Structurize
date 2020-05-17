@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
+import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * Utility class for all Block type checking.
@@ -218,6 +221,49 @@ public final class BlockUtils
         {
             return GameData.getBlockItemMap().get(blockState.getBlock());
         }
+    }
+
+    /**
+     * For structure placement, check if two blocks are alike or if action has to be taken.
+     * @param blockState1 the first blockState.
+     * @param blockState2 the second blockState.
+     * @return true if nothing has to be done.
+     */
+    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2)
+    {
+        if (blockState2 == null)
+        {
+            return true;
+        }
+
+        final Block structureBlock = blockState2.getBlock();
+        final Block worldBlock = blockState1.getBlock();
+
+        if (structureBlock == ModBlocks.blockSubstitution || blockState2.equals(blockState1))
+        {
+            return true;
+        }
+
+        if (structureBlock == ModBlocks.blockSolidSubstitution)
+        {
+            for (final Predicate<BlockState> predicate : BlockSolidSubstitution.NOT_SOLID)
+            {
+                if (predicate.test(blockState1))
+                {
+                    return true;
+                }
+            }
+        }
+
+        //list of things to only check block for.
+        //For the time being any flower pot is equal to each other.
+        if (structureBlock instanceof DoorBlock || structureBlock == Blocks.FLOWER_POT)
+        {
+            return structureBlock == worldBlock;
+        }
+
+        return (structureBlock == Blocks.GRASS_BLOCK && worldBlock == Blocks.DIRT)
+                 || worldBlock == Blocks.GRASS_BLOCK && structureBlock == Blocks.DIRT;
     }
 
     /**

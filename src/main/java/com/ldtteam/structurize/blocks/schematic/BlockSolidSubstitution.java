@@ -1,7 +1,12 @@
 package com.ldtteam.structurize.blocks.schematic;
 
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * This block is used as a substitution block for the Builder.
@@ -25,6 +30,11 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
      * The resistance this block has.
      */
     private static final float RESISTANCE = 1F;
+
+    /**
+     * List of predicates the solid substitution block will have to replace.
+     */
+    public static List<Predicate<BlockState>> NOT_SOLID = new ArrayList<>();
 
     /**
      * Constructor for the Substitution block.

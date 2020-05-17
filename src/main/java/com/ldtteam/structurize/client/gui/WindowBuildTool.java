@@ -3,8 +3,10 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.helpers.CreativeStructureHandler;
+import com.ldtteam.structures.helpers.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -185,7 +187,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private void init(final BlockPos pos, final int rot)
     {
         @Nullable
-        final Structure structure = Settings.instance.getActiveStructure();
+        final Blueprint structure = Settings.instance.getActiveStructure();
 
         if (structure != null)
         {
@@ -824,12 +826,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
-        final Structure structure = new Structure(Minecraft.getInstance().world, structureName.toString(),
+        final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().world, new BlockPos(0, 0, 0), structureName.toString(),
             new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
 
-        if (structure.isBluePrintMissing() || !structure.isCorrectMD5(md5))
+        if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))
         {
-            if (structure.isBluePrintMissing())
+            if (!structure.hasBluePrint())
             {
                 Log.getLogger().info("Blueprint structure " + structureName + " missing");
             }
@@ -850,7 +852,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             }
         }
         Settings.instance.setStructureName(structureName.toString());
-        Settings.instance.setActiveSchematic(structure);
+        Settings.instance.setActiveSchematic(structure.getBluePrint());
     }
 
     /**
@@ -1134,10 +1136,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         Settings.instance.setRotation(rotation);
         settings.setMirror(Settings.instance.getMirror());
-        if (Settings.instance.getActiveStructure() != null)
-        {
-            Settings.instance.getActiveStructure().setPlacementSettings(settings);
-        }
     }
 
     /**

@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -18,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -30,9 +29,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -50,22 +47,20 @@ public class ClientEventSubscriber
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
         Minecraft.getInstance().getProfiler().startSection("struct_render");
-        final Structure structure = Settings.instance.getActiveStructure();
+        final Blueprint blueprint = Settings.instance.getActiveStructure();
 
-        if (structure != null)
+        if (blueprint != null)
         {
             BlockPos offset = new BlockPos(0, 0, 0);
-            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
+            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
 
-            StructureClientHandler.renderStructure(structure,
+            StructureClientHandler.renderStructure(blueprint,
                 event.getPartialTicks(),
                 Settings.instance.getPosition().subtract(offset),
                 event.getMatrixStack());
 
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
-            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(),
-                structure.getBluePrint().getSizeY(),
-                structure.getBluePrint().getSizeZ());
+            final BlockPos size = new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ());
 
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
 

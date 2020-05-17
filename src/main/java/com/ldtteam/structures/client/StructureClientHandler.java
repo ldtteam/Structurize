@@ -1,6 +1,6 @@
 package com.ldtteam.structures.client;
 
-import com.ldtteam.structures.helpers.Structure;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -16,16 +16,16 @@ public final class StructureClientHandler
         throw new IllegalArgumentException("Utility class");
     }
 
-    public static void renderStructure(@NotNull final Structure structure, final float partialTicks, final BlockPos pos, final MatrixStack stack)
+    public static void renderStructure(@NotNull final Blueprint blueprint, final float partialTicks, final BlockPos pos, final MatrixStack stack)
     {
-        renderStructure(structure, Minecraft.getInstance().player, partialTicks, pos, stack);
+        renderStructure(blueprint, Minecraft.getInstance().player, partialTicks, pos, stack);
     }
 
-    public static void renderStructure(@NotNull final Structure structure, @Nullable final Entity perspectiveEntity, final float partialTicks, final BlockPos pos, final MatrixStack stack)
+    public static void renderStructure(@NotNull final Blueprint blueprint, @Nullable final Entity perspectiveEntity, final float partialTicks, final BlockPos pos, final MatrixStack stack)
     {
         if (perspectiveEntity != null)
         {
-            BlueprintHandler.getInstance().draw(structure.getBluePrint(), pos, stack, partialTicks);
+            BlueprintHandler.getInstance().draw(blueprint, pos, stack, partialTicks);
         }
     }
 }
