@@ -222,40 +222,6 @@ public class ClientEventSubscriber
         RenderSystem.disableDepthTest();
     }
 
-    private static void renderDebugText(final BlockPos pos, final String text, final MatrixStack matrixStack)
-    {
-        final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-        final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
-
-        matrixStack.push();
-        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5);
-        matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-
-        matrixStack.translate(0.0F, 0.75F, 0.0F);
-        RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
-
-        final EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
-        matrixStack.rotate(renderManager.getCameraOrientation());
-        matrixStack.scale(-0.014F, -0.014F, 0.014F);
-        matrixStack.translate(0.0F, 18F, 0.0F);
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-          GlStateManager.SourceFactor.SRC_ALPHA,
-          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-          GlStateManager.SourceFactor.ONE,
-          GlStateManager.DestFactor.ZERO);
-
-        final Matrix4f matrix4f = matrixStack.getLast().getMatrix();
-
-        final IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        fontrenderer.renderString(text, -fontrenderer.getStringWidth(text) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
-
-        buffer.finish();
-        RenderSystem.disableBlend();
-        matrixStack.pop();
-    }
-
     /**
      * Renders the given list of strings, 3 elements a row.
      *

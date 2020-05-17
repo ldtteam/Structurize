@@ -50,7 +50,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
         super();
         this.pos = pos;
         this.block = stack;
-        this.tagStringList = tagStringList;
     }
 
     @Override
@@ -58,7 +57,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     {
         pos = buf.readBlockPos();
         block = buf.readItemStack();
-        int size = buf.readInt();
     }
 
     @Override
@@ -66,11 +64,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     {
         buf.writeBlockPos(pos);
         buf.writeItemStack(block);
-        buf.writeInt(tagStringList.size());
-        for (final String tag : tagStringList)
-        {
-            buf.writeString(tag);
-        }
     }
 
     @Nullable
