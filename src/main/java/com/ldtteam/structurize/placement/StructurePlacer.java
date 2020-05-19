@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import static com.ldtteam.structures.helpers.BlueprintIterator.NULL_POS;
 
 /**
  * result = StructurePlacer.execute(this)
@@ -90,7 +93,7 @@ public class StructurePlacer
         }
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
-        if (iterateFunction.get() != BlueprintIterator.Result.NEW_BLOCK)
+        if (inputPos.equals(NULL_POS) && iterateFunction.get() != BlueprintIterator.Result.NEW_BLOCK)
         {
             iterator.reset();
             return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED));
@@ -200,6 +203,22 @@ public class StructurePlacer
                             entity.setUniqueId(UUID.randomUUID());
                             final Vec3d posInWorld = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
                             entity.setPosition(posInWorld.x, posInWorld.y, posInWorld.z);
+
+                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            boolean foundEntity = false;
+                            for (Entity worldEntity: list)
+                            {
+                                if (worldEntity.getPositionVector().equals(entity.getPositionVector()))
+                                {
+                                    foundEntity = true;
+                                    break;
+                                }
+                            }
+
+                            if (foundEntity)
+                            {
+                                break;
+                            }
 
                             world.addEntity(entity);
                             if (storage != null)

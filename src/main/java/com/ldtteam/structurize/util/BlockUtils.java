@@ -5,6 +5,7 @@ import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
@@ -250,7 +251,7 @@ public final class BlockUtils
 
         if (fancy)
         {
-            if (block1 == ModBlocks.blockSubstitution || blockState2.equals(blockState1))
+            if (block1 == ModBlocks.blockSubstitution || blockState2.equals(blockState1) || block2 == ModBlocks.blockSubstitution)
             {
                 return true;
             }

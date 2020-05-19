@@ -94,6 +94,10 @@ public class StructurePlacementUtils
         try
         {
             @NotNull final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, new PlacementSettings(mirror, rotation), fancyPlacement);
+            if (fancyPlacement)
+            {
+                structure.fancyPlacement();
+            }
             structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
 
             @NotNull final StructurePlacer instantPlacer = new StructurePlacer(structure);
