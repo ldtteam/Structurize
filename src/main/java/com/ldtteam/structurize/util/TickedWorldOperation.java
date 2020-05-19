@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import static com.ldtteam.structures.helpers.BlueprintIterator.NULL_POS;
+
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
  */
@@ -140,7 +142,7 @@ public class TickedWorldOperation
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ZERO;
-        this.currentPos = BlockPos.ZERO;
+        this.currentPos = NULL_POS;
         this.endPos = BlockPos.ZERO;
         this.player = player;
         this.firstBlock = ItemStack.EMPTY;
@@ -175,11 +177,7 @@ public class TickedWorldOperation
                 case 0:
                     //water
                     result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
-                      () ->  placer.getIterator().decrement((info, pos, theWorld) ->
-                      {
-                          final BlockState worldState = theWorld.getBlockState(pos);
-                          return !(worldState.getBlock() instanceof IBucketPickupHandler) && !(worldState.getBlock() instanceof FlowingFluidBlock);
-                      }), false);
+                      () ->  placer.getIterator().decrement((info, pos, theWorld) -> info.getBlockInfo().getState().isSolid()), false);
 
                     currentPos = result.getIteratorPos();
                     break;
@@ -201,6 +199,7 @@ public class TickedWorldOperation
                     // entities
                     result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
                       () ->  placer.getIterator().increment((info, pos, theWorld) -> info.getEntities().length == 0), true);
+                    structurePhase = -1;
                     currentPos = null;
                     break;
             }

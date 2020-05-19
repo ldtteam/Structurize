@@ -19,7 +19,7 @@ public class BlueprintIterator
     /**
      * The position we use as our uninitialized value.
      */
-    private static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
+    public static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
 
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
@@ -152,14 +152,14 @@ public class BlueprintIterator
         int count = 0;
         do
         {
-            final BlockPos worldPos = structureHandler.getWorldPos().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
-            final BlueprintPositionInfo info = getBluePrintPositionInfo();
-
             if(function.get() == Result.AT_END)
             {
                 return Result.AT_END;
             }
-            else if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement()))
+            final BlockPos worldPos = structureHandler.getWorldPos().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
+            final BlueprintPositionInfo info = getBluePrintPositionInfo();
+
+            if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement()))
             {
                 structureHandler.triggerSuccess(progressPos);
             }
@@ -181,9 +181,16 @@ public class BlueprintIterator
      */
     public void setProgressPos(@NotNull final BlockPos localPosition)
     {
-        this.progressPos.setPos(localPosition.getX() % size.getX(),
-          localPosition.getY() % size.getY(),
-          localPosition.getZ() % size.getZ());
+        if (localPosition.equals(NULL_POS))
+        {
+            this.progressPos.setPos(localPosition);
+        }
+        else
+        {
+            this.progressPos.setPos(localPosition.getX() % size.getX(),
+              localPosition.getY() % size.getY(),
+              localPosition.getZ() % size.getZ());
+        }
     }
 
     /**

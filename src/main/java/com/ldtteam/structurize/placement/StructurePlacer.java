@@ -90,6 +90,12 @@ public class StructurePlacer
         }
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
+        if (iterateFunction.get() != BlueprintIterator.Result.NEW_BLOCK)
+        {
+            iterator.reset();
+            return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED));
+        }
+
         int count = 0;
 
         do
@@ -140,7 +146,7 @@ public class StructurePlacer
         while (iterateFunction.get() == BlueprintIterator.Result.NEW_BLOCK);
 
         iterator.reset();
-        return new StructurePhasePlacementResult(BlockPos.ZERO, new BlockPlacementResult(BlockPos.ZERO, BlockPlacementResult.Result.FINISHED));
+        return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED));
     }
 
     /**
