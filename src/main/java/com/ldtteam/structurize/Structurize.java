@@ -44,8 +44,6 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
-
-        BlockSolidSubstitution.NOT_SOLID.add(blockState -> !blockState.getMaterial().isSolid() || blockState.getBlock() instanceof AirBlock);
     }
 
     /**

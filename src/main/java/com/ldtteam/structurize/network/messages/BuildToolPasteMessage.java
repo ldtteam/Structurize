@@ -2,7 +2,8 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
-import com.ldtteam.structurize.util.InstantStructurePlacer;
+import com.ldtteam.structurize.placement.StructurePlacementUtils;
+import com.ldtteam.structurize.placement.StructurePlacer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
@@ -127,8 +128,8 @@ public class BuildToolPasteMessage implements IMessage
 
         if (ctxIn.getSender().isCreative())
         {
-            InstantStructurePlacer.loadAndPlaceStructureWithRotation(ctxIn.getSender().world, structureName,
-              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, complete, ctxIn.getSender());
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().world, structureName,
+              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, !complete, ctxIn.getSender());
         }
     }
 }

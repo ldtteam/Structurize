@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class BlockInfo
 {
     /**
-     * The position in the structure.
+     * The position in the structure (relative pos not world pos).
      */
     private final BlockPos pos;
 

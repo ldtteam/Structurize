@@ -34,19 +34,19 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * The anchor position this structure will be
      * placed on in the minecraft world.
      */
-    private BlockPos position;
+    private BlockPos worldPos;
 
     /**
      * Abstract constructor of structure handler.
      * @param world the world it gets.
-     * @param pos the position the anchor of the structure got placed.
+     * @param worldPos the position the anchor of the structure got placed.
      * @param structureName the name of the structure.
      * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final World world, final BlockPos pos, final String structureName, final PlacementSettings settings)
+    public AbstractStructureHandler(final World world, final BlockPos worldPos, final String structureName, final PlacementSettings settings)
     {
         this.world = world;
-        this.position = pos;
+        this.worldPos = worldPos;
         this.settings = settings;
         this.loadBlueprint(structureName);
     }
@@ -61,7 +61,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     public AbstractStructureHandler(final World world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings)
     {
         this.world = world;
-        this.position = pos;
+        this.worldPos = pos;
         this.settings = settings;
         this.blueprint = blueprint;
     }
@@ -97,15 +97,21 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     }
 
     @Override
+    public void triggerSuccess(final BlockPos pos)
+    {
+        //todo if creative do nothing, else, try to reduce stack in itemHandler.
+    }
+
+    @Override
     public String getMd5()
     {
         return md5;
     }
 
     @Override
-    public BlockPos getPosition()
+    public BlockPos getWorldPos()
     {
-        return this.position;
+        return this.worldPos;
     }
 
     @Override

@@ -8,6 +8,9 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.math.BlockPos;
@@ -21,44 +24,13 @@ import java.io.InputStream;
 
 //todo add to minecolonies ores to solidSubStitutionPredicateList
 //todo Minecolonies implement this with the AI.
+// return (block1 == Blocks.GRASS_BLOCK && block2 == Blocks.DIRT) || block2 == Blocks.GRASS_BLOCK && block1 == Blocks.DIRT;
 
 /**
  * A handler for structures. To place a structure a handler is required.
  */
 public interface IStructureHandler
 {
-    /**
-     * Get the inventory of the handler.
-     * @return the IItemhandler (may be null!).
-     */
-    @Nullable
-    IItemHandler getInventory();
-
-    /**
-     * Called to invoke block breaking.
-     * @param pos the position of the block.
-     * @return true if successful
-     */
-    boolean breakBlock(final BlockPos pos);
-
-    /**
-     * Trigger success AFTER placement of block.
-     * @param pos the pos it was placed at.
-     */
-    void triggerSuccess(final BlockPos pos);
-
-    /**
-     * If creative placement (Free placement without inventory).
-     * @return true if so.
-     */
-    boolean isCreative();
-
-    /**
-     * Check if the handler has a valid blueprint.
-     * @return true if so.
-     */
-    boolean hasBluePrint();
-
     /**
      * Load the blueprint from the file name.
      *
@@ -157,11 +129,80 @@ public interface IStructureHandler
      * Get the world position this is placed at.
      * @return the position.
      */
-    BlockPos getPosition();
+    BlockPos getWorldPos();
 
     /**
      * Getter for the placement settings.
      * @return the settings object.
      */
     PlacementSettings getSettings();
+
+    /**
+     * Get the inventory of the handler.
+     * @return the IItemhandler (may be null!).
+     */
+    @Nullable
+    IItemHandler getInventory();
+
+    /**
+     * Trigger success AFTER placement of block.
+     * @param pos the pos it was placed at.
+     */
+    void triggerSuccess(final BlockPos pos);
+
+    /**
+     * If creative placement (Free placement without inventory).
+     * @return true if so.
+     */
+    boolean isCreative();
+
+    /**
+     * Check if the handler has a valid blueprint.
+     * @return true if so.
+     */
+    boolean hasBluePrint();
+
+    /**
+     * How many steps are executed on per call.
+     * @return the number of steps.
+     */
+    int getStepsPerCall();
+
+    /**
+     * How many blocks are checked max per call.
+     * @return the max number.
+     */
+    int getMaxBlocksCheckedPerCall();
+
+    /**
+     * Check if the stack is free for this handler.
+     * @param stack the stack to check.
+     * @return true if so.
+     */
+    boolean isStackFree(@Nullable final ItemStack stack);
+
+    /**
+     * If the handler allows to replace or requires to mine the block first.
+     * @return true if so.
+     */
+    boolean allowReplace();
+
+    /**
+     * The item being held by the handler
+     * @return the Item (could be empty).
+     */
+    ItemStack getHeldItem();
+
+    /**
+     * Check if this block is considered solid for the solid placerholder blocks.
+     * @param blockState the blockState to check.
+     * @return true if it is solid.
+     */
+    boolean replaceWithSolidBlock(BlockState blockState);
+
+    /**
+     * If this is supposed to be fancy placement (player facing) or builder facing (complete).
+     * @return true if fancy placement.
+     */
+    boolean fancyPlacement();
 }

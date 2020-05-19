@@ -1,8 +1,7 @@
-package com.ldtteam.structurize.placementhandlers;
+package com.ldtteam.structurize.placement.handlers;
 
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +37,7 @@ public interface IPlacementHandler
      * @param centerPos      centerPos the central position of it.
      * @return ACCEPT, DENY or IGNORE.
      */
-    default Object handle(
+    default ActionProcessingResult handle(
       @NotNull final World world,
       @NotNull final BlockPos pos,
       @NotNull final BlockState blockState,
@@ -48,7 +47,7 @@ public interface IPlacementHandler
         /*
          * Do nothing...
          */
-        return Blocks.AIR;
+        return ActionProcessingResult.PASS;
     }
 
     /**
@@ -63,14 +62,14 @@ public interface IPlacementHandler
      * @param settings       the settings to use to rotate or mirror it.
      * @return ACCEPT, DENY or IGNORE.
      */
-    default Object handle(
+    default ActionProcessingResult handle(
       @NotNull final World world,
       @NotNull final BlockPos pos,
       @NotNull final BlockState blockState,
       @Nullable final CompoundNBT tileEntityData,
       final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
     {
-        return this.handle(world, pos, blockState, tileEntityData, complete, centerPos);
+        return handle(world, pos, blockState, tileEntityData, complete, centerPos);
     }
 
     /**
@@ -95,7 +94,8 @@ public interface IPlacementHandler
      */
     enum ActionProcessingResult
     {
-        ACCEPT,
-        DENY
+        PASS,
+        DENY,
+        SUCCESS
     }
 }

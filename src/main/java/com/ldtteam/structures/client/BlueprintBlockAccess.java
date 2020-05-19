@@ -32,8 +32,8 @@ import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.storage.MapData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;

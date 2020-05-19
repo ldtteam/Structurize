@@ -1,13 +1,14 @@
 package com.ldtteam.structures.helpers;
 
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.TriPredicate;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * This is the blueprint iterator.
@@ -36,13 +37,28 @@ public class BlueprintIterator
     private final IStructureHandler structureHandler;
 
     /**
+     * If entity info is required.
+     */
+    private boolean includeEntities;
+
+    /**
      * Initialize the blueprint iterator with the structure handler.
-     * @param structureHandler the size of the blueprint.
+     * @param structureHandler the structure handler.
      */
     public BlueprintIterator(final IStructureHandler structureHandler)
     {
+        this(structureHandler, new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ()));
+    }
+
+    /**
+     * Initialize the blueprint iterator with the structure handler.
+     * @param size the size.
+     * @param structureHandler the structure handler.
+     */
+    public BlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
+    {
         this.structureHandler = structureHandler;
-        this.size = new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ());
+        this.size = size;
     }
 
     /**
@@ -50,7 +66,7 @@ public class BlueprintIterator
      *
      * @return false if the all the block have been incremented through.
      */
-    public boolean increment()
+    public Result increment()
     {
         if (this.progressPos.equals(NULL_POS))
         {
@@ -67,12 +83,12 @@ public class BlueprintIterator
                 if (this.progressPos.getY() >= this.size.getY())
                 {
                     this.reset();
-                    return false;
+                    return Result.AT_END;
                 }
             }
         }
 
-        return true;
+        return Result.NEW_BLOCK;
     }
 
     /**
@@ -80,7 +96,7 @@ public class BlueprintIterator
      *
      * @return false if progressPos can't be decremented any more.
      */
-    public boolean decrement()
+    public Result decrement()
     {
         if (this.progressPos.equals(NULL_POS))
         {
@@ -97,63 +113,65 @@ public class BlueprintIterator
                 if (this.progressPos.getY() <= -1)
                 {
                     this.reset();
-                    return false;
+                    return Result.AT_END;
                 }
             }
         }
 
-        return true;
+        return Result.NEW_BLOCK;
     }
 
-    public boolean increment(final Predicate<BlueprintPositionInfo> blockInfoPredicate, final boolean includeEntities)
+    /**
+     * Increment the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
+     * @param skipCondition the skipCondition.
+     * @return Result of increment.
+     */
+    public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition)
+    {
+        return iterateWithCondition(skipCondition, this::increment);
+    }
+
+    /**
+     * Decrement the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
+     * @param skipCondition the skipCondition.
+     * @return Result of decrement.
+     */
+    public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition)
+    {
+        return iterateWithCondition(skipCondition, this::decrement);
+    }
+
+    /**
+     * Execute a supplier function to avoid duplicate code for increment and decrement functions.
+     * @param skipCondition the skipCondition.
+     * @param function the supplier function.
+     * @return the Result.
+     */
+    private Result iterateWithCondition(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition, final Supplier<Result> function)
     {
         int count = 0;
         do
         {
-            final BlockPos worldPos = structureHandler.getPosition().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
-            final BlueprintPositionInfo info = structureHandler.getBluePrint().getBluePrintPositionInfo(progressPos, includeEntities);
-            if(!increment())
+            final BlockPos worldPos = structureHandler.getWorldPos().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
+            final BlueprintPositionInfo info = getBluePrintPositionInfo();
+
+            if(function.get() == Result.AT_END)
             {
-                return false;
+                return Result.AT_END;
             }
-            else if (BlockUtils.areBlockStatesEqual(structureHandler.getBluePrint().getBlockInfoAsMap().get(progressPos).getState(), structureHandler.getWorld().getBlockState(worldPos)))
+            else if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement()))
             {
                 structureHandler.triggerSuccess(progressPos);
             }
-            else if (!blockInfoPredicate.test(info))
+            else if (skipCondition.test(info, worldPos, structureHandler.getWorld()))
             {
-                return true;
+                continue;
             }
+            return Result.NEW_BLOCK;
         }
-        while (count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
+        while (count++ < structureHandler.getMaxBlocksCheckedPerCall());
 
-        return true;
-    }
-
-
-    public boolean decrement(final Predicate<BlueprintPositionInfo> blockInfoPredicate, final boolean includeEntities)
-    {
-        int count = 0;
-        do
-        {
-            final BlockPos worldPos = structureHandler.getPosition().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
-            final BlueprintPositionInfo info = structureHandler.getBluePrint().getBluePrintPositionInfo(progressPos, includeEntities);
-            if(!decrement())
-            {
-                return false;
-            }
-            else if (BlockUtils.areBlockStatesEqual(structureHandler.getBluePrint().getBlockInfoAsMap().get(progressPos).getState(), structureHandler.getWorld().getBlockState(worldPos)))
-            {
-                structureHandler.triggerSuccess(progressPos);
-            }
-            else if (!blockInfoPredicate.test(info))
-            {
-                return true;
-            }
-        }
-        while (count < Structurize.getConfig().getCommon().maxBlocksChecked.get());
-
-        return true;
+        return Result.CONFIG_LIMIT;
     }
 
     /**
@@ -169,10 +187,48 @@ public class BlueprintIterator
     }
 
     /**
+     * Get the blueprint info from the position.
+     * @return the info object.
+     */
+    @NotNull
+    public BlueprintPositionInfo getBluePrintPositionInfo()
+    {
+        return structureHandler.getBluePrint().getBluePrintPositionInfo(progressPos, includeEntities);
+    }
+
+    /**
+     * Set the iterator to include entities.
+     */
+    public void includeEntities()
+    {
+        this.includeEntities = true;
+    }
+
+    /**
      * Reset the progressPos.
      */
     public void reset()
     {
         BlockPosUtil.set(this.progressPos, NULL_POS);
+        includeEntities = false;
+    }
+
+    /**
+     * Get the progress pos of the iterator.
+     * @return the progress pos.
+     */
+    public BlockPos getProgressPos()
+    {
+        return new BlockPos(progressPos);
+    }
+
+    /**
+     * The different results when advancing the structure.
+     */
+    public enum Result
+    {
+        NEW_BLOCK,
+        AT_END,
+        CONFIG_LIMIT
     }
 }

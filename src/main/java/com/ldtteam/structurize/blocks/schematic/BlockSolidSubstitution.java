@@ -32,11 +32,6 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
     private static final float RESISTANCE = 1F;
 
     /**
-     * List of predicates the solid substitution block will have to replace.
-     */
-    public static List<Predicate<BlockState>> NOT_SOLID = new ArrayList<>();
-
-    /**
      * Constructor for the Substitution block.
      * sets the creative tab, as well as the resistance and the hardness.
      */

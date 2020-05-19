@@ -827,7 +827,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
         final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().world, new BlockPos(0, 0, 0), structureName.toString(),
-            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())));
+            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
 
         if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))
         {

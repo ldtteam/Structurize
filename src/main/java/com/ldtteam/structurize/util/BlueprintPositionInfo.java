@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class BlueprintPositionInfo
 {
     /**
-     * The position in the structure.
+     * The position in the structure (relative pos not world pos).
      */
     private final BlockPos pos;
 
@@ -23,6 +24,7 @@ public class BlueprintPositionInfo
     /**
      * List of entities at position.
      */
+    @NotNull
     public final CompoundNBT[] entities;
 
     /**
@@ -53,7 +55,7 @@ public class BlueprintPositionInfo
      * @return the info.
      */
     @Nullable
-    public BlockInfo getState()
+    public BlockInfo getBlockInfo()
     {
         return this.info;
     }

@@ -1,7 +1,6 @@
 package com.ldtteam.structures.helpers;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -13,12 +12,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A handler for structures. To place a structure a handler is required.
  */
-public class CreativeStructureHandler extends AbstractStructureHandler
+public class SurvivalStructureHandler extends AbstractStructureHandler
 {
-    /**
-     * If placement is supposed to be fancy or not.
-     */
-    public boolean fancyPlacement;
+    private final IItemHandler inv;
 
     /**
      * Creative constructor of structure handler.
@@ -26,12 +22,11 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param pos the position the anchor of the structure got placed.
      * @param structureName the name of the structure.
      * @param settings the placement settings.
-     * @param fancyPlacement if placement is fancy or complete.
      */
-    public CreativeStructureHandler(final World world, final BlockPos pos, final String structureName, final PlacementSettings settings, final boolean fancyPlacement)
+    public SurvivalStructureHandler(final World world, final BlockPos pos, final String structureName, final PlacementSettings settings, final IItemHandler handler)
     {
         super(world, pos, structureName, settings);
-        this.fancyPlacement = fancyPlacement;
+        this.inv = handler;
     }
 
     /**
@@ -40,20 +35,18 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param pos the position the anchor of the structure got placed.
      * @param blueprint the blueprint.
      * @param settings the placement settings.
-     * @param fancyPlacement if placement is fancy or complete.
-
      */
-    public CreativeStructureHandler(final World world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public SurvivalStructureHandler(final World world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final IItemHandler handler)
     {
         super(world, pos, blueprint, settings);
-        this.fancyPlacement = fancyPlacement;
+        this.inv = handler;
     }
 
     @Nullable
     @Override
     public IItemHandler getInventory()
     {
-        return null;
+        return this.inv;
     }
 
     @Override
@@ -63,15 +56,27 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
+    public boolean isCreative()
+    {
+        return false;
+    }
+
+    @Override
+    public int getStepsPerCall()
+    {
+        return 1;
+    }
+
+    @Override
     public int getMaxBlocksCheckedPerCall()
     {
-        return Structurize.getConfig().getCommon().maxOperationsPerTick.get();
+        return 1;
     }
 
     @Override
     public boolean isStackFree(@Nullable final ItemStack stack)
     {
-        return true;
+        return false;
     }
 
     @Override
@@ -95,18 +100,6 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public boolean fancyPlacement()
     {
-        return this.fancyPlacement;
-    }
-
-    @Override
-    public boolean isCreative()
-    {
         return true;
-    }
-
-    @Override
-    public int getStepsPerCall()
-    {
-        return Structurize.getConfig().getCommon().maxOperationsPerTick.get();
     }
 }

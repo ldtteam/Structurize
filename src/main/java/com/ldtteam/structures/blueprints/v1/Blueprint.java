@@ -370,7 +370,7 @@ public class Blueprint
      *
      * @param pos the position.
      * @param structurePos the position it will have in the structure.
-     * @return the blockState.
+     * @return the TE compound with real world coords.
      */
     @Nullable
     public CompoundNBT getTileEntityData(@NotNull final BlockPos pos, final BlockPos structurePos)

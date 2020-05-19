@@ -1,6 +1,9 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.placement.BlockPlacementResult;
+import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
+import com.ldtteam.structurize.placement.StructurePlacer;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,9 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * Contains one scan tool operation, as remove block, replace block, etc.
+ * Contains an operation, as remove block, replace block, place structure, etc.
  */
-public class ScanToolOperation
+public class TickedWorldOperation
 {
     /**
      * Scan tool operation types.
@@ -78,7 +81,8 @@ public class ScanToolOperation
     /**
      * The structure wrapper if structure place.
      */
-    private final InstantStructurePlacer wrapper;
+    private final StructurePlacer placer;
+    private int                   structurePhase = 0;
 
     /**
      * Create a ScanToolOperation.
@@ -90,7 +94,7 @@ public class ScanToolOperation
      * @param firstBlock  the block being altered.
      * @param secondBlock the block it will be replaced with.
      */
-    public ScanToolOperation(
+    public TickedWorldOperation(
       final OperationType type,
       final BlockPos startPos,
       final BlockPos endPos,
@@ -106,7 +110,7 @@ public class ScanToolOperation
         this.firstBlock = firstBlock;
         this.secondBlock = secondBlock;
         this.storage = new ChangeStorage(player);
-        this.wrapper = null;
+        this.placer = null;
     }
 
     /**
@@ -114,7 +118,7 @@ public class ScanToolOperation
      * @param storage the storage for the UNDO.
      * @param player the player.
      */
-    public ScanToolOperation(final ChangeStorage storage, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final ChangeStorage storage, @Nullable final PlayerEntity player)
     {
         this.operation = OperationType.UNDO;
         this.startPos = BlockPos.ZERO;
@@ -124,15 +128,15 @@ public class ScanToolOperation
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
         this.storage = storage;
-        this.wrapper = null;
+        this.placer = null;
     }
 
     /**
      * Create a ScanToolOperation for an structure placement.
-     * @param wrapper the structure wrapper for the placement..
+     * @param placer the structure for the placement..
      * @param player the player.
      */
-    public ScanToolOperation(final InstantStructurePlacer wrapper, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final StructurePlacer placer, @Nullable final PlayerEntity player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ZERO;
@@ -142,7 +146,7 @@ public class ScanToolOperation
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
         this.storage = new ChangeStorage(player);
-        this.wrapper = wrapper;
+        this.placer = placer;
     }
 
     /**
@@ -165,7 +169,47 @@ public class ScanToolOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            currentPos = wrapper.placeStructure(world, storage, currentPos);
+            StructurePhasePlacementResult result;
+            switch (structurePhase)
+            {
+                case 0:
+                    //water
+                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
+                      () ->  placer.getIterator().decrement((info, pos, theWorld) ->
+                      {
+                          final BlockState worldState = theWorld.getBlockState(pos);
+                          return !(worldState.getBlock() instanceof IBucketPickupHandler) && !(worldState.getBlock() instanceof FlowingFluidBlock);
+                      }), false);
+
+                    currentPos = result.getIteratorPos();
+                    break;
+                case 1:
+                    //structure
+                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                      () ->  placer.getIterator().increment((info, pos, theWorld) -> !info.getBlockInfo().getState().getMaterial().isSolid()), false);
+
+                    currentPos = result.getIteratorPos();
+                    break;
+                case 2:
+                    // not solid
+                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                      () ->  placer.getIterator().increment((info, pos, theWorld) -> info.getBlockInfo().getState().getMaterial().isSolid()), false);
+
+                    currentPos = result.getIteratorPos();
+                    break;
+                default:
+                    // entities
+                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                      () ->  placer.getIterator().increment((info, pos, theWorld) -> info.getEntities().length == 0), true);
+                    currentPos = null;
+                    break;
+            }
+
+            if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
+            {
+                structurePhase++;
+            }
+
             return currentPos == null;
         }
 
