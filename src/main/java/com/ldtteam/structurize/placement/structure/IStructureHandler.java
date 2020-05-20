@@ -2,13 +2,11 @@ package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -202,4 +200,12 @@ public interface IStructureHandler
      * @return true if fancy placement.
      */
     boolean fancyPlacement();
+
+    /**
+     * Special equal condition check.
+     * @param state the first state.
+     * @param state1 the second state.
+     * @return true if considered equal and block should be skipped.
+     */
+    boolean shouldBlocksBeConsideredEqual(BlockState state, BlockState state1);
 }

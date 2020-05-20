@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
@@ -27,7 +26,6 @@ import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -51,11 +49,6 @@ public final class BlockUtils
         (block, iBlockState) -> block.equals(Blocks.GRASS),
         (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper"))
     );
-
-    /**
-     * Special rules where blocks are equal to each other depending on the necessities of the mod.
-     */
-    public static final List<BiPredicate<BlockState, BlockState>> specialEqualRules = new ArrayList<>();
 
     /**
      * Private constructor to hide the public one.
@@ -238,7 +231,7 @@ public final class BlockUtils
      * @param fancy if fancy paste.
      * @return true if nothing has to be done.
      */
-    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> notSolid, final boolean fancy)
+    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> notSolid, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
     {
         if (blockState1 == null || blockState2 == null)
         {
@@ -264,15 +257,7 @@ public final class BlockUtils
             }
         }
 
-        for (final BiPredicate<BlockState, BlockState> predicate : specialEqualRules)
-        {
-            if (predicate.test(blockState1, blockState2))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return specialEqualRule.test(blockState1, blockState2);
     }
 
     /**

@@ -109,4 +109,10 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     {
         return Structurize.getConfig().getCommon().maxOperationsPerTick.get();
     }
+
+    @Override
+    public boolean shouldBlocksBeConsideredEqual(final BlockState state, final BlockState state1)
+    {
+        return false;
+    }
 }
