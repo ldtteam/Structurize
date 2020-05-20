@@ -1,4 +1,4 @@
-package com.ldtteam.structures.helpers;
+package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -6,7 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * A handler for structures. To place a structure a handler is required.
+ * Abstract implementation of the handler holding information that is common for all handlers.
  */
 public abstract class AbstractStructureHandler implements IStructureHandler
 {
@@ -94,12 +94,6 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     public World getWorld()
     {
         return this.world;
-    }
-
-    @Override
-    public void triggerSuccess(final BlockPos pos)
-    {
-        //todo if creative do nothing, else, try to reduce stack in itemHandler.
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.ldtteam.structures.helpers;
+package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
@@ -11,7 +11,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A handler for structures. To place a structure a handler is required.
+ * Creative placement handler that doesn't require resources or tools.
  */
 public class CreativeStructureHandler extends AbstractStructureHandler
 {
@@ -59,7 +59,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public void triggerSuccess(final BlockPos pos)
     {
-
+        // Do nothing. Override if needed.
     }
 
     @Override

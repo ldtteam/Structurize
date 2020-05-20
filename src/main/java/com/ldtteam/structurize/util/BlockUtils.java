@@ -142,7 +142,6 @@ public final class BlockUtils
 
     private static Item getItem(@NotNull final BlockState forgeBlockState)
     {
-        // todo test if beds and banners work and huge mushroom and doors and some redstone things too.
         final BlockState blockState = forgeBlockState;
         if (blockState.getBlock().equals(Blocks.LAVA))
         {
@@ -262,13 +261,6 @@ public final class BlockUtils
                 {
                     return true;
                 }
-            }
-
-            //list of things to only check block for.
-            //For the time being any flower pot is equal to each other.
-            if (block1 == Blocks.FLOWER_POT)
-            {
-                return block1 == block2;
             }
         }
 

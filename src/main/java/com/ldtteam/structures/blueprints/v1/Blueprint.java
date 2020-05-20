@@ -9,7 +9,6 @@ import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.block.AirBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -40,9 +39,14 @@ import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*
 public class Blueprint
 {
     /**
+     * Entity pos constant.
+     */
+    private static final String ENTITY_POS = "Pos";
+
+    /**
      * The list of required mods.
      */
-    private final List<String> requiredMods;
+    private final List<String>  requiredMods;
 
     /**
      * The size of the blueprint.
@@ -94,6 +98,7 @@ public class Blueprint
      */
     private List<BlockInfo>          cacheBlockInfo    = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
+    private Map<BlockPos, CompoundNBT[]> cacheEntitiesMap = null;
 
     /**
      * Cache for storing rotate/mirror anchor
@@ -366,6 +371,20 @@ public class Blueprint
     }
 
     /**
+     * Get a map of all entities by approx position.
+     *
+     * @return the cached map of these.
+     */
+    public final Map<BlockPos, CompoundNBT[]> getCachedEntitiesAsMap()
+    {
+        if (cacheEntitiesMap == null)
+        {
+            buildBlockInfoCaches();
+        }
+        return cacheEntitiesMap;
+    }
+
+    /**
      * Getter of the EntityInfo at a certain position.
      *
      * @param pos the position.
@@ -419,6 +438,7 @@ public class Blueprint
     {
         cacheBlockInfo = new ArrayList<>(getVolume());
         cacheBlockInfoMap = new HashMap<>(getVolume());
+        cacheEntitiesMap = new HashMap<>();
         for (short y = 0; y < this.sizeY; y++)
         {
             for (short z = 0; z < this.sizeZ; z++)
@@ -429,6 +449,7 @@ public class Blueprint
                     final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
                     cacheBlockInfo.add(blockInfo);
                     cacheBlockInfoMap.put(tempPos, blockInfo);
+                    cacheEntitiesMap.put(tempPos, Arrays.stream(this.getEntities()).filter(data -> data != null && isAtPos(data, tempPos)).toArray(CompoundNBT[]::new));
                 }
             }
         }
@@ -486,6 +507,7 @@ public class Blueprint
             cachePrimaryOffset = null;
         }
         cacheBlockInfoMap = null;
+        cacheEntitiesMap = null;
     }
 
     /**
@@ -780,9 +802,7 @@ public class Blueprint
     public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos pos, final boolean includeEntities)
     {
         return new BlueprintPositionInfo(pos, getBlockInfoAsMap().get(pos),
-          includeEntities
-            ? Arrays.stream(this.getEntities()).filter(data -> data != null && isAtPos(data, pos)).toArray(CompoundNBT[]::new)
-            : new CompoundNBT[0]);
+          includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundNBT[0]) : new CompoundNBT[0]);
     }
 
     /**
@@ -793,7 +813,7 @@ public class Blueprint
      */
     private boolean isAtPos(@NotNull final CompoundNBT entityData, final BlockPos pos)
     {
-        final ListNBT list = entityData.getList("Pos", 6);
+        final ListNBT list = entityData.getList(ENTITY_POS, 6);
         final int x = (int) list.getDouble(0);
         final int y = (int) list.getDouble(1);
         final int z = (int) list.getDouble(2);

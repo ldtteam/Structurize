@@ -1,11 +1,10 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structures.helpers.BlueprintIterator;
-import com.ldtteam.structures.helpers.IStructureHandler;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.placement.handlers.IPlacementHandler;
-import com.ldtteam.structurize.placement.handlers.PlacementHandlers;
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.*;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -26,25 +25,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static com.ldtteam.structures.helpers.BlueprintIterator.NULL_POS;
+import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
 
 /**
- * result = StructurePlacer.execute(this)
- *
- * if result = missingItems
- * return MISSING_ITE
- * else if result = block break
- * return BREAK_BLOCK
- * else if result = finished
- * return nextState
- * else
- * return getState()
- *
- * on success we have to write the increased progress pos to NBT.
- */
-
-/**
- * Interface for using the structure codebase.
+ * Structure placement class that will actually execute the placement of a structure.
+ * It will iterate for different phases over the structure and maintain the iterator.
  */
 public class StructurePlacer
 {
@@ -306,21 +291,6 @@ public class StructurePlacer
         }
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
     }
-
-    /**
-     * result = StructurePlacer.execute(this)
-     *
-     * if result = missingItems
-     * return MISSING_ITE
-     * else if result = block break
-     * return BREAK_BLOCK
-     * else if result = finished
-     * return nextState
-     * else
-     * return getState()
-     *
-     * on success we have to write the increased progress pos to NBT.
-     */
 
     /**
      * Check if there is enough free space to place a structure in the world.

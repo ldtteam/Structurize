@@ -1,5 +1,6 @@
-package com.ldtteam.structures.helpers;
+package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;

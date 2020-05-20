@@ -54,17 +54,19 @@ public class InventoryUtils
             }
         }
 
-        for (final ItemStack stack : new ArrayList<>(listToDiscount))
+        for (final ItemStack stack : listToDiscount)
         {
-            listToDiscount.remove(stack);
+            if (!stack.isEmpty())
+            {
+                return false;
+            }
         }
 
-        return listToDiscount.isEmpty();
+        return true;
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler}
-     * to the given target {@link IItemHandler}. Trying to merge existing itemStacks if possible.
+     * Method to transfers a stack to the next best slot in the target inventory.
      *
      * @param targetHandler The {@link IItemHandler} that works as Target.
      */

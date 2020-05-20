@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.placement.handlers;
+package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.BlockState;

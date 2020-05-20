@@ -1,4 +1,4 @@
-package com.ldtteam.structures.helpers;
+package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
@@ -22,12 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 
-//todo add to minecolonies ores to solidSubStitutionPredicateList
-//todo Minecolonies implement this with the AI.
-// return (block1 == Blocks.GRASS_BLOCK && block2 == Blocks.DIRT) || block2 == Blocks.GRASS_BLOCK && block1 == Blocks.DIRT;
-
 /**
- * A handler for structures. To place a structure a handler is required.
+ * A handler for structures.
+ * Handlers hold necessary and specific information about the entity/block/etc that is executing the placement.
  */
 public interface IStructureHandler
 {
