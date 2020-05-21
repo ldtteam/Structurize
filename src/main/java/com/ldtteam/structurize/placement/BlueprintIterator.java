@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.TriPredicate;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.function.Supplier;
 
 /**
@@ -162,7 +163,7 @@ public class BlueprintIterator
 
             if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
             {
-                structureHandler.triggerSuccess(progressPos);
+                structureHandler.triggerSuccess(progressPos, Collections.emptyList());
                 continue;
             }
             else if (skipCondition.test(info, worldPos, structureHandler.getWorld()))

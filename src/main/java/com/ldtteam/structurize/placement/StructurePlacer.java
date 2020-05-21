@@ -259,7 +259,7 @@ public class StructurePlacer
                         }
                     }
 
-                    if (!InventoryUtils.hasRequiredItems(handler.getInventory(), requiredItems))
+                    if (!this.handler.hasRequiredItems(requiredItems))
                     {
                         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                     }
@@ -290,7 +290,7 @@ public class StructurePlacer
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
                 }
 
-                this.handler.triggerSuccess(worldPos);
+                this.handler.triggerSuccess(worldPos, requiredItems);
 
                 if (result == IPlacementHandler.ActionProcessingResult.PASS)
                 {
@@ -299,7 +299,7 @@ public class StructurePlacer
 
                 if (!this.handler.isCreative() && !sameBlockInWorld)
                 {
-                    this.handler.triggerSuccess(worldPos);
+                    this.handler.triggerSuccess(worldPos, requiredItems);
                     for (final ItemStack tempStack : requiredItems)
                     {
                         if (!ItemStackUtils.isEmpty(tempStack))

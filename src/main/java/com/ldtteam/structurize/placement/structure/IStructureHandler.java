@@ -15,10 +15,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * A handler for structures.
@@ -143,7 +145,7 @@ public interface IStructureHandler
      * Trigger success AFTER placement of block.
      * @param pos the pos it was placed at.
      */
-    void triggerSuccess(final BlockPos pos);
+    void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes);
 
     /**
      * If creative placement (Free placement without inventory).
@@ -208,4 +210,11 @@ public interface IStructureHandler
      * @return true if considered equal and block should be skipped.
      */
     boolean shouldBlocksBeConsideredEqual(BlockState state, BlockState state1);
+
+    /**
+     * Check if the handler has the required items for an action.
+     * @param requiredItems the list of items.
+     * @return true if so.
+     */
+    boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems);
 }

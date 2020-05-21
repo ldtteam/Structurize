@@ -8,7 +8,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Creative placement handler that doesn't require resources or tools.
@@ -57,7 +60,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos)
+    public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredItems)
     {
         // Do nothing. Override if needed.
     }
@@ -114,5 +117,11 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     public boolean shouldBlocksBeConsideredEqual(final BlockState state, final BlockState state1)
     {
         return false;
+    }
+
+    @Override
+    public boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems)
+    {
+        return true;
     }
 }
