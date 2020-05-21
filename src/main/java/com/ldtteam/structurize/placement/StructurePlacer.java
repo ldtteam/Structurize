@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
@@ -156,7 +157,7 @@ public class StructurePlacer
       final World world,
       final BlockPos worldPos,
       final ChangeStorage storage,
-      final BlockState localState,
+      BlockState localState,
       final CompoundNBT tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
@@ -241,6 +242,11 @@ public class StructurePlacer
                     Log.getLogger().info("Couldn't restore entity", e);
                 }
             }
+        }
+
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution)
+        {
+            localState = this.handler.getSolidBlockForPos(worldPos);
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)

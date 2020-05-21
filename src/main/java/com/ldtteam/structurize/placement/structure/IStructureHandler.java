@@ -217,4 +217,11 @@ public interface IStructureHandler
      * @return true if so.
      */
     boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems);
+
+    /**
+     * Get the right solid block for the substitution block.
+     * @param worldPos the world pos.
+     * @return the right block (classically biome dependent).
+     */
+    BlockState getSolidBlockForPos(BlockPos worldPos);
 }

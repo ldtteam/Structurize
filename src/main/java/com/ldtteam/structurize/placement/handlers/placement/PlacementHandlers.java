@@ -55,7 +55,6 @@ public final class PlacementHandlers
         handlers.add(new ChestPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
-        handlers.add(new BlockSolidSubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
     /**
@@ -66,64 +65,6 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
-    }
-
-    public static class BlockSolidSubstitutionPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
-        {
-            return blockState.getBlock() instanceof BlockSolidSubstitution;
-        }
-
-        @Override
-        public ActionProcessingResult handle(
-          @NotNull final World world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
-          @Nullable final CompoundNBT tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
-        {
-            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
-            if (complete)
-            {
-                if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
-                {
-                    return ActionProcessingResult.DENY;
-                }
-            }
-            else
-            {
-                if (!world.setBlockState(pos, newBlockState, UPDATE_FLAG))
-                {
-                    return ActionProcessingResult.DENY;
-                }
-            }
-
-            return ActionProcessingResult.SUCCESS;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          @NotNull final World world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
-          @Nullable final CompoundNBT tileEntityData,
-          final boolean complete)
-        {
-            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
-            for (final IPlacementHandler handler : PlacementHandlers.handlers)
-            {
-                if (handler.canHandle(world, pos, newBlockState))
-                {
-                    return handler.getRequiredItems(world, pos, newBlockState, tileEntityData, complete);
-                }
-            }
-            final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(newBlockState));
-            return itemList;
-        }
     }
 
     public static class FirePlacementHandler implements IPlacementHandler

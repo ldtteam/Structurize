@@ -2,6 +2,7 @@ package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -123,5 +124,11 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     public boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems)
     {
         return true;
+    }
+
+    @Override
+    public BlockState getSolidBlockForPos(final BlockPos worldPos)
+    {
+        return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos);
     }
 }
