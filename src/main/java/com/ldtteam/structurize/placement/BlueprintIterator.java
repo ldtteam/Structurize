@@ -5,7 +5,6 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.TriPredicate;
 import org.jetbrains.annotations.NotNull;
 
@@ -128,7 +127,7 @@ public class BlueprintIterator
      * @param skipCondition the skipCondition.
      * @return Result of increment.
      */
-    public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition)
+    public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
         return iterateWithCondition(skipCondition, this::increment);
     }
@@ -138,7 +137,7 @@ public class BlueprintIterator
      * @param skipCondition the skipCondition.
      * @return Result of decrement.
      */
-    public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition)
+    public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
         return iterateWithCondition(skipCondition, this::decrement);
     }
@@ -149,7 +148,7 @@ public class BlueprintIterator
      * @param function the supplier function.
      * @return the Result.
      */
-    private Result iterateWithCondition(final TriPredicate<BlueprintPositionInfo, BlockPos, World> skipCondition, final Supplier<Result> function)
+    private Result iterateWithCondition(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition, final Supplier<Result> function)
     {
         int count = 0;
         do
@@ -166,7 +165,7 @@ public class BlueprintIterator
                 structureHandler.triggerSuccess(progressPos, Collections.emptyList());
                 continue;
             }
-            else if (skipCondition.test(info, worldPos, structureHandler.getWorld()))
+            else if (skipCondition.test(info, worldPos, structureHandler))
             {
                 continue;
             }

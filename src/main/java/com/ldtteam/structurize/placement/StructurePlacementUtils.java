@@ -36,7 +36,7 @@ public class StructurePlacementUtils
 
         @NotNull final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
-          () ->  placer.getIterator().increment((info, pos, theWorld) -> theWorld.getBlockState(pos).getBlock() instanceof AirBlock), true);
+          () ->  placer.getIterator().increment((info, pos, handler) -> handler.getWorld().getBlockState(pos).getBlock() instanceof AirBlock), true);
     }
 
     /**
