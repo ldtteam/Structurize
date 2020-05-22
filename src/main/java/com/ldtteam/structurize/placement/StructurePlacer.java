@@ -103,7 +103,7 @@ public class StructurePlacer
                 continue;
             }
 
-            final BlockPos worldPos = handler.getWorldPos().add(localPos).subtract(handler.getBluePrint().getPrimaryBlockOffset());
+            final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
             if (storage != null)
             {
                 storage.addPositionStorage(worldPos, world);

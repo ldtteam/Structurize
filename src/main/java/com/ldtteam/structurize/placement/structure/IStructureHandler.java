@@ -219,6 +219,16 @@ public interface IStructureHandler
     boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems);
 
     /**
+     * Get the position in the world translated from a local pos in the structure.
+     * @param localPos the local structure pos.
+     * @return the world pos.
+     */
+    default BlockPos getProgressPosInWorld(final BlockPos localPos)
+    {
+        return getWorldPos().subtract(getBluePrint().getPrimaryBlockOffset()).add(localPos);
+    }
+
+    /**
      * Get the right solid block for the substitution block.
      * @param worldPos the world pos.
      * @return the right block (classically biome dependent).

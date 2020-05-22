@@ -158,7 +158,7 @@ public class BlueprintIterator
             {
                 return Result.AT_END;
             }
-            final BlockPos worldPos = structureHandler.getWorldPos().subtract(structureHandler.getBluePrint().getPrimaryBlockOffset()).add(progressPos);
+            final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
             final BlueprintPositionInfo info = getBluePrintPositionInfo();
 
             if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
