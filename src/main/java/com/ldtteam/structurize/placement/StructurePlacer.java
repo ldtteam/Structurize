@@ -118,14 +118,14 @@ public class StructurePlacer
                     break;
                 case WATER_REMOVAL:
                     final BlockState worldState = world.getBlockState(worldPos);
-                    if (worldState.getBlock() instanceof IBucketPickupHandler || worldState.getBlock() instanceof FlowingFluidBlock)
+                    if (worldState.getBlock() instanceof IBucketPickupHandler || worldState.getBlock() instanceof FlowingFluidBlock || !worldState.getFluidState().isEmpty())
                     {
                         BlockUtils.removeFluid(world, worldPos);
                     }
                     result = new BlockPlacementResult(localPos, BlockPlacementResult.Result.SUCCESS);
                     break;
                 case GET_RES_REQUIREMENTS:
-                    result = getResourceRequirements(world, worldPos, storage, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
+                    result = getResourceRequirements(world, worldPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
                     requiredItems.addAll(result.getRequiredItems());
                     break;
                 default:
@@ -290,13 +290,15 @@ public class StructurePlacer
                     }
                 }
 
+                this.handler.prePlacementLogic(worldPos, localState);
+
                 final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
                 if (result == IPlacementHandler.ActionProcessingResult.DENY)
                 {
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
                 }
 
-                this.handler.triggerSuccess(worldPos, requiredItems);
+                this.handler.triggerSuccess(iterator.getProgressPos(), requiredItems);
 
                 if (result == IPlacementHandler.ActionProcessingResult.PASS)
                 {
@@ -326,15 +328,13 @@ public class StructurePlacer
      * When we extract this into another mod, we have to override the method.
      *  @param world          the world.
      * @param worldPos       the world position.
-     * @param storage        the change storage.
      * @param localState     the local state.
      * @param tileEntityData the tileEntity.
      */
     public BlockPlacementResult getResourceRequirements(
       final World world,
       final BlockPos worldPos,
-      final ChangeStorage storage,
-      final BlockState localState,
+      BlockState localState,
       final CompoundNBT tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
@@ -359,10 +359,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            if (!handler.isCreative())
-                            {
-                                requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
-                            }
+                            requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
                         }
                     }
                 }
@@ -373,11 +370,16 @@ public class StructurePlacer
             }
         }
 
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution)
+        {
+            localState = this.handler.getSolidBlockForPos(worldPos);
+        }
+
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
         {
             if (placementHandler.canHandle(world, worldPos, localState))
             {
-                if (!sameBlockInWorld && !this.handler.isCreative())
+                if (!sameBlockInWorld)
                 {
                     for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
                     {
