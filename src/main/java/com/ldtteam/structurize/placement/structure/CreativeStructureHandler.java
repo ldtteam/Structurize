@@ -127,6 +127,12 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
+    public void prePlacementLogic(final BlockPos worldPos, final BlockState blockState)
+    {
+        // Do nothing
+    }
+
+    @Override
     public BlockState getSolidBlockForPos(final BlockPos worldPos)
     {
         return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos);

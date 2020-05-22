@@ -229,6 +229,13 @@ public interface IStructureHandler
     }
 
     /**
+     * Execute pre placement logic if necessary.
+     * @param worldPos the position the block si going to be placed.
+     * @param blockState the blockstate to be placed.
+     */
+    void prePlacementLogic(final BlockPos worldPos, final BlockState blockState);
+
+    /**
      * Get the right solid block for the substitution block.
      * @param worldPos the world pos.
      * @return the right block (classically biome dependent).
