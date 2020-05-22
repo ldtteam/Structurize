@@ -298,7 +298,7 @@ public class StructurePlacer
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
                 }
 
-                this.handler.triggerSuccess(iterator.getProgressPos(), requiredItems);
+                this.handler.triggerSuccess(this.iterator.getProgressPos(), requiredItems);
 
                 if (result == IPlacementHandler.ActionProcessingResult.PASS)
                 {
@@ -307,7 +307,7 @@ public class StructurePlacer
 
                 if (!this.handler.isCreative() && !sameBlockInWorld)
                 {
-                    this.handler.triggerSuccess(worldPos, requiredItems);
+                    this.handler.triggerSuccess(this.iterator.getProgressPos(), requiredItems);
                     for (final ItemStack tempStack : requiredItems)
                     {
                         if (!ItemStackUtils.isEmpty(tempStack))
@@ -370,7 +370,7 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockSolidSubstitution)
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
