@@ -158,15 +158,15 @@ public class BlueprintIterator
                 return Result.AT_END;
             }
             final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
-            final BlueprintPositionInfo info = getBluePrintPositionInfo();
+            final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
 
-            if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
+            if (skipCondition.test(info, worldPos, structureHandler))
             {
-                structureHandler.triggerSuccess(progressPos, Collections.emptyList());
                 continue;
             }
-            else if (skipCondition.test(info, worldPos, structureHandler))
+            else if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
             {
+                structureHandler.triggerSuccess(progressPos, Collections.emptyList(), false);
                 continue;
             }
             return Result.NEW_BLOCK;
@@ -197,12 +197,13 @@ public class BlueprintIterator
 
     /**
      * Get the blueprint info from the position.
+     * @param localPos the position.
      * @return the info object.
      */
     @NotNull
-    public BlueprintPositionInfo getBluePrintPositionInfo()
+    public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
     {
-        return structureHandler.getBluePrint().getBluePrintPositionInfo(progressPos, includeEntities);
+        return structureHandler.getBluePrint().getBluePrintPositionInfo(localPos, includeEntities);
     }
 
     /**

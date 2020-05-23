@@ -144,8 +144,10 @@ public interface IStructureHandler
     /**
      * Trigger success AFTER placement of block.
      * @param pos the pos it was placed at.
+     * @param requiredRes the list of required res.
+     * @param placement if through placement (true) or through equality (false).
      */
-    void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes);
+    void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement);
 
     /**
      * If creative placement (Free placement without inventory).

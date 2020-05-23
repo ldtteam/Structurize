@@ -81,20 +81,19 @@ public class StructurePlacer
         }
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
-        if (inputPos.equals(NULL_POS) && iterateFunction.get() != BlueprintIterator.Result.NEW_BLOCK)
-        {
-            iterator.reset();
-            return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED, requiredItems));
-        }
 
+        BlueprintIterator.Result iterationResult = iterateFunction.get();;
+        BlockPos lastPos = inputPos;
         int count = 0;
 
-        do
+        while (iterationResult == BlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
+            final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
+
             if (count >= handler.getStepsPerCall())
             {
-                return new StructurePhasePlacementResult(localPos, new BlockPlacementResult(localPos, BlockPlacementResult.Result.LIMIT_REACHED, requiredItems));
+                return new StructurePhasePlacementResult(lastPos, new BlockPlacementResult(worldPos, BlockPlacementResult.Result.LIMIT_REACHED, requiredItems));
             }
 
             final BlockState localState = handler.getBluePrint().getBlockState(localPos);
@@ -103,7 +102,6 @@ public class StructurePlacer
                 continue;
             }
 
-            final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
             if (storage != null)
             {
                 storage.addPositionStorage(worldPos, world);
@@ -113,8 +111,15 @@ public class StructurePlacer
             switch (operation)
             {
                 case BLOCK_REMOVAL:
-                    world.removeBlock(worldPos, false);
-                    result = new BlockPlacementResult(localPos, BlockPlacementResult.Result.SUCCESS);
+                    if (!handler.isCreative() && !(world.getBlockState(worldPos).getBlock() instanceof AirBlock))
+                    {
+                        result = new BlockPlacementResult(worldPos, BlockPlacementResult.Result.BREAK_BLOCK);
+                    }
+                    else
+                    {
+                        world.removeBlock(worldPos, false);
+                        result = new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
+                    }
                     break;
                 case WATER_REMOVAL:
                     final BlockState worldState = world.getBlockState(worldPos);
@@ -122,33 +127,41 @@ public class StructurePlacer
                     {
                         BlockUtils.removeFluid(world, worldPos);
                     }
-                    result = new BlockPlacementResult(localPos, BlockPlacementResult.Result.SUCCESS);
+                    result = new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
                     break;
                 case GET_RES_REQUIREMENTS:
-                    result = getResourceRequirements(world, worldPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
+                    result = getResourceRequirements(world, worldPos, localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
                     requiredItems.addAll(result.getRequiredItems());
                     break;
                 default:
-                    result = handleBlockPlacement(world, worldPos, storage, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
+                    result = handleBlockPlacement(world, worldPos, localPos, storage, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
             }
             count++;
 
             if (operation != Operation.GET_RES_REQUIREMENTS && (result.getResult() == BlockPlacementResult.Result.MISSING_ITEMS || result.getResult() == BlockPlacementResult.Result.FAIL || result.getResult() == BlockPlacementResult.Result.BREAK_BLOCK))
             {
-                return new StructurePhasePlacementResult(localPos, result);
+                return new StructurePhasePlacementResult(lastPos, result);
             }
-        }
-        while (iterateFunction.get() == BlueprintIterator.Result.NEW_BLOCK);
 
-        iterator.reset();
-        return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED, requiredItems));
+            lastPos = localPos;
+            iterationResult = iterateFunction.get();
+        }
+
+        if (iterationResult == BlueprintIterator.Result.AT_END)
+        {
+            iterator.reset();
+            return new StructurePhasePlacementResult(iterator.getProgressPos(),
+              new BlockPlacementResult(iterator.getProgressPos(), BlockPlacementResult.Result.FINISHED, requiredItems));
+        }
+        return new StructurePhasePlacementResult(iterator.getProgressPos(), new BlockPlacementResult(this.handler.getProgressPosInWorld(iterator.getProgressPos()), BlockPlacementResult.Result.LIMIT_REACHED, requiredItems));
     }
 
     /**
      * This method handles the block placement.
      * When we extract this into another mod, we have to override the method.
-     *  @param world          the world.
+     * @param world          the world.
      * @param worldPos       the world position.
+     * @param localPos       the local pos
      * @param storage        the change storage.
      * @param localState     the local state.
      * @param tileEntityData the tileEntity.
@@ -156,6 +169,7 @@ public class StructurePlacer
     public BlockPlacementResult handleBlockPlacement(
       final World world,
       final BlockPos worldPos,
+      final BlockPos localPos,
       final ChangeStorage storage,
       BlockState localState,
       final CompoundNBT tileEntityData)
@@ -175,7 +189,7 @@ public class StructurePlacer
             }
         }
 
-        for (final CompoundNBT compound : iterator.getBluePrintPositionInfo().getEntities())
+        for (final CompoundNBT compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
             {
@@ -298,7 +312,7 @@ public class StructurePlacer
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
                 }
 
-                this.handler.triggerSuccess(this.iterator.getProgressPos(), requiredItems);
+                this.handler.triggerSuccess(localPos, requiredItems, true);
 
                 if (result == IPlacementHandler.ActionProcessingResult.PASS)
                 {
@@ -307,7 +321,6 @@ public class StructurePlacer
 
                 if (!this.handler.isCreative() && !sameBlockInWorld)
                 {
-                    this.handler.triggerSuccess(this.iterator.getProgressPos(), requiredItems);
                     for (final ItemStack tempStack : requiredItems)
                     {
                         if (!ItemStackUtils.isEmpty(tempStack))
@@ -328,12 +341,14 @@ public class StructurePlacer
      * When we extract this into another mod, we have to override the method.
      *  @param world          the world.
      * @param worldPos       the world position.
+     * @param localPos       the local pos.
      * @param localState     the local state.
      * @param tileEntityData the tileEntity.
      */
     public BlockPlacementResult getResourceRequirements(
       final World world,
       final BlockPos worldPos,
+      final BlockPos localPos,
       BlockState localState,
       final CompoundNBT tileEntityData)
     {
@@ -345,7 +360,7 @@ public class StructurePlacer
         }
 
         final List<ItemStack> requiredItems = new ArrayList<>();
-        for (final CompoundNBT compound : iterator.getBluePrintPositionInfo().getEntities())
+        for (final CompoundNBT compound : iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
             {
