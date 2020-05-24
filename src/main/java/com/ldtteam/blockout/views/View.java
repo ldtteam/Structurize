@@ -1,19 +1,13 @@
 package com.ldtteam.blockout.views;
 
-import com.ldtteam.blockout.Alignment;
-import com.ldtteam.blockout.Loader;
-import com.ldtteam.blockout.MouseEventCallback;
-import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 /**
  * A View is a Pane which can contain other Panes.
@@ -87,13 +81,13 @@ public class View extends Pane
     @Override
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild));
+        return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild), null);
     }
 
     @Override
     public boolean handleHover(final double mx, final double my)
     {
-        return mousePointableEventHandler(mx, my, Pane::handleHover);
+        return mousePointableEventHandler(mx, my, Pane::handleHover, Pane::handleUnhover);
     }
 
     @Nullable
@@ -193,7 +187,15 @@ public class View extends Pane
         children.add(child);
         adjustChild(child);
         child.setParentView(this);
+    }
 
+    @Override
+    public void handleUnhover()
+    {
+        for (final Pane child : children)
+        {
+            child.handleUnhover();
+        }
     }
 
     protected void adjustChild(final Pane child)
@@ -254,7 +256,7 @@ public class View extends Pane
     @Override
     public boolean onMouseDrag(final double x, final double y, final int speed, final double deltaX, final double deltaY)
     {
-        return mousePointableEventHandler(x, y, (child, mxChild, myChild) -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY));
+        return mousePointableEventHandler(x, y, (child, mxChild, myChild) -> child.onMouseDrag(mxChild, myChild, speed, deltaX, deltaY), null);
     }
 
     /**
@@ -268,7 +270,7 @@ public class View extends Pane
      */
     public boolean mouseClickableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
     {
-        return mouseEventProcessor(mx, my, Pane::canHandleClick, eventCallback);
+        return mouseEventProcessor(mx, my, Pane::canHandleClick, eventCallback, null);
     }
 
     /**
@@ -277,12 +279,14 @@ public class View extends Pane
      *
      * @param mx            mouse x relative to parent
      * @param my            mouse y relative to parent
-     * @param eventCallback event callback
+     * @param eventCallbackPositive event callback if accept.
+     * @param eventCallbackNegative event callback if deny.
      * @return true if event was used or propagation needs to be stopped
      */
-    public boolean mousePointableEventHandler(final double mx, final double my, final MouseEventCallback eventCallback)
+    public boolean mousePointableEventHandler(final double mx, final double my,
+      final MouseEventCallback eventCallbackPositive, @Nullable final MouseEventCallback eventCallbackNegative)
     {
-        return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallback);
+        return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallbackPositive, eventCallbackNegative);
     }
 
     /**
@@ -291,22 +295,36 @@ public class View extends Pane
      * @param mx            mouse x relative to parent
      * @param my            mouse y relative to parent
      * @param panePredicate test child pane if it can accept current event
-     * @param eventCallback event callback
+     * @param eventCallbackPositive event callback
+     * @param eventCallbackNegative negative event callback.
      * @return true if event was used or propagation needs to be stopped
      */
-    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate, final MouseEventCallback eventCallback)
+    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate
+      , final MouseEventCallback eventCallbackPositive, final MouseEventCallback eventCallbackNegative)
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
         final double mxChild = mx - x - padding;
         final double myChild = my - y - padding;
+        boolean invokedPositive = false;
         while (it.hasPrevious())
         {
             final Pane child = it.previous();
-            if (panePredicate.accept(child, mxChild, myChild))
+            if (panePredicate.accept(child, mxChild, myChild) && !invokedPositive)
             {
-                return eventCallback.accept(child, mxChild, myChild);
+                if (eventCallbackNegative != null)
+                {
+                    invokedPositive = eventCallbackPositive.accept(child, mxChild, myChild);
+                }
+                else
+                {
+                    return eventCallbackPositive.accept(child, mxChild, myChild);
+                }
+            }
+            else if (eventCallbackNegative != null)
+            {
+                eventCallbackNegative.accept(child, mxChild, myChild);
             }
         }
-        return false;
+        return invokedPositive;
     }
 }

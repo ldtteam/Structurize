@@ -40,6 +40,7 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
+    protected boolean isHovered = false;
 
     /**
      * Default constructor.
@@ -692,6 +693,26 @@ public class Pane extends AbstractGui
     }
 
     /**
+     * Handle unhover.
+     * @param mx ignored.
+     * @param mz ignored.
+     * @return ignored.
+     */
+    public boolean handleUnhover(final double mx, final double mz)
+    {
+        handleUnhover();
+        return true;
+    }
+
+    /**
+     * Handle unhover.
+     */
+    public void handleUnhover()
+    {
+        isHovered = false;
+    }
+
+    /**
      * Handle onHover element, element must be visible.
      * TODO: bug: must have pos set from xml (or be not in a group)
      *
@@ -701,6 +722,10 @@ public class Pane extends AbstractGui
      */
     public boolean handleHover(final double mx, final double my)
     {
+        if (this.isPointInPane(mx, my))
+        {
+            isHovered = true;
+        }
         if (onHover == null)
         {
             if (!onHoverId.isEmpty())
