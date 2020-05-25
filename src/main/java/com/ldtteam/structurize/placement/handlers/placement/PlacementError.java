@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.placementhandlers;
+package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.google.common.collect.Lists;
 import net.minecraft.util.math.BlockPos;

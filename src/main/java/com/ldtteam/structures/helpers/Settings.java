@@ -1,10 +1,13 @@
 package com.ldtteam.structures.helpers;
 
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.MinecartItem;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -30,7 +33,7 @@ public final class Settings
     private BlockPos  pos           = null;
     private boolean   isMirrored    = false;
     @Nullable
-    private Structure structure     = null;
+    private Blueprint blueprint     = null;
     private int       rotation      = 0;
     private String    structureName = null;
     private Optional<BlockPos> anchorPos = Optional.empty();
@@ -238,7 +241,7 @@ public final class Settings
      */
     public void moveTo(final BlockPos pos)
     {
-        if (this.structure == null)
+        if (this.blueprint == null)
         {
             return;
         }
@@ -249,31 +252,26 @@ public final class Settings
      * @return The schematic we are currently rendering.
      */
     @Nullable
-    public Structure getActiveStructure()
+    public Blueprint getActiveStructure()
     {
-        if (structure != null && structure.isBluePrintMissing())
-        {
-            this.structure = null;
-        }
-
-        return this.structure;
+        return this.blueprint;
     }
 
     /**
      * Set a structure to render.
      *
-     * @param structure structure to render.
+     * @param blueprint structure to render.
      */
-    public void setActiveSchematic(final Structure structure)
+    public void setActiveSchematic(final Blueprint blueprint)
     {
-        if (structure == null || structure.getBluePrint() == null)
+        if (blueprint == null)
         {
             reset();
         }
         else
         {
-            this.structure = structure;
-            this.structure.rotate(BlockPosUtil.getRotationFromRotations(rotation), structure.world, pos, isMirrored ? Mirror.FRONT_BACK : Mirror.NONE);
+            this.blueprint = blueprint;
+            this.blueprint.rotateWithMirror(BlockPosUtil.getRotationFromRotations(rotation), isMirrored ? Mirror.FRONT_BACK : Mirror.NONE, Minecraft.getInstance().world);
         }
     }
 
@@ -282,7 +280,7 @@ public final class Settings
      */
     public void reset()
     {
-        structure = null;
+        blueprint = null;
         rotation = 0;
         isMirrored = false;
         staticSchematicMode = false;
@@ -299,7 +297,7 @@ public final class Settings
      */
     public void softReset()
     {
-        structure = null;
+        blueprint = null;
         staticSchematicMode = false;
         staticSchematicName = null;
         hollow = false;
@@ -351,10 +349,9 @@ public final class Settings
         int offset = rotation - this.rotation;
 
         this.rotation = rotation;
-        if (structure != null)
+        if (blueprint != null)
         {
-            structure.rotate(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, structure.world, pos, Mirror.NONE);
-            structure.getSettings().setRotation(BlockPosUtil.getRotationFromRotations(rotation));
+            blueprint.rotateWithMirror(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, Mirror.NONE, Minecraft.getInstance().world);
         }
         scheduleRefresh();
     }
@@ -364,14 +361,13 @@ public final class Settings
      */
     public void mirror()
     {
-        if (structure == null)
+        if (blueprint == null)
         {
             return;
         }
 
         isMirrored = !isMirrored;
-        structure.rotate(Rotation.NONE, structure.world, pos, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT);
-        structure.getSettings().setMirror(getMirror());
+        blueprint.rotateWithMirror(Rotation.NONE, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().world);
         scheduleRefresh();
     }
 

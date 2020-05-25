@@ -2,6 +2,7 @@ package com.ldtteam.structurize;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
@@ -9,6 +10,7 @@ import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
+import net.minecraft.block.AirBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;

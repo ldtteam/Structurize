@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.placementhandlers;
+package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
@@ -55,7 +55,6 @@ public final class PlacementHandlers
         handlers.add(new ChestPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
-        handlers.add(new BlockSolidSubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
     /**
@@ -66,64 +65,6 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
-    }
-
-    public static class BlockSolidSubstitutionPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
-        {
-            return blockState.getBlock() instanceof BlockSolidSubstitution;
-        }
-
-        @Override
-        public Object handle(
-          @NotNull final World world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
-          @Nullable final CompoundNBT tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
-        {
-            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
-            if (complete)
-            {
-                if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
-                {
-                    return ActionProcessingResult.DENY;
-                }
-            }
-            else
-            {
-                if (!world.setBlockState(pos, newBlockState, UPDATE_FLAG))
-                {
-                    return ActionProcessingResult.DENY;
-                }
-            }
-
-            return newBlockState;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          @NotNull final World world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
-          @Nullable final CompoundNBT tileEntityData,
-          final boolean complete)
-        {
-            final BlockState newBlockState = BlockUtils.getSubstitutionBlockAtWorld(world, pos);
-            for (final IPlacementHandler handler : PlacementHandlers.handlers)
-            {
-                if (handler.canHandle(world, pos, newBlockState))
-                {
-                    return handler.getRequiredItems(world, pos, newBlockState, tileEntityData, complete);
-                }
-            }
-            final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(newBlockState));
-            return itemList;
-        }
     }
 
     public static class FirePlacementHandler implements IPlacementHandler
@@ -148,7 +89,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -157,7 +98,7 @@ public final class PlacementHandlers
           final BlockPos centerPos)
         {
             world.setBlockState(pos, blockState, UPDATE_FLAG);
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
     }
 
@@ -188,7 +129,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -198,7 +139,7 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
-                return ActionProcessingResult.ACCEPT;
+                return ActionProcessingResult.PASS;
             }
 
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
@@ -215,7 +156,7 @@ public final class PlacementHandlers
                 handleTileEntityPlacement(tileEntityData, world, pos);
             }
 
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
     }
 
@@ -228,7 +169,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -240,7 +181,7 @@ public final class PlacementHandlers
             {
                 return ActionProcessingResult.DENY;
             }
-            return Blocks.DIRT.getDefaultState();
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -266,7 +207,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -281,7 +222,7 @@ public final class PlacementHandlers
                 world.setBlockState(pos.up(), blockState.with(DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
             }
 
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -307,7 +248,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -328,10 +269,10 @@ public final class PlacementHandlers
                     handleTileEntityPlacement(tileEntityData, world, pos);
                     handleTileEntityPlacement(tileEntityData, world, pos.offset(facing.getOpposite()));
                 }
-                return blockState;
+                return ActionProcessingResult.SUCCESS;
             }
 
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -361,7 +302,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -373,9 +314,9 @@ public final class PlacementHandlers
             {
                 world.setBlockState(pos, blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
                 world.setBlockState(pos.up(), blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
-                return blockState;
+                return ActionProcessingResult.SUCCESS;
             }
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -402,7 +343,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -410,7 +351,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -434,7 +375,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -444,14 +385,14 @@ public final class PlacementHandlers
         {
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
-                return false;
+                return ActionProcessingResult.DENY;
             }
 
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
             }
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -480,7 +421,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -502,7 +443,7 @@ public final class PlacementHandlers
 
                 world.removeBlock(pos, false);
             }
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -526,7 +467,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -539,7 +480,7 @@ public final class PlacementHandlers
                 return ActionProcessingResult.DENY;
             }
 
-            return Blocks.DIRT.getDefaultState();
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -568,7 +509,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -576,7 +517,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            return ActionProcessingResult.ACCEPT;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -600,7 +541,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -615,7 +556,7 @@ public final class PlacementHandlers
                 {
                     handleTileEntityPlacement(tileEntityData, world, pos, settings);
                 }
-                return ActionProcessingResult.ACCEPT;
+                return ActionProcessingResult.PASS;
             }
 
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
@@ -628,7 +569,7 @@ public final class PlacementHandlers
                 handleTileEntityPlacement(tileEntityData, world, pos, settings);
             }
 
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -655,7 +596,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -673,7 +614,7 @@ public final class PlacementHandlers
                 handleTileEntityPlacement(tileEntityData, world, pos);
             }
 
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override
@@ -703,7 +644,7 @@ public final class PlacementHandlers
         }
 
         @Override
-        public Object handle(
+        public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
           @NotNull final BlockState blockState,
@@ -717,7 +658,7 @@ public final class PlacementHandlers
                 {
                     handleTileEntityPlacement(tileEntityData, world, pos);
                 }
-                return ActionProcessingResult.ACCEPT;
+                return ActionProcessingResult.PASS;
             }
 
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
@@ -730,7 +671,7 @@ public final class PlacementHandlers
                 handleTileEntityPlacement(tileEntityData, world, pos);
             }
 
-            return blockState;
+            return ActionProcessingResult.SUCCESS;
         }
 
         @Override

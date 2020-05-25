@@ -10,8 +10,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Blueprint simulated chunk.

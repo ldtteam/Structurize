@@ -13,8 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
