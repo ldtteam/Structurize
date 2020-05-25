@@ -63,7 +63,7 @@ public class AddRemoveTagMessage implements IMessage
     public void fromBytes(final PacketBuffer buf)
     {
         add = buf.readBoolean();
-        tag = buf.readString();
+        tag = buf.readString(32767);
         anchorPos = buf.readBlockPos();
         tagPos = buf.readBlockPos();
     }
