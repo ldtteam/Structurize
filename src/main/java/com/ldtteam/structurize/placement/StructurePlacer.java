@@ -390,7 +390,7 @@ public class StructurePlacer
                             {
                                 continue;
                             }
-                            
+
                             requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
                         }
                     }
@@ -402,9 +402,13 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement() && handler.replaceWithSolidBlock(world.getBlockState(worldPos)))
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
+            if (!handler.replaceWithSolidBlock(world.getBlockState(worldPos)))
+            {
+                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+            }
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
