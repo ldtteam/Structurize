@@ -258,7 +258,7 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockSolidSubstitution)
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
@@ -385,7 +385,7 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement() && handler.replaceWithSolidBlock(world.getBlockState(worldPos)))
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
