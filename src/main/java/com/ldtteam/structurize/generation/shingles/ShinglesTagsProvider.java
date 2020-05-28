@@ -49,7 +49,7 @@ public class ShinglesTagsProvider implements IDataProvider
                                              .resolve("shingles.json");
             final Path blocksTagsFacePath = this.generator.getOutputFolder()
                                               .resolve(DataGeneratorConstants.TAGS_DIR)
-                                              .resolve("items")
+                                              .resolve("blocks")
                                               .resolve("shingles.json");
 
             IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(shinglesJson), itemsTagsFacePath);
@@ -74,7 +74,7 @@ public class ShinglesTagsProvider implements IDataProvider
                                                   .resolve(shingleFace.getName().concat(".json"));
                 final Path blocksTagsWoodsPath = this.generator.getOutputFolder()
                                                    .resolve(DataGeneratorConstants.TAGS_DIR)
-                                                   .resolve("items")
+                                                   .resolve("blocks")
                                                    .resolve("shingles")
                                                    .resolve(shingleFace.getName().concat(".json"));
 
@@ -97,7 +97,7 @@ public class ShinglesTagsProvider implements IDataProvider
                                              .resolve(shingleWood.getName().concat(".json"));
                 final Path blocksTagsPath = this.generator.getOutputFolder()
                                               .resolve(DataGeneratorConstants.TAGS_DIR)
-                                              .resolve("items")
+                                              .resolve("blocks")
                                               .resolve("shingles")
                                               .resolve(shingleFace.getName())
                                               .resolve(shingleWood.getName().concat(".json"));

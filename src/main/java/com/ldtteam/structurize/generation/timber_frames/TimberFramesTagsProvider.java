@@ -44,7 +44,7 @@ public class TimberFramesTagsProvider implements IDataProvider
                                                .resolve("timber_frames.json");
             final Path blocksTagsCenterPath = this.generator.getOutputFolder()
                                                 .resolve(DataGeneratorConstants.TAGS_DIR)
-                                                .resolve("items")
+                                                .resolve("blocks")
                                                 .resolve("timber_frames.json");
 
             IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(timberFrameCenters), itemsTagsCenterPath);
@@ -68,7 +68,7 @@ public class TimberFramesTagsProvider implements IDataProvider
                                                   .resolve(timberFrameCenter.getName().concat(".json"));
                 final Path blocksTagsWoodsPath = this.generator.getOutputFolder()
                                                    .resolve(DataGeneratorConstants.TAGS_DIR)
-                                                   .resolve("items")
+                                                   .resolve("blocks")
                                                    .resolve("timber_frames")
                                                    .resolve(timberFrameCenter.getName().concat(".json"));
 
@@ -78,7 +78,7 @@ public class TimberFramesTagsProvider implements IDataProvider
                 final List<String> timberFrames = new ArrayList<>();
                 Arrays.stream(TimberFrameType.values())
                   .forEach(subFace -> timberFrames.add(
-                    "#structurize:" + subFace.getName() + "_" + timberFrameFrame.getName() + "_" + timberFrameCenter.getName() + "_timber_frame"));
+                    "structurize:" + subFace.getName() + "_" + timberFrameFrame.getName() + "_" + timberFrameCenter.getName() + "_timber_frame"));
 
                 final TagJson tagJson = new TagJson(false, timberFrames);
 
@@ -90,7 +90,7 @@ public class TimberFramesTagsProvider implements IDataProvider
                                              .resolve(timberFrameFrame.getName().concat(".json"));
                 final Path blocksTagsPath = this.generator.getOutputFolder()
                                               .resolve(DataGeneratorConstants.TAGS_DIR)
-                                              .resolve("items")
+                                              .resolve("blocks")
                                               .resolve("timber_frames")
                                               .resolve(timberFrameCenter.getName())
                                               .resolve(timberFrameFrame.getName().concat(".json"));

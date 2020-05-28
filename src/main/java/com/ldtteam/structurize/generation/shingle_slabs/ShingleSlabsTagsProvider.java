@@ -46,7 +46,7 @@ public class ShingleSlabsTagsProvider implements IDataProvider
                                              .resolve("shingle_slabs.json");
             final Path blocksTagsFacePath = this.generator.getOutputFolder()
                                               .resolve(DataGeneratorConstants.TAGS_DIR)
-                                              .resolve("items")
+                                              .resolve("blocks")
                                               .resolve("shingle_slabs.json");
 
             IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(shinglesJson), itemsTagsFacePath);
@@ -56,7 +56,7 @@ public class ShingleSlabsTagsProvider implements IDataProvider
             final List<String> locations = new ArrayList<>();
             Arrays.stream(ShingleFaceType.values())
               .filter(subFace -> subFace.getGroup().equals(shingleFace.getGroup()))
-              .forEach(subFace -> locations.add("structurize:" + subFace.getName()));
+              .forEach(subFace -> locations.add("structurize:" + subFace.getName() + "_shingle_slab"));
             final TagJson tagJson = new TagJson(false, locations);
 
             final String name = shingleFace.getName() + ".json";
