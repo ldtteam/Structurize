@@ -153,4 +153,10 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
         corner1 = pos1;
         corner2 = pos2;
     }
+
+    @Override
+    public BlockPos getTilePos()
+    {
+        return pos;
+    }
 }

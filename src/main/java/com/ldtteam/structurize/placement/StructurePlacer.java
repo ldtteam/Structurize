@@ -232,7 +232,7 @@ public class StructurePlacer
 
                             if (foundEntity)
                             {
-                                break;
+                                continue;
                             }
 
                             world.addEntity(entity);
@@ -258,7 +258,7 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockSolidSubstitution)
+        if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
@@ -374,6 +374,23 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
+                            final Vec3d posInWorld = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
+                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            boolean foundEntity = false;
+                            for (Entity worldEntity: list)
+                            {
+                                if (worldEntity.getPositionVector().equals(entity.getPositionVector()))
+                                {
+                                    foundEntity = true;
+                                    break;
+                                }
+                            }
+
+                            if (foundEntity)
+                            {
+                                continue;
+                            }
+
                             requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
                         }
                     }
@@ -388,6 +405,10 @@ public class StructurePlacer
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
+            if (!handler.replaceWithSolidBlock(world.getBlockState(worldPos)))
+            {
+                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+            }
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)

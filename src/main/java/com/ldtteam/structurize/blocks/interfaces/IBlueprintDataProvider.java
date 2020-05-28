@@ -230,7 +230,7 @@ public interface IBlueprintDataProvider
 
         for (Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
         {
-            tagPosMap.put(entry.getKey().add(getPos()), entry.getValue());
+            tagPosMap.put(entry.getKey().add(getTilePos()), entry.getValue());
         }
 
         return tagPosMap;
@@ -244,7 +244,7 @@ public interface IBlueprintDataProvider
      */
     default public BlockPos getRealWorldPos(final BlockPos relativePos)
     {
-        return relativePos.add(getPos());
+        return relativePos.add(getTilePos());
     }
 
     /**
@@ -252,7 +252,7 @@ public interface IBlueprintDataProvider
      *
      * @return position
      */
-    public BlockPos getPos();
+    public BlockPos getTilePos();
 
     /**
      * Gets the update packet, needed for initial placement through schematic paste
