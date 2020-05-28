@@ -94,6 +94,7 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new TimberFramesTagsProvider(event.getGenerator()));
 
         // Floating Carpets
         event.getGenerator().addProvider(new FloatingCarpetsBlockStateProvider(event.getGenerator()));
