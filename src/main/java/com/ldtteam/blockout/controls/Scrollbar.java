@@ -120,7 +120,7 @@ public class Scrollbar extends Pane
         {
             // Current relative position of the click position on the bar
             dragScroll(my - y);
-        };
+        }
 
         if (getContentHeightDiff() <= 0)
         {
