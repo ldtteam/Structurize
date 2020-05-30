@@ -203,6 +203,8 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
+                            entity.deserializeNBT(compound);
+                            
                             final List<ItemStack> requiredItems = new ArrayList<>();
                             if (!handler.isCreative())
                             {
@@ -212,8 +214,6 @@ public class StructurePlacer
                                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                                 }
                             }
-
-                            entity.deserializeNBT(compound);
 
                             entity.setUniqueId(UUID.randomUUID());
                             final Vec3d posInWorld = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
@@ -374,6 +374,8 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
+                            entity.deserializeNBT(compound);
+
                             final Vec3d posInWorld = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
                             final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;

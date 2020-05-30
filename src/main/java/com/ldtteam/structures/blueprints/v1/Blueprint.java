@@ -387,20 +387,20 @@ public class Blueprint
     /**
      * Getter of the EntityInfo at a certain position.
      *
-     * @param pos the position.
+     * @param worldPos the world position.
      * @param structurePos the position it will have in the structure.
      * @return the TE compound with real world coords.
      */
     @Nullable
-    public CompoundNBT getTileEntityData(@NotNull final BlockPos pos, final BlockPos structurePos)
+    public CompoundNBT getTileEntityData(@NotNull final BlockPos worldPos, final BlockPos structurePos)
     {
-        if (!getBlockInfoAsMap().containsKey(pos) || !getBlockInfoAsMap().get(pos).hasTileEntityData())
+        if (!getBlockInfoAsMap().containsKey(structurePos) || !getBlockInfoAsMap().get(structurePos).hasTileEntityData())
         {
             return null;
         }
 
-        final CompoundNBT te = getBlockInfoAsMap().get(pos).getTileEntityData().copy();
-        final BlockPos tePos = pos.add(structurePos);
+        final CompoundNBT te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
+        final BlockPos tePos = structurePos.add(worldPos);
         te.putInt("x", tePos.getX());
         te.putInt("y", tePos.getY());
         te.putInt("z", tePos.getZ());
