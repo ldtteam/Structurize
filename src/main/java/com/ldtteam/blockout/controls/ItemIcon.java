@@ -122,7 +122,7 @@ public class ItemIcon extends Pane
         RenderSystem.pushMatrix();
         RenderHelper.disableStandardItemLighting();
 
-        RenderSystem.translatef((float) 0, (float) 0, GUI_ITEM_Z_TRANSLATE);
+        RenderSystem.translatef((float) mx, (float) my, GUI_ITEM_Z_TRANSLATE);
         RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
 
         FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
@@ -132,7 +132,7 @@ public class ItemIcon extends Pane
         }
 
         net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
-        mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), x, y, font);
+        mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), 0, 0, font);
         net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
 
         RenderSystem.popMatrix();
