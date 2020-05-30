@@ -10,14 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
-
 /**
  * Class of itemIcons in our GUIs.
  */
 public class ItemIcon extends Pane
 {
     private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
-    private static final float GUI_ITEM_Z_TRANSLATE = 32.0F;
+    private static final float GUI_ITEM_Z_TRANSLATE   = 32.0F;
 
     /**
      * ItemStack represented in the itemIcon.
@@ -115,30 +114,27 @@ public class ItemIcon extends Pane
     @Override
     public void drawSelfLast(final int mx, final int my)
     {
-        if (itemStack == null || itemStack.isEmpty())
+        if (itemStack == null || itemStack.isEmpty() || !isHovered)
         {
             return;
         }
 
-        if (isHovered)
+        RenderSystem.pushMatrix();
+        RenderHelper.disableStandardItemLighting();
+
+        RenderSystem.translatef((float) 0, (float) 0, GUI_ITEM_Z_TRANSLATE);
+        RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+
+        FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
+        if (font == null)
         {
-            RenderSystem.pushMatrix();
-            RenderHelper.disableStandardItemLighting();
-
-            RenderSystem.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
-            RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-
-            FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
-            if (font == null)
-            {
-                font = mc.fontRenderer;
-            }
-
-            net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
-            mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), x, y, font);
-            net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
-
-            RenderSystem.popMatrix();
+            font = mc.fontRenderer;
         }
+
+        net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
+        mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), x, y, font);
+        net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
+
+        RenderSystem.popMatrix();
     }
 }
