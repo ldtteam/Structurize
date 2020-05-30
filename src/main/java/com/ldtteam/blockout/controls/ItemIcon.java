@@ -115,28 +115,30 @@ public class ItemIcon extends Pane
     @Override
     public void drawSelfLast(final int mx, final int my)
     {
-        RenderSystem.pushMatrix();
-        RenderHelper.disableStandardItemLighting();
-
         if (itemStack == null || itemStack.isEmpty())
         {
             return;
         }
 
-        RenderSystem.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
-        RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-
-        FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
-        if (font == null)
-        {
-            font = mc.fontRenderer;
-        }
         if (isHovered)
         {
+            RenderSystem.pushMatrix();
+            RenderHelper.disableStandardItemLighting();
+
+            RenderSystem.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
+            RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+
+            FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
+            if (font == null)
+            {
+                font = mc.fontRenderer;
+            }
+
             net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
             mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), x, y, font);
             net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
+
+            RenderSystem.popMatrix();
         }
-        RenderSystem.popMatrix();
     }
 }

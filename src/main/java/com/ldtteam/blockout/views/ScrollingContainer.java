@@ -93,6 +93,12 @@ public class ScrollingContainer extends View
     }
 
     @Override
+    public boolean handleHover(final double mx, final double my)
+    {
+        return super.handleHover(mx, my + (int) scrollY);
+    }
+
+    @Override
     public boolean click(final double mx, final double my)
     {
         // Offset click by the scroll amounts; we'll adjust it back on clickSelf
