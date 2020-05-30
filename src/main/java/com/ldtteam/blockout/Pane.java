@@ -335,6 +335,19 @@ public class Pane extends AbstractGui
     }
 
     /**
+     * Draw something after finishing drawing the GUI.
+     * @param mx mouse x.
+     * @param my mouse y.
+     */
+    public final void drawLast(final int mx, final int my)
+    {
+        if (visible)
+        {
+            drawSelfLast(mx, my);
+        }
+    }
+
+    /**
      * Draw self. The graphics port is already relative to the appropriate
      * location.
      * <p>
@@ -344,6 +357,20 @@ public class Pane extends AbstractGui
      * @param my Mouse y (relative to parent).
      */
     public void drawSelf(final int mx, final int my)
+    {
+        // Can be overloaded
+    }
+
+    /**
+     * Draw self last. The graphics port is already relative to the appropriate
+     * location.
+     * <p>
+     * Override this to actually draw last.
+     *
+     * @param mx Mouse x (relative to parent).
+     * @param my Mouse y (relative to parent).
+     */
+    public void drawSelfLast(final int mx, final int my)
     {
         // Can be overloaded
     }

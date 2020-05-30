@@ -1,6 +1,5 @@
 package com.ldtteam.blockout.views;
 
-import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import org.lwjgl.glfw.GLFW;
 

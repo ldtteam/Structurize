@@ -120,7 +120,7 @@ public class Scrollbar extends Pane
         {
             // Current relative position of the click position on the bar
             dragScroll(my - y);
-        }
+        };
 
         if (getContentHeightDiff() <= 0)
         {
@@ -141,6 +141,12 @@ public class Scrollbar extends Pane
 
         // Scroll Bar (Inset color)
         fill(scrollBarBackX2 - 1, scrollBarEndY - 1, scrollBarBackX1, scrollBarStartY, scrollbarColor);
+    }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
     }
 
     @Override

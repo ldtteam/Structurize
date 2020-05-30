@@ -139,6 +139,11 @@ public class BOScreen extends Screen
         RenderSystem.translatef((float) x, (float) y, 0);
         window.draw(mx - x, my - y);
         RenderSystem.popMatrix();
+
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float) x, (float) y, 0);
+        window.drawLast(mx - x, my - y);
+        RenderSystem.popMatrix();
     }
 
     @Override

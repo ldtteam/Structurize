@@ -79,6 +79,32 @@ public class View extends Pane
     }
 
     @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        // Translate the drawing origin to our x,y.
+        RenderSystem.pushMatrix();
+
+        final int paddedX = x + padding;
+        final int paddedY = y + padding;
+
+        RenderSystem.translatef((float) paddedX, (float) paddedY, 0.0f);
+
+        // Translate Mouse into the View
+        final int drawX = mx - paddedX;
+        final int drawY = my - paddedY;
+
+        for (final Pane child : children)
+        {
+            if (child.isVisible())
+            {
+                child.drawLast(drawX, drawY);
+            }
+        }
+
+        RenderSystem.popMatrix();
+    }
+
+    @Override
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
         return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild), null);

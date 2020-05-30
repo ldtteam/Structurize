@@ -495,6 +495,12 @@ public class ButtonImage extends Button
         drawlabel(mouseOver);
     }
 
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
+
     /**
      * Draw the correct image.
      *
