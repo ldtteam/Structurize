@@ -101,7 +101,7 @@ public class InventoryUtils
             if (handler.getStackInSlot(i).isItemEqual(tempStack))
             {
                 final ItemStack result = handler.extractItem(i, count, false);
-                if (result.getCount() == tempStack.getCount())
+                if (result.getCount() == count)
                 {
                     return;
                 }
