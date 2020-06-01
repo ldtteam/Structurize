@@ -299,7 +299,10 @@ public class StructurePlacer
                                 InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
                             }
                         }
-
+                        else
+                        {
+                            world.removeTileEntity(worldPos);
+                        }
                         world.removeBlock(worldPos, false);
                     }
                 }
