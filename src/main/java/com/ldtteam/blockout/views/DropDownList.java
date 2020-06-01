@@ -314,6 +314,12 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        button.drawSelfLast(mx, my);
+    }
+
+    @Override
     public boolean click(final double mx, final double my)
     {
         return button.click(mx, my);

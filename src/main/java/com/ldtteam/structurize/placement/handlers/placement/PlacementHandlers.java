@@ -683,6 +683,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }

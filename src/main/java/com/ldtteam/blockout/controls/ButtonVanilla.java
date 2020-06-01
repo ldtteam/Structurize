@@ -124,4 +124,10 @@ public class ButtonVanilla extends Button
 
         RenderSystem.disableBlend();
     }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
 }

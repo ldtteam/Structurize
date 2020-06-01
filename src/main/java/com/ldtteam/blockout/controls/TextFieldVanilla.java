@@ -98,6 +98,12 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        super.drawSelfLast(mx, my);
+    }
+
+    @Override
     public boolean handleClick(final double mx, final double my)
     {
         double mouseX = mx;
