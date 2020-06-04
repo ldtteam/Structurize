@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -176,7 +177,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
                 final BlockPos posToGo = blockToGoTo > 0 ? pos.offset(currentDirection, blockToGoTo) : pos.offset(currentOutPutDirection, Math.abs(blockToGoTo));
                 final BlockPos posToGoFrom = blockToGoFrom > 0 ? pos.offset(currentDirection, blockToGoFrom) : pos.offset(currentOutPutDirection, Math.abs(blockToGoFrom));
-                if (world.isAirBlock(posToGo))
+                if (world.isAirBlock(posToGo) || world.getBlockState(posToGo).getMaterial().isLiquid())
                 {
                     BlockState tempState = world.getBlockState(posToGoFrom);
                     if (blockToMove.getBlock() == tempState.getBlock() && world.isBlockLoaded(posToGoFrom) && world.isBlockLoaded(posToGo))
@@ -185,6 +186,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
                         tempState = Block.getValidBlockForPosition(tempState, this.world, posToGo);
                         world.setBlockState(posToGo, tempState, 67);
+                        ((IBucketPickupHandler)tempState.getBlock()).pickupFluid(world, posToGo, tempState);
                         this.world.neighborChanged(posToGo, tempState.getBlock(), posToGo);
 
                         world.removeBlock(posToGoFrom, false);
