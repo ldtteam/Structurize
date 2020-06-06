@@ -249,12 +249,10 @@ public final class BlockUtils
                 return true;
             }
 
-            if (block1 == ModBlocks.blockSolidSubstitution)
+            if ((block1 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState1))
+            || (block2 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState2)))
             {
-                if (notSolid.test(blockState1))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

@@ -26,8 +26,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
-
 /**
  * Structure placement class that will actually execute the placement of a structure.
  * It will iterate for different phases over the structure and maintain the iterator.
@@ -410,10 +408,6 @@ public class StructurePlacer
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
-            if (!handler.replaceWithSolidBlock(world.getBlockState(worldPos)))
-            {
-                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-            }
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
