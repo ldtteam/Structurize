@@ -234,11 +234,11 @@ public final class Loader
     {
         try
         {
-            InputStream is = DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().getResourceManager().getResource(res).getInputStream());
+            InputStream is = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().getResourceManager().getResource(res).getInputStream());
             if (is == null)
             {
                 is = DistExecutor
-                    .callWhenOn(Dist.DEDICATED_SERVER, () -> () -> Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath())));
+                    .unsafeCallWhenOn(Dist.DEDICATED_SERVER, () -> () -> Loader.class.getResourceAsStream(String.format("/assets/%s/%s", res.getNamespace(), res.getPath())));
             }
             return is;
         }

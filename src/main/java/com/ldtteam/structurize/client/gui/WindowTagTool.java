@@ -31,12 +31,6 @@ public class WindowTagTool extends AbstractWindowSkeleton
     private static final String BUTTON_CANCEL      = "cancel";
     private static final String BUTTON_CLOSE       = "closeUI";
     private static final String BUTTON_LIST_REMOVE = "removeTag";
-
-    /**
-     * The item this gui belongs to
-     */
-    private ItemTagTool tagTool;
-
     /**
      * The current tag
      */

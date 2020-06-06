@@ -7,7 +7,6 @@ import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MinecartItem;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;

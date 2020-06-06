@@ -3,7 +3,6 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
-import com.ldtteam.structurize.placement.StructurePlacer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Mirror;

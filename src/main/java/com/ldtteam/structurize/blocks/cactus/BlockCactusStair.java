@@ -11,7 +11,7 @@ public class BlockCactusStair extends AbstractBlockStructurizeStairs<BlockCactus
 
     public BlockCactusStair()
     {
-        super(ModBlocks.blockCactusPlank.getDefaultState(), Block.Properties.from(ModBlocks.blockCactusPlank));
+        super(() -> ModBlocks.blockCactusPlank.getDefaultState(), Block.Properties.from(ModBlocks.blockCactusPlank));
         setRegistryName(BLOCK_NAME);
     }
 }
