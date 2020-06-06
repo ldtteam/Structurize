@@ -221,7 +221,7 @@ public final class LanguageHandler
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
             String locale =
-                DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+                DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
 
             if (locale == null)
             {

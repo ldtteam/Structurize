@@ -173,7 +173,7 @@ public class Window extends View
      */
     public void open()
     {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
     }
 
     /**

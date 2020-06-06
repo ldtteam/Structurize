@@ -1,6 +1,5 @@
 package com.ldtteam.structurize;
 
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
@@ -36,12 +35,11 @@ public class Structurize
      */
     public Structurize()
     {
-        Log.getLogger().warn("Structurize starting up");
         config = new Configuration(ModLoadingContext.get().getActiveContainer());
 
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
     }
 
     /**
