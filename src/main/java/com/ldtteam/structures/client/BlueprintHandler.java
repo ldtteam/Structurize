@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
-import java.lang.ref.SoftReference;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -23,7 +23,7 @@ public final class BlueprintHandler
     private static final int CACHE_SIZE = 30;
     private static final long CACHE_EVICT_TIME = 45_000L;
 
-    private final Int2ObjectArrayMap<SoftReference<BlueprintRenderer>> rendererCache = new Int2ObjectArrayMap<>(CACHE_SIZE);
+    private final Int2ObjectArrayMap<BlueprintRenderer> rendererCache = new Int2ObjectArrayMap<>(CACHE_SIZE);
     private final Int2LongArrayMap evictTimeCache = new Int2LongArrayMap(CACHE_SIZE);
 
     /**
@@ -62,22 +62,17 @@ public final class BlueprintHandler
         Minecraft.getInstance().getProfiler().startSection("struct_render_cache");
 
         final int blueprintHash = blueprint.hashCode();
-        final SoftReference<BlueprintRenderer> rendererRef = rendererCache.get(blueprintHash);
-        final BlueprintRenderer renderer;
+        final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
+        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(blueprint) : rendererRef;
 
-        if (rendererRef == null || rendererRef.get() == null)
+        if (rendererRef == null)
         {
-            renderer = BlueprintRenderer.buildRendererForBlueprint(blueprint);
-            rendererCache.put(blueprintHash, new SoftReference<>(renderer));
-        }
-        else
-        {
-            renderer = rendererRef.get();
+            rendererCache.put(blueprintHash, renderer);
         }
 
-        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
         renderer.updateBlueprint(blueprint);
         renderer.draw(pos, stack, partialTicks);
+        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().endSection();
     }
@@ -87,17 +82,16 @@ public final class BlueprintHandler
      */
     public void cleanCache()
     {
-        for (final Int2LongMap.Entry entry : evictTimeCache.int2LongEntrySet())
+        final long now = System.currentTimeMillis();
+        final Iterator<Int2LongMap.Entry> iter = evictTimeCache.int2LongEntrySet().iterator();
+
+        while (iter.hasNext())
         {
-            if (entry.getLongValue() + CACHE_EVICT_TIME < System.currentTimeMillis())
+            final Int2LongMap.Entry entry = iter.next();
+            if (entry.getLongValue() + CACHE_EVICT_TIME < now)
             {
-                final int removeHash = entry.getIntKey();
-                final SoftReference<BlueprintRenderer> removeRendererRef = rendererCache.remove(removeHash);
-                evictTimeCache.remove(removeHash);
-                if (removeRendererRef != null && removeRendererRef.get() != null)
-                {
-                    removeRendererRef.get().close();
-                }
+                rendererCache.remove(entry.getIntKey()).close();
+                iter.remove();
             }
         }
     }
@@ -109,16 +103,36 @@ public final class BlueprintHandler
      * @param partialTicks the partial ticks.
      * @param blueprint    the blueprint.
      */
-    public void drawBlueprintAtListOfPositions(final List<BlockPos> points, final float partialTicks, final Blueprint blueprint, final MatrixStack stack)
+    public void drawBlueprintAtListOfPositions(final List<BlockPos> points,
+        final float partialTicks,
+        final Blueprint blueprint,
+        final MatrixStack stack)
     {
         if (points.isEmpty())
         {
             return;
         }
 
+        Minecraft.getInstance().getProfiler().startSection("struct_render_multi");
+
+        final int blueprintHash = blueprint.hashCode();
+        final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
+        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(blueprint) : rendererRef;
+
+        if (rendererRef == null)
+        {
+            rendererCache.put(blueprintHash, renderer);
+        }
+
+        renderer.updateBlueprint(blueprint);
+
         for (final BlockPos coord : points)
         {
-            draw(blueprint, coord.down(), stack, partialTicks);
+            renderer.draw(coord.down(), stack, partialTicks);
         }
+
+        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
+
+        Minecraft.getInstance().getProfiler().endSection();
     }
 }
