@@ -72,7 +72,7 @@ public class ShinglesRecipeProvider implements IDataProvider
         ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(shingle.getFaceType().getRecipeIngredient(), false)));
         for(int i = 0; i < 8; i++)
         {
-            ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
+            ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:shingles/" + shingle.getFaceType().getGroup() + "/" + shingle.getWoodType().getName(), true)));
         }
         recipeJson.setIngredients(ingredients);
 

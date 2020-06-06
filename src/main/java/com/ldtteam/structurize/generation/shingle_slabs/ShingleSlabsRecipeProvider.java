@@ -72,7 +72,7 @@ public class ShingleSlabsRecipeProvider implements IDataProvider
         ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(shingleSlab.getFaceType().getRecipeIngredient(), false)));
         for(int i = 0; i < 8; i++)
         {
-            ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:" + groupName, true)));
+            ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:shingle_slabs/" + shingleSlab.getFaceType().getGroup(), true)));
         }
         recipeJson.setIngredients(ingredients);
 
