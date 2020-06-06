@@ -1,8 +1,6 @@
 package com.ldtteam.structures.lib;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;

@@ -83,7 +83,7 @@ public class ShingleSlabsItemModelProvider implements IDataProvider
         final XYZDoubleListJson groundScale = new XYZDoubleListJson(0.25, 0.25, 0.25);
 
         final ModelDisplayPositionJson groundPosition = new ModelDisplayPositionJson(null, groundTranslation, groundScale);
-        display.put(ModelDisplayPositionsEnum.GROUND, firstPersonPosition);
+        display.put(ModelDisplayPositionsEnum.GROUND, groundPosition);
 
         // FIXED
 

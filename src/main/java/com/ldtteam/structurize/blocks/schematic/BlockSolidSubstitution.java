@@ -1,12 +1,7 @@
 package com.ldtteam.structurize.blocks.schematic;
 
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * This block is used as a substitution block for the Builder.

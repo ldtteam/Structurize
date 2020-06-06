@@ -26,11 +26,6 @@ import java.util.Random;
 public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntityPlaceholder>
 {
     /**
-     * Basic rotation to achieve a certain direction.
-     */
-    private static final int BASIC_ROTATION = 90;
-
-    /**
      * The state to render.
      */
     public BlockState state = ModBlocks.placeholderBlock.getDefaultState();

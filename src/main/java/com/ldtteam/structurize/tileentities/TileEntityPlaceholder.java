@@ -26,11 +26,6 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
      */
     private ItemStack block = new ItemStack(ModBlocks.placeholderBlock, 1);
 
-    /**
-     * List of custom tags
-     */
-    private Set<String> tagList = new HashSet<>();
-
     public TileEntityPlaceholder()
     {
         super(StructurizeTileEntities.PLACERHOLDER_BLOCK);

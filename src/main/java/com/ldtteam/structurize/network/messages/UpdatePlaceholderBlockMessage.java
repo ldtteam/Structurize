@@ -9,7 +9,6 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,11 +25,6 @@ public class UpdatePlaceholderBlockMessage implements IMessage
      * The block to set.
      */
     private ItemStack block;
-
-    /**
-     * The list of tags
-     */
-    private List<String> tagStringList = new ArrayList<>();
 
     /**
      * Empty constructor used when registering the message.

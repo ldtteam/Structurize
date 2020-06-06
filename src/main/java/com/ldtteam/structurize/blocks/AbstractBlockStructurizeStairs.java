@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
+import java.util.function.Supplier;
 import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
@@ -11,9 +12,9 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public abstract class AbstractBlockStructurizeStairs<B extends AbstractBlockStructurizeStairs<B>> extends StairsBlock implements IBlockStructurize<B>
 {
-    public AbstractBlockStructurizeStairs(final BlockState blockState, final Properties properties)
+    public AbstractBlockStructurizeStairs(final Supplier<BlockState> state, final Properties properties)
     {
-        super(blockState, properties);
+        super(state, properties);
     }
 
     @Override

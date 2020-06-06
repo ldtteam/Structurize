@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -274,6 +273,7 @@ public class OptifineCompat
      *
      * @param code runnable to run
      */
+    /*
     private void tryRunIfShadersDisabled(final ReflectionRunnable code)
     {
         tryRun(() -> {
@@ -283,6 +283,7 @@ public class OptifineCompat
             }
         });
     }
+    */
 
     /**
      * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied code runnable.

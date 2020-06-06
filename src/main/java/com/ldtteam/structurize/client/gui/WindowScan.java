@@ -171,7 +171,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = entityList.getListElementIndexByPane(button);
         final Entity entity = new ArrayList<>(entities.values()).get(row);
         Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getUnformattedComponentText()));
-        entities.remove(entity.getName());
+        entities.remove(entity.getName().getUnformattedComponentText());
         updateEntitylist();
     }
 
@@ -334,7 +334,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
                     for (final Entity entity : list)
                     {
-                        if (!entities.containsKey(entity.getName())
+                        if (!entities.containsKey(entity.getName().getUnformattedComponentText())
                                 && (filter.isEmpty() || (entity.getName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                     || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
                         {

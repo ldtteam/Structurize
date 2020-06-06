@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;

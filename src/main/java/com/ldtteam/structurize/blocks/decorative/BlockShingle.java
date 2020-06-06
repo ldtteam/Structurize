@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.blocks.decorative;
 
+import java.util.function.Supplier;
+
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleWoodType;
@@ -28,7 +30,7 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
     private final ShingleWoodType woodType;
     private final ShingleFaceType faceType;
 
-    public BlockShingle(final BlockState modelState, final ShingleWoodType woodType, final ShingleFaceType faceType)
+    public BlockShingle(final Supplier<BlockState> modelState, final ShingleWoodType woodType, final ShingleFaceType faceType)
     {
         super(modelState, Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
         setRegistryName(faceType.getName() + "_" + woodType.getName() + "_shingle");

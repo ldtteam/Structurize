@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.*;

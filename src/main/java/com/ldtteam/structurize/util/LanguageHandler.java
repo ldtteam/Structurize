@@ -203,7 +203,6 @@ public final class LanguageHandler
         LanguageCache.getInstance().load(path);
     }
 
-    // TODO: javadoc, move constants
     private static class LanguageCache
     {
         private static LanguageCache instance;
@@ -222,7 +221,7 @@ public final class LanguageHandler
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
             String locale =
-                DistExecutor.callWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+                DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
 
             if (locale == null)
             {
