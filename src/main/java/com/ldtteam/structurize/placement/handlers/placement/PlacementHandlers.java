@@ -10,7 +10,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
@@ -18,8 +17,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.fml.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -710,8 +707,6 @@ public final class PlacementHandlers
                 world.setTileEntity(pos, newTile);
                 newTile.rotate(settings.rotation);
                 newTile.mirror(settings.mirror);
-                final Chunk chunk = world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-                PacketDistributor.TRACKING_CHUNK.with(() -> chunk).send(new SUpdateTileEntityPacket(pos, 0, tileEntityData));
             }
         }
     }
