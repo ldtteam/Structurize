@@ -144,6 +144,12 @@ public class Scrollbar extends Pane
     }
 
     @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
+
+    @Override
     public boolean handleClick(final double mx, final double my)
     {
         if (getContentHeightDiff() <= 0)

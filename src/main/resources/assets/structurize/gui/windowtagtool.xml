@@ -1,0 +1,21 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" pause="false"
+        lightbox="true" xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+    <label size="100% 11" pos="0 25" textalign="TOP_MIDDLE" color="white"
+           label="$(com.ldtteam.structurize.gui.tagtool.currenttag)"/>
+    <input id="currentTag" size="150 18" pos="135 40" maxlength="25"/>
+
+    <label id="taglistname" size="30 12" pos="135 65" color="white"/>
+
+    <list id="tagposlist" size="230 120" pos="135 80">
+        <box size="100% 17" linewidth="2">
+            <itemicon id="posblock" size="17 17" pos="0 1"/>
+            <text id="tagnames" size="190 25" pos="30 5" textalign="TOP_LEFT" color="white"/>
+            <buttonimage id="removeTag" pos="207 1" size="15 15" source="structurize:textures/gui/builderhut/button_x.png" textcolor="black"/>
+        </box>
+    </list>
+
+    <buttonimage label="$(com.ldtteam.structurize.gui.tagtool.close)" id="closeUI" pos="300 205" size="86 17"
+                 source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+
+    <buttonimage id="cancel" source="structurize:textures/gui/builderhut/button_x.png" size="13 16" pos="325 5"/>
+</window>

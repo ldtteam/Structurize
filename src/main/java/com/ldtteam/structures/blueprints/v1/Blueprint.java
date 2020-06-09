@@ -1,31 +1,37 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.util.BlockInfo;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.BlueprintPositionInfo;
+import net.minecraft.block.AirBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.HangingEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -33,9 +39,14 @@ import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES
 public class Blueprint
 {
     /**
+     * Entity pos constant.
+     */
+    private static final String ENTITY_POS = "Pos";
+
+    /**
      * The list of required mods.
      */
-    private final List<String> requiredMods;
+    private final List<String>  requiredMods;
 
     /**
      * The size of the blueprint.
@@ -85,8 +96,9 @@ public class Blueprint
     /**
      * Various caches for storing block data in prepared structures
      */
-    private List<BlockInfo> cacheBlockInfo = null;
+    private List<BlockInfo>          cacheBlockInfo    = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
+    private Map<BlockPos, CompoundNBT[]> cacheEntitiesMap = null;
 
     /**
      * Cache for storing rotate/mirror anchor
@@ -106,14 +118,14 @@ public class Blueprint
      * @param requiredMods the required mods.
      */
     protected Blueprint(
-        short sizeX,
-        short sizeY,
-        short sizeZ,
-        short palleteSize,
-        List<BlockState> pallete,
-        short[][][] structure,
-        CompoundNBT[] tileEntities,
-        List<String> requiredMods)
+      short sizeX,
+      short sizeY,
+      short sizeZ,
+      short palleteSize,
+      List<BlockState> pallete,
+      short[][][] structure,
+      CompoundNBT[] tileEntities,
+      List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -154,8 +166,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the X-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the X-Axis (without rotation and/or mirroring)
      */
     public short getSizeX()
     {
@@ -163,8 +174,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the Y-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the Y-Axis (without rotation and/or mirroring)
      */
     public short getSizeY()
     {
@@ -172,8 +182,7 @@ public class Blueprint
     }
 
     /**
-     * @return the Size of the Structure on the Z-Axis (without rotation and/or
-     *         mirroring)
+     * @return the Size of the Structure on the Z-Axis (without rotation and/or mirroring)
      */
     public short getSizeZ()
     {
@@ -226,8 +235,7 @@ public class Blueprint
     }
 
     /**
-     * @return the structure (without rotation and/or mirroring)
-     *         The Coordinate order is: y, z, x
+     * @return the structure (without rotation and/or mirroring) The Coordinate order is: y, z, x
      */
     public short[][][] getStructure()
     {
@@ -235,8 +243,7 @@ public class Blueprint
     }
 
     /**
-     * @return an array of serialized TileEntities (posX, posY and posZ tags have
-     *         been localized to coordinates within the structure)
+     * @return an array of serialized TileEntities (posX, posY and posZ tags have been localized to coordinates within the structure)
      */
     public CompoundNBT[][][] getTileEntities()
     {
@@ -244,8 +251,7 @@ public class Blueprint
     }
 
     /**
-     * @return an array of serialized TileEntities (the Pos tag has
-     *         been localized to coordinates within the structure)
+     * @return an array of serialized TileEntities (the Pos tag has been localized to coordinates within the structure)
      */
     public CompoundNBT[] getEntities()
     {
@@ -253,8 +259,7 @@ public class Blueprint
     }
 
     /**
-     * @param entities an array of serialized TileEntities (the Pos tag need to
-     *                 be localized to coordinates within the structure)
+     * @param entities an array of serialized TileEntities (the Pos tag need to be localized to coordinates within the structure)
      */
     public void setEntities(CompoundNBT[] entities)
     {
@@ -299,19 +304,16 @@ public class Blueprint
 
     /**
      * Sets an Array of all architects for this structure
-     * 
+     *
      * @param architects an array of architects.
-     * @return this blueprint.
      */
-    public Blueprint setArchitects(final String[] architects)
+    public void setArchitects(final String[] architects)
     {
         this.architects = architects;
-        return this;
     }
 
     /**
-     * @return An Array of all missing mods that are required to generate this
-     *         structure (only works if structure was loaded from file)
+     * @return An Array of all missing mods that are required to generate this structure (only works if structure was loaded from file)
      */
     public String[] getMissingMods()
     {
@@ -320,7 +322,7 @@ public class Blueprint
 
     /**
      * Sets the missing mods
-     * 
+     *
      * @param missingMods the missing mods list.
      * @return this object.
      */
@@ -368,10 +370,75 @@ public class Blueprint
         return cacheBlockInfoMap;
     }
 
-    private final void buildBlockInfoCaches()
+    /**
+     * Get a map of all entities by approx position.
+     *
+     * @return the cached map of these.
+     */
+    public final Map<BlockPos, CompoundNBT[]> getCachedEntitiesAsMap()
+    {
+        if (cacheEntitiesMap == null)
+        {
+            buildBlockInfoCaches();
+        }
+        return cacheEntitiesMap;
+    }
+
+    /**
+     * Getter of the EntityInfo at a certain position.
+     *
+     * @param worldPos the world position.
+     * @param structurePos the position it will have in the structure.
+     * @return the TE compound with real world coords.
+     */
+    @Nullable
+    public CompoundNBT getTileEntityData(@NotNull final BlockPos worldPos, final BlockPos structurePos)
+    {
+        if (!getBlockInfoAsMap().containsKey(structurePos) || !getBlockInfoAsMap().get(structurePos).hasTileEntityData())
+        {
+            return null;
+        }
+
+        final CompoundNBT te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
+        final BlockPos tePos = structurePos.add(worldPos);
+        te.putInt("x", tePos.getX());
+        te.putInt("y", tePos.getY());
+        te.putInt("z", tePos.getZ());
+        return te;
+    }
+
+    /**
+     * Calculate the item needed to place the current block in the structure.
+     * @param pos the pos its at.
+     * @return an item or null if not initialized.
+     */
+    @Nullable
+    public Item getItem(final BlockPos pos)
+    {
+        @Nullable final BlockInfo info = this.getBlockInfoAsMap().getOrDefault(pos, null);
+        if (info == null || info.getState() == null || info.getState().getBlock() instanceof AirBlock || info.getState().getMaterial().isLiquid())
+        {
+            return null;
+        }
+
+        final ItemStack stack = BlockUtils.getItemStackFromBlockState(info.getState());
+
+        if (!ItemStackUtils.isEmpty(stack))
+        {
+            return stack.getItem();
+        }
+
+        return null;
+    }
+
+    /**
+     * Build the caches.
+     */
+    private void buildBlockInfoCaches()
     {
         cacheBlockInfo = new ArrayList<>(getVolume());
         cacheBlockInfoMap = new HashMap<>(getVolume());
+        cacheEntitiesMap = new HashMap<>();
         for (short y = 0; y < this.sizeY; y++)
         {
             for (short z = 0; z < this.sizeZ; z++)
@@ -382,6 +449,7 @@ public class Blueprint
                     final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
                     cacheBlockInfo.add(blockInfo);
                     cacheBlockInfoMap.put(tempPos, blockInfo);
+                    cacheEntitiesMap.put(tempPos, Arrays.stream(this.getEntities()).filter(data -> data != null && isAtPos(data, tempPos)).toArray(CompoundNBT[]::new));
                 }
             }
         }
@@ -397,6 +465,10 @@ public class Blueprint
         this.cachePrimaryOffset = cachePrimaryOffset;
     }
 
+    /**
+     * Get the primary block offset.
+     * @return the cached offset or a freshly calculated one.
+     */
     public final BlockPos getPrimaryBlockOffset()
     {
         if (cachePrimaryOffset == null)
@@ -406,10 +478,14 @@ public class Blueprint
         return cachePrimaryOffset;
     }
 
-    private final BlockPos findPrimaryBlockOffset()
+    /**
+     * Find the primary block offset and return it.
+     * @return the offset.
+     */
+    private BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list =
-            getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
+          getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
 
         if (list.size() != 1)
         {
@@ -423,7 +499,7 @@ public class Blueprint
      *
      * @param resetPrimaryOffset Reset the primary offset as well or not.
      */
-    private final void cacheReset(final boolean resetPrimaryOffset)
+    private void cacheReset(final boolean resetPrimaryOffset)
     {
         cacheBlockInfo = null;
         if (resetPrimaryOffset)
@@ -431,18 +507,17 @@ public class Blueprint
             cachePrimaryOffset = null;
         }
         cacheBlockInfoMap = null;
+        cacheEntitiesMap = null;
     }
 
     /**
      * Rotate the structure depending on the direction it's facing.
      *
      * @param rotation times to rotateWithMirror.
-     * @param pos      the pos to rotateWithMirror it around.
      * @param mirror   the mirror.
      * @param world    the world.
-     * @return the new offset.
      */
-    public BlockPos rotateWithMirror(final Rotation rotation, final BlockPos pos, final Mirror mirror, final World world)
+    public void rotateWithMirror(final Rotation rotation, final Mirror mirror, final World world)
     {
         final BlockPos primaryOffset = getPrimaryBlockOffset();
         final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
@@ -488,6 +563,31 @@ public class Blueprint
                         compound.putInt("x", tempPos.getX());
                         compound.putInt("y", tempPos.getY());
                         compound.putInt("z", tempPos.getZ());
+
+                        if (compound.contains(TAG_BLUEPRINTDATA))
+                        {
+                            CompoundNBT dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
+
+                            // Rotate tag map
+                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(dataCompound);
+                            final Map<BlockPos, List<String>> newTagPosMap = new HashMap<>();
+
+                            for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
+                            {
+                                BlockPos newPos = transformedBlockPos(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), mirror, rotation);
+                                newTagPosMap.put(newPos, entry.getValue());
+                            }
+
+                            IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
+
+                            // Rotate corners
+                            BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
+                            BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
+                            corner1 = transformedBlockPos(corner1.getX(), corner1.getY(), corner1.getZ(), mirror, rotation);
+                            corner2 = transformedBlockPos(corner2.getX(), corner2.getY(), corner2.getZ(), mirror, rotation);
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
+                        }
                     }
                     newTileEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = compound;
                 }
@@ -516,7 +616,6 @@ public class Blueprint
         this.tileEntities = newTileEntities;
 
         cacheReset(false);
-        return getPrimaryBlockOffset();
     }
 
     /**
@@ -591,11 +690,11 @@ public class Blueprint
      * @return the updated nbt.
      */
     private CompoundNBT transformEntityInfoWithSettings(
-        final CompoundNBT entityInfo,
-        final World world,
-        final BlockPos pos,
-        final Rotation rotation,
-        final Mirror mirror)
+      final CompoundNBT entityInfo,
+      final World world,
+      final BlockPos pos,
+      final Rotation rotation,
+      final Mirror mirror)
     {
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
@@ -686,15 +785,48 @@ public class Blueprint
         {
             return true;
         }
-        if (obj == null || !(obj instanceof Blueprint))
+        if (!(obj instanceof Blueprint))
         {
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        if (!name.equals(other.name) || palleteSize != other.palleteSize || getVolume() != other.getVolume())
-        {
-            return false;
-        }
-        return true;
+        return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume();
+    }
+
+    /**
+     * Get blueprint info at position.
+     * @param pos the position
+     * @param includeEntities if entities should be included.
+     * @return the info object.
+     */
+    public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos pos, final boolean includeEntities)
+    {
+        return new BlueprintPositionInfo(pos, getBlockInfoAsMap().get(pos),
+          includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundNBT[0]) : new CompoundNBT[0]);
+    }
+
+    /**
+     * Check if an entityData object is at the local position.
+     * @param entityData the data object to check.
+     * @param pos the pos to check.
+     * @return true if so.
+     */
+    private boolean isAtPos(@NotNull final CompoundNBT entityData, final BlockPos pos)
+    {
+        final ListNBT list = entityData.getList(ENTITY_POS, 6);
+        final int x = (int) list.getDouble(0);
+        final int y = (int) list.getDouble(1);
+        final int z = (int) list.getDouble(2);
+        return new BlockPos(x, y, z).equals(pos);
+    }
+
+    /**
+     * Get the blockstate at a pos.
+     * @param pos the pos.
+     * @return the blockstate.
+     */
+    public BlockState getBlockState(final BlockPos pos)
+    {
+        return getBlockInfoAsMap().get(pos).getState();
     }
 }

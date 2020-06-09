@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "SW ",
-    "WIW",
-    " WS"
+    "WS ",
+    "SIS",
+    " SW"
   ],
   "key": {
     "W": {

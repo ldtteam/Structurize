@@ -5,8 +5,8 @@ import com.ldtteam.blockout.controls.ItemIcon;
 import com.ldtteam.blockout.controls.Label;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.DropDownList;
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -22,7 +22,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
@@ -145,7 +144,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
     private void init(final BlockPos pos, final boolean shouldUpdate)
     {
-        @Nullable final Structure structure = Settings.instance.getActiveStructure();
+        @Nullable final Blueprint structure = Settings.instance.getActiveStructure();
 
         if (structure != null)
         {
@@ -219,8 +218,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private static void genShape()
     {
-        final Structure structure = new Structure(Minecraft.getInstance().world);
-        structure.setBluePrint(Manager.getStructureFromFormula(
+        Settings.instance.setActiveSchematic(Manager.getStructureFromFormula(
           Settings.instance.getWidth(),
           Settings.instance.getLength(),
           Settings.instance.getHeight(),
@@ -230,8 +228,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow()));
-        structure.setPlacementSettings(new PlacementSettings(Mirror.NONE, Rotation.NONE));
-        Settings.instance.setActiveSchematic(structure);
     }
 
     /**
@@ -614,11 +610,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
         Settings.instance.setRotation(rotation);
         settings.setMirror(Settings.instance.getMirror());
-
-        if (Settings.instance.getActiveStructure() != null)
-        {
-            Settings.instance.getActiveStructure().setPlacementSettings(settings);
-        }
     }
 
     /**

@@ -59,4 +59,10 @@ public class Box extends View
 
         super.drawSelf(mx, my);
     }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        super.drawSelfLast(mx, my);
+    }
 }

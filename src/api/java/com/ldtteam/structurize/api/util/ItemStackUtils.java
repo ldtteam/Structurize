@@ -1,14 +1,22 @@
 package com.ldtteam.structurize.api.util;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for the inventories.
@@ -84,6 +92,47 @@ public final class ItemStackUtils
         }
 
         return stack.getCount();
+    }
+
+    /**
+     * Get the list of required resources for entities.
+     *
+     * @param entity the entity object.
+     * @param pos the placer pos..
+     * @return a list of stacks.
+     */
+    public static List<ItemStack> getListOfStackForEntity(final Entity entity, final BlockPos pos)
+    {
+        if (entity != null)
+        {
+            final List<ItemStack> request = new ArrayList<>();
+            if (entity instanceof ItemFrameEntity)
+            {
+                final ItemStack stack = ((ItemFrameEntity) entity).getDisplayedItem();
+                if (!ItemStackUtils.isEmpty(stack))
+                {
+                    stack.setCount(1);
+                    request.add(stack);
+                }
+                request.add(new ItemStack(Items.ITEM_FRAME, 1));
+            }
+            else if (entity instanceof ArmorStandEntity)
+            {
+                request.add(entity.getPickedResult(new RayTraceResult(new Vec3d(pos)) {
+                    @NotNull
+                    @Override
+                    public Type getType()
+                    {
+                        return Type.ENTITY;
+                    }
+                }));
+                entity.getArmorInventoryList().forEach(request::add);
+                entity.getHeldEquipment().forEach(request::add);
+            }
+
+            return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 }
 

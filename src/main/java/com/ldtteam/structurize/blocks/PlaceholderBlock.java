@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.client.gui.WindowPlaceholderblock;
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,8 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class PlaceholderBlock extends AbstractBlockStructurizeDirectional<PlaceholderBlock>
 {
@@ -43,10 +41,6 @@ public class PlaceholderBlock extends AbstractBlockStructurizeDirectional<Placeh
       final Hand hand,
       final BlockRayTraceResult ray)
     {
-        if (worldIn.isRemote)
-        {
-            new WindowPlaceholderblock(pos).open();
-        }
         return ActionResultType.SUCCESS;
     }
 

@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -21,7 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
@@ -32,8 +30,8 @@ import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.storage.MapData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -41,7 +39,7 @@ import java.util.function.BiFunction;
 /**
  * Our world/blockAccess dummy.
  */
-public class BlueprintBlockAccess extends World implements IBlockReader
+public class BlueprintBlockAccess extends World
 {
     /**
      * The blueprint with the info we need.

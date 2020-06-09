@@ -80,7 +80,7 @@ public class FloatingCarpetsRecipeProvider implements IDataProvider
         recipeJson.setPattern(new ShapedPatternJson("CCC", "CDC", "CCC"));
 
         final Map<String, RecipeIngredientKeyJson> ingredients = new HashMap<>();
-        ingredients.put("C", new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:floating_carpet", true)));
+        ingredients.put("C", new RecipeIngredientKeyJson(new RecipeIngredientJson("structurize:floating_carpets", true)));
         ingredients.put("D", new RecipeIngredientKeyJson(new RecipeIngredientJson("minecraft:" + floatingCarpet.getColor().getTranslationKey() + "_dye", false)));
         recipeJson.setKey(ingredients);
 

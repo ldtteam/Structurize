@@ -40,6 +40,7 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
+    protected boolean isHovered = false;
 
     /**
      * Default constructor.
@@ -334,6 +335,19 @@ public class Pane extends AbstractGui
     }
 
     /**
+     * Draw something after finishing drawing the GUI.
+     * @param mx mouse x.
+     * @param my mouse y.
+     */
+    public final void drawLast(final int mx, final int my)
+    {
+        if (visible)
+        {
+            drawSelfLast(mx, my);
+        }
+    }
+
+    /**
      * Draw self. The graphics port is already relative to the appropriate
      * location.
      * <p>
@@ -343,6 +357,20 @@ public class Pane extends AbstractGui
      * @param my Mouse y (relative to parent).
      */
     public void drawSelf(final int mx, final int my)
+    {
+        // Can be overloaded
+    }
+
+    /**
+     * Draw self last. The graphics port is already relative to the appropriate
+     * location.
+     * <p>
+     * Override this to actually draw last.
+     *
+     * @param mx Mouse x (relative to parent).
+     * @param my Mouse y (relative to parent).
+     */
+    public void drawSelfLast(final int mx, final int my)
     {
         // Can be overloaded
     }
@@ -692,6 +720,26 @@ public class Pane extends AbstractGui
     }
 
     /**
+     * Handle unhover.
+     * @param mx ignored.
+     * @param mz ignored.
+     * @return ignored.
+     */
+    public boolean handleUnhover(final double mx, final double mz)
+    {
+        handleUnhover();
+        return true;
+    }
+
+    /**
+     * Handle unhover.
+     */
+    public void handleUnhover()
+    {
+        isHovered = false;
+    }
+
+    /**
      * Handle onHover element, element must be visible.
      * TODO: bug: must have pos set from xml (or be not in a group)
      *
@@ -701,6 +749,10 @@ public class Pane extends AbstractGui
      */
     public boolean handleHover(final double mx, final double my)
     {
+        if (this.isPointInPane(mx, my))
+        {
+            isHovered = true;
+        }
         if (onHover == null)
         {
             if (!onHoverId.isEmpty())

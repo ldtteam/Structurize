@@ -55,13 +55,13 @@ public final class ModBlocks
     public static BlockBarrel blockDecoBarrel_onside;
     public static BlockBarrel blockDecoBarrel_standing;
 
-    public static BlockCactusPlank      blockCactusPlank;
-    public static BlockCactusDoor       blockCactusDoor;
-    public static BlockCactusTrapdoor   blockCactusTrapdoor;
-    public static BlockCactusStair      blockCactusStair;
-    public static BlockMinecoloniesSlab blockCactusSlab;
-    public static BlockCactusFence      blockCactusFence;
-    public static BlockCactusFenceGate  blockCactusFenceGate;
+    public static BlockCactusPlank         blockCactusPlank;
+    public static BlockCactusDoor          blockCactusDoor;
+    public static BlockCactusTrapdoor      blockCactusTrapdoor;
+    public static BlockCactusStair         blockCactusStair;
+    public static BlockMinecoloniesSlab<?> blockCactusSlab;
+    public static BlockCactusFence         blockCactusFence;
+    public static BlockCactusFenceGate     blockCactusFenceGate;
 
     public static MultiBlock multiBlock;
 
@@ -115,7 +115,7 @@ public final class ModBlocks
         blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
         blockCactusDoor = new BlockCactusDoor().registerBlock(registry);
         blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
-        blockCactusSlab = new BlockMinecoloniesSlab(Block.Properties.from(blockCactusPlank), "blockcactusslab").registerBlock(registry);
+        blockCactusSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockCactusPlank), "blockcactusslab").registerBlock(registry);
 
         blockCactusStair = new BlockCactusStair().registerBlock(registry);
         blockCactusFence = new BlockCactusFence().registerBlock(registry);
@@ -139,7 +139,7 @@ public final class ModBlocks
 
             for (final ShingleWoodType shingleWood : ShingleWoodType.values())
             {
-                shingles.add(new BlockShingle(Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace).registerBlock(registry));
+                shingles.add(new BlockShingle(() -> Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace).registerBlock(registry));
             }
         }
 

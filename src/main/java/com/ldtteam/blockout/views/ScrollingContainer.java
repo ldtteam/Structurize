@@ -79,6 +79,26 @@ public class ScrollingContainer extends View
     }
 
     @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        scissorsStart();
+
+        // Translate the scroll
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0.0f, (float) -scrollY, 0.0f);
+        super.drawSelfLast(mx, my + (int) scrollY);
+        RenderSystem.popMatrix();
+
+        scissorsEnd();
+    }
+
+    @Override
+    public boolean handleHover(final double mx, final double my)
+    {
+        return super.handleHover(mx, my + (int) scrollY);
+    }
+
+    @Override
     public boolean click(final double mx, final double my)
     {
         // Offset click by the scroll amounts; we'll adjust it back on clickSelf

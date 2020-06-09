@@ -221,4 +221,10 @@ public class Text extends AbstractTextElement
             }
         }
     }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
 }

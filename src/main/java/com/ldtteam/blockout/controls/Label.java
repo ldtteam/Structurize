@@ -123,6 +123,12 @@ public class Label extends AbstractTextElement
         RenderSystem.popMatrix();
     }
 
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
+
     /**
      * Getter of the width of the string.
      *

@@ -10,7 +10,6 @@ import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.datafix.fixes.ChunkPaletteFormat;
 import net.minecraft.util.math.AxisAlignedBB;

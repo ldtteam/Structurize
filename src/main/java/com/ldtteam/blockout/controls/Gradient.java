@@ -67,4 +67,10 @@ public class Gradient extends AbstractTextElement
         this.fillGradient(getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
         RenderSystem.popMatrix();
     }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
 }

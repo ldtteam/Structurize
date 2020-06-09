@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
-import net.minecraft.block.FurnaceBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -9,6 +8,8 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Message to remove a block from the world.
@@ -38,7 +39,7 @@ public class UpdatePlaceholderBlockMessage implements IMessage
      * @param pos coordinate.
      * @param stack the block to remove.
      */
-    public UpdatePlaceholderBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack)
+    public UpdatePlaceholderBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack, final List<String> tagStringList)
     {
         super();
         this.pos = pos;

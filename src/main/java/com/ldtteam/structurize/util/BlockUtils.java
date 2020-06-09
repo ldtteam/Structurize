@@ -1,16 +1,22 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.*;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
@@ -22,8 +28,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * Utility class for all Block type checking.
@@ -34,7 +40,8 @@ public final class BlockUtils
      * Predicated to determine if a block is free to place.
      */
     @NotNull
-    private static final List<BiPredicate<Block, BlockState>> freeToPlaceBlocks = Arrays.asList(
+    public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList
+    (
         (block, iBlockState) -> block.equals(Blocks.AIR),
         (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
         (block, iBlockState) -> BlockUtils.isWater(block.getDefaultState()),
@@ -42,7 +49,6 @@ public final class BlockUtils
         (block, iBlockState) -> block instanceof DoublePlantBlock,
         (block, iBlockState) -> block.equals(Blocks.GRASS),
         (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper"))
-
     );
 
     /**
@@ -130,7 +136,6 @@ public final class BlockUtils
 
     private static Item getItem(@NotNull final BlockState forgeBlockState)
     {
-        // todo test if beds and banners work and huge mushroom and doors and some redstone things too.
         final BlockState blockState = forgeBlockState;
         if (blockState.getBlock().equals(Blocks.LAVA))
         {
@@ -217,6 +222,41 @@ public final class BlockUtils
         {
             return GameData.getBlockItemMap().get(blockState.getBlock());
         }
+    }
+
+    /**
+     * For structure placement, check if two blocks are alike or if action has to be taken.
+     * @param blockState1 the first blockState.
+     * @param blockState2 the second blockState.
+     * @param notSolid the not solid condition.
+     * @param fancy if fancy paste.
+     * @return true if nothing has to be done.
+     */
+    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> notSolid, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
+    {
+        if (blockState1 == null || blockState2 == null)
+        {
+            return true;
+        }
+
+        final Block block1 = blockState2.getBlock();
+        final Block block2 = blockState1.getBlock();
+
+        if (fancy)
+        {
+            if (block1 == ModBlocks.blockSubstitution || blockState2.equals(blockState1) || block2 == ModBlocks.blockSubstitution)
+            {
+                return true;
+            }
+
+            if ((block1 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState1))
+            || (block2 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState2)))
+            {
+                return true;
+            }
+        }
+
+        return specialEqualRule.test(blockState1, blockState2);
     }
 
     /**
@@ -387,5 +427,39 @@ public final class BlockUtils
         {
             world.setBlockState(here, Blocks.WATER.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
         }
+    }
+
+    /**
+     * Removes the fluid from the given position.
+     * 
+     * @param world the world to remove the fluid from.
+     * @param pos   the position where to remove the fluid.
+     */
+    public static void removeFluid(World world, BlockPos pos)
+    {
+        final BlockState state = world.getBlockState(pos);
+        final Block block = state.getBlock();
+        if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).pickupFluid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
+        {
+            world.setBlockState(pos, Blocks.AIR.getDefaultState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
+        }
+    }
+
+    /**
+     * Returns a list of drops possible mining a specific block with specific
+     * fortune level.
+     *
+     * @param world   World the block is in.
+     * @param coords  Coordinates of the block.
+     * @param fortune Level of fortune on the pickaxe.
+     * @param stack the tool.
+     * @return List of {@link ItemStack} with possible drops.
+     */
+    public static List<ItemStack> getBlockDrops(@NotNull final World world, @NotNull final BlockPos coords, final int fortune, final ItemStack stack)
+    {
+        return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
+                                                      .withLuck(fortune)
+                                                      .withParameter(LootParameters.TOOL, stack)
+                                                      .withParameter(LootParameters.POSITION, coords));
     }
 }

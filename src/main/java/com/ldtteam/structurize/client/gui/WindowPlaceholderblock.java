@@ -9,6 +9,7 @@ import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.network.messages.UpdatePlaceholderBlockMessage;
 import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import net.minecraft.block.Blocks;
@@ -33,8 +34,11 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
 {
     private static final String BUTTON_DONE          = "done";
     private static final String BUTTON_CANCEL        = "cancel";
+    private static final String BUTTON_REMOVE_TAG    = "removeTag";
     private static final String INPUT_NAME           = "name";
     private static final String WINDOW_REPLACE_BLOCK = ":gui/windowreplaceblock.xml";
+    private static final String BUTTON_TAG           = "addTag";
+    private static final String TAG_LABEL_NAME       = "tagname";
 
     /**
      * The stack to replace.
@@ -62,6 +66,16 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
     private final ScrollingList resourceList;
 
     /**
+     * Resource tag list.
+     */
+    private final ScrollingList tagList;
+
+    /**
+     * The list of tag strings
+     */
+    private List<String> tagStringList = new ArrayList<>();
+
+    /**
      * The filter for the resource list.
      */
     private String filter = "";
@@ -78,10 +92,12 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         if (te != null)
         {
             this.from = te.getStack();
+            this.tagStringList = ((IBlueprintDataProvider) te).getPositionedTags().get(pos);
         }
 
         this.pos = pos;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
+        tagList = findPaneOfTypeByID(LIST_TAGS, ScrollingList.class);
     }
 
     @Override
@@ -96,7 +112,9 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText(from.getDisplayName().getUnformattedComponentText());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
         findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(new ItemStack(Blocks.AIR).getDisplayName().getUnformattedComponentText());
+        findPaneOfTypeByID("taglistname", Label.class).setLabelText("Tags:");
         updateResources();
+        updateTags();
     }
 
     private void updateResources()
@@ -139,17 +157,20 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         {
             case BUTTON_DONE:
             {
-                final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
-                if (!ItemStackUtils.isEmpty(to))
+                ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
+                if (ItemStackUtils.isEmpty(to))
                 {
+                    to = from;
+                }
+
                     final TileEntityPlaceholder te = (TileEntityPlaceholder) Minecraft.getInstance().world.getTileEntity(pos);
                     if (te != null)
                     {
                         te.setStack(to);
-                        Network.getNetwork().sendToServer(new UpdatePlaceholderBlockMessage(pos, to));
+                        ((IBlueprintDataProvider) te).getPositionedTags().put(pos, tagStringList);
+                        Network.getNetwork().sendToServer(new UpdatePlaceholderBlockMessage(pos, to, tagStringList));
                         close();
                     }
-                }
                 break;
             }
             case BUTTON_CANCEL:
@@ -161,6 +182,17 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
                 final ItemStack to = allItems.get(row);
                 findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
                 findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText(to.getDisplayName().getUnformattedComponentText());
+                break;
+            }
+            case BUTTON_TAG:
+            {
+                new WindowAddTag(this).open();
+                break;
+            }
+            case BUTTON_REMOVE_TAG:
+            {
+                final int row = tagList.getListElementIndexByPane(button);
+                tagStringList.remove(row);
                 break;
             }
         }
@@ -200,5 +232,51 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });
+    }
+
+    /**
+     * Updates the tag list shown with data
+     */
+    public void updateTags()
+    {
+        tagList.enable();
+        tagList.show();
+
+        //Creates a dataProvider for the unemployed resourceList.
+        tagList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            /**
+             * The number of rows of the list.
+             * @return the number.
+             */
+            @Override
+            public int getElementCount()
+            {
+                return tagStringList.size();
+            }
+
+            /**
+             * Inserts the elements into each row.
+             * @param index the index of the row/list element.
+             * @param rowPane the parent Pane for the row, containing the elements to update.
+             */
+            @Override
+            public void updateElement(final int index, @NotNull final Pane rowPane)
+            {
+                final Label tagLabel = rowPane.findPaneOfTypeByID(TAG_LABEL_NAME, Label.class);
+                tagLabel.setLabelText(tagStringList.get(index));
+                tagLabel.setColor(WHITE, WHITE);
+            }
+        });
+    }
+
+    /**
+     * Adds a string nbt tag to the window
+     *
+     * @param tag String to add
+     */
+    public void addTag(final String tag)
+    {
+        tagStringList.add(tag);
     }
 }

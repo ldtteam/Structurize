@@ -1,18 +1,27 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.helpers.Structure;
 import com.ldtteam.structures.lib.BlueprintUtils;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.items.ItemTagTool;
+import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.util.BoxRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -21,8 +30,15 @@ import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class ClientEventSubscriber
 {
+    public static Map<BlockPos, List<String>> tagPosList = null;
+    public static BlockPos                    tagAnchor;
+
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
      *
@@ -32,22 +48,20 @@ public class ClientEventSubscriber
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
         Minecraft.getInstance().getProfiler().startSection("struct_render");
-        final Structure structure = Settings.instance.getActiveStructure();
+        final Blueprint blueprint = Settings.instance.getActiveStructure();
 
-        if (structure != null)
+        if (blueprint != null)
         {
             BlockPos offset = new BlockPos(0, 0, 0);
-            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(structure.getBluePrint());
+            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
 
-            StructureClientHandler.renderStructure(structure,
+            StructureClientHandler.renderStructure(blueprint,
                 event.getPartialTicks(),
                 Settings.instance.getPosition().subtract(offset),
                 event.getMatrixStack());
 
             final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
-            final BlockPos size = new BlockPos(structure.getBluePrint().getSizeX(),
-                structure.getBluePrint().getSizeY(),
-                structure.getBluePrint().getSizeZ());
+            final BlockPos size = new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ());
 
             Minecraft.getInstance().getProfiler().endStartSection("struct_box");
 
@@ -65,6 +79,51 @@ public class ClientEventSubscriber
             renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), event);
         }
         Minecraft.getInstance().getProfiler().endSection();
+
+        final PlayerEntity player = Minecraft.getInstance().player;
+
+        if (player.getHeldItem(Hand.MAIN_HAND).getItem() != ModItems.tagTool)
+        {
+            tagPosList = null;
+            tagAnchor = null;
+            return;
+        }
+
+        if (tagAnchor == null)
+        {
+            ItemStack tagtool = player.getHeldItem(Hand.MAIN_HAND);
+
+            if (tagtool.getOrCreateTag().contains(ItemTagTool.TAG_ACHNOR_POS))
+            {
+                tagAnchor = BlockPosUtil.readFromNBT(tagtool.getOrCreateTag(), ItemTagTool.TAG_ACHNOR_POS);
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (tagPosList == null)
+        {
+            TileEntity te = Minecraft.getInstance().player.world.getTileEntity(tagAnchor);
+
+            if (!(te instanceof IBlueprintDataProvider))
+            {
+                return;
+            }
+
+            IBlueprintDataProvider dataProvider = (IBlueprintDataProvider) te;
+
+            tagPosList = dataProvider.getWorldTagPosMap();
+        }
+
+        renderAnchorPos(tagAnchor, event);
+
+        for (Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
+        {
+            renderBox(entry.getKey(), entry.getKey(), event);
+            renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack());
+        }
     }
 
     /**
@@ -162,6 +221,64 @@ public class ClientEventSubscriber
         matrix.pop();
 
         RenderSystem.disableDepthTest();
+    }
+
+    /**
+     * Renders the given list of strings, 3 elements a row.
+     *
+     * @param pos         position to render at
+     * @param text        text list
+     * @param matrixStack stack to use
+     */
+    private static void renderDebugText(final BlockPos pos, final List<String> text, final MatrixStack matrixStack)
+    {
+        final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
+        final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
+
+        matrixStack.push();
+        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY(), (double) pos.getZ() + 0.5);
+        matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
+
+        matrixStack.translate(0.0F, 0.75F, 0.0F);
+        RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
+
+        final EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
+        matrixStack.rotate(renderManager.getCameraOrientation());
+        matrixStack.scale(-0.014F, -0.014F, 0.014F);
+        matrixStack.translate(0.0F, 18F, 0.0F);
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
+          GlStateManager.SourceFactor.SRC_ALPHA,
+          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+          GlStateManager.SourceFactor.ONE,
+          GlStateManager.DestFactor.ZERO);
+
+        final Matrix4f matrix4f = matrixStack.getLast().getMatrix();
+
+        final IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+
+        List<String> toRender = new ArrayList<>();
+        for (final String element : text)
+        {
+            if (toRender.size() >= 3)
+            {
+                // Render text
+                fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
+                matrixStack.translate(0.0F, 10F, 0.0F);
+                toRender.clear();
+            }
+            toRender.add(element);
+        }
+
+        if (!toRender.isEmpty())
+        {
+            fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
+        }
+
+        buffer.finish();
+        RenderSystem.disableBlend();
+        matrixStack.pop();
     }
 
     /**

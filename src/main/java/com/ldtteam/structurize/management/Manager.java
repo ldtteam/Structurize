@@ -6,8 +6,8 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
-import com.ldtteam.structurize.util.ScanToolOperation;
-import com.ldtteam.structurize.util.StructurePlacementUtils;
+import com.ldtteam.structurize.util.TickedWorldOperation;
+import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -45,7 +45,7 @@ public final class Manager
     /**
      * List of scanTool operations.
      */
-    private static LinkedList<ScanToolOperation> scanToolOperationPool = new LinkedList<>();
+    private static LinkedList<TickedWorldOperation> scanToolOperationPool = new LinkedList<>();
 
     /**
      * Pseudo unique id for the server
@@ -66,7 +66,7 @@ public final class Manager
     {
         if (!scanToolOperationPool.isEmpty())
         {
-            final ScanToolOperation operation = scanToolOperationPool.peek();
+            final TickedWorldOperation operation = scanToolOperationPool.peek();
             if (operation != null && operation.apply(world))
             {
                 scanToolOperationPool.pop();
@@ -83,7 +83,7 @@ public final class Manager
      *
      * @param operation the operation to add.
      */
-    public static void addToQueue(final ScanToolOperation operation)
+    public static void addToQueue(final TickedWorldOperation operation)
     {
         scanToolOperationPool.push(operation);
     }
@@ -137,7 +137,7 @@ public final class Manager
       final Rotation rotation)
     {
         final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
-        StructurePlacementUtils.loadAndPlaceShapeWithRotation(server, blueprint, pos, rotation, mirror, player);
+        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, true, player);
     }
 
     /**
@@ -485,7 +485,7 @@ public final class Manager
         final Optional<ChangeStorage> theStorage = storageStream.filter(storage -> storage.isOwner(player)).findFirst();
         if (theStorage.isPresent())
         {
-            addToQueue(new ScanToolOperation(theStorage.get(), player));
+            addToQueue(new TickedWorldOperation(theStorage.get(), player));
             changeQueue.remove(theStorage.get());
         }
     }

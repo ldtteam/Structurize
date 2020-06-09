@@ -229,6 +229,12 @@ public class Image extends Pane
         RenderSystem.disableBlend();
     }
 
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+
+    }
+
     public static void drawScaledCustomSizeModalRect(
         final int x,
         final int y,

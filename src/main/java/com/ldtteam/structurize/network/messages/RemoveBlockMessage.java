@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.ScanToolOperation;
+import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -82,6 +82,6 @@ public class RemoveBlockMessage implements IMessage
         {
             return;
         }
-        Manager.addToQueue(new ScanToolOperation(ScanToolOperation.OperationType.REMOVE_BLOCK, from, to, ctxIn.getSender(), block, ItemStack.EMPTY));
+        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REMOVE_BLOCK, from, to, ctxIn.getSender(), block, ItemStack.EMPTY));
     }
 }

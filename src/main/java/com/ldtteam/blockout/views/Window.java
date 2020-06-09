@@ -131,6 +131,12 @@ public class Window extends View
         super.drawSelf(mx, my);
     }
 
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        super.drawSelfLast(mx, my);
+    }
+
     private boolean isKeyDown(final int keyCode)
     {
         return InputMappings.isKeyDown(mc.mainWindow.getHandle(), keyCode);
@@ -167,7 +173,7 @@ public class Window extends View
      */
     public void open()
     {
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
     }
 
     /**

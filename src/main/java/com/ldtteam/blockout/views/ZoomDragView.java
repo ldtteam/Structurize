@@ -1,6 +1,5 @@
 package com.ldtteam.blockout.views;
 
-import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -157,6 +156,21 @@ public class ZoomDragView extends View
         abstractDrawSelfPre(mx, my);
         super.drawSelf((int) calcRelativeX(mx), (int) calcRelativeY(my));
         abstractDrawSelfPost(mx, my);
+        RenderSystem.popMatrix();
+
+        scissorsEnd();
+    }
+
+    @Override
+    public void drawSelfLast(final int mx, final int my)
+    {
+        scissorsStart();
+
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(-scrollX, -scrollY, 0.0d);
+        RenderSystem.translated((1 - scale) * x, (1 - scale) * y, 0.0d);
+        RenderSystem.scaled(scale, scale, 1.0d);
+        super.drawSelfLast((int) calcRelativeX(mx), (int) calcRelativeY(my));
         RenderSystem.popMatrix();
 
         scissorsEnd();

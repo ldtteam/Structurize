@@ -188,6 +188,7 @@ public final class WindowConstants
      * The builders gui file.
      */
     public static final String LIST_RESOURCES            = "resources";
+    public static final String LIST_TAGS                 = "nbttags";
     public static final String LIST_ENTITIES             = "entities";
     public static final String RESOURCE_NAME             = "resourceName";
     public static final String RESOURCE_ICON             = "resourceIcon";
