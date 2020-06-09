@@ -72,7 +72,7 @@ public class LifecycleSubscriber
                     if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
                         || resourcePredicate.test(VanillaResourceType.SHADERS))
                     {
-                        Log.getLogger().warn("Clearing blueprint renderer cache.");
+                        Log.getLogger().debug("Clearing blueprint renderer cache.");
                         BlueprintHandler.getInstance().clearCache();
                     }
                 }
