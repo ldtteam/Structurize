@@ -102,7 +102,7 @@ public final class BlueprintHandler
     public void clearCache()
     {
         evictTimeCache.clear();
-        rendererCache.values().forEach(r -> r.close());
+        rendererCache.values().forEach(BlueprintRenderer::close);
         rendererCache.clear();
     }
 
