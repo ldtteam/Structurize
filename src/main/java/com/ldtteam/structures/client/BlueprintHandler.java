@@ -97,6 +97,16 @@ public final class BlueprintHandler
     }
 
     /**
+     * Clear all entries.
+     */
+    public void clearCache()
+    {
+        evictTimeCache.clear();
+        rendererCache.values().forEach(r -> r.close());
+        rendererCache.clear();
+    }
+
+    /**
      * Render a blueprint at a list of points.
      *
      * @param points       the points to render it at.

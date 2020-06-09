@@ -1,6 +1,9 @@
 package com.ldtteam.structurize.event;
 
+import java.util.function.Predicate;
+import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
@@ -15,12 +18,17 @@ import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.resource.VanillaResourceType;
 
 public class LifecycleSubscriber
 {
@@ -51,6 +59,25 @@ public class LifecycleSubscriber
         ModBlocks.getFloatingCarpets().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
         OptifineCompat.getInstance().intialize();
+
+        final IResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
+        if (rm instanceof IReloadableResourceManager)
+        {
+            ((IReloadableResourceManager) rm).addReloadListener(new ISelectiveResourceReloadListener()
+            {
+                @Override
+                public void onResourceManagerReload(final IResourceManager resourceManager,
+                    final Predicate<IResourceType> resourcePredicate)
+                {
+                    if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
+                        || resourcePredicate.test(VanillaResourceType.SHADERS))
+                    {
+                        Log.getLogger().warn("Clearing blueprint renderer cache.");
+                        BlueprintHandler.getInstance().clearCache();
+                    }
+                }
+            });
+        }
     }
 
     /**
