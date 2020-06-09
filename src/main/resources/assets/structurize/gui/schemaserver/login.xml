@@ -1,9 +1,9 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="200 100" pause="true" lightbox="true" xsi:noNamespaceSchemaLocation="file:../../../../java/com/ldtteam/structurize/blockout/blockOut.xsd">
 
-    <label size="100% 11" pos="0 0" color="white" label="$(com.ldtteam.structurize.gui.sslogin.username)"/>
+    <label size="100% 11" pos="0 0" color="white" label="$(structurize.gui.sslogin.username)"/>
     <input size="100% 17" pos="0 11" id="username" tab="password" enterToTab="true"/>
-    <label size="100% 11" pos="0 30" color="white" label="$(com.ldtteam.structurize.gui.sslogin.password)"/>
+    <label size="100% 11" pos="0 30" color="white" label="$(structurize.gui.sslogin.password)"/>
     <input size="100% 17" pos="0 41" id="password" cover="*" tab="login" enterToTab="true"/>
-    <button size="100% 20" pos="0 61" id="login" label="$(com.ldtteam.structurize.gui.sslogin.login)"/>
+    <button size="100% 20" pos="0 61" id="login" label="$(structurize.gui.sslogin.login)"/>
     <label size="100% 11" pos="0 89" color="white" label="" id="notification"/>
 </window>

@@ -63,7 +63,7 @@ public class NetworkChannel
         registerMessage(++idx, UndoMessage.class);
         registerMessage(++idx, UpdateScanToolMessage.class);
         registerMessage(++idx, UpdatePlaceholderBlockMessage.class);
-        registerMessage(++idx, SSLoginMessage.class);
+        registerMessage(++idx, SchemaServerGuiMessage.InnerMessage.class);
     }
 
     /**

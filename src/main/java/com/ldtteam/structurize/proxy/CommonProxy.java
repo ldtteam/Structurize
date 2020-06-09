@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

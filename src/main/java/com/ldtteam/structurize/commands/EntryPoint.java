@@ -15,7 +15,7 @@ public class EntryPoint extends AbstractCommand
      * use argument/command builder to create leaf commands:
      * - use #newLiteral() for subcommand or finite type selection
      * - use #newArgument() for collection selectors/number or message input etc., see net.minecraft.command.arguments
-     * use builder#requires() to set e.g. permissions
+     * use builder#requires() to set eg. permissions
      * use builder#executes() to set action on execute
      * use builder#redirect() to set alias, use aliases sparely! (they might cause confusion)
      * use builder#fork() to create fork - note: I don't know why would you fork arguments and how does this work, the only usage is
@@ -48,10 +48,13 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.MuteChannel.build())
             .addNode(LinkSessionCommand.RemovePlayer.build())
             .addNode(LinkSessionCommand.SendMessage.build());
+        final CommandTree schemaServer = new CommandTree("schemaserver").addNode(SchemaServerCommand.Login.build())
+            .addNode(SchemaServerCommand.Logout.build())
+            .addNode(SchemaServerCommand.Styles.build());
         final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID).addNode(linkSession)
+            .addNode(schemaServer)
             .addNode(UpdateSchematicsCommand.build())
-            .addNode(ScanCommand.build())
-            .addNode(SSLoginCommand.build());
+            .addNode(ScanCommand.build());
 
         dispatcher.register(structurizeRoot.build());
     }

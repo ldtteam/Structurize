@@ -34,9 +34,12 @@ import net.minecraft.util.Util;
 public class LoginHolder
 {
     private static final ClientAuthentication clientAuth = new ClientSecretBasic(new ClientID("structurize"), new Secret(""));
-    private static OIDCProviderMetadata authApiMetadata;
-    private static AccessToken currentAccessToken;
-    private static RefreshToken currentRefreshToken;
+    private OIDCProviderMetadata authApiMetadata;
+    private AccessToken currentAccessToken;
+    private RefreshToken currentRefreshToken;
+    private String currentUsername = "";
+
+    public static final LoginHolder INSTANCE = new LoginHolder();
 
     /**
      * Private constructor to hide implicit public one.
@@ -56,7 +59,7 @@ public class LoginHolder
      * @param password       gui result
      * @param resultCallback executed on main thread with true if login was successful, with false and error reason otherwise
      */
-    public static void login(final String username, final String password, final BiConsumer<Boolean, String> resultCallback)
+    public void login(final String username, final String password, final BiConsumer<Boolean, String> resultCallback)
     {
         Util.getServerExecutor().execute(() -> {
             try
@@ -64,6 +67,7 @@ public class LoginHolder
                 if (isApiOnline())
                 {
                     tryLogin(new ResourceOwnerPasswordCredentialsGrant(username, new Secret(password)));
+                    currentUsername = username;
                     Minecraft.getInstance().execute(() -> resultCallback.accept(true, ""));
                 }
                 Minecraft.getInstance().execute(() -> resultCallback.accept(false, "API offline"));
@@ -86,7 +90,7 @@ public class LoginHolder
      * @param onFail     job to run if anything failed, includes reason
      * @param mainThread whether run on main thread or in minecraft thread executor
      */
-    public static void runAuthorized(final Consumer<AccessToken> task, final Consumer<String> onFail, final boolean mainThread)
+    public void runAuthorized(final Consumer<AccessToken> task, final Consumer<String> onFail, final boolean mainThread)
     {
         Util.getServerExecutor().execute(() -> {
             if (currentRefreshToken == null)
@@ -121,7 +125,7 @@ public class LoginHolder
      * @param task       job to run
      * @param mainThread whether run on main thread or in minecraft thread executor
      */
-    public static void runUnuthorized(final Runnable task, final boolean mainThread)
+    public void runUnuthorized(final Runnable task, final boolean mainThread)
     {
         if (mainThread)
         {
@@ -136,7 +140,7 @@ public class LoginHolder
     /**
      * Send refresh access token request if possible.
      */
-    private static void refreshToken()
+    private void refreshToken()
     {
         try
         {
@@ -153,7 +157,7 @@ public class LoginHolder
     /**
      * @return true if api head was fetches successfully, does not check actual onlineness of the api
      */
-    private static boolean isApiOnline()
+    private boolean isApiOnline()
     {
         if (authApiMetadata == null)
         {
@@ -181,7 +185,7 @@ public class LoginHolder
      * @param authCredentials auth grant
      * @throws Exception https connection error or api error
      */
-    private static void tryLogin(final AuthorizationGrant authCredentials) throws Exception
+    private void tryLogin(final AuthorizationGrant authCredentials) throws Exception
     {
         final TokenRequest request = new TokenRequest(URIUtils.ensureHttps(authApiMetadata.getTokenEndpointURI()),
             clientAuth,
@@ -213,8 +217,26 @@ public class LoginHolder
     /**
      * @return true if access and refresh tokens are ready
      */
-    public static boolean isUserLoggedIn()
+    public boolean isUserLoggedIn()
     {
-        return currentAccessToken != null && currentRefreshToken != null;
+        return currentAccessToken != null && currentRefreshToken != null && !currentUsername.isEmpty();
+    }
+
+    /**
+     * Logs out current user.
+     */
+    public void logout()
+    {
+        currentAccessToken = null;
+        currentRefreshToken = null;
+        currentUsername = "";
+    }
+
+    /**
+     * @return string which was passed as username of the latest successful login
+     */
+    public String getCurrentUsername()
+    {
+        return currentUsername;
     }
 }

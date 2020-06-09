@@ -1,0 +1,52 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="320 240" pause="true" lightbox="true" xsi:noNamespaceSchemaLocation="file:../../../../java/com/ldtteam/structurize/blockout/blockOut.xsd">
+
+    <switch id="pages" size="320 240" pos="0 0">
+        <view id="loading">
+            <label size="320 11" align="MIDDLE" textalign="MIDDLE" color="white" label="$(structurize.gui.ssstyles.loading)"/>
+        </view>
+        <view id="styles">
+            <label size="100 11" pos="0 0" textalign="MIDDLE" color="white" label="$(structurize.gui.ssstyles.styles)"/>
+            <label size="100 11" pos="110 0" textalign="MIDDLE" color="white" label="$(structurize.gui.ssstyles.types)"/>
+            <label size="100 11" pos="220 0" textalign="MIDDLE" color="white" label="$(structurize.gui.ssstyles.schematics)"/>
+            <list id="stylesEdit" size="100 195" pos="0 15">
+                <box size="100% 17" linewidth="0">
+                    <label size="100% 11" pos="0 0" id="name"/>
+                    <label size="100% 18" pos="0 11" id="desc"/>
+                    <button size="30% 20" pos="0 29" id="edit"/>
+                    <button size="30% 20" pos="35% 29" id="delete"/>
+                    <button size="30% 20" pos="35% 29" id="join" visible="false"/>
+                    <button size="30% 20" pos="70% 29" id="select"/>
+                </box>
+            </list>
+            <list id="typesEdit" size="100 195" pos="110 15">
+                <box size="100% 17" linewidth="0">
+                    <label size="100% 11" pos="0 0" id="name"/>
+                    <label size="100% 18" pos="0 11" id="desc"/>
+                    <button size="30% 20" pos="0 29" id="edit"/>
+                    <button size="30% 20" pos="35% 29" id="delete"/>
+                    <button size="30% 20" pos="35% 29" id="join" visible="false"/>
+                    <button size="30% 20" pos="70% 29" id="select"/>
+                </box>
+            </list>
+            <list id="schematicsEdit" size="100 195" pos="220 15">
+                <box size="100% 17" linewidth="0">
+                    <label size="100% 11" pos="0 0" id="name"/>
+                    <label size="100% 18" pos="0 11" id="desc"/>
+                    <button size="30% 20" pos="0 29" id="edit"/>
+                    <button size="30% 20" pos="35% 29" id="delete"/>
+                    <button size="30% 20" pos="35% 29" id="join" visible="false"/>
+                    <button size="30% 20" pos="70% 29" id="select"/>
+                </box>
+            </list>
+            <button id="createStyle" size="100 20" pos="0 220" label="$(structurize.gui.ssstyles.create_style)"/>
+            <button id="createType" size="100 20" pos="110 220" label="$(structurize.gui.ssstyles.create_type)"/>
+            <button id="createSchematic" size="100 20" pos="220 220" label="$(structurize.gui.ssstyles.create_schematic)"/>
+        </view>
+        <view id="createEdit">
+            <label size="320 11" pos="0 100" textalign="MIDDLE" color="white"/>
+            <input size="320 17" pos="0 115" id="name" tab="desc"/>
+            <input size="320 17" pos="0 135" id="desc" tab="login"/>
+            <button size="100 20" pos="110 155" id="login" label="$(structurize.gui.sslogin.login)"/>
+        </view>
+    </switch>
+</window>

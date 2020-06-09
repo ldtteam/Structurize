@@ -1,11 +1,11 @@
 package com.ldtteam.structurize.management.schemaserver;
 
+import com.ldtteam.structurize.client.gui.schemaserver.StylesGui;
+
 public class Styles
 {
-    private static Styles stylesOfLoggedInUser;
-
-    public static Styles getLoggedInUserStyles()
+    public static void openStylesGui()
     {
-        return stylesOfLoggedInUser;
+        new StylesGui().open();
     }
 }

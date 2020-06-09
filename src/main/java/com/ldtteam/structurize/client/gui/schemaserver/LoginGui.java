@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.client.gui;
+package com.ldtteam.structurize.client.gui.schemaserver;
 
 import com.ldtteam.blockout.controls.ButtonVanilla;
 import com.ldtteam.blockout.controls.Label;
@@ -9,15 +9,15 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.schemaserver.LoginHolder;
 import com.ldtteam.structurize.util.LanguageHandler;
 
-public class SSLoginGui extends Window
+public class LoginGui extends Window
 {
-    public SSLoginGui()
+    public LoginGui()
     {
-        super(Constants.MOD_ID + ":gui/sslogingui.xml");
+        super(Constants.MOD_ID + ":gui/schemaserver/login.xml");
 
         findPaneOfTypeByID("login", ButtonVanilla.class).setHandler(button -> {
             final String username = this.findPaneOfTypeByID("username", TextFieldVanilla.class).getText();
-            LoginHolder.login(username,
+            LoginHolder.INSTANCE.login(username,
                 this.findPaneOfTypeByID("password", TextFieldVanilla.class).getText(),
                 (res, rea) -> this.loginCallback(res, rea, username));
         });

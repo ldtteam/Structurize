@@ -1130,11 +1130,19 @@
   "block.structurize.framed_cactus_cobble_stone_timber_frame": "Framed Cactus Cobblestone Timber Frame",
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
-  "com.ldtteam.structurize.gui.sslogin.username": "Username:",
-  "com.ldtteam.structurize.gui.sslogin.password": "Password:",
-  "com.ldtteam.structurize.gui.sslogin.login": "LOGIN",
+  "structurize.gui.sslogin.username": "Username:",
+  "structurize.gui.sslogin.password": "Password:",
+  "structurize.gui.sslogin.login": "LOGIN",
   "structurize.sslogin.login_error": "Login failed: %s",
   "structurize.sslogin.refresh_error": "Refresh failed, please relogin: %s",
   "structurize.sslogin.success": "Successful login for account \"%s\"",
-  "structurize.sslogin.user_not_loggedin": "To use this feature you need to login first using /structurize schemaServer login"
+  "structurize.sslogin.user_not_loggedin": "To use this feature you need to login first using \"/structurize schemaserver login\"",
+  "structurize.sslogin.already_logged": "Already logged in as \"%s\"",
+  "structurize.gui.ssstyles.loading": "Retrieving latest data...",
+  "structurize.gui.ssstyles.styles": "STYLES",
+  "structurize.gui.ssstyles.types": "TYPES",
+  "structurize.gui.ssstyles.schematics": "SCHEMATICS",
+  "structurize.gui.ssstyles.create_style": "Create Style",
+  "structurize.gui.ssstyles.create_type": "Create Type",
+  "structurize.gui.ssstyles.create_schematic": "Create Schematic"
 }
