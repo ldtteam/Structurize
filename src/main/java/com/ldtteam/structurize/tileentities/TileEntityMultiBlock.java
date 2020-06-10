@@ -186,7 +186,10 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
                         tempState = Block.getValidBlockForPosition(tempState, this.world, posToGo);
                         world.setBlockState(posToGo, tempState, 67);
-                        ((IBucketPickupHandler)tempState.getBlock()).pickupFluid(world, posToGo, tempState);
+                        if (tempState.getBlock() instanceof IBucketPickupHandler)
+                        {
+                            ((IBucketPickupHandler) tempState.getBlock()).pickupFluid(world, posToGo, tempState);
+                        }
                         this.world.neighborChanged(posToGo, tempState.getBlock(), posToGo);
 
                         world.removeBlock(posToGoFrom, false);
