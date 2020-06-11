@@ -297,7 +297,7 @@ public class StructurePlacer
                                 InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
                             }
                         }
-                        else
+                        else if (world.getTileEntity(worldPos) != null)
                         {
                             world.removeTileEntity(worldPos);
                         }
