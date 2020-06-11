@@ -2,6 +2,7 @@ package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
@@ -122,7 +123,7 @@ public class OptifineCompat
         beginEntitiesMethod = shadersClass.getMethod("beginEntities");
         beginEntitiesMethod.setAccessible(true);
 
-        nextEntityMethod = shadersClass.getMethod("nextEntity", Entity.class);
+        nextEntityMethod = shadersClass.getMethod("nextEntity", Entity.class, IRenderTypeBuffer.class);
         nextEntityMethod.setAccessible(true);
 
         endEntitiesMethod = shadersClass.getMethod("endEntities");
@@ -131,7 +132,7 @@ public class OptifineCompat
         beginBlockEntitiesMethod = shadersClass.getMethod("beginBlockEntities");
         beginBlockEntitiesMethod.setAccessible(true);
 
-        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", TileEntity.class);
+        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", TileEntity.class, IRenderTypeBuffer.class);
         nextBlockEntityMethod.setAccessible(true);
 
         endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
@@ -217,10 +218,10 @@ public class OptifineCompat
         });
     }
 
-    public void preRenderEntity(final Entity entity)
+    public void preRenderEntity(final Entity entity, final IRenderTypeBuffer renderBuffers)
     {
         tryRunIfShadersEnabled(() -> {
-            nextEntityMethod.invoke(null, entity);
+            nextEntityMethod.invoke(null, entity, renderBuffers);
         });
     }
 
@@ -232,10 +233,10 @@ public class OptifineCompat
         });
     }
 
-    public void preRenderBlockEntity(final TileEntity blockEntity)
+    public void preRenderBlockEntity(final TileEntity blockEntity, final IRenderTypeBuffer renderBuffers)
     {
         tryRunIfShadersEnabled(() -> {
-            nextBlockEntityMethod.invoke(null, blockEntity);
+            nextBlockEntityMethod.invoke(null, blockEntity, renderBuffers);
         });
     }
 
