@@ -43,6 +43,11 @@ public class BlueprintIterator
     private boolean includeEntities;
 
     /**
+     * If structure removal step.
+     */
+    private boolean isRemoving;
+
+    /**
      * Initialize the blueprint iterator with the structure handler.
      * @param structureHandler the structure handler.
      */
@@ -164,7 +169,7 @@ public class BlueprintIterator
             {
                 continue;
             }
-            else if (BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
+            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
             {
                 structureHandler.triggerSuccess(progressPos, Collections.emptyList(), false);
                 continue;
@@ -215,12 +220,21 @@ public class BlueprintIterator
     }
 
     /**
+     * Set the iterator to removal mode.
+     */
+    public void setRemoving()
+    {
+        this.isRemoving = true;
+    }
+
+    /**
      * Reset the progressPos.
      */
     public void reset()
     {
         BlockPosUtil.set(this.progressPos, NULL_POS);
         includeEntities = false;
+        isRemoving = false;
     }
 
     /**

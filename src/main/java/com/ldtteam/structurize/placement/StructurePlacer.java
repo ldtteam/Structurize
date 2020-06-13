@@ -78,6 +78,11 @@ public class StructurePlacer
             iterator.includeEntities();
         }
 
+        if (operation == Operation.BLOCK_REMOVAL)
+        {
+            iterator.setRemoving();
+        }
+
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
         BlueprintIterator.Result iterationResult = iterateFunction.get();;
