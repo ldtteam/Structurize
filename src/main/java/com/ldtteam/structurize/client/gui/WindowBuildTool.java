@@ -466,6 +466,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
             Settings.instance.toBytes(packetBuffer);
+
+            if (!Settings.instance.hasReceivedInfo())
+            {
+                Settings.instance.setReceivedInfo();
+                LanguageHandler.sendPlayerMessage(Minecraft.getInstance().player, "com.structurize.gui.buildtool.leave.tip");
+            }
             Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
         }
     }

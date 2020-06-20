@@ -78,7 +78,15 @@ public final class Settings
      */
     private Tuple<ItemStack, ItemStack> stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
 
+    /**
+     * If data has to be refreshed.
+     */
     private boolean shouldRefresh = false;
+
+    /**
+     * If received info.
+     */
+    private boolean receivedInfo;
 
     /**
      * Private constructor to hide implicit one.
@@ -686,5 +694,22 @@ public final class Settings
     public void setAnchorPos(final Optional<BlockPos> anchorPos)
     {
         this.anchorPos = anchorPos;
+    }
+
+    /**
+     * Check if the player got the info message already.
+     * @return true if so.
+     */
+    public boolean hasReceivedInfo()
+    {
+        return this.receivedInfo;
+    }
+
+    /**
+     * Set that the player received the info already this session.
+     */
+    public void setReceivedInfo()
+    {
+        this.receivedInfo = true;
     }
 }

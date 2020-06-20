@@ -228,19 +228,19 @@ public final class BlockUtils
      * For structure placement, check if two blocks are alike or if action has to be taken.
      * @param blockState1 the first blockState.
      * @param blockState2 the second blockState.
-     * @param notSolid the not solid condition.
+     * @param shallReplace the not solid condition.
      * @param fancy if fancy paste.
      * @return true if nothing has to be done.
      */
-    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> notSolid, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
+    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> shallReplace, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
     {
         if (blockState1 == null || blockState2 == null)
         {
             return true;
         }
 
-        final Block block1 = blockState2.getBlock();
-        final Block block2 = blockState1.getBlock();
+        final Block block1 = blockState1.getBlock();
+        final Block block2 = blockState2.getBlock();
 
         if (fancy)
         {
@@ -249,8 +249,8 @@ public final class BlockUtils
                 return true;
             }
 
-            if ((block1 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState1))
-            || (block2 == ModBlocks.blockSolidSubstitution && !notSolid.test(blockState2)))
+            if ((block1 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState2))
+            || (block2 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState1)))
             {
                 return true;
             }

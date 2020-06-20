@@ -195,7 +195,7 @@ public interface IStructureHandler
     /**
      * Check if this block is considered solid for the solid placerholder blocks.
      * @param blockState the blockState to check.
-     * @return true if it is solid.
+     * @return true if it should be replaced.
      */
     boolean replaceWithSolidBlock(BlockState blockState);
 
