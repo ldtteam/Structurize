@@ -41,6 +41,7 @@ public enum TimberFrameType implements IStringSerializable
     }
 
     @NotNull
+    @Override
     public String getName()
     {
         return this.name;

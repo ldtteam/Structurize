@@ -25,7 +25,7 @@ import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeBuffers;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -35,11 +35,11 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
@@ -123,7 +123,7 @@ public class BlueprintRenderer implements AutoCloseable
                     }
 
                     final BlockPos blockPos = blockInfo.getPos();
-                    final IFluidState fluidState = state.getFluidState();
+                    final FluidState fluidState = state.getFluidState();
 
                     matrixStack.push();
                     matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
@@ -168,7 +168,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
-        final Vec3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
+        final Vector3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
         final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint());
         final int x = pos.getX() - primaryBlockOffset.getX();
         final int y = pos.getY() - primaryBlockOffset.getY();
@@ -229,7 +229,7 @@ public class BlueprintRenderer implements AutoCloseable
         final ActiveRenderInfo oldActiveRenderInfo = TileEntityRendererDispatcher.instance.renderInfo;
         final World oldWorld = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.renderInfo = new ActiveRenderInfo();
-        TileEntityRendererDispatcher.instance.renderInfo.setPosition(viewPosition.subtract(x, y, z));
+        TileEntityRendererDispatcher.instance.renderInfo.setPostion(viewPosition.subtract(x, y, z));
         TileEntityRendererDispatcher.instance.world = blockAccess;
         tileEntities.forEach(tileEntity -> {
             final BlockPos tePos = tileEntity.getPos();
@@ -253,9 +253,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getSignType());
         renderBufferSource.finish(Atlases.getChestType());
         renderBuffers.getOutlineBufferSource().finish(); // not used now
-        renderBufferSource.finish(Atlases.getTranslucentBlockType());
+        renderBufferSource.finish(Atlases.getTranslucentCullBlockType());
         renderBufferSource.finish(Atlases.getBannerType());
         renderBufferSource.finish(Atlases.getShieldType());
+        renderBufferSource.finish(RenderType.func_239270_k_());
+        renderBufferSource.finish(RenderType.func_239271_l_());
         renderBufferSource.finish(RenderType.getGlint());
         renderBufferSource.finish(RenderType.getEntityGlint());
         renderBufferSource.finish(RenderType.getWaterMask());
@@ -266,6 +268,7 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
+        renderBlockLayer(RenderType.func_241715_r_(), rawPosMatrix);
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
 
         OptifineCompat.getInstance().endWater();

@@ -21,15 +21,13 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
@@ -46,7 +44,7 @@ public class Blueprint
     /**
      * The list of required mods.
      */
-    private final List<String>  requiredMods;
+    private final List<String> requiredMods;
 
     /**
      * The size of the blueprint.
@@ -96,7 +94,7 @@ public class Blueprint
     /**
      * Various caches for storing block data in prepared structures
      */
-    private List<BlockInfo>          cacheBlockInfo    = null;
+    private List<BlockInfo> cacheBlockInfo = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
     private Map<BlockPos, CompoundNBT[]> cacheEntitiesMap = null;
 
@@ -117,15 +115,14 @@ public class Blueprint
      * @param tileEntities the tileEntities.
      * @param requiredMods the required mods.
      */
-    protected Blueprint(
-      short sizeX,
-      short sizeY,
-      short sizeZ,
-      short palleteSize,
-      List<BlockState> pallete,
-      short[][][] structure,
-      CompoundNBT[] tileEntities,
-      List<String> requiredMods)
+    protected Blueprint(short sizeX,
+        short sizeY,
+        short sizeZ,
+        short palleteSize,
+        List<BlockState> pallete,
+        short[][][] structure,
+        CompoundNBT[] tileEntities,
+        List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -387,7 +384,7 @@ public class Blueprint
     /**
      * Getter of the EntityInfo at a certain position.
      *
-     * @param worldPos the world position.
+     * @param worldPos     the world position.
      * @param structurePos the position it will have in the structure.
      * @return the TE compound with real world coords.
      */
@@ -409,14 +406,17 @@ public class Blueprint
 
     /**
      * Calculate the item needed to place the current block in the structure.
+     * 
      * @param pos the pos its at.
      * @return an item or null if not initialized.
      */
     @Nullable
     public Item getItem(final BlockPos pos)
     {
-        @Nullable final BlockInfo info = this.getBlockInfoAsMap().getOrDefault(pos, null);
-        if (info == null || info.getState() == null || info.getState().getBlock() instanceof AirBlock || info.getState().getMaterial().isLiquid())
+        @Nullable
+        final BlockInfo info = this.getBlockInfoAsMap().getOrDefault(pos, null);
+        if (info == null || info.getState() == null || info.getState().getBlock() instanceof AirBlock
+            || info.getState().getMaterial().isLiquid())
         {
             return null;
         }
@@ -449,7 +449,10 @@ public class Blueprint
                     final BlockInfo blockInfo = new BlockInfo(tempPos, palette.get(structure[y][z][x] & 0xFFFF), tileEntities[y][z][x]);
                     cacheBlockInfo.add(blockInfo);
                     cacheBlockInfoMap.put(tempPos, blockInfo);
-                    cacheEntitiesMap.put(tempPos, Arrays.stream(this.getEntities()).filter(data -> data != null && isAtPos(data, tempPos)).toArray(CompoundNBT[]::new));
+                    cacheEntitiesMap.put(tempPos,
+                        Arrays.stream(this.getEntities())
+                            .filter(data -> data != null && isAtPos(data, tempPos))
+                            .toArray(CompoundNBT[]::new));
                 }
             }
         }
@@ -467,6 +470,7 @@ public class Blueprint
 
     /**
      * Get the primary block offset.
+     * 
      * @return the cached offset or a freshly calculated one.
      */
     public final BlockPos getPrimaryBlockOffset()
@@ -480,12 +484,14 @@ public class Blueprint
 
     /**
      * Find the primary block offset and return it.
+     * 
      * @return the offset.
      */
     private BlockPos findPrimaryBlockOffset()
     {
-        final List<BlockInfo> list =
-          getBlockInfoAsList().stream().filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock).collect(Collectors.toList());
+        final List<BlockInfo> list = getBlockInfoAsList().stream()
+            .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock)
+            .collect(Collectors.toList());
 
         if (list.size() != 1)
         {
@@ -574,7 +580,8 @@ public class Blueprint
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
                             {
-                                BlockPos newPos = transformedBlockPos(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), mirror, rotation);
+                                BlockPos newPos = transformedBlockPos(entry.getKey()
+                                    .getX(), entry.getKey().getY(), entry.getKey().getZ(), mirror, rotation);
                                 newTagPosMap.put(newPos, entry.getValue());
                             }
 
@@ -632,6 +639,7 @@ public class Blueprint
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
                 return new BlockPos(pos.getZ(), pos.getY(), pos.getX());
+
             default:
                 return pos;
         }
@@ -659,9 +667,11 @@ public class Blueprint
             case LEFT_RIGHT:
                 z = -zIn;
                 break;
+
             case FRONT_BACK:
                 x = -xIn;
                 break;
+
             default:
                 flag = false;
         }
@@ -670,10 +680,13 @@ public class Blueprint
         {
             case COUNTERCLOCKWISE_90:
                 return new BlockPos(z, y, -x);
+
             case CLOCKWISE_90:
                 return new BlockPos(-z, y, x);
+
             case CLOCKWISE_180:
                 return new BlockPos(-x, y, -z);
+
             default:
                 return flag ? new BlockPos(x, y, z) : new BlockPos(xIn, y, zIn);
         }
@@ -689,12 +702,11 @@ public class Blueprint
      * @param mirror     the mirror.
      * @return the updated nbt.
      */
-    private CompoundNBT transformEntityInfoWithSettings(
-      final CompoundNBT entityInfo,
-      final World world,
-      final BlockPos pos,
-      final Rotation rotation,
-      final Mirror mirror)
+    private CompoundNBT transformEntityInfoWithSettings(final CompoundNBT entityInfo,
+        final World world,
+        final BlockPos pos,
+        final Rotation rotation,
+        final Mirror mirror)
     {
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
@@ -704,9 +716,11 @@ public class Blueprint
             {
                 finalEntity.deserializeNBT(entityInfo);
 
-                final Vec3d entityVec = Blueprint.transformedVec3d(rotation, mirror, finalEntity.getPositionVector()).add(new Vec3d(pos));
+                final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.getPositionVec())
+                    .add(Vector3d.func_237491_b_(pos));
                 finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
-                final double rotationYaw = finalEntity.getMirroredYaw(mirror) + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
+                final double rotationYaw = finalEntity.getMirroredYaw(mirror)
+                    + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
 
                 if (finalEntity instanceof HangingEntity)
                 {
@@ -724,14 +738,14 @@ public class Blueprint
     }
 
     /**
-     * Transform a Vec3d with rotation and mirror.
+     * Transform a Vector3d with rotation and mirror.
      *
      * @param rotation the rotation.
      * @param mirror   the mirror.
      * @param vec      the vec to transform.
      * @return the result.
      */
-    private static Vec3d transformedVec3d(final Rotation rotation, final Mirror mirror, final Vec3d vec)
+    private static Vector3d transformedVector3d(final Rotation rotation, final Mirror mirror, final Vector3d vec)
     {
         double xCoord = vec.x;
         double zCoord = vec.z;
@@ -742,9 +756,11 @@ public class Blueprint
             case LEFT_RIGHT:
                 zCoord = 1.0D - zCoord;
                 break;
+
             case FRONT_BACK:
                 xCoord = 1.0D - xCoord;
                 break;
+
             default:
                 flag = false;
         }
@@ -752,13 +768,16 @@ public class Blueprint
         switch (rotation)
         {
             case COUNTERCLOCKWISE_90:
-                return new Vec3d(zCoord, vec.y, 1.0D - xCoord);
+                return new Vector3d(zCoord, vec.y, 1.0D - xCoord);
+
             case CLOCKWISE_90:
-                return new Vec3d(1.0D - zCoord, vec.y, xCoord);
+                return new Vector3d(1.0D - zCoord, vec.y, xCoord);
+
             case CLOCKWISE_180:
-                return new Vec3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
+                return new Vector3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
+
             default:
-                return flag ? new Vec3d(xCoord, vec.y, zCoord) : vec;
+                return flag ? new Vector3d(xCoord, vec.y, zCoord) : vec;
         }
     }
 
@@ -795,20 +814,23 @@ public class Blueprint
 
     /**
      * Get blueprint info at position.
-     * @param pos the position
+     * 
+     * @param pos             the position
      * @param includeEntities if entities should be included.
      * @return the info object.
      */
     public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos pos, final boolean includeEntities)
     {
-        return new BlueprintPositionInfo(pos, getBlockInfoAsMap().get(pos),
-          includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundNBT[0]) : new CompoundNBT[0]);
+        return new BlueprintPositionInfo(pos,
+            getBlockInfoAsMap().get(pos),
+            includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundNBT[0]) : new CompoundNBT[0]);
     }
 
     /**
      * Check if an entityData object is at the local position.
+     * 
      * @param entityData the data object to check.
-     * @param pos the pos to check.
+     * @param pos        the pos to check.
      * @return true if so.
      */
     private boolean isAtPos(@NotNull final CompoundNBT entityData, final BlockPos pos)
@@ -822,6 +844,7 @@ public class Blueprint
 
     /**
      * Get the blockstate at a pos.
+     * 
      * @param pos the pos.
      * @return the blockstate.
      */

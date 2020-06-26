@@ -76,7 +76,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.15.2-31.2.8'
+    minecraft 'net.minecraftforge:forge:1.16.1-32.0.14'
     apiImplementation "com.intellij:annotations:+@jar"
     implementation 'com.intellij:annotations:+@jar'
     implementation "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
@@ -84,7 +84,7 @@ dependencies {
     implementation "com.ldtteam:datagenerators:0.1.35-ALPHA"
 }
 
-version = '1.15.2' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
+version = '1.16.1' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
 group = 'com.ldtteam' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'structurize'
 
@@ -96,7 +96,7 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20200606-1.15.1'
+    mappings channel: 'snapshot', version: '20200514-1.16'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -329,7 +329,7 @@ curseforge {
 
         project {
             id = '298744'
-            addGameVersion '1.15.2'
+            addGameVersion '1.16.1'
             changelog = file('build/changelog.md')
             changelogType = 'markdown'
             releaseType = System.getenv().CURSERELEASETYPE

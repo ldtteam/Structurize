@@ -1,7 +1,7 @@
 package com.ldtteam.structures.client;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -24,16 +24,17 @@ public class BlueprintChunk extends Chunk
 
     /**
      * Construct the element.
+     * 
      * @param worldIn the blockAccess.
-     * @param x the chunk x.
-     * @param z the chunk z.
+     * @param x       the chunk x.
+     * @param z       the chunk z.
      */
     public BlueprintChunk(final World worldIn, final int x, final int z)
     {
         super(worldIn, new ChunkPos(x, z), new BiomeContainer(new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
-    
+
     @Override
     public BlockState getBlockState(final BlockPos pos)
     {
@@ -53,10 +54,16 @@ public class BlueprintChunk extends Chunk
     {
         return access.getTileEntity(pos);
     }
-    
+
     @Override
-    public IFluidState getFluidState(final BlockPos pos)
+    public FluidState getFluidState(final BlockPos pos)
     {
         return access.getFluidState(pos);
+    }
+
+    @Override
+    public World getWorld()
+    {
+        return access;
     }
 }

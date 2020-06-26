@@ -5,6 +5,8 @@ import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
@@ -12,11 +14,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
@@ -326,7 +326,7 @@ public final class BlockUtils
         stackToPlace.setCount(stackToPlace.getMaxStackSize());
         fakePlayer.setHeldItem(Hand.MAIN_HAND, stackToPlace);
 
-        if (stackToPlace.getItem().isIn(ItemTags.BEDS) && blockState.has(HorizontalBlock.HORIZONTAL_FACING))
+        if (stackToPlace.getItem().isIn(ItemTags.BEDS) && blockState.func_235901_b_(HorizontalBlock.HORIZONTAL_FACING))
         {
             fakePlayer.rotationYaw = blockState.get(HorizontalBlock.HORIZONTAL_FACING).getHorizontalIndex() * 90;
         }
@@ -335,12 +335,12 @@ public final class BlockUtils
 
         if (stackToPlace.getItem() instanceof BlockItem && !(((BlockItem) stackToPlace.getItem()).getBlock() instanceof AbstractButtonBlock))
         {
-            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)))), Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0, 0, 0), facing, here, true)))), Constants.BlockFlags.BLOCK_UPDATE);
         }
         else
         {
             world.removeBlock(here, false);
-            ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vec3d(0, 0, 0), facing, here, true)));
+            ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0, 0, 0), facing, here, true)));
         }
 
         final BlockState newBlockState = world.getBlockState(here);
@@ -395,11 +395,6 @@ public final class BlockUtils
         {
             final BlockState transformation;
             transformation = newBlockState.with(SlabBlock.TYPE, blockState.get(SlabBlock.TYPE));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
-        }
-        else if (newBlockState.getBlock() instanceof LogBlock && blockState.getBlock() instanceof LogBlock)
-        {
-            final BlockState transformation = newBlockState.with(LogBlock.AXIS, blockState.get(LogBlock.AXIS));
             world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
         }
         else if (newBlockState.getBlock() instanceof RotatedPillarBlock && blockState.getBlock() instanceof RotatedPillarBlock)

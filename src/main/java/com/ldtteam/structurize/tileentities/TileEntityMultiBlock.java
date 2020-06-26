@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.tileentities;
 
 import com.google.common.primitives.Ints;
+import com.ldtteam.structurize.Structurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -338,9 +339,9 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void read(final CompoundNBT compound)
+    public void func_230337_a_(final BlockState blockState, final CompoundNBT compound)
     {
-        super.read(compound);
+        super.func_230337_a_(blockState, compound);
 
         range = compound.getInt(TAG_RANGE);
         this.progress = compound.getInt(TAG_PROGRESS);
@@ -375,15 +376,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void handleUpdateTag(final CompoundNBT tag)
+    public void handleUpdateTag(final BlockState blockState, final CompoundNBT tag)
     {
-        this.read(tag);
+        this.func_230337_a_(blockState, tag);
     }
 
     @Override
     public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
     {
-        this.read(pkt.getNbtCompound());
+        this.func_230337_a_(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
     }
 
     @NotNull

@@ -293,7 +293,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
-        final BlockPos def = Minecraft.getInstance().player.getPosition();
+        final BlockPos def = Minecraft.getInstance().player.func_233580_cy_();
         try
         {
             final int x1 = pos1x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos1x.getText());
@@ -308,7 +308,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"));
+            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUniqueID());
             close();
             return;
         }
@@ -347,7 +347,7 @@ public class WindowScan extends AbstractWindowSkeleton
                     {
                         if (tileEntity != null)
                         {
-                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world));
+                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world, here));
                             for (final ItemStack stack : itemList)
                             {
                                 addNeededResource(stack, 1);

@@ -3,8 +3,8 @@ package com.ldtteam.structures.blueprints.v1;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.DSL.TypeReference;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.SharedConstants;
@@ -24,7 +24,9 @@ public class DataFixerUtils
      */
     public enum Versions
     {
-        v1_15_2(2230, "1.15.2", null),
+        v1_16_1(2567, "1.16.1", null),
+        v1_16(2566, "1.16", v1_16_1),
+        v1_15_2(2230, "1.15.2", v1_16),
         v1_15_1(2227, "1.15.1", v1_15_2),
         v1_15(2225, "1.15", v1_15_1),
         v1_14_4(1976, "1.14.4", v1_15),

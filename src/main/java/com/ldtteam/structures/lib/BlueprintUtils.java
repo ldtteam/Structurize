@@ -120,7 +120,7 @@ public final class BlueprintUtils
             compound.putInt("y", info.getPos().getY());
             compound.putInt("z", info.getPos().getZ());
 
-            final TileEntity entity = TileEntity.create(compound);
+            final TileEntity entity = TileEntity.func_235657_b_(info.getState(), compound);
 
             if (entity != null)
             {

@@ -41,7 +41,7 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message));
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUniqueID());
     }
 
     public static ITextComponent buildChatComponent(final String key, final Object... message)
@@ -157,13 +157,13 @@ public final class LanguageHandler
 
         for (final PlayerEntity player : players)
         {
-            player.sendMessage(textComponent);
+            player.sendMessage(textComponent, player.getUniqueID());
         }
     }
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)));
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.getUniqueID());
     }
 
     /**
@@ -233,8 +233,7 @@ public final class LanguageHandler
                 is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
-            {
-            }.getType());
+            {}.getType());
         }
 
         private static LanguageCache getInstance()
@@ -246,7 +245,7 @@ public final class LanguageHandler
         {
             if (isMCloaded)
             {
-                return LanguageMap.getInstance().translateKey(key);
+                return LanguageMap.getInstance().func_230503_a_(key);
             }
             else
             {

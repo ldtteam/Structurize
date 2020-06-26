@@ -22,6 +22,7 @@ public enum PaperwallType implements IStringSerializable
     }
 
     @NotNull
+    @Override
     public String getName()
     {
         return this.name;

@@ -24,12 +24,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -148,9 +148,7 @@ public class ClientEventSubscriber
      * @param posB The second Position
      * @param event The event
      */
-    private static void renderBox(final BlockPos posA,
-                                  final BlockPos posB,
-                                  final RenderWorldLastEvent event)
+    private static void renderBox(final BlockPos posA, final BlockPos posB, final RenderWorldLastEvent event)
     {
         renderBox(posA, posB, event, 1, 1, 1);
     }
@@ -210,7 +208,7 @@ public class ClientEventSubscriber
         RenderSystem.enableDepthTest();
 
         final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
-        final Vec3d viewPosition = activeRenderInfo.getProjectedView();
+        final Vector3d viewPosition = activeRenderInfo.getProjectedView();
         final MatrixStack matrix = event.getMatrixStack();
         matrix.push();
         matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
@@ -233,7 +231,7 @@ public class ClientEventSubscriber
     private static void renderDebugText(final BlockPos pos, final List<String> text, final MatrixStack matrixStack)
     {
         final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-        final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
+        final Vector3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
 
         matrixStack.push();
         matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY(), (double) pos.getZ() + 0.5);

@@ -1101,7 +1101,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 }
             }
 
-            if (!Screen.hasShiftDown())
+            if (!Screen.func_231173_s_())
             {
                 cancelClicked();
             }

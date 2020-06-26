@@ -114,7 +114,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
@@ -401,7 +401,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
@@ -576,7 +576,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
@@ -623,7 +623,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
 
             itemList.removeIf(ItemStackUtils::isEmpty);
 
@@ -678,7 +678,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
@@ -701,7 +701,7 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final TileEntity newTile = TileEntity.create(tileEntityData);
+            final TileEntity newTile = TileEntity.func_235657_b_(world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
                 world.setTileEntity(pos, newTile);
@@ -730,11 +730,11 @@ public final class PlacementHandlers
      * @param world          the world.
      * @return the required list.
      */
-    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final World world)
+    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final World world, final BlockPos pos)
     {
         if (tileEntityData != null)
         {
-            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world);
+            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
         }
         return Collections.emptyList();
     }

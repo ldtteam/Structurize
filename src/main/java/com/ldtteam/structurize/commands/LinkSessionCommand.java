@@ -53,7 +53,7 @@ public class LinkSessionCommand
 
             LinkSessionManager.INSTANCE.createSession(ownerUUID);
             LinkSessionManager.INSTANCE.addOrUpdateMemberInSession(ownerUUID, ownerUUID, sender.getGameProfile().getName());
-            sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.create.done", sender.getGameProfile().getName()));
+            sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.create.done", sender.getGameProfile().getName()), sender.getUniqueID());
             return 1;
         }
     }
@@ -77,7 +77,7 @@ public class LinkSessionCommand
 
             if (LinkSessionManager.INSTANCE.destroySession(ownerUUID))
             {
-                sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.destroy.done", sender.getGameProfile().getName()));
+                sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.destroy.done", sender.getGameProfile().getName()), sender.getUniqueID());
             }
             else
             {
@@ -110,8 +110,8 @@ public class LinkSessionCommand
             final ITextComponent inviteMsg = LanguageHandler.buildChatComponent("structurize.command.ls.invite.message", sender.getGameProfile().getName());
 
             acceptButton.getStyle()
-                .setColor(TextFormatting.DARK_RED)
-                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
+                .func_240721_b_(TextFormatting.DARK_RED)
+                .func_240715_a_(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
             inviteMsg.appendSibling(acceptButton);
 
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
@@ -127,8 +127,8 @@ public class LinkSessionCommand
                 if (target != null)
                 {
                     LinkSessionManager.INSTANCE.createInvite(target.getUniqueID(), ownerUUID);
-                    target.sendMessage(inviteMsg);
-                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.done", name, sender.getGameProfile().getName()));
+                    target.sendMessage(inviteMsg, target.getUniqueID());
+                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.done", name, sender.getGameProfile().getName()), sender.getUniqueID());
                     timesSucceeded++;
                 }
             }
@@ -167,7 +167,7 @@ public class LinkSessionCommand
                 if (target != null)
                 {
                     LinkSessionManager.INSTANCE.removeMemberOfSession(ownerUUID, target.getUniqueID());
-                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.remove.done", name, sender.getGameProfile().getName()));
+                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.remove.done", name, sender.getGameProfile().getName()), sender.getUniqueID());
                     timesSucceeded++;
                 }
             }
@@ -209,12 +209,12 @@ public class LinkSessionCommand
                 throwSyntaxException("structurize.command.ls.message.norecipient");
             }
 
-            msgWithHead.getStyle().setColor(TextFormatting.GRAY).setItalic(Boolean.valueOf(true));
+            msgWithHead.getStyle().func_240721_b_(TextFormatting.GRAY).func_240722_b_(Boolean.valueOf(true));
             uniqueMembers.forEach(member -> {
                 final ServerPlayerEntity target = server.getPlayerList().getPlayerByUUID(member);
                 if (target != null)
                 {
-                    target.sendMessage(msgWithHead);
+                    target.sendMessage(msgWithHead, target.getUniqueID());
                 }
             });
             return uniqueMembers.size();
@@ -240,36 +240,36 @@ public class LinkSessionCommand
 
             final UUID senderUUID = sender.getUniqueID();
             List<String> ownerSession = LinkSessionManager.INSTANCE.getMembersNamesOf(senderUUID);
-            sender.sendMessage(new StringTextComponent("Info about \"" + sender.getGameProfile().getName() + "\":"));
+            sender.sendMessage(new StringTextComponent("Info about \"" + sender.getGameProfile().getName() + "\":"), sender.getUniqueID());
 
             // has an invite?
             final String ownerName = LinkSessionManager.INSTANCE.hasInvite(senderUUID);
             if (ownerName == null)
             {
-                sender.sendMessage(new StringTextComponent("  §cYou have no open invite."));
+                sender.sendMessage(new StringTextComponent("  §cYou have no open invite."), sender.getUniqueID());
             }
             else
             {
-                sender.sendMessage(new StringTextComponent("  §aYou have an open invite from " + ownerName + "."));
+                sender.sendMessage(new StringTextComponent("  §aYou have an open invite from " + ownerName + "."), sender.getUniqueID());
             }
 
             // is owner?
             if (ownerSession == null)
             {
-                sender.sendMessage(new StringTextComponent("  §cYou don't have your own session."));
+                sender.sendMessage(new StringTextComponent("  §cYou don't have your own session."), sender.getUniqueID());
             }
             else
             {
-                sender.sendMessage(new StringTextComponent("  §aYou own a session with:"));
+                sender.sendMessage(new StringTextComponent("  §aYou own a session with:"), sender.getUniqueID());
                 for (final String name : ownerSession)
                 {
                     if (!name.equals("null"))
                     {
-                        sender.sendMessage(new StringTextComponent("    §7" + name));
+                        sender.sendMessage(new StringTextComponent("    §7" + name), sender.getUniqueID());
                     }
                     else
                     {
-                        sender.sendMessage(new StringTextComponent("    §7Unknown name"));
+                        sender.sendMessage(new StringTextComponent("    §7Unknown name"), sender.getUniqueID());
                     }
                 }
             }
@@ -278,28 +278,28 @@ public class LinkSessionCommand
             ownerSession = LinkSessionManager.INSTANCE.getSessionNamesOf(senderUUID);
             if (ownerSession == null)
             {
-                sender.sendMessage(new StringTextComponent("  §cYou are not a part of other sessions."));
+                sender.sendMessage(new StringTextComponent("  §cYou are not a part of other sessions."), sender.getUniqueID());
             }
             else
             {
-                sender.sendMessage(new StringTextComponent("  §aYou are in sessions owned by:"));
+                sender.sendMessage(new StringTextComponent("  §aYou are in sessions owned by:"), sender.getUniqueID());
                 for (final String name : ownerSession)
                 {
-                    sender.sendMessage(new StringTextComponent("    §7" + name));
+                    sender.sendMessage(new StringTextComponent("    §7" + name), sender.getUniqueID());
                 }
             }
 
             // channels
-            sender.sendMessage(new StringTextComponent("  §aChannels:"));
+            sender.sendMessage(new StringTextComponent("  §aChannels:"), sender.getUniqueID());
             for (final ChannelsEnum ch : ChannelsEnum.values())
             {
                 if (LinkSessionManager.INSTANCE.getMuteState(senderUUID, ch))
                 {
-                    sender.sendMessage(new StringTextComponent(String.format("    §7%s:§r §c%s", ch.getCommandName(), "muted")));
+                    sender.sendMessage(new StringTextComponent(String.format("    §7%s:§r §c%s", ch.getCommandName(), "muted")), sender.getUniqueID());
                 }
                 else
                 {
-                    sender.sendMessage(new StringTextComponent(String.format("    §7%s:§r §a%s", ch.getCommandName(), "unmuted")));
+                    sender.sendMessage(new StringTextComponent(String.format("    §7%s:§r §a%s", ch.getCommandName(), "unmuted")), sender.getUniqueID());
                 }
             }
 
@@ -389,7 +389,7 @@ public class LinkSessionCommand
                 }
             }
 
-            sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.accepted", ownerName));
+            sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.accepted", ownerName), sender.getUniqueID());
             return 1;
         }
     }
@@ -418,7 +418,7 @@ public class LinkSessionCommand
             if (server.getPlayerList().getPlayerByUsername(name) != null)
             {
                 LinkSessionManager.INSTANCE.removeMemberOfSession(server.getPlayerList().getPlayerByUsername(name).getUniqueID(), sender.getUniqueID());
-                sender.sendMessage(new StringTextComponent("Leaving a session owned by \"" + name + "\"."));
+                sender.sendMessage(new StringTextComponent("Leaving a session owned by \"" + name + "\"."), sender.getUniqueID());
             }
             return 1;
         }

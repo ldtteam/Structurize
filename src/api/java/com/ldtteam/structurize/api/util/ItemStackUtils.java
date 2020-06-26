@@ -8,11 +8,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,10 +45,10 @@ public final class ItemStackUtils
      * @param world the world.
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world, final BlockPos pos)
     {
         final List<ItemStack> items = new ArrayList<>();
-        final TileEntity tileEntity = TileEntity.create(compound);
+        final TileEntity tileEntity = TileEntity.func_235657_b_(world.getBlockState(pos), compound);
         if (tileEntity instanceof LockableTileEntity)
         {
             for (int i = 0; i < ((LockableTileEntity) tileEntity).getSizeInventory(); i++)
@@ -118,7 +117,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStandEntity)
             {
-                request.add(entity.getPickedResult(new RayTraceResult(new Vec3d(pos)) {
+                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.func_237491_b_(pos)) {
                     @NotNull
                     @Override
                     public Type getType()
@@ -135,4 +134,3 @@ public final class ItemStackUtils
         return Collections.emptyList();
     }
 }
-

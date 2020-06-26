@@ -12,7 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
@@ -26,15 +26,10 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.dimension.Dimension;
-import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.storage.MapData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * Our world/blockAccess dummy.
@@ -48,18 +43,19 @@ public class BlueprintBlockAccess extends World
 
     /**
      * Constructor to create a new world/blockAccess
+     * 
      * @param blueprint the blueprint.
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super(Minecraft.getInstance().world.getWorldInfo(), Minecraft.getInstance().world.dimension.getType(),
-          new BiFunction<World, Dimension, AbstractChunkProvider>() {
-              @Override
-              public AbstractChunkProvider apply(final World world, final Dimension dimension)
-              {
-                  return Minecraft.getInstance().world.getChunkProvider();
-              }
-          }, Minecraft.getInstance().world.getProfiler(), true);
+        super(Minecraft.getInstance().world.getWorldInfo(),
+            Minecraft.getInstance().world.func_234923_W_(),
+            Minecraft.getInstance().world.func_234922_V_(),
+            Minecraft.getInstance().world.func_230315_m_(),
+            () -> Minecraft.getInstance().world.getProfiler(),
+            true,
+            true,
+            0L);
         this.blueprint = blueprint;
     }
 
@@ -105,12 +101,6 @@ public class BlueprintBlockAccess extends World
         return 15;
     }
 
-    @Override
-    public int getBlockColor(final BlockPos pos, final ColorResolver resolver)
-    {
-        return Minecraft.getInstance().world.getBlockColor(pos, resolver);
-    }
-
     @NotNull
     @Override
     public BlockState getBlockState(@NotNull final BlockPos pos)
@@ -125,7 +115,7 @@ public class BlueprintBlockAccess extends World
 
     @NotNull
     @Override
-    public IFluidState getFluidState(@NotNull final BlockPos pos)
+    public FluidState getFluidState(@NotNull final BlockPos pos)
     {
         if (isOutsideBuildHeight(pos))
         {
@@ -138,29 +128,25 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void playSound(
-      @Nullable final PlayerEntity player,
-      final double x,
-      final double y,
-      final double z,
-      final SoundEvent soundIn,
-      final SoundCategory category,
-      final float volume,
-      final float pitch)
+    public void playSound(@Nullable final PlayerEntity player,
+        final double x,
+        final double y,
+        final double z,
+        final SoundEvent soundIn,
+        final SoundCategory category,
+        final float volume,
+        final float pitch)
     {
-
     }
 
     @Override
-    public void playMovingSound(
-      @Nullable final PlayerEntity p_217384_1_,
-      @NotNull final Entity entity,
-      @NotNull final SoundEvent event,
-      @NotNull final SoundCategory category,
-      final float p_217384_5_,
-      final float p_217384_6_)
+    public void playMovingSound(@Nullable final PlayerEntity p_217384_1_,
+        @NotNull final Entity entity,
+        @NotNull final SoundEvent event,
+        @NotNull final SoundCategory category,
+        final float p_217384_5_,
+        final float p_217384_6_)
     {
-
     }
 
     @Override
@@ -190,36 +176,38 @@ public class BlueprintBlockAccess extends World
 
     @NotNull
     @Override
-    public Chunk getChunk(int chunkX, int chunkZ)
+    public Chunk getChunk(final int chunkX, final int chunkZ)
     {
         return new BlueprintChunk(this, chunkX, chunkZ);
     }
 
     @Override
-    public void notifyBlockUpdate(@NotNull final BlockPos pos, @NotNull final BlockState oldState, @NotNull final BlockState newState, final int flags)
+    public void notifyBlockUpdate(@NotNull final BlockPos pos,
+        @NotNull final BlockState oldState,
+        @NotNull final BlockState newState,
+        final int flags)
     {
-
     }
 
     @NotNull
     @Override
     public ITickList<Block> getPendingBlockTicks()
     {
-        return Minecraft.getInstance().world.getPendingBlockTicks();
+        return null;
     }
 
     @NotNull
     @Override
     public ITickList<Fluid> getPendingFluidTicks()
     {
-        return Minecraft.getInstance().world.getPendingFluidTicks();
+        return null;
     }
 
     @NotNull
     @Override
     public AbstractChunkProvider getChunkProvider()
     {
-        return Minecraft.getInstance().world.getChunkProvider();
+        return null;
     }
 
     @Nullable
@@ -232,13 +220,11 @@ public class BlueprintBlockAccess extends World
     @Override
     public void registerMapData(final MapData p_217399_1_)
     {
-
     }
 
     @Override
     public void playEvent(@Nullable final PlayerEntity player, final int type, final BlockPos pos, final int data)
     {
-
     }
 
     @Override
@@ -250,47 +236,39 @@ public class BlueprintBlockAccess extends World
     @Override
     public void sendBlockBreakProgress(final int breakerId, @NotNull final BlockPos pos, final int progress)
     {
-
     }
 
     @NotNull
     @Override
     public Scoreboard getScoreboard()
     {
-        return Minecraft.getInstance().world.getScoreboard();
+        return null;
     }
 
     @NotNull
     @Override
     public RecipeManager getRecipeManager()
     {
-        return Minecraft.getInstance().world.getRecipeManager();
+        return null;
     }
 
     @NotNull
     @Override
     public NetworkTagManager getTags()
     {
-        return Minecraft.getInstance().world.getTags();
-    }
-
-    @Override
-    public int getStrongPower(@NotNull final BlockPos pos, @NotNull final Direction direction)
-    {
-        return 0;
-    }
-
-    @NotNull
-    @Override
-    public WorldType getWorldType()
-    {
-        return WorldType.DEFAULT;
+        return null;
     }
 
     @NotNull
     @Override
     public List<? extends PlayerEntity> getPlayers()
     {
-        return Collections.emptyList();
+        return null;
+    }
+
+    @Override
+    public float func_230487_a_(final Direction p_230487_1_, final boolean p_230487_2_)
+    {
+        return 1.0F;
     }
 }
