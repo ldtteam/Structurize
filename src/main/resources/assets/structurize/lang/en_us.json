@@ -1153,13 +1153,16 @@
   "structurize.sslogin.login_error": "Login failed: %s",
   "structurize.sslogin.refresh_error": "Refresh failed, please relogin: %s",
   "structurize.sslogin.success": "Successful login for account \"%s\"",
+  "structurize.sslogin.logout": "Successful logout for account \"%s\"",
   "structurize.sslogin.user_not_loggedin": "To use this feature you need to login first using \"/structurize schemaserver login\"",
   "structurize.sslogin.already_logged": "Already logged in as \"%s\"",
-  "structurize.gui.ssstyles.loading": "Retrieving latest data...",
-  "structurize.gui.ssstyles.styles": "STYLES",
-  "structurize.gui.ssstyles.types": "TYPES",
-  "structurize.gui.ssstyles.schematics": "SCHEMATICS",
-  "structurize.gui.ssstyles.create_style": "Create Style",
-  "structurize.gui.ssstyles.create_type": "Create Type",
-  "structurize.gui.ssstyles.create_schematic": "Create Schematic"
+  "structurize.ssioerror": "Error occured during schema server IO operation, visit log file for mroe information: %s",
+  "structurize.genericerror": "An error encoutered during executing command.",
+  "structurize.filediff.old_file": "Found older file against last snapshot - not updating, filePath: \"%s\", snapshotTime: \"%d\", fileLastModifiedTime: \"%d\"",
+  "structurize.gui.ssfilediff.no_diff": "To view data file diff you need to run \"/structurize schemaserver updateDataFiles\" first",
+  "structurize.gui.ssfilediff.added": "ADDED",
+  "structurize.gui.ssfilediff.updated": "UPDATED",
+  "structurize.gui.ssfilediff.removed": "REMOVED",
+  "structurize.gui.ssfilediff.title": "File difference of \"%s\":",
+  "structurize.done": "Done"
 }

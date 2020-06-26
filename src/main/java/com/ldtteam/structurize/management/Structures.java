@@ -4,18 +4,14 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.MathUtils;
-import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.management.schemaserver.SchemaServerUpdateChecker;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -173,16 +169,6 @@ public final class Structures
             }
         }
 
-        SchemaServerUpdateChecker.askUpdate(() -> {
-            loadSchematicsForPrefix(
-                DistExecutor
-                    .runForDist(() -> () -> Minecraft.getInstance().gameDir,
-                        () -> () -> ServerLifecycleHooks.getCurrentServer().getDataDirectory())
-                    .toPath()
-                    .resolve(Constants.MOD_ID),
-                SCHEMATICS_DYNAMIC_ONLINE_CACHE);
-        });
-
         if (md5Map.size() == 0)
         {
             Log.getLogger().error("Error loading StructureProxy directory or no schematics found. Things may break!");
@@ -319,7 +305,7 @@ public final class Structures
      * @param basePath the base path.
      * @param prefix   either schematics, scans, cache
      */
-    private static void loadSchematicsForPrefix(@NotNull final Path basePath, @NotNull final String prefix)
+    public static void loadSchematicsForPrefix(@NotNull final Path basePath, @NotNull final String prefix)
     {
         if (!Files.exists(basePath.resolve(prefix)))
         {

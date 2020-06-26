@@ -59,4 +59,52 @@ public class SchemaServerCommand
             return 1;
         }
     }
+
+    protected static class UpdateDataFiles extends AbstractCommand
+    {
+        private static final String NAME = "updateDataFiles";
+
+        protected static LiteralArgumentBuilder<CommandSource> build()
+        {
+            return newLiteral(NAME).executes(UpdateDataFiles::onExecute);
+        }
+
+        private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
+        {
+            Network.getNetwork().sendToPlayer(SchemaServerGuiMessage.UPDATA_DATA_FILES.networkMessage(), context.getSource().asPlayer());
+            return 1;
+        }
+    }
+
+    protected static class ViewUpdateDiff extends AbstractCommand
+    {
+        private static final String NAME = "viewUpdateDiff";
+
+        protected static LiteralArgumentBuilder<CommandSource> build()
+        {
+            return newLiteral(NAME).executes(ViewUpdateDiff::onExecute);
+        }
+
+        private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
+        {
+            Network.getNetwork().sendToPlayer(SchemaServerGuiMessage.VIEW_UPDATE_DIFF.networkMessage(), context.getSource().asPlayer());
+            return 1;
+        }
+    }
+
+    protected static class UploadUpdate extends AbstractCommand
+    {
+        private static final String NAME = "uploadUpdate";
+
+        protected static LiteralArgumentBuilder<CommandSource> build()
+        {
+            return newLiteral(NAME).executes(UploadUpdate::onExecute);
+        }
+
+        private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
+        {
+            Network.getNetwork().sendToPlayer(SchemaServerGuiMessage.UPLOAD_UPDATE.networkMessage(), context.getSource().asPlayer());
+            return 1;
+        }
+    }
 }

@@ -50,7 +50,10 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.SendMessage.build());
         final CommandTree schemaServer = new CommandTree("schemaserver").addNode(SchemaServerCommand.Login.build())
             .addNode(SchemaServerCommand.Logout.build())
-            .addNode(SchemaServerCommand.Styles.build());
+            .addNode(SchemaServerCommand.Styles.build())
+            .addNode(SchemaServerCommand.UpdateDataFiles.build())
+            .addNode(SchemaServerCommand.ViewUpdateDiff.build())
+            .addNode(SchemaServerCommand.UploadUpdate.build());
         final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID).addNode(linkSession)
             .addNode(schemaServer)
             .addNode(UpdateSchematicsCommand.build())

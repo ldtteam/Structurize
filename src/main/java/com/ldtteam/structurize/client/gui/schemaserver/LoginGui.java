@@ -16,19 +16,19 @@ public class LoginGui extends Window
         super(Constants.MOD_ID + ":gui/schemaserver/login.xml");
 
         findPaneOfTypeByID("login", ButtonVanilla.class).setHandler(button -> {
-            final String username = this.findPaneOfTypeByID("username", TextFieldVanilla.class).getText();
-            LoginHolder.INSTANCE.login(username,
+            LoginHolder.INSTANCE.login(this.findPaneOfTypeByID("username", TextFieldVanilla.class).getText(),
                 this.findPaneOfTypeByID("password", TextFieldVanilla.class).getText(),
-                (res, rea) -> this.loginCallback(res, rea, username));
+                this::loginCallback);
         });
         findPaneOfTypeByID("username", TextFieldVanilla.class).setFocus();
     }
 
-    private void loginCallback(final boolean result, final String reason, final String username)
+    private void loginCallback(final boolean result, final String reason)
     {
         if (result)
         {
-            Structurize.proxy.notifyClientOrServerOps(LanguageHandler.prepareMessage("structurize.sslogin.success", username));
+            Structurize.proxy.notifyClientOrServerOps(
+                LanguageHandler.prepareMessage("structurize.sslogin.success", LoginHolder.INSTANCE.getCurrentUsername()));
             close();
         }
         else

@@ -12,7 +12,6 @@ public final class MathUtils
      */
     private MathUtils()
     {
-
     }
 
     /**

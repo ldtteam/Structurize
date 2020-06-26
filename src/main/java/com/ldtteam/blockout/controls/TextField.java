@@ -266,7 +266,14 @@ public class TextField extends Pane
             final Pane next = getWindow().findPaneByID(tabNextPaneID);
             if (next != null)
             {
-                next.setFocus();
+                if (next instanceof Button)
+                {
+                    ((Button) next).handleClick(0, 0);
+                }
+                else
+                {
+                    next.setFocus();
+                }
             }
         }
         return true;
@@ -447,7 +454,6 @@ public class TextField extends Pane
     @Override
     public void drawSelfLast(final int mx, final int my)
     {
-
     }
 
     @Override

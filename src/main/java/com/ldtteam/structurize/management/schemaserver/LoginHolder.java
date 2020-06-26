@@ -27,13 +27,17 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Util;
+import net.minecraft.util.text.StringTextComponent;
 
 /**
  * Class for holding current login
  */
 public class LoginHolder
 {
+    private static final String AUTH_LDTTEAM_OPENID_CONFIGURATION = "https://auth.ldtteam.com/.well-known/openid-configuration";
+    private static final boolean USE_DEBUG_PROFILE = true;
     private static final ClientAuthentication clientAuth = new ClientSecretBasic(new ClientID("structurize"), new Secret(""));
+
     private OIDCProviderMetadata authApiMetadata;
     private AccessToken currentAccessToken;
     private RefreshToken currentRefreshToken;
@@ -62,6 +66,14 @@ public class LoginHolder
     public void login(final String username, final String password, final BiConsumer<Boolean, String> resultCallback)
     {
         Util.getServerExecutor().execute(() -> {
+            if (USE_DEBUG_PROFILE)
+            {
+                currentUsername = "debug_profile_username";
+                Minecraft.getInstance().execute(() -> resultCallback.accept(true, ""));
+                DataActions.onLogin();
+                Structurize.proxy.notifyClientOrServerOps(new StringTextComponent("USING DEBUG LOGIN PROFILE FOR SCHEMA SERVER!"));
+                return;
+            }
             try
             {
                 if (isApiOnline())
@@ -69,6 +81,7 @@ public class LoginHolder
                     tryLogin(new ResourceOwnerPasswordCredentialsGrant(username, new Secret(password)));
                     currentUsername = username;
                     Minecraft.getInstance().execute(() -> resultCallback.accept(true, ""));
+                    DataActions.onLogin();
                 }
                 Minecraft.getInstance().execute(() -> resultCallback.accept(false, "API offline"));
                 currentAccessToken = null;
@@ -86,14 +99,14 @@ public class LoginHolder
      * Checks if user is logged in and current access token is valid. If true then runs given runnable with current valid access token on
      * main thread or in standalone thread.
      *
-     * @param task       job which needs access token
+     * @param task       job which needs access token, access token may be null if using debug profile
      * @param onFail     job to run if anything failed, includes reason
      * @param mainThread whether run on main thread or in minecraft thread executor
      */
     public void runAuthorized(final Consumer<AccessToken> task, final Consumer<String> onFail, final boolean mainThread)
     {
         Util.getServerExecutor().execute(() -> {
-            if (currentRefreshToken == null)
+            if (currentRefreshToken == null && !USE_DEBUG_PROFILE)
             {
                 onFail.accept(LanguageHandler.translateKey("structurize.sslogin.user_not_loggedin"));
                 return;
@@ -101,7 +114,7 @@ public class LoginHolder
 
             refreshToken();
 
-            if (currentAccessToken == null)
+            if (currentAccessToken == null && !USE_DEBUG_PROFILE)
             {
                 onFail.accept(LanguageHandler.translateKeyWithFormat("structurize.sslogin.refresh_error",
                     LanguageHandler.translateKey("structurize.sslogin.user_not_loggedin")));
@@ -142,15 +155,19 @@ public class LoginHolder
      */
     private void refreshToken()
     {
-        try
+        if (!USE_DEBUG_PROFILE)
         {
-            tryLogin(new RefreshTokenGrant(currentRefreshToken));
-        }
-        catch (final Exception e)
-        {
-            Structurize.proxy.notifyClientOrServerOps(LanguageHandler.prepareMessage("structurize.sslogin.refresh_error", e.getMessage()));
-            Log.getLogger().info("Refresh failed", e);
-            currentAccessToken = null;
+            try
+            {
+                tryLogin(new RefreshTokenGrant(currentRefreshToken));
+            }
+            catch (final Exception e)
+            {
+                Structurize.proxy
+                    .notifyClientOrServerOps(LanguageHandler.prepareMessage("structurize.sslogin.refresh_error", e.getLocalizedMessage()));
+                Log.getLogger().info("Refresh failed", e);
+                currentAccessToken = null;
+            }
         }
     }
 
@@ -164,7 +181,7 @@ public class LoginHolder
             try
             {
                 String providerInfo = null;
-                try (Scanner s = new Scanner(new URI("https://auth.ldtteam.com/.well-known/openid-configuration").toURL().openStream()))
+                try (Scanner s = new Scanner(new URI(AUTH_LDTTEAM_OPENID_CONFIGURATION).toURL().openStream()))
                 {
                     providerInfo = s.useDelimiter("\\A").hasNext() ? s.next() : "";
                 }
@@ -207,7 +224,7 @@ public class LoginHolder
 
         final AccessTokenResponse successResponse = response.toSuccessResponse();
 
-        // Get the access token, the server may also return a refresh token
+        // Get the access token and refresh token
         currentAccessToken = successResponse.getTokens().getAccessToken();
         currentRefreshToken = successResponse.getTokens().getRefreshToken();
 
@@ -219,7 +236,7 @@ public class LoginHolder
      */
     public boolean isUserLoggedIn()
     {
-        return currentAccessToken != null && currentRefreshToken != null && !currentUsername.isEmpty();
+        return (USE_DEBUG_PROFILE || (currentAccessToken != null && currentRefreshToken != null)) && !currentUsername.isEmpty();
     }
 
     /**
@@ -227,8 +244,10 @@ public class LoginHolder
      */
     public void logout()
     {
+        DataActions.onLogout();
         currentAccessToken = null;
         currentRefreshToken = null;
+        Structurize.proxy.notifyClientOrServerOps(LanguageHandler.prepareMessage("structurize.sslogin.logout", currentUsername));
         currentUsername = "";
     }
 

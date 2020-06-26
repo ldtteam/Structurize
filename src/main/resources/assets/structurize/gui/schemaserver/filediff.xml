@@ -1,0 +1,14 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="320 240" pause="true" lightbox="true" xsi:noNamespaceSchemaLocation="file:../../../../java/com/ldtteam/blockout/blockOut.xsd">
+
+    <label id="title" size="100% 11" pos="0 0" color="white" label="error" />
+    <label id="added" size="100 11" pos="0 11" color="white" label="error" />
+    <label id="updated" size="100 11" pos="110 11" color="white" label="error" />
+    <label id="removed" size="100 11" pos="220 11" color="white" label="error" />
+    <list id="file_diff_list" size="320 220" pos="0 25">
+        <box size="100% 15" linewidth="1">
+            <label id="difftype" size="50 12" pos="0 1" color="white" />
+            <label id="path" size="215 12" pos="55 1" color="white" />
+            <!--<buttonimage id="remove" pos="290 0" size="14 15" source="structurize:textures/gui/builderhut/button_x.png" />-->
+        </box>
+    </list>
+</window>
