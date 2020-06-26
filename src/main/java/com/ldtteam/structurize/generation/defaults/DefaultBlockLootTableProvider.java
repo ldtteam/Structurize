@@ -45,7 +45,6 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
 
         saveBlock(ModBlocks.blockCactusPlank, cache);
-        saveBlock(ModBlocks.blockCactusDoor, cache);
         saveBlock(ModBlocks.blockCactusTrapdoor, cache);
         saveBlock(ModBlocks.blockCactusStair, cache);
         saveBlock(ModBlocks.blockCactusSlab, cache);
