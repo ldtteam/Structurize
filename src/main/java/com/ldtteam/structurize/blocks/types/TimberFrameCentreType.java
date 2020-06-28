@@ -36,8 +36,13 @@ public enum TimberFrameCentreType  implements IStringSerializable
         this.recipeIngredient = recipeIngredient;
     }
 
-    @NotNull
     @Override
+    public String func_176610_l()
+    {
+        return this.name;
+    }
+
+    @NotNull
     public String getName()
     {
         return this.name;

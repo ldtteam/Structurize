@@ -53,7 +53,7 @@ public class ClientEventSubscriber
         if (blueprint != null)
         {
             BlockPos offset = new BlockPos(0, 0, 0);
-            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
+            final BlockPos primaryOffset = blueprint.getPrimaryBlockOffset();
 
             StructureClientHandler.renderStructure(blueprint,
                 event.getPartialTicks(),

@@ -1,35 +1,65 @@
 package com.ldtteam.structures.client;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.AirBlock;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPredicate;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.*;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.Explosion.Mode;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.IExplosionContext;
+import net.minecraft.world.ITickList;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BiomeManager;
+import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.Heightmap.Type;
+import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.lighting.WorldLightManager;
+import net.minecraft.world.storage.IWorldInfo;
 import net.minecraft.world.storage.MapData;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import java.util.List;
 
 /**
  * Our world/blockAccess dummy.
@@ -48,9 +78,9 @@ public class BlueprintBlockAccess extends World
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super(Minecraft.getInstance().world.getWorldInfo(),
-            Minecraft.getInstance().world.func_234923_W_(),
-            Minecraft.getInstance().world.func_234922_V_(),
+        super(null,
+            null,
+            null,
             Minecraft.getInstance().world.func_230315_m_(),
             () -> Minecraft.getInstance().world.getProfiler(),
             true,
@@ -76,11 +106,22 @@ public class BlueprintBlockAccess extends World
         return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
 
-    @Nullable
+    @NotNull
     @Override
-    public Entity getEntityByID(final int id)
+    public BlockState getBlockState(@NotNull final BlockPos pos)
     {
-        return null;
+        final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
+        if (state.getBlock() == ModBlocks.blockSolidSubstitution)
+        {
+            return Blocks.DIRT.getDefaultState();
+        }
+        return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
+    }
+
+    @Override
+    public IChunk getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull)
+    {
+        return new BlueprintChunk(this, x, z);
     }
 
     @Override
@@ -101,16 +142,17 @@ public class BlueprintBlockAccess extends World
         return 15;
     }
 
-    @NotNull
     @Override
-    public BlockState getBlockState(@NotNull final BlockPos pos)
+    public int getLightSubtracted(BlockPos blockPosIn, int amount)
     {
-        final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
-        if (state.getBlock() == ModBlocks.blockSolidSubstitution)
-        {
-            return Blocks.DIRT.getDefaultState();
-        }
-        return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
+        return 15;
+    }
+
+    // random rgba lighting
+    @Override
+    public float func_230487_a_(Direction p_230487_1_, boolean p_230487_2_)
+    {
+        return 0xffffffff;
     }
 
     @NotNull
@@ -128,147 +170,720 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void playSound(@Nullable final PlayerEntity player,
-        final double x,
-        final double y,
-        final double z,
-        final SoundEvent soundIn,
-        final SoundCategory category,
-        final float volume,
-        final float pitch)
+    public boolean isBlockPresent(BlockPos pos)
     {
-    }
-
-    @Override
-    public void playMovingSound(@Nullable final PlayerEntity p_217384_1_,
-        @NotNull final Entity entity,
-        @NotNull final SoundEvent event,
-        @NotNull final SoundCategory category,
-        final float p_217384_5_,
-        final float p_217384_6_)
-    {
-    }
-
-    @Override
-    public Biome getNoiseBiomeRaw(final int x, final int y, final int z)
-    {
-        return Biomes.DEFAULT;
-    }
-
-    @Override
-    public boolean isAirBlock(@NotNull final BlockPos pos)
-    {
-        return getBlockState(pos).getBlockState().getBlock() instanceof AirBlock;
-    }
-
-    @Override
-    public boolean isAreaLoaded(final BlockPos p_isAreaLoaded_1_, final int p_isAreaLoaded_2_)
-    {
+        // Noop
         return true;
     }
 
-    @NotNull
     @Override
-    public Chunk getChunk(final BlockPos pos)
+    public void addTileEntities(Collection<TileEntity> tileEntityCollection)
     {
-        return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-    }
-
-    @NotNull
-    @Override
-    public Chunk getChunk(final int chunkX, final int chunkZ)
-    {
-        return new BlueprintChunk(this, chunkX, chunkZ);
+        // Noop
     }
 
     @Override
-    public void notifyBlockUpdate(@NotNull final BlockPos pos,
-        @NotNull final BlockState oldState,
-        @NotNull final BlockState newState,
-        final int flags)
+    public boolean addTileEntity(TileEntity tile)
     {
+        // Noop
+        return false;
     }
 
-    @NotNull
     @Override
-    public ITickList<Block> getPendingBlockTicks()
+    public void calculateInitialSkylight()
     {
-        return null;
+        // Noop
     }
 
-    @NotNull
     @Override
-    public ITickList<Fluid> getPendingFluidTicks()
+    protected void calculateInitialWeather()
     {
-        return null;
+        // Noop
     }
 
-    @NotNull
     @Override
-    public AbstractChunkProvider getChunkProvider()
+    public void close() throws IOException
     {
-        return null;
+        // Noop
     }
 
-    @Nullable
     @Override
-    public MapData getMapData(final String p_217406_1_)
+    public Explosion createExplosion(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, Mode modeIn)
     {
+        // Noop
         return null;
     }
 
     @Override
-    public void registerMapData(final MapData p_217399_1_)
+    public Explosion createExplosion(Entity entityIn,
+        double xIn,
+        double yIn,
+        double zIn,
+        float explosionRadius,
+        boolean causesFire,
+        Mode modeIn)
     {
+        // Noop
+        return null;
     }
 
     @Override
-    public void playEvent(@Nullable final PlayerEntity player, final int type, final BlockPos pos, final int data)
+    public CrashReportCategory fillCrashReport(CrashReport report)
     {
+        CrashReportCategory crashreportcategory = report.makeCategory("Structurize rendering engine");
+        crashreportcategory.addDetail("Blueprint",
+            () -> blueprint.getName() + " of size: " + blueprint.getSizeX() + "|" + blueprint.getSizeY() + "|" + blueprint.getSizeZ());
+        return crashreportcategory;
+    }
+
+    @Override
+    public DimensionType func_230315_m_()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public Explosion func_230546_a_(Entity p_230546_1_,
+        DamageSource p_230546_2_,
+        IExplosionContext p_230546_3_,
+        double p_230546_4_,
+        double p_230546_6_,
+        double p_230546_8_,
+        float p_230546_10_,
+        boolean p_230546_11_,
+        Mode p_230546_12_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public RegistryKey<DimensionType> func_234922_V_()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public RegistryKey<World> func_234923_W_()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public double func_234928_a_(BlockPos p_234928_1_, double p_234928_2_)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public boolean func_234929_a_(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
+    {
+        return isOutsideBuildHeight(p_234929_1_) ? false
+            : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
+    }
+
+    @Override
+    public double func_234932_c_(BlockPos p_234932_1_, Predicate<BlockState> p_234932_2_)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public double func_234936_m_(BlockPos p_234936_1_)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public boolean func_241211_a_(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean func_241212_a_(BlockPos p_241212_1_, boolean p_241212_2_, Entity p_241212_3_, int p_241212_4_)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public BiomeManager getBiomeManager()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public float getCelestialAngleRadians(float partialTicks)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public long getDayTime()
+    {
+        // Noop
+        return 6000;
+    }
+
+    @Override
+    public DifficultyInstance getDifficultyForLocation(BlockPos pos)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public List<Entity> getEntitiesInAABBexcluding(Entity entityIn, AxisAlignedBB boundingBox, Predicate<? super Entity> predicate)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntitiesWithinAABB(EntityType<T> type, AxisAlignedBB boundingBox, Predicate<? super T> predicate)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB aabb, Predicate<? super T> filter)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public Entity getEntityByID(int id)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public GameRules getGameRules()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public long getGameTime()
+    {
+        // Noop
+        return 6000;
+    }
+
+    @Override
+    public int getHeight(Type heightmapType, int x, int z)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public WorldLightManager getLightManager()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public <T extends Entity> List<T> getLoadedEntitiesWithinAABB(Class<? extends T> p_225316_1_,
+        AxisAlignedBB p_225316_2_,
+        Predicate<? super T> p_225316_3_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public MapData getMapData(String mapName)
+    {
+        // Noop
+        return null;
     }
 
     @Override
     public int getNextMapId()
     {
+        // Noop
         return 0;
     }
 
     @Override
-    public void sendBlockBreakProgress(final int breakerId, @NotNull final BlockPos pos, final int progress)
+    public String getProviderName()
     {
-    }
-
-    @NotNull
-    @Override
-    public Scoreboard getScoreboard()
-    {
+        // Noop
         return null;
     }
 
-    @NotNull
+    @Override
+    public float getRainStrength(float delta)
+    {
+        // Noop
+        return 0;
+    }
+
     @Override
     public RecipeManager getRecipeManager()
     {
+        // Noop
         return null;
     }
 
-    @NotNull
+    @Override
+    public Scoreboard getScoreboard()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int getSkylightSubtracted()
+    {
+        // Noop
+        return 0;
+    }
+
     @Override
     public NetworkTagManager getTags()
     {
+        // Noop
         return null;
     }
 
-    @NotNull
+    @Override
+    public float getThunderStrength(float delta)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public WorldBorder getWorldBorder()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public IWorldInfo getWorldInfo()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public void guardEntityTick(Consumer<Entity> consumerEntity, Entity entityIn)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean isBlockModifiable(PlayerEntity player, BlockPos pos)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isBlockinHighHumidity(BlockPos pos)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isDaytime()
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public boolean isNightTime()
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isRaining()
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isRainingAt(BlockPos position)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isSaveDisabled()
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public boolean isThundering()
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public void markAndNotifyBlock(BlockPos p_241211_1_,
+        Chunk chunk,
+        BlockState blockstate,
+        BlockState p_241211_2_,
+        int p_241211_3_,
+        int p_241211_4_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void markBlockRangeForRenderUpdate(BlockPos blockPosIn, BlockState oldState, BlockState newState)
+    {
+        // Noop
+    }
+
+    @Override
+    public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity)
+    {
+        // Noop
+    }
+
+    @Override
+    public void neighborChanged(BlockPos pos, Block blockIn, BlockPos fromPos)
+    {
+        // Noop
+    }
+
+    @Override
+    public void notifyBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState, int flags)
+    {
+        // Noop
+    }
+
+    @Override
+    public void notifyNeighborsOfStateChange(BlockPos pos, Block blockIn)
+    {
+        // Noop
+    }
+
+    @Override
+    public void notifyNeighborsOfStateExcept(BlockPos pos, Block blockType, Direction skipSide)
+    {
+        // Noop
+    }
+
+    @Override
+    public void onBlockStateChange(BlockPos pos, BlockState blockStateIn, BlockState newState)
+    {
+        // Noop
+    }
+
+    @Override
+    public void playMovingSound(PlayerEntity playerIn,
+        Entity entityIn,
+        SoundEvent eventIn,
+        SoundCategory categoryIn,
+        float volume,
+        float pitch)
+    {
+        // Noop
+    }
+
+    @Override
+    public void playSound(PlayerEntity player,
+        double x,
+        double y,
+        double z,
+        SoundEvent soundIn,
+        SoundCategory category,
+        float volume,
+        float pitch)
+    {
+        // Noop
+    }
+
+    @Override
+    public void registerMapData(MapData mapDataIn)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean removeBlock(BlockPos pos, boolean isMoving)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public void removeTileEntity(BlockPos pos)
+    {
+        // Noop
+    }
+
+    @Override
+    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setRainStrength(float strength)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setThunderStrength(float strength)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setTileEntity(BlockPos pos, TileEntity tileEntityIn)
+    {
+        // Noop
+    }
+
+    @Override
+    public void tickBlockEntities()
+    {
+        // Noop
+    }
+
+    @Override
+    public void updateComparatorOutputLevel(BlockPos pos, Block blockIn)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean checkNoEntityCollision(Entity entityIn, VoxelShape shape)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public boolean chunkExists(int chunkX, int chunkZ)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public Stream<VoxelShape> func_230318_c_(Entity p_230318_1_, AxisAlignedBB p_230318_2_, Predicate<Entity> p_230318_3_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int func_234938_ad_()
+    {
+        // Noop
+        return 256;
+    }
+
+    @Override
+    public float getCelestialAngle(float partialTicks)
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public AbstractChunkProvider getChunkProvider()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public float getCurrentMoonPhaseFactor()
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public Difficulty getDifficulty()
+    {
+        // Noop
+        return Difficulty.PEACEFUL;
+    }
+
+    @Override
+    public BlockPos getHeight(Type heightmapType, BlockPos pos)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int getMoonPhase()
+    {
+        // Noop
+        return 0;
+    }
+
+    @Override
+    public ITickList<Block> getPendingBlockTicks()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public ITickList<Fluid> getPendingFluidTicks()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public void playEvent(PlayerEntity player, int type, BlockPos pos, int data)
+    {
+        // Noop
+    }
+
+    @Override
+    public <T extends LivingEntity> T getClosestEntity(List<? extends T> entities,
+        EntityPredicate predicate,
+        LivingEntity target,
+        double x,
+        double y,
+        double z)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public PlayerEntity getClosestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public PlayerEntity getPlayerByUuid(UUID uniqueIdIn)
+    {
+        // Noop
+        return null;
+    }
+
     @Override
     public List<? extends PlayerEntity> getPlayers()
     {
+        // Noop
         return null;
     }
 
     @Override
-    public float func_230487_a_(final Direction p_230487_1_, final boolean p_230487_2_)
+    public <T extends LivingEntity> List<T> getTargettableEntitiesWithinAABB(Class<? extends T> p_217374_1_,
+        EntityPredicate p_217374_2_,
+        LivingEntity p_217374_3_,
+        AxisAlignedBB p_217374_4_)
     {
-        return 1.0F;
+        // Noop
+        return null;
+    }
+
+    @Override
+    public List<PlayerEntity> getTargettablePlayersWithinAABB(EntityPredicate predicate, LivingEntity target, AxisAlignedBB box)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public boolean isPlayerWithin(double x, double y, double z, double distance)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean canBlockSeeSky(BlockPos pos)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public Biome getBiome(BlockPos p_226691_1_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int getBlockColor(BlockPos blockPosIn, ColorResolver colorResolverIn)
+    {
+        // Noop
+        return super.getBlockColor(blockPosIn, colorResolverIn);
+    }
+
+    @Override
+    public Biome getNoiseBiome(int x, int y, int z)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public Biome getNoiseBiomeRaw(int x, int y, int z)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public boolean isAreaLoaded(int fromX, int fromY, int fromZ, int toX, int toY, int toZ)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public boolean canSeeSky(BlockPos blockPosIn)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public boolean addEntity(Entity entityIn)
+    {
+        // Noop
+        return false;
     }
 }

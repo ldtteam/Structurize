@@ -169,7 +169,7 @@ public class BlueprintRenderer implements AutoCloseable
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
         final Vector3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
-        final BlockPos primaryBlockOffset = BlueprintUtils.getPrimaryBlockOffset(blockAccess.getBlueprint());
+        final BlockPos primaryBlockOffset = blockAccess.getBlueprint().getPrimaryBlockOffset();
         final int x = pos.getX() - primaryBlockOffset.getX();
         final int y = pos.getY() - primaryBlockOffset.getY();
         final int z = pos.getZ() - primaryBlockOffset.getZ();

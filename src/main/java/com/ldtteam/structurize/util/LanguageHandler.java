@@ -87,7 +87,7 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
-                translation.appendSibling(new StringTextComponent(" "));
+                translation.appendSibling(StringTextComponent.field_240750_d_);
                 translation.appendSibling((ITextComponent) object);
             }
             else if (object instanceof String)

@@ -438,7 +438,7 @@ public class Blueprint
     {
         cacheBlockInfo = new ArrayList<>(getVolume());
         cacheBlockInfoMap = new HashMap<>(getVolume());
-        cacheEntitiesMap = new HashMap<>();
+        cacheEntitiesMap = new HashMap<>(getEntities().length);
         for (short y = 0; y < this.sizeY; y++)
         {
             for (short z = 0; z < this.sizeZ; z++)
