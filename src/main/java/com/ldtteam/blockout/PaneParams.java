@@ -113,7 +113,7 @@ public class PaneParams
             }
 
             final String key = s.substring(index + 2, endIndex);
-            String replacement = LanguageHandler.format(key);
+            String replacement = LanguageHandler.translateKey(key);
 
             if (replacement.equals(key))
             {

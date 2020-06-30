@@ -14,7 +14,7 @@ import net.minecraft.command.arguments.GameProfileArgument;
 import net.minecraft.command.arguments.MessageArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -106,13 +106,13 @@ public class LinkSessionCommand
             final MinecraftServer server = command.getSource().getServer();
 
             final UUID ownerUUID = sender.getUniqueID();
-            final ITextComponent acceptButton = LanguageHandler.buildChatComponent("structurize.command.ls.invite.accept");
-            final ITextComponent inviteMsg = LanguageHandler.buildChatComponent("structurize.command.ls.invite.message", sender.getGameProfile().getName());
+            final IFormattableTextComponent acceptButton = LanguageHandler.buildChatComponent("structurize.command.ls.invite.accept");
+            final IFormattableTextComponent inviteMsg = LanguageHandler.buildChatComponent("structurize.command.ls.invite.message", sender.getGameProfile().getName());
 
             acceptButton.getStyle()
                 .func_240721_b_(TextFormatting.DARK_RED)
                 .func_240715_a_(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
-            inviteMsg.appendSibling(acceptButton);
+            inviteMsg.func_230529_a_(acceptButton);
 
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
             {

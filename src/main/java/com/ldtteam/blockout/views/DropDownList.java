@@ -8,7 +8,10 @@ import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.ButtonImage;
 import com.ldtteam.blockout.controls.ButtonVanilla;
 import com.ldtteam.blockout.controls.Label;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 /**
  * A DropDownList is a Button which when click display a ScrollingList below it.
@@ -164,7 +167,7 @@ public class DropDownList extends View implements ButtonHandler
         final Label idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Label.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.getLabelText());
+            final int index = Integer.parseInt(idLabel.getLabelTextNew().getString());
             setSelectedIndex(index);
             close();
         }
@@ -209,7 +212,7 @@ public class DropDownList extends View implements ButtonHandler
         }
         selectedIndex = index;
 
-        button.setLabel(dataProvider.getLabel(selectedIndex));
+        button.setLabel(dataProvider.getLabelNew(selectedIndex));
         if (handler != null)
         {
             handler.accept(this);
@@ -265,7 +268,7 @@ public class DropDownList extends View implements ButtonHandler
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                updateDropDownItem(rowPane, index, dataProvider.getLabel(index));
+                updateDropDownItem(rowPane, index, dataProvider.getLabelNew(index));
             }
         });
 
@@ -279,7 +282,7 @@ public class DropDownList extends View implements ButtonHandler
      * @param index   of the item
      * @param label   use for this item
      */
-    private void updateDropDownItem(@NotNull final Pane rowPane, final int index, final String label)
+    private void updateDropDownItem(@NotNull final Pane rowPane, final int index, final IFormattableTextComponent label)
     {
         final Button choiceButton = rowPane.findPaneOfTypeByID("button", Button.class);
         if (choiceButton != null)
@@ -288,7 +291,7 @@ public class DropDownList extends View implements ButtonHandler
             final Label idLabel = rowPane.findPaneOfTypeByID("id", Label.class);
             if (idLabel != null)
             {
-                idLabel.setLabelText(Integer.toString(index));
+                idLabel.setLabelText(new StringTextComponent(Integer.toString(index)));
             }
             choiceButton.setLabel(label);
             choiceButton.setHandler(this);
@@ -308,15 +311,15 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        button.drawSelf(mx, my);
+        button.drawSelf(ms, mx, my);
     }
 
     @Override
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
-        button.drawSelfLast(mx, my);
+        button.drawSelfLast(ms, mx, my);
     }
 
     @Override
@@ -342,7 +345,13 @@ public class DropDownList extends View implements ButtonHandler
     {
         int getElementCount();
 
+        @Deprecated
         String getLabel(final int index);
+
+        default IFormattableTextComponent getLabelNew(final int index)
+        {
+            return new StringTextComponent(getLabel(index));
+        }
     }
 
     @Override

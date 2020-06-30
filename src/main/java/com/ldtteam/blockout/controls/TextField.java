@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.views.View;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -177,12 +178,12 @@ public class TextField extends Pane
                 scrollOffset = text.length();
             }
 
-            final String visibleString = mc.fontRenderer.trimStringToWidth(text.substring(scrollOffset), internalWidth);
+            final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), internalWidth);
             final int rightmostVisibleChar = visibleString.length() + scrollOffset;
 
             if (selectionEnd == scrollOffset)
             {
-                scrollOffset -= mc.fontRenderer.trimStringToWidth(text, internalWidth, true).length();
+                scrollOffset -= mc.fontRenderer.func_238413_a_(text, internalWidth, true).length();
             }
 
             if (selectionEnd > rightmostVisibleChar)
@@ -264,9 +265,9 @@ public class TextField extends Pane
     {
         final int direction = (key == GLFW.GLFW_KEY_LEFT) ? -1 : 1;
 
-        if (Screen.hasShiftDown())
+        if (Screen.func_231173_s_())
         {
-            if (Screen.hasControlDown())
+            if (Screen.func_231172_r_())
             {
                 setSelectionEnd(getNthWordFromPos(direction, getSelectionEnd()));
             }
@@ -275,7 +276,7 @@ public class TextField extends Pane
                 setSelectionEnd(getSelectionEnd() + direction);
             }
         }
-        else if (Screen.hasControlDown())
+        else if (Screen.func_231172_r_())
         {
             setCursorPosition(getNthWordFromCursor(direction));
         }
@@ -290,7 +291,7 @@ public class TextField extends Pane
     {
         final int position = (key == GLFW.GLFW_KEY_HOME) ? 0 : text.length();
 
-        if (Screen.hasShiftDown())
+        if (Screen.func_231173_s_())
         {
             setSelectionEnd(position);
         }
@@ -305,7 +306,7 @@ public class TextField extends Pane
     {
         final int direction = (key == GLFW.GLFW_KEY_BACKSPACE) ? -1 : 1;
 
-        if (Screen.hasControlDown())
+        if (Screen.func_231172_r_())
         {
             deleteWords(direction);
         }
@@ -328,7 +329,7 @@ public class TextField extends Pane
      * Draw itself at positions mx and my.
      */
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         final int color = enabled ? textColor : textColorDisabled;
         final int drawWidth = getInternalWidth();
@@ -336,7 +337,7 @@ public class TextField extends Pane
         final int drawY = y;
 
         // Determine the portion of the string that is visible on screen
-        final String visibleString = mc.fontRenderer.trimStringToWidth(text.substring(scrollOffset), drawWidth);
+        final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), drawWidth);
 
         final int relativeCursorPosition = cursorPosition - scrollOffset;
         int relativeSelectionEnd = selectionEnd - scrollOffset;
@@ -356,7 +357,7 @@ public class TextField extends Pane
             @NotNull
             final String s1 = cursorVisible ? visibleString.substring(0, relativeCursorPosition) : visibleString;
             mc.getTextureManager().bindTexture(TEXTURE);
-            textX = drawString(s1, textX, drawY, color, shadow);
+            textX = drawString(ms, s1, textX, drawY, color, shadow);
         }
 
         int cursorX = textX;
@@ -374,7 +375,7 @@ public class TextField extends Pane
         if (visibleString.length() > 0 && cursorVisible && relativeCursorPosition < visibleString.length())
         {
             mc.getTextureManager().bindTexture(TEXTURE);
-            drawString(visibleString.substring(relativeCursorPosition), textX, drawY, color, shadow);
+            drawString(ms, visibleString.substring(relativeCursorPosition), textX, drawY, color, shadow);
         }
 
         // Should we draw the cursor this frame?
@@ -382,12 +383,12 @@ public class TextField extends Pane
         {
             if (cursorBeforeEnd)
             {
-                fill(cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.fontRenderer.FONT_HEIGHT, RECT_COLOR);
+                func_238467_a_(ms, cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.fontRenderer.FONT_HEIGHT, RECT_COLOR);
             }
             else
             {
                 mc.getTextureManager().bindTexture(TEXTURE);
-                drawString("_", cursorX, drawY, color, shadow);
+                drawString(ms, "_", cursorX, drawY, color, shadow);
             }
         }
 
@@ -431,12 +432,6 @@ public class TextField extends Pane
     }
 
     @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
-    }
-
-    @Override
     public void putInside(final View view)
     {
         super.putInside(view);
@@ -453,8 +448,8 @@ public class TextField extends Pane
             return false;
         }
 
-        final String visibleString = mc.fontRenderer.trimStringToWidth(text.substring(scrollOffset), getInternalWidth());
-        final String trimmedString = mc.fontRenderer.trimStringToWidth(visibleString, (int) mx);
+        final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), getInternalWidth());
+        final String trimmedString = mc.fontRenderer.func_238412_a_(visibleString, (int) mx);
 
         // Cache and restore scrollOffset when we change focus via click,
         // because onFocus() sets the cursor (and thus scroll offset) to the end.
@@ -468,24 +463,24 @@ public class TextField extends Pane
     @Override
     public boolean onKeyTyped(final char c, final int key)
     {
-        if (Screen.isCopy(key))
+        if (Screen.func_231169_i_(key))
         {
             mc.keyboardListener.setClipboardString(getSelectedText());
             return true;
         }
-        else if (Screen.isCut(key))
+        else if (Screen.func_231166_g_(key))
         {
             mc.keyboardListener.setClipboardString(getSelectedText());
             writeText("");
             return true;
         }
-        else if (Screen.isSelectAll(key))
+        else if (Screen.func_231170_j_(key))
         {
             setCursorPosition(text.length());
             setSelectionEnd(0);
             return true;
         }
-        else if (Screen.isPaste(key))
+        else if (Screen.func_231168_h_(key))
         {
             writeText(mc.keyboardListener.getClipboardString());
             return true;

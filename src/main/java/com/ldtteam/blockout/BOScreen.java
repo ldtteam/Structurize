@@ -1,9 +1,10 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
@@ -107,6 +108,7 @@ public class BOScreen extends Screen
     public BOScreen(final Window w)
     {
         super(new StringTextComponent("Blockout GUI"));
+        field_230711_n_ = true;
         window = w;
     }
 
@@ -126,27 +128,37 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public void render(final int mx, final int my, final float f)
+    public void func_230430_a_(final MatrixStack a, final int b, final int c, final float d)
     {
-        if (window.hasLightbox() && super.minecraft != null)
+        render(a, b, c, d);
+    }
+
+    public void render(final MatrixStack ms, final int mx, final int my, final float f)
+    {
+        if (window.hasLightbox() && field_230706_i_ != null)
         {
-            super.renderBackground();
+            super.func_230446_a_(ms);
         }
 
-        setScale(minecraft);
+        setScale(field_230706_i_);
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float) x, (float) y, 0);
-        window.draw(mx - x, my - y);
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(x, y, 0);
+        window.draw(ms, mx - x, my - y);
+        ms.pop();
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float) x, (float) y, 0);
-        window.drawLast(mx - x, my - y);
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(x, y, 0);
+        window.drawLast(ms, mx - x, my - y);
+        ms.pop();
     }
 
     @Override
+    public boolean func_231046_a_(final int a, final int b, final int c)
+    {
+        return keyPressed(a, b, c);
+    }
+
     public boolean keyPressed(final int key, final int scanCode, final int modifiers)
     {
         // keys without printable representation
@@ -158,12 +170,22 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public boolean func_231042_a_(final char a, final int b)
+    {
+        return charTyped(a, b);
+    }
+
     public boolean charTyped(final char ch, final int key)
     {
         return window.onKeyTyped(ch, key);
     }
 
     @Override
+    public boolean func_231044_a_(final double a, final double b, final int c)
+    {
+        return mouseClicked(a, b, c);
+    }
+
     public boolean mouseClicked(final double mxIn, final double myIn, final int keyCode)
     {
         final double mx = mxIn - x;
@@ -182,6 +204,11 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public boolean func_231043_a_(final double a, final double b, final double c)
+    {
+        return mouseScrolled(a, b, c);
+    }
+
     public boolean mouseScrolled(final double mx, final double my, final double scrollDiff)
     {
         if (scrollDiff != 0)
@@ -201,12 +228,22 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public boolean func_231045_a_(final double a, final double b, final int c, final double d, final double e)
+    {
+        return mouseDragged(a, b, c, d, e);
+    }
+
     public boolean mouseDragged(final double xIn, final double yIn, final int speed, final double deltaX, final double deltaY)
     {
         return window.onMouseDrag(xIn - x, yIn - y, speed, deltaX, deltaY);
     }
 
     @Override
+    public boolean func_231048_c_(final double a, final double b, final int c)
+    {
+        return mouseReleased(a, b, c);
+    }
+
     public boolean mouseReleased(final double mxIn, final double myIn, final int keyCode)
     {
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
@@ -219,18 +256,28 @@ public class BOScreen extends Screen
     }
 
     @Override
+    public void func_231160_c_()
+    {
+        init();
+    }
+
     public void init()
     {
-        x = (width - window.getWidth()) / 2;
-        y = (height - window.getHeight()) / 2;
+        x = (field_230708_k_ - window.getWidth()) / 2;
+        y = (field_230709_l_ - window.getHeight()) / 2;
 
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        field_230706_i_.keyboardListener.enableRepeatEvents(true);
     }
 
     @Override
+    public void func_231023_e_()
+    {
+        tick();
+    }
+
     public void tick()
     {
-        if (minecraft != null)
+        if (field_230706_i_ != null)
         {
             if (!isOpen)
             {
@@ -241,25 +288,39 @@ public class BOScreen extends Screen
             {
                 window.onUpdate();
 
-                if (!minecraft.player.isAlive() || minecraft.player.dead)
+                if (!field_230706_i_.player.isAlive() || field_230706_i_.player.dead)
                 {
-                    minecraft.player.closeScreen();
+                    field_230706_i_.player.closeScreen();
                 }
             }
         }
     }
 
     @Override
+    public void func_231175_as__()
+    {
+        onClose();
+    }
+
     public void onClose()
     {
         window.onClosed();
         Window.clearFocus();
-        minecraft.keyboardListener.enableRepeatEvents(false);
+        field_230706_i_.keyboardListener.enableRepeatEvents(false);
     }
 
     @Override
+    public boolean func_231177_au__()
+    {
+        return isPauseScreen();
+    }
+
     public boolean isPauseScreen()
     {
         return window.doesWindowPauseGame();
+    }
+
+    public void renderTooltipHook(MatrixStack p_230457_1_, ItemStack p_230457_2_, int p_230457_3_, int p_230457_4_) {
+        func_230457_a_(p_230457_1_, p_230457_2_, p_230457_3_, p_230457_4_);
     }
 }

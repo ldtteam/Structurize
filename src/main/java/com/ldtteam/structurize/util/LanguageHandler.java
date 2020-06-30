@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,7 +45,7 @@ public final class LanguageHandler
         player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUniqueID());
     }
 
-    public static ITextComponent buildChatComponent(final String key, final Object... message)
+    public static IFormattableTextComponent buildChatComponent(final String key, final Object... message)
     {
         TranslationTextComponent translation = null;
 
@@ -87,8 +88,8 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
-                translation.appendSibling(StringTextComponent.field_240750_d_);
-                translation.appendSibling((ITextComponent) object);
+                translation.func_230529_a_(StringTextComponent.field_240750_d_);
+                translation.func_230529_a_((ITextComponent) object);
             }
             else if (object instanceof String)
             {
@@ -104,7 +105,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.appendText(" " + object);
+                    translation.func_240702_b_(" " + object);
                 }
             }
         }
@@ -205,7 +206,7 @@ public final class LanguageHandler
 
     private static class LanguageCache
     {
-        private static LanguageCache instance;
+        private static LanguageCache instance = new LanguageCache();
         private boolean isMCloaded = false;
         private Map<String, String> languageMap;
 
@@ -238,7 +239,7 @@ public final class LanguageHandler
 
         private static LanguageCache getInstance()
         {
-            return instance == null ? instance = new LanguageCache() : instance;
+            return instance;
         }
 
         private String translateKey(final String key)
@@ -250,7 +251,7 @@ public final class LanguageHandler
             else
             {
                 final String res = languageMap.get(key);
-                return res == null ? key : res;
+                return res == null ? LanguageMap.getInstance().func_230503_a_(key) : res;
             }
         }
     }

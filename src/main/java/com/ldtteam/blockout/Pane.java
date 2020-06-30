@@ -2,8 +2,11 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.util.text.ITextProperties;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -313,22 +316,22 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void draw(final int mx, final int my)
+    public final void draw(final MatrixStack ms, final int mx, final int my)
     {
         if (visible)
         {
-            drawSelf(mx, my);
+            drawSelf(ms, mx, my);
             if (debugging)
             {
                 final boolean isMouseOver = isPointInPane(mx, my);
                 final int color = isMouseOver ? 0xFF00FF00 : 0xFF0000FF;
 
-                Render.drawOutlineRect(x, y, x + getWidth(), y + getHeight(), color);
+                Render.drawOutlineRect(ms, x, y, getWidth(), getHeight(), color);
 
                 if (isMouseOver && !id.isEmpty())
                 {
                     final int stringWidth = mc.fontRenderer.getStringWidth(id);
-                    mc.fontRenderer.drawString(id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
+                    mc.fontRenderer.func_238421_b_(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
                 }
             }
         }
@@ -339,11 +342,11 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void drawLast(final int mx, final int my)
+    public final void drawLast(final MatrixStack ms, final int mx, final int my)
     {
         if (visible)
         {
-            drawSelfLast(mx, my);
+            drawSelfLast(ms, mx, my);
         }
     }
 
@@ -356,7 +359,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         // Can be overloaded
     }
@@ -370,7 +373,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
         // Can be overloaded
     }
@@ -779,15 +782,28 @@ public class Pane extends AbstractGui
         return true;
     }
 
-    protected int drawString(final String text, final float x, final float y, final int color, final boolean shadow)
+    @Deprecated
+    protected int drawString(final MatrixStack ms, final String text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
-            return mc.fontRenderer.drawStringWithShadow(text, x, y, color);
+            return mc.fontRenderer.func_238405_a_(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.drawString(text, x, y, color);
+            return mc.fontRenderer.func_238421_b_(ms, text, x, y, color);
+        }
+    }
+
+    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
+    {
+        if (shadow)
+        {
+            return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
+        }
+        else
+        {
+            return mc.fontRenderer.func_238422_b_(ms, text, x, y, color);
         }
     }
 

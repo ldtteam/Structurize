@@ -2,7 +2,7 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.math.MathHelper;
 
@@ -136,42 +136,42 @@ public class ZoomDragView extends View
         return Math.max(0, (double) contentWidth * scale - getWidth());
     }
 
-    protected void abstractDrawSelfPre(final int mx, final int my)
+    protected void abstractDrawSelfPre(final MatrixStack ms, final int mx, final int my)
     {
     }
 
-    protected void abstractDrawSelfPost(final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
     {
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         scissorsStart();
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(-scrollX, -scrollY, 0.0d);
-        RenderSystem.translated((1 - scale) * x, (1 - scale) * y, 0.0d);
-        RenderSystem.scaled(scale, scale, 1.0d);
-        abstractDrawSelfPre(mx, my);
-        super.drawSelf((int) calcRelativeX(mx), (int) calcRelativeY(my));
-        abstractDrawSelfPost(mx, my);
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(-scrollX, -scrollY, 0.0d);
+        ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
+        ms.scale((float) scale, (float) scale, 1.0f);
+        abstractDrawSelfPre(ms, mx, my);
+        super.drawSelf(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        abstractDrawSelfPost(ms, mx, my);
+        ms.pop();
 
         scissorsEnd();
     }
 
     @Override
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
         scissorsStart();
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(-scrollX, -scrollY, 0.0d);
-        RenderSystem.translated((1 - scale) * x, (1 - scale) * y, 0.0d);
-        RenderSystem.scaled(scale, scale, 1.0d);
-        super.drawSelfLast((int) calcRelativeX(mx), (int) calcRelativeY(my));
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(-scrollX, -scrollY, 0.0d);
+        ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
+        ms.scale((float) scale, (float) scale, 1.0f);
+        super.drawSelfLast(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        ms.pop();
 
         scissorsEnd();
     }

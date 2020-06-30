@@ -2,11 +2,9 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
@@ -200,76 +198,23 @@ public class Image extends Pane
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-        setupOpenGL(resourceLocation);
-
-        if (this.customSized)
-        {
-            // /Draw
-            drawScaledCustomSizeModalRect(
-                x,
-                y,
-                imageOffsetX,
-                imageOffsetY,
-                mapWidth,
-                mapHeight,
-                imageWidth != 0 ? imageWidth : getWidth(),
-                imageHeight != 0 ? imageHeight : getHeight(),
-                mapWidth,
-                mapHeight);
-        }
-        else
-        {
-            blit(x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
-        }
-
-        RenderSystem.disableBlend();
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
-    }
-
-    public static void drawScaledCustomSizeModalRect(
-        final int x,
-        final int y,
-        final float u,
-        final float v,
-        final int uWidth,
-        final int vHeight,
-        final int width,
-        final int height,
-        final float tileWidth,
-        final float tileHeight)
-    {
-        final float f = 1.0F / tileWidth;
-        final float f1 = 1.0F / tileHeight;
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, (y + height), 0.0D).tex((u * f), ((v + (float) vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), (y + height), 0.0D).tex(((u + (float) uWidth) * f), ((v + (float) vHeight) * f1)).endVertex();
-        bufferbuilder.pos((x + width), y, 0.0D).tex(((u + (float) uWidth) * f), (v * f1)).endVertex();
-        bufferbuilder.pos(x, y, 0.0D).tex((u * f), (v * f1)).endVertex();
-        tessellator.draw();
-    }
-
-    /**
-     * Bind texture, set color, and enable blending.
-     *
-     * @param texture The texture to bind.
-     */
-    private void setupOpenGL(final ResourceLocation texture)
-    {
-        this.mc.getTextureManager().bindTexture(texture);
+        this.mc.getTextureManager().bindTexture(resourceLocation);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        if (this.customSized)
+        {
+            func_238464_a_(ms, x, y, 0, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapWidth, mapHeight);
+        }
+        else
+        {
+            func_238474_b_(ms, x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
+        }
+
+        RenderSystem.disableBlend();
     }
 }

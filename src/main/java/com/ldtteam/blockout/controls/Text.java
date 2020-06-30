@@ -1,7 +1,10 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
+
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +25,7 @@ public class Text extends AbstractTextElement
     /**
      * List of string elements.
      */
-    protected List<String> formattedText;
+    protected List<ITextProperties> formattedText;
 
     /**
      * The height of the text.
@@ -127,9 +130,9 @@ public class Text extends AbstractTextElement
      * @param s string to calculated width of.
      * @return the width of the string, in pixels.
      */
-    public int getStringWidth(final String s)
+    public int getStringWidth(final ITextProperties s)
     {
-        return (int) (mc.fontRenderer.getStringWidth(s) * scale);
+        return (int) (mc.fontRenderer.func_238414_a_(s) * scale);
     }
 
     /**
@@ -137,18 +140,18 @@ public class Text extends AbstractTextElement
      *
      * @return the list of strings.
      */
-    public List<String> getFormattedText()
+    public List<ITextProperties> getFormattedText()
     {
         if (formattedText == null)
         {
             if (textContent == null || textContent.length() == 0)
             {
-                formattedText = Collections.unmodifiableList(new ArrayList<String>());
+                formattedText = Collections.unmodifiableList(new ArrayList<ITextProperties>());
             }
             else
             {
                 formattedText = Collections.unmodifiableList(
-                    mc.fontRenderer.listFormattedStringToWidth(textContent, (int) (getWidth() / scale))
+                    mc.fontRenderer.func_238425_b_(new StringTextComponent(textContent), (int) (getWidth() / scale))
                         .stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()));
@@ -170,7 +173,7 @@ public class Text extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         final int scaledLinespace = (int) (linespace * scale);
         int offsetY = 0;
@@ -193,7 +196,7 @@ public class Text extends AbstractTextElement
             }
         }
 
-        for (final String s : getFormattedText())
+        for (final ITextProperties s : getFormattedText())
         {
             int offsetX = 0;
             if (textAlignment.isRightAligned() || textAlignment.isHorizontalCentered())
@@ -206,12 +209,12 @@ public class Text extends AbstractTextElement
                 }
             }
 
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef((float) (getX() + offsetX), (float) (getY() + offsetY), 0);
-            RenderSystem.scalef((float) scale, (float) scale, (float) scale);
+            ms.push();
+            ms.translate(getX() + offsetX, getY() + offsetY, 0);
+            ms.scale((float) scale, (float) scale, (float) scale);
             mc.getTextureManager().bindTexture(TEXTURE);
-            drawString(s, 0, 0, textColor, shadow);
-            RenderSystem.popMatrix();
+            drawString(ms, s, 0, 0, textColor, shadow);
+            ms.pop();
 
             offsetY += getLineHeight() + scaledLinespace;
 
@@ -220,11 +223,5 @@ public class Text extends AbstractTextElement
                 break;
             }
         }
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
     }
 }

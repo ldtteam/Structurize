@@ -3,6 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Render;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -53,16 +54,16 @@ public class Box extends View
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        Render.drawOutlineRect(x, y, x + getWidth(), y + getHeight(), lineWidth, color);
+        Render.drawOutlineRect(ms, x, y, getWidth(), getHeight(), color, lineWidth);
 
-        super.drawSelf(mx, my);
+        super.drawSelf(ms, mx, my);
     }
 
     @Override
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
-        super.drawSelfLast(mx, my);
+        super.drawSelfLast(ms, mx, my);
     }
 }

@@ -1,7 +1,7 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.SharedConstants;
 
 /**
@@ -77,30 +77,24 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         if (backgroundEnabled)
         {
             // Draw box
-            fill(x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
-            fill(x, y, x + width, y + height, backgroundInnerColor);
+            func_238467_a_(ms, x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
+            func_238467_a_(ms, x, y, x + width, y + height, backgroundInnerColor);
 
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(BACKGROUND_X_TRANSLATE, (float) ((height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2.0), 0);
+            ms.push();
+            ms.translate(BACKGROUND_X_TRANSLATE, (height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2, 0);
         }
 
-        super.drawSelf(mx, my);
+        super.drawSelf(ms, mx, my);
 
         if (backgroundEnabled)
         {
-            RenderSystem.popMatrix();
+            ms.pop();
         }
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-        super.drawSelfLast(mx, my);
     }
 
     @Override

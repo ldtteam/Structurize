@@ -1,52 +1,66 @@
 package com.ldtteam.blockout;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.util.math.vector.Matrix4f;
 
 /**
  * Render utility functions.
  */
 public final class Render
 {
-    private static final int ALPHA_SHIFT = 24;
-    private static final int RED_SHIFT = 16;
-    private static final int GREEN_SHIFT = 8;
-    private static final int COLOR_MASK = 255;
-    private static final double COLOR_DIVISOR = 255.0;
-
     private Render()
     {
         // Hide default constructor
     }
 
     /**
-     * {@link Render#drawOutlineRect(int, int, int, int, float, int)}.
-     *
-     * @param x1    lower x
-     * @param y1    lower y
-     * @param x2    upper x
-     * @param y2    upper y
-     * @param color color
+     * Draw an outlined untextured rectangle.
+     * 
+     * @param color argb
      */
-    public static void drawOutlineRect(final int x1, final int y1, final int x2, final int y2, final int color)
+    public static void drawOutlineRect(final MatrixStack ms, final int x, final int y, final int w, final int h, final int color)
     {
-        drawOutlineRect(x1, y1, x2, y2, 1.0F, color);
+        drawOutlineRect(ms, x, y, w, h, color, 1.0f);
     }
 
     /**
      * Draw an outlined untextured rectangle.
-     *
-     * @param x1        lower x
-     * @param y1        lower y
-     * @param x2        upper x
-     * @param y2        upper y
-     * @param lineWidth line thickness, default of 1.0
-     * @param color     color
+     * 
+     * @param color argb
      */
-    public static void drawOutlineRect(final int x1, final int y1, final int x2, final int y2, final float lineWidth, final int color)
+    public static void drawOutlineRect(final MatrixStack ms,
+        final int x,
+        final int y,
+        final int w,
+        final int h,
+        final int color,
+        final float lineWidth)
+    {
+        drawOutlineRect(ms.getLast()
+            .getMatrix(), x, y, w, h, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, (color >> 24) & 0xff, lineWidth);
+    }
+
+    /**
+     * Draw an outlined untextured rectangle.
+     * 
+     * @param color argb
+     */
+    public static void drawOutlineRect(final Matrix4f matrix,
+        final int x,
+        final int y,
+        final int w,
+        final int h,
+        final int red,
+        final int green,
+        final int blue,
+        final int alpha,
+        final float lineWidth)
     {
         if (lineWidth <= 0.0F)
         {
@@ -54,26 +68,22 @@ public final class Render
             return;
         }
 
-        final float a = (float) (((color >> ALPHA_SHIFT) & COLOR_MASK) / COLOR_DIVISOR);
-        final float r = (float) (((color >> RED_SHIFT) & COLOR_MASK) / COLOR_DIVISOR);
-        final float g = (float) (((color >> GREEN_SHIFT) & COLOR_MASK) / COLOR_DIVISOR);
-        final float b = (float) ((color & COLOR_MASK) / COLOR_DIVISOR);
+        final BufferBuilder vertexBuffer = Tessellator.getInstance().getBuffer();
 
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder vertexBuffer = tessellator.getBuffer();
-
-        vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
+        RenderSystem.enableBlend();
         RenderSystem.disableTexture();
+        RenderSystem.defaultBlendFunc();
+
         GL11.glLineWidth(lineWidth);
-        RenderSystem.color4f(r, g, b, a);
+        vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
+        vertexBuffer.pos(matrix, x, y, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(matrix, x + w, y, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(matrix, x + w, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(matrix, x, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.finishDrawing();
+        WorldVertexBufferUploader.draw(vertexBuffer);
 
-        // Since our points do not have any u,v this seems to be the correct code
-        vertexBuffer.pos(x1, y2, 0.0D).endVertex();
-        vertexBuffer.pos(x2, y2, 0.0D).endVertex();
-        vertexBuffer.pos(x2, y1, 0.0D).endVertex();
-        vertexBuffer.pos(x1, y1, 0.0D).endVertex();
-
-        tessellator.draw();
         RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
     }
 }

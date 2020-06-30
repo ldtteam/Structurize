@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -474,7 +475,7 @@ public class ButtonImage extends Button
      *
      * @param s New textContent scale.
      */
-    public void setTextScale(final float s)
+    public void setTextScale(final double s)
     {
         textScale = s;
     }
@@ -487,18 +488,12 @@ public class ButtonImage extends Button
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         final boolean mouseOver = isPointInPane(mx, my);
 
-        drawImage(mouseOver);
-        drawlabel(mouseOver);
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
+        drawImage(ms, mouseOver);
+        drawlabel(ms, mouseOver);
     }
 
     /**
@@ -506,11 +501,11 @@ public class ButtonImage extends Button
      *
      * @param mouseOver Is the mouse hovering over the button.
      */
-    private void drawImage(final boolean mouseOver)
+    private void drawImage(final MatrixStack ms, final boolean mouseOver)
     {
         ResourceLocation bind = image;
-        int offsetX = imageOffsetX;
-        int offsetY = imageOffsetY;
+        int u = imageOffsetX;
+        int v = imageOffsetY;
         int w = imageWidth;
         int h = imageHeight;
         int mapWidth = imageMapWidth;
@@ -521,8 +516,8 @@ public class ButtonImage extends Button
             if (imageDisabled != null)
             {
                 bind = imageDisabled;
-                offsetX = disabledOffsetX;
-                offsetY = disabledOffsetY;
+                u = disabledOffsetX;
+                v = disabledOffsetY;
                 w = disabledWidth;
                 h = disabledHeight;
                 mapWidth = disabledMapWidth;
@@ -536,8 +531,8 @@ public class ButtonImage extends Button
         else if (mouseOver && imageHighlight != null)
         {
             bind = imageHighlight;
-            offsetX = highlightOffsetX;
-            offsetY = highlightOffsetY;
+            u = highlightOffsetX;
+            v = highlightOffsetY;
             w = highlightWidth;
             h = highlightHeight;
             mapWidth = highlightMapWidth;
@@ -553,10 +548,23 @@ public class ButtonImage extends Button
             h = getHeight();
         }
 
-        setupOpenGL(bind);
+        mc.getTextureManager().bindTexture(bind);
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         // Draw
-        blit(x, y, offsetX, offsetY, w, h, mapWidth, mapHeight);
+        if (enabled || imageDisabled != null)
+        {
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            func_238463_a_(ms, x, y, u, v, w, h, mapWidth, mapHeight);
+        }
+        else
+        {
+            RenderSystem.color4f(HALF, HALF, HALF, 1.0F);
+            func_238463_a_(ms, x, y, u, v, w, h, mapWidth, mapHeight);
+        }
 
         RenderSystem.disableBlend();
     }
@@ -566,7 +574,7 @@ public class ButtonImage extends Button
      *
      * @param mouseOver If the mouse hovering over the button.
      */
-    private void drawlabel(final boolean mouseOver)
+    private void drawlabel(final MatrixStack ms, final boolean mouseOver)
     {
         if (label != null)
         {
@@ -593,33 +601,11 @@ public class ButtonImage extends Button
                 offsetY += (getHeight() - getTextHeight()) / 2;
             }
 
-            RenderSystem.pushMatrix();
-            RenderSystem.scaled(textScale, textScale, textScale);
-            drawString(label, (float) (getX() + offsetX), (float) (getY() + offsetY), color, shadow);
-            RenderSystem.popMatrix();
+            ms.push();
+            ms.scale((float) textScale, (float) textScale, 1.0f);
+            drawString(ms, label, getX() + offsetX, getY() + offsetY, color, shadow);
+            ms.pop();
         }
-    }
-
-    /**
-     * Bind texture, set color, and enable blending.
-     *
-     * @param texture The texture to bind.
-     */
-    private void setupOpenGL(final ResourceLocation texture)
-    {
-        this.mc.getTextureManager().bindTexture(texture);
-        if (this.enabled || this.imageDisabled != null)
-        {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        }
-        else
-        {
-            RenderSystem.color4f(HALF, HALF, HALF, 1.0F);
-        }
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     /**
@@ -629,7 +615,7 @@ public class ButtonImage extends Button
      */
     public int getStringWidth()
     {
-        return (int) (mc.fontRenderer.getStringWidth(label) * textScale);
+        return (int) (mc.fontRenderer.func_238414_a_(label) * textScale);
     }
 
     /**

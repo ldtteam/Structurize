@@ -2,7 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 /**
  * BlockOut gradient pane. Used to render a gradient.
@@ -61,16 +61,10 @@ public class Gradient extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        RenderSystem.pushMatrix();
-        this.fillGradient(getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
-        RenderSystem.popMatrix();
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
+        ms.push();
+        func_238468_a_(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
+        ms.pop();
     }
 }
