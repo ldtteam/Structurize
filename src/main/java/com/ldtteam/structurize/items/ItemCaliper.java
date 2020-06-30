@@ -41,16 +41,23 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         final PlayerEntity playerIn,
         final ItemStack itemStack)
     {
-        if (start.equals(end))
+        if (!worldIn.isRemote)
         {
-            LanguageHandler.sendPlayerMessage(playerIn, ITEM_CALIPER_MESSAGE_SAME);
             return ActionResultType.FAIL;
         }
 
-        return handlePlayerMessage(start, end, playerIn);
+        if (start.equals(end))
+        {
+            LanguageHandler.sendMessageToPlayer(playerIn, ITEM_CALIPER_MESSAGE_SAME);
+            return ActionResultType.FAIL;
+        }
+
+        handlePlayerMessage(start, end, playerIn);
+
+        return ActionResultType.SUCCESS;
     }
 
-    private ActionResultType handlePlayerMessage(final BlockPos start, final BlockPos end, final PlayerEntity playerIn)
+    private void handlePlayerMessage(final BlockPos start, final BlockPos end, final PlayerEntity playerIn)
     {
         int disX = Math.abs(end.getX() - start.getX());
         int disY = Math.abs(end.getY() - start.getY());
@@ -70,7 +77,7 @@ public class ItemCaliper extends AbstractItemWithPosSelector
             flag--;
         }
 
-        final String by = " " + LanguageHandler.format(ITEM_CALIPER_MESSAGE_BY) + " ";
+        final String by = " " + LanguageHandler.translateKey(ITEM_CALIPER_MESSAGE_BY) + " ";
         StringBuilder msg = new StringBuilder();
         if (disX != 0)
         {
@@ -92,10 +99,9 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         }
         msg.delete(msg.length() - by.length(), msg.length());
 
-        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
+        msg = new StringBuilder(LanguageHandler.translateKeyWithFormat(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
         msg.append(" ");
-        msg.append(LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
-        LanguageHandler.sendPlayerMessage(playerIn, msg.toString());
-        return ActionResultType.SUCCESS;
+        msg.append(LanguageHandler.translateKeyWithFormat(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
+        LanguageHandler.sendMessageToPlayer(playerIn, msg.toString());
     }
 }

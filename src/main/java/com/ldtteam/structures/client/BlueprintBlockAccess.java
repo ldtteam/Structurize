@@ -50,6 +50,7 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
@@ -66,6 +67,8 @@ import net.minecraft.world.storage.MapData;
  */
 public class BlueprintBlockAccess extends World
 {
+    private static final Scoreboard SCOREBOARD = new Scoreboard();
+
     /**
      * The blueprint with the info we need.
      */
@@ -148,11 +151,22 @@ public class BlueprintBlockAccess extends World
         return 15;
     }
 
-    // random rgba lighting
     @Override
     public float func_230487_a_(Direction p_230487_1_, boolean p_230487_2_)
     {
-        return 0xffffffff;
+        return 0.9f;
+    }
+
+    @Override
+    public Biome getBiome(BlockPos p_226691_1_)
+    {
+        return Biomes.DEFAULT;
+    }
+
+    @Override
+    public Scoreboard getScoreboard()
+    {
+        return SCOREBOARD;
     }
 
     @NotNull
@@ -167,6 +181,13 @@ public class BlueprintBlockAccess extends World
         {
             return getBlockState(pos).getFluidState();
         }
+    }
+
+    @Override
+    public boolean func_234929_a_(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
+    {
+        return isOutsideBuildHeight(p_234929_1_) ? false
+            : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
@@ -277,13 +298,6 @@ public class BlueprintBlockAccess extends World
     {
         // Noop
         return 0;
-    }
-
-    @Override
-    public boolean func_234929_a_(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
-    {
-        return isOutsideBuildHeight(p_234929_1_) ? false
-            : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
@@ -437,13 +451,6 @@ public class BlueprintBlockAccess extends World
 
     @Override
     public RecipeManager getRecipeManager()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public Scoreboard getScoreboard()
     {
         // Noop
         return null;
@@ -839,16 +846,8 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Biome getBiome(BlockPos p_226691_1_)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public int getBlockColor(BlockPos blockPosIn, ColorResolver colorResolverIn)
     {
-        // Noop
         return super.getBlockColor(blockPosIn, colorResolverIn);
     }
 

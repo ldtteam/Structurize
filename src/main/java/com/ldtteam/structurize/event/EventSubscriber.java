@@ -11,8 +11,8 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,11 +21,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class EventSubscriber
 {
-    /**
-     * If the manager finished loading already.
-     */
-    private static boolean loaded = false;
-
     /**
      * Private constructor to hide implicit public one.
      */
@@ -48,17 +43,9 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onServerStarting(@NotNull final WorldEvent.Load event)
+    public static void onServerStarted(final FMLServerStartedEvent event)
     {
-        if (!event.getWorld().isRemote())
-        {
-            if (!loaded)
-            {
-                Log.getLogger().warn("FMLServerStartedEvent");
-                Structures.init();
-                loaded = true;
-            }
-        }
+        Structures.init();
     }
 
     /**

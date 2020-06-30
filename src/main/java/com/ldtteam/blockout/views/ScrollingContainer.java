@@ -67,7 +67,7 @@ public class ScrollingContainer extends View
     @Override
     public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        scissorsStart();
+        scissorsStart(ms);
 
         // Translate the scroll
         ms.push();
@@ -81,7 +81,7 @@ public class ScrollingContainer extends View
     @Override
     public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
-        scissorsStart();
+        scissorsStart(ms);
 
         // Translate the scroll
         ms.push();

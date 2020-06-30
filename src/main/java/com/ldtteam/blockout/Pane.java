@@ -9,10 +9,8 @@ import net.minecraft.util.text.ITextProperties;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import java.nio.FloatBuffer;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -23,8 +21,6 @@ public class Pane extends AbstractGui
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
-    private static final int SCISSOR_X_INDEX = 12;
-    private static final int SCISSOR_Y_INDEX = 13;
     protected static Pane lastClickedPane;
     protected static Pane focus;
     protected Pane onHover;
@@ -598,13 +594,10 @@ public class Pane extends AbstractGui
         // Can be overloaded
     }
 
-    protected synchronized void scissorsStart()
+    protected synchronized void scissorsStart(final MatrixStack ms)
     {
-        final FloatBuffer fb = BufferUtils.createFloatBuffer(16 * 4);
-        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, fb);
-
-        int scissorsX = (int) fb.get(SCISSOR_X_INDEX) + getX();
-        int scissorsY = (int) fb.get(SCISSOR_Y_INDEX) + getY();
+        int scissorsX = (int) ms.getLast().getMatrix().m03 + getX();
+        int scissorsY = (int) ms.getLast().getMatrix().m13 + getY();
         int h = getHeight();
         int w = getWidth();
 

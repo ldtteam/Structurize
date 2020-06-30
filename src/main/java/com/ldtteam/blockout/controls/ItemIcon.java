@@ -87,7 +87,6 @@ public class ItemIcon extends Pane
             }
 
             RenderSystem.pushMatrix();
-            RenderSystem.loadIdentity();
             RenderSystem.multMatrix(ms.getLast().getMatrix());
             mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             mc.getItemRenderer().renderItemOverlayIntoGUI(font, itemStack, 0, 0, null);
