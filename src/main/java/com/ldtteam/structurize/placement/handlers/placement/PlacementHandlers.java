@@ -230,7 +230,10 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
+            {
+                itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            }
             return itemList;
         }
     }
