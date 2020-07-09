@@ -69,9 +69,6 @@ public class Pane extends AbstractGui
         super();
         id = params.getStringAttribute("id", id);
 
-        //   toolTipLines = new ArrayList<>();
-        //   toolTipLines.add(getID());
-
         @NotNull final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
         PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
         if (sizePair != null)
