@@ -2,8 +2,10 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.renderer.RenderHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -11,7 +13,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+
+import static com.ldtteam.blockout.controls.ItemIcon.DEFAULT_ITEMSTACK_SIZE;
+import static com.ldtteam.blockout.controls.ItemIcon.GUI_ITEM_Z_TRANSLATE;
+import static net.minecraftforge.fml.client.gui.GuiUtils.*;
 
 /**
  * A Pane is the root of all UI objects.
@@ -20,27 +27,28 @@ public class Pane extends AbstractGui
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
-    private static final int SCISSOR_X_INDEX = 12;
-    private static final int SCISSOR_Y_INDEX = 13;
-    protected static Pane lastClickedPane;
-    protected static Pane focus;
-    protected Pane onHover;
-    protected static boolean debugging = false;
-    protected Minecraft mc = Minecraft.getInstance();
+    private static final int                 SCISSOR_X_INDEX   = 12;
+    private static final int                 SCISSOR_Y_INDEX   = 13;
+    protected static     Pane                lastClickedPane;
+    protected static     Pane                focus;
+    protected            Pane                onHover;
+    protected static     boolean             debugging         = false;
+    protected            Minecraft           mc                = Minecraft.getInstance();
     // Attributes
-    protected String id = "";
-    protected int x = 0;
-    protected int y = 0;
-    protected int width = 0;
-    protected int height = 0;
-    protected Alignment alignment = Alignment.TOP_LEFT;
-    protected boolean visible = true;
-    protected boolean enabled = true;
-    protected String onHoverId = "";
+    protected            String              id                = "";
+    protected            int                 x                 = 0;
+    protected            int                 y                 = 0;
+    protected            int                 width             = 0;
+    protected            int                 height            = 0;
+    protected            Alignment           alignment         = Alignment.TOP_LEFT;
+    protected            boolean             visible           = true;
+    protected            boolean             enabled           = true;
+    protected            String              onHoverId         = "";
     // Runtime
-    protected Window window;
-    protected View parent;
-    protected boolean isHovered = false;
+    protected            Window              window;
+    protected            View                parent;
+    protected            boolean             isHovered         = false;
+    private              List<String>        toolTipLines;
 
     /**
      * Default constructor.
@@ -61,8 +69,10 @@ public class Pane extends AbstractGui
         super();
         id = params.getStringAttribute("id", id);
 
-        @NotNull
-        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
+        //   toolTipLines = new ArrayList<>();
+        //   toolTipLines.add(getID());
+
+        @NotNull final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
         PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
         if (sizePair != null)
         {
@@ -336,6 +346,7 @@ public class Pane extends AbstractGui
 
     /**
      * Draw something after finishing drawing the GUI.
+     *
      * @param mx mouse x.
      * @param my mouse y.
      */
@@ -344,12 +355,33 @@ public class Pane extends AbstractGui
         if (visible)
         {
             drawSelfLast(mx, my);
+
+            if (isHovered && toolTipLines != null && !toolTipLines.isEmpty())
+            {
+                RenderSystem.pushMatrix();
+                RenderHelper.disableStandardItemLighting();
+
+                RenderSystem.translatef((float) mx, (float) my, GUI_ITEM_Z_TRANSLATE);
+                RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+
+                ToolTipRendering.drawHoveringText(toolTipLines,
+                  0,
+                  0,
+                  getWindow().getScreen().width,
+                  getWindow().getScreen().height,
+                  -1,
+                  DEFAULT_BACKGROUND_COLOR,
+                  DEFAULT_BORDER_COLOR_START,
+                  DEFAULT_BORDER_COLOR_END,
+                  mc.fontRenderer);
+
+                RenderSystem.popMatrix();
+            }
         }
     }
 
     /**
-     * Draw self. The graphics port is already relative to the appropriate
-     * location.
+     * Draw self. The graphics port is already relative to the appropriate location.
      * <p>
      * Override this to actually draw.
      *
@@ -362,8 +394,7 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Draw self last. The graphics port is already relative to the appropriate
-     * location.
+     * Draw self last. The graphics port is already relative to the appropriate location.
      * <p>
      * Override this to actually draw last.
      *
@@ -401,9 +432,7 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Returns the first Pane (depth-first search) of a given ID.
-     * if it matches the specified type.
-     * Performs a depth-first search on the hierarchy of Panes and Views.
+     * Returns the first Pane (depth-first search) of a given ID. if it matches the specified type. Performs a depth-first search on the hierarchy of Panes and Views.
      *
      * @param idIn ID of Pane to find.
      * @param type Class of the desired Pane type.
@@ -412,8 +441,7 @@ public class Pane extends AbstractGui
      */
     public final <T extends Pane> T findPaneOfTypeByID(final String idIn, @NotNull final Class<T> type)
     {
-        @Nullable
-        final Pane p = findPaneByID(idIn);
+        @Nullable final Pane p = findPaneByID(idIn);
         try
         {
             return type.cast(p);
@@ -427,8 +455,7 @@ public class Pane extends AbstractGui
     // ----------Subpanes-------------//
 
     /**
-     * Returns the first Pane of a given ID.
-     * Performs a depth-first search on the hierarchy of Panes and Views.
+     * Returns the first Pane of a given ID. Performs a depth-first search on the hierarchy of Panes and Views.
      *
      * @param idIn ID of Pane to find.
      * @return a Pane of the given ID.
@@ -465,11 +492,9 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Put this Pane inside a View. Only Views and subclasses can contain
-     * Panes.
+     * Put this Pane inside a View. Only Views and subclasses can contain Panes.
      *
-     * @param newParent the View to put this Pane into, or null to remove from
-     *                  Parents.
+     * @param newParent the View to put this Pane into, or null to remove from Parents.
      */
     public void putInside(final View newParent)
     {
@@ -622,17 +647,16 @@ public class Pane extends AbstractGui
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
-        @NotNull
-        final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
+        @NotNull final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
         scissorsInfoStack.push(info);
 
         final double scale = BOScreen.getScale();
         GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
         GL11.glScissor(
-            (int) (info.x * scale),
-            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-            (int) (info.width * scale),
-            (int) (info.height * scale));
+          (int) (info.x * scale),
+          (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
+          (int) (info.width * scale),
+          (int) (info.height * scale));
     }
 
     /**
@@ -670,10 +694,10 @@ public class Pane extends AbstractGui
             final double scale = BOScreen.getScale();
             GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
             GL11.glScissor(
-                (int) (info.x * scale),
-                (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-                (int) (info.width * scale),
-                (int) (info.height * scale));
+              (int) (info.x * scale),
+              (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
+              (int) (info.width * scale),
+              (int) (info.height * scale));
         }
     }
 
@@ -721,6 +745,7 @@ public class Pane extends AbstractGui
 
     /**
      * Handle unhover.
+     *
      * @param mx ignored.
      * @param mz ignored.
      * @return ignored.
@@ -737,11 +762,15 @@ public class Pane extends AbstractGui
     public void handleUnhover()
     {
         isHovered = false;
+
+        if (onHover != null)
+        {
+            onHover.hide();
+        }
     }
 
     /**
-     * Handle onHover element, element must be visible.
-     * TODO: bug: must have pos set from xml (or be not in a group)
+     * Handle onHover element, element must be visible. TODO: bug: must have pos set from xml (or be not in a group)
      *
      * @param mx mouse x
      * @param my mouse y
@@ -804,5 +833,15 @@ public class Pane extends AbstractGui
     public boolean onMouseDrag(final double mx, final double my, final int speed, final double deltaX, final double deltaY)
     {
         return false;
+    }
+
+    /**
+     * Sets the tooltip to render on hovering this element
+     *
+     * @param lines the lines to display
+     */
+    public void setHoverToolTip(final List<String> lines)
+    {
+        this.toolTipLines = lines;
     }
 }
