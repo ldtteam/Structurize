@@ -79,7 +79,8 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     @Override
     public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
-        if (stateIn.get(WATERLOGGED)) {
+        if (stateIn.get(WATERLOGGED))
+        {
             worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
         }
 
@@ -239,6 +240,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
         return state.with(SHAPE, TOP);
     }
 
+    @Override
     public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type)
     {
         return type == PathType.WATER && worldIn.getFluidState(pos).isTagged(FluidTags.WATER);
