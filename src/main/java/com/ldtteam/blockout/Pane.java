@@ -12,6 +12,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -48,7 +49,7 @@ public class Pane extends AbstractGui
     protected            Window              window;
     protected            View                parent;
     protected            boolean             isHovered         = false;
-    private              List<String>        toolTipLines;
+    private              List<String>        toolTipLines      = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -353,7 +354,7 @@ public class Pane extends AbstractGui
         {
             drawSelfLast(mx, my);
 
-            if (isHovered && toolTipLines != null && !toolTipLines.isEmpty())
+            if (isHovered && !toolTipLines.isEmpty())
             {
                 RenderSystem.pushMatrix();
                 RenderHelper.disableStandardItemLighting();
