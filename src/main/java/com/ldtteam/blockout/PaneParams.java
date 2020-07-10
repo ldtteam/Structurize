@@ -6,10 +6,12 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import static com.ldtteam.blockout.Log.getLogger;
 
 /**
@@ -17,11 +19,12 @@ import static com.ldtteam.blockout.Log.getLogger;
  */
 public class PaneParams
 {
-    private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern RGBA_PATTERN = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    private static final char HASH_CHAR = '#';
-    private final Node node;
-    private View parentView;
+    private static final Pattern      PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern      RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    private static final char         HASH_CHAR          = '#';
+    private final        Node         node;
+    private              View         parentView;
+    private              List<String> toolTipLines       = new ArrayList<>();
 
     /**
      * Instantiates the pane parameters.
@@ -137,6 +140,24 @@ public class PaneParams
     public String getStringAttribute(final String name)
     {
         return getStringAttribute(name, "");
+    }
+
+    /**
+     * Sets the tooltip to render on hovering this element
+     *
+     * @param lines the lines to display
+     */
+    public void setHoverToolTip(final List<String> lines)
+    {
+        this.toolTipLines = lines;
+    }
+
+    /**
+     * @return
+     */
+    public List<String> getToolTipLines()
+    {
+        return toolTipLines;
     }
 
     /**
