@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +25,6 @@ public class PaneParams
     private static final char         HASH_CHAR          = '#';
     private final        Node         node;
     private              View         parentView;
-    private              List<String> toolTipLines       = new ArrayList<>();
 
     /**
      * Instantiates the pane parameters.
@@ -143,24 +143,6 @@ public class PaneParams
     }
 
     /**
-     * Sets the tooltip to render on hovering this element
-     *
-     * @param lines the lines to display
-     */
-    public void setHoverToolTip(final List<String> lines)
-    {
-        this.toolTipLines = lines;
-    }
-
-    /**
-     * @return
-     */
-    public List<String> getToolTipLines()
-    {
-        return toolTipLines;
-    }
-
-    /**
      * Get the String attribute from the name and definition.
      *
      * @param name the name.
@@ -171,6 +153,28 @@ public class PaneParams
     {
         final Node attr = getAttribute(name);
         return (attr != null) ? attr.getNodeValue() : def;
+    }
+
+    /**
+     * Get the String attribute from the name.
+     *
+     * @param name the name.
+     * @return the String.
+     */
+    public List<String> getToolTipAttribute(final String name)
+    {
+        final String string = getStringAttribute(name, "");
+        if (string.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        final String[] split = string.split(";");
+        final List<String> list = new ArrayList<>();
+        for (final String st : split)
+        {
+            list.add(localize(st));
+        }
+        return list;
     }
 
     private Node getAttribute(final String name)
