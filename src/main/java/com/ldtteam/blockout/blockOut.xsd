@@ -57,6 +57,7 @@
 
         <xs:attribute name="visible" type="xs:boolean"/>
         <xs:attribute name="enabled" type="xs:boolean"/>
+        <xs:attribute name="tooltip" type="xs:string"/>
 
         <xs:attribute name="style" type="xs:string"/>
     </xs:complexType>
