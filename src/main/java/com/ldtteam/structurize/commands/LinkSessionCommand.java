@@ -369,7 +369,7 @@ public class LinkSessionCommand
                     ownerName = LinkSessionManager.INSTANCE.consumeInviteWithCheck(
                         senderUUID,
                         sender.getGameProfile().getName(),
-                        UUID.fromString(MessageArgument.getMessage(command, UUID_ARG).getUnformattedComponentText()));
+                        UUID.fromString(MessageArgument.getMessage(command, UUID_ARG).getString()));
                 }
                 catch (final IllegalArgumentException e)
                 {

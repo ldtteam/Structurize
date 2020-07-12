@@ -102,7 +102,7 @@ public class RemoveEntityMessage implements IMessage
 
                     for(final Entity entity: list)
                     {
-                        if (entity.getName().getUnformattedComponentText().equals(entityName))
+                        if (entity.getName().getString().equals(entityName))
                         {
                             entity.remove();
                         }

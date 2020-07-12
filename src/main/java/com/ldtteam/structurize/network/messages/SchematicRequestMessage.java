@@ -73,7 +73,7 @@ public class SchematicRequestMessage implements IMessage
         }
         else
         {
-            Log.getLogger().info("Request: player " + ctxIn.getSender().getName().getUnformattedComponentText() + " is requesting schematic " + filename);
+            Log.getLogger().info("Request: player " + ctxIn.getSender().getName().getString() + " is requesting schematic " + filename);
             final byte[] schematic = StructureLoadingUtils.getStreamAsByteArray(stream);
             Network.getNetwork().sendToPlayer(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), ctxIn.getSender());
         }

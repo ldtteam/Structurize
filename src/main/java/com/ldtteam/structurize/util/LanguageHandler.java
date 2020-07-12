@@ -131,11 +131,11 @@ public final class LanguageHandler
         final String result;
         if (args.length == 0)
         {
-            result = new TranslationTextComponent(key).getUnformattedComponentText();
+            result = new TranslationTextComponent(key).getString();
         }
         else
         {
-            result = new TranslationTextComponent(key, args).getUnformattedComponentText();
+            result = new TranslationTextComponent(key, args).getString();
         }
         return result.isEmpty() ? key : result;
     }

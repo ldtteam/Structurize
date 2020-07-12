@@ -133,7 +133,7 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         allItems.addAll(specialBlockList.stream().filter(
                 stack -> filter.isEmpty()
                         || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                        || stack.getDisplayName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                        || stack.getDisplayName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
                 .collect(Collectors.toList()));
         updateResourceList();
     }
