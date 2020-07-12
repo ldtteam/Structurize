@@ -339,9 +339,9 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void func_230337_a_(final BlockState blockState, final CompoundNBT compound)
+    public void read(final BlockState blockState, final CompoundNBT compound)
     {
-        super.func_230337_a_(blockState, compound);
+        super.read(blockState, compound);
 
         range = compound.getInt(TAG_RANGE);
         this.progress = compound.getInt(TAG_PROGRESS);
@@ -378,13 +378,13 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     @Override
     public void handleUpdateTag(final BlockState blockState, final CompoundNBT tag)
     {
-        this.func_230337_a_(blockState, tag);
+        this.read(blockState, tag);
     }
 
     @Override
     public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
     {
-        this.func_230337_a_(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
+        this.read(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
     }
 
     @NotNull

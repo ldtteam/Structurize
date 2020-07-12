@@ -558,12 +558,12 @@ public class ButtonImage extends Button
         if (enabled || imageDisabled != null)
         {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            func_238463_a_(ms, x, y, u, v, w, h, mapWidth, mapHeight);
+            blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
         }
         else
         {
             RenderSystem.color4f(HALF, HALF, HALF, 1.0F);
-            func_238463_a_(ms, x, y, u, v, w, h, mapWidth, mapHeight);
+            blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
         }
 
         RenderSystem.disableBlend();

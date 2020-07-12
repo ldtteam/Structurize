@@ -265,9 +265,10 @@ public class TextField extends Pane
     {
         final int direction = (key == GLFW.GLFW_KEY_LEFT) ? -1 : 1;
 
-        if (Screen.func_231173_s_())
+
+        if (Screen.hasShiftDown())
         {
-            if (Screen.func_231172_r_())
+            if (Screen.hasControlDown())
             {
                 setSelectionEnd(getNthWordFromPos(direction, getSelectionEnd()));
             }
@@ -276,7 +277,7 @@ public class TextField extends Pane
                 setSelectionEnd(getSelectionEnd() + direction);
             }
         }
-        else if (Screen.func_231172_r_())
+        else if (Screen.hasControlDown())
         {
             setCursorPosition(getNthWordFromCursor(direction));
         }
@@ -291,7 +292,7 @@ public class TextField extends Pane
     {
         final int position = (key == GLFW.GLFW_KEY_HOME) ? 0 : text.length();
 
-        if (Screen.func_231173_s_())
+        if (Screen.hasShiftDown())
         {
             setSelectionEnd(position);
         }
@@ -306,7 +307,7 @@ public class TextField extends Pane
     {
         final int direction = (key == GLFW.GLFW_KEY_BACKSPACE) ? -1 : 1;
 
-        if (Screen.func_231172_r_())
+        if (Screen.hasControlDown())
         {
             deleteWords(direction);
         }
@@ -383,7 +384,7 @@ public class TextField extends Pane
         {
             if (cursorBeforeEnd)
             {
-                func_238467_a_(ms, cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.fontRenderer.FONT_HEIGHT, RECT_COLOR);
+                fill(ms, cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.fontRenderer.FONT_HEIGHT, RECT_COLOR);
             }
             else
             {
@@ -463,24 +464,24 @@ public class TextField extends Pane
     @Override
     public boolean onKeyTyped(final char c, final int key)
     {
-        if (Screen.func_231169_i_(key))
+        if (Screen.isCopy(key))
         {
             mc.keyboardListener.setClipboardString(getSelectedText());
             return true;
         }
-        else if (Screen.func_231166_g_(key))
+        else if (Screen.isCut(key))
         {
             mc.keyboardListener.setClipboardString(getSelectedText());
             writeText("");
             return true;
         }
-        else if (Screen.func_231170_j_(key))
+        else if (Screen.isSelectAll(key))
         {
             setCursorPosition(text.length());
             setSelectionEnd(0);
             return true;
         }
-        else if (Screen.func_231168_h_(key))
+        else if (Screen.isPaste(key))
         {
             writeText(mc.keyboardListener.getClipboardString());
             return true;

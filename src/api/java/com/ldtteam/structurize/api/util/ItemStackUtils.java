@@ -48,7 +48,7 @@ public final class ItemStackUtils
     public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world, final BlockPos pos)
     {
         final List<ItemStack> items = new ArrayList<>();
-        final TileEntity tileEntity = TileEntity.func_235657_b_(world.getBlockState(pos), compound);
+        final TileEntity tileEntity = TileEntity.readTileEntity(world.getBlockState(pos), compound);
         if (tileEntity instanceof LockableTileEntity)
         {
             for (int i = 0; i < ((LockableTileEntity) tileEntity).getSizeInventory(); i++)

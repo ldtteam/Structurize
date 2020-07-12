@@ -88,7 +88,7 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
-                translation.func_230529_a_(StringTextComponent.field_240750_d_);
+                translation.func_230529_a_(StringTextComponent.EMPTY);
                 translation.func_230529_a_((ITextComponent) object);
             }
             else if (object instanceof String)

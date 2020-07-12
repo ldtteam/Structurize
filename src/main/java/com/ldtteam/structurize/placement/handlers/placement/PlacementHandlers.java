@@ -701,7 +701,7 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final TileEntity newTile = TileEntity.func_235657_b_(world.getBlockState(pos), tileEntityData);
+            final TileEntity newTile = TileEntity.readTileEntity(world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
                 world.setTileEntity(pos, newTile);

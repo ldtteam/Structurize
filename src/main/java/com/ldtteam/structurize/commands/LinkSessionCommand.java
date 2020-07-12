@@ -110,8 +110,8 @@ public class LinkSessionCommand
             final IFormattableTextComponent inviteMsg = LanguageHandler.buildChatComponent("structurize.command.ls.invite.message", sender.getGameProfile().getName());
 
             acceptButton.getStyle()
-                .func_240721_b_(TextFormatting.DARK_RED)
-                .func_240715_a_(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
+                .setFormatting(TextFormatting.DARK_RED)
+                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
             inviteMsg.func_230529_a_(acceptButton);
 
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
@@ -209,7 +209,7 @@ public class LinkSessionCommand
                 throwSyntaxException("structurize.command.ls.message.norecipient");
             }
 
-            msgWithHead.getStyle().func_240721_b_(TextFormatting.GRAY).func_240722_b_(Boolean.valueOf(true));
+            msgWithHead.getStyle().setFormatting(TextFormatting.GRAY).setBold(true);
             uniqueMembers.forEach(member -> {
                 final ServerPlayerEntity target = server.getPlayerList().getPlayerByUUID(member);
                 if (target != null)

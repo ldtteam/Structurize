@@ -208,11 +208,11 @@ public class Image extends Pane
 
         if (this.customSized)
         {
-            func_238464_a_(ms, x, y, 0, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapWidth, mapHeight);
+            blit(ms, x, y, 0, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapWidth, mapHeight);
         }
         else
         {
-            func_238474_b_(ms, x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
+            blit(ms, x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
         RenderSystem.disableBlend();

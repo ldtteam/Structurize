@@ -27,7 +27,7 @@ public enum ShingleSlabShapeType implements IStringSerializable
     }
 
     @Override
-    public String func_176610_l()
+    public String getString()
     {
         return this.name;
     }

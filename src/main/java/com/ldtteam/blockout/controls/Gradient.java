@@ -64,7 +64,7 @@ public class Gradient extends AbstractTextElement
     public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         ms.push();
-        func_238468_a_(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
+        fillGradient(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
         ms.pop();
     }
 }

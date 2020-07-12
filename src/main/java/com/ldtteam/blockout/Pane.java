@@ -327,7 +327,7 @@ public class Pane extends AbstractGui
                 if (isMouseOver && !id.isEmpty())
                 {
                     final int stringWidth = mc.fontRenderer.getStringWidth(id);
-                    mc.fontRenderer.func_238421_b_(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
+                    mc.fontRenderer.drawString(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
                 }
             }
         }
@@ -780,11 +780,11 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
-            return mc.fontRenderer.func_238405_a_(ms, text, x, y, color);
+            return mc.fontRenderer.drawString(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.func_238421_b_(ms, text, x, y, color);
+            return mc.fontRenderer.drawString(ms, text, x, y, color);
         }
     }
 

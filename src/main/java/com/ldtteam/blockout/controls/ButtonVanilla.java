@@ -94,14 +94,14 @@ public class ButtonVanilla extends Button
         if (width == DEFAULT_BUTTON_WIDTH && height == DEFAULT_BUTTON_HEIGHT)
         {
             // Full size button
-            func_238474_b_(ms, x, y, u, v, width, height);
+            blit(ms, x, y, u, v, width, height);
         }
         else
         {
-            func_238474_b_(ms, x, y, u, v, width / 2, height / 2);
-            func_238474_b_(ms, x + width / 2, y, u + DEFAULT_BUTTON_WIDTH - width / 2, v, width / 2, height / 2);
-            func_238474_b_(ms, x, y + height / 2, u, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
-            func_238474_b_(ms, x + width / 2, y + height / 2, u + DEFAULT_BUTTON_WIDTH - width / 2, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
+            blit(ms, x, y, u, v, width / 2, height / 2);
+            blit(ms, x + width / 2, y, u + DEFAULT_BUTTON_WIDTH - width / 2, v, width / 2, height / 2);
+            blit(ms, x, y + height / 2, u, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
+            blit(ms, x + width / 2, y + height / 2, u + DEFAULT_BUTTON_WIDTH - width / 2, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
         }
 
         final int textColor;
@@ -121,7 +121,7 @@ public class ButtonVanilla extends Button
             textColor = DISABLED_COLOR;
         }
 
-        func_238472_a_(ms, this.mc.fontRenderer, label, x + width / 2, y + (height - this.mc.fontRenderer.FONT_HEIGHT) / 2, textColor);
+        drawCenteredString(ms, this.mc.fontRenderer, label, x + width / 2, y + (height - this.mc.fontRenderer.FONT_HEIGHT) / 2, textColor);
 
         RenderSystem.disableBlend();
     }

@@ -52,7 +52,7 @@ public class ShingleSlabsBlockStateProvider implements IDataProvider
         {
             for (Direction shingleSlabFacing : BlockShingleSlab.HORIZONTAL_FACING.getAllowedValues())
             {
-                final String variantKey = "shape=" + shingleSlabShape.getName() + ",facing=" + shingleSlabFacing.func_176610_l();
+                final String variantKey = "shape=" + shingleSlabShape.getName() + ",facing=" + shingleSlabFacing.getString();
                 int y = getYFromFacing(shingleSlabFacing);
 
                 final String modelLocation = "structurize:block/shingle_slab/" + shingleSlab.getRegistryName().getPath() + "_" + shingleSlabShape.getName();

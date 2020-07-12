@@ -82,8 +82,8 @@ public class TextFieldVanilla extends TextField
         if (backgroundEnabled)
         {
             // Draw box
-            func_238467_a_(ms, x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
-            func_238467_a_(ms, x, y, x + width, y + height, backgroundInnerColor);
+            fill(ms, x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
+            fill(ms, x, y, x + width, y + height, backgroundInnerColor);
 
             ms.push();
             ms.translate(BACKGROUND_X_TRANSLATE, (height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2, 0);
