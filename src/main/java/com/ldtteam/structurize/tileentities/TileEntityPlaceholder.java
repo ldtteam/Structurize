@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.tileentities;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -32,9 +34,9 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
     }
 
     @Override
-    public void read(final CompoundNBT compound)
+    public void read(final BlockState blockState, final CompoundNBT compound)
     {
-        super.read(compound);
+        super.read(blockState, compound);
         readSchematicDataFromNBT(compound);
 
         this.block = ItemStack.read(compound.getCompound(TAG_CONTAINED_BLOCK));
@@ -51,15 +53,15 @@ public class TileEntityPlaceholder extends TileEntity implements IBlueprintDataP
     }
 
     @Override
-    public void handleUpdateTag(final CompoundNBT tag)
+    public void handleUpdateTag(final BlockState blockState, final CompoundNBT tag)
     {
-        this.read(tag);
+        this.read(blockState, tag);
     }
 
     @Override
     public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
     {
-        this.read(pkt.getNbtCompound());
+        this.read(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
     }
 
     @NotNull

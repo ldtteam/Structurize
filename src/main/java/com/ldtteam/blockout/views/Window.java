@@ -2,6 +2,7 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.ldtteam.blockout.BOScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
@@ -124,17 +125,11 @@ public class Window extends View
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         updateDebugging();
 
-        super.drawSelf(mx, my);
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-        super.drawSelfLast(mx, my);
+        super.drawSelf(ms, mx, my);
     }
 
     private boolean isKeyDown(final int keyCode)

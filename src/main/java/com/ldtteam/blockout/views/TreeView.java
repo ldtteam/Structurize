@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -321,13 +322,18 @@ public class TreeView extends ZoomDragView
     }
 
     @Override
-    protected void abstractDrawSelfPost(final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
     {
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(x, y, 0.0f);
+        ms.push();
+        ms.translate(x, y, 0.0d);
+
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
+
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.multMatrix(ms.getLast().getMatrix());
         lineBuffer.getSecond().clear();
         if (lineBuffer.getFirst().getVertexCount() > 0)
         {
@@ -335,9 +341,12 @@ public class TreeView extends ZoomDragView
             GlStateManager.drawArrays(lineBuffer.getFirst().getDrawMode(), 0, lineBuffer.getFirst().getVertexCount());
             lineBuffer.getFirst().getFormat().clearBufferState();
         }
+        RenderSystem.popMatrix();
+
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
-        RenderSystem.popMatrix();
+
+        ms.pop();
     }
 
     public static class TreeViewNode

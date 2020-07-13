@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,10 +42,10 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message));
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUniqueID());
     }
 
-    public static ITextComponent buildChatComponent(final String key, final Object... message)
+    public static IFormattableTextComponent buildChatComponent(final String key, final Object... message)
     {
         TranslationTextComponent translation = null;
 
@@ -87,8 +88,8 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
-                translation.appendSibling(new StringTextComponent(" "));
-                translation.appendSibling((ITextComponent) object);
+                translation.func_230529_a_(StringTextComponent.EMPTY);
+                translation.func_230529_a_((ITextComponent) object);
             }
             else if (object instanceof String)
             {
@@ -104,7 +105,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.appendText(" " + object);
+                    translation.func_240702_b_(" " + object);
                 }
             }
         }
@@ -130,11 +131,11 @@ public final class LanguageHandler
         final String result;
         if (args.length == 0)
         {
-            result = new TranslationTextComponent(key).getUnformattedComponentText();
+            result = new TranslationTextComponent(key).getString();
         }
         else
         {
-            result = new TranslationTextComponent(key, args).getUnformattedComponentText();
+            result = new TranslationTextComponent(key, args).getString();
         }
         return result.isEmpty() ? key : result;
     }
@@ -157,13 +158,13 @@ public final class LanguageHandler
 
         for (final PlayerEntity player : players)
         {
-            player.sendMessage(textComponent);
+            player.sendMessage(textComponent, player.getUniqueID());
         }
     }
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)));
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.getUniqueID());
     }
 
     /**
@@ -205,7 +206,7 @@ public final class LanguageHandler
 
     private static class LanguageCache
     {
-        private static LanguageCache instance;
+        private static LanguageCache instance = new LanguageCache();
         private boolean isMCloaded = false;
         private Map<String, String> languageMap;
 
@@ -233,25 +234,24 @@ public final class LanguageHandler
                 is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
-            {
-            }.getType());
+            {}.getType());
         }
 
         private static LanguageCache getInstance()
         {
-            return instance == null ? instance = new LanguageCache() : instance;
+            return instance;
         }
 
         private String translateKey(final String key)
         {
             if (isMCloaded)
             {
-                return LanguageMap.getInstance().translateKey(key);
+                return LanguageMap.getInstance().func_230503_a_(key);
             }
             else
             {
                 final String res = languageMap.get(key);
-                return res == null ? key : res;
+                return res == null ? LanguageMap.getInstance().func_230503_a_(key) : res;
             }
         }
     }

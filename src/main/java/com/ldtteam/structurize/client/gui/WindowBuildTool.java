@@ -328,11 +328,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String name = sections.get(index);
             if (Structures.SCHEMATICS_SCAN.equals(name))
             {
-                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.scans");
+                return LanguageHandler.translateKey("com.ldtteam.structurize.gui.buildtool.scans");
             }
             else if (Structures.SCHEMATICS_PREFIX.equals(name))
             {
-                return LanguageHandler.format("com.ldtteam.structurize.gui.buildtool.decorations");
+                return LanguageHandler.translateKey("com.ldtteam.structurize.gui.buildtool.decorations");
             }
             // should be a something else.
             return getSectionName(name);

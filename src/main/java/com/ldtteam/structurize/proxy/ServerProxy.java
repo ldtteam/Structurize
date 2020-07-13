@@ -1,14 +1,13 @@
 package com.ldtteam.structurize.proxy;
 
+import java.io.File;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-
-import java.io.File;
 
 /**
  * Proxy to the server.
  */
-public class ServerProxy extends CommonProxy
+public class ServerProxy implements IProxy
 {
     @Override
     public File getSchematicsFolder()

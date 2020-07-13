@@ -14,8 +14,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +25,7 @@ public final class BlueprintUtils
 {
     // private static final Set<String> blackListedTileEntityIds = new HashSet<>();
     // private static final Set<String> blackListedEntityIds = new HashSet<>();
+    private static final Function<BlockPos, BlockInfo> DEFAULT_FACTORY = pos -> new BlockInfo(pos, Blocks.AIR.getDefaultState(), null);
 
     private BlueprintUtils()
     {
@@ -52,17 +53,7 @@ public final class BlueprintUtils
     public static BlockInfo getBlockInfoFromPos(final Blueprint blueprint, final BlockPos pos)
     {
         final BlockInfo blockInfo = blueprint.getBlockInfoAsMap().get(pos);
-        return blockInfo == null ? new BlockInfo(pos, Blocks.AIR.getDefaultState(), null) : blockInfo;
-    }
-
-    /**
-     * Get the primary offset.
-     * @param blueprint the blueprint.
-     * @return a tuple, the offset, and true if its a custom one.
-     */
-    public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
-    {
-        return blueprint.getPrimaryBlockOffset();
+        return blockInfo == null ? DEFAULT_FACTORY.apply(pos) : blockInfo;
     }
 
     /**
@@ -120,7 +111,7 @@ public final class BlueprintUtils
             compound.putInt("y", info.getPos().getY());
             compound.putInt("z", info.getPos().getZ());
 
-            final TileEntity entity = TileEntity.create(compound);
+            final TileEntity entity = TileEntity.readTileEntity(info.getState(), compound);
 
             if (entity != null)
             {

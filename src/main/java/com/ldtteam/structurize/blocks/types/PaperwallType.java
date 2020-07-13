@@ -21,6 +21,12 @@ public enum PaperwallType implements IStringSerializable
         this.name = nameIn;
     }
 
+    @Override
+    public String getString()
+    {
+        return this.name;
+    }
+
     @NotNull
     public String getName()
     {

@@ -4,6 +4,7 @@ import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.views.ScrollingContainer;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -112,7 +113,7 @@ public class Scrollbar extends Pane
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         barClicked = barClicked && (mc.mouseHelper.isLeftDown() || BOScreen.isMouseLeftDown);
         // TODO: catch from screen
@@ -131,22 +132,16 @@ public class Scrollbar extends Pane
         final int scrollBarBackX2 = scrollBarBackX1 + (getWidth() - 2);
 
         // Scroll Area Back
-        fill(scrollBarBackX2, y + getHeight() + offsetY, scrollBarBackX1, y + offsetY, scrollbarBackground);
+        fill(ms, scrollBarBackX2, y + getHeight() + offsetY, scrollBarBackX1, y + offsetY, scrollbarBackground);
 
         final int scrollBarStartY = y + (int) getScrollBarYPos();
         final int scrollBarEndY = scrollBarStartY + getBarHeight();
 
         // Scroll Bar (Bottom/Right Edge line) - Fill whole Scroll area
-        fill(scrollBarBackX2, scrollBarEndY, scrollBarBackX1, scrollBarStartY, scrollbarColorHighlight);
+        fill(ms, scrollBarBackX2, scrollBarEndY, scrollBarBackX1, scrollBarStartY, scrollbarColorHighlight);
 
         // Scroll Bar (Inset color)
-        fill(scrollBarBackX2 - 1, scrollBarEndY - 1, scrollBarBackX1, scrollBarStartY, scrollbarColor);
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
+        fill(ms, scrollBarBackX2 - 1, scrollBarEndY - 1, scrollBarBackX1, scrollBarStartY, scrollbarColor);
     }
 
     @Override

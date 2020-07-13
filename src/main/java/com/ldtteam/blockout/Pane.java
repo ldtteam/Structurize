@@ -2,16 +2,16 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.util.text.ITextProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -28,28 +28,26 @@ public class Pane extends AbstractGui
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
-    private static final int                 SCISSOR_X_INDEX   = 12;
-    private static final int                 SCISSOR_Y_INDEX   = 13;
-    protected static     Pane                lastClickedPane;
-    protected static     Pane                focus;
-    protected            Pane                onHover;
-    protected static     boolean             debugging         = false;
-    protected            Minecraft           mc                = Minecraft.getInstance();
+    protected static Pane lastClickedPane;
+    protected static Pane focus;
+    protected Pane onHover;
+    protected static boolean debugging = false;
+    protected Minecraft mc = Minecraft.getInstance();
     // Attributes
-    protected            String              id                = "";
-    protected            int                 x                 = 0;
-    protected            int                 y                 = 0;
-    protected            int                 width             = 0;
-    protected            int                 height            = 0;
-    protected            Alignment           alignment         = Alignment.TOP_LEFT;
-    protected            boolean             visible           = true;
-    protected            boolean             enabled           = true;
-    protected            String              onHoverId         = "";
+    protected String id = "";
+    protected int x = 0;
+    protected int y = 0;
+    protected int width = 0;
+    protected int height = 0;
+    protected Alignment alignment = Alignment.TOP_LEFT;
+    protected boolean visible = true;
+    protected boolean enabled = true;
+    protected String onHoverId = "";
     // Runtime
-    protected            Window              window;
-    protected            View                parent;
-    protected            boolean             isHovered         = false;
-    private              List<String>        toolTipLines      = new ArrayList<>();
+    protected Window window;
+    protected View parent;
+    protected boolean isHovered = false;
+    private List<String> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -70,7 +68,8 @@ public class Pane extends AbstractGui
         super();
         id = params.getStringAttribute("id", id);
 
-        @NotNull final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
+        @NotNull
+        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
         PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
         if (sizePair != null)
         {
@@ -322,22 +321,22 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void draw(final int mx, final int my)
+    public final void draw(final MatrixStack ms, final int mx, final int my)
     {
         if (visible)
         {
-            drawSelf(mx, my);
+            drawSelf(ms, mx, my);
             if (debugging)
             {
                 final boolean isMouseOver = isPointInPane(mx, my);
                 final int color = isMouseOver ? 0xFF00FF00 : 0xFF0000FF;
 
-                Render.drawOutlineRect(x, y, x + getWidth(), y + getHeight(), color);
+                Render.drawOutlineRect(ms, x, y, getWidth(), getHeight(), color);
 
                 if (isMouseOver && !id.isEmpty())
                 {
                     final int stringWidth = mc.fontRenderer.getStringWidth(id);
-                    mc.fontRenderer.drawString(id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
+                    mc.fontRenderer.drawString(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
                 }
             }
         }
@@ -349,11 +348,11 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void drawLast(final int mx, final int my)
+    public final void drawLast(final MatrixStack ms, final int mx, final int my)
     {
         if (visible)
         {
-            drawSelfLast(mx, my);
+            drawSelfLast(ms, mx, my);
 
             if (isHovered && !toolTipLines.isEmpty())
             {
@@ -387,7 +386,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         // Can be overloaded
     }
@@ -400,7 +399,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
         // Can be overloaded
     }
@@ -440,7 +439,8 @@ public class Pane extends AbstractGui
      */
     public final <T extends Pane> T findPaneOfTypeByID(final String idIn, @NotNull final Class<T> type)
     {
-        @Nullable final Pane p = findPaneByID(idIn);
+        @Nullable
+        final Pane p = findPaneByID(idIn);
         try
         {
             return type.cast(p);
@@ -619,13 +619,10 @@ public class Pane extends AbstractGui
         // Can be overloaded
     }
 
-    protected synchronized void scissorsStart()
+    protected synchronized void scissorsStart(final MatrixStack ms)
     {
-        final FloatBuffer fb = BufferUtils.createFloatBuffer(16 * 4);
-        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, fb);
-
-        int scissorsX = (int) fb.get(SCISSOR_X_INDEX) + getX();
-        int scissorsY = (int) fb.get(SCISSOR_Y_INDEX) + getY();
+        int scissorsX = (int) ms.getLast().getMatrix().m03 + getX();
+        int scissorsY = (int) ms.getLast().getMatrix().m13 + getY();
         int h = getHeight();
         int w = getWidth();
 
@@ -646,16 +643,17 @@ public class Pane extends AbstractGui
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
-        @NotNull final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
+        @NotNull
+        final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
         scissorsInfoStack.push(info);
 
         final double scale = BOScreen.getScale();
         GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
         GL11.glScissor(
-          (int) (info.x * scale),
-          (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-          (int) (info.width * scale),
-          (int) (info.height * scale));
+            (int) (info.x * scale),
+            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
+            (int) (info.width * scale),
+            (int) (info.height * scale));
     }
 
     /**
@@ -807,15 +805,28 @@ public class Pane extends AbstractGui
         return true;
     }
 
-    protected int drawString(final String text, final float x, final float y, final int color, final boolean shadow)
+    @Deprecated
+    protected int drawString(final MatrixStack ms, final String text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
-            return mc.fontRenderer.drawStringWithShadow(text, x, y, color);
+            return mc.fontRenderer.drawString(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.drawString(text, x, y, color);
+            return mc.fontRenderer.drawString(ms, text, x, y, color);
+        }
+    }
+
+    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
+    {
+        if (shadow)
+        {
+            return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
+        }
+        else
+        {
+            return mc.fontRenderer.func_238422_b_(ms, text, x, y, color);
         }
     }
 
@@ -842,5 +853,15 @@ public class Pane extends AbstractGui
     public void setHoverToolTip(final List<String> lines)
     {
         this.toolTipLines = lines;
+    }
+
+    /**
+     * Sets the tooltip to render on hovering this element
+     *
+     * @return lines the lines to display
+     */
+    public List<String> getHoverToolTip()
+    {
+        return this.toolTipLines;
     }
 }

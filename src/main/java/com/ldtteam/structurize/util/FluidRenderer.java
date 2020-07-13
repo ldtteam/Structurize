@@ -9,23 +9,26 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 
 /**
  * Our own fluid renderer.
  */
 public class FluidRenderer
 {
-    public static boolean render(final ILightReader blockAccess, final BlockPos pos, final IVertexBuilder iVertexBuilder, final IFluidState fluidState)
+    public static boolean render(final IBlockDisplayReader blockAccess,
+        final BlockPos pos,
+        final IVertexBuilder iVertexBuilder,
+        final FluidState fluidState)
     {
         boolean isLava = fluidState.isTagged(FluidTags.LAVA);
         TextureAtlasSprite[] atextureatlassprite = net.minecraftforge.client.ForgeHooksClient.getFluidSprites(blockAccess, pos, fluidState);
@@ -62,7 +65,7 @@ public class FluidRenderer
                 fluidHeightS -= 0.001F;
                 fluidHeightSE -= 0.001F;
                 fluidHeightE -= 0.001F;
-                Vec3d vec3d = fluidState.getFlow(blockAccess, pos);
+                Vector3d vec3d = fluidState.getFlow(blockAccess, pos);
                 float f13;
                 float f14;
                 float f15;
@@ -243,10 +246,10 @@ public class FluidRenderer
         }
     }
 
-    private static boolean isAdjacentFluidSameAs(IBlockReader blockAccess, BlockPos pos, Direction direction, IFluidState fluid)
+    private static boolean isAdjacentFluidSameAs(IBlockReader blockAccess, BlockPos pos, Direction direction, FluidState fluid)
     {
         BlockPos blockpos = pos.offset(direction);
-        IFluidState ifluidstate = blockAccess.getFluidState(blockpos);
+        FluidState ifluidstate = blockAccess.getFluidState(blockpos);
         return ifluidstate.getFluid().isEquivalentTo(fluid.getFluid());
     }
 
@@ -266,7 +269,7 @@ public class FluidRenderer
         iVertexBuilder.pos(x, y, z).color(red, green, blue, alpha).tex(textX, textY).lightmap(light).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    private static int getLight(ILightReader p_228795_1_, BlockPos p_228795_2_)
+    private static int getLight(IBlockDisplayReader p_228795_1_, BlockPos p_228795_2_)
     {
         int i = WorldRenderer.getCombinedLight(p_228795_1_, p_228795_2_);
         int j = WorldRenderer.getCombinedLight(p_228795_1_, p_228795_2_.up());
@@ -306,7 +309,7 @@ public class FluidRenderer
                 return 1.0F;
             }
 
-            IFluidState ifluidstate = blockAccess.getFluidState(blockpos);
+            FluidState ifluidstate = blockAccess.getFluidState(blockpos);
             if (ifluidstate.getFluid().isEquivalentTo(fluid))
             {
                 float f1 = ifluidstate.getActualHeight(blockAccess, blockpos);

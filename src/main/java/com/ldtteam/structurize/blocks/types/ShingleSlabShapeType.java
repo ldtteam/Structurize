@@ -26,8 +26,13 @@ public enum ShingleSlabShapeType implements IStringSerializable
         this.name = nameIn;
     }
 
-    @NotNull
     @Override
+    public String getString()
+    {
+        return this.name;
+    }
+
+    @NotNull
     public String getName()
     {
         return this.name;

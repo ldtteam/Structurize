@@ -4,11 +4,10 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -26,7 +25,8 @@ public final class BackUpHelper
     private static final String FILENAME_EXT_DAT = ".dat";
     private static final String FILENAME_STRUCTURIZE_PATH = "structurize";
     private static final String FILENAME_LINKSESSION = "_linksession";
-    private static final DateTimeFormatter BACKUP_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss"); //ISO_LOCAL_DATE_TIME with dots
+    // ISO_LOCAL_DATE_TIME with dots
+    private static final DateTimeFormatter BACKUP_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss");
 
     /**
      * Private constructor to hide implicit one
@@ -93,7 +93,7 @@ public final class BackUpHelper
                 .forEach(fileToRemove -> fileToRemove.delete());
         }
     }
-    
+
     /**
      * Getter for a save mod directory under world/save directory
      * 
@@ -102,7 +102,7 @@ public final class BackUpHelper
     @NotNull
     private static File getSaveDir()
     {
-        return new File(ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory(), FILENAME_STRUCTURIZE_PATH);
+        return ServerLifecycleHooks.getCurrentServer().func_240776_a_(new FolderName(FILENAME_STRUCTURIZE_PATH)).toFile();
     }
 
     /**
@@ -160,7 +160,7 @@ public final class BackUpHelper
             if (file != null)
             {
                 file.getParentFile().mkdir();
-                CompressedStreamTools.safeWrite(compound, file);
+                safeWrite(compound, file);
             }
         }
         catch (final IOException exception)
@@ -189,5 +189,30 @@ public final class BackUpHelper
             Log.getLogger().error("Exception when loading data from external file!", exception);
         }
         return null;
+    }
+
+    public static void safeWrite(final CompoundNBT compound, final File fileIn) throws IOException
+    {
+        final File file1 = new File(fileIn.getAbsolutePath() + "_tmp");
+        if (file1.exists())
+        {
+            file1.delete();
+        }
+
+        CompressedStreamTools.write(compound, file1);
+        if (fileIn.exists())
+        {
+            fileIn.delete();
+        }
+
+        if (fileIn.exists())
+        {
+            throw new IOException("Failed to delete " + fileIn);
+        }
+
+        else
+        {
+            file1.renameTo(fileIn);
+        }
     }
 }

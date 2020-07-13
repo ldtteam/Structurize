@@ -159,7 +159,7 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerWorld world)
     {
-        if (player != null && player.dimension != world.getDimension().getType())
+        if (player != null && player.world.func_234922_V_() != world.func_234922_V_())
         {
             return false;
         }

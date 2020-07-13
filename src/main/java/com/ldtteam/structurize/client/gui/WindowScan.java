@@ -26,6 +26,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -170,8 +171,8 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final int row = entityList.getListElementIndexByPane(button);
         final Entity entity = new ArrayList<>(entities.values()).get(row);
-        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getUnformattedComponentText()));
-        entities.remove(entity.getName().getUnformattedComponentText());
+        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getString()));
+        entities.remove(entity.getName().getString());
         updateEntitylist();
     }
 
@@ -293,7 +294,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
-        final BlockPos def = Minecraft.getInstance().player.getPosition();
+        final BlockPos def = Minecraft.getInstance().player.func_233580_cy_();
         try
         {
             final int x1 = pos1x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos1x.getText());
@@ -308,7 +309,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"));
+            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUniqueID());
             close();
             return;
         }
@@ -334,11 +335,11 @@ public class WindowScan extends AbstractWindowSkeleton
 
                     for (final Entity entity : list)
                     {
-                        if (!entities.containsKey(entity.getName().getUnformattedComponentText())
-                                && (filter.isEmpty() || (entity.getName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                        if (!entities.containsKey(entity.getName().getString())
+                                && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                     || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
                         {
-                            entities.put(entity.getName().getUnformattedComponentText(), entity);
+                            entities.put(entity.getName().getString(), entity);
                         }
                     }
 
@@ -347,7 +348,7 @@ public class WindowScan extends AbstractWindowSkeleton
                     {
                         if (tileEntity != null)
                         {
-                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world));
+                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world, here));
                             for (final ItemStack stack : itemList)
                             {
                                 addNeededResource(stack, 1);
@@ -410,7 +411,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         if (filter.isEmpty()
                 || res.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                || res.getDisplayName().getUnformattedComponentText().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                || res.getDisplayName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
             resources.put(res.getTranslationKey() + ":" + res.getDamage() + "-" + hashCode, resource);
         }
@@ -443,7 +444,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class).setLabelText(tempEntities.get(index).getName().getUnformattedComponentText());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class).setLabelText((IFormattableTextComponent) tempEntities.get(index).getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
@@ -482,7 +483,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
                 final Label quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Label.class);
-                resourceLabel.setLabelText(resource.getItemStack().getDisplayName().getUnformattedComponentText());
+                resourceLabel.setLabelText((IFormattableTextComponent) resource.getItemStack().getDisplayName());
                 quantityLabel.setLabelText(Integer.toString(resource.getAmount()));
                 resourceLabel.setColor(WHITE, WHITE);
                 quantityLabel.setColor(WHITE, WHITE);

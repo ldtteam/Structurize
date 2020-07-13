@@ -275,8 +275,13 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onSpecialUse(final ItemUseContext context)
+    public ActionResultType onItemUse(final ItemUseContext context)
     {
+        if (context.getPlayer() != null && !context.getPlayer().isSneaking())
+        {
+            return super.onItemUse(context);
+        }
+
         final BlockPos pos = context.getPos();
         if (context.getWorld().isRemote() && context.getPlayer() != null)
         {

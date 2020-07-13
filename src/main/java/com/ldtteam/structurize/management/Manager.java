@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -511,7 +510,7 @@ public final class Manager
      */
     private static UUID generateOrRetrieveUUID()
     {
-        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.OVERWORLD).getSavedData();
+        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().func_241755_D_().getSavedData();
         final UUIDStorage instance = storage.getOrCreate(UUIDStorage::new, UUIDStorage.DATA_NAME);
         if (serverUUID == null)
         {

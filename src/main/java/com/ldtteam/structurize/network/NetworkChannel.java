@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -144,10 +143,13 @@ public class NetworkChannel
      * @param msg message to send
      * @param dim target dimension
      */
-    public void sendToDimension(final IMessage msg, final DimensionType dim)
-    {
-        rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
-    }
+    /*
+     * TODO: 1.16 waiting forge update
+     * public void sendToDimension(final IMessage msg, final DimensionType dim)
+     * {
+     * rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
+     * }
+     */
 
     /**
      * Sends to everyone in circle made using given target point.

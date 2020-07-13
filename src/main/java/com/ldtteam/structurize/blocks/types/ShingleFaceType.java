@@ -66,8 +66,13 @@ public enum ShingleFaceType implements IStringSerializable
         this.isDyed = isDyed;
     }
 
-    @NotNull
     @Override
+    public String getString()
+    {
+        return this.name;
+    }
+
+    @NotNull
     public String getName()
     {
         return this.name;

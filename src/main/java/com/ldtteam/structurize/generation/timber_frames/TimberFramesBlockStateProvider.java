@@ -67,7 +67,7 @@ public class TimberFramesBlockStateProvider implements IDataProvider
 
             final BlockstateVariantJson variant = new BlockstateVariantJson(model);
 
-            variants.put("facing=" + direction.getName(), variant);
+            variants.put("facing=" + direction.getString(), variant);
         }
 
         final BlockstateJson blockstate = new BlockstateJson(variants);

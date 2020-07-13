@@ -9,10 +9,8 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -83,13 +81,5 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(NORTH, EAST, WEST, SOUTH, VARIANT, WATERLOGGED);
-    }
-
-    @Override
-    public boolean canBeConnectedTo(final BlockState state, final IBlockReader world, final BlockPos pos, final Direction facing)
-    {
-        final BlockPos off = pos.offset(facing);
-        return super.canBeConnectedTo(state, world, pos, facing)
-                 || Block.hasSolidSide(state, world, off, facing.getOpposite()) || state.getBlock() instanceof BlockPaperwall;
     }
 }

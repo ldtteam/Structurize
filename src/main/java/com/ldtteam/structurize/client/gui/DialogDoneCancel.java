@@ -9,6 +9,7 @@ import com.ldtteam.blockout.views.OverlayView;
 import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 import java.util.function.ObjIntConsumer;
 
@@ -80,6 +81,12 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      *
      * @return title for the dialog
      */
+    public IFormattableTextComponent getTitleNew()
+    {
+        return titleLabel.getLabelTextNew();
+    }
+
+    @Deprecated
     public String getTitle()
     {
         return titleLabel.getLabelText();
@@ -90,6 +97,12 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      *
      * @param title for the dialog
      */
+    public void setTitle(final IFormattableTextComponent title)
+    {
+        titleLabel.setLabelText(title);
+    }
+
+    @Deprecated
     public void setTitle(final String title)
     {
         titleLabel.setLabelText(title);

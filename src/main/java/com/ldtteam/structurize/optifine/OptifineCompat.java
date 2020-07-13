@@ -58,6 +58,13 @@ public class OptifineCompat
      */
     public void intialize()
     {
+        if (true)
+        {
+            Log.getLogger().info("Optifine not found. Disabling compat.");
+            enableOptifine = false;
+            return;
+        }
+
         try
         {
             setupReflectedMethodReferences();

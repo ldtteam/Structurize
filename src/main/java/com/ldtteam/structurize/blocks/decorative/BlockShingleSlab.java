@@ -6,10 +6,7 @@ import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.BooleanProperty;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -22,6 +19,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nullable;
 
 import static com.ldtteam.structurize.blocks.types.ShingleSlabShapeType.*;
 import static net.minecraft.util.Direction.*;
@@ -87,16 +86,12 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
         return getSlabShape(stateIn, worldIn, currentPos);
     }
 
+    @Nullable
     @Override
-    public BlockState getStateForPlacement(
-            final BlockState state,
-            final Direction HORIZONTAL_FACING,
-            final BlockState state2,
-            final IWorld world,
-            final BlockPos pos1,
-            final BlockPos pos2,
-            final Hand hand)
+    public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
+        // @NotNull final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
+        // return getSlabShape(this.getDefaultState().with(HORIZONTAL_FACING, facing), context.getWorld(), context.getPos());
         IFluidState fluidState = world.getFluidState(pos1);
         return getSlabShape(state, world, pos1).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
     }

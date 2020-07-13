@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -73,69 +74,42 @@ public class ItemIcon extends Pane
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
-        if (itemStack != null)
+        if (itemStack != null && !itemStack.isEmpty())
         {
+            ms.push();
+            ms.translate(x, y, GUI_ITEM_Z_TRANSLATE);
+            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+
+            FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
+            if (font == null)
+            {
+                font = mc.fontRenderer;
+            }
+
             RenderSystem.pushMatrix();
-            RenderHelper.disableStandardItemLighting();
-            drawItemStack(itemStack, x, y);
+            RenderSystem.multMatrix(ms.getLast().getMatrix());
+            mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
+            mc.getItemRenderer().renderItemOverlayIntoGUI(font, itemStack, 0, 0, null);
             RenderSystem.popMatrix();
+
+            ms.pop();
         }
-    }
-
-    /**
-     * Modified from GuiContainer.
-     *
-     * @param stack stack
-     * @param x     x
-     * @param y     y
-     */
-    private void drawItemStack(final ItemStack stack, final int x, final int y)
-    {
-        if (stack.isEmpty())
-        {
-            return;
-        }
-
-        final ItemRenderer itemRenderer = mc.getItemRenderer();
-
-        RenderSystem.translatef((float) x, (float) y, GUI_ITEM_Z_TRANSLATE);
-        RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-
-        FontRenderer font = stack.getItem().getFontRenderer(stack);
-        if (font == null)
-        {
-            font = mc.fontRenderer;
-        }
-        itemRenderer.renderItemAndEffectIntoGUI(stack, 0, 0);
-        itemRenderer.renderItemOverlayIntoGUI(font, stack, 0, 0, null);
     }
 
     @Override
-    public void drawSelfLast(final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
     {
         if (itemStack == null || itemStack.isEmpty() || !isHovered)
         {
             return;
         }
 
-        RenderSystem.pushMatrix();
-        RenderHelper.disableStandardItemLighting();
-
-        RenderSystem.translatef((float) mx, (float) my, GUI_ITEM_Z_TRANSLATE);
-        RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-
-        FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
-        if (font == null)
-        {
-            font = mc.fontRenderer;
-        }
-
-        net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
-        mc.currentScreen.renderTooltip(mc.currentScreen.getTooltipFromItem(itemStack), 0, 0, font);
-        net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
-
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(mx, my, GUI_ITEM_Z_TRANSLATE);
+        ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1.0f);
+        window.getScreen().renderTooltipHook(ms, itemStack, 0, 0);
+        ms.pop();
     }
 }

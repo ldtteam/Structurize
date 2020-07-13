@@ -1,9 +1,10 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
@@ -107,6 +108,7 @@ public class BOScreen extends Screen
     public BOScreen(final Window w)
     {
         super(new StringTextComponent("Blockout GUI"));
+        this.passEvents = true;
         window = w;
     }
 
@@ -126,24 +128,24 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public void render(final int mx, final int my, final float f)
+    public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
         if (window.hasLightbox() && super.minecraft != null)
         {
-            super.renderBackground();
+            super.renderBackground(ms);
         }
 
         setScale(minecraft);
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float) x, (float) y, 0);
-        window.draw(mx - x, my - y);
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(x, y, 0);
+        window.draw(ms, mx - x, my - y);
+        ms.pop();
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float) x, (float) y, 0);
-        window.drawLast(mx - x, my - y);
-        RenderSystem.popMatrix();
+        ms.push();
+        ms.translate(x, y, 0);
+        window.drawLast(ms, mx - x, my - y);
+        ms.pop();
     }
 
     @Override
@@ -261,5 +263,17 @@ public class BOScreen extends Screen
     public boolean isPauseScreen()
     {
         return window.doesWindowPauseGame();
+    }
+
+    /**
+     * Render the tooltip.
+     * @param ms the matrix stack.
+     * @param stack the stack to render.
+     * @param mouseX x pos.
+     * @param mouseY y pos.
+     */
+    public void renderTooltipHook(MatrixStack ms, ItemStack stack, int mouseX, int mouseY)
+    {
+        renderTooltip(ms, stack, mouseX, mouseY);
     }
 }

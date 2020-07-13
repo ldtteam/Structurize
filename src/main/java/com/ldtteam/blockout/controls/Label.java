@@ -1,7 +1,11 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 
 /**
  * BlockOut label pane. Used to render a piece of text.
@@ -11,7 +15,7 @@ public class Label extends AbstractTextElement
     /**
      * The text of the label.
      */
-    protected String labelText;
+    protected IFormattableTextComponent labelText;
 
     /**
      * The color the label has when hovering it with the mouse.
@@ -40,7 +44,7 @@ public class Label extends AbstractTextElement
     public Label(final PaneParams params)
     {
         super(params);
-        labelText = params.getLocalizedStringAttribute("label", labelText);
+        labelText = new StringTextComponent(params.getLocalizedStringAttribute("label", ""));
 
         // match textColor by default
         hoverColor = params.getColorAttribute("hovercolor", textColor);
@@ -49,16 +53,38 @@ public class Label extends AbstractTextElement
 
         if (width == 0)
         {
-            width = Math.min(mc.fontRenderer.getStringWidth(labelText), params.getParentWidth());
+            width = Math.min(mc.fontRenderer.func_238414_a_(labelText), params.getParentWidth());
         }
     }
 
+    /**
+     * Button textContent getter.
+     *
+     * @return button textContent.
+     */
+    @Deprecated
     public String getLabelText()
+    {
+        return labelText.getString();
+    }
+
+    public IFormattableTextComponent getLabelTextNew()
     {
         return labelText;
     }
 
+    /**
+     * Button textContent setter.
+     *
+     * @param s new textContent.
+     */
+    @Deprecated
     public void setLabelText(final String s)
+    {
+        labelText = new StringTextComponent(s);
+    }
+
+    public void setLabelText(final IFormattableTextComponent s)
     {
         labelText = s;
     }
@@ -81,7 +107,7 @@ public class Label extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final int mx, final int my)
     {
         final int color = isPointInPane(mx, my) ? hoverColor : textColor;
 
@@ -106,27 +132,28 @@ public class Label extends AbstractTextElement
             offsetY = (getHeight() - getTextHeight()) / 2;
         }
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translated((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
-        RenderSystem.scalef((float) scale, (float) scale, (float) scale);
+        ms.push();
+        ms.translate((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
+        ms.scale((float) scale, (float) scale, (float) scale);
         mc.getTextureManager().bindTexture(TEXTURE);
 
         if (labelText != null && wrap)
         {
-            mc.fontRenderer.drawSplitString(labelText, 0, 0, width, color);
+            // mc.fontRenderer.func_238418_a_(labelText, 0, 0, width, color);
+            final Matrix4f matrix4f = ms.getLast().getMatrix();
+            int lineShift = 0;
+            for (final ITextProperties itextproperties : mc.fontRenderer.func_238425_b_(labelText, width))
+            {
+                mc.fontRenderer.func_238415_a_(itextproperties, 0, lineShift, color, matrix4f, false);
+                lineShift += 9;
+            }
         }
         else
         {
-            drawString(labelText, 0, 0, color, shadow);
+            drawString(ms, labelText, 0, 0, color, shadow);
         }
 
-        RenderSystem.popMatrix();
-    }
-
-    @Override
-    public void drawSelfLast(final int mx, final int my)
-    {
-
+        ms.pop();
     }
 
     /**
@@ -136,7 +163,7 @@ public class Label extends AbstractTextElement
      */
     public int getStringWidth()
     {
-        return (int) (mc.fontRenderer.getStringWidth(labelText) * scale);
+        return (int) (mc.fontRenderer.func_238414_a_(labelText) * scale);
     }
 
     /**

@@ -40,6 +40,12 @@ public enum TimberFrameType implements IStringSerializable
         return values()[(this.ordinal() - 1) % values().length];
     }
 
+    @Override
+    public String getString()
+    {
+        return this.name;
+    }
+
     @NotNull
     public String getName()
     {

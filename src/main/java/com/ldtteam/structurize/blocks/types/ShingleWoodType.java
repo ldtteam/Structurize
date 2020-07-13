@@ -38,8 +38,13 @@ public enum ShingleWoodType implements IStringSerializable
         this.recipeIngredient = recipeIngredient;
     }
 
-    @NotNull
     @Override
+    public String getString()
+    {
+        return this.name;
+    }
+
+    @NotNull
     public String getName()
     {
         return this.name;

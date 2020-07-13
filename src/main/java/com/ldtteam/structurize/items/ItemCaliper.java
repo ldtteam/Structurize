@@ -1,97 +1,83 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
  */
-public class ItemCaliper extends AbstractItemStructurize
+public class ItemCaliper extends AbstractItemWithPosSelector
 {
-    private static final RangedAttribute ATTRIBUTE_CALIPER_USE = new RangedAttribute(null, "player.caliperUse", 0.0, 0.0, 1.0);
-
-    private static final double HALF                        = 0.5;
-    private static final String ITEM_CALIPER_MESSAGE_SAME   = "item.caliper.message.same";
-    private static final String ITEM_CALIPER_MESSAGE_BASE   = "item.caliper.message.base";
-    private static final String ITEM_CALIPER_MESSAGE_BY     = "item.caliper.message.by";
-    private static final String ITEM_CALIPER_MESSAGE_XD     = "item.caliper.message.%sd";
-
-    private BlockPos startPosition;
+    private static final String ITEM_CALIPER_MESSAGE_SAME = "item.caliper.message.same";
+    private static final String ITEM_CALIPER_MESSAGE_BASE = "item.caliper.message.base";
+    private static final String ITEM_CALIPER_MESSAGE_BY = "item.caliper.message.by";
+    private static final String ITEM_CALIPER_MESSAGE_XD = "item.caliper.message.%sd";
 
     /**
      * Caliper constructor. Sets max stack to 1, like other tools.
+     * 
      * @param properties
      */
     public ItemCaliper(final Properties properties)
     {
-        super("caliper", properties.maxStackSize(1));
+        super(properties.maxStackSize(1));
+        setRegistryName("caliper");
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public AbstractItemWithPosSelector getRegisteredItemInstance()
     {
-        final World worldIn = context.getWorld();
-        final PlayerEntity player = context.getPlayer();
-        final BlockPos pos = context.getPos();
-
-        // if client world, do nothing
-        if (worldIn.isRemote)
-        {
-            return ActionResultType.FAIL;
-        }
-
-        // if attribute instance is not known, register it.
-        IAttributeInstance attribute = player.getAttribute(ATTRIBUTE_CALIPER_USE);
-        if (attribute == null)
-        {
-            attribute = player.getAttributes().registerAttribute(ATTRIBUTE_CALIPER_USE);
-        }
-        // if the value of the attribute is still 0, set the start values. (first point)
-        if (attribute.getValue() < HALF)
-        {
-            startPosition = pos;
-            attribute.setBaseValue(1.0);
-            return ActionResultType.SUCCESS;
-        }
-        attribute.setBaseValue(0.0);
-        //Start == end, same location
-        if (startPosition.getX() == pos.getX() && startPosition.getY() == pos.getY() && startPosition.getZ() == pos.getZ())
-        {
-            LanguageHandler.sendPlayerMessage(player, ITEM_CALIPER_MESSAGE_SAME);
-            return ActionResultType.FAIL;
-        }
-
-        return handlePlayerMessage(player, pos);
+        return ModItems.caliper;
     }
 
-    private ActionResultType handlePlayerMessage(@NotNull final PlayerEntity playerIn, @NotNull final BlockPos pos)
+    @Override
+    public ActionResultType onAirRightClick(final BlockPos start,
+        final BlockPos end,
+        final World worldIn,
+        final PlayerEntity playerIn,
+        final ItemStack itemStack)
     {
-        int disX = Math.abs(pos.getX() - startPosition.getX());
-        int disY = Math.abs(pos.getY() - startPosition.getY());
-        int disZ = Math.abs(pos.getZ() - startPosition.getZ());
+        if (!worldIn.isRemote)
+        {
+            return ActionResultType.FAIL;
+        }
+
+        if (start.equals(end))
+        {
+            LanguageHandler.sendMessageToPlayer(playerIn, ITEM_CALIPER_MESSAGE_SAME);
+            return ActionResultType.FAIL;
+        }
+
+        handlePlayerMessage(start, end, playerIn);
+
+        return ActionResultType.SUCCESS;
+    }
+
+    private void handlePlayerMessage(final BlockPos start, final BlockPos end, final PlayerEntity playerIn)
+    {
+        int disX = Math.abs(end.getX() - start.getX());
+        int disY = Math.abs(end.getY() - start.getY());
+        int disZ = Math.abs(end.getZ() - start.getZ());
         int flag = 3;
 
-        if (startPosition.getX() == pos.getX())
+        if (start.getX() == end.getX())
         {
             flag--;
         }
-        if (startPosition.getY() == pos.getY())
+        if (start.getY() == end.getY())
         {
             flag--;
         }
-        if (startPosition.getZ() == pos.getZ())
+        if (start.getZ() == end.getZ())
         {
             flag--;
         }
 
-        final String by = " " + LanguageHandler.format(ITEM_CALIPER_MESSAGE_BY) + " ";
+        final String by = " " + LanguageHandler.translateKey(ITEM_CALIPER_MESSAGE_BY) + " ";
         StringBuilder msg = new StringBuilder();
         if (disX != 0)
         {
@@ -113,10 +99,9 @@ public class ItemCaliper extends AbstractItemStructurize
         }
         msg.delete(msg.length() - by.length(), msg.length());
 
-        msg = new StringBuilder(LanguageHandler.format(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
+        msg = new StringBuilder(LanguageHandler.translateKeyWithFormat(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
         msg.append(" ");
-        msg.append(LanguageHandler.format(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
-        LanguageHandler.sendPlayerMessage(playerIn, msg.toString());
-        return ActionResultType.SUCCESS;
+        msg.append(LanguageHandler.translateKeyWithFormat(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
+        LanguageHandler.sendMessageToPlayer(playerIn, msg.toString());
     }
 }
