@@ -6,10 +6,13 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Node;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import static com.ldtteam.blockout.Log.getLogger;
 
 /**
@@ -17,11 +20,11 @@ import static com.ldtteam.blockout.Log.getLogger;
  */
 public class PaneParams
 {
-    private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern RGBA_PATTERN = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    private static final char HASH_CHAR = '#';
-    private final Node node;
-    private View parentView;
+    private static final Pattern      PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern      RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    private static final char         HASH_CHAR          = '#';
+    private final        Node         node;
+    private              View         parentView;
 
     /**
      * Instantiates the pane parameters.
@@ -150,6 +153,28 @@ public class PaneParams
     {
         final Node attr = getAttribute(name);
         return (attr != null) ? attr.getNodeValue() : def;
+    }
+
+    /**
+     * Get the String attribute from the name.
+     *
+     * @param name the name.
+     * @return the String.
+     */
+    public List<String> getToolTipAttribute(final String name)
+    {
+        final String string = getStringAttribute(name, "");
+        if (string.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        final String[] split = string.split(";");
+        final List<String> list = new ArrayList<>();
+        for (final String st : split)
+        {
+            list.add(localize(st));
+        }
+        return list;
     }
 
     private Node getAttribute(final String name)

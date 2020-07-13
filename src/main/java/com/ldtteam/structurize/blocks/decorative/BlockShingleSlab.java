@@ -9,6 +9,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +34,11 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
      * The SHAPEs of the shingle slab.
      */
     public static final EnumProperty<ShingleSlabShapeType> SHAPE = EnumProperty.create("shape", ShingleSlabShapeType.class);
+
+    /**
+     * Whether the slab contains water
+     */
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     /**
      * The hardness this block has.
@@ -64,12 +71,18 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
         setRegistryName(faceType.getName() + "_shingle_slab");
         this.faceType = faceType;
+        setDefaultState(getDefaultState().with(WATERLOGGED, false));
     }
 
     // Deprecated here just means that you should not use this method when referencing a block, and instead it's blockstate <- Forge's Discord
     @Override
     public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
+        if (stateIn.get(WATERLOGGED))
+        {
+            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+        }
+
         return getSlabShape(stateIn, worldIn, currentPos);
     }
 
@@ -77,8 +90,21 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
-        @NotNull final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
-        return getSlabShape(this.getDefaultState().with(HORIZONTAL_FACING, facing), context.getWorld(), context.getPos());
+        // @NotNull final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
+        // return getSlabShape(this.getDefaultState().with(HORIZONTAL_FACING, facing), context.getWorld(), context.getPos());
+        IFluidState fluidState = world.getFluidState(pos1);
+        return getSlabShape(state, world, pos1).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+    }
+
+    /**
+     * Check if this slab should be waterlogged, and return a fluid state accordingly
+     * @param state the block state
+     * @return the fluid state
+     */
+    @Override
+    public IFluidState getFluidState(BlockState state)
+    {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
     }
 
     /**
@@ -211,8 +237,14 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     }
 
     @Override
+    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type)
+    {
+        return type == PathType.WATER && worldIn.getFluidState(pos).isTagged(FluidTags.WATER);
+    }
+
+    @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
     {
-        builder.add(HORIZONTAL_FACING, SHAPE);
+        builder.add(HORIZONTAL_FACING, SHAPE, WATERLOGGED);
     }
 }
