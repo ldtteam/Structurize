@@ -136,6 +136,7 @@ public class BOScreen extends Screen
         }
 
         setScale(minecraft);
+        MatrixUtils.setupZLevelFromMatrixStack(ms, this);
 
         ms.push();
         ms.translate(x, y, 0);
@@ -272,7 +273,7 @@ public class BOScreen extends Screen
      * @param mouseX x pos.
      * @param mouseY y pos.
      */
-    public void renderTooltipHook(MatrixStack ms, ItemStack stack, int mouseX, int mouseY)
+    public void renderTooltipHook(final MatrixStack ms, final ItemStack stack, final int mouseX, final int mouseY)
     {
         renderTooltip(ms, stack, mouseX, mouseY);
     }

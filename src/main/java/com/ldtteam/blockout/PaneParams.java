@@ -3,6 +3,8 @@ package com.ldtteam.blockout;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Node;
@@ -161,7 +163,7 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<String> getToolTipAttribute(final String name)
+    public List<String> getMultiLineAttributeAsString(final String name)
     {
         final String string = getStringAttribute(name, "");
         if (string.isEmpty())
@@ -173,6 +175,28 @@ public class PaneParams
         for (final String st : split)
         {
             list.add(localize(st));
+        }
+        return list;
+    }
+
+    /**
+     * Get the String attribute from the name.
+     *
+     * @param name the name.
+     * @return the String.
+     */
+    public List<IFormattableTextComponent> getMultiLineAttributeAsTextComp(final String name)
+    {
+        final String string = getStringAttribute(name, "");
+        if (string.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        final String[] split = string.split(";");
+        final List<IFormattableTextComponent> list = new ArrayList<>();
+        for (final String st : split)
+        {
+            list.add(new StringTextComponent(localize(st)));
         }
         return list;
     }

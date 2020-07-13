@@ -208,7 +208,7 @@ public class Image extends Pane
 
         if (this.customSized)
         {
-            blit(ms, x, y, 0, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapWidth, mapHeight);
+            blit(ms, x, y, window.getScreen().getBlitOffset(), imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapHeight, mapWidth);
         }
         else
         {

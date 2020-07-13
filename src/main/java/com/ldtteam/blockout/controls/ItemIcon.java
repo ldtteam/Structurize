@@ -5,8 +5,6 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -17,8 +15,8 @@ import net.minecraftforge.registries.ForgeRegistries;
  */
 public class ItemIcon extends Pane
 {
-    public static final float DEFAULT_ITEMSTACK_SIZE = 16f;
-    public static final float GUI_ITEM_Z_TRANSLATE   = 32.0F;
+    private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
+    private static final float GUI_ITEM_Z_TRANSLATE   = 32.0F;
 
     /**
      * ItemStack represented in the itemIcon.

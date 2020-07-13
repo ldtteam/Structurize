@@ -3,11 +3,11 @@ package com.ldtteam.blockout;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextProperties;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -16,10 +16,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
-
-import static com.ldtteam.blockout.controls.ItemIcon.DEFAULT_ITEMSTACK_SIZE;
-import static com.ldtteam.blockout.controls.ItemIcon.GUI_ITEM_Z_TRANSLATE;
-import static net.minecraftforge.fml.client.gui.GuiUtils.*;
 
 /**
  * A Pane is the root of all UI objects.
@@ -47,7 +43,7 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     protected boolean isHovered = false;
-    private List<String> toolTipLines = new ArrayList<>();
+    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -98,7 +94,7 @@ public class Pane extends AbstractGui
         visible = params.getBooleanAttribute("visible", visible);
         enabled = params.getBooleanAttribute("enabled", enabled);
         onHoverId = params.getStringAttribute("onHoverId");
-        toolTipLines = params.getToolTipAttribute("tooltip");
+        toolTipLines = params.getMultiLineAttributeAsTextComp("tooltip");
     }
 
     /**
@@ -356,24 +352,7 @@ public class Pane extends AbstractGui
 
             if (isHovered && !toolTipLines.isEmpty())
             {
-                RenderSystem.pushMatrix();
-                RenderHelper.disableStandardItemLighting();
-
-                RenderSystem.translatef((float) mx, (float) my, GUI_ITEM_Z_TRANSLATE);
-                RenderSystem.scalef(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-
-                ToolTipRendering.drawHoveringText(toolTipLines,
-                  0,
-                  0,
-                  getWindow().getScreen().width,
-                  getWindow().getScreen().height,
-                  -1,
-                  DEFAULT_BACKGROUND_COLOR,
-                  DEFAULT_BORDER_COLOR_START,
-                  DEFAULT_BORDER_COLOR_END,
-                  mc.fontRenderer);
-
-                RenderSystem.popMatrix();
+                window.getScreen().renderTooltip(ms, toolTipLines, mx, my);
             }
         }
     }
@@ -621,8 +600,8 @@ public class Pane extends AbstractGui
 
     protected synchronized void scissorsStart(final MatrixStack ms)
     {
-        int scissorsX = (int) ms.getLast().getMatrix().m03 + getX();
-        int scissorsY = (int) ms.getLast().getMatrix().m13 + getY();
+        int scissorsX = MatrixUtils.getLastMatrixTranslateXasInt(ms) + getX();
+        int scissorsY = MatrixUtils.getLastMatrixTranslateYasInt(ms) + getY();
         int h = getHeight();
         int w = getWidth();
 
@@ -810,7 +789,7 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
-            return mc.fontRenderer.drawString(ms, text, x, y, color);
+            return mc.fontRenderer.drawStringWithShadow(ms, text, x, y, color);
         }
         else
         {
@@ -850,17 +829,17 @@ public class Pane extends AbstractGui
      *
      * @param lines the lines to display
      */
-    public void setHoverToolTip(final List<String> lines)
+    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
     {
         this.toolTipLines = lines;
     }
 
     /**
-     * Sets the tooltip to render on hovering this element
+     * Gets the tooltip to render on hovering this element
      *
-     * @return lines the lines to display
+     * @return the lines to display
      */
-    public List<String> getHoverToolTip()
+    public List<IFormattableTextComponent> getHoverToolTip()
     {
         return this.toolTipLines;
     }

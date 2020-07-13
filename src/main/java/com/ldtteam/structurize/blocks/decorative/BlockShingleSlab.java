@@ -5,14 +5,18 @@ import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.material.Material;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.pathfinding.PathType;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -28,7 +32,7 @@ import static net.minecraft.util.Direction.*;
 /**
  * Decorative block
  */
-public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockShingleSlab>
+public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockShingleSlab> implements IWaterLoggable
 {
     /**
      * The SHAPEs of the shingle slab.
@@ -90,10 +94,14 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
-        // @NotNull final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
-        // return getSlabShape(this.getDefaultState().with(HORIZONTAL_FACING, facing), context.getWorld(), context.getPos());
-        IFluidState fluidState = world.getFluidState(pos1);
-        return getSlabShape(state, world, pos1).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+        @NotNull
+        final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
+        return getSlabShape(
+            this.getDefaultState()
+                .with(HORIZONTAL_FACING, facing)
+                .with(WATERLOGGED, context.getWorld().getFluidState(context.getPos()).getFluid() == Fluids.WATER),
+            context.getWorld(),
+            context.getPos());
     }
 
     /**
@@ -102,7 +110,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
      * @return the fluid state
      */
     @Override
-    public IFluidState getFluidState(BlockState state)
+    public FluidState getFluidState(final BlockState state)
     {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
     }
@@ -120,9 +128,9 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     /**
      * Make the slab and actual slab shape.
      *
-     * @param state Current block state.
+     * @param state   Current block state.
      * @param worldIn The world the block is in.
-     * @param pos The position of the block.
+     * @param pos     The position of the block.
      * @param context The selection context.
      * @return The VoxelShape of the block.
      */
@@ -147,7 +155,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
         final boolean east = world.getBlockState(position.east()).getBlock() instanceof BlockShingleSlab;
         final boolean west = world.getBlockState(position.west()).getBlock() instanceof BlockShingleSlab;
 
-        final boolean[] connectors = new boolean[]{north, south, east, west};
+        final boolean[] connectors = new boolean[] {north, south, east, west};
 
         int amount = 0;
         for (final boolean check : connectors)
@@ -237,13 +245,13 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     }
 
     @Override
-    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type)
+    public boolean allowsMovement(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final PathType type)
     {
         return type == PathType.WATER && worldIn.getFluidState(pos).isTagged(FluidTags.WATER);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(HORIZONTAL_FACING, SHAPE, WATERLOGGED);
     }
