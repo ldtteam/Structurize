@@ -4,12 +4,11 @@ import com.ldtteam.structurize.api.util.constant.Suppression;
 import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.IWaterLoggable;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class AbstractBlockStructurizeDirectional<B extends AbstractBlockStructurizeDirectional<B>> extends HorizontalBlock implements IBlockStructurize<B>, IWaterLoggable
+public abstract class AbstractBlockStructurizeDirectional<B extends AbstractBlockStructurizeDirectional<B>> extends HorizontalBlock implements IBlockStructurize<B>
 {
     public AbstractBlockStructurizeDirectional(final Properties properties)
     {

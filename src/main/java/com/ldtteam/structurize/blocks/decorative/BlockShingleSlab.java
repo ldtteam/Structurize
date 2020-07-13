@@ -5,6 +5,7 @@ import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.material.Material;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.IFluidState;
@@ -29,7 +30,7 @@ import static net.minecraft.util.Direction.*;
 /**
  * Decorative block
  */
-public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockShingleSlab>
+public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockShingleSlab> implements IWaterLoggable
 {
     /**
      * The SHAPEs of the shingle slab.
