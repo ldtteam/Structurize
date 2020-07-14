@@ -1,8 +1,6 @@
 package com.ldtteam.blockout;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 
@@ -16,23 +14,6 @@ public class MatrixUtils
      */
     private MatrixUtils()
     {
-    }
-
-    /**
-     * Sets up Minecraft internal z levels to make sure we are starting at our z level.
-     *
-     * @param matrixStack stack given by Minecraft when rendering guis
-     * @param gui         root gui to set z blit offset for
-     */
-    public static void setupZLevelFromMatrixStack(final MatrixStack matrixStack, final AbstractGui gui)
-    {
-        final int z = getLastMatrixTranslateZasInt(matrixStack);
-
-        Minecraft.getInstance().getItemRenderer().zLevel = z;
-        if (gui != null)
-        {
-            gui.setBlitOffset(z);
-        }
     }
 
     /**

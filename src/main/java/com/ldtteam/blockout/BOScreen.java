@@ -136,7 +136,8 @@ public class BOScreen extends Screen
         }
 
         setScale(minecraft);
-        MatrixUtils.setupZLevelFromMatrixStack(ms, this);
+        final float oldZ = Minecraft.getInstance().getItemRenderer().zLevel;
+        Minecraft.getInstance().getItemRenderer().zLevel = MatrixUtils.getLastMatrixTranslateZ(ms);
 
         ms.push();
         ms.translate(x, y, 0);
@@ -147,6 +148,8 @@ public class BOScreen extends Screen
         ms.translate(x, y, 0);
         window.drawLast(ms, mx - x, my - y);
         ms.pop();
+
+        Minecraft.getInstance().getItemRenderer().zLevel = oldZ;
     }
 
     @Override
