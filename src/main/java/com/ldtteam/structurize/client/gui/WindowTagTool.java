@@ -117,7 +117,6 @@ public class WindowTagTool extends AbstractWindowSkeleton
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
                 dataTE.removeTag(toRemove, tag);
                 Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, tag, toRemove, anchorPos));
-                ClientEventSubscriber.tagPosList = null;
             }
             updateResourceList();
         }

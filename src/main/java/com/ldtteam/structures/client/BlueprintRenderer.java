@@ -9,6 +9,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
@@ -27,7 +28,6 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeBuffers;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -50,7 +50,6 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 public class BlueprintRenderer implements AutoCloseable
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.getBlockRenderTypes()
         .stream()
         .collect(Collectors.toMap((p_228934_0_) -> {
@@ -158,8 +157,6 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlockPos pos, final MatrixStack matrixStack, final float partialTicks)
     {
-        OptifineCompat.getInstance().preBlueprintDraw();
-
         Minecraft.getInstance().getProfiler().startSection("struct_render_init");
         if (Settings.instance.shouldRefresh())
         {
@@ -194,13 +191,13 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endTerrainBeginEntities();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities");
-        final IRenderTypeBuffer.Impl renderBufferSource = renderBuffers.getBufferSource();
+        final IRenderTypeBuffer.Impl renderBufferSource = ClientEventSubscriber.renderBuffers.getBufferSource();
 
         // Entities
 
         // if clipping etc., see WorldRenderer for what's missing
         entities.forEach(entity -> {
-            OptifineCompat.getInstance().preRenderEntity(entity, renderBufferSource);
+            OptifineCompat.getInstance().preRenderEntity(entity);
 
             Minecraft.getInstance()
                 .getRenderManager()
@@ -236,7 +233,7 @@ public class BlueprintRenderer implements AutoCloseable
             matrixStack.push();
             matrixStack.translate(tePos.getX(), tePos.getY(), tePos.getZ());
 
-            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity, renderBufferSource);
+            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
 
             TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.pop();
@@ -252,7 +249,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getShulkerBoxType());
         renderBufferSource.finish(Atlases.getSignType());
         renderBufferSource.finish(Atlases.getChestType());
-        renderBuffers.getOutlineBufferSource().finish(); // not used now
+        ClientEventSubscriber.renderBuffers.getOutlineBufferSource().finish(); // not used now
         renderBufferSource.finish(Atlases.getTranslucentCullBlockType());
         renderBufferSource.finish(Atlases.getBannerType());
         renderBufferSource.finish(Atlases.getShieldType());
@@ -261,7 +258,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.getGlint());
         renderBufferSource.finish(RenderType.getEntityGlint());
         renderBufferSource.finish(RenderType.getWaterMask());
-        renderBuffers.getCrumblingBufferSource().finish(); // not used now
+        ClientEventSubscriber.renderBuffers.getCrumblingBufferSource().finish(); // not used now
         renderBufferSource.finish(RenderType.getLines());
         renderBufferSource.finish();
 
@@ -272,7 +269,6 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
 
         OptifineCompat.getInstance().endWater();
-        OptifineCompat.getInstance().postBlueprintDraw();
 
         matrixStack.pop();
         Minecraft.getInstance().getProfiler().endSection();
