@@ -94,20 +94,18 @@ public class ClientEventSubscriber
 
             renderAnchorPos(tagAnchor, matrixStack, linesWithoutCullAndDepth.get());
 
-            if (!(te instanceof IBlueprintDataProvider))
+            if (te instanceof IBlueprintDataProvider)
             {
-                return;
+                final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProvider) te).getWorldTagPosMap();
+    
+                for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
+                {
+                    RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
+                    RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack(), renderBuffer);
+                }
+    
+                renderBuffer.finish(RenderUtils.LINES_GLINT);
             }
-
-            final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProvider) te).getWorldTagPosMap();
-
-            for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
-            {
-                RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
-                RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack(), renderBuffer);
-            }
-
-            renderBuffer.finish(RenderUtils.LINES_GLINT);
         }
 
         renderBuffer.finish();
