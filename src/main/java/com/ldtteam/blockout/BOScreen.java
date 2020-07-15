@@ -156,9 +156,9 @@ public class BOScreen extends Screen
     public boolean keyPressed(final int key, final int scanCode, final int modifiers)
     {
         // keys without printable representation
-        if (key >= 0 && key <= GLFW.GLFW_KEY_LAST && ACCEPTED_KEY_PRESSED_MAP.getAt(key) == 1)
+        if (key >= 0 && key <= GLFW.GLFW_KEY_LAST)
         {
-            return window.onKeyTyped('\0', key);
+            return ACCEPTED_KEY_PRESSED_MAP.getAt(key) == 0 || window.onKeyTyped('\0', key);
         }
         return false;
     }

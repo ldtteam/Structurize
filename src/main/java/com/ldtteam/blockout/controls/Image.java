@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -21,15 +20,15 @@ import static com.ldtteam.blockout.Log.getLogger;
  */
 public class Image extends Pane
 {
-    public static final int MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE = 256;
+    public static final int MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE = 256;
 
     protected ResourceLocation resourceLocation;
-    protected int imageOffsetX = 0;
-    protected int imageOffsetY = 0;
+    protected int u = 0;
+    protected int v = 0;
     protected int imageWidth = 0;
     protected int imageHeight = 0;
-    protected int mapWidth = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
-    protected int mapHeight = MINECRAFT_DEFAULT_TEXTURE_MAP_SIZE;
+    protected int fileWidth = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
+    protected int fileHeight = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
     protected boolean customSized = true;
     protected boolean autoscale = true;
 
@@ -59,8 +58,8 @@ public class Image extends Pane
         PaneParams.SizePair size = params.getSizePairAttribute("imageoffset", null, null);
         if (size != null)
         {
-            imageOffsetX = size.getX();
-            imageOffsetY = size.getY();
+            u = size.getX();
+            v = size.getY();
         }
 
         size = params.getSizePairAttribute("imagesize", null, null);
@@ -76,8 +75,8 @@ public class Image extends Pane
     private void loadMapDimensions()
     {
         final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);
-        mapWidth = dimensions.getA();
-        mapHeight = dimensions.getB();
+        fileWidth = dimensions.getA();
+        fileHeight = dimensions.getB();
     }
 
     /**
@@ -88,19 +87,25 @@ public class Image extends Pane
      */
     public static Tuple<Integer, Integer> getImageDimensions(final ResourceLocation resourceLocation)
     {
-        int width = 0;
-        int height = 0;
+        final int pos = resourceLocation.getPath().lastIndexOf(".");
 
-        final Iterator<ImageReader> it = ImageIO.getImageReadersBySuffix("png");
-        if (it.hasNext())
+        if (pos == -1)
+        {
+            throw new IllegalStateException("No extension for file: " + resourceLocation.toString());
+        }
+
+        final String suffix = resourceLocation.getPath().substring(pos + 1);
+        final Iterator<ImageReader> it = ImageIO.getImageReadersBySuffix(suffix);
+
+        while (it.hasNext())
         {
             final ImageReader reader = it.next();
-            try (
-                ImageInputStream stream = ImageIO.createImageInputStream(Minecraft.getInstance().getResourceManager().getResource(resourceLocation).getInputStream()))
+            try (ImageInputStream stream = ImageIO
+                .createImageInputStream(Minecraft.getInstance().getResourceManager().getResource(resourceLocation).getInputStream()))
             {
                 reader.setInput(stream);
-                width = reader.getWidth(reader.getMinIndex());
-                height = reader.getHeight(reader.getMinIndex());
+
+                return new Tuple<>(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
             }
             catch (final IOException e)
             {
@@ -112,7 +117,7 @@ public class Image extends Pane
             }
         }
 
-        return new Tuple<>(width, height);
+        return new Tuple<>(0, 0);
     }
 
     /**
@@ -151,8 +156,8 @@ public class Image extends Pane
     public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
     {
         resourceLocation = loc;
-        imageOffsetX = offsetX;
-        imageOffsetY = offsetY;
+        u = offsetX;
+        v = offsetY;
         imageWidth = w;
         imageHeight = h;
 
@@ -169,12 +174,17 @@ public class Image extends Pane
      * @param h           image height.
      * @param customSized is it custom sized.
      */
-    public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h, final boolean customSized)
+    public void setImage(final ResourceLocation loc,
+        final int offsetX,
+        final int offsetY,
+        final int w,
+        final int h,
+        final boolean customSized)
     {
         this.customSized = customSized;
         resourceLocation = loc;
-        imageOffsetX = offsetX;
-        imageOffsetY = offsetY;
+        u = offsetX;
+        v = offsetY;
         imageWidth = w;
         imageHeight = h;
 
@@ -208,11 +218,21 @@ public class Image extends Pane
 
         if (this.customSized)
         {
-            blit(ms, x, y, window.getScreen().getBlitOffset(), imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight(), mapHeight, mapWidth);
+            blit(ms,
+                x,
+                y,
+                getWidth(),
+                getHeight(),
+                u,
+                v,
+                imageWidth != 0 ? imageWidth : fileWidth,
+                imageHeight != 0 ? imageHeight : fileHeight,
+                fileWidth,
+                fileHeight);
         }
         else
         {
-            blit(ms, x, y, imageOffsetX, imageOffsetY, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
+            blit(ms, x, y, u, v, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
         }
 
         RenderSystem.disableBlend();
