@@ -265,7 +265,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Explosion func_230546_a_(Entity p_230546_1_,
+    public Explosion createExplosion(Entity p_230546_1_,
         DamageSource p_230546_2_,
         IExplosionContext p_230546_3_,
         double p_230546_4_,
@@ -315,14 +315,14 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean func_241211_a_(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
+    public boolean setBlockState(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
     {
         // Noop
         return false;
     }
 
     @Override
-    public boolean func_241212_a_(BlockPos p_241212_1_, boolean p_241212_2_, Entity p_241212_3_, int p_241212_4_)
+    public boolean destroyBlock(BlockPos p_241212_1_, boolean p_241212_2_, Entity p_241212_3_, int p_241212_4_)
     {
         // Noop
         return false;

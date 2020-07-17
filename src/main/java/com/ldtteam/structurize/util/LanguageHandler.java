@@ -88,8 +88,8 @@ public final class LanguageHandler
 
             if (object instanceof ITextComponent)
             {
-                translation.func_230529_a_(StringTextComponent.EMPTY);
-                translation.func_230529_a_((ITextComponent) object);
+                translation.append(StringTextComponent.EMPTY);
+                translation.append((ITextComponent) object);
             }
             else if (object instanceof String)
             {
@@ -105,7 +105,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.func_240702_b_(" " + object);
+                    translation.appendString(" " + object);
                 }
             }
         }

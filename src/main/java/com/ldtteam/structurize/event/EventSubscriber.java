@@ -9,11 +9,11 @@ import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,9 +37,9 @@ public class EventSubscriber
      * @param event event
      */
     @SubscribeEvent
-    public static void onServerStarting(final FMLServerStartingEvent event)
+    public static void onRegisterCommands(final RegisterCommandsEvent event)
     {
-        EntryPoint.register(event.getCommandDispatcher());
+        EntryPoint.register(event.getDispatcher(), event.getEnvironment());
     }
 
     @SubscribeEvent

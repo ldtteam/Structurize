@@ -717,7 +717,7 @@ public class Blueprint
                 finalEntity.deserializeNBT(entityInfo);
 
                 final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.getPositionVec())
-                    .add(Vector3d.func_237491_b_(pos));
+                    .add(Vector3d.copy(pos));
                 finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
                 final double rotationYaw = finalEntity.getMirroredYaw(mirror)
                     + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));

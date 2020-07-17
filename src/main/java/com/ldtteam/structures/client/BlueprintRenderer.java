@@ -226,7 +226,7 @@ public class BlueprintRenderer implements AutoCloseable
         final ActiveRenderInfo oldActiveRenderInfo = TileEntityRendererDispatcher.instance.renderInfo;
         final World oldWorld = TileEntityRendererDispatcher.instance.world;
         TileEntityRendererDispatcher.instance.renderInfo = new ActiveRenderInfo();
-        TileEntityRendererDispatcher.instance.renderInfo.setPostion(viewPosition.subtract(x, y, z));
+        TileEntityRendererDispatcher.instance.renderInfo.setPosition(viewPosition.subtract(x, y, z));
         TileEntityRendererDispatcher.instance.world = blockAccess;
         tileEntities.forEach(tileEntity -> {
             final BlockPos tePos = tileEntity.getPos();

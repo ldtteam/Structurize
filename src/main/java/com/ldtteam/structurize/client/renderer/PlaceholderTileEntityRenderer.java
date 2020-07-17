@@ -58,7 +58,7 @@ public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntity
         if (te.getWorld().getBlockState(te.getPos()).getBlock() instanceof PlaceholderBlock)
         {
             final Direction facing = te.getWorld().getBlockState(te.getPos()).get(PlaceholderBlock.HORIZONTAL_FACING);
-            if (this.state.func_235901_b_(PlaceholderBlock.HORIZONTAL_FACING))
+            if (this.state.hasProperty(PlaceholderBlock.HORIZONTAL_FACING))
             {
                 if (this.state.get(PlaceholderBlock.HORIZONTAL_FACING) != facing)
                 {
@@ -73,7 +73,7 @@ public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntity
             {
                 stack = te.getStack();
                 this.state = BlockUtils.getBlockStateFromStack(stack);
-                if (this.state.func_235901_b_(PlaceholderBlock.HORIZONTAL_FACING))
+                if (this.state.hasProperty(PlaceholderBlock.HORIZONTAL_FACING))
                 {
                     this.state = this.state.with(PlaceholderBlock.HORIZONTAL_FACING, facing);
                 }

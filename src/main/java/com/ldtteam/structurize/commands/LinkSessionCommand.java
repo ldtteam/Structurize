@@ -112,7 +112,7 @@ public class LinkSessionCommand
             acceptButton.getStyle()
                 .setFormatting(TextFormatting.DARK_RED)
                 .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
-            inviteMsg.func_230529_a_(acceptButton);
+            inviteMsg.append(acceptButton);
 
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
             {

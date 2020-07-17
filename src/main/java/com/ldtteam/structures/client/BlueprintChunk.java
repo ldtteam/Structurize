@@ -483,7 +483,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void func_201636_b(short packedPosition, int index)
+    public void addPackedPosition(short packedPosition, int index)
     {
         // Noop
     }

@@ -2,7 +2,11 @@ package com.ldtteam.structurize.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -10,12 +14,27 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands.EnvironmentType;
+import net.minecraft.util.Tuple;
 
 /**
  * Interface for all commands
  */
 public abstract class AbstractCommand
 {
+    /**
+     * Get's command's server environment type.
+     * <li>{@link EnvironmentType#INTEGRATED} register only when on integrated server</li>
+     * <li>{@link EnvironmentType#DEDICATED} register only when on dedicated server</li>
+     * <li>{@link EnvironmentType#ALL} register always</li>
+     *
+     * @return in which command environment should be command registered
+     */
+    protected static EnvironmentType getEnvironmentType()
+    {
+        return EnvironmentType.ALL;
+    }
+
     /**
      * Builds command's tree.
      *
@@ -68,7 +87,8 @@ public abstract class AbstractCommand
      */
     public static void throwSyntaxException(final String key, final Object... format) throws CommandSyntaxException
     {
-        throw new CommandSyntaxException(new StructurizeCommandExceptionType(), new LiteralMessage(LanguageHandler.translateKeyWithFormat(key, format)));
+        throw new CommandSyntaxException(new StructurizeCommandExceptionType(),
+            new LiteralMessage(LanguageHandler.translateKeyWithFormat(key, format)));
     }
 
     /**
@@ -93,23 +113,35 @@ public abstract class AbstractCommand
     protected static class CommandTree
     {
         /**
-         * Tree root node
-         */
-        private final LiteralArgumentBuilder<CommandSource> rootNode;
-        /**
          * List of child trees, commands are directly baked into rootNode
          */
-        private final List<CommandTree> childNodes;
+        private final List<CommandTree> childTrees;
+        private final List<Tuple<Supplier<EnvironmentType>, Supplier<LiteralArgumentBuilder<CommandSource>>>> childNodes;
+        /**
+         * Target environment type.
+         */
+        private final EnvironmentType buildWhenOn;
+        private final String commandName;
+
+        /**
+         * @return constructs new root node
+         */
+        protected static CommandTree newRootNode()
+        {
+            return new CommandTree(EnvironmentType.ALL, Constants.MOD_ID);
+        }
 
         /**
          * Creates new command tree.
          *
          * @param commandName root vertex name
          */
-        protected CommandTree(final String commandName)
+        protected CommandTree(final EnvironmentType environment, final String commandName)
         {
-            rootNode = newLiteral(commandName);
-            childNodes = new ArrayList<>();
+            this.childTrees = new ArrayList<>();
+            this.childNodes = new ArrayList<>();
+            this.buildWhenOn = environment;
+            this.commandName = commandName;
         }
 
         /**
@@ -120,19 +152,21 @@ public abstract class AbstractCommand
          */
         protected CommandTree addNode(final CommandTree tree)
         {
-            childNodes.add(tree);
+            childTrees.add(tree);
             return this;
         }
 
         /**
          * Adds new command as leaf into this tree.
          *
-         * @param command new commnad to add
+         * @param commandBuilder    command to add
+         * @param commandEnviroment command's enviroment getter
          * @return this
          */
-        protected CommandTree addNode(final LiteralArgumentBuilder<CommandSource> command)
+        protected CommandTree addNode(final Supplier<LiteralArgumentBuilder<CommandSource>> commandBuilder,
+            final Supplier<EnvironmentType> commandEnviroment)
         {
-            rootNode.then(command.build());
+            childNodes.add(new Tuple<>(commandEnviroment, commandBuilder));
             return this;
         }
 
@@ -141,13 +175,50 @@ public abstract class AbstractCommand
          *
          * @return tree as command node
          */
-        protected LiteralArgumentBuilder<CommandSource> build()
+        protected Optional<LiteralArgumentBuilder<CommandSource>> build(final EnvironmentType environment)
         {
-            for (final CommandTree ct : childNodes)
+            if (!checkEnvironment(environment, buildWhenOn))
             {
-                addNode(ct.build());
+                return Optional.empty();
             }
-            return rootNode;
+
+            final LiteralArgumentBuilder<CommandSource> rootNode = newLiteral(commandName);
+
+            for (final Tuple<Supplier<EnvironmentType>, Supplier<LiteralArgumentBuilder<CommandSource>>> node : childNodes)
+            {
+                if (checkEnvironment(environment, node.getA().get()))
+                {
+                    rootNode.then(node.getB().get());
+                }
+            }
+            for (final CommandTree tree : childTrees)
+            {
+                final Optional<LiteralArgumentBuilder<CommandSource>> builtTree = tree.build(environment);
+                if (builtTree.isPresent())
+                {
+                    rootNode.then(builtTree.get().build());
+                }
+            }
+
+            return childNodes.isEmpty() && childTrees.isEmpty() ? Optional.empty() : Optional.of(rootNode);
+        }
+
+        protected void register(final CommandDispatcher<CommandSource> commandDispatcher, final EnvironmentType serverEnvironmentType)
+        {
+            final Optional<LiteralArgumentBuilder<CommandSource>> builtTree = build(serverEnvironmentType);
+
+            if (builtTree.isPresent())
+            {
+                commandDispatcher.register(builtTree.get());
+            }
+        }
+
+        /**
+         * @return true if either of arguments is {@link EnvironmentType#ALL} or arguments are of the same type
+         */
+        private boolean checkEnvironment(final EnvironmentType server, final EnvironmentType command)
+        {
+            return server == EnvironmentType.ALL || command == EnvironmentType.ALL || server == command;
         }
     }
 }

@@ -117,7 +117,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStandEntity)
             {
-                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.func_237491_b_(pos)) {
+                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.copy(pos)) {
                     @NotNull
                     @Override
                     public Type getType()

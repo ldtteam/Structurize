@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.mojang.authlib.Environment;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands.EnvironmentType;
 
 /**
  * Mod entry command
@@ -38,22 +40,23 @@ public class EntryPoint extends AbstractCommand
      *
      * @param dispatcher main server command dispatcher
      */
-    public static void register(final CommandDispatcher<CommandSource> dispatcher)
+    public static void register(final CommandDispatcher<CommandSource> dispatcher, final EnvironmentType environment)
     {
-        final CommandTree linkSession = new CommandTree("linksession").addNode(LinkSessionCommand.AboutMe.build())
-            .addNode(LinkSessionCommand.AcceptInvite.build())
-            .addNode(LinkSessionCommand.AddPlayer.build())
-            .addNode(LinkSessionCommand.Create.build())
-            .addNode(LinkSessionCommand.Destroy.build())
-            .addNode(LinkSessionCommand.Leave.build())
-            .addNode(LinkSessionCommand.MuteChannel.build())
-            .addNode(LinkSessionCommand.RemovePlayer.build())
-            .addNode(LinkSessionCommand.SendMessage.build());
-        final CommandTree structurizeRoot = new CommandTree(Constants.MOD_ID)
-                                              .addNode(linkSession)
-                                              .addNode(UpdateSchematicsCommand.build())
-                                              .addNode(ScanCommand.build());
+        final CommandTree linkSession = new CommandTree(EnvironmentType.ALL, "linksession")
+            .addNode(LinkSessionCommand.AboutMe::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.AcceptInvite::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.AddPlayer::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.Create::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.Destroy::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.Leave::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.MuteChannel::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.RemovePlayer::build, AbstractCommand::getEnvironmentType)
+            .addNode(LinkSessionCommand.SendMessage::build, AbstractCommand::getEnvironmentType);
+        final CommandTree structurizeRoot = CommandTree.newRootNode()
+            .addNode(linkSession)
+            .addNode(UpdateSchematicsCommand::build, () -> EnvironmentType.INTEGRATED)
+            .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType);
 
-        dispatcher.register(structurizeRoot.build());
+        structurizeRoot.register(dispatcher, environment);
     }
 }

@@ -326,7 +326,7 @@ public final class BlockUtils
         stackToPlace.setCount(stackToPlace.getMaxStackSize());
         fakePlayer.setHeldItem(Hand.MAIN_HAND, stackToPlace);
 
-        if (stackToPlace.getItem().isIn(ItemTags.BEDS) && blockState.func_235901_b_(HorizontalBlock.HORIZONTAL_FACING))
+        if (stackToPlace.getItem().isIn(ItemTags.BEDS) && blockState.hasProperty(HorizontalBlock.HORIZONTAL_FACING))
         {
             fakePlayer.rotationYaw = blockState.get(HorizontalBlock.HORIZONTAL_FACING).getHorizontalIndex() * 90;
         }
