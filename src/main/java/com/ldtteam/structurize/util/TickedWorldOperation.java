@@ -84,7 +84,7 @@ public class TickedWorldOperation
      * The structure wrapper if structure place.
      */
     private final StructurePlacer placer;
-    private int                   structurePhase = 0;
+    private int structurePhase = 0;
 
     /**
      * Create a ScanToolOperation.
@@ -169,7 +169,7 @@ public class TickedWorldOperation
             return storage.undo(world);
         }
 
-        if (operation == OperationType.PLACE_STRUCTURE)
+        if (operation == OperationType.PLACE_STRUCTURE && placer.getHandler().getWorld().getDimension().getType().getId() == world.getDimension().getType().getId())
         {
             StructurePhasePlacementResult result;
             switch (structurePhase)
