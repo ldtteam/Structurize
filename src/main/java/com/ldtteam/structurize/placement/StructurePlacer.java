@@ -480,6 +480,15 @@ public class StructurePlacer
     }
 
     /**
+     * Get the handler instance.
+     * @return the IStructureHandler.
+     */
+    public IStructureHandler getHandler()
+    {
+        return handler;
+    }
+
+    /**
      * The different operations.
      */
     public enum Operation
