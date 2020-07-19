@@ -6,7 +6,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
-import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.codec.binary.Hex;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public final class StructureUtils
         try
         {
             final MessageDigest md = MessageDigest.getInstance("MD5");
-            return DatatypeConverter.printHexBinary(md.digest(bytes));
+            return Hex.encodeHexString(md.digest(bytes));
         }
         catch (@NotNull final NoSuchAlgorithmException e)
         {
