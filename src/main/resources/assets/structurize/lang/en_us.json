@@ -595,7 +595,7 @@
   "block.structurize.side_framed_dark_oak_stone_timber_frame": "Side Framed Dark Oak Stone Timber Frame",
   "block.structurize.one_crossed_lr_dark_oak_brick_timber_frame": "Left Right Crossed Dark Oak Brick Timber Frame",
   "block.structurize.one_crossed_lr_acacia_stone_timber_frame": "Left Right Crossed Acacia Stone Timber Frame",
-  "item.structurize.sceptergold": "Building Tool",
+  "item.structurize.sceptergold": "Build Tool",
   "block.structurize.up_gated_acacia_cactus_timber_frame": "Up Gate Framed Acacia Cactus Timber Frame",
   "block.structurize.up_gated_dark_oak_birch_timber_frame": "Up Gate Framed Dark Oak Birch Timber Frame",
   "block.structurize.blockcactusdoor": "Cactus Door",
@@ -681,7 +681,7 @@
   "block.structurize.one_crossed_lr_cactus_spruce_timber_frame": "Left Right Crossed Cactus Spruce Timber Frame",
   "block.structurize.double_crossed_spruce_paper_timber_frame": "Double Crossed Spruce Paper Timber Frame",
   "block.structurize.double_crossed_jungle_oak_timber_frame": "Double Crossed Jungle Oak Timber Frame",
-  "item.structurize.sceptertag": "Tagging Tool",
+  "item.structurize.sceptertag": "Tagg Tool",
   "block.structurize.double_crossed_cactus_acacia_timber_frame": "Double Crossed Cactus Acacia Timber Frame",
   "block.structurize.one_crossed_rl_spruce_spruce_timber_frame": "Right Left Crossed Spruce Spruce Timber Frame",
   "block.structurize.light_blue_clay_oak_shingle": "Light Blue Clay Oak Shingle",
@@ -1148,5 +1148,5 @@
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
   "com.structurize.gui.buildtool.tip": "ESC to leave GUI to inspect the preview.",
-  "com.structurize.gui.buildtool.leave.tip": "Right-click the building tool to adjust the position of the schematic."
+  "com.structurize.gui.buildtool.leave.tip": "Right-click the build tool to adjust the position of the schematic."
 }
