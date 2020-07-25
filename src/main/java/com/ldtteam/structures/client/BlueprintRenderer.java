@@ -35,7 +35,11 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.CompassItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -197,6 +201,14 @@ public class BlueprintRenderer implements AutoCloseable
 
         // if clipping etc., see WorldRenderer for what's missing
         entities.forEach(entity -> {
+            if (entity instanceof ItemFrameEntity && ((ItemFrameEntity) entity).getDisplayedItem().getItem() instanceof CompassItem)
+            {
+                final ItemFrameEntity copy = EntityType.ITEM_FRAME.create(blockAccess);
+                copy.copyDataFromOld(entity);
+                copy.setDisplayedItem(ItemStack.EMPTY);
+                entity = copy;
+            }
+
             OptifineCompat.getInstance().preRenderEntity(entity);
 
             Minecraft.getInstance()

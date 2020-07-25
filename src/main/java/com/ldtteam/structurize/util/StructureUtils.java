@@ -5,8 +5,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,6 +21,7 @@ import static com.ldtteam.structurize.api.util.constant.Constants.BUFFER_SIZE;
  */
 public final class StructureUtils
 {
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     /**
      * Private constructor to hide public one.
@@ -45,7 +44,7 @@ public final class StructureUtils
         try
         {
             final MessageDigest md = MessageDigest.getInstance("MD5");
-            return DatatypeConverter.printHexBinary(md.digest(bytes));
+            return bytesToHex(md.digest(bytes));
         }
         catch (@NotNull final NoSuchAlgorithmException e)
         {
@@ -53,6 +52,18 @@ public final class StructureUtils
         }
 
         return null;
+    }
+
+    private static String bytesToHex(byte[] bytes)
+    {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++)
+        {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     public static byte[] compress(final byte[] data)

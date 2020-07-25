@@ -294,7 +294,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
-        final BlockPos def = Minecraft.getInstance().player.func_233580_cy_();
+        final BlockPos def = Minecraft.getInstance().player.getPosition();
         try
         {
             final int x1 = pos1x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos1x.getText());

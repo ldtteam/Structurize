@@ -123,7 +123,7 @@ public class BlueprintUtil
             posList.add(DoubleNBT.valueOf(oldPos.y - pos.getY()));
             posList.add(DoubleNBT.valueOf(oldPos.z - pos.getZ()));
 
-            BlockPos entityPos = entity.func_233580_cy_();
+            BlockPos entityPos = entity.getPosition();
             if (entity instanceof HangingEntity)
             {
                 entityPos = ((HangingEntity) entity).getHangingPosition();
