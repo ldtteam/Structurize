@@ -202,16 +202,6 @@ public class StructurePlacer
                         if (entity != null)
                         {
                             entity.deserializeNBT(compound);
-                            
-                            final List<ItemStack> requiredItems = new ArrayList<>();
-                            if (!handler.isCreative())
-                            {
-                                requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
-                                if (!InventoryUtils.hasRequiredItems(handler.getInventory(), requiredItems))
-                                {
-                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-                                }
-                            }
 
                             entity.setUniqueId(UUID.randomUUID());
                             final Vec3d posInWorld = entity.getPositionVector().add(pos.getX(), pos.getY(), pos.getZ());
@@ -231,6 +221,16 @@ public class StructurePlacer
                             if (foundEntity)
                             {
                                 continue;
+                            }
+
+                            final List<ItemStack> requiredItems = new ArrayList<>();
+                            if (!handler.isCreative())
+                            {
+                                requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
+                                if (!InventoryUtils.hasRequiredItems(handler.getInventory(), requiredItems))
+                                {
+                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+                                }
                             }
 
                             world.addEntity(entity);
