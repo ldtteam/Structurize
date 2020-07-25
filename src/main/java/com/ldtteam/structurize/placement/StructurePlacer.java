@@ -16,7 +16,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -204,7 +204,7 @@ public class StructurePlacer
                             entity.deserializeNBT(compound);
 
                             entity.setUniqueId(UUID.randomUUID());
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
+                            final Vec3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
                             entity.setPosition(posInWorld.x, posInWorld.y, posInWorld.z);
 
                             final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
@@ -377,7 +377,7 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
+                            final Vec3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
                             final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
