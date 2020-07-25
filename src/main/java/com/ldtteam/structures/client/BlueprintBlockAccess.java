@@ -260,8 +260,8 @@ public class BlueprintBlockAccess extends World
     @Override
     public DimensionType func_230315_m_()
     {
-        // Noop
-        return null;
+        // Used by: net.minecraft.item.ItemModelsProperties$2.func_239444_a_(), supplying overworld should be fine
+        return DimensionType.func_236019_a_();
     }
 
     @Override
