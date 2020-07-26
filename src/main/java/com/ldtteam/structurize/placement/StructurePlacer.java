@@ -211,7 +211,7 @@ public class StructurePlacer
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(entity.getPositionVec()))
+                                if (worldEntity.getPositionVec().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
@@ -382,7 +382,7 @@ public class StructurePlacer
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(entity.getPositionVec()))
+                                if (worldEntity.getPositionVec().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
