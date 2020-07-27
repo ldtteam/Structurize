@@ -169,47 +169,51 @@ public class TickedWorldOperation
             return storage.undo(world);
         }
 
-        if (operation == OperationType.PLACE_STRUCTURE && placer.getHandler().getWorld().getDimension().getType().getId() == world.getDimension().getType().getId())
+        if (operation == OperationType.PLACE_STRUCTURE)
         {
-            StructurePhasePlacementResult result;
-            switch (structurePhase)
+            if (placer.getHandler().getWorld().getDimension().getType().getId() == world.getDimension().getType().getId())
             {
-                case 0:
-                    //water
-                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
-                      () ->  placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().isSolid()), false);
+                StructurePhasePlacementResult result;
+                switch (structurePhase)
+                {
+                    case 0:
+                        //water
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
+                          () -> placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().isSolid()), false);
 
-                    currentPos = result.getIteratorPos();
-                    break;
-                case 1:
-                    //structure
-                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                      () ->  placer.getIterator().increment((info, pos, handler) -> !info.getBlockInfo().getState().getMaterial().isSolid()), false);
+                        currentPos = result.getIteratorPos();
+                        break;
+                    case 1:
+                        //structure
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                          () -> placer.getIterator().increment((info, pos, handler) -> !info.getBlockInfo().getState().getMaterial().isSolid()), false);
 
-                    currentPos = result.getIteratorPos();
-                    break;
-                case 2:
-                    // not solid
-                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                      () ->  placer.getIterator().increment((info, pos, handler) -> info.getBlockInfo().getState().getMaterial().isSolid()), false);
+                        currentPos = result.getIteratorPos();
+                        break;
+                    case 2:
+                        // not solid
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                          () -> placer.getIterator().increment((info, pos, handler) -> info.getBlockInfo().getState().getMaterial().isSolid()), false);
 
-                    currentPos = result.getIteratorPos();
-                    break;
-                default:
-                    // entities
-                    result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                      () ->  placer.getIterator().increment((info, pos, handler) -> info.getEntities().length == 0), true);
-                    structurePhase = -1;
-                    currentPos = null;
-                    break;
+                        currentPos = result.getIteratorPos();
+                        break;
+                    default:
+                        // entities
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                          () -> placer.getIterator().increment((info, pos, handler) -> info.getEntities().length == 0), true);
+                        structurePhase = -1;
+                        currentPos = null;
+                        break;
+                }
+
+                if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
+                {
+                    structurePhase++;
+                }
+
+                return currentPos == null;
             }
-
-            if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
-            {
-                structurePhase++;
-            }
-
-            return currentPos == null;
+            return false;
         }
 
         return run(world);
