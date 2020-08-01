@@ -415,7 +415,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             close();
         }
-        updateRotation(rotation);
+        // updateRotation(rotation);
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
