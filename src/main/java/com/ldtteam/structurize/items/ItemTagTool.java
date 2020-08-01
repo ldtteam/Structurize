@@ -26,7 +26,7 @@ import java.util.Map;
 public class ItemTagTool extends AbstractItemWithPosSelector
 {
     public static final String TAG_TOOL_REGISTRY_NAME = "sceptertag";
-    public static final String TAG_ACHNOR_POS         = "anchorpostag";
+    public static final String TAG_ANCHOR_POS         = "anchorpostag";
     public static final String TAG_CURRENT_TAG        = "currenttag";
 
     /**
@@ -84,9 +84,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     {
         final CompoundNBT itemCompound = stack.getOrCreateTag();
 
-        if (itemCompound.contains(TAG_ACHNOR_POS))
+        if (itemCompound.contains(TAG_ANCHOR_POS))
         {
-            return BlockPosUtil.readFromNBT(itemCompound, TAG_ACHNOR_POS);
+            return BlockPosUtil.readFromNBT(itemCompound, TAG_ANCHOR_POS);
         }
 
         return null;
@@ -126,9 +126,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             TileEntity te = context.getWorld().getTileEntity(context.getPos());
             if (te instanceof IBlueprintDataProvider)
             {
-                BlockPosUtil.writeToNBT(context.getItem().getOrCreateTag(), TAG_ACHNOR_POS, context.getPos());
-                ClientEventSubscriber.tagAnchor = context.getPos();
-                ClientEventSubscriber.tagPosList = null;
+                BlockPosUtil.writeToNBT(context.getItem().getOrCreateTag(), TAG_ANCHOR_POS, context.getPos());
                 LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
                 return ActionResultType.SUCCESS;
             }
@@ -178,7 +176,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         if (!(te instanceof IBlueprintDataProvider))
         {
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
-            stack.getOrCreateTag().remove(TAG_ACHNOR_POS);
+            stack.getOrCreateTag().remove(TAG_ANCHOR_POS);
             return false;
         }
 
@@ -209,8 +207,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
               worldIn.getBlockState(pos).getBlock().getTranslationKey()));
         }
-
-        ClientEventSubscriber.tagPosList = null;
 
         return false;
     }

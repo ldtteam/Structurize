@@ -56,16 +56,6 @@ public final class BlueprintUtils
     }
 
     /**
-     * Get the primary offset.
-     * @param blueprint the blueprint.
-     * @return a tuple, the offset, and true if its a custom one.
-     */
-    public static BlockPos getPrimaryBlockOffset(@NotNull final Blueprint blueprint)
-    {
-        return blueprint.getPrimaryBlockOffset();
-    }
-
-    /**
      * Creates a list of tileentities located in the blueprint, placed inside that blueprints block access world.
      *
      * @param blueprint   The blueprint whos tileentities need to be instantiated.
