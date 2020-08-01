@@ -41,6 +41,7 @@ public final class BlueprintHandler
      *
      * @return a static instance of this class.
      */
+    @Deprecated // INTERNAL USE ONLY
     public static BlueprintHandler getInstance()
     {
         return ourInstance;
@@ -113,10 +114,10 @@ public final class BlueprintHandler
      * @param partialTicks the partial ticks.
      * @param blueprint    the blueprint.
      */
-    public void drawBlueprintAtListOfPositions(final List<BlockPos> points,
-        final float partialTicks,
-        final Blueprint blueprint,
-        final MatrixStack stack)
+    public void drawAtListOfPositions(final Blueprint blueprint,
+        final List<BlockPos> points,
+        final MatrixStack stack,
+        final float partialTicks)
     {
         if (points.isEmpty())
         {
