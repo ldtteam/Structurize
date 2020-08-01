@@ -89,6 +89,11 @@ public final class Settings
     private boolean receivedInfo;
 
     /**
+     * If we are in structurize rendering phase.
+     */
+    private boolean isStructurizePass = false;
+
+    /**
      * Private constructor to hide implicit one.
      */
     private Settings()
@@ -98,8 +103,31 @@ public final class Settings
          */
     }
 
+    public void startStructurizePass()
+    {
+        isStructurizePass = true;
+    }
+
+    public void endStructurizePass()
+    {
+        isStructurizePass = false;
+    }
+
+    /**
+     * @return true if in structurize rendering phase (events), false if other mods are rendering using structurize api
+     */
+    public boolean isStructurizePass()
+    {
+        return isStructurizePass;
+    }
+
     public boolean shouldRefresh()
     {
+        if (!isStructurizePass())
+        {
+            return false;
+        }
+
         final boolean ret = shouldRefresh;
         shouldRefresh = false;
         return ret;

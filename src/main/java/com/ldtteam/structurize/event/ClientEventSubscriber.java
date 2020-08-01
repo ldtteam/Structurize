@@ -42,6 +42,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
+        Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
         final MatrixStack matrixStack = event.getMatrixStack();
@@ -111,6 +112,7 @@ public class ClientEventSubscriber
         renderBuffer.finish();
 
         OptifineCompat.getInstance().postBlueprintDraw();
+        Settings.instance.endStructurizePass();
     }
 
     /**
