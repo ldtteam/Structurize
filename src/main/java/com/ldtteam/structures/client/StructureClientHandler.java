@@ -21,6 +21,12 @@ public final class StructureClientHandler
         BlueprintHandler.getInstance().draw(blueprint, pos, stack, partialTicks);
     }
 
+    /**
+     * Renders blueprint at single position.
+     *
+     * @param blueprint what to render
+     * @param pos       where to render
+     */
     public static void renderStructureAtPos(@NotNull final Blueprint blueprint, final float partialTicks, final BlockPos pos, final MatrixStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();
@@ -34,6 +40,12 @@ public final class StructureClientHandler
         BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, stack, partialTicks);
     }
 
+    /**
+     * Renders blueprint at list of positions.
+     *
+     * @param blueprint what to render
+     * @param pos       where to render
+     */
     public static void renderStructureAtPosList(@NotNull final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final MatrixStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();

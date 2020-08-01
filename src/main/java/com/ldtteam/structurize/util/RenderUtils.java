@@ -3,14 +3,13 @@ package com.ldtteam.structurize.util;
 import java.util.List;
 import java.util.OptionalDouble;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -22,7 +21,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class RenderUtils
 {
-    private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 32 * 32 * 32;
+    private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 8 * 8 * 16;
     public static final RenderType LINES_GLINT = RenderTypes.LINES_GLINT;
 
     /**
@@ -78,51 +77,78 @@ public class RenderUtils
     /**
      * Renders the given list of strings, 3 elements a row.
      *
-     * @param pos         position to render at
-     * @param text        text list
-     * @param matrixStack stack to use
+     * @param pos                     position to render at
+     * @param text                    text list
+     * @param matrixStack             stack to use
+     * @param forceWhite              force white for no depth rendering
+     * @param mergeEveryXListElements merge every X elements of text list using {@link List#toString()}
      */
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
         final MatrixStack matrixStack,
+        final boolean forceWhite,
+        final int mergeEveryXListElements)
+    {
+        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+        renderDebugText(pos, text, matrixStack, forceWhite, mergeEveryXListElements, buffer);
+        buffer.finish();
+    }
+
+    /**
+     * Renders the given list of strings, 3 elements a row.
+     *
+     * @param pos                     position to render at
+     * @param text                    text list
+     * @param matrixStack             stack to use
+     * @param buffer                  render buffer
+     * @param forceWhite              force white for no depth rendering
+     * @param mergeEveryXListElements merge every X elements of text list using {@link List#toString()}
+     */
+    public static void renderDebugText(final BlockPos pos,
+        final List<String> text,
+        final MatrixStack matrixStack,
+        final boolean forceWhite,
+        final int mergeEveryXListElements,
         final IRenderTypeBuffer buffer)
     {
+        if (mergeEveryXListElements < 1)
+        {
+            throw new IllegalArgumentException("mergeEveryXListElements is less than 1");
+        }
+
         final EntityRendererManager erm = Minecraft.getInstance().getRenderManager();
-        if (erm.getDistanceToCamera(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
+        final int cap = text.size();
+        if (cap > 0 && erm.getDistanceToCamera(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
             final Vector3d viewPosition = erm.info.getProjectedView();
             final FontRenderer fontrenderer = erm.getFontRenderer();
 
             matrixStack.push();
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
-
-            matrixStack.translate(pos.getX() + 0.5, pos.getY() + 0.75, pos.getZ() + 0.5);
+            matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
             matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
             matrixStack.rotate(erm.getCameraOrientation());
-            matrixStack.scale(-0.025F, -0.025F, 0.025F);
+            matrixStack.scale(-0.014f, -0.014f, 0.014f);
+            matrixStack.translate(0.0d, 18.0d, 0.0d);
 
             final float backgroundTextOpacity = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
             final Matrix4f rawPosMatrix = matrixStack.getLast().getMatrix();
 
-            final int cap = text.size();
-            for (int i = 0; i < cap; i += 3)
+            for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
-                final StringTextComponent renderText = new StringTextComponent(text.subList(i, Math.min(i + 2, cap)).toString());
+                final StringTextComponent renderText = new StringTextComponent(mergeEveryXListElements == 1 ? text.get(i)
+                : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.func_238414_a_(renderText) / 2);
 
-                fontrenderer
-                    .func_238416_a_(renderText, textCenterShift, 0, 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 15728880);
-                fontrenderer.func_238416_a_(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 15728880);
-                matrixStack.translate(0, 10, 0);
+                fontrenderer.func_238416_a_(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
+                if (!forceWhite)
+                {
+                    fontrenderer.func_238416_a_(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
+                }
+                matrixStack.translate(0.0d, 10.0d, 0.0d);
             }
 
-            RenderSystem.disableBlend();
             matrixStack.pop();
         }
     }

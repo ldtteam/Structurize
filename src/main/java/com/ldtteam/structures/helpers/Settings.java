@@ -103,11 +103,17 @@ public final class Settings
          */
     }
 
+    /**
+     * Called when structurize renders it's things
+     */
     public void startStructurizePass()
     {
         isStructurizePass = true;
     }
 
+    /**
+     * Called when structurize finishes rendering of it's things
+     */
     public void endStructurizePass()
     {
         isStructurizePass = false;
