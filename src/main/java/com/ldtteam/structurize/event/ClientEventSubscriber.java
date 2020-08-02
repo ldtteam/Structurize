@@ -15,12 +15,14 @@ import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.RenderUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeBuffers;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -42,6 +44,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
+        Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
         final MatrixStack matrixStack = event.getMatrixStack();
@@ -101,7 +104,12 @@ public class ClientEventSubscriber
                 for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
                 {
                     RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
-                    RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack(), renderBuffer);
+
+                    IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+                    RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack(), true, 3, buffer);
+                    RenderSystem.disableDepthTest();
+                    buffer.finish();
+                    RenderSystem.enableDepthTest();
                 }
     
                 renderBuffer.finish(RenderUtils.LINES_GLINT);
@@ -111,6 +119,7 @@ public class ClientEventSubscriber
         renderBuffer.finish();
 
         OptifineCompat.getInstance().postBlueprintDraw();
+        Settings.instance.endStructurizePass();
     }
 
     /**
