@@ -1043,7 +1043,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public boolean hasPermission()
     {
-        return Minecraft.getInstance().player.isCreative();
+        final boolean result = Minecraft.getInstance().player.isCreative();
+        if (!result)
+        {
+            LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player, "structurize.gui.buildtool.creative_only");
+        }
+        return result;
     }
 
     /**
