@@ -198,7 +198,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // if clipping etc., see WorldRenderer for what's missing
         entities.forEach(entity -> {
-            OptifineCompat.getInstance().preRenderEntity(entity, renderBufferSource);
+            OptifineCompat.getInstance().preRenderEntity(entity);
 
             Minecraft.getInstance()
                 .getRenderManager()
@@ -234,7 +234,7 @@ public class BlueprintRenderer implements AutoCloseable
             matrixStack.push();
             matrixStack.translate(tePos.getX(), tePos.getY(), tePos.getZ());
 
-            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity, renderBufferSource);
+            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
 
             TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.pop();
