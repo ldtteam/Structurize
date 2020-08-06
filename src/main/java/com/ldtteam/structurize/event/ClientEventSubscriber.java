@@ -1,41 +1,40 @@
 package com.ldtteam.structurize.event;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structures.client.StructureClientHandler;
 import com.ldtteam.structures.helpers.Settings;
-import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.util.BoxRenderer;
+import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.ldtteam.structurize.util.RenderUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeBuffers;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ClientEventSubscriber
 {
+    public static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
     public static Map<BlockPos, List<String>> tagPosList = null;
     public static BlockPos                    tagAnchor;
 
@@ -47,238 +46,94 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
     {
-        Minecraft.getInstance().getProfiler().startSection("struct_render");
+        Settings.instance.startStructurizePass();
+        OptifineCompat.getInstance().preBlueprintDraw();
+
+        final MatrixStack matrixStack = event.getMatrixStack();
+        final IRenderTypeBuffer.Impl renderBuffer = renderBuffers.getBufferSource();
+        final Supplier<IVertexBuilder> linesWithCullAndDepth = () -> renderBuffer.getBuffer(RenderType.getLines());
+        final Supplier<IVertexBuilder> linesWithoutCullAndDepth = () -> renderBuffer.getBuffer(RenderUtils.LINES_GLINT);
+
+        final PlayerEntity player = Minecraft.getInstance().player;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
 
         if (blueprint != null)
         {
-            BlockPos offset = new BlockPos(0, 0, 0);
-            final BlockPos primaryOffset = BlueprintUtils.getPrimaryBlockOffset(blueprint);
+            Minecraft.getInstance().getProfiler().startSection("struct_render");
 
-            StructureClientHandler.renderStructure(blueprint,
-                event.getPartialTicks(),
-                Settings.instance.getPosition().subtract(offset),
-                event.getMatrixStack());
+            final BlockPos pos = Settings.instance.getPosition();
+            final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-            final BlockPos pos = Settings.instance.getPosition().subtract(primaryOffset);
-            final BlockPos size = new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ());
+            StructureClientHandler.renderStructure(blueprint, event.getPartialTicks(), pos, matrixStack);
+            renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
+            RenderUtils.renderWhiteOutlineBox(posMinusOffset,
+                posMinusOffset.add(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
+                matrixStack,
+                linesWithCullAndDepth.get());
 
-            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
+            renderBuffer.finish(RenderType.getLines());
+            renderBuffer.finish(RenderUtils.LINES_GLINT);
 
-            // Used to render a red box around a structures Primary offset (primary block)
-            renderAnchorPos(primaryOffset.add(pos), event);
-
-            renderBox(pos.subtract(offset), pos.add(size).subtract(new BlockPos(1, 1, 1)).subtract(offset), event);
+            Minecraft.getInstance().getProfiler().endSection();
         }
 
         if (Settings.instance.getBox() != null)
         {
+            Minecraft.getInstance().getProfiler().startSection("struct_box");
+
             // Used to render a red box around a scan's Primary offset (primary block)
-            Settings.instance.getAnchorPos().ifPresent(pos -> renderAnchorPos(pos, event));
-            Minecraft.getInstance().getProfiler().endStartSection("struct_box");
-            renderBox(Settings.instance.getBox().getA(), Settings.instance.getBox().getB(), event);
-        }
-        Minecraft.getInstance().getProfiler().endSection();
+            Settings.instance.getAnchorPos().ifPresent(pos -> renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get()));
+            RenderUtils.renderWhiteOutlineBox(Settings.instance.getBox().getA(),
+                Settings.instance.getBox().getB(),
+                matrixStack,
+                linesWithoutCullAndDepth.get());
+            renderBuffer.finish(RenderUtils.LINES_GLINT);
 
-        final PlayerEntity player = Minecraft.getInstance().player;
-
-        if (player.getHeldItem(Hand.MAIN_HAND).getItem() != ModItems.tagTool)
-        {
-            tagPosList = null;
-            tagAnchor = null;
-            return;
+            Minecraft.getInstance().getProfiler().endSection();
         }
 
-        if (tagAnchor == null)
+        final ItemStack itemStack = player.getHeldItem(Hand.MAIN_HAND);
+        if (itemStack.getItem() == ModItems.tagTool && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
         {
-            ItemStack tagtool = player.getHeldItem(Hand.MAIN_HAND);
+            final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
+            final TileEntity te = Minecraft.getInstance().player.world.getTileEntity(tagAnchor);
 
-            if (tagtool.getOrCreateTag().contains(ItemTagTool.TAG_ACHNOR_POS))
+            renderAnchorPos(tagAnchor, matrixStack, linesWithoutCullAndDepth.get());
+
+            if (te instanceof IBlueprintDataProvider)
             {
-                tagAnchor = BlockPosUtil.readFromNBT(tagtool.getOrCreateTag(), ItemTagTool.TAG_ACHNOR_POS);
-            }
-            else
-            {
-                return;
+
+                final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProvider) te).getWorldTagPosMap();
+    
+                for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
+                {
+                    RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
+
+                    IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+                    RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack(), true, 3, buffer);
+                    RenderSystem.disableDepthTest();
+                    buffer.finish();
+                    RenderSystem.enableDepthTest();
+                }
+    
+                renderBuffer.finish(RenderUtils.LINES_GLINT);
             }
         }
 
-        if (tagPosList == null)
-        {
-            TileEntity te = Minecraft.getInstance().player.world.getTileEntity(tagAnchor);
+        renderBuffer.finish();
 
-            if (!(te instanceof IBlueprintDataProvider))
-            {
-                return;
-            }
-
-            IBlueprintDataProvider dataProvider = (IBlueprintDataProvider) te;
-
-            tagPosList = dataProvider.getWorldTagPosMap();
-        }
-
-        renderAnchorPos(tagAnchor, event);
-
-        for (Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
-        {
-            renderBox(entry.getKey(), entry.getKey(), event);
-            renderDebugText(entry.getKey(), entry.getValue(), event.getMatrixStack());
-        }
+        OptifineCompat.getInstance().postBlueprintDraw();
+        Settings.instance.endStructurizePass();
     }
 
     /**
      * Render a box around the given position in the Red colour.
      *
      * @param anchorPos The anchorPos
-     * @param event The RenderWorldLastEvent event
      */
-    private static void renderAnchorPos(final BlockPos anchorPos,  final RenderWorldLastEvent event)
+    private static void renderAnchorPos(final BlockPos anchorPos, final MatrixStack ms, final IVertexBuilder buffer)
     {
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
-        renderBox(anchorPos, anchorPos, event, 1, 0, 0);
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
-    }
-
-    /**
-     * Render a white box around two positions
-     *
-     * @param posA The first Position
-     * @param posB The second Position
-     * @param event The event
-     */
-    private static void renderBox(final BlockPos posA,
-                                  final BlockPos posB,
-                                  final RenderWorldLastEvent event)
-    {
-        renderBox(posA, posB, event, 1, 1, 1);
-    }
-
-    /***
-     * Render a box around two positions
-     *
-     * @param posA First position
-     * @param posB Second position
-     * @param event The Event
-     * @param red red colour float 0 - 1
-     * @param green green colour float 0 - 1
-     * @param blue blue colour float 0 - 1
-     */
-    private static void renderBox(final BlockPos posA,
-                                  final BlockPos posB,
-                                  final RenderWorldLastEvent event,
-                                  final float red,
-                                  final float green,
-                                  final float blue)
-    {
-        int x1 = posA.getX();
-        int y1 = posA.getY();
-        int z1 = posA.getZ();
-
-        int x2 = posB.getX();
-        int y2 = posB.getY();
-        int z2 = posB.getZ();
-
-        if (x1 > x2)
-        {
-            x1++;
-        }
-        else
-        {
-            x2++;
-        }
-
-        if (y1 > y2)
-        {
-            y1++;
-        }
-        else
-        {
-            y2++;
-        }
-
-        if (z1 > z2)
-        {
-            z1++;
-        }
-        else
-        {
-            z2++;
-        }
-
-        RenderSystem.enableDepthTest();
-
-        final ActiveRenderInfo activeRenderInfo = Minecraft.getInstance().getRenderManager().info;
-        final Vec3d viewPosition = activeRenderInfo.getProjectedView();
-        final MatrixStack matrix = event.getMatrixStack();
-        matrix.push();
-        matrix.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-
-        final Matrix4f matrix4f = matrix.getLast().getMatrix();
-        final AxisAlignedBB axisalignedbb = new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
-        BoxRenderer.drawSelectionBoundingBox(matrix4f, axisalignedbb.grow(0.002D), red, green, blue, 1.0F);
-        matrix.pop();
-
-        RenderSystem.disableDepthTest();
-    }
-
-    /**
-     * Renders the given list of strings, 3 elements a row.
-     *
-     * @param pos         position to render at
-     * @param text        text list
-     * @param matrixStack stack to use
-     */
-    private static void renderDebugText(final BlockPos pos, final List<String> text, final MatrixStack matrixStack)
-    {
-        final FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-        final Vec3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
-
-        matrixStack.push();
-        matrixStack.translate((double) pos.getX() + 0.5, (double) pos.getY(), (double) pos.getZ() + 0.5);
-        matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-
-        matrixStack.translate(0.0F, 0.75F, 0.0F);
-        RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
-
-        final EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
-        matrixStack.rotate(renderManager.getCameraOrientation());
-        matrixStack.scale(-0.014F, -0.014F, 0.014F);
-        matrixStack.translate(0.0F, 18F, 0.0F);
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-          GlStateManager.SourceFactor.SRC_ALPHA,
-          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-          GlStateManager.SourceFactor.ONE,
-          GlStateManager.DestFactor.ZERO);
-
-        final Matrix4f matrix4f = matrixStack.getLast().getMatrix();
-
-        final IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-
-        List<String> toRender = new ArrayList<>();
-        for (final String element : text)
-        {
-            if (toRender.size() >= 3)
-            {
-                // Render text
-                fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
-                matrixStack.translate(0.0F, 10F, 0.0F);
-                toRender.clear();
-            }
-            toRender.add(element);
-        }
-
-        if (!toRender.isEmpty())
-        {
-            fontrenderer.renderString(toRender.toString(), -fontrenderer.getStringWidth(toRender.toString()) / 2.0f, 0, 0xFFFFFFFF, false, matrix4f, buffer, true, 0, 15728880);
-        }
-
-        buffer.finish();
-        RenderSystem.disableBlend();
-        matrixStack.pop();
+        RenderUtils.renderBox(anchorPos, anchorPos, 1, 0, 0, 1, 0, ms, buffer);
     }
 
     /**
