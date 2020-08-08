@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Class handling the colony styles messages.
@@ -18,6 +20,11 @@ public class StructurizeStylesMessage implements IMessage
 {
     private boolean             allowPlayerSchematics;
     private Map<String, String> md5Map;
+
+    /**
+     * Offthread schematic reading
+     */
+    private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     /**
      * Empty constructor used when registering the message.
@@ -77,8 +84,11 @@ public class StructurizeStylesMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        Structures.init();
-        Structures.setAllowPlayerSchematics(allowPlayerSchematics);
-        Structures.setMD5s(md5Map);
+        executor.submit(() ->
+        {
+            Structures.init();
+            Structures.setAllowPlayerSchematics(allowPlayerSchematics);
+            Structures.setMD5s(md5Map);
+        });
     }
 }

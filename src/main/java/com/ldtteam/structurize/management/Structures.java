@@ -24,8 +24,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,11 +100,6 @@ public final class Structures
     private static final Map<String, String> fileMap = new ConcurrentHashMap<>();
 
     /**
-     * Offthread schematic reading
-     */
-    private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-
-    /**
      * Whether or not the schematics list have changed.
      */
     private static boolean dirty = false;
@@ -129,7 +122,7 @@ public final class Structures
      */
     public static void init()
     {
-        executor.submit(() -> loadStyleMaps());
+        loadStyleMaps();
     }
 
     /**
