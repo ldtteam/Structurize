@@ -64,7 +64,7 @@ public class OptifineCompat
 
             if (!Structurize.getConfig().getClient().useOptifineCompatPatch.get())
             {
-                Log.getLogger().warn("Optifine found. COMPAT NOT ENABLED BECAUSE OF CONFIG SETTINGS. RENDERING CRASHES AROUND STRUCTURIZE SHOULD NOT BE CONSIRED VALID.");
+                Log.getLogger().warn("Optifine found. COMPAT PATCH NOT ENABLED BECAUSE OF CONFIG SETTINGS. RENDERING CRASHES AROUND STRUCTURIZE SHOULD NOT BE CONSIDERED VALID.");
                 enableOptifine = false;
                 return;
             }
