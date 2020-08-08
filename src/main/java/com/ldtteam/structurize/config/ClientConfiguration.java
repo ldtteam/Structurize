@@ -9,7 +9,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class ClientConfiguration extends AbstractConfiguration
 {
     /**
-     * Should the default schematics be ignored (from the jar)?
+     * Use Optifine Compat Patch. If false OptifineCompat will never initialize.
      */
     public final ForgeConfigSpec.BooleanValue useOptifineCompatPatch;
 
