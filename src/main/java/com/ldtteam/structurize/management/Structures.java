@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,8 +23,12 @@ import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static com.ldtteam.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
 import static com.ldtteam.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
 
@@ -66,7 +71,7 @@ public final class Structures
     /**
      * Hashmap of schematic pieces by UUID.
      */
-    private static final Map<UUID, Tuple<Long, Map<Integer, byte[]>>> schematicPieces = new HashMap<>();
+    private static final Map<UUID, Tuple<Long, Map<Integer, byte[]>>> schematicPieces = new ConcurrentHashMap<>();
 
     /**
      * Hut/Decoration, Styles, Levels.
@@ -77,7 +82,7 @@ public final class Structures
      * - scans/458764687564687654 => scans -> <none> -> 458764687564687654 , scan/458764687564687654
      */
     @NotNull
-    private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new HashMap<>();
+    private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new ConcurrentHashMap<>();
 
     /**
      * md5 hash for the schematics.
@@ -88,13 +93,18 @@ public final class Structures
      * cache/458764687564687654 => 458764687564687654
      */
     @NotNull
-    private static final Map<String, String> md5Map = new HashMap<>();
+    private static final Map<String, String> md5Map = new ConcurrentHashMap<>();
 
     /**
      * file extension for the schematics
      */
     @NotNull
-    private static final Map<String, String> fileMap = new HashMap<>();
+    private static final Map<String, String> fileMap = new ConcurrentHashMap<>();
+
+    /**
+     * Offthread schematic reading
+     */
+    private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     /**
      * Whether or not the schematics list have changed.
@@ -119,7 +129,7 @@ public final class Structures
      */
     public static void init()
     {
-        loadStyleMaps();
+        executor.submit(() -> loadStyleMaps());
     }
 
     /**
