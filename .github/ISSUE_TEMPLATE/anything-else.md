@@ -1,12 +1,3 @@
----
-name: Anything else? - If you have something that does not fit the above templates
-about: Please follow the given template
-title: ''
-labels: ''
-assignees: ''
-
----
-
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 

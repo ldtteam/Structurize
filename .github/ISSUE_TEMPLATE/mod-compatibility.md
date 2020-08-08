@@ -1,12 +1,3 @@
----
-name: Mod Compatibility - If Structurize does not work well with other mods
-about: Please follow the given template
-title: ''
-labels: 'Bug, Compatibility: Mod'
-assignees: ''
-
----
-
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 

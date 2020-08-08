@@ -1,12 +1,3 @@
----
-name: Optifine/Shaders Compatibility - If the structure preview has a problem with OptiFine/shaders
-about: Please follow the given template
-title: ''
-labels: 'Compatibility: Optifine / Shaders'
-assignees: ''
-
----
-
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 
