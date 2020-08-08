@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import java.util.List;
 import java.util.OptionalDouble;
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -22,7 +23,8 @@ import net.minecraft.util.math.Vec3d;
 public class RenderUtils
 {
     private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 8 * 8 * 16;
-    public static final RenderType LINES_GLINT = RenderTypes.LINES_GLINT;
+    public static final RenderType LINES_GLINT = OptifineCompat.getInstance().isShaders() ? RenderTypes.LINES_GLINT_OPTIFINE
+        : RenderTypes.LINES_GLINT;
 
     /**
      * Render a white box around two positions
@@ -182,6 +184,21 @@ public class RenderUtils
                 .layer(field_239235_M_)
                 .transparency(GLINT_TRANSPARENCY)
                 .target(OUTLINE_TARGET)
+                .writeMask(COLOR_WRITE)
+                .cull(CULL_DISABLED)
+                .depthTest(DEPTH_ALWAYS)
+                .fog(NO_FOG)
+                .build(false));
+
+        private static final RenderType LINES_GLINT_OPTIFINE = makeType("structurize_lines_glint",
+            DefaultVertexFormats.POSITION_COLOR,
+            1,
+            256,
+            RenderType.State.getBuilder()
+                .line(new RenderState.LineState(OptionalDouble.empty()))
+                .layer(field_239235_M_)
+                .transparency(GLINT_TRANSPARENCY)
+                .target(MAIN_TARGET)
                 .writeMask(COLOR_WRITE)
                 .cull(CULL_DISABLED)
                 .depthTest(DEPTH_ALWAYS)

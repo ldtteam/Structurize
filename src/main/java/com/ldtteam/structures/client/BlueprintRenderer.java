@@ -15,20 +15,21 @@ import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.Blocks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeBuffers;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -189,7 +190,9 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.getCutout(), rawPosMatrix);
 
-        OptifineCompat.getInstance().endTerrainBeginEntities();
+        OptifineCompat.getInstance().endTerrain();
+        RenderHelper.setupLevelDiffuseLighting(rawPosMatrix);
+        OptifineCompat.getInstance().beginEntities();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_entities");
         final IRenderTypeBuffer.Impl renderBufferSource = ClientEventSubscriber.renderBuffers.getBufferSource();
@@ -251,6 +254,9 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getSignType());
         renderBufferSource.finish(Atlases.getChestType());
         ClientEventSubscriber.renderBuffers.getOutlineBufferSource().finish(); // not used now
+
+        OptifineCompat.getInstance().endBlockEntities();
+
         renderBufferSource.finish(Atlases.getTranslucentBlockType());
         renderBufferSource.finish(Atlases.getBannerType());
         renderBufferSource.finish(Atlases.getShieldType());
@@ -261,7 +267,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.getLines());
         renderBufferSource.finish();
 
-        OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
+        OptifineCompat.getInstance().preWaterBeginWater();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
@@ -269,6 +275,10 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endWater();
 
         matrixStack.pop();
+        RenderSystem.shadeModel(7424);
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+        FogRenderer.resetFog();
         Minecraft.getInstance().getProfiler().endSection();
     }
 

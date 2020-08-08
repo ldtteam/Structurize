@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.optifine;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderType;
@@ -60,6 +61,13 @@ public class OptifineCompat
         try
         {
             setupReflectedMethodReferences();
+
+            if (!Structurize.getConfig().getClient().useOptifineCompatPatch.get())
+            {
+                Log.getLogger().warn("Optifine found. COMPAT NOT ENABLED BECAUSE OF CONFIG SETTINGS. RENDERING CRASHES AROUND STRUCTURIZE SHOULD NOT BE CONSIRED VALID.");
+                enableOptifine = false;
+                return;
+            }
 
             Log.getLogger().info("Optifine found. Enabling compat.");
             enableOptifine = true;
@@ -209,10 +217,16 @@ public class OptifineCompat
         });
     }
 
-    public void endTerrainBeginEntities()
+    public void endTerrain()
     {
         tryRunIfShadersEnabled(() -> {
             endTerrainMethod.invoke(null);
+        });
+    }
+
+    public void beginEntities()
+    {
+        tryRunIfShadersEnabled(() -> {
             beginEntitiesMethod.invoke(null);
         });
     }
@@ -239,10 +253,16 @@ public class OptifineCompat
         });
     }
 
-    public void endBlockEntitiesPreWaterBeginWater()
+    public void endBlockEntities()
     {
         tryRunIfShadersEnabled(() -> {
             endBlockEntitiesMethod.invoke(null);
+        });
+    }
+
+    public void preWaterBeginWater()
+    {
+        tryRunIfShadersEnabled(() -> {
             preWaterMethod.invoke(null);
             beginWaterMethod.invoke(null);
         });
@@ -265,6 +285,12 @@ public class OptifineCompat
             isShadowPassField.set(null, currentShadowPassFieldValue);
             isRenderingWorldField.set(null, currentIsRenderingWorldFieldValue);
         });
+    }
+
+    public boolean isShaders()
+    {
+        boolean isShaders = tryRun(() -> (Boolean) isShadersEnabledMethod.invoke(null), false);
+        return isShaders;
     }
 
     /**
@@ -326,6 +352,26 @@ public class OptifineCompat
         }
     }
 
+    private <T> T tryRun(final ReflectionSupplier<T> code, final T defaultValue)
+    {
+        if (!enableOptifine)
+        {
+            return defaultValue;
+        }
+
+        try
+        {
+            return code.run();
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            Log.getLogger().error("Failed to access Optifine related rendering things.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
+            enableOptifine = false;
+        }
+        return defaultValue;
+    }
+
     @FunctionalInterface
     private interface ReflectionRunnable
     {
@@ -334,5 +380,15 @@ public class OptifineCompat
          * @see Runnable#run()
          */
         void run() throws ReflectiveOperationException;
+    }
+
+    @FunctionalInterface
+    private interface ReflectionSupplier<T>
+    {
+        /**
+         * @throws ReflectiveOperationException if any reflection operation failed for any reason
+         * @see Runnable#run()
+         */
+        T run() throws ReflectiveOperationException;
     }
 }
