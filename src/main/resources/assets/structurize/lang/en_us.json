@@ -1148,5 +1148,8 @@
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
   "com.structurize.gui.buildtool.tip": "ESC to leave GUI to inspect the preview.",
-  "com.structurize.gui.buildtool.leave.tip": "Right-click the Build Tool to adjust the position of the schematic."
+  "com.structurize.gui.buildtool.leave.tip": "Right-click the Build Tool to adjust the position of the schematic.",
+  "structurize.config.useoptifinecompatpatch": "Use Optifine Compat Patch",
+  "structurize.config.useoptifinecompatpatch.comment": "Disabling this is not secure and definitely not recommended. You may try to disable this if shaders don't work correctly with previews. Rendering bugs reported with this config disabled might be marked as invalid.",
+  "structurize.config.optifine.comment": "Optifine Related Settings"
 }
