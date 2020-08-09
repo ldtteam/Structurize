@@ -1,3 +1,12 @@
+---	
+name: Bug Report - If you have a reproducible in-game issue	
+about: Please follow the given template	
+title: ''	
+labels: Bug	
+assignees: Nightenom	
+
+---	
+
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 
