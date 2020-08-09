@@ -1,20 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Bug Report - If you have a reproducible in-game issue
+  - name: Minecolonies Bug Tracker
     about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=Nightenom&labels=Bug&template=bug-report.md&title=
-  - name: Optifine/Shaders Compatibility - If the structure preview has a problem with OptiFine/shaders
+    url: https://github.com/ldtteam/minecolonies/issues/new/choose
+  - name: Minecolonies Feature/Change Tracker
     about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=Nightenom&labels=Compatibility%3A%20Optifine%20%2F%20Shaders&template=optifine-shaders-compatibility.md&title=
-  - name: Feature Request - If you have something new you would like to add
-    about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=&labels=Feature%3A%20Request&template=feature-request.md&title=
-  - name: Enhancement or Change Request - If you have something you would like to change or make better
-    about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=&labels=Enhancement%20%2F%20Change%20Request&template=enhancement-or-change-request.md&title=
-  - name: Mod Compatibility - If Structurize does not work well with other mods
-    about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=&labels=Compatibility%3A%20Mod&template=mod-compatibility.md&title=
-  - name: Anything else? - If you have something that does not fit the above templates
-    about: Please follow the given template
-    url: https://github.com/ldtteam/structurize/issues/new?assignees=&labels=&template=anything-else.md&title=
+    url: https://github.com/ldtteam/minecolonies-features/issues/new/choose

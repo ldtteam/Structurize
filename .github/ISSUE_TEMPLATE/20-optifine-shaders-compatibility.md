@@ -1,25 +1,29 @@
+---	
+name: Optifine/Shaders Compatibility - If the structure preview has a problem with OptiFine/shaders	
+about: Please follow the given template	
+title: ''	
+labels: 'Compatibility: Optifine / Shaders'	
+assignees: ''	
+
+---
+
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 
 - [ ] I am running the latest **alpha** version of Structurize for my Minecraft version.
-- [ ] I checked the MineColonies/Structurize [wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my issue is not covered there.
-- [ ] I made sure that **this issue is not a duplicate of any existing issue.**
+- [ ] I am running the latest version of OptiFine for my Minecraft version.
+- [ ] I am running the latest version of this shader for my Minecraft and OptiFine version.
+- [ ] I made sure that **this OptiFine issue is not a duplicate of any existing OptiFine issue.**
 
-### Context <!-- Exact Structurize and MineColonies (if related) versions (e.g. 0.9.126-ALPHA or 0.9.2-RELEASE) *and* the Minecraft version you're playing, please.-->
+### Context <!-- Exact version, eg: 0.9.126-ALPHA or 0.9.2-RELEASE, please don't just give the Minecraft version you're playing.-->
 
 - Minecraft Version:
 - Structurize Version:
-- MineColonies Version (if related bug):
-- Related Mods and their Versions:
+- OptiFine Version:
+- Shaders and their Versions:
 
-## Expected behavior
-<!-- What would you expect to see if this feature was working as intended? -->
-
-## Actual behavior
-<!-- What actually happens when this feature is used in its current state?
-Try to give as much detail as possible here to help us properly understand the issue. -->
-
-<!-- If you have any videos or images relating to the issue, please post them here as well. -->
+## Actual behavior and **screenshots**
+<!-- Please provide screenshots as it really helps us to find the root cause. -->
 
 ## Steps to reproduce the issue
 
@@ -43,5 +47,5 @@ Try to give as much detail as possible here to help us properly understand the i
 ---
 ## Viewers
 
-* Add a thumbs-up to the bug report if you are also affected. This helps the bug report become more visible to the team and doesn't clutter the comments.
+* Add a thumbs-up to this OptiFine issue if you are also affected. This helps the issue become more visible to the team and doesn't clutter the comments.
 * Add a comment if you have any insights or background information that isn't already part of the conversation.

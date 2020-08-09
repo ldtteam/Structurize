@@ -1,3 +1,12 @@
+---	
+name: Feature Request - If you have something new you would like to add	
+about: Please follow the given template	
+title: ''	
+labels: 'Feature: Request'	
+assignees: ''	
+
+---	
+
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 
