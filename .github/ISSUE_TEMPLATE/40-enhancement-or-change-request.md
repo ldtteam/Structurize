@@ -1,3 +1,12 @@
+---	
+name: Enhancement or Change Request - If you have something you would like to change or make better	
+about: Please follow the given template	
+title: ''	
+labels: Enhancement / Change Request	
+assignees: ''	
+
+---	
+
 <!-- PLEASE DO NOT DELETE TOPICS AS YOUR ISSUE WILL GET CLOSED -->
 ### Prerequisites <!-- Replace spaces with "x" to tick boxes. -->
 
