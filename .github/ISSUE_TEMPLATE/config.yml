@@ -2,6 +2,5 @@ blank_issues_enabled: false
 contact_links:
   - name: Minecolonies Bug Tracker
     url: https://github.com/ldtteam/minecolonies/issues/new/choose
-contact_links:
   - name: Minecolonies Feature/Change Tracker
     url: https://github.com/ldtteam/minecolonies-features/issues/new/choose
