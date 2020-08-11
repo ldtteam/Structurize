@@ -711,6 +711,12 @@ public class Blueprint
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
         {
+            // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
+            if (type.get().equals(EntityType.IRON_GOLEM) && world.isRemote)
+            {
+                return null;
+            }
+
             final Entity finalEntity = type.get().create(world);
             if (finalEntity != null)
             {

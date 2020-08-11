@@ -147,6 +147,12 @@ public final class BlueprintUtils
             final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
             if (type.isPresent())
             {
+                // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
+                if (type.get().equals(EntityType.IRON_GOLEM) && blockAccess.isRemote)
+                {
+                    return null;
+                }
+    
                 final Entity entity = type.get().create(blockAccess);
                 if (entity != null)
                 {
