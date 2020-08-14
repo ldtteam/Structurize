@@ -44,7 +44,7 @@ public class Structurize
 
         if (DataVersion.CURRENT == DataVersion.UPCOMING)
         {
-            throw new RuntimeException("Missing some newest data versions. Please update api/util/constant/DataVersion");
+            throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
         }
     }
 
