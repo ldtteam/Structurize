@@ -16,15 +16,10 @@ public class UndoMessage implements IMessage
      */
     public UndoMessage()
     {
-        super();
     }
 
-    @Override
-    public void fromBytes(final PacketBuffer buf)
+    public UndoMessage(final PacketBuffer buf)
     {
-        /*
-         * Nothing needed.
-         */
     }
 
     @Override

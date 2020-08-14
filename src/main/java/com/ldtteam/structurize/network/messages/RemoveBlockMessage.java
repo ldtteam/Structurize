@@ -18,24 +18,26 @@ public class RemoveBlockMessage implements IMessage
     /**
      * Position to scan from.
      */
-    private BlockPos from;
+    private final BlockPos from;
 
     /**
      * Position to scan to.
      */
-    private BlockPos to;
+    private final BlockPos to;
 
     /**
      * The block to remove from the world.
      */
-    private ItemStack block;
+    private final ItemStack block;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public RemoveBlockMessage()
+    public RemoveBlockMessage(final PacketBuffer buf)
     {
-        super();
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
+        this.block = buf.readItemStack();
     }
 
     /**
@@ -46,18 +48,9 @@ public class RemoveBlockMessage implements IMessage
      */
     public RemoveBlockMessage(@NotNull final BlockPos pos1, @NotNull final BlockPos pos2, @NotNull final ItemStack stack)
     {
-        super();
         this.from = pos1;
         this.to = pos2;
         this.block = stack;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        from = buf.readBlockPos();
-        to = buf.readBlockPos();
-        block = buf.readItemStack();
     }
 
     @Override

@@ -19,19 +19,20 @@ public class UpdatePlaceholderBlockMessage implements IMessage
     /**
      * Position of the TE.
      */
-    private BlockPos pos;
+    private final BlockPos pos;
 
     /**
      * The block to set.
      */
-    private ItemStack block;
+    private final ItemStack block;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public UpdatePlaceholderBlockMessage()
+    public UpdatePlaceholderBlockMessage(final PacketBuffer buf)
     {
-        super();
+        this.pos = buf.readBlockPos();
+        this.block = buf.readItemStack();
     }
 
     /**
@@ -41,16 +42,8 @@ public class UpdatePlaceholderBlockMessage implements IMessage
      */
     public UpdatePlaceholderBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack, final List<String> tagStringList)
     {
-        super();
         this.pos = pos;
         this.block = stack;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        pos = buf.readBlockPos();
-        block = buf.readItemStack();
     }
 
     @Override

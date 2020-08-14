@@ -19,34 +19,38 @@ public class MultiBlockChangeMessage implements IMessage
     /**
      * The direction it should push or pull rom.
      */
-    private Direction direction;
+    private final Direction direction;
 
     /**
      * The direction it should push or pull rom.
      */
-    private Direction output;
+    private final Direction output;
 
     /**
      * The range it should pull to.
      */
-    private int range;
+    private final int range;
 
     /**
      * The speed it should have.
      */
-    private int speed;
+    private final int speed;
 
     /**
      * The position of the tileEntity.
      */
-    private BlockPos pos;
+    private final BlockPos pos;
 
     /**
      * Empty public constructor.
      */
-    public MultiBlockChangeMessage()
+    public MultiBlockChangeMessage(final PacketBuffer buf)
     {
-        super();
+        this.pos = buf.readBlockPos();
+        this.direction = Direction.values()[buf.readInt()];
+        this.output = Direction.values()[buf.readInt()];
+        this.range = buf.readInt();
+        this.speed = buf.readInt();
     }
 
     /**
@@ -59,7 +63,6 @@ public class MultiBlockChangeMessage implements IMessage
      */
     public MultiBlockChangeMessage(final BlockPos pos, final Direction facing, final Direction output, final int range, final int speed)
     {
-        super();
         this.pos = pos;
         this.direction = facing;
         this.range = range;
@@ -75,16 +78,6 @@ public class MultiBlockChangeMessage implements IMessage
         buf.writeInt(output.ordinal());
         buf.writeInt(range);
         buf.writeInt(speed);
-    }
-
-    @Override
-    public void fromBytes(final PacketBuffer buf)
-    {
-        pos = buf.readBlockPos();
-        direction = Direction.values()[buf.readInt()];
-        output = Direction.values()[buf.readInt()];
-        range = buf.readInt();
-        speed = buf.readInt();
     }
 
     @Nullable

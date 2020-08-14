@@ -28,9 +28,23 @@ public class SaveScanMessage implements IMessage
     /**
      * Public standard constructor.
      */
-    public SaveScanMessage()
+    public SaveScanMessage(final PacketBuffer buf)
     {
-        super();
+        final PacketBuffer buffer = new PacketBuffer(buf);
+        try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
+        {
+            final CompoundNBT wrapperCompound = CompressedStreamTools.readCompressed(stream);
+            this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
+            this.fileName = wrapperCompound.getString(TAG_MILLIS);
+        }
+        catch (final RuntimeException e)
+        {
+            Log.getLogger().info("Structure too big to be processed", e);
+        }
+        catch (final IOException e)
+        {
+            Log.getLogger().info("Problem at retrieving structure on server.", e);
+        }
     }
 
     /**
@@ -43,26 +57,6 @@ public class SaveScanMessage implements IMessage
     {
         this.fileName = fileName;
         this.compoundNBT = CompoundNBT;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        final PacketBuffer buffer = new PacketBuffer(buf);
-        try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
-        {
-            final CompoundNBT wrapperCompound = CompressedStreamTools.readCompressed(stream);
-            compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
-            fileName = wrapperCompound.getString(TAG_MILLIS);
-        }
-        catch (final RuntimeException e)
-        {
-            Log.getLogger().info("Structure too big to be processed", e);
-        }
-        catch (final IOException e)
-        {
-            Log.getLogger().info("Problem at retrieving structure on server.", e);
-        }
     }
 
     @Override

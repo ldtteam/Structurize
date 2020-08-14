@@ -19,20 +19,26 @@ import org.jetbrains.annotations.Nullable;
  */
 public class BuildToolPasteMessage implements IMessage
 {
-    private boolean complete;
-    private String                   structureName;
-    private String                   workOrderName;
-    private int                      rotation;
-    private BlockPos                 pos;
-    private boolean                  isHut;
-    private boolean                  mirror;
+    private final boolean complete;
+    private final String structureName;
+    private final String workOrderName;
+    private final int rotation;
+    private final BlockPos pos;
+    private final boolean isHut;
+    private final boolean mirror;
 
     /**
      * Empty constructor used when registering the 
      */
-    public BuildToolPasteMessage()
+    public BuildToolPasteMessage(final PacketBuffer buf)
     {
-        super();
+        this.structureName = buf.readString(32767);
+        this.workOrderName = buf.readString(32767);
+        this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+        this.rotation = buf.readInt();
+        this.isHut = buf.readBoolean();
+        this.mirror = buf.readBoolean();
+        this.complete = buf.readBoolean();
     }
 
     /**
@@ -52,7 +58,6 @@ public class BuildToolPasteMessage implements IMessage
       final Rotation rotation, final boolean isHut,
       final Mirror mirror, final boolean complete)
     {
-        super();
         this.structureName = structureName;
         this.workOrderName = workOrderName;
         this.pos = pos;
@@ -60,28 +65,6 @@ public class BuildToolPasteMessage implements IMessage
         this.isHut = isHut;
         this.mirror = mirror == Mirror.FRONT_BACK;
         this.complete = complete;
-    }
-
-    /**
-     * Reads this packet from a {@link ByteBuf}.
-     *
-     * @param buf The buffer begin read from.
-     */
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        structureName = buf.readString(32767);
-        workOrderName = buf.readString(32767);
-
-        pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
-
-        rotation = buf.readInt();
-
-        isHut = buf.readBoolean();
-
-        mirror = buf.readBoolean();
-
-        complete = buf.readBoolean();
     }
 
     /**

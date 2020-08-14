@@ -22,24 +22,26 @@ public class RemoveEntityMessage implements IMessage
     /**
      * Position to scan from.
      */
-    private BlockPos from;
+    private final BlockPos from;
 
     /**
      * Position to scan to.
      */
-    private BlockPos to;
+    private final BlockPos to;
 
     /**
      * The entity to remove from the world.
      */
-    private String entityName;
+    private final String entityName;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public RemoveEntityMessage()
+    public RemoveEntityMessage(final PacketBuffer buf)
     {
-        super();
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
+        this.entityName = buf.readString(32767);
     }
 
     /**
@@ -50,18 +52,9 @@ public class RemoveEntityMessage implements IMessage
      */
     public RemoveEntityMessage(@NotNull final BlockPos pos1, @NotNull final BlockPos pos2, @NotNull final String entityName)
     {
-        super();
         this.from = pos1;
         this.to = pos2;
         this.entityName = entityName;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        from = buf.readBlockPos();
-        to = buf.readBlockPos();
-        entityName = buf.readString(32767);
     }
 
     @Override

@@ -18,57 +18,47 @@ public class ScanOnServerMessage implements IMessage
     /**
      * Position to scan from.
      */
-    private BlockPos from;
+    private final BlockPos from;
 
     /**
      * Position to scan to.
      */
-    private BlockPos to;
+    private final BlockPos to;
 
     /**
      * The Anchor Pos.
      */
-    private Optional<BlockPos> anchorPos = Optional.empty();
+    private final Optional<BlockPos> anchorPos;
 
     /**
      * Name of the file.
      */
-    private String name;
+    private final String name;
 
     /**
      * Whether to scan entities
      */
-    private boolean saveEntities = true;
+    private final boolean saveEntities;
 
     /**
      * Empty public constructor.
      */
-    public ScanOnServerMessage()
+    public ScanOnServerMessage(final PacketBuffer buf)
     {
-        super();
+        this.name = buf.readString(32767);
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
+        this.saveEntities = buf.readBoolean();
+        this.anchorPos = buf.readBoolean() ? Optional.of(buf.readBlockPos()) : Optional.empty();
     }
 
     public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities, final Optional<BlockPos> anchorPos)
     {
-        super();
         this.from = from;
         this.to = to;
         this.name = name;
         this.saveEntities = saveEntities;
         this.anchorPos = anchorPos;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        name = buf.readString(32767);
-        from = buf.readBlockPos();
-        to = buf.readBlockPos();
-        saveEntities = buf.readBoolean();
-        if (buf.readBoolean())
-        {
-            this.anchorPos = Optional.of(buf.readBlockPos());
-        }
     }
 
     @Override

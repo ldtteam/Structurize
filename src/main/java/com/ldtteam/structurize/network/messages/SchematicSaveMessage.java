@@ -22,29 +22,35 @@ public class SchematicSaveMessage implements IMessage
     /**
      * The schematic data.
      */
-    private byte[] data = null;
+    private final byte[] data;
 
     /**
      * The amount of pieces.
      */
-    private int pieces;
+    private final int pieces;
 
     /**
      * The current piece.
      */
-    private int piece;
+    private final int piece;
 
     /**
      * The UUID.
      */
-    private UUID id;
+    private final UUID id;
 
     /**
      * Public standard constructor.
      */
-    public SchematicSaveMessage()
+    public SchematicSaveMessage(final PacketBuffer buf)
     {
-        super();
+        final int length = buf.readInt();
+        final byte[] compressedData = new byte[length];
+        buf.readBytes(compressedData);
+        this.data = StructureUtils.uncompress(compressedData);
+        this.pieces = buf.readInt();
+        this.piece = buf.readInt();
+        this.id = buf.readUniqueId();
     }
 
     /**
@@ -62,23 +68,10 @@ public class SchematicSaveMessage implements IMessage
      */
     public SchematicSaveMessage(final byte[] data, final UUID id, final int pieces, final int piece)
     {
-        super();
         this.data = data.clone();
         this.id = id;
         this.pieces = pieces;
         this.piece = piece;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        final int length = buf.readInt();
-        final byte[] compressedData = new byte[length];
-        buf.readBytes(compressedData);
-        data = StructureUtils.uncompress(compressedData);
-        pieces = buf.readInt();
-        piece = buf.readInt();
-        id = buf.readUniqueId();
     }
 
     @Override

@@ -1,16 +1,35 @@
 package com.ldtteam.structurize.network;
 
+import java.util.function.Function;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
+import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
+import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
+import com.ldtteam.structurize.network.messages.IMessage;
+import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
+import com.ldtteam.structurize.network.messages.MultiBlockChangeMessage;
+import com.ldtteam.structurize.network.messages.RemoveBlockMessage;
+import com.ldtteam.structurize.network.messages.RemoveEntityMessage;
+import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
+import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.network.messages.ScanOnServerMessage;
+import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
+import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
+import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
+import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
+import com.ldtteam.structurize.network.messages.UndoMessage;
+import com.ldtteam.structurize.network.messages.UpdatePlaceholderBlockMessage;
+import com.ldtteam.structurize.network.messages.UpdateScanToolMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
@@ -43,23 +62,23 @@ public class NetworkChannel
     public void registerCommonMessages()
     {
         int idx = 0;
-        registerMessage(++idx, MultiBlockChangeMessage.class);
-        registerMessage(++idx, BuildToolPasteMessage.class);
-        registerMessage(++idx, GenerateAndPasteMessage.class);
-        registerMessage(++idx, LSStructureDisplayerMessage.class);
-        registerMessage(++idx, RemoveBlockMessage.class);
-        registerMessage(++idx, RemoveEntityMessage.class);
-        registerMessage(++idx, SaveScanMessage.class);
-        registerMessage(++idx, ReplaceBlockMessage.class);
-        registerMessage(++idx, ScanOnServerMessage.class);
-        registerMessage(++idx, SchematicRequestMessage.class);
-        registerMessage(++idx, SchematicSaveMessage.class);
-        registerMessage(++idx, ServerUUIDMessage.class);
-        registerMessage(++idx, StructurizeStylesMessage.class);
-        registerMessage(++idx, UndoMessage.class);
-        registerMessage(++idx, UpdateScanToolMessage.class);
-        registerMessage(++idx, UpdatePlaceholderBlockMessage.class);
-        registerMessage(++idx, AddRemoveTagMessage.class);
+        registerMessage(++idx, MultiBlockChangeMessage.class, MultiBlockChangeMessage::new);
+        registerMessage(++idx, BuildToolPasteMessage.class, BuildToolPasteMessage::new);
+        registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
+        registerMessage(++idx, LSStructureDisplayerMessage.class, LSStructureDisplayerMessage::new);
+        registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
+        registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
+        registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
+        registerMessage(++idx, ReplaceBlockMessage.class, ReplaceBlockMessage::new);
+        registerMessage(++idx, ScanOnServerMessage.class, ScanOnServerMessage::new);
+        registerMessage(++idx, SchematicRequestMessage.class, SchematicRequestMessage::new);
+        registerMessage(++idx, SchematicSaveMessage.class, SchematicSaveMessage::new);
+        registerMessage(++idx, ServerUUIDMessage.class, ServerUUIDMessage::new);
+        registerMessage(++idx, StructurizeStylesMessage.class, StructurizeStylesMessage::new);
+        registerMessage(++idx, UndoMessage.class, UndoMessage::new);
+        registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
+        registerMessage(++idx, UpdatePlaceholderBlockMessage.class, UpdatePlaceholderBlockMessage::new);
+        registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
     }
 
     /**
@@ -69,21 +88,9 @@ public class NetworkChannel
      * @param id       network id
      * @param msgClazz message class
      */
-    private <MSG extends IMessage> void registerMessage(final int id, final Class<MSG> msgClazz)
+    private <MSG extends IMessage> void registerMessage(final int id, final Class<MSG> msgClazz, final Function<PacketBuffer, MSG> initializer)
     {
-        rawChannel.registerMessage(id, msgClazz, (msg, buf) -> msg.toBytes(buf), (buf) -> {
-            try
-            {
-                final MSG msg = msgClazz.newInstance();
-                msg.fromBytes(buf);
-                return msg;
-            }
-            catch (final InstantiationException | IllegalAccessException e)
-            {
-                e.printStackTrace();
-            }
-            return null;
-        }, (msg, ctxIn) -> {
+        rawChannel.registerMessage(id, msgClazz, IMessage::toBytes, initializer, (msg, ctxIn) -> {
             final Context ctx = ctxIn.get();
             final LogicalSide packetOrigin = ctx.getDirection().getOriginationSide();
             ctx.setPacketHandled(true);

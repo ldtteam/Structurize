@@ -14,20 +14,19 @@ import java.util.UUID;
  */
 public class ServerUUIDMessage implements IMessage
 {
-    private UUID serverUUID;
+    private final UUID serverUUID;
 
     /**
      * Empty constructor used when registering the message.
      */
     public ServerUUIDMessage()
     {
-        super();
+        this.serverUUID = Manager.getServerUUID();
     }
 
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
+    public ServerUUIDMessage(final PacketBuffer buf)
     {
-        serverUUID = buf.readUniqueId();
+        this.serverUUID = buf.readUniqueId();
     }
 
     @Override

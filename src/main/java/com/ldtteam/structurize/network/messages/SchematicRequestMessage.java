@@ -20,15 +20,14 @@ import java.util.UUID;
  */
 public class SchematicRequestMessage implements IMessage
 {
-
-    private String filename;
+    private final String filename;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public SchematicRequestMessage()
+    public SchematicRequestMessage(final PacketBuffer buf)
     {
-        super();
+        this.filename = buf.readString(32767);
     }
 
     /**
@@ -39,14 +38,7 @@ public class SchematicRequestMessage implements IMessage
      */
     public SchematicRequestMessage(final String filename)
     {
-        super();
         this.filename = filename;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        filename = buf.readString(32767);
     }
 
     @Override
