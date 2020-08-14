@@ -55,7 +55,7 @@ public class TimberFramesTagsProvider implements IDataProvider
             {
 
                 final List<String> woods = new ArrayList<>();
-                Arrays.stream(timberFrameFrame.values())
+                Arrays.stream(TimberFrameFrameType.values())
                   .forEach(subName -> woods.add("#structurize:timber_frames/" + timberFrameCenter.getName() + "/" + subName.getName()));
 
 

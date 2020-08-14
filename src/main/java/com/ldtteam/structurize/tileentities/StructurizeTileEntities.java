@@ -13,7 +13,7 @@ import net.minecraftforge.registries.ObjectHolder;
 public class StructurizeTileEntities
 {
     @ObjectHolder("multiblock")
-    public static TileEntityType<?> MULTIBLOCK;
+    public static TileEntityType<TileEntityMultiBlock> MULTIBLOCK;
 
     @ObjectHolder("placeholderblock")
     public static TileEntityType<TileEntityPlaceholder> PLACERHOLDER_BLOCK;
@@ -22,10 +22,12 @@ public class StructurizeTileEntities
     public static void registerTileEntity(final RegistryEvent.Register<TileEntityType<?>> event)
     {
         MULTIBLOCK = TileEntityType.Builder.create(TileEntityMultiBlock::new,
-          ModBlocks.multiBlock).build(null).setRegistryName(Constants.MOD_ID, "multiblock");
+          ModBlocks.multiBlock).build(null);
+        MULTIBLOCK.setRegistryName(Constants.MOD_ID, "multiblock");
 
-        PLACERHOLDER_BLOCK = (TileEntityType<TileEntityPlaceholder>) TileEntityType.Builder.create(TileEntityPlaceholder::new,
-          ModBlocks.placeholderBlock).build(null).setRegistryName(Constants.MOD_ID, "placeholderblock");
+        PLACERHOLDER_BLOCK = TileEntityType.Builder.create(TileEntityPlaceholder::new,
+          ModBlocks.placeholderBlock).build(null);
+        PLACERHOLDER_BLOCK.setRegistryName(Constants.MOD_ID, "placeholderblock");
 
         event.getRegistry().registerAll(MULTIBLOCK, PLACERHOLDER_BLOCK);
     }
