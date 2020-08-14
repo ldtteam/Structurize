@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.LogicalSide;
@@ -16,7 +15,6 @@ import java.util.Map;
  */
 public class StructurizeStylesMessage implements IMessage
 {
-    private boolean             allowPlayerSchematics;
     private Map<String, String> md5Map;
 
     /**
@@ -30,7 +28,6 @@ public class StructurizeStylesMessage implements IMessage
     @Override
     public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        allowPlayerSchematics = buf.readBoolean();
         md5Map = readMD5MapFromByteBuf(buf);
     }
 
@@ -52,7 +49,6 @@ public class StructurizeStylesMessage implements IMessage
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeBoolean(Structurize.getConfig().getCommon().allowPlayerSchematics.get());
         writeMD5MapToByteBuf(buf);
     }
 
@@ -78,7 +74,6 @@ public class StructurizeStylesMessage implements IMessage
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
         Structures.init();
-        Structures.setAllowPlayerSchematics(allowPlayerSchematics);
         Structures.setMD5s(md5Map);
     }
 }

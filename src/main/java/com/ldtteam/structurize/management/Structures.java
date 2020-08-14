@@ -140,7 +140,7 @@ public final class Structures
     @SuppressWarnings(EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS)
     private static void loadStyleMaps()
     {
-        if (!Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
+        if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
         {
             loadStyleMapsJar();
         }
@@ -855,12 +855,12 @@ public final class Structures
         {
             return true;
         }
-        if (!Structurize.getConfig().getCommon().allowPlayerSchematics.get())
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
             return false;
         }
 
-        final int maxCachedSchematics = Structurize.getConfig().getCommon().maxCachedSchematics.get();
+        final int maxCachedSchematics = Structurize.getConfig().getServer().maxCachedSchematics.get();
 
         final Set<String> md5Set = getCachedMD5s();
         if (md5Set.size() < maxCachedSchematics)

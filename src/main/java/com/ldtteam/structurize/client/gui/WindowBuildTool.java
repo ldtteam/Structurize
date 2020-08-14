@@ -8,6 +8,7 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
@@ -870,7 +871,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public void requestAndPlaceScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
     {
-        if (!Structures.isPlayerSchematicsAllowed())
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
             return;
         }
@@ -960,7 +961,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public static void requestScannedSchematic(@NotNull final StructureName structureName)
     {
-        if (!Structures.isPlayerSchematicsAllowed())
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
             return;
         }

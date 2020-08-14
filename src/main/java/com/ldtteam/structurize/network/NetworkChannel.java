@@ -19,7 +19,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
  */
 public class NetworkChannel
 {
-    private static final String LATEST_PROTO_VER = "1.0";
+    private static final String LATEST_PROTO_VER = "1.1";
     private static final String ACCEPTED_PROTO_VERS = LATEST_PROTO_VER;
     /**
      * Forge network channel

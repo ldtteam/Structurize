@@ -111,7 +111,7 @@ public class SchematicSaveMessage implements IMessage
             final PlayerEntity sender = ctxIn.getSender();
             final UUID senderUuid = sender.getUniqueID();
 
-            if (!Structurize.getConfig().getCommon().allowPlayerSchematics.get())
+            if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
             {
                 Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
                 sender.sendMessage(new StringTextComponent("The server does not allow custom schematic!"), senderUuid);

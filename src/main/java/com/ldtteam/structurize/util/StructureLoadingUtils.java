@@ -182,7 +182,7 @@ public final class StructureLoadingUtils
         {
             //Look in the folder first
             inputstream = StructureLoadingUtils.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
-            if (inputstream == null && !Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
+            if (inputstream == null && !Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
             {
                 for (final InputStream stream : StructureLoadingUtils.getStreamsFromJar(structureName))
                 {
