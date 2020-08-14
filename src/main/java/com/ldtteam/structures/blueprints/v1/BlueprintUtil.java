@@ -30,7 +30,7 @@ import java.util.function.Function;
  */
 public class BlueprintUtil
 {
-    private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataFixerUtils.Versions.v1_12_2.getDataVersion();
+    private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataVersion.v1_12_2.getDataVersion();
 
     private static final String NBT_OPTIONAL_DATA_TAG = "optional_data";
 
