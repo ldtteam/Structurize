@@ -1,5 +1,6 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structures.blueprints.v1.DataVersion;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
@@ -40,6 +41,11 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
+
+        if (DataVersion.CURRENT == DataVersion.UPCOMING)
+        {
+            throw new RuntimeException("Missing some newest data versions. Please update api/util/constant/DataVersion");
+        }
     }
 
     /**

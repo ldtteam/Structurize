@@ -102,11 +102,6 @@ public final class Structures
     private static boolean dirty = false;
 
     /**
-     * Wether or not the server allow player Schematics.
-     */
-    private static boolean allowPlayerSchematics = false;
-
-    /**
      * Private constructor so Structures objects can't be made.
      */
     private Structures()
@@ -265,7 +260,7 @@ public final class Structures
     @OnlyIn(Dist.CLIENT)
     public static void loadScannedStyleMaps()
     {
-        if (!allowPlayerSchematics && ServerLifecycleHooks.getCurrentServer() == null)
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get() && ServerLifecycleHooks.getCurrentServer() == null)
         {
             return;
         }
@@ -430,21 +425,10 @@ public final class Structures
      *
      * @return True if the server accept schematics otherwise False
      */
-    @OnlyIn(Dist.CLIENT)
+    @Deprecated // use config reference
     public static boolean isPlayerSchematicsAllowed()
     {
-        return allowPlayerSchematics;
-    }
-
-    /**
-     * Set if the server allow player schematics
-     *
-     * @param allowed True if the server allow it otherwise False
-     */
-    @OnlyIn(Dist.CLIENT)
-    public static void setAllowPlayerSchematics(final boolean allowed)
-    {
-        allowPlayerSchematics = allowed;
+        return Structurize.getConfig().getServer().allowPlayerSchematics.get();
     }
 
     /**
