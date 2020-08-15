@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;

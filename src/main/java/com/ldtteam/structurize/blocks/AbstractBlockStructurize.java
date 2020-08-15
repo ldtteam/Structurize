@@ -20,6 +20,7 @@ public abstract class AbstractBlockStructurize<B extends AbstractBlockStructuriz
      * @return the block itself.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public B registerBlock(final IForgeRegistry<Block> registry)
     {
         registry.register(this);

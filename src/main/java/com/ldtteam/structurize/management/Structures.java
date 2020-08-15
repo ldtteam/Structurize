@@ -102,11 +102,6 @@ public final class Structures
     private static boolean dirty = false;
 
     /**
-     * Wether or not the server allow player Schematics.
-     */
-    private static boolean allowPlayerSchematics = false;
-
-    /**
      * Private constructor so Structures objects can't be made.
      */
     private Structures()
@@ -140,7 +135,7 @@ public final class Structures
     @SuppressWarnings(EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS)
     private static void loadStyleMaps()
     {
-        if (!Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
+        if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
         {
             loadStyleMapsJar();
         }
@@ -265,7 +260,7 @@ public final class Structures
     @OnlyIn(Dist.CLIENT)
     public static void loadScannedStyleMaps()
     {
-        if (!allowPlayerSchematics && ServerLifecycleHooks.getCurrentServer() == null)
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get() && ServerLifecycleHooks.getCurrentServer() == null)
         {
             return;
         }
@@ -430,21 +425,10 @@ public final class Structures
      *
      * @return True if the server accept schematics otherwise False
      */
-    @OnlyIn(Dist.CLIENT)
+    @Deprecated // use config reference
     public static boolean isPlayerSchematicsAllowed()
     {
-        return allowPlayerSchematics;
-    }
-
-    /**
-     * Set if the server allow player schematics
-     *
-     * @param allowed True if the server allow it otherwise False
-     */
-    @OnlyIn(Dist.CLIENT)
-    public static void setAllowPlayerSchematics(final boolean allowed)
-    {
-        allowPlayerSchematics = allowed;
+        return Structurize.getConfig().getServer().allowPlayerSchematics.get();
     }
 
     /**
@@ -855,12 +839,12 @@ public final class Structures
         {
             return true;
         }
-        if (!Structurize.getConfig().getCommon().allowPlayerSchematics.get())
+        if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
             return false;
         }
 
-        final int maxCachedSchematics = Structurize.getConfig().getCommon().maxCachedSchematics.get();
+        final int maxCachedSchematics = Structurize.getConfig().getServer().maxCachedSchematics.get();
 
         final Set<String> md5Set = getCachedMD5s();
         if (md5Set.size() < maxCachedSchematics)

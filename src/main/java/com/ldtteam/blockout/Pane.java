@@ -5,9 +5,12 @@ import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
 
+import net.minecraft.util.text.LanguageMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -42,8 +45,8 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
-    protected boolean isHovered = false;
-    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    protected boolean            isHovered    = false;
+    private List<ITextProperties> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -352,7 +355,7 @@ public class Pane extends AbstractGui
 
             if (isHovered && !toolTipLines.isEmpty())
             {
-                window.getScreen().renderTooltip(ms, toolTipLines, mx, my);
+                window.getScreen().renderTooltip(ms, LanguageMap.getInstance().func_244260_a(toolTipLines), mx, my);
             }
         }
     }
@@ -801,6 +804,18 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
+            return mc.fontRenderer.func_238407_a_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+        }
+        else
+        {
+            return mc.fontRenderer.func_238422_b_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+        }
+    }
+
+    protected int drawString(final MatrixStack ms, final IReorderingProcessor text, final float x, final float y, final int color, final boolean shadow)
+    {
+        if (shadow)
+        {
             return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
         }
         else
@@ -829,7 +844,7 @@ public class Pane extends AbstractGui
      *
      * @param lines the lines to display
      */
-    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
+    public void setHoverToolTip(final List<ITextProperties> lines)
     {
         this.toolTipLines = lines;
     }
@@ -839,7 +854,7 @@ public class Pane extends AbstractGui
      *
      * @return the lines to display
      */
-    public List<IFormattableTextComponent> getHoverToolTip()
+    public List<ITextProperties> getHoverToolTip()
     {
         return this.toolTipLines;
     }

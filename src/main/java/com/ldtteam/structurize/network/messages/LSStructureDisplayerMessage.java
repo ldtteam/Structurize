@@ -23,15 +23,25 @@ import java.util.UUID;
  */
 public class LSStructureDisplayerMessage implements IMessage
 {
-    private PacketBuffer settings;
-    private boolean show;
+    private final PacketBuffer settings;
+    private final boolean show;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public LSStructureDisplayerMessage()
+    public LSStructureDisplayerMessage(final PacketBuffer buf)
     {
-        super();
+        this.show = buf.readBoolean();
+        if (show)
+        {
+            final byte[] bytes = new byte[buf.readableBytes()];
+            buf.readBytes(bytes);
+            this.settings = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
+        }
+        else
+        {
+            this.settings = null;
+        }
     }
 
     /**
@@ -42,21 +52,8 @@ public class LSStructureDisplayerMessage implements IMessage
      */
     public LSStructureDisplayerMessage(@NotNull final PacketBuffer settings, @NotNull final boolean show)
     {
-        super();
         this.settings = settings;
         this.show = show;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        show = buf.readBoolean();
-        if (show)
-        {
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            settings = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
-        }
     }
 
     @Override
@@ -89,7 +86,7 @@ public class LSStructureDisplayerMessage implements IMessage
 
             final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
             targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
-            for(UUID target : targets)
+            for(final UUID target : targets)
             {
                 final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayerByUUID(target);
                 if(playerEntity != null)

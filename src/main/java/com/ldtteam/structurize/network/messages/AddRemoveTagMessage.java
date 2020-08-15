@@ -27,19 +27,22 @@ public class AddRemoveTagMessage implements IMessage
     /**
      * THe te's position
      */
-    private BlockPos anchorPos;
+    private final BlockPos anchorPos;
 
     /**
      * The tags blockpos
      */
-    private BlockPos tagPos;
+    private final BlockPos tagPos;
 
     /**
      * Empty constructor used when registering the
      */
-    public AddRemoveTagMessage()
+    public AddRemoveTagMessage(final PacketBuffer buf)
     {
-        super();
+        this.add = buf.readBoolean();
+        this.tag = buf.readString(32767);
+        this.anchorPos = buf.readBlockPos();
+        this.tagPos = buf.readBlockPos();
     }
 
     public AddRemoveTagMessage(final boolean add, final String tag, final BlockPos tagPos, final BlockPos anchorPos)
@@ -59,15 +62,6 @@ public class AddRemoveTagMessage implements IMessage
         buf.writeBlockPos(tagPos);
     }
 
-    @Override
-    public void fromBytes(final PacketBuffer buf)
-    {
-        add = buf.readBoolean();
-        tag = buf.readString(32767);
-        anchorPos = buf.readBlockPos();
-        tagPos = buf.readBlockPos();
-    }
-
     @Nullable
     @Override
     public LogicalSide getExecutionSide()
@@ -83,11 +77,11 @@ public class AddRemoveTagMessage implements IMessage
             return;
         }
 
-        TileEntity te = ctxIn.getSender().world.getTileEntity(anchorPos);
+        final TileEntity te = ctxIn.getSender().world.getTileEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
 
         {
-            IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
+            final IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
             if (add)
             {
                 dataTE.addTag(tagPos, tag);

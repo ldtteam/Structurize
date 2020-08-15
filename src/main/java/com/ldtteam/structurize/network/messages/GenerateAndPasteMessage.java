@@ -20,69 +20,80 @@ public class GenerateAndPasteMessage implements IMessage
     /**
      * If hollow or not.
      */
-    private boolean hollow;
+    private final boolean hollow;
 
     /**
      * The block to use for the schem.
      */
-    private ItemStack block;
+    private final ItemStack block;
 
     /**
      * The fill block to use for the schem.
      */
-    private ItemStack block2;
+    private final ItemStack block2;
 
     /**
      * The shape to get.
      */
-    private Shape shape;
+    private final Shape shape;
 
     /**
      * Position to scan from.
      */
-    private BlockPos pos;
+    private final BlockPos pos;
 
     /**
      * The length of the shape.
      */
-    private int length;
+    private final int length;
 
     /**
      * The width of the shape.
      */
-    private int width;
+    private final int width;
 
     /**
      * The height of the shape.
      */
-    private int height;
+    private final int height;
 
     /**
      * The frequency of a wave for example.
      */
-    private int frequency;
+    private final int frequency;
 
     /**
      * The equation of the random shape.
      */
-    private String equation;
+    private final String equation;
 
     /**
      * The rotation.
      */
-    private int rotation;
+    private final int rotation;
 
     /**
      * The mirror.
      */
-    private boolean mirror;
+    private final boolean mirror;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public GenerateAndPasteMessage()
+    public GenerateAndPasteMessage(final PacketBuffer buf)
     {
-        super();
+        this.pos = buf.readBlockPos();
+        this.length = buf.readInt();
+        this.width = buf.readInt();
+        this.height = buf.readInt();
+        this.frequency = buf.readInt();
+        this.shape = Shape.values()[buf.readInt()];
+        this.block = buf.readItemStack();
+        this.block2 = buf.readItemStack();
+        this.hollow = buf.readBoolean();
+        this.rotation = buf.readInt();
+        this.mirror = buf.readBoolean();
+        this.equation = buf.readString(32767);
     }
 
     /**
@@ -115,7 +126,6 @@ public class GenerateAndPasteMessage implements IMessage
       final Rotation rotation,
       final Mirror mirror)
     {
-        super();
         this.pos = pos;
         this.length = length;
         this.width = width;
@@ -128,23 +138,6 @@ public class GenerateAndPasteMessage implements IMessage
         this.mirror = mirror != Mirror.NONE;
         this.rotation = rotation.ordinal();
         this.equation = equation;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        pos = buf.readBlockPos();
-        length = buf.readInt();
-        width = buf.readInt();
-        height = buf.readInt();
-        frequency = buf.readInt();
-        shape = Shape.values()[buf.readInt()];
-        block = buf.readItemStack();
-        block2 = buf.readItemStack();
-        hollow = buf.readBoolean();
-        rotation = buf.readInt();
-        mirror = buf.readBoolean();
-        equation = buf.readString(32767);
     }
 
     @Nullable

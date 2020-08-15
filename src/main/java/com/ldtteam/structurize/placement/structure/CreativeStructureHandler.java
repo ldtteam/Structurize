@@ -69,7 +69,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public int getMaxBlocksCheckedPerCall()
     {
-        return Structurize.getConfig().getCommon().maxOperationsPerTick.get();
+        return Structurize.getConfig().getServer().maxOperationsPerTick.get();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public int getStepsPerCall()
     {
-        return Structurize.getConfig().getCommon().maxOperationsPerTick.get();
+        return Structurize.getConfig().getServer().maxOperationsPerTick.get();
     }
 
     @Override

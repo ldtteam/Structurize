@@ -159,7 +159,7 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerWorld world)
     {
-        if (player != null && player.world.func_234922_V_() != world.func_234922_V_())
+        if (player != null && player.world.getDimensionKey() != world.getDimensionKey())
         {
             return false;
         }
@@ -171,7 +171,7 @@ public class TickedWorldOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            if (placer.getHandler().getWorld().func_234923_W_().func_240901_a_().equals(world.func_234923_W_().func_240901_a_()))
+            if (placer.getHandler().getWorld().getDimensionKey().func_240901_a_().equals(world.getDimensionKey().func_240901_a_()))
             {
                 StructurePhasePlacementResult result;
                 switch (structurePhase)
@@ -253,7 +253,7 @@ public class TickedWorldOperation
                             BlockUtils.removeFluid(world, here);
                             if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
                             {
-                                if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+                                if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
                                 {
                                     currentPos = new BlockPos(x, y, z);
                                     return false;
@@ -274,7 +274,7 @@ public class TickedWorldOperation
                             world.removeBlock(here, false);
                         }
 
-                        if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+                        if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
                         {
                             currentPos = new BlockPos(x, y, z);
                             return false;

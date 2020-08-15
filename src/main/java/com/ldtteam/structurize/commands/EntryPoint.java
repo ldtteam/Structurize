@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.commands;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
-import com.mojang.authlib.Environment;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands.EnvironmentType;

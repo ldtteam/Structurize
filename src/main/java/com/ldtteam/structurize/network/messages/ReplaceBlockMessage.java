@@ -18,29 +18,32 @@ public class ReplaceBlockMessage implements IMessage
     /**
      * Position to scan from.
      */
-    private BlockPos from;
+    private final BlockPos from;
 
     /**
      * Position to scan to.
      */
-    private BlockPos to;
+    private final BlockPos to;
 
     /**
      * The block to remove from the world.
      */
-    private ItemStack blockFrom;
+    private final ItemStack blockFrom;
 
     /**
      * The block to remove from the world.
      */
-    private ItemStack blockTo;
+    private final ItemStack blockTo;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public ReplaceBlockMessage()
+    public ReplaceBlockMessage(final PacketBuffer buf)
     {
-        super();
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
+        this.blockTo = buf.readItemStack();
+        this.blockFrom = buf.readItemStack();
     }
 
     /**
@@ -52,20 +55,10 @@ public class ReplaceBlockMessage implements IMessage
      */
     public ReplaceBlockMessage(@NotNull final BlockPos pos1, @NotNull final BlockPos pos2, @NotNull final ItemStack blockFrom, @NotNull final ItemStack blockTo)
     {
-        super();
         this.from = pos1;
         this.to = pos2;
         this.blockFrom = blockFrom;
         this.blockTo = blockTo;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        from = buf.readBlockPos();
-        to = buf.readBlockPos();
-        blockTo = buf.readItemStack();
-        blockFrom = buf.readItemStack();
     }
 
     @Override

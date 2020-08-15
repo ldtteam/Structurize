@@ -23,19 +23,20 @@ public class UpdateScanToolMessage implements IMessage
     /**
      * Position to scan from.
      */
-    private BlockPos from;
+    private final BlockPos from;
 
     /**
      * Position to scan to.
      */
-    private BlockPos to;
+    private final BlockPos to;
 
     /**
      * Empty public constructor.
      */
-    public UpdateScanToolMessage()
+    public UpdateScanToolMessage(final PacketBuffer buf)
     {
-        super();
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
     }
 
     /**
@@ -45,7 +46,6 @@ public class UpdateScanToolMessage implements IMessage
      */
     public UpdateScanToolMessage(@NotNull final BlockPos from, @NotNull final BlockPos to)
     {
-        super();
         final ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
         if (stack.getItem() == ModItems.scanTool)
         {
@@ -55,13 +55,6 @@ public class UpdateScanToolMessage implements IMessage
         }
         this.from = from;
         this.to = to;
-    }
-
-    @Override
-    public void fromBytes(@NotNull final PacketBuffer buf)
-    {
-        from = buf.readBlockPos();
-        to = buf.readBlockPos();
     }
 
     @Override

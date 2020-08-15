@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextProperties;
@@ -142,7 +143,7 @@ public class Label extends AbstractTextElement
             // mc.fontRenderer.func_238418_a_(labelText, 0, 0, width, color);
             final Matrix4f matrix4f = ms.getLast().getMatrix();
             int lineShift = 0;
-            for (final ITextProperties itextproperties : mc.fontRenderer.func_238425_b_(labelText, width))
+            for (final IReorderingProcessor itextproperties : mc.fontRenderer.func_238425_b_(labelText, width))
             {
                 mc.fontRenderer.func_238415_a_(itextproperties, 0, lineShift, color, matrix4f, false);
                 lineShift += 9;

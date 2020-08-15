@@ -111,7 +111,7 @@ public final class BlockUtils
      */
     public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
     {
-        final BlockState filler = world.getBiome(location).getSurfaceBuilderConfig().getTop();
+        final BlockState filler = world.getBiome(location).field_242424_k.func_242502_e().getTop();
         if (filler.getBlock() == Blocks.SAND)
         {
             return Blocks.SANDSTONE.getDefaultState();
@@ -134,32 +134,16 @@ public final class BlockUtils
         return iBlockState.getBlock() == Blocks.WATER;
     }
 
-    private static Item getItem(@NotNull final BlockState forgeBlockState)
+    private static Item getItem(@NotNull final BlockState blockState)
     {
-        final BlockState blockState = forgeBlockState;
-        if (blockState.getBlock().equals(Blocks.LAVA))
+        final Block block = blockState.getBlock();
+        if (block.equals(Blocks.LAVA))
         {
             return Items.LAVA_BUCKET;
         }
-        else if (blockState.getBlock() instanceof BrewingStandBlock)
+        else if (block instanceof CropsBlock)
         {
-            return Items.BREWING_STAND;
-        }
-        else if (blockState.getBlock() instanceof CakeBlock)
-        {
-            return Items.CAKE;
-        }
-        else if (blockState.getBlock() instanceof CauldronBlock)
-        {
-            return Items.CAULDRON;
-        }
-        else if (blockState.getBlock() instanceof CocoaBlock)
-        {
-            return Items.COCOA_BEANS;
-        }
-        else if (blockState.getBlock() instanceof CropsBlock)
-        {
-            final ItemStack stack = ((CropsBlock) blockState.getBlock()).getItem(null, null, blockState);
+            final ItemStack stack = ((CropsBlock) block).getItem(null, null, blockState);
             if (stack != null)
             {
                 return stack.getItem();
@@ -167,61 +151,32 @@ public final class BlockUtils
 
             return Items.WHEAT_SEEDS;
         }
-        else if (blockState.getBlock() instanceof DaylightDetectorBlock)
+        // oh no... 
+        else if (block instanceof FarmlandBlock || block instanceof GrassPathBlock)
         {
-            return Item.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR);
+            return getItemFromBlock(Blocks.DIRT);
         }
-        else if (blockState.getBlock() instanceof FarmlandBlock || blockState.getBlock() instanceof GrassPathBlock)
-        {
-            return Item.getItemFromBlock(Blocks.DIRT);
-        }
-        else if (blockState.getBlock() instanceof FireBlock)
+        else if (block instanceof FireBlock)
         {
             return Items.FLINT_AND_STEEL;
         }
-        else if (blockState.getBlock() instanceof FlowerPotBlock)
+        else if (block instanceof FlowerPotBlock)
         {
             return Items.FLOWER_POT;
         }
-        else if (blockState.getBlock() instanceof FurnaceBlock)
-        {
-            return Item.getItemFromBlock(Blocks.FURNACE);
-        }
-        else if (blockState.getBlock() instanceof NetherWartBlock)
-        {
-            return Items.NETHER_WART;
-        }
-        else if (blockState.getBlock() instanceof RedstoneTorchBlock)
-        {
-            return Item.getItemFromBlock(Blocks.REDSTONE_TORCH);
-        }
-        else if (blockState.getBlock() instanceof RedstoneWireBlock)
-        {
-            return Items.REDSTONE;
-        }
-        else if (blockState.getBlock() instanceof SkullBlock)
-        {
-            return Items.SKELETON_SKULL;
-        }
-        else if (blockState.getBlock() instanceof StemBlock)
-        {
-            if (blockState.getBlock() == Blocks.PUMPKIN)
-            {
-                return Items.PUMPKIN_SEEDS;
-            }
-            else
-            {
-                return blockState.getBlock()== Blocks.MELON ? Items.MELON_SEEDS : null;
-            }
-        }
-        else if (blockState.getBlock() == Blocks.BAMBOO_SAPLING)
+        else if (block == Blocks.BAMBOO_SAPLING)
         {
             return Items.BAMBOO;
         }
         else
         {
-            return GameData.getBlockItemMap().get(blockState.getBlock());
+            return getItemFromBlock(block);
         }
+    }
+
+    private static Item getItemFromBlock(final Block block)
+    {
+        return GameData.getBlockItemMap().get(block);
     }
 
     /**
@@ -454,7 +409,6 @@ public final class BlockUtils
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
-                                                      .withParameter(LootParameters.TOOL, stack)
-                                                      .withParameter(LootParameters.POSITION, coords));
+                                                      .withParameter(LootParameters.TOOL, stack));
     }
 }

@@ -123,7 +123,7 @@ public class ChangeStorage
             blocks.remove(entry.getKey());
             count++;
 
-            if (count >= Structurize.getConfig().getCommon().maxOperationsPerTick.get())
+            if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
             {
                 return false;
             }

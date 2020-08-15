@@ -6,7 +6,6 @@ import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
-import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.BlockUtils;

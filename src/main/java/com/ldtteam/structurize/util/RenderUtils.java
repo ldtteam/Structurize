@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.StringTextComponent;
 
 public class RenderUtils
@@ -141,10 +142,10 @@ public class RenderUtils
                 : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.func_238414_a_(renderText) / 2);
 
-                fontrenderer.func_238416_a_(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
+                fontrenderer.func_238416_a_(LanguageMap.getInstance().func_241870_a(renderText), textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
                 if (!forceWhite)
                 {
-                    fontrenderer.func_238416_a_(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
+                    fontrenderer.func_238416_a_(LanguageMap.getInstance().func_241870_a(renderText), textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
                 }
                 matrixStack.translate(0.0d, 10.0d, 0.0d);
             }

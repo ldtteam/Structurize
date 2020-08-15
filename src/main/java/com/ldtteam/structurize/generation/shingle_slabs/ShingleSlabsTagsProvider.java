@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.generation.shingle_slabs;
 
-import com.ldtteam.blockout.Log;
 import com.ldtteam.datagenerators.tags.TagJson;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;

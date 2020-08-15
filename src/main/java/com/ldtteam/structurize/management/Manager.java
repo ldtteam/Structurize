@@ -94,7 +94,7 @@ public final class Manager
      */
     public static void addToUndoCache(final ChangeStorage storage)
     {
-        if (changeQueue.size() >= Structurize.getConfig().getCommon().maxCachedChanges.get())
+        if (changeQueue.size() >= Structurize.getConfig().getServer().maxCachedChanges.get())
         {
             changeQueue.pop();
         }
