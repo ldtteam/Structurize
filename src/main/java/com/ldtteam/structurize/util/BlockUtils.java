@@ -111,7 +111,7 @@ public final class BlockUtils
      */
     public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
     {
-        final BlockState filler = world.getBiome(location).getSurfaceBuilderConfig().getTop();
+        final BlockState filler = world.getBiome(location).field_242424_k.func_242502_e().getTop();
         if (filler.getBlock() == Blocks.SAND)
         {
             return Blocks.SANDSTONE.getDefaultState();
@@ -409,7 +409,6 @@ public final class BlockUtils
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
-                                                      .withParameter(LootParameters.TOOL, stack)
-                                                      .withParameter(LootParameters.POSITION, coords));
+                                                      .withParameter(LootParameters.TOOL, stack));
     }
 }

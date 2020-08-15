@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -60,7 +62,7 @@ public class BlueprintChunk extends Chunk
      */
     public BlueprintChunk(final World worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new BiomeContainer(new Biome[0]));
+        super(worldIn, new ChunkPos(x, z), new BiomeContainer(worldIn.func_241828_r().func_243612_b(Registry.BIOME_KEY), new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 

@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -25,7 +26,7 @@ public class Text extends AbstractTextElement
     /**
      * List of string elements.
      */
-    protected List<ITextProperties> formattedText;
+    protected List<IReorderingProcessor> formattedText;
 
     /**
      * The height of the text.
@@ -130,9 +131,9 @@ public class Text extends AbstractTextElement
      * @param s string to calculated width of.
      * @return the width of the string, in pixels.
      */
-    public int getStringWidth(final ITextProperties s)
+    public int getStringWidth(final IReorderingProcessor s)
     {
-        return (int) (mc.fontRenderer.func_238414_a_(s) * scale);
+        return (int) (mc.fontRenderer.func_243245_a(s) * scale);
     }
 
     /**
@@ -140,13 +141,13 @@ public class Text extends AbstractTextElement
      *
      * @return the list of strings.
      */
-    public List<ITextProperties> getFormattedText()
+    public List<IReorderingProcessor> getFormattedText()
     {
         if (formattedText == null)
         {
             if (textContent == null || textContent.length() == 0)
             {
-                formattedText = Collections.unmodifiableList(new ArrayList<ITextProperties>());
+                formattedText = Collections.unmodifiableList(new ArrayList<IReorderingProcessor>());
             }
             else
             {
@@ -196,7 +197,7 @@ public class Text extends AbstractTextElement
             }
         }
 
-        for (final ITextProperties s : getFormattedText())
+        for (final IReorderingProcessor s : getFormattedText())
         {
             int offsetX = 0;
             if (textAlignment.isRightAligned() || textAlignment.isHorizontalCentered())

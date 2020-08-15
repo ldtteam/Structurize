@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import net.minecraft.tags.ITagCollectionSupplier;
+import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.world.storage.ISpawnWorldInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
@@ -44,7 +47,6 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.Explosion.Mode;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.IExplosionContext;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
@@ -81,15 +83,18 @@ public class BlueprintBlockAccess extends World
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super(null,
-            null,
-            null,
-            Minecraft.getInstance().world.func_230315_m_(),
-            () -> Minecraft.getInstance().world.getProfiler(),
+        super((ISpawnWorldInfo) getWorld().getWorldInfo(),
+            getWorld().getDimensionKey(),
+            getWorld().func_230315_m_(),
+            () -> getWorld().getProfiler(),
             true,
             true,
             0L);
         this.blueprint = blueprint;
+    }
+
+    public static World getWorld() {
+        return Minecraft.getInstance().world;
     }
 
     public Blueprint getBlueprint()
@@ -160,7 +165,7 @@ public class BlueprintBlockAccess extends World
     @Override
     public Biome getBiome(BlockPos p_226691_1_)
     {
-        return Biomes.DEFAULT;
+        return getWorld().getBiome(p_226691_1_);
     }
 
     @Override
@@ -181,13 +186,6 @@ public class BlueprintBlockAccess extends World
         {
             return getBlockState(pos).getFluidState();
         }
-    }
-
-    @Override
-    public boolean func_234929_a_(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
-    {
-        return isOutsideBuildHeight(p_234929_1_) ? false
-            : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
@@ -255,63 +253,6 @@ public class BlueprintBlockAccess extends World
         crashreportcategory.addDetail("Blueprint",
             () -> blueprint.getName() + " of size: " + blueprint.getSizeX() + "|" + blueprint.getSizeY() + "|" + blueprint.getSizeZ());
         return crashreportcategory;
-    }
-
-    @Override
-    public DimensionType func_230315_m_()
-    {
-        // Used by: net.minecraft.item.ItemModelsProperties$2.func_239444_a_(), supplying overworld should be fine
-        return DimensionType.func_236019_a_();
-    }
-
-    @Override
-    public Explosion createExplosion(Entity p_230546_1_,
-        DamageSource p_230546_2_,
-        IExplosionContext p_230546_3_,
-        double p_230546_4_,
-        double p_230546_6_,
-        double p_230546_8_,
-        float p_230546_10_,
-        boolean p_230546_11_,
-        Mode p_230546_12_)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public RegistryKey<DimensionType> func_234922_V_()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public RegistryKey<World> func_234923_W_()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public double func_234928_a_(BlockPos p_234928_1_, double p_234928_2_)
-    {
-        // Noop
-        return 0;
-    }
-
-    @Override
-    public double func_234932_c_(BlockPos p_234932_1_, Predicate<BlockState> p_234932_2_)
-    {
-        // Noop
-        return 0;
-    }
-
-    @Override
-    public double func_234936_m_(BlockPos p_234936_1_)
-    {
-        // Noop
-        return 0;
     }
 
     @Override
@@ -457,17 +398,16 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
+    public ITagCollectionSupplier getTags()
+    {
+        return getWorld().getTags();
+    }
+
+    @Override
     public int getSkylightSubtracted()
     {
         // Noop
         return 0;
-    }
-
-    @Override
-    public NetworkTagManager getTags()
-    {
-        // Noop
-        return null;
     }
 
     @Override
@@ -720,24 +660,10 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public float getCelestialAngle(float partialTicks)
-    {
-        // Noop
-        return 0;
-    }
-
-    @Override
     public AbstractChunkProvider getChunkProvider()
     {
         // Noop
         return null;
-    }
-
-    @Override
-    public float getCurrentMoonPhaseFactor()
-    {
-        // Noop
-        return 0;
     }
 
     @Override
@@ -755,10 +681,9 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getMoonPhase()
+    public DynamicRegistries func_241828_r()
     {
-        // Noop
-        return 0;
+        return null;
     }
 
     @Override
