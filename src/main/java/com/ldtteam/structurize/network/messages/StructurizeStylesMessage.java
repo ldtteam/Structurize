@@ -22,6 +22,11 @@ public class StructurizeStylesMessage implements IMessage
     private Map<String, String> md5Map;
 
     /**
+     * True while loading
+     */
+    public static volatile boolean isLoading = false;
+
+    /**
      * Offthread schematic reading
      */
     private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
@@ -84,11 +89,13 @@ public class StructurizeStylesMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
+        isLoading = true;
         executor.submit(() ->
         {
             Structures.init();
             Structures.setAllowPlayerSchematics(allowPlayerSchematics);
             Structures.setMD5s(md5Map);
+            isLoading = false;
         });
     }
 }
