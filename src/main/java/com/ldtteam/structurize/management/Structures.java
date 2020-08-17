@@ -333,13 +333,14 @@ public final class Structures
                     {
                         final StructureName structureName = new StructureName(relativePath);
                         fileMap.put(structureName.toString(), fileExtension);
-                        final String md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(relativePath));
+                        final byte[] data = StructureLoadingUtils.getStreamAsByteArray(StructureLoadingUtils.getStream(relativePath));
+                        final String md5 = StructureUtils.calculateMD5(data);
                         if (md5 == null)
                         {
                             fileMap.remove(structureName.toString());
                             Log.getLogger().error("Structures: " + structureName + " with md5 null.");
                         }
-                        else if (isSchematicSizeValid(structureName.toString()))
+                        else if (isSchematicSizeValid(data))
                         {
                             md5Map.put(structureName.toString(), md5);
                             if (Structurize.proxy instanceof ClientProxy)
@@ -366,12 +367,10 @@ public final class Structures
     /**
      * check that a schematic is not too big to be sent.
      *
-     * @param structureName name of the structure to check for.
      * @return True when the schematic is not too big.
      */
-    private static boolean isSchematicSizeValid(@NotNull final String structureName)
+    private static boolean isSchematicSizeValid(final byte[]  data)
     {
-        final byte[] data = StructureLoadingUtils.getStreamAsByteArray(StructureLoadingUtils.getStream(structureName));
         final byte[] compressed = StructureUtils.compress(data);
 
         if (compressed == null)
