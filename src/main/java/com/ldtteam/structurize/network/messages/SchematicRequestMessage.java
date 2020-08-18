@@ -65,17 +65,15 @@ public class SchematicRequestMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        final InputStream stream = StructureLoadingUtils.getStream(filename);
-
-        if (stream == null)
+        final byte[] structureAsByteArray = StructureLoadingUtils.getByteArray(filename);
+        if (structureAsByteArray.length == 0)
         {
             Log.getLogger().error("SchematicRequestMessage: file \"" + filename + "\" not found");
         }
         else
         {
             Log.getLogger().info("Request: player " + ctxIn.getSender().getName().getUnformattedComponentText() + " is requesting schematic " + filename);
-            final byte[] schematic = StructureLoadingUtils.getStreamAsByteArray(stream);
-            Network.getNetwork().sendToPlayer(new SchematicSaveMessage(schematic, UUID.randomUUID(), 1, 1), ctxIn.getSender());
+            Network.getNetwork().sendToPlayer(new SchematicSaveMessage(structureAsByteArray, UUID.randomUUID(), 1, 1), ctxIn.getSender());
         }
     }
 }

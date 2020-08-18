@@ -96,6 +96,17 @@ public final class StructureLoadingUtils
     }
 
     /**
+     * Merges behaviour of {@link #getStream(String)} and {@link #getStreamAsByteArray(InputStream)}
+     *
+     * @param structureName name of the structure to load
+     * @return the array of bytes, array is size 0 when the stream is null
+     */
+    public static byte[] getByteArray(final String structureName)
+    {
+        return getStreamAsByteArray(getStream(structureName));
+    }
+
+    /**
      * Convert an InputStream into and array of bytes.
      *
      * @param stream to be converted to bytes array

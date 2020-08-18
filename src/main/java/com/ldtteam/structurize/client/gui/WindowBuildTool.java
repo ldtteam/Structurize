@@ -881,11 +881,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String serverSideName = Structures.SCHEMATICS_CACHE + '/' + md5;
             if (!Structures.hasMD5(new StructureName(serverSideName)))
             {
-                final InputStream stream = StructureLoadingUtils.getStream(structureName.toString());
-                if (stream != null)
+                final byte[] structureAsByteArray = StructureLoadingUtils.getByteArray(structureName.toString());
+                if (structureAsByteArray.length > 0)
                 {
                     final UUID id = UUID.randomUUID();
-                    final byte[] structureAsByteArray = StructureLoadingUtils.getStreamAsByteArray(stream);
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {
@@ -971,11 +970,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final String serverSideName = Structures.SCHEMATICS_CACHE + '/' + md5;
             if (!Structures.hasMD5(new StructureName(serverSideName)))
             {
-                final InputStream stream = StructureLoadingUtils.getStream(structureName.toString());
-                if (stream != null)
+                final byte[] structureAsByteArray = StructureLoadingUtils.getByteArray(structureName.toString());
+                if (structureAsByteArray.length > 0)
                 {
                     final UUID id = UUID.randomUUID();
-                    final byte[] structureAsByteArray = StructureLoadingUtils.getStreamAsByteArray(stream);
 
                     if (structureAsByteArray.length <= MAX_MESSAGE_SIZE)
                     {

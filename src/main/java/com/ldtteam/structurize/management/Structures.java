@@ -1,10 +1,8 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.MathUtils;
-import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
@@ -120,16 +118,6 @@ public final class Structures
     public static void init()
     {
         loadStyleMaps();
-    }
-
-    /**
-     * Calls {@link #init()} and resends the data to everyone online.
-     * RUN ONLY FROM LOGICAL SERVER
-     */
-    public static void reload()
-    {
-        init();
-        Network.getNetwork().sendToEveryone(new StructurizeStylesMessage());
     }
 
     /**
@@ -330,13 +318,14 @@ public final class Structures
                     {
                         final StructureName structureName = new StructureName(relativePath);
                         fileMap.put(structureName.toString(), fileExtension);
-                        final String md5 = StructureUtils.calculateMD5(StructureLoadingUtils.getStream(relativePath));
+                        final byte[] structureFileBytes = StructureLoadingUtils.getByteArray(relativePath);
+                        final String md5 = StructureUtils.calculateMD5(structureFileBytes);
                         if (md5 == null)
                         {
                             fileMap.remove(structureName.toString());
                             Log.getLogger().error("Structures: " + structureName + " with md5 null.");
                         }
-                        else if (isSchematicSizeValid(structureName.toString()))
+                        else if (isSchematicSizeValid(structureFileBytes))
                         {
                             md5Map.put(structureName.toString(), md5);
                             if (Structurize.proxy instanceof ClientProxy)
@@ -363,13 +352,12 @@ public final class Structures
     /**
      * check that a schematic is not too big to be sent.
      *
-     * @param structureName name of the structure to check for.
+     * @param structureData data of the structure to check for.
      * @return True when the schematic is not too big.
      */
-    private static boolean isSchematicSizeValid(@NotNull final String structureName)
+    private static boolean isSchematicSizeValid(@NotNull final byte[] structureData)
     {
-        final byte[] data = StructureLoadingUtils.getStreamAsByteArray(StructureLoadingUtils.getStream(structureName));
-        final byte[] compressed = StructureUtils.compress(data);
+        final byte[] compressed = StructureUtils.compress(structureData);
 
         if (compressed == null)
         {
@@ -607,7 +595,7 @@ public final class Structures
             final Map<String, Map<String, String>> sectionMap = schematicsMap.get(section);
             return sectionMap.keySet().stream().filter(str -> !str.endsWith("/miner")).sorted().collect(Collectors.toList());
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     /**
@@ -631,7 +619,7 @@ public final class Structures
                 return list;
             }
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     /**

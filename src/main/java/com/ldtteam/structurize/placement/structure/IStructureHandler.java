@@ -61,7 +61,7 @@ public interface IStructureHandler
 
             try
             {
-                setMd5(StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName)));
+                setMd5(StructureUtils.calculateMD5(StructureLoadingUtils.getStreamAsByteArray(inputStream)));
                 final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(inputStream);
                 setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
             }
