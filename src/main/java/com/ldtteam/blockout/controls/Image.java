@@ -5,12 +5,8 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -222,18 +218,17 @@ public class Image extends Pane
 
         if (this.customSized)
         {
-            // /Draw
-            drawScaledCustomSizeModalRect(ms.getLast().getMatrix(),
-              x,
-              y,
-              getWidth(),
-              getHeight(),
-              u,
-              v,
-              imageWidth != 0 ? imageWidth : getWidth(),
-              imageHeight != 0 ? imageHeight : getHeight(),
-              fileWidth,
-              fileHeight);
+            blit(ms,
+                x,
+                y,
+                getWidth(),
+                getHeight(),
+                u,
+                v,
+                imageWidth != 0 ? imageWidth : fileWidth,
+                imageHeight != 0 ? imageHeight : fileHeight,
+                fileWidth,
+                fileHeight);
         }
         else
         {
@@ -241,30 +236,5 @@ public class Image extends Pane
         }
 
         RenderSystem.disableBlend();
-    }
-
-    public static void drawScaledCustomSizeModalRect(
-      final Matrix4f ms,
-      final int x,
-      final int y,
-      final float u,
-      final float v,
-      final int uWidth,
-      final int vHeight,
-      final int width,
-      final int height,
-      final float tileWidth,
-      final float tileHeight)
-    {
-        final float f = 1.0F / tileWidth;
-        final float f1 = 1.0F / tileHeight;
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(ms, x, (y + height), 0.0f).tex((u * f), ((v + (float) vHeight) * f1)).endVertex();
-        bufferbuilder.pos(ms, (x + width), (y + height), 0.0f).tex(((u + (float) uWidth) * f), ((v + (float) vHeight) * f1)).endVertex();
-        bufferbuilder.pos(ms, (x + width), y, 0.0f).tex(((u + (float) uWidth) * f), (v * f1)).endVertex();
-        bufferbuilder.pos(ms, x, y, 0.0f).tex((u * f), (v * f1)).endVertex();
-        tessellator.draw();
     }
 }
