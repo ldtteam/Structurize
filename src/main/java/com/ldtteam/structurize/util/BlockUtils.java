@@ -409,6 +409,7 @@ public final class BlockUtils
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
+                                                      .withParameter(LootParameters.field_237457_g_, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
                                                       .withParameter(LootParameters.TOOL, stack));
     }
 }
