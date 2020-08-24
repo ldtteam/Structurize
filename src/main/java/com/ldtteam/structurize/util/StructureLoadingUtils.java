@@ -7,7 +7,7 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.loading.LoadingModList;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +72,7 @@ public final class StructureLoadingUtils
      */
     public static void addOriginMod(final String modId)
     {
-        addOriginMod(modId, LoadingModList.get().getModFileById(modId));
+        addOriginMod(modId, ModList.get().getModFileById(modId));
     }
 
     /**
@@ -135,12 +135,12 @@ public final class StructureLoadingUtils
      * Tries to find given resource path in given mod.
      *
      * @param info mod descriptor
-     * @param path resource path
+     * @param path resource path elements, without file system seperator
      * @return is if path was found, null otherwise
      */
-    private static InputStream getStreamFromMod(final ModFileInfo info, final String path)
+    private static InputStream getStreamFromMod(final ModFileInfo info, final String... path)
     {
-        final Path ret = info.getFile().findResource(path);
+        final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
         if (Files.exists(ret))
         {
             try
@@ -163,10 +163,10 @@ public final class StructureLoadingUtils
      */
     private static InputStream getStreamFromJar(final String structureName)
     {
-        final String filePath = '/' + structureName + SCHEMATIC_EXTENSION_NEW;
+        final String filePath = structureName + SCHEMATIC_EXTENSION_NEW;
 
         // try latest successful origin
-        InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH + latestModOrigin + filePath);
+        InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
         if (is == null)
         {
             // try every origin except the one tested earlier
@@ -175,7 +175,7 @@ public final class StructureLoadingUtils
                 final String originName = origin.getKey();
                 if (!originName.equals(latestModOrigin))
                 {
-                    is = getStreamFromMod(origin.getValue(), SCHEMATICS_ASSET_PATH + originName + filePath);
+                    is = getStreamFromMod(origin.getValue(), SCHEMATICS_ASSET_PATH, originName, filePath);
                     if (is != null)
                     {
                         latestModOrigin = originName;

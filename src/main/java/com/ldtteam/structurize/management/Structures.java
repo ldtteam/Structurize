@@ -51,7 +51,7 @@ public final class Structures
     /**
      * Schematic's path in the jar file.
      */
-    public static final String SCHEMATICS_ASSET_PATH = "/assets/";
+    public static final String SCHEMATICS_ASSET_PATH = "assets";
 
     /**
      * Schematic's path separator.
@@ -127,9 +127,11 @@ public final class Structures
     {
         if (!Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
         {
-            for (final Map.Entry<String,ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
+            for (final Map.Entry<String, ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
             {
-                loadSchematicsForPrefix(origin.getValue().getFile().findResource(SCHEMATICS_ASSET_PATH + origin.getKey()), SCHEMATICS_PREFIX);
+                loadSchematicsForPrefix(
+                    origin.getValue().getFile().getLocator().findPath(origin.getValue().getFile(), SCHEMATICS_ASSET_PATH, origin.getKey()),
+                    SCHEMATICS_PREFIX);
             }
         }
 
