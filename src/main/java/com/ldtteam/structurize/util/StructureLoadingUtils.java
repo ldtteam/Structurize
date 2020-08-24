@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static com.ldtteam.structurize.api.util.constant.Constants.BUFFER_SIZE;
 import static com.ldtteam.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
 import static com.ldtteam.structurize.management.Structures.SCHEMATICS_ASSET_PATH;
@@ -85,7 +84,7 @@ public final class StructureLoadingUtils
      */
     public static void addOriginMod(final String modId, final ModFileInfo modDescriptor)
     {
-        originFolders.add(modId);
+        addOriginFolder(modId);
         if (modDescriptor != null)
         {
             originMods.put(modId, modDescriptor);
@@ -111,7 +110,7 @@ public final class StructureLoadingUtils
         {
             if (folder.exists())
             {
-                //We need to check that we stay within the correct folder
+                // We need to check that we stay within the correct folder
                 if (!blueprintFile.toURI().normalize().getPath().startsWith(folder.toURI().normalize().getPath()))
                 {
                     Log.getLogger().error("Structure: Illegal structure name \"" + structureName + "\"");
@@ -125,7 +124,7 @@ public final class StructureLoadingUtils
         }
         catch (final FileNotFoundException e)
         {
-            //we should will never go here
+            // we should will never go here
             Log.getLogger().error("Structure.getStreamFromFolder", e);
         }
         return null;
@@ -195,7 +194,17 @@ public final class StructureLoadingUtils
      */
     public static byte[] getByteArray(final String structureName)
     {
-        return getStreamAsByteArray(getStream(structureName));
+        final InputStream is = getStream(structureName);
+        final byte[] result = getStreamAsByteArray(is);
+        try
+        {
+            is.close();
+        }
+        catch (final IOException e)
+        {
+            Log.getLogger().warn("", e);
+        }
+        return result;
     }
 
     /**
@@ -226,7 +235,7 @@ public final class StructureLoadingUtils
         }
         catch (@NotNull final IOException e)
         {
-            Log.getLogger().trace(e);
+            Log.getLogger().warn("", e);
         }
         return new byte[0];
     }
