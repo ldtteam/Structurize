@@ -10,9 +10,7 @@ import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +59,7 @@ public class ShinglesTagsProvider implements IDataProvider
 
 
                 final List<String> woods = new ArrayList<>();
-                Arrays.stream(shingleWood.values())
+                Arrays.stream(ShingleWoodType.values())
                   .forEach(subName -> woods.add("#structurize:shingles/" + shingleFace.getName() + "/" + subName.getName()));
 
 
