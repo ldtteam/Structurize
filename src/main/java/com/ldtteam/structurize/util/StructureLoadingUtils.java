@@ -196,13 +196,16 @@ public final class StructureLoadingUtils
     {
         final InputStream is = getStream(structureName);
         final byte[] result = getStreamAsByteArray(is);
-        try
+        if(is != null)
         {
-            is.close();
-        }
-        catch (final IOException e)
-        {
-            Log.getLogger().warn("", e);
+            try
+            {
+                is.close();
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("", e);
+            }
         }
         return result;
     }
@@ -217,7 +220,6 @@ public final class StructureLoadingUtils
     {
         if (stream == null)
         {
-            Log.getLogger().info("Structure.getStreamAsByteArray: stream is null this should not happen");
             return new byte[0];
         }
         try
