@@ -142,14 +142,14 @@ public final class StructureLoadingUtils
         final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
         if (Files.exists(ret))
         {
-            Log.getLogger().warn("File jar resolve: {}", ret.toString());
             try
             {
                 return Files.newInputStream(ret);
             }
             catch (final IOException e)
             {
-                Log.getLogger().warn("Error occured when trying to read resource from: " + info.getMods().stream(), e);
+                Log.getLogger().warn("Error occured when trying to read resource from: " +
+                    info.getFile().getFilePath().toAbsolutePath().toString(), e);
             }
         }
         return null;
@@ -164,7 +164,6 @@ public final class StructureLoadingUtils
     private static InputStream getStreamFromJar(final String structureName)
     {
         final String filePath = structureName + SCHEMATIC_EXTENSION_NEW;
-        Log.getLogger().warn("File jar request: {}", filePath);
 
         // try latest successful origin
         InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
@@ -184,7 +183,7 @@ public final class StructureLoadingUtils
                     }
                 }
             }
-            Log.getLogger().warn("File jar resolve: FAILED");
+            Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
         }
         return is;
     }
