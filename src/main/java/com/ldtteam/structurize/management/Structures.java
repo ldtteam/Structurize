@@ -198,11 +198,12 @@ public final class Structures
      * load all the schematics inside the folder path/prefix
      * and add them in the md5Map
      *
-     * @param basePath the base path.
+     * @param base     the base path.
      * @param prefix   either schematics, scans, cache
      */
-    private static void loadSchematicsForPrefix(@NotNull final Path basePath, @NotNull final String prefix)
+    private static void loadSchematicsForPrefix(@NotNull final Path base, @NotNull final String prefix)
     {
+        final Path basePath = base.toAbsolutePath();
         if (!Files.exists(basePath.resolve(prefix)))
         {
             return;
@@ -215,16 +216,17 @@ public final class Structures
             {
                 final Path path = it.next();
                 Log.getLogger().warn("Orig: {}", path.toString());
-                final String fileExtension = SCHEMATIC_EXTENSION_NEW;
                 if (path.toString().endsWith(SCHEMATIC_EXTENSION_NEW))
                 {
-                    String relativePath = path.toString().substring(basePath.toString().length()).split("\\" + fileExtension)[0];
+                    String relativePath = basePath.relativize(path).toString();
                     Log.getLogger().warn("Prefix: {}", relativePath);
+                    relativePath = relativePath.substring(0, relativePath.length() - SCHEMATIC_EXTENSION_NEW.length());
+                    Log.getLogger().warn("Interfix 1: {}", relativePath);
                     if (!SCHEMATICS_SEPARATOR.equals(path.getFileSystem().getSeparator()))
                     {
                         relativePath = relativePath.replace(path.getFileSystem().getSeparator(), SCHEMATICS_SEPARATOR);
                     }
-                    Log.getLogger().warn("Interfix: {}", relativePath);
+                    Log.getLogger().warn("Interfix 2: {}", relativePath);
                     if (relativePath.startsWith(SCHEMATICS_SEPARATOR))
                     {
                         relativePath = relativePath.substring(1);
@@ -234,7 +236,7 @@ public final class Structures
                     try
                     {
                         final StructureName structureName = new StructureName(relativePath);
-                        fileMap.put(structureName.toString(), fileExtension);
+                        fileMap.put(structureName.toString(), SCHEMATIC_EXTENSION_NEW);
                         final byte[] structureFileBytes = StructureLoadingUtils.getByteArray(relativePath);
                         final String md5 = StructureUtils.calculateMD5(structureFileBytes);
                         Log.getLogger().warn("SN: {}, MD5: {}", structureName.toString(), Objects.toString(md5));
