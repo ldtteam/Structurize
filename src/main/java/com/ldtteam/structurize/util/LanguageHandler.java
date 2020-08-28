@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -8,8 +9,10 @@ import java.util.Locale;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.TranslationTextComponent;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
@@ -220,21 +223,30 @@ public final class LanguageHandler
             final String defaultLocale = "en_us";
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
-            String locale =
-                DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+            String locale = DistExecutor.unsafeCallWhenOn(Dist.CLIENT,
+                () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
 
             if (locale == null)
             {
                 locale = defaultLocale;
             }
+
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
                 is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
+            {}.getType());
+
+            try
             {
-            }.getType());
+                is.close();
+            }
+            catch (IOException e)
+            {
+                Log.getLogger().warn("", e);
+            }
         }
 
         private static LanguageCache getInstance()

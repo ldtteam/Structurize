@@ -238,7 +238,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
             channels.put(playerUUID, new HashMap<Integer, Boolean>());
             for (String id : playerTag.keySet())
             {
-                channels.get(playerUUID).put(new Integer(id), playerTag.getBoolean(id));
+                channels.get(playerUUID).put(Integer.valueOf(id), playerTag.getBoolean(id));
             }
         }
         in.remove(CHANNELS_TAG);
