@@ -182,6 +182,7 @@ public final class Loader
             final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             final Document doc = dBuilder.parse(input);
+            input.getByteStream().close();
 
             createFromXML(doc, parent);
         }
