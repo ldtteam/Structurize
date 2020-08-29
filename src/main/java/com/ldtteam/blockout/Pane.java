@@ -1,5 +1,6 @@
 package com.ldtteam.blockout;
 
+import com.google.common.collect.Lists;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -8,9 +9,6 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-
-import net.minecraft.util.text.LanguageMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -355,7 +353,7 @@ public class Pane extends AbstractGui
 
             if (isHovered && !toolTipLines.isEmpty())
             {
-                window.getScreen().renderTooltip(ms, LanguageMap.getInstance().func_244260_a(toolTipLines), mx, my);
+                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), mx, my);
             }
         }
     }
