@@ -4,7 +4,6 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;

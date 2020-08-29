@@ -2,11 +2,8 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -188,7 +185,7 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<ITextProperties> getMultiLineAttributeAsTextComp(final String name)
+    public List<IFormattableTextComponent> getMultiLineAttributeAsTextComp(final String name)
     {
         final String string = getStringAttribute(name, "");
         if (string.isEmpty())
@@ -196,7 +193,7 @@ public class PaneParams
             return Collections.emptyList();
         }
         final String[] split = string.split(";");
-        final List<ITextProperties> list = new ArrayList<>();
+        final List<IFormattableTextComponent> list = new ArrayList<>();
         for (final String st : split)
         {
             list.add(new StringTextComponent(localize(st)));

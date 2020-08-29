@@ -46,7 +46,7 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     protected boolean            isHovered    = false;
-    private List<ITextProperties> toolTipLines = new ArrayList<>();
+    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -800,15 +800,15 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final MatrixStack ms, final ITextComponent text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
-            return mc.fontRenderer.func_238407_a_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+            return mc.fontRenderer.func_243246_a(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.func_238422_b_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+            return mc.fontRenderer.func_243248_b(ms, text, x, y, color);
         }
     }
 
@@ -844,7 +844,7 @@ public class Pane extends AbstractGui
      *
      * @param lines the lines to display
      */
-    public void setHoverToolTip(final List<ITextProperties> lines)
+    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
     {
         this.toolTipLines = lines;
     }
@@ -854,7 +854,7 @@ public class Pane extends AbstractGui
      *
      * @return the lines to display
      */
-    public List<ITextProperties> getHoverToolTip()
+    public List<IFormattableTextComponent> getHoverToolTip()
     {
         return this.toolTipLines;
     }
