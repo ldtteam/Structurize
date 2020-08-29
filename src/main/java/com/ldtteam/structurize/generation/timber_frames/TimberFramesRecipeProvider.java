@@ -5,7 +5,7 @@ import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import com.ldtteam.datagenerators.recipes.RecipeResultJson;
 import com.ldtteam.datagenerators.recipes.shaped.ShapedPatternJson;
 import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
-import com.ldtteam.datagenerators.recipes.shapeless.ShaplessRecipeJson;
+import com.ldtteam.datagenerators.recipes.shapeless.ShapelessRecipeJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
@@ -64,7 +64,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
         if (timberFrame.getRegistryName() == null)
             return;
 
-        final ShaplessRecipeJson recipeJson = new ShaplessRecipeJson();
+        final ShapelessRecipeJson recipeJson = new ShapelessRecipeJson();
 
         final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
 
