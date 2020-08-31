@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -61,8 +61,10 @@ public interface IStructureHandler
 
             try
             {
-                setMd5(StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName)));
-                final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(inputStream);
+                final byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
+                inputStream.close();
+                setMd5(StructureUtils.calculateMD5(data));
+                final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(new ByteArrayInputStream(data));
                 setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
             }
             catch (final IOException e)

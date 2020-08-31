@@ -41,6 +41,11 @@ public final class StructureUtils
      */
     public static String calculateMD5(final byte[] bytes)
     {
+        if (bytes == null || bytes.length == 0)
+        {
+            return null;
+        }
+
         try
         {
             final MessageDigest md = MessageDigest.getInstance("MD5");

@@ -41,7 +41,7 @@ public class LifecycleSubscriber
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Network.getNetwork().registerCommonMessages();
-        StructureLoadingUtils.originFolders.add(Constants.MOD_ID);
+        StructureLoadingUtils.addOriginMod(Constants.MOD_ID);
     }
 
     /**
