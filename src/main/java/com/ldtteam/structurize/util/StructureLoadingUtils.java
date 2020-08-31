@@ -183,7 +183,10 @@ public final class StructureLoadingUtils
                     }
                 }
             }
-            Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
+            if (is == null)
+            {
+                Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
+            }
         }
         return is;
     }
