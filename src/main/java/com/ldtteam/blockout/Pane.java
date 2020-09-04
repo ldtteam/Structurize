@@ -1,13 +1,11 @@
 package com.ldtteam.blockout;
 
-import com.google.common.collect.Lists;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -798,7 +796,7 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final ITextComponent text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {

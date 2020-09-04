@@ -5,7 +5,7 @@ import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import com.ldtteam.datagenerators.recipes.RecipeResultJson;
 import com.ldtteam.datagenerators.recipes.shaped.ShapedPatternJson;
 import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
-import com.ldtteam.datagenerators.recipes.shapeless.ShaplessRecipeJson;
+import com.ldtteam.datagenerators.recipes.shapeless.ShapelessRecipeJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
@@ -62,7 +62,7 @@ public class ShinglesRecipeProvider implements IDataProvider
         if (shingle.getRegistryName() == null)
             return;
 
-        final ShaplessRecipeJson recipeJson = new ShaplessRecipeJson();
+        final ShapelessRecipeJson recipeJson = new ShapelessRecipeJson();
 
         final String groupName = shingle.getFaceType().getGroup() + "_" + shingle.getWoodType().getName() + "_shingle";
         recipeJson.setGroup(groupName);

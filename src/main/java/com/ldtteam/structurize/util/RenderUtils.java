@@ -141,10 +141,10 @@ public class RenderUtils
                 : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.func_238414_a_(renderText) / 2);
 
-                fontrenderer.func_243247_a(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
+                fontrenderer.renderString(renderText.getText(), textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
                 if (!forceWhite)
                 {
-                    fontrenderer.func_243247_a(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
+                    fontrenderer.renderString(renderText.getText(), textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
                 }
                 matrixStack.translate(0.0d, 10.0d, 0.0d);
             }
