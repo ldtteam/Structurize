@@ -61,7 +61,13 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredItems, final boolean placement)
+    public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
+    {
+        // Do nothing. Override if needed.
+    }
+
+    @Override
+    public void triggerEntitySuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
     {
         // Do nothing. Override if needed.
     }

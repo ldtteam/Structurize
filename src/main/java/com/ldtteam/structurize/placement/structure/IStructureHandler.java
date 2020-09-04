@@ -152,6 +152,14 @@ public interface IStructureHandler
     void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement);
 
     /**
+     * Trigger entity success.
+     * @param pos the position the entity was placed at.
+     * @param requiredRes the list of required res.
+     * @param placement if through placement (true) or through equality (false).
+     */
+    void triggerEntitySuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement);
+
+    /**
      * If creative placement (Free placement without inventory).
      * @return true if so.
      */
