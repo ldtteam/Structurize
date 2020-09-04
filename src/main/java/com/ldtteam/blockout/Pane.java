@@ -804,7 +804,7 @@ public class Pane extends AbstractGui
         }
         else
         {
-            return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
+            return mc.fontRenderer.func_238422_b_(ms, text, x, y, color);
         }
     }
 
