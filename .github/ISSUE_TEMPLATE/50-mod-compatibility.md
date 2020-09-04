@@ -2,7 +2,7 @@
 name: Mod Compatibility - If Structurize does not work well with other mods	
 about: Please follow the given template	
 title: ''	
-labels: 'Bug, Compatibility: Mod'	
+labels: 'Compatibility: Mod'	
 assignees: ''	
 
 ---	

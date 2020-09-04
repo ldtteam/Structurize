@@ -7,17 +7,23 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BUFFER_SIZE;
 import static com.ldtteam.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
+import static com.ldtteam.structurize.management.Structures.SCHEMATICS_ASSET_PATH;
 import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_NEW;
 
 /**
@@ -25,10 +31,20 @@ import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_
  */
 public final class StructureLoadingUtils
 {
+    private static final byte[] EMPTY_BYTES = {};
     /**
      * The list of origin folders.
      */
-    public static List<String> originFolders = new ArrayList<>();
+    private static final List<String> originFolders = new ArrayList<>();
+    /**
+     * The list of origin mods.
+     */
+    private static final Map<String, ModFileInfo> originMods = new HashMap<>();
+    /**
+     * Allows for faster lookup during jar discover or build tool listing.
+     */
+    @NotNull
+    private static String latestModOrigin = Constants.MOD_ID;
 
     /**
      * Private constructor to hide public one.
@@ -38,6 +54,44 @@ public final class StructureLoadingUtils
         /*
          * Intentionally left empty.
          */
+    }
+
+    /**
+     * Adds folder to <b>folder</b> blueprint-lookup list.
+     *
+     * @param folder name or path
+     */
+    public static void addOriginFolder(final String folder)
+    {
+        originFolders.add(folder);
+    }
+
+    /**
+     * Adds modId to <b>folder</b> blueprint-lookup list.
+     * Adds modId to <b>mod</b> blueprint-lookup list only if mod is loaded and it's {@link ModFileInfo} is found.
+     *
+     * @param modId lowercased modId
+     */
+    public static void addOriginMod(final String modId)
+    {
+        addOriginMod(modId, ModList.get().getModFileById(modId));
+    }
+
+    /**
+     * Adds modId to <b>folder</b> blueprint-lookup list.
+     * Adds modId to <b>mod</b> blueprint-lookup list only if modDescriptor is not null.
+     * Can be used for overrides.
+     *
+     * @param modId         lowercased modId
+     * @param modDescriptor mod descriptor to link with given modId
+     */
+    public static void addOriginMod(final String modId, final ModFileInfo modDescriptor)
+    {
+        addOriginFolder(modId);
+        if (modDescriptor != null)
+        {
+            originMods.put(modId, modDescriptor);
+        }
     }
 
     /**
@@ -80,19 +134,88 @@ public final class StructureLoadingUtils
     }
 
     /**
+     * Tries to find given resource path in given mod.
+     *
+     * @param info mod descriptor
+     * @param path resource path elements, without file system seperator
+     * @return is if path was found, null otherwise
+     */
+    private static InputStream getStreamFromMod(final ModFileInfo info, final String... path)
+    {
+        final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
+        if (Files.exists(ret))
+        {
+            try
+            {
+                return Files.newInputStream(ret);
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("Error occured when trying to read resource from: " +
+                    info.getFile().getFilePath().toAbsolutePath().toString(), e);
+            }
+        }
+        return null;
+    }
+
+    /**
      * get a input stream for a schematic from jar.
      *
      * @param structureName name of the structure to load from the jar.
      * @return the input stream or null
      */
-    private static List<InputStream> getStreamsFromJar(final String structureName)
+    private static InputStream getStreamFromJar(final String structureName)
     {
-        final List<InputStream> streamsFromJar = new ArrayList<>();
-        for (final String origin : originFolders)
+        final String filePath = structureName + SCHEMATIC_EXTENSION_NEW;
+
+        // try latest successful origin
+        InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
+        if (is == null)
         {
-            streamsFromJar.add(MinecraftServer.class.getResourceAsStream("/assets/" + origin + '/' + structureName + SCHEMATIC_EXTENSION_NEW));
+            // try every origin except the one tested earlier
+            for (final Map.Entry<String, ModFileInfo> origin : originMods.entrySet())
+            {
+                final String originName = origin.getKey();
+                if (!originName.equals(latestModOrigin))
+                {
+                    is = getStreamFromMod(origin.getValue(), SCHEMATICS_ASSET_PATH, originName, filePath);
+                    if (is != null)
+                    {
+                        latestModOrigin = originName;
+                        break;
+                    }
+                }
+            }
+            if (is == null)
+            {
+                Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
+            }
         }
-        return streamsFromJar;
+        return is;
+    }
+
+    /**
+     * Merges behaviour of {@link #getStream(String)} and {@link #getStreamAsByteArray(InputStream)}
+     *
+     * @param structureName name of the structure to load
+     * @return the array of bytes, array is size 0 when the stream is null
+     */
+    public static byte[] getByteArray(final String structureName)
+    {
+        final InputStream is = getStream(structureName);
+        final byte[] result = getStreamAsByteArray(is);
+        if (is != null)
+        {
+            try
+            {
+                is.close();
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("", e);
+            }
+        }
+        return result;
     }
 
     /**
@@ -105,8 +228,7 @@ public final class StructureLoadingUtils
     {
         if (stream == null)
         {
-            Log.getLogger().info("Structure.getStreamAsByteArray: stream is null this should not happen");
-            return new byte[0];
+            return EMPTY_BYTES;
         }
         try
         {
@@ -123,9 +245,9 @@ public final class StructureLoadingUtils
         }
         catch (@NotNull final IOException e)
         {
-            Log.getLogger().trace(e);
+            Log.getLogger().warn("", e);
         }
-        return new byte[0];
+        return EMPTY_BYTES;
     }
 
     /**
@@ -184,13 +306,7 @@ public final class StructureLoadingUtils
             inputstream = StructureLoadingUtils.getStreamFromFolder(Structurize.proxy.getSchematicsFolder(), structureName);
             if (inputstream == null && !Structurize.getConfig().getCommon().ignoreSchematicsFromJar.get())
             {
-                for (final InputStream stream : StructureLoadingUtils.getStreamsFromJar(structureName))
-                {
-                    if (stream != null)
-                    {
-                        inputstream = stream;
-                    }
-                }
+                inputstream = getStreamFromJar(structureName);
             }
         }
 
@@ -240,5 +356,15 @@ public final class StructureLoadingUtils
             clientSchems.add(new File(Minecraft.getInstance().gameDir, origin));
         }
         return clientSchems;
+    }
+
+    public static List<String> getOriginfolders()
+    {
+        return originFolders;
+    }
+
+    public static Map<String, ModFileInfo> getOriginMods()
+    {
+        return originMods;
     }
 }

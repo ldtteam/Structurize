@@ -1,13 +1,14 @@
 package com.ldtteam.blockout;
 
+import com.google.common.collect.Lists;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -42,8 +43,8 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
-    protected boolean isHovered = false;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    protected boolean isHovered = false;
 
     /**
      * Default constructor.
@@ -797,7 +798,7 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final MatrixStack ms, final ITextComponent text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
@@ -805,7 +806,7 @@ public class Pane extends AbstractGui
         }
         else
         {
-            return mc.fontRenderer.func_238422_b_(ms, text, x, y, color);
+            return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
         }
     }
 

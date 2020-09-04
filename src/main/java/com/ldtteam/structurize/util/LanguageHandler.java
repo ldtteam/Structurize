@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.TranslationTextComponent;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
@@ -228,6 +229,7 @@ public final class LanguageHandler
             {
                 locale = defaultLocale;
             }
+
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
@@ -235,6 +237,8 @@ public final class LanguageHandler
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
             {}.getType());
+
+            IOUtils.closeQuietly(is);
         }
 
         private static LanguageCache getInstance()
