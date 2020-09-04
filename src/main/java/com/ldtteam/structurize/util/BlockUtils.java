@@ -454,6 +454,7 @@ public final class BlockUtils
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
+                                                      .withParameter(LootParameters.POSITION, coords)
                                                       .withParameter(LootParameters.TOOL, stack));
     }
 }
