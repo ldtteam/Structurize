@@ -184,7 +184,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean func_234929_a_(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
+    public boolean isDirectionSolid(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
     {
         return isOutsideBuildHeight(p_234929_1_) ? false
             : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
@@ -280,42 +280,43 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public RegistryKey<DimensionType> func_234922_V_()
+    public RegistryKey<DimensionType> getDimensionTypeKey()
     {
         // Noop
         return null;
     }
 
     @Override
-    public RegistryKey<World> func_234923_W_()
+    public RegistryKey<World> getDimensionKey()
     {
         // Noop
         return null;
     }
 
+
     @Override
-    public double func_234928_a_(BlockPos p_234928_1_, double p_234928_2_)
+    public double getAvailableHeightForPose(BlockPos pos, double p_234928_2_)
     {
         // Noop
         return 0;
     }
 
     @Override
-    public double func_234932_c_(BlockPos p_234932_1_, Predicate<BlockState> p_234932_2_)
+    public double getEjectionOffset(@NotNull BlockPos pos, Predicate<BlockState> p_234932_2_)
     {
         // Noop
         return 0;
     }
 
     @Override
-    public double func_234936_m_(BlockPos p_234936_1_)
+    public double getEjectionOffset(@NotNull BlockPos p_234936_1_)
     {
         // Noop
         return 0;
     }
 
     @Override
-    public boolean setBlockState(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
+    public boolean setBlockState(BlockPos pos, @NotNull BlockState state, int p_241211_3_, int p_241211_4_)
     {
         // Noop
         return false;
