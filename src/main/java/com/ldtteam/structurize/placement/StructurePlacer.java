@@ -246,6 +246,7 @@ public class StructurePlacer
                                     InventoryUtils.consumeStack(tempStack, handler.getInventory());
                                 }
                             }
+                            this.handler.triggerEntitySuccess(localPos, requiredItems, true);
                         }
                     }
                 }
