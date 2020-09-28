@@ -10,6 +10,7 @@ buildscript {
 }
 
 plugins {
+    id "com.github.johnrengelman.shadow" version "1.2.4"
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
@@ -182,10 +183,7 @@ jar {
     from sourceSets.api.output
     from sourceSets.main.output
 
-    from(configurations.contained.files) {
-        include '*'
-        into 'META-INF/libraries'
-    }
+    classifier ''
 
     manifest {
         attributes([
@@ -201,22 +199,39 @@ jar {
     }
 }
 
-// Example configuration to allow publishing using the maven-publish task
-// we define a custom artifact that is sourced from the reobfJar output task
-// and then declare that to be published
-// Note you'll need to add a repository here
-def reobfFile = file("$buildDir/reobfJar/output.jar")
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'reobfJar'
+
+shadowJar {
+    from sourceSets.main.output
+    from sourceSets.api.output
+
+    configurations = [project.configurations.contained]
+    // Relocate apache commons-math3 to prevent conflicts with other mods that include it
+    relocate 'org.mariuszgromada', 'com.ldtteam.shaded.mariuszgromada'
+
+    classifier = 'universal' // Replace the default JAR
+}
+
+reobf {
+    jar {
+    }
+    shadowJar {
+    }
+}
+
+artifacts {
+    shadowJar
+    jar
+    packageJavadoc
+    sourceJar
+    apiJar
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = project.group
+            from project.components.java
 
-            artifact reobfArtifact
+            artifact shadowJar
             artifact packageJavadoc
             artifact sourceJar
             artifact apiJar
@@ -304,6 +319,8 @@ curseforge {
             changelogType = 'markdown'
             releaseType = System.getenv().CURSERELEASETYPE
 
+            mainArtifact shadowJar
+            addArtifact jar
             addArtifact apiJar
         }
     }
@@ -343,8 +360,6 @@ task("createChangelog") {
         out.close()
     }
 }
-
-
 
 pluginManager.withPlugin("com.jfrog.artifactory") {
     artifactory {
