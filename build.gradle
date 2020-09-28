@@ -372,5 +372,5 @@ pluginManager.withPlugin("com.jfrog.artifactory") {
         }
     }
 
-    tasks.artifactoryPublish.dependsOn generatePomFileForMavenJavaPublication
+    tasks.artifactoryPublish.dependsOn tasks.generatePomFileForMavenJavaPublication
 }
