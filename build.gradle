@@ -293,6 +293,23 @@ publishing {
             }
         }
     }
+
+    if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
+        project.logger.log(LogLevel.WARN, "Uploading to JFrog enabled.")
+        repositories {
+            maven {
+                name 'LDTTeamJfrog'
+                credentials {
+                    username System.getenv().get("LDTTeamJfrogUsername")
+                    password System.getenv().get("LDTTeamJfrogPassword")
+                }
+                url 'https://ldtteam.jfrog.io/ldtteam/mods-maven'
+            }
+        }
+    }
+    else {
+        project.logger.log(LogLevel.WARN, "Uploading to JFrog disabeled.")
+    }
 }
 
 task setupDecompWorkspace {
@@ -359,21 +376,4 @@ task("createChangelog") {
 
         out.close()
     }
-}
-
-pluginManager.withPlugin("com.jfrog.artifactory") {
-    artifactory {
-        publish {
-            defaults {
-                publications ('mavenJava')
-                publishArtifacts = true
-                publishPom = true
-            }
-        }
-    }
-
-    project.afterEvaluate {
-        project.tasks.artifactoryPublish.dependsOn project.tasks.publish
-    }
-
 }
