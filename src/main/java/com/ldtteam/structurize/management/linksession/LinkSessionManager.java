@@ -63,7 +63,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      */
     public boolean destroySession(@NotNull final UUID ownerUUID)
     {
-        return sessions.remove(ownerUUID) == null ? false : true;
+        return sessions.remove(ownerUUID) != null;
     }
 
     /**
