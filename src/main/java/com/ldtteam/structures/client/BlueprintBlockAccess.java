@@ -186,8 +186,7 @@ public class BlueprintBlockAccess extends World
     @Override
     public boolean isDirectionSolid(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
     {
-        return isOutsideBuildHeight(p_234929_1_) ? false
-            : getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
+        return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
