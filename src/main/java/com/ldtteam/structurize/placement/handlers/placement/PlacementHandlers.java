@@ -338,7 +338,7 @@ public final class PlacementHandlers
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
             return blockState.getBlock() instanceof EndPortalBlock || blockState.getBlock() instanceof SpawnerBlock ||
-                     blockState.getBlock() instanceof DragonEggBlock || blockState.getBlock() instanceof EndPortalBlock;
+                     blockState.getBlock() instanceof DragonEggBlock;
         }
 
         @Override

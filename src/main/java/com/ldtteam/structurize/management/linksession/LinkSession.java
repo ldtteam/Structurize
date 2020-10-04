@@ -63,7 +63,7 @@ public class LinkSession
      */
     protected boolean isMember(@NotNull final UUID memberUUID)
     {
-        return members.get(memberUUID) == null ? false : true;
+        return members.get(memberUUID) != null;
     }
 
     /**

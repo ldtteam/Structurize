@@ -112,7 +112,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         {
             IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
             Map<BlockPos, List<String>> map = dataTE.getPositionedTags();
-            if (map.containsKey(toRemove) && map.get(toRemove).size() > 0)
+            if (map.containsKey(toRemove) && !map.get(toRemove).isEmpty())
             {
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
                 dataTE.removeTag(toRemove, tag);

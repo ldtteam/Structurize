@@ -327,6 +327,6 @@ public class FluidRenderer
             }
         }
 
-        return totalHeight / (float) occurances;
+        return occurances > 0 ? totalHeight / (float) occurances : 0f;
     }
 }
