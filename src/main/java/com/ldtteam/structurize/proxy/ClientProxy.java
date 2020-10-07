@@ -7,16 +7,12 @@ import com.ldtteam.structurize.client.gui.*;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -25,7 +21,6 @@ import java.util.Optional;
 /**
  * Client side proxy.
  */
-@Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientProxy extends CommonProxy
 {
     @Override
@@ -123,21 +118,10 @@ public class ClientProxy extends CommonProxy
 
     @Nullable
     @Override
+    @OnlyIn(Dist.CLIENT)
     public World getWorld(final int dimension)
     {
         return Minecraft.getInstance().world;
-    }
-
-    @NotNull
-    @Override
-    public RecipeBook getRecipeBookFromPlayer(@NotNull final PlayerEntity player)
-    {
-        if (player instanceof ClientPlayerEntity)
-        {
-            return ((ClientPlayerEntity) player).getRecipeBook();
-        }
-
-        return super.getRecipeBookFromPlayer(player);
     }
 
     @Override

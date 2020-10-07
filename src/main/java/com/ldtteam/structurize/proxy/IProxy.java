@@ -69,14 +69,6 @@ public interface IProxy
     World getWorld(final int dimension);
 
     /**
-     * Returns the recipe book from the player.
-     * @param player THe player.
-     * @return The recipe book.
-     */
-    @NotNull
-    RecipeBook getRecipeBookFromPlayer(@NotNull final PlayerEntity player);
-
-    /**
      * Opens a build tool window.
      *
      * @param pos coordinates.

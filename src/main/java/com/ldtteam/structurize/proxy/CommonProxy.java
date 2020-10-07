@@ -1,14 +1,9 @@
 package com.ldtteam.structurize.proxy;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.crafting.RecipeBook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -17,7 +12,6 @@ import java.util.Optional;
 /**
  * CommonProxy of the structurize mod (Server and Client).
  */
-@Mod.EventBusSubscriber
 public class CommonProxy implements IProxy
 {
     @Override
@@ -69,13 +63,6 @@ public class CommonProxy implements IProxy
     public World getWorld(final int dimension)
     {
         return ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.getById(dimension));
-    }
-
-    @NotNull
-    @Override
-    public RecipeBook getRecipeBookFromPlayer(@NotNull final PlayerEntity player)
-    {
-        return ((ServerPlayerEntity) player).getRecipeBook();
     }
 
     @Override
