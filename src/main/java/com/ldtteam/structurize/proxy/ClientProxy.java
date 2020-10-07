@@ -10,8 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,10 +113,8 @@ public class ClientProxy extends CommonProxy
 
         return worldSchematicFolder.getParentFile();
     }
-
     @Nullable
     @Override
-    @OnlyIn(Dist.CLIENT)
     public World getWorld(final int dimension)
     {
         return Minecraft.getInstance().world;
