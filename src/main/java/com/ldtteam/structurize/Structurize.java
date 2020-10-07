@@ -23,7 +23,7 @@ public class Structurize
     /**
      * The proxy.
      */
-    public static final IProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+    public static final IProxy proxy = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     /**
      * The config instance.
