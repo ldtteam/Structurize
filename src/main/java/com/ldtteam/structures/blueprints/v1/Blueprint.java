@@ -1,5 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -712,7 +713,7 @@ public class Blueprint
         if (type.isPresent())
         {
             // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
-            if ((type.get().equals(EntityType.IRON_GOLEM) || type.get().equals(EntityType.WOLF)) && world.isRemote)
+            if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
             {
                 return null;
             }
