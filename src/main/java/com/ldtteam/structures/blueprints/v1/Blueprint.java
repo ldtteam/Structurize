@@ -712,7 +712,7 @@ public class Blueprint
         if (type.isPresent())
         {
             // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
-            if (type.get().equals(EntityType.IRON_GOLEM) && world.isRemote)
+            if ((type.get().equals(EntityType.IRON_GOLEM) || type.get().equals(EntityType.WOLF)) && world.isRemote)
             {
                 return null;
             }
