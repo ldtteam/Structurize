@@ -139,7 +139,7 @@ public class RenderUtils
             {
                 final StringTextComponent renderText = new StringTextComponent(mergeEveryXListElements == 1 ? text.get(i)
                 : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
-                final float textCenterShift = (float) (-fontrenderer.func_238414_a_(renderText) / 2);
+                final float textCenterShift = (float) (-fontrenderer.getStringPropertyWidth(renderText) / 2);
 
                 fontrenderer.func_243247_a(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
                 if (!forceWhite)
