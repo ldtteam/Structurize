@@ -80,7 +80,7 @@ public class BlueprintBlockAccess extends World
     {
         super((ISpawnWorldInfo) getWorld().getWorldInfo(),
             getWorld().getDimensionKey(),
-            getWorld().func_230315_m_(),
+            getWorld().getDimensionType(),
             () -> getWorld().getProfiler(),
             true,
             true,

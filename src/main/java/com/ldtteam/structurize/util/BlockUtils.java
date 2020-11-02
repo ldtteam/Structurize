@@ -111,7 +111,7 @@ public final class BlockUtils
      */
     public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
     {
-        final BlockState filler = world.getBiome(location).field_242424_k.func_242502_e().getTop();
+        final BlockState filler = world.getBiome(location).biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
         if (filler.getBlock() == Blocks.SAND)
         {
             return Blocks.SANDSTONE.getDefaultState();
