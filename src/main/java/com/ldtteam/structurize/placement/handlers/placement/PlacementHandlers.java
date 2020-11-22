@@ -119,7 +119,7 @@ public final class PlacementHandlers
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
             {
-                itemList.add(BlockUtils.getItemStackFromBlockState(BlockUtils.getSubstitutionBlockAtWorld(world, pos)));
+                itemList.addAll(getRequiredItemsForState(world, pos, BlockUtils.getSubstitutionBlockAtWorld(world, pos), tileEntityData, complete));
             }
             return itemList;
         }
@@ -712,6 +712,27 @@ public final class PlacementHandlers
                 newTile.mirror(settings.mirror);
             }
         }
+    }
+
+    /**
+     * Get the required items for this state.
+     * @param world the world it will be placed in.
+     * @param pos the pos to place it at.
+     * @param state the state to place.
+     * @param data its TE data.
+     * @param complete if complete.
+     * @return the required items.
+     */
+    public static List<ItemStack> getRequiredItemsForState(final World world, final BlockPos pos, final BlockState state, final CompoundNBT data, final boolean complete)
+    {
+        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
+        {
+            if (placementHandler.canHandle(world, pos, state))
+            {
+                return placementHandler.getRequiredItems(world, pos, state, data, complete);
+            }
+        }
+        return Collections.emptyList();
     }
 
     /**
