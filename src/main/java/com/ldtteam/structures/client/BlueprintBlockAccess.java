@@ -123,6 +123,10 @@ public class BlueprintBlockAccess extends World
         {
             return Blocks.DIRT.getDefaultState();
         }
+        if (state.getBlock() == ModBlocks.blockFluidSubstitution)
+        {
+            return Blocks.WATER.getDefaultState();
+        }
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
 

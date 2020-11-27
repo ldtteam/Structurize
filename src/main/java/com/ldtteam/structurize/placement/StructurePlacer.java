@@ -409,6 +409,10 @@ public class StructurePlacer
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
+        else if (localState.getBlock() == ModBlocks.blockFluidSubstitution && handler.fancyPlacement())
+        {
+            localState = Blocks.WATER.getDefaultState();
+        }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
         {

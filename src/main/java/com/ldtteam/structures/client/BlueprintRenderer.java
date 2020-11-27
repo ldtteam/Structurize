@@ -124,6 +124,10 @@ public class BlueprintRenderer implements AutoCloseable
                     {
                         state = Blocks.AIR.getDefaultState();
                     }
+                    if (state.getBlock() == ModBlocks.blockFluidSubstitution)
+                    {
+                        state = Blocks.WATER.getDefaultState();
+                    }
 
                     final BlockPos blockPos = blockInfo.getPos();
                     final FluidState fluidState = state.getFluidState();
