@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -173,11 +174,7 @@ public class StructurePlacer
       final CompoundNBT tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
-        boolean sameBlockInWorld = false;
-        if (worldState.getBlock() == localState.getBlock())
-        {
-            sameBlockInWorld = true;
-        }
+        boolean sameBlockInWorld = worldState.getBlock() == localState.getBlock();
 
         if (!(worldState.getBlock() instanceof AirBlock))
         {
@@ -408,10 +405,6 @@ public class StructurePlacer
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
-        }
-        else if (localState.getBlock() == ModBlocks.blockFluidSubstitution && handler.fancyPlacement())
-        {
-            localState = Blocks.WATER.getDefaultState();
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)

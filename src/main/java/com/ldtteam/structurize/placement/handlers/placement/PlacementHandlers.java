@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.*;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BedPart;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -39,6 +41,7 @@ public final class PlacementHandlers
     static
     {
         handlers.add(new AirPlacementHandler());
+        handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new GrassPlacementHandler());
         handlers.add(new DoorPlacementHandler());
@@ -61,6 +64,44 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
+    }
+
+    public static class FluidSubstitutionPlacementHandler implements IPlacementHandler
+    {
+        BlockState existing;
+        @Override
+        public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+        {
+            if (blockState.getBlock() instanceof BlockFluidSubstitution)
+            {
+                existing = world.getBlockState(pos);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState, @Nullable CompoundNBT tileEntityData, boolean complete)
+        {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete,
+          BlockPos centerPos)
+        {
+            if (existing.hasProperty(BlockStateProperties.WATERLOGGED))
+                world.setBlockState(pos, existing.with(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
+            else
+                world.setBlockState(pos, Blocks.WATER.getDefaultState(), UPDATE_FLAG);
+
+            return ActionProcessingResult.PASS;
+        }
     }
 
     public static class FirePlacementHandler implements IPlacementHandler

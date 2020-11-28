@@ -8,6 +8,7 @@ import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -206,6 +207,19 @@ public final class BlockUtils
 
             if ((block1 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState2))
             || (block2 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState1)))
+            {
+                return true;
+            }
+
+            // if the other block has fluid already or is not waterloggable, take no action
+            if ((block1 == ModBlocks.blockFluidSubstitution
+                && (blockState2.getFluidState() != Fluids.EMPTY.getDefaultState()
+                    || !blockState2.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && blockState2.getMaterial().isSolid()))
+             || (block2 == ModBlocks.blockFluidSubstitution
+                && (blockState1.getFluidState() != Fluids.EMPTY.getDefaultState()
+                    || !blockState1.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && blockState1.getMaterial().isSolid())))
             {
                 return true;
             }
