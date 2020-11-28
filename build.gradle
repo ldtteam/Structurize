@@ -1,7 +1,3 @@
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-
 buildscript {
     repositories {
         jcenter()
@@ -14,7 +10,8 @@ buildscript {
 }
 
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.1.0"
+    id "com.github.johnrengelman.shadow" version "1.2.4"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 repositories {
@@ -32,13 +29,6 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
-
-ext.configFile = file "build.properties"
-configFile.withReader {
-    def prop = new Properties()
-    prop.load(it)
-    ext.config = new ConfigSlurper().parse prop
-}
 
 sourceSets {
     api {
@@ -73,17 +63,17 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.16.2-33.0.5'
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     apiImplementation "com.intellij:annotations:+@jar"
     implementation 'com.intellij:annotations:+@jar'
-    implementation "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
-    contained "org.mariuszgromada.math:MathParser.org-mXparser:4.0.0"
-    implementation "com.ldtteam:datagenerators:0.1.44-ALPHA"
+    implementation "org.mariuszgromada.math:MathParser.org-mXparser:${project.math_parser_version}"
+    contained "org.mariuszgromada.math:MathParser.org-mXparser:${project.math_parser_version}"
+    implementation "com.ldtteam:datagenerators:${project.datagenerators_version}"
 }
 
-version = '1.16.2' + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
-group = 'com.ldtteam' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'structurize'
+version = project.minecraft_version + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
+group = project.base_group
+archivesBaseName = project.base_mod_id
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -93,7 +83,7 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20200813-1.16.1'
+    mappings channel: project.mappings_channel, version: project.mappings_version
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -150,7 +140,7 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
-            args '--mod', 'structurize', '--all', '--output', file('src/main/generated/resources'), '--input', file('src/main/resources')
+            args '--mod', project.base_mod_id, '--all', '--output', file('src/main/generated/resources'), '--input', file('src/main/resources')
 
             mods {
                 structurize {
@@ -193,15 +183,12 @@ jar {
     from sourceSets.api.output
     from sourceSets.main.output
 
-    from(configurations.contained.files) {
-        include '*'
-        into 'META-INF/libraries'
-    }
+    classifier ''
 
     manifest {
         attributes([
             'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}",
-            "Specification-Title": "structurize",
+            "Specification-Title": project.base_mod_id,
             "Specification-Vendor": "ldtteam",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
@@ -212,22 +199,39 @@ jar {
     }
 }
 
-// Example configuration to allow publishing using the maven-publish task
-// we define a custom artifact that is sourced from the reobfJar output task
-// and then declare that to be published
-// Note you'll need to add a repository here
-def reobfFile = file("$buildDir/reobfJar/output.jar")
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'reobfJar'
+
+shadowJar {
+    from sourceSets.main.output
+    from sourceSets.api.output
+
+    configurations = [project.configurations.contained]
+    // Relocate apache commons-math3 to prevent conflicts with other mods that include it
+    relocate 'org.mariuszgromada', 'com.ldtteam.shaded.mariuszgromada'
+
+    classifier = 'universal' // Replace the default JAR
+}
+
+reobf {
+    jar {
+    }
+    shadowJar {
+    }
+}
+
+artifacts {
+    shadowJar
+    jar
+    packageJavadoc
+    sourceJar
+    apiJar
 }
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            groupId = project.group
+        mavenJava(MavenPublication) {
+            from project.components.java
 
-            artifact reobfArtifact
+            artifact shadowJar
             artifact packageJavadoc
             artifact sourceJar
             artifact apiJar
@@ -268,42 +272,43 @@ publishing {
 
             //Replace all deobf dependencies with normal jar references.
             pom.withXml { xmlProvider ->
-                final Element document = xmlProvider.asElement()
+                NodeList dependencies = asNode().dependencies
+                NodeList allDeps = dependencies.'*';
 
-                //Remove all deobf deps.
-                final NodeList groupIdNodes = document.getElementsByTagName("groupId")
-                groupIdNodes.each { groupIdNodeObject ->
-                    final Node groupIdNode = (Node) groupIdNodeObject
-                    final String groupId = groupIdNode.getFirstChild().getTextContent().trim()
-                    groupIdNode.setTextContent(groupId.replace("deobf.", ""))
+                // Remove forge deps
+                allDeps.findAll() { Node el ->
+                    el.artifactId.text() == 'forge' && el.groupId.text() == 'net.minecraftforge'
+                }.forEach() { Node el ->
+                    el.parent().remove(el)
                 }
-
-                //Remove MC Forge.
-                final NodeList dependencies = document.getElementsByTagName("dependency")
-                final List<Node> dependencyCache = new ArrayList<>()
-                dependencies.each { dep -> dependencyCache.add(dep) }
-
-                dependencyCache.each {dependencyNode ->
-                    final Element dependencyElement = (Element) dependencyNode
-
-                    final NodeList groupIdNodesInDependency = dependencyElement.getElementsByTagName("groupId")
-                    groupIdNodesInDependency.each {groupIdNodeInDep ->
-                        final String groupId = groupIdNodeInDep.getFirstChild().getTextContent().trim()
-                        if (groupId == "net.minecraftforge")
-                        {
-                            final NodeList artifactIdNodesInDependency = dependencyElement.getElementsByTagName("artifactId")
-                            artifactIdNodesInDependency.each { artifactIdNodeInDep ->
-                                final String artifactId = artifactIdNodeInDep.getFirstChild().getTextContent().trim()
-                                if (artifactId == "forge")
-                                {
-                                    dependencyNode.getParentNode().removeChild(dependencyNode)
-                                }
-                            }
-                        }
+                //remove forgegradle's mapped suffix from versions & set as optional so anyone else doesn't inherit them
+                allDeps.findAll() { Node el ->
+                    el.version.text().contains('_mapped_')
+                }.each { Node el ->
+                    NodeList version = el.version
+                    version.each {
+                        it.setValue(it.text().substring(0, it.text().indexOf('_mapped_')))
                     }
                 }
             }
         }
+    }
+
+    if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
+        project.logger.log(LogLevel.WARN, "Uploading to JFrog enabled.")
+        repositories {
+            maven {
+                name 'LDTTeamJfrog'
+                credentials {
+                    username System.getenv().get("LDTTeamJfrogUsername")
+                    password System.getenv().get("LDTTeamJfrogPassword")
+                }
+                url 'https://ldtteam.jfrog.io/ldtteam/mods-maven'
+            }
+        }
+    }
+    else {
+        project.logger.log(LogLevel.WARN, "Uploading to JFrog disabeled.")
     }
 }
 
@@ -325,12 +330,14 @@ curseforge {
         apiKey = System.getenv().CURSEAPIKEY
 
         project {
-            id = '298744'
-            addGameVersion '1.16.2'
+            id = project.curse_id
+            addGameVersion project.minecraft_version
             changelog = file('build/changelog.md')
             changelogType = 'markdown'
             releaseType = System.getenv().CURSERELEASETYPE
 
+            mainArtifact shadowJar
+            addArtifact jar
             addArtifact apiJar
         }
     }

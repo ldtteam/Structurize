@@ -1,5 +1,6 @@
 package com.ldtteam.blockout;
 
+import com.google.common.collect.Lists;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -8,9 +9,6 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-
-import net.minecraft.util.text.LanguageMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -46,7 +44,7 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     protected boolean            isHovered    = false;
-    private List<ITextProperties> toolTipLines = new ArrayList<>();
+    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -355,7 +353,7 @@ public class Pane extends AbstractGui
 
             if (isHovered && !toolTipLines.isEmpty())
             {
-                window.getScreen().renderTooltip(ms, LanguageMap.getInstance().func_244260_a(toolTipLines), mx, my);
+                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), mx, my);
             }
         }
     }
@@ -800,15 +798,15 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final ITextProperties text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final MatrixStack ms, final ITextComponent text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
-            return mc.fontRenderer.func_238407_a_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+            return mc.fontRenderer.func_243246_a(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.func_238422_b_(ms, LanguageMap.getInstance().func_241870_a(text), x, y, color);
+            return mc.fontRenderer.func_243248_b(ms, text, x, y, color);
         }
     }
 
@@ -844,7 +842,7 @@ public class Pane extends AbstractGui
      *
      * @param lines the lines to display
      */
-    public void setHoverToolTip(final List<ITextProperties> lines)
+    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
     {
         this.toolTipLines = lines;
     }
@@ -854,7 +852,7 @@ public class Pane extends AbstractGui
      *
      * @return the lines to display
      */
-    public List<ITextProperties> getHoverToolTip()
+    public List<IFormattableTextComponent> getHoverToolTip()
     {
         return this.toolTipLines;
     }

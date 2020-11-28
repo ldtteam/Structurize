@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -61,8 +61,10 @@ public interface IStructureHandler
 
             try
             {
-                setMd5(StructureUtils.calculateMD5(StructureLoadingUtils.getStream(correctStructureName)));
-                final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(inputStream);
+                final byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
+                inputStream.close();
+                setMd5(StructureUtils.calculateMD5(data));
+                final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(new ByteArrayInputStream(data));
                 setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
             }
             catch (final IOException e)
@@ -148,6 +150,14 @@ public interface IStructureHandler
      * @param placement if through placement (true) or through equality (false).
      */
     void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement);
+
+    /**
+     * Trigger entity success.
+     * @param pos the position the entity was placed at.
+     * @param requiredRes the list of required res.
+     * @param placement if through placement (true) or through equality (false).
+     */
+    void triggerEntitySuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement);
 
     /**
      * If creative placement (Free placement without inventory).

@@ -108,7 +108,6 @@ public class BOScreen extends Screen
     public BOScreen(final Window w)
     {
         super(new StringTextComponent("Blockout GUI"));
-        this.passEvents = true;
         window = w;
     }
 

@@ -171,7 +171,7 @@ public class TickedWorldOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            if (placer.getHandler().getWorld().getDimensionKey().func_240901_a_().equals(world.getDimensionKey().func_240901_a_()))
+            if (placer.getHandler().getWorld().getDimensionKey().getLocation().equals(world.getDimensionKey().getLocation()))
             {
                 StructurePhasePlacementResult result;
                 switch (structurePhase)

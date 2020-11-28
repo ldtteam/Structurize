@@ -615,7 +615,7 @@ public class ButtonImage extends Button
      */
     public int getStringWidth()
     {
-        return (int) (mc.fontRenderer.func_238414_a_(label) * textScale);
+        return (int) (mc.fontRenderer.getStringPropertyWidth(label) * textScale);
     }
 
     /**

@@ -4,7 +4,6 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
@@ -152,7 +151,7 @@ public class Text extends AbstractTextElement
             else
             {
                 formattedText = Collections.unmodifiableList(
-                    mc.fontRenderer.func_238425_b_(new StringTextComponent(textContent), (int) (getWidth() / scale))
+                    mc.fontRenderer.trimStringToWidth(new StringTextComponent(textContent), (int) (getWidth() / scale))
                         .stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()));

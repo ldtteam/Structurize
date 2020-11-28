@@ -5,7 +5,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
 /**
@@ -54,7 +53,7 @@ public class Label extends AbstractTextElement
 
         if (width == 0)
         {
-            width = Math.min(mc.fontRenderer.func_238414_a_(labelText), params.getParentWidth());
+            width = Math.min(mc.fontRenderer.getStringPropertyWidth(labelText), params.getParentWidth());
         }
     }
 
@@ -143,7 +142,7 @@ public class Label extends AbstractTextElement
             // mc.fontRenderer.func_238418_a_(labelText, 0, 0, width, color);
             final Matrix4f matrix4f = ms.getLast().getMatrix();
             int lineShift = 0;
-            for (final IReorderingProcessor itextproperties : mc.fontRenderer.func_238425_b_(labelText, width))
+            for (final IReorderingProcessor itextproperties : mc.fontRenderer.trimStringToWidth(labelText, width))
             {
                 mc.fontRenderer.func_238415_a_(itextproperties, 0, lineShift, color, matrix4f, false);
                 lineShift += 9;
@@ -164,7 +163,7 @@ public class Label extends AbstractTextElement
      */
     public int getStringWidth()
     {
-        return (int) (mc.fontRenderer.func_238414_a_(labelText) * scale);
+        return (int) (mc.fontRenderer.getStringPropertyWidth(labelText) * scale);
     }
 
     /**

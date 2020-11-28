@@ -31,11 +31,8 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.tags.NetworkTagManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -43,7 +40,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.Explosion.Mode;
 import net.minecraft.world.GameRules;
@@ -52,7 +48,6 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
@@ -85,7 +80,7 @@ public class BlueprintBlockAccess extends World
     {
         super((ISpawnWorldInfo) getWorld().getWorldInfo(),
             getWorld().getDimensionKey(),
-            getWorld().func_230315_m_(),
+            getWorld().getDimensionType(),
             () -> getWorld().getProfiler(),
             true,
             true,
@@ -190,6 +185,12 @@ public class BlueprintBlockAccess extends World
         {
             return getBlockState(pos).getFluidState();
         }
+    }
+
+    @Override
+    public boolean isDirectionSolid(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
+    {
+        return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override

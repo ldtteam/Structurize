@@ -1,5 +1,7 @@
 package com.ldtteam.structures.blueprints.v1;
 
+import com.ldtteam.blockout.Log;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -712,7 +714,7 @@ public class Blueprint
         if (type.isPresent())
         {
             // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
-            if (type.get().equals(EntityType.IRON_GOLEM) && world.isRemote)
+            if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
             {
                 return null;
             }
@@ -720,24 +722,32 @@ public class Blueprint
             final Entity finalEntity = type.get().create(world);
             if (finalEntity != null)
             {
-                finalEntity.deserializeNBT(entityInfo);
-
-                final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.getPositionVec())
-                    .add(Vector3d.copy(pos));
-                finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
-                final double rotationYaw = finalEntity.getMirroredYaw(mirror)
-                    + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
-
-                if (finalEntity instanceof HangingEntity)
+                try
                 {
-                    finalEntity.setPosition(entityVec.x, entityVec.y, entityVec.z);
-                }
-                else
-                {
-                    finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.rotationPitch);
-                }
+                    finalEntity.deserializeNBT(entityInfo);
 
-                return finalEntity.serializeNBT();
+                    final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.getPositionVec())
+                                                 .add(Vector3d.copy(pos));
+                    finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
+                    final double rotationYaw = finalEntity.getMirroredYaw(mirror)
+                                                 + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
+
+                    if (finalEntity instanceof HangingEntity)
+                    {
+                        finalEntity.setPosition(entityVec.x, entityVec.y, entityVec.z);
+                    }
+                    else
+                    {
+                        finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.rotationPitch);
+                    }
+
+                    return finalEntity.serializeNBT();
+                }
+                catch (final Exception ex)
+                {
+                    Log.getLogger().error("Entity: " + type.get().getTranslationKey() + " failed to load. ", ex);
+                    return null;
+                }
             }
         }
         return null;

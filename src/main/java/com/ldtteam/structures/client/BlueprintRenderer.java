@@ -269,8 +269,8 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getTranslucentCullBlockType());
         renderBufferSource.finish(Atlases.getBannerType());
         renderBufferSource.finish(Atlases.getShieldType());
-        renderBufferSource.finish(RenderType.func_239270_k_());
-        renderBufferSource.finish(RenderType.func_239271_l_());
+        renderBufferSource.finish(RenderType.getArmorGlint());
+        renderBufferSource.finish(RenderType.getArmorEntityGlint());
         renderBufferSource.finish(RenderType.getGlint());
         renderBufferSource.finish(RenderType.getEntityGlint());
         renderBufferSource.finish(RenderType.getWaterMask());
@@ -281,7 +281,7 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
-        renderBlockLayer(RenderType.func_241715_r_(), rawPosMatrix);
+        renderBlockLayer(RenderType.getTripwire(), rawPosMatrix);
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
 
         OptifineCompat.getInstance().endWater();

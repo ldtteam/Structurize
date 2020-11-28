@@ -110,6 +110,7 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
      * @return the fluid state
      */
     @Override
+    @SuppressWarnings("deprecation")
     public FluidState getFluidState(final BlockState state)
     {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
