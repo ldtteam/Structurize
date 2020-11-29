@@ -3,6 +3,7 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
@@ -407,6 +408,18 @@ public final class BlockUtils
         {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
         }
+    }
+
+    /**
+     * A simple check to fetch the default fluid block for this dimension
+     * @param world the world of the dimension
+     * @return the default blockstate for the default fluid
+     */
+    public static BlockState getFluidForDimension(World world)
+    {
+        return world.getDimensionKey().equals(World.THE_NETHER)
+                ? Blocks.LAVA.getDefaultState()
+                : Blocks.WATER.getDefaultState();
     }
 
     /**

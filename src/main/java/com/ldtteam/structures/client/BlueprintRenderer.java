@@ -12,6 +12,7 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -126,7 +127,9 @@ public class BlueprintRenderer implements AutoCloseable
                     }
                     if (state.getBlock() == ModBlocks.blockFluidSubstitution)
                     {
-                        state = Blocks.WATER.getDefaultState();
+                        state = Minecraft.getInstance().world != null
+                                ? BlockUtils.getFluidForDimension( Minecraft.getInstance().world)
+                                : Blocks.WATER.getDefaultState();
                     }
 
                     final BlockPos blockPos = blockInfo.getPos();

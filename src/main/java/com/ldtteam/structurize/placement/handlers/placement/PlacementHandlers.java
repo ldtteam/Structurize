@@ -98,7 +98,7 @@ public final class PlacementHandlers
             if (existing.hasProperty(BlockStateProperties.WATERLOGGED))
                 world.setBlockState(pos, existing.with(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
             else
-                world.setBlockState(pos, Blocks.WATER.getDefaultState(), UPDATE_FLAG);
+                world.setBlockState(pos, BlockUtils.getFluidForDimension(world), UPDATE_FLAG);
 
             return ActionProcessingResult.PASS;
         }
