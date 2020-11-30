@@ -56,6 +56,37 @@ public final class PlacementHandlers
         handlers.add(new BannerPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
+
+    /**
+     * Allows for adding new handlers without having to clear the list
+     * in other mods just to override one
+     * @param handler the new handler to add
+     * @param override the class to override if it can be found
+     */
+    public static void add(IPlacementHandler handler, Class<?> override)
+    {
+        for (int i = 0; i < handlers.size(); i++)
+        {
+            if (override.isInstance(handlers.get(i)))
+            {
+                handlers.set(i, handler);
+                return;
+            }
+        }
+        add(handler);
+    }
+
+    /**
+     * Adds a handler to the start of the handlers list,
+     * effectively overriding existing ones with similar
+     * 'canHandle' functions because this one will evaluate before them
+     * @param handler
+     */
+    public static void add(IPlacementHandler handler)
+    {
+        handlers.add(1, handler);
+    }
+
     /**
      * Private constructor to hide implicit one.
      */
