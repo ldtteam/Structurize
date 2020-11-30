@@ -214,11 +214,11 @@ public final class BlockUtils
 
             // if the other block has fluid already or is not waterloggable, take no action
             if ((block1 == ModBlocks.blockFluidSubstitution
-                && (blockState2.getFluidState() != Fluids.EMPTY.getDefaultState()
+                && (blockState2.getFluidState().isSource()
                     || !blockState2.hasProperty(BlockStateProperties.WATERLOGGED)
                     && blockState2.getMaterial().isSolid()))
              || (block2 == ModBlocks.blockFluidSubstitution
-                && (blockState1.getFluidState() != Fluids.EMPTY.getDefaultState()
+                && (blockState1.getFluidState().isSource()
                     || !blockState1.hasProperty(BlockStateProperties.WATERLOGGED)
                     && blockState1.getMaterial().isSolid())))
             {
