@@ -11,12 +11,12 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeHooks;
@@ -417,7 +417,15 @@ public final class BlockUtils
      */
     public static BlockState getFluidForDimension(World world)
     {
-        return world.getDimensionKey().equals(World.THE_NETHER)
+        ResourceLocation res = world.func_241828_r().func_230520_a_().getKey(world.getDimensionType());
+        if (res == null)
+        {
+            return Blocks.WATER.getDefaultState();
+        }
+
+        RegistryKey<DimensionType> rk = RegistryKey.getOrCreateKey(Registry.DIMENSION_TYPE_KEY, res);
+
+        return rk == DimensionType.THE_NETHER
                 ? Blocks.LAVA.getDefaultState()
                 : Blocks.WATER.getDefaultState();
     }
