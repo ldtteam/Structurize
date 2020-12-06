@@ -292,8 +292,7 @@ public final class BlockUtils
         if (stackToPlace.getItem() instanceof BlockItem)
         {
             final Block targetBlock = ((BlockItem) stackToPlace.getItem()).getBlock();
-            BlockState newState = copyBlockStateProperties(targetBlock, newBlockState);
-            newState = newState != null ? newState : copyFirstCommonBlockStateProperties(targetBlock, newBlockState);
+            BlockState newState = copyFirstCommonBlockStateProperties(targetBlock, newBlockState);
             if (newState != null)
             {
                 world.removeBlock(here, false);
@@ -432,11 +431,11 @@ public final class BlockUtils
     }
 
     /**
-     * Copies property values from propertiesOrigin into new blockstate made from target Block.
+     * Copies property values from propertiesOrigin into new blockstate made from target block.
      *
      * @param target           properties destination
      * @param propertiesOrigin properties source
-     * @return blockState of target with properties of propertiesOrigin or null if both blocks are not the same class
+     * @return blockState of target block with properties of propertiesOrigin or null if both blocks are not the same class
      */
     public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
     {
@@ -451,10 +450,16 @@ public final class BlockUtils
      *
      * @param target           properties destination
      * @param propertiesOrigin properties source
-     * @return blockState of target with properties of propertiesOrigin or null if no common superclass found
+     * @return blockState of target block with properties of common super class or null if no common superclass found
      */
     public static BlockState copyFirstCommonBlockStateProperties(final Block target, final BlockState propertiesOrigin)
     {
+        final BlockState sameClass = copyBlockStateProperties(target, propertiesOrigin);
+        if (sameClass != null)
+        {
+            return sameClass;
+        }
+
         final Class<?> firstCommonClass = JavaUtils.getFirstCommonSuperClass(target.getClass(), propertiesOrigin.getBlock().getClass());
         if (firstCommonClass == Block.class || !Block.class.isAssignableFrom(firstCommonClass))
         {
@@ -474,7 +479,8 @@ public final class BlockUtils
      * @param target           properties destination
      * @param propertiesOrigin properties source
      * @param properties       which properties to copy
-     * @return blockState of target with properties of propertiesOrigin
+     * @return blockState of target with given properties of propertiesOrigin
+     * @throws IllegalArgumentException if target does not accept any of properties
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static BlockState unsafeCopyBlockStateProperties(final Block target,
