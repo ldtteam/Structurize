@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import net.minecraft.block.*;
@@ -8,6 +9,7 @@ import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.Property;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -18,15 +20,15 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -40,16 +42,14 @@ public final class BlockUtils
      * Predicated to determine if a block is free to place.
      */
     @NotNull
-    public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList
-    (
+    public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
         (block, iBlockState) -> block.equals(Blocks.AIR),
         (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
         (block, iBlockState) -> BlockUtils.isWater(block.getDefaultState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
         (block, iBlockState) -> block.equals(Blocks.GRASS),
-        (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper"))
-    );
+        (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper")));
 
     /**
      * Private constructor to hide the public one.
@@ -288,9 +288,27 @@ public final class BlockUtils
 
         final Direction facing = (itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH);
 
-        if (stackToPlace.getItem() instanceof BlockItem && !(((BlockItem) stackToPlace.getItem()).getBlock() instanceof AbstractButtonBlock))
+        BlockState newBlockState = world.getBlockState(here);
+        if (stackToPlace.getItem() instanceof BlockItem)
         {
-            world.setBlockState(here, ((BlockItem) stackToPlace.getItem()).getBlock().getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0, 0, 0), facing, here, true)))), Constants.BlockFlags.BLOCK_UPDATE);
+            final Block targetBlock = ((BlockItem) stackToPlace.getItem()).getBlock();
+            BlockState newState = copyBlockStateProperties(targetBlock, newBlockState);
+            newState = newState != null ? newState : copyFirstCommonBlockStateProperties(targetBlock, newBlockState);
+            if (newState != null)
+            {
+                world.removeBlock(here, false);
+                world.setBlockState(here, newState, Constants.UPDATE_FLAG);
+                targetBlock.onBlockPlacedBy(world, here, newState, fakePlayer, stackToPlace);
+                return;
+            }
+            else if (!(targetBlock instanceof AbstractButtonBlock))
+            {
+                world.setBlockState(here,
+                    targetBlock.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer,
+                        Hand.MAIN_HAND,
+                        new BlockRayTraceResult(new Vector3d(0, 0, 0), facing, here, true)))),
+                    Constants.UPDATE_FLAG);
+            }
         }
         else
         {
@@ -298,20 +316,20 @@ public final class BlockUtils
             ForgeHooks.onPlaceItemIntoWorld(new ItemUseContext(fakePlayer, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0, 0, 0), facing, here, true)));
         }
 
-        final BlockState newBlockState = world.getBlockState(here);
+        newBlockState = world.getBlockState(here);
         if (newBlockState.getBlock() instanceof AbstractButtonBlock && blockState.getBlock() instanceof AbstractButtonBlock)
         {
             BlockState transformation = newBlockState.with(AbstractButtonBlock.FACE, blockState.get(AbstractButtonBlock.FACE));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
-        if (newBlockState.getBlock() instanceof  FourWayBlock && blockState.getBlock() instanceof FourWayBlock)
+        else if (newBlockState.getBlock() instanceof FourWayBlock && blockState.getBlock() instanceof FourWayBlock)
         {
             BlockState transformation = newBlockState.with(FourWayBlock.EAST, blockState.get(FourWayBlock.EAST));
             transformation = transformation.with(FourWayBlock.NORTH, blockState.get(FourWayBlock.NORTH));
             transformation = transformation.with(FourWayBlock.WEST, blockState.get(FourWayBlock.WEST));
             transformation = transformation.with(FourWayBlock.SOUTH, blockState.get(FourWayBlock.SOUTH));
             transformation = transformation.with(FourWayBlock.WATERLOGGED, blockState.get(FourWayBlock.WATERLOGGED));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof SixWayBlock && blockState.getBlock() instanceof SixWayBlock)
         {
@@ -321,61 +339,61 @@ public final class BlockUtils
             transformation = transformation.with(SixWayBlock.SOUTH, blockState.get(SixWayBlock.SOUTH));
             transformation = transformation.with(SixWayBlock.UP, blockState.get(SixWayBlock.UP));
             transformation = transformation.with(SixWayBlock.DOWN, blockState.get(SixWayBlock.DOWN));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof BlockTimberFrame && blockState.getBlock() instanceof BlockTimberFrame)
         {
             final BlockState transformation = newBlockState.with(BlockTimberFrame.FACING, blockState.get(BlockTimberFrame.FACING));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof StairsBlock && blockState.getBlock() instanceof StairsBlock)
         {
             BlockState transformation = newBlockState.with(StairsBlock.FACING, blockState.get(StairsBlock.FACING));
             transformation = transformation.with(StairsBlock.HALF, blockState.get(StairsBlock.HALF));
             transformation = transformation.with(StairsBlock.SHAPE, blockState.get(StairsBlock.SHAPE));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof HorizontalBlock && blockState.getBlock() instanceof HorizontalBlock &&
             !(blockState.getBlock() instanceof BedBlock))
         {
             final BlockState transformation = newBlockState.with(HorizontalBlock.HORIZONTAL_FACING, blockState.get(HorizontalBlock.HORIZONTAL_FACING));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof DirectionalBlock && blockState.getBlock() instanceof DirectionalBlock)
         {
             final BlockState transformation = newBlockState.with(DirectionalBlock.FACING, blockState.get(DirectionalBlock.FACING));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof SlabBlock && blockState.getBlock() instanceof SlabBlock)
         {
             final BlockState transformation;
             transformation = newBlockState.with(SlabBlock.TYPE, blockState.get(SlabBlock.TYPE));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof RotatedPillarBlock && blockState.getBlock() instanceof RotatedPillarBlock)
         {
             final BlockState transformation = newBlockState.with(RotatedPillarBlock.AXIS, blockState.get(RotatedPillarBlock.AXIS));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof TrapDoorBlock && blockState.getBlock() instanceof TrapDoorBlock)
         {
             BlockState transformation = newBlockState.with(TrapDoorBlock.HALF, blockState.get(TrapDoorBlock.HALF));
             transformation = transformation.with(TrapDoorBlock.HORIZONTAL_FACING, blockState.get(TrapDoorBlock.HORIZONTAL_FACING));
             transformation = transformation.with(TrapDoorBlock.OPEN, blockState.get(TrapDoorBlock.OPEN));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (newBlockState.getBlock() instanceof DoorBlock && blockState.getBlock() instanceof DoorBlock)
         {
             final BlockState transformation = newBlockState.with(DoorBlock.FACING, blockState.get(DoorBlock.FACING));
-            world.setBlockState(here, transformation, Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, transformation, Constants.UPDATE_FLAG);
         }
         else if (stackToPlace.getItem() == Items.LAVA_BUCKET)
         {
-            world.setBlockState(here, Blocks.LAVA.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, Blocks.LAVA.getDefaultState(), Constants.UPDATE_FLAG);
         }
         else if (stackToPlace.getItem() == Items.WATER_BUCKET)
         {
-            world.setBlockState(here, Blocks.WATER.getDefaultState(), Constants.BlockFlags.BLOCK_UPDATE);
+            world.setBlockState(here, Blocks.WATER.getDefaultState(), Constants.UPDATE_FLAG);
         }
     }
 
@@ -411,5 +429,63 @@ public final class BlockUtils
                                                       .withLuck(fortune)
                                                       .withParameter(LootParameters.field_237457_g_, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
                                                       .withParameter(LootParameters.TOOL, stack));
+    }
+
+    /**
+     * Copies property values from propertiesOrigin into new blockstate made from target Block.
+     *
+     * @param target           properties destination
+     * @param propertiesOrigin properties source
+     * @return blockState of target with properties of propertiesOrigin or null if both blocks are not the same class
+     */
+    public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
+    {
+        return target.getClass().isInstance(propertiesOrigin.getBlock())
+            ? unsafeCopyBlockStateProperties(target, propertiesOrigin, propertiesOrigin.getProperties())
+            : null;
+    }
+
+    /**
+     * Copies property values from propertiesOrigin into new blockstate made from target Block.
+     * If source and target are not the same block find the first common superclass and use its properties.
+     *
+     * @param target           properties destination
+     * @param propertiesOrigin properties source
+     * @return blockState of target with properties of propertiesOrigin or null if no common superclass found
+     */
+    public static BlockState copyFirstCommonBlockStateProperties(final Block target, final BlockState propertiesOrigin)
+    {
+        final Class<?> firstCommonClass = JavaUtils.getFirstCommonSuperClass(target.getClass(), propertiesOrigin.getBlock().getClass());
+        if (firstCommonClass == Block.class || !Block.class.isAssignableFrom(firstCommonClass))
+        {
+            return null;
+        }
+
+        // It would be the best to get properties of firstCommonClass but since defaultstate is non-static and created in top level block classes
+        // it's literally impossible to get them
+        final Collection<Property<?>> properties = new ArrayList<>(target.getDefaultState().getProperties());
+        properties.retainAll(propertiesOrigin.getProperties());
+        return unsafeCopyBlockStateProperties(target, propertiesOrigin, properties);
+    }
+
+    /**
+     * Copies property values from properties using propertiesOrigin into new blockstate made from target Block.
+     *
+     * @param target           properties destination
+     * @param propertiesOrigin properties source
+     * @param properties       which properties to copy
+     * @return blockState of target with properties of propertiesOrigin
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static BlockState unsafeCopyBlockStateProperties(final Block target,
+        final BlockState propertiesOrigin,
+        final Collection<Property<?>> properties)
+    {
+        BlockState blockState = target.getDefaultState();
+        for (final Property property : properties)
+        {
+            blockState = blockState.with(property, propertiesOrigin.get(property));
+        }
+        return blockState;
     }
 }
