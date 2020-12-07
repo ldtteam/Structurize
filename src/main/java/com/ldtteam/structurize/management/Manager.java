@@ -9,6 +9,7 @@ import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -164,8 +165,8 @@ public final class Manager
       final ItemStack inputFillBlock, final boolean hollow)
     {
         final Blueprint blueprint;
-        final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock);
-        final BlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock);
+        final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock, Blocks.GOLD_BLOCK.getDefaultState());
+        final BlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock, Blocks.GOLD_BLOCK.getDefaultState());
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {

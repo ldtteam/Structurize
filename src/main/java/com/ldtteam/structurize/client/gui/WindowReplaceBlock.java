@@ -10,10 +10,21 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.AirItem;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.EnumProperty;
+import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.Property;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -59,6 +70,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * List of all item stacks in the game.
      */
     private final List<ItemStack> allItems = new ArrayList<>();
+
+    /**
+     * List of all item stacks in the game.
+     */
+    private List<ItemStack> filteredItems = new ArrayList<>();
 
     /**
      * Resource scrolling list.
@@ -124,38 +140,31 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
         findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
         updateResources();
+        updateResourceList();
     }
 
     private void updateResources()
     {
         allItems.clear();
         allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+            .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem && ((BucketItem) item).getFluid() != Fluids.EMPTY))
             .map(ItemStack::new)
-            .filter(stack -> (stack.getItem() instanceof BlockItem) && (filter.isEmpty() || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))).collect(Collectors.toList())));
-
-        final List<ItemStack> specialBlockList = new ArrayList<>();
-        specialBlockList.add(new ItemStack(Items.WATER_BUCKET));
-        specialBlockList.add(new ItemStack(Items.LAVA_BUCKET));
-        specialBlockList.add(new ItemStack(Items.MILK_BUCKET));
-
-        allItems.addAll(specialBlockList.stream().filter(
-                stack -> filter.isEmpty()
-                        || stack.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                        || stack.getDisplayName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
-                .collect(Collectors.toList()));
-        updateResourceList();
+            .collect(Collectors.toList())));
+        filteredItems = allItems;
     }
 
     @Override
     public boolean onKeyTyped(final char ch, final int key)
     {
         final boolean result = super.onKeyTyped(ch, key);
-        final String name = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText();
-        if (!name.isEmpty())
+        final String filterNew = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText().toLowerCase(Locale.US);
+        if (!filterNew.trim().equals(filter))
         {
-            filter = name;
+            filter = filterNew;
+            filteredItems = filter.isEmpty() ? allItems : allItems.stream()
+                .filter(stack -> stack.getTranslationKey().toLowerCase(Locale.US).contains(filter))
+                .collect(Collectors.toList());
         }
-        updateResources();
         return result;
     }
 
@@ -165,10 +174,25 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         if (button.getID().equals(BUTTON_DONE))
         {
             final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
-            if (!ItemStackUtils.isEmpty(to))
+            if (!ItemStackUtils.isEmpty(to) || to.getItem() instanceof AirItem)
             {
                 if (origin instanceof WindowScan)
                 {
+                    final BlockState fromBS = BlockUtils.getBlockStateFromStack(from);
+                    final BlockState toBS = BlockUtils.getBlockStateFromStack(to);
+
+                    final List<Property<?>> missingProperties = new ArrayList<>(toBS.getProperties());
+                    missingProperties.removeAll(fromBS.getProperties());
+                    if (!missingProperties.isEmpty())
+                    {
+                        LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
+                            "structurize.gui.replaceblock.ambiguous_properties",
+                            LanguageHandler.translateKey(fromBS.getBlock().getTranslationKey()),
+                            LanguageHandler.translateKey(toBS.getBlock().getTranslationKey()),
+                            missingProperties.stream()
+                                .map(prop -> getPropertyName(prop) + " - " + prop.getName())
+                                .collect(Collectors.joining(", ", "[", "]")));
+                    }
                     Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }
                 else
@@ -185,7 +209,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         else if(button.getID().equals(BUTTON_SELECT))
         {
             final int row = resourceList.getListElementIndexByPane(button);
-            final ItemStack to = allItems.get(row);
+            final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
             findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) to.getDisplayName());
         }
@@ -195,7 +219,6 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     {
         resourceList.enable();
         resourceList.show();
-        final List<ItemStack> tempRes = new ArrayList<>(allItems);
 
         //Creates a dataProvider for the unemployed resourceList.
         resourceList.setDataProvider(new ScrollingList.DataProvider()
@@ -207,7 +230,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             @Override
             public int getElementCount()
             {
-                return tempRes.size();
+                return filteredItems.size();
             }
 
             /**
@@ -218,12 +241,21 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                final ItemStack resource = tempRes.get(index);
+                final ItemStack resource = filteredItems.get(index);
                 final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
                 resourceLabel.setLabelText((IFormattableTextComponent) resource.getDisplayName());
                 resourceLabel.setColor(WHITE, WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });
+    }
+
+    private String getPropertyName(final Property<?> clazz)
+    {
+        return clazz instanceof BooleanProperty ? "Boolean"
+            : clazz instanceof IntegerProperty ? "Integer"
+            : clazz instanceof EnumProperty ? "Enum"
+            : clazz instanceof DirectionProperty ? "Direction"
+            : clazz.getClass().getSimpleName();
     }
 }
