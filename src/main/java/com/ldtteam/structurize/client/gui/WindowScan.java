@@ -358,22 +358,16 @@ public class WindowScan extends AbstractWindowSkeleton
                         if ((block instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD)
                         || block instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
                         {
-                            continue;
-                        }
-                        if (block == Blocks.WATER)
-                        {
-                            addNeededResource(new ItemStack(Items.WATER_BUCKET, 1), 1);
-                        }
-                        else if(block == Blocks.LAVA)
-                        {
-                            addNeededResource(new ItemStack(Items.LAVA_BUCKET, 1), 1);
+                            // noop
                         }
                         else if (block == Blocks.AIR)
                         {
                             addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
                         }
-
-                        addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
+                        else
+                        {
+                            addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
+                        }
                     }
                 }
             }
