@@ -1129,7 +1129,7 @@
   "block.structurize.white_clay_birch_shingle": "White Clay Birch Shingle",
   "block.structurize.one_crossed_rl_dark_oak_stone_timber_frame": "Right Left Crossed Dark Oak Stone Timber Frame",
   "block.structurize.orange_floating_carpet": "Orange Floating Carpet",
-  "com.ldtteam.structurize.gui.tagtool.invalidsave": "Tried to save tagPos data to invalid anchor TE",
+  "com.ldtteam.structurize.gui.tagtool.invalidsave": "Tried to save tagPos data to invalid anchor tile entity",
   "com.ldtteam.structurize.gui.scantool.to": "To:",
   "block.structurize.double_crossed_acacia_brick_timber_frame": "Double Crossed Acacia Brick Timber Frame",
   "block.structurize.up_gated_oak_brick_timber_frame": "Up Gate Framed Oak Brick Timber Frame",
@@ -1149,6 +1149,6 @@
   "block.structurize.framed_cactus_cobble_stone_timber_frame": "Framed Cactus Cobblestone Timber Frame",
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
-  "structurize.gui.buildtool.creative_only": "Structurize does not support using buildtool when in survival now. Switch to creative or install minecolonies and use builder.",
-  "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because following properties are not present in source block: %s"
+  "structurize.gui.buildtool.creative_only": "Structurize does not support using the Build Tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
+  "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s"
 }
