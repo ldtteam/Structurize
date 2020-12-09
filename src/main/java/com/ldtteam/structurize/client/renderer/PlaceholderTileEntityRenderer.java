@@ -6,6 +6,7 @@ import com.ldtteam.structurize.tileentities.TileEntityPlaceholder;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
@@ -72,7 +73,7 @@ public class PlaceholderTileEntityRenderer extends TileEntityRenderer<TileEntity
             if (!stack.isItemEqual(te.getStack()))
             {
                 stack = te.getStack();
-                this.state = BlockUtils.getBlockStateFromStack(stack);
+                this.state = BlockUtils.getBlockStateFromStack(stack, Blocks.GOLD_BLOCK.getDefaultState());
                 if (this.state.hasProperty(PlaceholderBlock.HORIZONTAL_FACING))
                 {
                     this.state = this.state.with(PlaceholderBlock.HORIZONTAL_FACING, facing);
