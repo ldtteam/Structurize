@@ -108,9 +108,20 @@ public final class PlacementHandlers
         }
 
         @Override
-        public List<ItemStack> getRequiredItems(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState, @Nullable CompoundNBT tileEntityData, boolean complete)
+        public List<ItemStack> getRequiredItems(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete)
         {
-            return new ArrayList<>();
+            List<ItemStack> items = new ArrayList<>();
+            if (BlockUtils.getFluidForDimension(world).getBlock() == Blocks.LAVA)
+            {
+                items.add(new ItemStack(Items.LAVA_BUCKET));
+            }
+
+            return items;
         }
 
         @Override
@@ -124,7 +135,7 @@ public final class PlacementHandlers
             // If there's no water there and there can be
             if (!(state.hasProperty(BlockStateProperties.WATERLOGGED)
              && !state.get(BlockStateProperties.WATERLOGGED)
-             && BlockUtils.getFluidForDimension(world) == Blocks.WATER.getDefaultState()))
+             && BlockUtils.getFluidForDimension(world).getBlock() == Blocks.WATER))
             {
                 handleRemoval(handler, world, pos);
             }
@@ -137,7 +148,8 @@ public final class PlacementHandlers
           @NotNull BlockState blockState,
           @Nullable CompoundNBT tileEntityData,
           boolean complete,
-          BlockPos centerPos) {
+          BlockPos centerPos)
+        {
             if (complete)
             {
                 world.setBlockState(pos, ModBlocks.blockFluidSubstitution.getDefaultState(), UPDATE_FLAG);
