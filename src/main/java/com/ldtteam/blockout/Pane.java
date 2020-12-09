@@ -318,7 +318,7 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void draw(final MatrixStack ms, final int mx, final int my)
+    public void draw(final MatrixStack ms, final double mx, final double my)
     {
         if (visible)
         {
@@ -345,7 +345,7 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void drawLast(final MatrixStack ms, final int mx, final int my)
+    public void drawLast(final MatrixStack ms, final double mx, final double my)
     {
         if (visible)
         {
@@ -353,7 +353,7 @@ public class Pane extends AbstractGui
 
             if (isHovered && !toolTipLines.isEmpty())
             {
-                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), mx, my);
+                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), (int) mx, (int) my);
             }
         }
     }
@@ -366,7 +366,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }
@@ -379,7 +379,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }

@@ -65,33 +65,33 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         scissorsStart(ms);
 
         // Translate the scroll
         ms.push();
         ms.translate(0.0d, -scrollY, 0.0d);
-        super.drawSelf(ms, mx, my + (int) scrollY);
+        super.drawSelf(ms, mx, my + scrollY);
         ms.pop();
 
         scissorsEnd();
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the scroll
         ms.push();
         ms.translate(0.0d, -scrollY, 0.0d);
-        super.drawSelfLast(ms, mx, my + (int) scrollY);
+        super.drawSelfLast(ms, mx, my + scrollY);
         ms.pop();
     }
 
     @Override
     public boolean handleHover(final double mx, final double my)
     {
-        return super.handleHover(mx, my + (int) scrollY);
+        return super.handleHover(mx, my + scrollY);
     }
 
     @Override

@@ -77,7 +77,7 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         if (backgroundEnabled)
         {

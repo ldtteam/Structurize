@@ -208,7 +208,7 @@ public class Image extends Pane
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         this.mc.getTextureManager().bindTexture(resourceLocation);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

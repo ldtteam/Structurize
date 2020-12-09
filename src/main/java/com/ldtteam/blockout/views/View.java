@@ -63,7 +63,7 @@ public class View extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.push();
@@ -74,8 +74,8 @@ public class View extends Pane
         ms.translate(paddedX, paddedY, 0.0d);
 
         // Translate Mouse into the View
-        final int drawX = mx - paddedX;
-        final int drawY = my - paddedY;
+        final double drawX = mx - paddedX;
+        final double drawY = my - paddedY;
 
         children.stream().filter(this::childIsVisible).forEach(child -> child.draw(ms, drawX, drawY));
 
@@ -83,7 +83,7 @@ public class View extends Pane
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.push();
@@ -94,8 +94,8 @@ public class View extends Pane
         ms.translate(paddedX, paddedY, 0.0d);
 
         // Translate Mouse into the View
-        final int drawX = mx - paddedX;
-        final int drawY = my - paddedY;
+        final double drawX = mx - paddedX;
+        final double drawY = my - paddedY;
 
         for (final Pane child : children)
         {

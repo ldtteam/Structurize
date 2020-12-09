@@ -322,7 +322,7 @@ public class TreeView extends ZoomDragView
     }
 
     @Override
-    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
     {
         ms.push();
         ms.translate(x, y, 0.0d);

@@ -107,7 +107,7 @@ public class Label extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         final int color = isPointInPane(mx, my) ? hoverColor : textColor;
 

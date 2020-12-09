@@ -311,13 +311,13 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         button.drawSelf(ms, mx, my);
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         button.drawSelfLast(ms, mx, my);
     }

@@ -125,7 +125,7 @@ public class Window extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         updateDebugging();
 

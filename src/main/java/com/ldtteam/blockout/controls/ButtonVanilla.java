@@ -62,7 +62,7 @@ public class ButtonVanilla extends Button
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         mc.getTextureManager().bindTexture(TEXTURE);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

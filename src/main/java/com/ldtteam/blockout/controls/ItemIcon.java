@@ -16,7 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ItemIcon extends Pane
 {
     private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
-    private static final float GUI_ITEM_Z_TRANSLATE   = 32.0F;
+    private static final double GUI_ITEM_Z_TRANSLATE  = 32.0d;
 
     /**
      * ItemStack represented in the itemIcon.
@@ -72,7 +72,7 @@ public class ItemIcon extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
@@ -97,7 +97,7 @@ public class ItemIcon extends Pane
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         if (itemStack == null || itemStack.isEmpty() || !isHovered)
         {

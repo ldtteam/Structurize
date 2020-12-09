@@ -136,16 +136,16 @@ public class ZoomDragView extends View
         return Math.max(0, (double) contentWidth * scale - getWidth());
     }
 
-    protected void abstractDrawSelfPre(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPre(final MatrixStack ms, final double mx, final double my)
     {
     }
 
-    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
     {
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         scissorsStart(ms);
 
@@ -154,7 +154,7 @@ public class ZoomDragView extends View
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, 1.0f);
         abstractDrawSelfPre(ms, mx, my);
-        super.drawSelf(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        super.drawSelf(ms, calcRelativeX(mx), calcRelativeY(my));
         abstractDrawSelfPost(ms, mx, my);
         ms.pop();
 
@@ -162,7 +162,7 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         scissorsStart(ms);
 
@@ -170,7 +170,7 @@ public class ZoomDragView extends View
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, 1.0f);
-        super.drawSelfLast(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        super.drawSelfLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.pop();
 
         scissorsEnd();

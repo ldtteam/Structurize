@@ -173,7 +173,7 @@ public class Text extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         final int scaledLinespace = (int) (linespace * scale);
         int offsetY = 0;

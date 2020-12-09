@@ -330,7 +330,7 @@ public class TextField extends Pane
      * Draw itself at positions mx and my.
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         final int color = enabled ? textColor : textColorDisabled;
         final int drawWidth = getInternalWidth();

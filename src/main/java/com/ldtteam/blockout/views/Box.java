@@ -54,7 +54,7 @@ public class Box extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         Render.drawOutlineRect(ms, x, y, getWidth(), getHeight(), color, lineWidth);
 
@@ -62,7 +62,7 @@ public class Box extends View
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         super.drawSelfLast(ms, mx, my);
     }

@@ -88,7 +88,7 @@ public class Scrollbar extends Pane
      *
      * @param my the y it is clicked on.
      */
-    public void dragScroll(final int my)
+    public void dragScroll(final double my)
     {
         if (container.getContentHeight() == 0)
         {
@@ -113,7 +113,7 @@ public class Scrollbar extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         barClicked = barClicked && (mc.mouseHelper.isLeftDown() || BOScreen.isMouseLeftDown);
         // TODO: catch from screen
