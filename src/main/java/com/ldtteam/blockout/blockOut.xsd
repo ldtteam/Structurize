@@ -37,6 +37,14 @@
         <xs:attribute name="height" type="xs:string"/>
         <xs:attribute name="lightbox" type="xs:boolean"/>
         <xs:attribute name="pause" type="xs:boolean"/>
+        <xs:attribute name="type" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="FULLSCREEN"/>
+                    <xs:enumeration value="VANILLA"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="layoutType">
@@ -166,7 +174,7 @@
 
     <!-- <text> -->
     <xs:complexType name="textType">
-        <xs:simpleContent>
+        <xs:complexContent>
             <xs:extension base="paneType">
                 <xs:attribute name="linespace" type="xs:integer"/>
                 <xs:attribute name="textscale" type="xs:string"/>
@@ -174,7 +182,7 @@
                 <xs:attribute name="color" type="xs:string"/>
                 <xs:attribute name="shadow" type="xs:boolean"/>
             </xs:extension>
-        </xs:simpleContent>
+        </xs:complexContent>
     </xs:complexType>
 
     <!-- <itemicon> -->

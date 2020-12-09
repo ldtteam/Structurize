@@ -44,6 +44,11 @@ public class Window extends View
     protected boolean lightbox = true;
 
     /**
+     * Render using size or attemp to scale to fullscreen.
+     */
+    protected WindowRenderType windowRenderType = WindowRenderType.VANILLA;
+
+    /**
      * Create a window from an xml file.
      *
      * @param resource ResourceLocation to get file from.
@@ -116,6 +121,7 @@ public class Window extends View
 
         lightbox = params.getBooleanAttribute("lightbox", lightbox);
         windowPausesGame = params.getBooleanAttribute("pause", windowPausesGame);
+        windowRenderType = params.getEnumAttribute("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override
@@ -161,6 +167,14 @@ public class Window extends View
     public boolean doesWindowPauseGame()
     {
         return windowPausesGame;
+    }
+
+    /**
+     * @return {@link WindowRenderType}
+     */
+    public WindowRenderType getRenderType()
+    {
+        return windowRenderType;
     }
 
     /**
@@ -257,5 +271,17 @@ public class Window extends View
     public void onClosed()
     {
         // Can be overridden
+    }
+
+    public static enum WindowRenderType
+    {
+        /**
+         * no scaling, max gui resolution is 320*240 px
+         */
+        VANILLA,
+        /**
+         * scaling to size of framebuffer, gui resolution is unlimited, adds padding to center the gui inside framebuffer
+         */
+        FULLSCREEN;
     }
 }

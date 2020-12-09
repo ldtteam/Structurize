@@ -41,6 +41,8 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         final PlayerEntity playerIn,
         final ItemStack itemStack)
     {
+        // fullscreen gui test
+        // new com.ldtteam.structurize.client.gui.WindowFullscreenTest().open(); if(true)return ActionResultType.SUCCESS;
         if (!worldIn.isRemote)
         {
             return ActionResultType.FAIL;
