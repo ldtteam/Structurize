@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.*;
@@ -99,16 +101,10 @@ public final class PlacementHandlers
 
     public static class FluidSubstitutionPlacementHandler implements IPlacementHandler
     {
-        BlockState existing;
         @Override
         public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
         {
-            if (blockState.getBlock() instanceof BlockFluidSubstitution)
-            {
-                existing = world.getBlockState(pos);
-                return true;
-            }
-            return false;
+            return blockState.getBlock() instanceof BlockFluidSubstitution;
         }
 
         @Override
@@ -118,18 +114,44 @@ public final class PlacementHandlers
         }
 
         @Override
+        public void handleRemoval(
+          @NotNull IStructureHandler handler,
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull CompoundNBT tileEntityData)
+        {
+            BlockState state = world.getBlockState(pos);
+            // If there's no water there and there can be
+            if (!(state.hasProperty(BlockStateProperties.WATERLOGGED)
+             && !state.get(BlockStateProperties.WATERLOGGED)
+             && BlockUtils.getFluidForDimension(world) == Blocks.WATER.getDefaultState()))
+            {
+                handleRemoval(handler, world, pos);
+            }
+        }
+
+        @Override
         public ActionProcessingResult handle(
           @NotNull World world,
           @NotNull BlockPos pos,
           @NotNull BlockState blockState,
           @Nullable CompoundNBT tileEntityData,
           boolean complete,
-          BlockPos centerPos)
-        {
-            if (existing.hasProperty(BlockStateProperties.WATERLOGGED))
-                world.setBlockState(pos, existing.with(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
+          BlockPos centerPos) {
+            if (complete)
+            {
+                world.setBlockState(pos, ModBlocks.blockFluidSubstitution.getDefaultState(), UPDATE_FLAG);
+                return ActionProcessingResult.PASS;
+            }
+
+            if (world.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED))
+            {
+                world.setBlockState(pos, world.getBlockState(pos).with(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
+            }
             else
+            {
                 world.setBlockState(pos, BlockUtils.getFluidForDimension(world), UPDATE_FLAG);
+            }
 
             return ActionProcessingResult.PASS;
         }

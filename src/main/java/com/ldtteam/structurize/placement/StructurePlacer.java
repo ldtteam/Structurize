@@ -287,19 +287,7 @@ public class StructurePlacer
                           && worldState.getMaterial() != Material.AIR
                           && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
-                        if (!handler.isCreative())
-                        {
-                            final List<ItemStack> items = BlockUtils.getBlockDrops(world, worldPos, 0, handler.getHeldItem());
-                            for (final ItemStack item : items)
-                            {
-                                InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
-                            }
-                        }
-                        else if (world.getTileEntity(worldPos) != null)
-                        {
-                            world.removeTileEntity(worldPos);
-                        }
-                        world.removeBlock(worldPos, false);
+                        placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                     }
                 }
 
