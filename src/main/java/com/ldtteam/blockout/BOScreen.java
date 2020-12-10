@@ -125,6 +125,7 @@ public class BOScreen extends Screen
 
         final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
         final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
+        mcScale = minecraft.mainWindow.getGuiScaleFactor();
 
         final float renderZlevel = MatrixUtils.getLastMatrixTranslateZ(ms);
         final float oldZ = minecraft.getItemRenderer().zLevel;
@@ -132,7 +133,6 @@ public class BOScreen extends Screen
 
         if (window.getRenderType() == WindowRenderType.VANILLA)
         {
-            mcScale = minecraft.mainWindow.getGuiScaleFactor();
             renderScale = mcScale;
 
             x = (fbWidth - window.getWidth() * renderScale) / 2;
@@ -142,7 +142,6 @@ public class BOScreen extends Screen
         {
             final double heightScale = fbHeight / window.getHeight();
             final double widthScale = fbWidth / window.getWidth();
-            mcScale = minecraft.mainWindow.getGuiScaleFactor();
 
             if (heightScale < widthScale)
             {
