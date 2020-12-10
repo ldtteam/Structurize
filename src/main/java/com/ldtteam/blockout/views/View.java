@@ -77,12 +77,13 @@ public class View extends Pane
         final double drawX = mx - paddedX;
         final double drawY = my - paddedY;
 
-        children.forEach(child -> {
-            if (childIsVisible(child))
+        for (final Pane child : children)
+        {
+            if (child.isVisible())
             {
                 child.draw(ms, drawX, drawY);
             }
-        });
+        }
 
         ms.pop();
     }

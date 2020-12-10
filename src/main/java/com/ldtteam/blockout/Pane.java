@@ -627,10 +627,10 @@ public class Pane extends AbstractGui
             final ScissorsInfo parentInfo = scissorsInfoStack.peek();
 
             scissorsXstart = Math.max(scissorsXstart, parentInfo.xStart);
-            scissorsXend = MathHelper.clamp(parentInfo.xEnd, scissorsXstart, scissorsXend);
+            scissorsXend = Math.max(scissorsXstart, Math.min(parentInfo.xEnd, scissorsXend));
 
             scissorsYstart = Math.max(scissorsYstart, parentInfo.yStart);
-            scissorsYend = MathHelper.clamp(parentInfo.yEnd, scissorsYstart, scissorsYend);
+            scissorsYend = Math.max(scissorsYstart, Math.min(parentInfo.yEnd, scissorsYend));
         }
 
         @NotNull
@@ -660,9 +660,32 @@ public class Pane extends AbstractGui
         return y;
     }
 
-    protected synchronized void scissorsEnd()
+    protected synchronized void scissorsEnd(final MatrixStack ms)
     {
-        scissorsInfoStack.pop();
+        final ScissorsInfo popped = scissorsInfoStack.pop();
+        if (debugging)
+        {
+            final int color = 0xffff0000;
+            final int w = popped.xEnd - popped.xStart;
+            final int h = popped.yEnd - popped.yStart;
+
+            final int yStart = mc.mainWindow.getFramebufferHeight() - popped.yEnd;
+
+            ms.push();
+            ms.getLast().getMatrix().setIdentity();
+            Render.drawOutlineRect(ms, popped.xStart, yStart, w, h, color, 2.0f);
+
+            final String scId = "scissor_" + (id.isEmpty() ? this.toString() : id);
+            final int scale = (int) mc.mainWindow.getGuiScaleFactor();
+            final int stringWidth = mc.fontRenderer.getStringWidth(scId);
+            ms.scale(scale, scale, 1.0f);
+            mc.fontRenderer.drawString(ms,
+                scId,
+                (popped.xStart + w) / scale - stringWidth,
+                (yStart + h) / scale - mc.fontRenderer.FONT_HEIGHT,
+                color);
+            ms.pop();
+        }
 
         if (!scissorsInfoStack.isEmpty())
         {

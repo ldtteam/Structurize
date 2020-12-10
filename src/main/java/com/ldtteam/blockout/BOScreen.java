@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
  */
 public class BOScreen extends Screen
 {
-    protected double renderScale = 0;
+    protected double renderScale = 1.0d;
     protected double mcScale = 1.0d;
     protected Window window;
     protected double x = 0;
@@ -123,21 +123,40 @@ public class BOScreen extends Screen
             super.renderBackground(ms);
         }
 
+        final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
+        final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
+
         final float oldZ = minecraft.getItemRenderer().zLevel;
         minecraft.getItemRenderer().zLevel = MatrixUtils.getLastMatrixTranslateZ(ms);
 
         if (window.getRenderType() == WindowRenderType.VANILLA)
         {
+            mcScale = minecraft.mainWindow.getGuiScaleFactor();
+            renderScale = mcScale;
+
+            x = (fbWidth - window.getWidth() * renderScale) / 2;
+            y = (fbHeight - window.getHeight() * renderScale) / 2;
+
+            RenderSystem.matrixMode(GL11.GL_PROJECTION);
+            RenderSystem.loadIdentity();
+            RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
+            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+
             ms.push();
+            ms.getLast().getMatrix().setIdentity();
             ms.translate(x, y, 0.0d);
-            window.draw(ms, mx - x, my - y);
-            window.drawLast(ms, mx - x, my - y);
+            ms.scale((float) renderScale, (float) renderScale, 1.0f);
+            window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
+            window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
             ms.pop();
+
+            RenderSystem.matrixMode(GL11.GL_PROJECTION);
+            RenderSystem.loadIdentity();
+            RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
+            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
         }
         else if (window.getRenderType() == WindowRenderType.FULLSCREEN)
         {
-            final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
-            final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
             final double heightScale = fbHeight / window.getHeight();
             final double widthScale = fbWidth / window.getWidth();
             mcScale = minecraft.mainWindow.getGuiScaleFactor();
@@ -249,9 +268,6 @@ public class BOScreen extends Screen
     @Override
     public void init()
     {
-        x = (width - window.getWidth()) / 2;
-        y = (height - window.getHeight()) / 2;
-
         minecraft.keyboardListener.enableRepeatEvents(true);
     }
 

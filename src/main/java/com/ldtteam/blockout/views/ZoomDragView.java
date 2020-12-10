@@ -159,7 +159,7 @@ public class ZoomDragView extends View
         abstractDrawSelfPost(ms, mx, my);
         ms.pop();
 
-        scissorsEnd();
+        scissorsEnd(ms);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class ZoomDragView extends View
         super.drawSelfLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.pop();
 
-        scissorsEnd();
+        scissorsEnd(ms);
     }
 
     private void setScrollY(final double offset)
