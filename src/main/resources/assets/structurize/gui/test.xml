@@ -1,10 +1,13 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" pause="false" size="960 540" type="FULLSCREEN" lightbox="false" xsi:noNamespaceSchemaLocation="../../../../../../src/main/java/com/ldtteam/blockout/blockOut.xsd">
 
-    <!-- <zoomdragview maxScale="5.0" minScale="0.1" size="960 540"> scissors need fix-->
+    <zoomdragview maxScale="5.0" minScale="0.1" size="960 540">
         <image source="structurize:textures/gui/background.png" size="960 540" id="guide1"/>
         <button id="confirm" pos="360 455" label="Confirm"/>
         <text id="questionmark" size="210 75" color="black" pos="80 363" textscale="0.8"/>
         <text id="arrow" size="210 75" color="black" pos="637 22" textscale="0.8"/>
         <text id="chest" size="210 75" color="black" pos="646 363" textscale="0.8"/>
-    <!-- </zoomdragview> -->
+        <list id="testList" size="108 200" pos="0 0">
+            <button/>
+        </list>
+    </zoomdragview>
 </window>

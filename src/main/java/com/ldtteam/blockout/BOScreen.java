@@ -16,7 +16,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class BOScreen extends Screen
 {
-    protected static double scale = 0;
+    protected double renderScale = 0;
+    protected double mcScale = 1.0d;
     protected Window window;
     protected double x = 0;
     protected double y = 0;
@@ -113,11 +114,6 @@ public class BOScreen extends Screen
         window = w;
     }
 
-    public static double getScale()
-    {
-        return scale;
-    }
-
     @Override
     @SuppressWarnings("deprecation")
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
@@ -132,7 +128,6 @@ public class BOScreen extends Screen
 
         if (window.getRenderType() == WindowRenderType.VANILLA)
         {
-            scale = minecraft.mainWindow.getGuiScaleFactor();
             ms.push();
             ms.translate(x, y, 0.0d);
             window.draw(ms, mx - x, my - y);
@@ -145,19 +140,19 @@ public class BOScreen extends Screen
             final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
             final double heightScale = fbHeight / window.getHeight();
             final double widthScale = fbWidth / window.getWidth();
-            final double mcScale = minecraft.mainWindow.getGuiScaleFactor();
+            mcScale = minecraft.mainWindow.getGuiScaleFactor();
 
             if (heightScale < widthScale)
             {
-                scale = heightScale;
-                x = Math.floor((fbWidth - window.getWidth() * scale) / 2.0d);
+                renderScale = heightScale;
+                x = Math.floor((fbWidth - window.getWidth() * renderScale) / 2.0d);
                 y = 0.0d;
             }
             else
             {
-                scale = widthScale;
+                renderScale = widthScale;
                 x = 0.0d;
-                y = Math.floor((fbHeight - window.getHeight() * scale) / 2.0d);
+                y = Math.floor((fbHeight - window.getHeight() * renderScale) / 2.0d);
             }
 
             RenderSystem.matrixMode(GL11.GL_PROJECTION);
@@ -168,9 +163,9 @@ public class BOScreen extends Screen
             ms.push();
             ms.getLast().getMatrix().setIdentity();
             ms.translate(x, y, 0.0d);
-            ms.scale((float) scale, (float) scale, 1.0f);
-            window.draw(ms, calcRelativeX(mx * mcScale), calcRelativeY(my * mcScale));
-            window.drawLast(ms, calcRelativeX(mx * mcScale), calcRelativeY(my * mcScale));
+            ms.scale((float) renderScale, (float) renderScale, 1.0f);
+            window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
+            window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
             ms.pop();
 
             RenderSystem.matrixMode(GL11.GL_PROJECTION);
@@ -313,7 +308,7 @@ public class BOScreen extends Screen
      */
     private double calcRelativeX(final double xIn)
     {
-        return (xIn - x) / scale;
+        return (xIn * mcScale - x) / renderScale;
     }
 
     /**
@@ -321,6 +316,6 @@ public class BOScreen extends Screen
      */
     private double calcRelativeY(final double yIn)
     {
-        return (yIn - y) / scale;
+        return (yIn * mcScale - y) / renderScale;
     }
 }

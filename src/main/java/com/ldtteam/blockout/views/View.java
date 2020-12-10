@@ -77,7 +77,12 @@ public class View extends Pane
         final double drawX = mx - paddedX;
         final double drawY = my - paddedY;
 
-        children.stream().filter(this::childIsVisible).forEach(child -> child.draw(ms, drawX, drawY));
+        children.forEach(child -> {
+            if (childIsVisible(child))
+            {
+                child.draw(ms, drawX, drawY);
+            }
+        });
 
         ms.pop();
     }
@@ -315,7 +320,7 @@ public class View extends Pane
      * @return true if event was used or propagation needs to be stopped
      */
     public boolean mousePointableEventHandler(final double mx, final double my,
-      final MouseEventCallback eventCallbackPositive, @Nullable final MouseEventCallback eventCallbackNegative)
+        final MouseEventCallback eventCallbackPositive, @Nullable final MouseEventCallback eventCallbackNegative)
     {
         return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallbackPositive, eventCallbackNegative);
     }
@@ -330,8 +335,8 @@ public class View extends Pane
      * @param eventCallbackNegative negative event callback.
      * @return true if event was used or propagation needs to be stopped
      */
-    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate
-      , final MouseEventCallback eventCallbackPositive, final MouseEventCallback eventCallbackNegative)
+    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive, final MouseEventCallback eventCallbackNegative)
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
         final double mxChild = mx - x - padding;

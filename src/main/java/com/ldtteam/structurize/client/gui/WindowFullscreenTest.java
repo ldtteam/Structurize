@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structurize.api.util.constant.Constants;
 
 public class WindowFullscreenTest extends AbstractWindowSkeleton
@@ -9,5 +10,6 @@ public class WindowFullscreenTest extends AbstractWindowSkeleton
     public WindowFullscreenTest()
     {
         super(Constants.MOD_ID + XML_LOC);
+        findPaneOfTypeByID("testList", ScrollingList.class).setDataProvider(() -> 30, (id, pane) -> {});
     }
 }

@@ -4,14 +4,16 @@ import com.google.common.collect.Lists;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -601,39 +603,41 @@ public class Pane extends AbstractGui
 
     protected synchronized void scissorsStart(final MatrixStack ms)
     {
-        int scissorsX = MatrixUtils.getLastMatrixTranslateXasInt(ms) + getX();
-        int scissorsY = MatrixUtils.getLastMatrixTranslateYasInt(ms) + getY();
-        int h = getHeight();
-        int w = getWidth();
+        final int fbWidth = mc.mainWindow.getFramebufferWidth();
+        final int fbHeight = mc.mainWindow.getFramebufferHeight();
+
+        final Vector4f start = new Vector4f(x, y, 0.0f, 1.0f);
+        final Vector4f end = new Vector4f(x + width, y + height, 0.0f, 1.0f);
+        start.transform(ms.getLast().getMatrix());
+        end.transform(ms.getLast().getMatrix());
+
+        int scissorsXstart = MathHelper.clamp((int) Math.floor(start.getX()), 0, fbWidth);
+        int scissorsXend = MathHelper.clamp((int) Math.floor(end.getX()), 0, fbWidth);
+
+        int scissorsYstart = MathHelper.clamp((int) Math.floor(start.getY()), 0, fbHeight);
+        int scissorsYend = MathHelper.clamp((int) Math.floor(end.getY()), 0, fbHeight);
+
+        // negate bottom top (opengl things)
+        final int temp = scissorsYstart;
+        scissorsYstart = fbHeight - scissorsYend;
+        scissorsYend = fbHeight - temp;
 
         if (!scissorsInfoStack.isEmpty())
         {
             final ScissorsInfo parentInfo = scissorsInfoStack.peek();
-            final int right = scissorsX + w;
-            final int bottom = scissorsY + h;
-            final int parentRight = parentInfo.x + parentInfo.width;
-            final int parentBottom = parentInfo.y + parentInfo.height;
 
-            scissorsX = Math.max(scissorsX, parentInfo.x);
-            scissorsY = Math.max(scissorsY, parentInfo.y);
+            scissorsXstart = Math.max(scissorsXstart, parentInfo.xStart);
+            scissorsXend = MathHelper.clamp(parentInfo.xEnd, scissorsXstart, scissorsXend);
 
-            w = Math.max(0, Math.min(right, parentRight) - scissorsX);
-            h = Math.max(0, Math.min(bottom, parentBottom) - scissorsY);
+            scissorsYstart = Math.max(scissorsYstart, parentInfo.yStart);
+            scissorsYend = MathHelper.clamp(parentInfo.yEnd, scissorsYstart, scissorsYend);
         }
 
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
         @NotNull
-        final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
+        final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend);
         scissorsInfoStack.push(info);
 
-        final double scale = BOScreen.getScale();
-        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
-        GL11.glScissor(
-            (int) (info.x * scale),
-            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-            (int) (info.width * scale),
-            (int) (info.height * scale));
+        RenderSystem.enableScissor(scissorsXstart, scissorsYstart, scissorsXend - scissorsXstart, scissorsYend - scissorsYstart);
     }
 
     /**
@@ -660,21 +664,14 @@ public class Pane extends AbstractGui
     {
         scissorsInfoStack.pop();
 
-        GL11.glPopAttrib();
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
-
         if (!scissorsInfoStack.isEmpty())
         {
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
             final ScissorsInfo info = scissorsInfoStack.peek();
-            final double scale = BOScreen.getScale();
-            GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
-            GL11.glScissor(
-              (int) (info.x * scale),
-              (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-              (int) (info.width * scale),
-              (int) (info.height * scale));
+            RenderSystem.enableScissor(info.xStart, info.yStart, info.xEnd - info.xStart, info.yEnd - info.yStart);
+        }
+        else
+        {
+            RenderSystem.disableScissor();
         }
     }
 
@@ -706,17 +703,17 @@ public class Pane extends AbstractGui
 
     private static class ScissorsInfo
     {
-        private final int x;
-        private final int y;
-        private final int width;
-        private final int height;
+        private final int xStart;
+        private final int yStart;
+        private final int xEnd;
+        private final int yEnd;
 
-        ScissorsInfo(final int x, final int y, final int w, final int h)
+        ScissorsInfo(final int xStart, final int xEnd, final int yStart, final int yEnd)
         {
-            this.x = x;
-            this.y = y;
-            this.width = w;
-            this.height = h;
+            this.xStart = xStart;
+            this.xEnd = xEnd;
+            this.yStart = yStart;
+            this.yEnd = yEnd;
         }
     }
 

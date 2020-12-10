@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -42,12 +43,12 @@ public class ZoomDragView extends View
     public ZoomDragView(final PaneParams params)
     {
         super(params);
-        dragFactor = params.getDoubleAttribute("dragfactor", dragFactor);
-        dragEnabled = params.getBooleanAttribute("dragenabled", dragEnabled);
-        zoomFactor = params.getDoubleAttribute("zoomfactor", zoomFactor);
-        zoomEnabled = params.getBooleanAttribute("zoomenabled", zoomEnabled);
-        minScale = params.getDoubleAttribute("minscale", minScale);
-        maxScale = params.getDoubleAttribute("maxscale", maxScale);
+        dragFactor = params.getDoubleAttribute("dragFactor", dragFactor);
+        dragEnabled = params.getBooleanAttribute("dragEnabled", dragEnabled);
+        zoomFactor = params.getDoubleAttribute("zoomFactor", zoomFactor);
+        zoomEnabled = params.getBooleanAttribute("zoomEnabled", zoomEnabled);
+        minScale = params.getDoubleAttribute("minScale", minScale);
+        maxScale = params.getDoubleAttribute("maxScale", maxScale);
     }
 
     @Override
@@ -189,8 +190,7 @@ public class ZoomDragView extends View
     @Override
     public boolean onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
     {
-        final boolean childResult = super.onMouseDrag(calcRelativeX(
-            startX), calcRelativeY(startY), speed, calcRelativeX(x), calcRelativeY(y));
+        final boolean childResult = super.onMouseDrag(startX, startY, speed, calcRelativeX(x), calcRelativeY(y));
         if (!childResult && dragEnabled)
         {
             setScrollX(scrollX - x * dragFactor);
@@ -220,27 +220,13 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public boolean click(final double mx, final double my)
+    public boolean mouseEventProcessor(final double mx,
+        final double my,
+        final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive,
+        final MouseEventCallback eventCallbackNegative)
     {
-        return super.click(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public Pane findPaneForClick(final double mx, final double my)
-    {
-        return super.findPaneForClick(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return super.handleHover(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public boolean rightClick(final double mx, final double my)
-    {
-        return super.rightClick(calcRelativeX(mx), calcRelativeY(my));
+        return super.mouseEventProcessor(calcRelativeX(mx), calcRelativeY(my), panePredicate, eventCallbackPositive, eventCallbackNegative);
     }
 
     public void treeViewHelperAddChild(final Pane child)
