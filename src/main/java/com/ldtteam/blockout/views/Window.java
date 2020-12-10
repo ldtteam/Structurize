@@ -296,9 +296,7 @@ public class Window extends View
         /**
          * no upscaling, downscaling down to 320*240 px, max gui resolution is unlimited
          */
-        OVERSIZED((mcWindow, window) -> {
-            return Math.min(FULLSCREEN.calcRenderScale(mcWindow, window), 1.0d);
-        });
+        OVERSIZED((mcWindow, window) -> Math.min(FULLSCREEN.calcRenderScale(mcWindow, window), 1.0d));
 
         private final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator;
 
