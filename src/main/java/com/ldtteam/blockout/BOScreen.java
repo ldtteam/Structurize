@@ -126,6 +126,7 @@ public class BOScreen extends Screen
         final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
         final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
 
+        final float renderZlevel = MatrixUtils.getLastMatrixTranslateZ(ms);
         final float oldZ = minecraft.getItemRenderer().zLevel;
         minecraft.getItemRenderer().zLevel = MatrixUtils.getLastMatrixTranslateZ(ms);
 
@@ -136,24 +137,6 @@ public class BOScreen extends Screen
 
             x = (fbWidth - window.getWidth() * renderScale) / 2;
             y = (fbHeight - window.getHeight() * renderScale) / 2;
-
-            RenderSystem.matrixMode(GL11.GL_PROJECTION);
-            RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
-            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-
-            ms.push();
-            ms.getLast().getMatrix().setIdentity();
-            ms.translate(x, y, 0.0d);
-            ms.scale((float) renderScale, (float) renderScale, 1.0f);
-            window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
-            window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
-            ms.pop();
-
-            RenderSystem.matrixMode(GL11.GL_PROJECTION);
-            RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
-            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
         }
         else if (window.getRenderType() == WindowRenderType.FULLSCREEN)
         {
@@ -173,25 +156,25 @@ public class BOScreen extends Screen
                 x = 0.0d;
                 y = Math.floor((fbHeight - window.getHeight() * renderScale) / 2.0d);
             }
-
-            RenderSystem.matrixMode(GL11.GL_PROJECTION);
-            RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
-            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-
-            ms.push();
-            ms.getLast().getMatrix().setIdentity();
-            ms.translate(x, y, 0.0d);
-            ms.scale((float) renderScale, (float) renderScale, 1.0f);
-            window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
-            window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
-            ms.pop();
-
-            RenderSystem.matrixMode(GL11.GL_PROJECTION);
-            RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
-            RenderSystem.matrixMode(GL11.GL_MODELVIEW);
         }
+
+        RenderSystem.matrixMode(GL11.GL_PROJECTION);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+
+        ms.push();
+        ms.getLast().getMatrix().setIdentity();
+        ms.translate(x, y, renderZlevel);
+        ms.scale((float) renderScale, (float) renderScale, 1.0f);
+        window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
+        window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
+        ms.pop();
+
+        RenderSystem.matrixMode(GL11.GL_PROJECTION);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
         minecraft.getItemRenderer().zLevel = oldZ;
     }
