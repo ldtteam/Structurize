@@ -118,7 +118,12 @@ public class BOScreen extends Screen
     @SuppressWarnings("deprecation")
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
-        if (window.hasLightbox() && super.minecraft != null)
+        if (minecraft == null) // should never happen though
+        {
+            return;
+        }
+
+        if (window.hasLightbox())
         {
             super.renderBackground(ms);
         }
@@ -138,6 +143,7 @@ public class BOScreen extends Screen
         x = Math.floor((guiWidth - window.getWidth() * renderScale) / 2.0d);
         y = Math.floor((guiHeight - window.getHeight() * renderScale) / 2.0d);
 
+        // replace vanilla projection
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
         RenderSystem.loadIdentity();
         RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
@@ -151,6 +157,7 @@ public class BOScreen extends Screen
         window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.pop();
 
+        // restore vanilla state
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
         RenderSystem.loadIdentity();
         RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
