@@ -2,8 +2,9 @@ package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.ldtteam.blockout.BOScreen;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;
@@ -11,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import java.util.function.ToDoubleBiFunction;
 
 /**
  * Blockout window, high level root pane.
@@ -273,15 +275,41 @@ public class Window extends View
         // Can be overridden
     }
 
+    /**
+     * Defines how gui should be rendered.
+     */
     public static enum WindowRenderType
     {
         /**
-         * no scaling, max gui resolution is 320*240 px
+         * no upscaling, no downscaling, max gui resolution is 320*240 px, anything above might not be rendered
          */
-        VANILLA,
+        VANILLA((mcWindow, window) -> mcWindow.getGuiScaleFactor()),
         /**
-         * scaling to size of framebuffer, gui resolution is unlimited, adds padding to center the gui inside framebuffer
+         * scaling to size of framebuffer, max gui resolution is unlimited
          */
-        FULLSCREEN;
+        FULLSCREEN((mcWindow, window) -> {
+            final double widthScale = Math.max((double) mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
+            final double heightScale = Math.max((double) mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
+
+            return Math.min(widthScale, heightScale);
+        }),
+        /**
+         * no upscaling, downscaling down to 320*240 px, max gui resolution is unlimited
+         */
+        OVERSIZED((mcWindow, window) -> {
+            return Math.min(FULLSCREEN.calcRenderScale(mcWindow, window), 1.0d);
+        });
+
+        private final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator;
+
+        private WindowRenderType(final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator)
+        {
+            this.renderScaleCalculator = renderScaleCalculator;
+        }
+
+        public double calcRenderScale(final MainWindow mcWindow, final Window window)
+        {
+            return renderScaleCalculator.applyAsDouble(mcWindow, window);
+        }
     }
 }

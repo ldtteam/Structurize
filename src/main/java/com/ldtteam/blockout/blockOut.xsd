@@ -42,6 +42,7 @@
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="FULLSCREEN"/>
                     <xs:enumeration value="VANILLA"/>
+                    <xs:enumeration value="OVERSIZED"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>

@@ -125,37 +125,18 @@ public class BOScreen extends Screen
 
         final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
         final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
-        mcScale = minecraft.mainWindow.getGuiScaleFactor();
+        final double guiWidth = Math.max(fbWidth, 320.0d);
+        final double guiHeight = Math.max(fbHeight, 240.0d);
 
         final float renderZlevel = MatrixUtils.getLastMatrixTranslateZ(ms);
         final float oldZ = minecraft.getItemRenderer().zLevel;
-        minecraft.getItemRenderer().zLevel = MatrixUtils.getLastMatrixTranslateZ(ms);
+        minecraft.getItemRenderer().zLevel = renderZlevel;
 
-        if (window.getRenderType() == WindowRenderType.VANILLA)
-        {
-            renderScale = mcScale;
+        mcScale = minecraft.mainWindow.getGuiScaleFactor();
+        renderScale = window.getRenderType().calcRenderScale(minecraft.mainWindow, window);
 
-            x = (fbWidth - window.getWidth() * renderScale) / 2;
-            y = (fbHeight - window.getHeight() * renderScale) / 2;
-        }
-        else if (window.getRenderType() == WindowRenderType.FULLSCREEN)
-        {
-            final double heightScale = fbHeight / window.getHeight();
-            final double widthScale = fbWidth / window.getWidth();
-
-            if (heightScale < widthScale)
-            {
-                renderScale = heightScale;
-                x = Math.floor((fbWidth - window.getWidth() * renderScale) / 2.0d);
-                y = 0.0d;
-            }
-            else
-            {
-                renderScale = widthScale;
-                x = 0.0d;
-                y = Math.floor((fbHeight - window.getHeight() * renderScale) / 2.0d);
-            }
-        }
+        x = Math.floor((guiWidth - window.getWidth() * renderScale) / 2.0d);
+        y = Math.floor((guiHeight - window.getHeight() * renderScale) / 2.0d);
 
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
         RenderSystem.loadIdentity();
