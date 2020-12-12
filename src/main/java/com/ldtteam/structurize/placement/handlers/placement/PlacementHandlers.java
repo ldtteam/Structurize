@@ -488,6 +488,10 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
+            if (world.getBlockState(pos).getBlock() == blockState.getBlock())
+            {
+                return ActionProcessingResult.PASS;
+            }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
