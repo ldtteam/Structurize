@@ -145,7 +145,22 @@ public class ButtonVanilla extends Button
             int yShift = 0;
             for (final IReorderingProcessor row : preparedLabel)
             {
-                drawString(ms, row, 0, yShift, textColor, shadow);
+                final int xOffset;
+
+                if (textAlignment.isRightAligned())
+                {
+                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(row) * textScale) / textScale);
+                }
+                else if (textAlignment.isHorizontalCentered())
+                {
+                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(row) * textScale) / 2 / textScale);
+                }
+                else
+                {
+                    xOffset = 0;
+                }
+
+                drawString(ms, row, xOffset, yShift, textColor, shadow);
                 yShift += 9;
             }
             ms.pop();
@@ -170,7 +185,7 @@ public class ButtonVanilla extends Button
         final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale + Math.ceil(textScale));
 
         preparedLabel = mc.fontRenderer.trimStringToWidth(label, maxWidth);
-        preparedLabel = preparedLabel.subList(0, maxHeight / this.mc.fontRenderer.FONT_HEIGHT);
+        preparedLabel = preparedLabel.subList(0, Math.min(preparedLabel.size(), maxHeight / this.mc.fontRenderer.FONT_HEIGHT));
         labelWidth = (int) (preparedLabel.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * textScale);
         labelHeight = (int) (Math.min(preparedLabel.size() * this.mc.fontRenderer.FONT_HEIGHT, maxHeight) * textScale);
     }

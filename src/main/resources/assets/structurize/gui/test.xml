@@ -13,5 +13,10 @@
             </box>
         </list>
         <button pos="200 200" size="100 100" textscale="4.0" textalign="MIDDLE_LEFT" label="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"/>
+        <button pos="200 300" size="100 100" textscale="0.5" label="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"/>
+        <button pos="200 400" size="9 9" textscale="0.5" label="+"/>
+        <button pos="200 450" size="9 9" textscale="0.5" label="-"/>
+        <button pos="250 400" size="14 13" label="+"/>
+        <button pos="250 450" size="14 13" label="-"/>
     </zoomdragview>
 </window>
