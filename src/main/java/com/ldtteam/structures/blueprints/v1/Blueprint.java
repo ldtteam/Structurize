@@ -15,6 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -713,13 +714,23 @@ public class Blueprint
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
         {
-            // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
             if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
             {
+                if (type.get().getRegistryName().getNamespace().equals("minecraft"))
+                {
+                    Log.getLogger().error("Rather than using config, PLEASE REPORT your problems to Structurize github issues. Thanks in advance");
+                }
                 return null;
             }
 
             final Entity finalEntity = type.get().create(world);
+
+            /** 1.16 fix {@link IAngerable#readAngerNBT(ServerWorld, CompoundNBT)} */
+            if (world.isRemote && finalEntity instanceof IAngerable)
+            {
+                return null;
+            }
+
             if (finalEntity != null)
             {
                 try

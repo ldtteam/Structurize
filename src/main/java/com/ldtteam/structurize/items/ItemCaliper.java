@@ -45,8 +45,6 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         {
             return ActionResultType.FAIL;
         }
-        // fullscreen gui test
-        // new com.ldtteam.structurize.client.gui.WindowFullscreenTest().open(); if(true)return ActionResultType.SUCCESS;
 
         if (start.equals(end))
         {
