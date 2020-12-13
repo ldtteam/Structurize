@@ -44,6 +44,7 @@ public final class PlacementHandlers
     {
         handlers.add(new AirPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
+        handlers.add(new FluidPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new GrassPlacementHandler());
         handlers.add(new DoorPlacementHandler());
@@ -97,6 +98,45 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
+    }
+
+    public static class FluidPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+        {
+            return blockState.getBlock() instanceof FlowingFluidBlock;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete)
+        {
+            List<ItemStack> items = new ArrayList<>();
+            if (blockState.getBlock() != Blocks.WATER)
+            {
+                items.add(BlockUtils.getItemStackFromBlockState(blockState));
+            }
+
+            return items;
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete,
+          BlockPos centerPos)
+        {
+            world.setBlockState(pos, blockState, UPDATE_FLAG);
+            return ActionProcessingResult.PASS;
+        }
     }
 
     public static class FluidSubstitutionPlacementHandler implements IPlacementHandler
@@ -317,7 +357,6 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            // todo maybe doors work from scratch?
             if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
                 world.setBlockState(pos, blockState.with(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
