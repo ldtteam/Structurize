@@ -1,4 +1,4 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" pause="false" size="960 540" type="FULLSCREEN"
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" pause="false" size="960 540" type="OVERSIZED_VANILLA"
     lightbox="false" xsi:noNamespaceSchemaLocation="../../../../../../src/main/java/com/ldtteam/blockout/blockOut.xsd">
 
     <zoomdragview maxScale="5.0" minScale="0.1" size="960 540">
