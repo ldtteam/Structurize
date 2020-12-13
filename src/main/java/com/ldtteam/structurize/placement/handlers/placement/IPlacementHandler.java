@@ -1,5 +1,8 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -70,6 +73,50 @@ public interface IPlacementHandler
       final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
     {
         return handle(world, pos, blockState, tileEntityData, complete, centerPos);
+    }
+
+    /**
+     * Handles the removal of the existing block in the world
+     *
+     * @param handler the actor removing the block
+     * @param world the world this block belongs to
+     * @param pos the position of the block
+     * @param tileEntityData any tile entity data in the blueprint
+     */
+    default void handleRemoval(
+      @NotNull final IStructureHandler handler,
+      @NotNull final World world,
+      @NotNull final BlockPos pos,
+      @NotNull final CompoundNBT tileEntityData)
+    {
+        handleRemoval(handler, world, pos);
+    }
+
+    /**
+     * Handles the removal of the existing block in the world
+     *
+     * @param handler the actor removing the block
+     * @param world the world this block belongs to
+     * @param pos the position of the block
+     */
+    default void handleRemoval(
+      @NotNull final IStructureHandler handler,
+      @NotNull final World world,
+      @NotNull final BlockPos pos)
+    {
+        if (!handler.isCreative())
+        {
+            final List<ItemStack> items = BlockUtils.getBlockDrops(world, pos, 0, handler.getHeldItem());
+            for (final ItemStack item : items)
+            {
+                InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
+            }
+        }
+        else if (world.getTileEntity(pos) != null)
+        {
+            world.removeTileEntity(pos);
+        }
+        world.removeBlock(pos, false);
     }
 
     /**

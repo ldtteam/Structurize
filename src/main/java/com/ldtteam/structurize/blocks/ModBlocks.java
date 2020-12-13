@@ -3,6 +3,7 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
+import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.*;
@@ -47,6 +48,7 @@ public final class ModBlocks
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
+    public static BlockFluidSubstitution blockFluidSubstitution;
 
     /**
      * Utility blocks.
@@ -121,6 +123,7 @@ public final class ModBlocks
         blockCactusFence = new BlockCactusFence().registerBlock(registry);
         blockCactusFenceGate = new BlockCactusFenceGate().registerBlock(registry);
 
+        blockFluidSubstitution = new BlockFluidSubstitution().registerBlock(registry);
         blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
         blockSubstitution = new BlockSubstitution().registerBlock(registry);
 
@@ -172,6 +175,7 @@ public final class ModBlocks
         final Item.Properties shingleProperties = new Item.Properties().group(ModCreativeTabs.SHINGLES);
         final Item.Properties timberframeProperties = new Item.Properties().group(ModCreativeTabs.TIMBER_FRAMES);
 
+        blockFluidSubstitution.registerItemBlock(registry, properties);
         blockSolidSubstitution.registerItemBlock(registry, properties);
         blockSubstitution.registerItemBlock(registry, properties);
 

@@ -9,14 +9,15 @@ import net.minecraft.item.*;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.Property;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
@@ -210,6 +211,19 @@ public final class BlockUtils
             {
                 return true;
             }
+
+            // if the other block has fluid already or is not waterloggable, take no action
+            if ((block1 == ModBlocks.blockFluidSubstitution
+                && (blockState2.getFluidState().isSource()
+                    || !blockState2.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && blockState2.getMaterial().isSolid()))
+             || (block2 == ModBlocks.blockFluidSubstitution
+                && (blockState1.getFluidState().isSource()
+                    || !blockState1.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && blockState1.getMaterial().isSolid())))
+            {
+                return true;
+            }
         }
 
         return specialEqualRule.test(blockState1, blockState2);
@@ -353,6 +367,26 @@ public final class BlockUtils
         {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
         }
+    }
+
+    /**
+     * A simple check to fetch the default fluid block for this dimension
+     * @param world the world of the dimension
+     * @return the default blockstate for the default fluid
+     */
+    public static BlockState getFluidForDimension(World world)
+    {
+        ResourceLocation res = world.func_241828_r().func_230520_a_().getKey(world.getDimensionType());
+        if (res == null)
+        {
+            return Blocks.WATER.getDefaultState();
+        }
+
+        RegistryKey<DimensionType> rk = RegistryKey.getOrCreateKey(Registry.DIMENSION_TYPE_KEY, res);
+
+        return rk == DimensionType.THE_NETHER
+                ? Blocks.LAVA.getDefaultState()
+                : Blocks.WATER.getDefaultState();
     }
 
     /**
