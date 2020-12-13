@@ -15,6 +15,7 @@ public class ButtonVanilla extends Button
      * Texture map that contains the button texture.
      */
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/widgets.png");
+    private static final int TEXTURE_SIZE = 256;
 
     private static final int DEFAULT_BUTTON_WIDTH = 200;
     private static final int DEFAULT_BUTTON_HEIGHT = 20;
@@ -73,14 +74,7 @@ public class ButtonVanilla extends Button
         final int v;
         if (enabled)
         {
-            if (isMouseOver)
-            {
-                v = HOVER_TEXTURE_V;
-            }
-            else
-            {
-                v = ENABLED_TEXTURE_V;
-            }
+            v = isMouseOver ? HOVER_TEXTURE_V : ENABLED_TEXTURE_V;
         }
         else
         {
@@ -98,23 +92,20 @@ public class ButtonVanilla extends Button
         }
         else
         {
-            blit(ms, x, y, u, v, width / 2, height / 2);
-            blit(ms, x + width / 2, y, u + DEFAULT_BUTTON_WIDTH - width / 2, v, width / 2, height / 2);
-            blit(ms, x, y + height / 2, u, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
-            blit(ms, x + width / 2, y + height / 2, u + DEFAULT_BUTTON_WIDTH - width / 2, v + DEFAULT_BUTTON_HEIGHT - height / 2, width / 2, height / 2);
+            blitRepeatable(ms,
+                x, y,
+                width, height,
+                u, v,
+                DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT,
+                TEXTURE_SIZE, TEXTURE_SIZE,
+                2, 2,
+                196, 15);
         }
 
         final int textColor;
         if (enabled)
         {
-            if (isMouseOver)
-            {
-                textColor = HOVER_COLOR;
-            }
-            else
-            {
-                textColor = ENABLED_COLOR;
-            }
+            textColor = isMouseOver ? HOVER_COLOR : ENABLED_COLOR;
         }
         else
         {

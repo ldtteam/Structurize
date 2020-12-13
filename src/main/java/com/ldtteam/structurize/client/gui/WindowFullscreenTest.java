@@ -10,6 +10,6 @@ public class WindowFullscreenTest extends AbstractWindowSkeleton
     public WindowFullscreenTest()
     {
         super(Constants.MOD_ID + XML_LOC);
-        findPaneOfTypeByID("testList", ScrollingList.class).setDataProvider(() -> 30, (id, pane) -> {});
+        findPaneOfTypeByID("testList", ScrollingList.class).setDataProvider(() -> 10, (id, pane) -> {});
     }
 }

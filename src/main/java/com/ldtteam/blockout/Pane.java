@@ -876,4 +876,68 @@ public class Pane extends AbstractGui
     {
         return this.toolTipLines;
     }
+
+    /**
+     * Draws texture without scaling so one texel is one pixel. See comments in params for actual param description.
+     * Probably only useful for textures like vanilla button.
+     */
+    protected static void blitRepeatable(final MatrixStack ms,
+        final int x, final int y, // classical start target coords [pixels]
+        final int width, final int height, // target rendering box [pixels]
+        final int u, final int v, // texture start offset [texels]
+        final int uWidth, final int vHeight, // texture rendering box [texels]
+        final int textureWidth, final int textureHeight, // texture file size [texels]
+        final int uRepeat, final int vRepeat, // offset relative to u, v [texels]
+        final int repeatWidth, final int repeatHeight) // size of repeatable box in texture [texels]
+    {
+        final int repeatCountX = Math.max(1, Math.max(0, width - (uWidth - repeatWidth)) / repeatWidth);
+        final int repeatCountY = Math.max(1, Math.max(0, height - (vHeight - repeatHeight)) / repeatHeight);
+
+        // main
+        for (int i = 0; i < repeatCountX; i++)
+        {
+            final int uAdjust = i == 0 ? 0 : uRepeat;
+            final int xStart = x + uAdjust + i * repeatWidth;
+            final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - (uWidth - uRepeat - repeatWidth));
+
+            for (int j = 0; j < repeatCountY; j++)
+            {
+                final int vAdjust = j == 0 ? 0 : vRepeat;
+                final int yStart = y + vAdjust + j * repeatHeight;
+                final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - (vHeight - vRepeat - repeatHeight));
+
+                blit(ms, xStart, yStart, u + uAdjust, v + vAdjust, w, h, textureWidth, textureHeight);
+            }
+        }
+
+        final int xEnd = x + Math.min(uRepeat + repeatCountX * repeatWidth, width - (uWidth - uRepeat - repeatWidth));
+        final int yEnd = y + Math.min(vRepeat + repeatCountY * repeatHeight, height - (vHeight - vRepeat - repeatHeight));
+        int uLeft = width - repeatWidth * repeatCountX - uRepeat;
+        int vLeft = height - repeatHeight * repeatCountY - vRepeat;
+        uLeft += uLeft < 0 ? width : 0;
+        vLeft += vLeft < 0 ? height : 0;
+
+        // bot border
+        for (int i = 0; i < repeatCountX; i++)
+        {
+            final int uAdjust = i == 0 ? 0 : uRepeat;
+            final int xStart = x + uAdjust + i * repeatWidth;
+            final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - uLeft);
+
+            blit(ms, xStart, yEnd, u + uAdjust, v + vHeight - vLeft, w, vLeft, textureWidth, textureHeight);
+        }
+
+        // left border
+        for (int j = 0; j < repeatCountY; j++)
+        {
+            final int vAdjust = j == 0 ? 0 : vRepeat;
+            final int yStart = y + vAdjust + j * repeatHeight;
+            final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - vLeft);
+
+            blit(ms, xEnd, yStart, u + uWidth - uLeft, v + vAdjust, uLeft, h, textureWidth, textureHeight);
+        }
+
+        // bot left corner
+        blit(ms, xEnd, yEnd, u + uWidth - uLeft, v + vHeight - vLeft, uLeft, vLeft, textureWidth, textureHeight);
+    }
 }
