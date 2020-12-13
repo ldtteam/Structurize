@@ -44,7 +44,7 @@ public final class PlacementHandlers
     {
         handlers.add(new AirPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
-        handlers.add(new FluidPlacementHandler());
+        handlers.add(new WaterPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new GrassPlacementHandler());
         handlers.add(new DoorPlacementHandler());
@@ -100,12 +100,12 @@ public final class PlacementHandlers
          */
     }
 
-    public static class FluidPlacementHandler implements IPlacementHandler
+    public static class WaterPlacementHandler implements IPlacementHandler
     {
         @Override
         public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
         {
-            return blockState.getBlock() instanceof FlowingFluidBlock;
+            return blockState.getBlock() == Blocks.WATER;
         }
 
         @Override
@@ -116,12 +116,8 @@ public final class PlacementHandlers
           @Nullable CompoundNBT tileEntityData,
           boolean complete)
         {
-            List<ItemStack> items = new ArrayList<>();
-            if (blockState.getBlock() != Blocks.WATER)
-            {
-                items.add(BlockUtils.getItemStackFromBlockState(blockState));
-            }
-
+            final List<ItemStack> items = new ArrayList<>();
+            items.add(BlockUtils.getItemStackFromBlockState(blockState));
             return items;
         }
 
