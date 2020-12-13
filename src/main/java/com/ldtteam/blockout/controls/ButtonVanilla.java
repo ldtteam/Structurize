@@ -166,7 +166,8 @@ public class ButtonVanilla extends Button
         }
 
         final int maxWidth = (int) ((width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH)) / textScale);
-        final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale);
+        // + textScale is to negate last pixel of vanilla font rendering
+        final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale + textScale);
 
         preparedLabel = mc.fontRenderer.trimStringToWidth(label, maxWidth);
         preparedLabel = preparedLabel.subList(0, maxHeight / this.mc.fontRenderer.FONT_HEIGHT);
