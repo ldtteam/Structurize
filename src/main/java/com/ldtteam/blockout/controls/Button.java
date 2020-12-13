@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.controls;
 
+import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.audio.SimpleSound;
@@ -34,7 +35,7 @@ public class Button extends Pane
     public Button(@NotNull final PaneParams params)
     {
         super(params);
-        label = new StringTextComponent(params.getLocalizedStringAttribute("label", ""));
+        setLabel(new StringTextComponent(params.getLocalizedStringAttribute("label", "")));
     }
 
     /**
@@ -61,7 +62,7 @@ public class Button extends Pane
     @Deprecated
     public void setLabel(final String s)
     {
-        label = new StringTextComponent(s);
+        setLabel(new StringTextComponent(s));
     }
 
     public void setLabel(final IFormattableTextComponent s)

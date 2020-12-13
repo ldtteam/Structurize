@@ -912,10 +912,8 @@ public class Pane extends AbstractGui
 
         final int xEnd = x + Math.min(uRepeat + repeatCountX * repeatWidth, width - (uWidth - uRepeat - repeatWidth));
         final int yEnd = y + Math.min(vRepeat + repeatCountY * repeatHeight, height - (vHeight - vRepeat - repeatHeight));
-        int uLeft = width - repeatWidth * repeatCountX - uRepeat;
-        int vLeft = height - repeatHeight * repeatCountY - vRepeat;
-        uLeft += uLeft < 0 ? width : 0;
-        vLeft += vLeft < 0 ? height : 0;
+        final int uLeft = width - (xEnd - x);
+        final int vLeft = height - (yEnd - y);
 
         // bot border
         for (int i = 0; i < repeatCountX; i++)

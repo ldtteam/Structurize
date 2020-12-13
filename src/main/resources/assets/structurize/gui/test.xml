@@ -9,10 +9,9 @@
         <text id="chest" size="210 75" color="black" pos="646 363" textscale="0.8"/>
         <list id="testList" size="108 200" pos="0 0">
             <box size="200 200" linewidth="0">
-                <button size="100 100"/>
                 <input pos="0 100" size="100 100"/>
             </box>
         </list>
-        <button pos="200 200" size="100 100"/>
+        <button pos="200 200" size="100 100" textscale="4.0" textalign="MIDDLE_LEFT" label="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"/>
     </zoomdragview>
 </window>

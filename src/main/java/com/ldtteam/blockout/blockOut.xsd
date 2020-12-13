@@ -154,6 +154,8 @@
         <xs:complexContent>
             <xs:extension base="paneType">
                 <xs:attribute name="label" type="xs:string"/>
+                <xs:attribute name="textscale" type="xs:double"/>
+                <xs:attribute name="textalign" type="align"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
