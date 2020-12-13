@@ -136,8 +136,8 @@ public class ButtonVanilla extends Button
             {
                 offsetY += (getHeight() - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT) - labelHeight) / 2;
             }
-            // + textScale is to negate last pixel of vanilla font rendering
-            offsetY += textScale;
+            // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
+            offsetY += Math.ceil(textScale);
 
             ms.push();
             ms.translate(getX() + offsetX, getY() + offsetY, 1.0f);
@@ -166,8 +166,8 @@ public class ButtonVanilla extends Button
         }
 
         final int maxWidth = (int) ((width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH)) / textScale);
-        // + textScale is to negate last pixel of vanilla font rendering
-        final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale + textScale);
+        // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
+        final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale + Math.ceil(textScale));
 
         preparedLabel = mc.fontRenderer.trimStringToWidth(label, maxWidth);
         preparedLabel = preparedLabel.subList(0, maxHeight / this.mc.fontRenderer.FONT_HEIGHT);
