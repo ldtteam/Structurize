@@ -151,9 +151,9 @@ public final class BlueprintUtils
             {
                 if (blockAccess.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
                 {
-                    if (type.get().getRegistryName().getNamespace().equals("minecraft"))
+                    if (type.get().getRegistryName().getNamespace().equals("minecraft") && (type.get() != EntityType.WOLF || type.get() != EntityType.IRON_GOLEM))
                     {
-                        Log.getLogger().error("Rather than using config, PLEASE REPORT your problems to Structurize github issues. Thanks in advance");
+                        Log.getLogger().error("Rather than using config, PLEASE REPORT an issue with minecraft entity to Structurize github issues. Thanks in advance");
                     }
                     return null;
                 }

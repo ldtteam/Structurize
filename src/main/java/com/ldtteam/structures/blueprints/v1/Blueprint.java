@@ -716,10 +716,6 @@ public class Blueprint
         {
             if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
             {
-                if (type.get().getRegistryName().getNamespace().equals("minecraft"))
-                {
-                    Log.getLogger().error("Rather than using config, PLEASE REPORT your problems to Structurize github issues. Thanks in advance");
-                }
                 return null;
             }
 
