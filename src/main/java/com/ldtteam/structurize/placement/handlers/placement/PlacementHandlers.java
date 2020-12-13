@@ -116,9 +116,7 @@ public final class PlacementHandlers
           @Nullable CompoundNBT tileEntityData,
           boolean complete)
         {
-            final List<ItemStack> items = new ArrayList<>();
-            items.add(BlockUtils.getItemStackFromBlockState(blockState));
-            return items;
+            return Collections.emptyList();
         }
 
         @Override
