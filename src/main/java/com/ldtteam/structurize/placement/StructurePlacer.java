@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -173,11 +174,7 @@ public class StructurePlacer
       final CompoundNBT tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
-        boolean sameBlockInWorld = false;
-        if (worldState.getBlock() == localState.getBlock())
-        {
-            sameBlockInWorld = true;
-        }
+        boolean sameBlockInWorld = worldState.getBlock() == localState.getBlock();
 
         if (!(worldState.getBlock() instanceof AirBlock))
         {
@@ -290,19 +287,7 @@ public class StructurePlacer
                           && worldState.getMaterial() != Material.AIR
                           && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
-                        if (!handler.isCreative())
-                        {
-                            final List<ItemStack> items = BlockUtils.getBlockDrops(world, worldPos, 0, handler.getHeldItem());
-                            for (final ItemStack item : items)
-                            {
-                                InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
-                            }
-                        }
-                        else if (world.getTileEntity(worldPos) != null)
-                        {
-                            world.removeTileEntity(worldPos);
-                        }
-                        world.removeBlock(worldPos, false);
+                        placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                     }
                 }
 

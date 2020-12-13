@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.storage.ISpawnWorldInfo;
@@ -117,6 +118,12 @@ public class BlueprintBlockAccess extends World
         if (state.getBlock() == ModBlocks.blockSolidSubstitution)
         {
             return Blocks.DIRT.getDefaultState();
+        }
+        if (state.getBlock() == ModBlocks.blockFluidSubstitution)
+        {
+            return Minecraft.getInstance().world != null
+                    ? BlockUtils.getFluidForDimension( Minecraft.getInstance().world)
+                    : Blocks.WATER.getDefaultState();
         }
         return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
     }
