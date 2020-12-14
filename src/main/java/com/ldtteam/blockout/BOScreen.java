@@ -1,7 +1,6 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
-import com.ldtteam.blockout.views.Window.WindowRenderType;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
@@ -140,8 +139,10 @@ public class BOScreen extends Screen
         mcScale = minecraft.mainWindow.getGuiScaleFactor();
         renderScale = window.getRenderType().calcRenderScale(minecraft.mainWindow, window);
 
-        x = Math.floor((guiWidth - window.getWidth() * renderScale) / 2.0d);
-        y = Math.floor((guiHeight - window.getHeight() * renderScale) / 2.0d);
+        width = window.getWidth();
+        height = window.getHeight();
+        x = Math.floor((guiWidth - width * renderScale) / 2.0d);
+        y = Math.floor((guiHeight - height * renderScale) / 2.0d);
 
         // replace vanilla projection
         RenderSystem.matrixMode(GL11.GL_PROJECTION);

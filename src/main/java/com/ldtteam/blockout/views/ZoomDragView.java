@@ -148,7 +148,7 @@ public class ZoomDragView extends View
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        scissorsStart(ms);
+        scissorsStart(ms, contentWidth, contentHeight);
 
         ms.push();
         ms.translate(-scrollX, -scrollY, 0.0d);
@@ -165,7 +165,7 @@ public class ZoomDragView extends View
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
-        scissorsStart(ms);
+        scissorsStart(ms, contentWidth, contentHeight);
 
         ms.push();
         ms.translate(-scrollX, -scrollY, 0.0d);

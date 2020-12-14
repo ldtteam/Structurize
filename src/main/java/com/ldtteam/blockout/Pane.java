@@ -601,7 +601,7 @@ public class Pane extends AbstractGui
         // Can be overloaded
     }
 
-    protected synchronized void scissorsStart(final MatrixStack ms)
+    protected synchronized void scissorsStart(final MatrixStack ms, final int contentWidth, final int contentHeight)
     {
         final int fbWidth = mc.mainWindow.getFramebufferWidth();
         final int fbHeight = mc.mainWindow.getFramebufferHeight();
@@ -634,8 +634,10 @@ public class Pane extends AbstractGui
         }
 
         @NotNull
-        final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend);
+        final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend, window.getScreen().width, window.getScreen().height);
         scissorsInfoStack.push(info);
+        window.getScreen().width = contentWidth;
+        window.getScreen().height = contentHeight;
 
         RenderSystem.enableScissor(scissorsXstart, scissorsYstart, scissorsXend - scissorsXstart, scissorsYend - scissorsYstart);
     }
@@ -687,6 +689,9 @@ public class Pane extends AbstractGui
             ms.pop();
         }
 
+        window.getScreen().width = popped.oldGuiWidth;
+        window.getScreen().height = popped.oldGuiHeight;
+
         if (!scissorsInfoStack.isEmpty())
         {
             final ScissorsInfo info = scissorsInfoStack.peek();
@@ -730,13 +735,17 @@ public class Pane extends AbstractGui
         private final int yStart;
         private final int xEnd;
         private final int yEnd;
+        private final int oldGuiWidth;
+        private final int oldGuiHeight;
 
-        ScissorsInfo(final int xStart, final int xEnd, final int yStart, final int yEnd)
+        ScissorsInfo(final int xStart, final int xEnd, final int yStart, final int yEnd, final int oldGuiWidth, final int oldGuiHeight)
         {
             this.xStart = xStart;
             this.xEnd = xEnd;
             this.yStart = yStart;
             this.yEnd = yEnd;
+            this.oldGuiWidth = oldGuiWidth;
+            this.oldGuiHeight = oldGuiHeight;
         }
     }
 
