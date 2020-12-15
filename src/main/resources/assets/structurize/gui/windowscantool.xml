@@ -1,17 +1,17 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" pause="false"
-        lightbox="false" xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" type="OVERSIZED_VANILLA" pause="false"
+        lightbox="false" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd">
 
-    <label size="100% 11" pos="60 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.from)"/>
+    <label size="50 11" pos="60 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.from)"/>
     <input id="pos1x" size="36 18" pos="90 5" maxlength="10"/>
     <input id="pos1y" size="36 18" pos="130 5" maxlength="10"/>
     <input id="pos1z" size="36 18" pos="170 5" maxlength="10"/>
 
-    <label size="100% 11" pos="220 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.to)"/>
+    <label size="50 11" pos="220 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.to)"/>
     <input id="pos2x" size="36 18" pos="240 5" maxlength="10"/>
     <input id="pos2y" size="36 18" pos="280 5" maxlength="10"/>
     <input id="pos2z" size="36 18" pos="320 5" maxlength="10"/>
 
-    <label size="100% 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scanTool.name)"/>
+    <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scanTool.name)"/>
     <input id="name" size="178 18" pos="130 30" maxlength="25"/>
 
     <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="145 50"/>
@@ -23,7 +23,7 @@
 
     <list id="resources" size="200 120" pos="10 100">
         <box size="100% 30" linewidth="2">
-            <itemicon id="resourceIcon" size="17 17" pos="1 1"/>
+            <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
             <label id="resourceName" size="150 12" pos="20 1" color="white" wrap="true"/>
             <label id="resourceQuantity" size="12 12" pos="170 1" color="white"/>
             <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeBlock" pos="20 13" size="86 17"
@@ -41,5 +41,5 @@
         </box>
     </list>
 
-    <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 210" textcolor="Black" texthovercolor="White"/>
+    <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
 </window>
