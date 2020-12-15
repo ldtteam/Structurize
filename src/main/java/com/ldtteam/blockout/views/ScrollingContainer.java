@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -89,19 +90,7 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return super.handleHover(mx, my + scrollY);
-    }
-
-    @Override
-    public boolean click(final double mx, final double my)
-    {
-        // Offset click by the scroll amounts; we'll adjust it back on clickSelf
-        return super.click(mx, my + scrollY);
-    }
-
-    @Override
+    // TODO: dead method
     protected boolean childIsVisible(@NotNull final Pane child)
     {
         return child.getX() < getWidth() && child.getY() < getHeight() + scrollY && (child.getX() + child.getWidth()) >= 0 &&
@@ -147,5 +136,15 @@ public class ScrollingContainer extends View
     public void scrollBy(final double deltaY)
     {
         setScrollY(scrollY + deltaY);
+    }
+
+    @Override
+    public boolean mouseEventProcessor(final double mx,
+        final double my,
+        final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive,
+        final MouseEventCallback eventCallbackNegative)
+    {
+        return super.mouseEventProcessor(mx, my + scrollY, panePredicate, eventCallbackPositive, eventCallbackNegative);
     }
 }

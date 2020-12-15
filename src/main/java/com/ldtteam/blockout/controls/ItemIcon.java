@@ -99,7 +99,7 @@ public class ItemIcon extends Pane
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
-        if (itemStack == null || itemStack.isEmpty() || !isHovered)
+        if (itemStack == null || itemStack.isEmpty() || !this.isPointInPane(mx, my))
         {
             return;
         }

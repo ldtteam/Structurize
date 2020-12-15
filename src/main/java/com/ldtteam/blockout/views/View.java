@@ -117,14 +117,7 @@ public class View extends Pane
     @Override
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        handleUnhover();
         return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild), null);
-    }
-
-    @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return mousePointableEventHandler(mx, my, Pane::handleHover, Pane::handleUnhover);
     }
 
     @Nullable
@@ -224,15 +217,6 @@ public class View extends Pane
         children.add(child);
         adjustChild(child);
         child.setParentView(this);
-    }
-
-    @Override
-    public void handleUnhover()
-    {
-        for (final Pane child : children)
-        {
-            child.handleUnhover();
-        }
     }
 
     protected void adjustChild(final Pane child)

@@ -213,12 +213,6 @@ public class BOScreen extends Screen
     }
 
     @Override
-    public void mouseMoved(final double mxIn, final double myIn)
-    {
-        window.handleHover(calcRelativeX(mxIn), calcRelativeX(myIn));
-    }
-
-    @Override
     public boolean mouseDragged(final double xIn, final double yIn, final int speed, final double deltaX, final double deltaY)
     {
         return window.onMouseDrag(calcRelativeX(xIn), calcRelativeY(yIn), speed, deltaX, deltaY);

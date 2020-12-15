@@ -45,7 +45,6 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
-    protected boolean            isHovered    = false;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
 
     /**
@@ -322,6 +321,8 @@ public class Pane extends AbstractGui
      */
     public void draw(final MatrixStack ms, final double mx, final double my)
     {
+        handleHover(mx, my);
+
         if (visible)
         {
             drawSelf(ms, mx, my);
@@ -353,7 +354,7 @@ public class Pane extends AbstractGui
         {
             drawSelfLast(ms, mx, my);
 
-            if (isHovered && !toolTipLines.isEmpty())
+            if (this.isPointInPane(mx, my) && !toolTipLines.isEmpty())
             {
                 window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), (int) mx, (int) my);
             }
@@ -750,68 +751,30 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Handle unhover.
-     *
-     * @param mx ignored.
-     * @param mz ignored.
-     * @return ignored.
-     */
-    public boolean handleUnhover(final double mx, final double mz)
-    {
-        handleUnhover();
-        return true;
-    }
-
-    /**
-     * Handle unhover.
-     */
-    public void handleUnhover()
-    {
-        isHovered = false;
-
-        if (onHover != null)
-        {
-            onHover.hide();
-        }
-    }
-
-    /**
      * Handle onHover element, element must be visible. TODO: bug: must have pos set from xml (or be not in a group)
      *
      * @param mx mouse x
      * @param my mouse y
-     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean handleHover(final double mx, final double my)
+    protected void handleHover(final double mx, final double my)
     {
-        if (this.isPointInPane(mx, my))
+        if (onHover == null && !onHoverId.isEmpty())
         {
-            isHovered = true;
+            onHover = window.findPaneByID(onHoverId);
         }
-        if (onHover == null)
+        else
         {
-            if (!onHoverId.isEmpty())
-            {
-                onHover = window.findPaneByID(onHoverId);
-            }
-            else
-            {
-                return false;
-            }
+            return;
         }
-        if (!this.isVisible())
-        {
-            if (onHover.isVisible())
-            {
-                onHover.hide();
-            }
-            return false;
-        }
+
         if (this.isPointInPane(mx, my) && !onHover.isVisible())
         {
             onHover.show();
         }
-        return true;
+        else if (!this.isPointInPane(mx, my) && onHover.isVisible())
+        {
+            onHover.hide();
+        }
     }
 
     @Deprecated
