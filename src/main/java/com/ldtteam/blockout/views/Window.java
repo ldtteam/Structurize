@@ -49,7 +49,7 @@ public class Window extends View
     /**
      * Render using size or attemp to scale to fullscreen.
      */
-    protected WindowRenderType windowRenderType = WindowRenderType.VANILLA;
+    protected WindowRenderType windowRenderType = WindowRenderType.OVERSIZED_VANILLA;
 
     /**
      * Create a window from an xml file.

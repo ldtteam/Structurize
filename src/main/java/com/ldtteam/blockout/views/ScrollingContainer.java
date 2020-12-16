@@ -90,7 +90,6 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    // TODO: dead method
     protected boolean childIsVisible(@NotNull final Pane child)
     {
         return child.getX() < getWidth() && child.getY() < getHeight() + scrollY && (child.getX() + child.getWidth()) >= 0 &&

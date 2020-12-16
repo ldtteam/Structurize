@@ -79,7 +79,7 @@ public class View extends Pane
 
         for (final Pane child : children)
         {
-            if (child.isVisible())
+            if (childIsVisible(child) && child.isVisible())
             {
                 child.draw(ms, drawX, drawY);
             }
@@ -105,7 +105,7 @@ public class View extends Pane
 
         for (final Pane child : children)
         {
-            if (child.isVisible())
+            if (childIsVisible(child) && child.isVisible())
             {
                 child.drawLast(ms, drawX, drawY);
             }

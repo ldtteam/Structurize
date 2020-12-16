@@ -1,6 +1,5 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" pause="false"
-        lightbox="false"
-        xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" lightbox="false">
 
     <view size="120 112" pos="160 80">
         <buttonimage id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 -5"/>

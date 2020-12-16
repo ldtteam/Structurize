@@ -1,6 +1,5 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" pause="false"
-        lightbox="false"
-        xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" lightbox="false">
 
     <buttonimage label="$(com.ldtteam.structurize.gui.shapetool.pickmainblock)" id="pickMainBlock" pos="24 3" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>

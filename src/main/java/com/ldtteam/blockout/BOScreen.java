@@ -122,13 +122,8 @@ public class BOScreen extends Screen
             return;
         }
 
-        if (window.hasLightbox())
-        {
-            super.renderBackground(ms);
-        }
-
-        final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
         final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
+        final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
         final double guiWidth = Math.max(fbWidth, 320.0d);
         final double guiHeight = Math.max(fbHeight, 240.0d);
 
@@ -138,6 +133,13 @@ public class BOScreen extends Screen
 
         mcScale = minecraft.mainWindow.getGuiScaleFactor();
         renderScale = window.getRenderType().calcRenderScale(minecraft.mainWindow, window);
+
+        if (window.hasLightbox())
+        {
+            width = (int) fbWidth;
+            height = (int) fbHeight;
+            super.renderBackground(ms);
+        }
 
         width = window.getWidth();
         height = window.getHeight();

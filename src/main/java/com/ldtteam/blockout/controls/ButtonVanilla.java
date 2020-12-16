@@ -140,7 +140,7 @@ public class ButtonVanilla extends Button
             offsetY += Math.ceil(textScale);
 
             ms.push();
-            ms.translate(getX() + offsetX, getY() + offsetY, 1.0f);
+            ms.translate(getX() + offsetX, getY() + offsetY, 0.0d);
             ms.scale((float) textScale, (float) textScale, 1.0f);
             int yShift = 0;
             for (final IReorderingProcessor row : preparedLabel)
@@ -161,7 +161,7 @@ public class ButtonVanilla extends Button
                 }
 
                 drawString(ms, row, xOffset, yShift, textColor, shadow);
-                yShift += 9;
+                yShift += mc.fontRenderer.FONT_HEIGHT;
             }
             ms.pop();
         }

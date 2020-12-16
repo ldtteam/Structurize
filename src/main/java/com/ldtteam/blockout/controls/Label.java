@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.controls;
 
+import java.util.List;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.IReorderingProcessor;
@@ -27,6 +28,11 @@ public class Label extends AbstractTextElement
      */
     protected boolean wrap = false;
 
+    // rendering
+    private List<IReorderingProcessor> preparedLabel;
+    private int labelWidth;
+    private int labelHeight;
+
     /**
      * Standard constructor which instantiates a new label.
      */
@@ -44,7 +50,6 @@ public class Label extends AbstractTextElement
     public Label(final PaneParams params)
     {
         super(params);
-        labelText = new StringTextComponent(params.getLocalizedStringAttribute("label", ""));
 
         // match textColor by default
         hoverColor = params.getColorAttribute("hovercolor", textColor);
@@ -55,6 +60,8 @@ public class Label extends AbstractTextElement
         {
             width = Math.min(mc.fontRenderer.getStringPropertyWidth(labelText), params.getParentWidth());
         }
+
+        setLabelText(new StringTextComponent(params.getLocalizedStringAttribute("label", "")));
     }
 
     /**
@@ -65,7 +72,7 @@ public class Label extends AbstractTextElement
     @Deprecated
     public String getLabelText()
     {
-        return labelText.getString();
+        return getLabelTextNew().getString();
     }
 
     public IFormattableTextComponent getLabelTextNew()
@@ -81,12 +88,36 @@ public class Label extends AbstractTextElement
     @Deprecated
     public void setLabelText(final String s)
     {
-        labelText = new StringTextComponent(s);
+        setLabelText(new StringTextComponent(s));
     }
 
-    public void setLabelText(final IFormattableTextComponent s)
+    public void setLabelText(final IFormattableTextComponent label)
     {
-        labelText = s;
+        this.labelText = label;
+
+        if (scale <= 0.0d || label == null || label.getString().isEmpty())
+        {
+            preparedLabel = null;
+            return;
+        }
+
+        final int maxWidth = (int) (width / scale);
+        preparedLabel = mc.fontRenderer.trimStringToWidth(label, maxWidth);
+        if (wrap)
+        {
+            // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
+            final int maxHeight = (int) (height / scale + Math.ceil(scale));
+    
+            preparedLabel = preparedLabel.subList(0, Math.min(preparedLabel.size(), maxHeight / this.mc.fontRenderer.FONT_HEIGHT));
+            labelWidth = (int) (preparedLabel.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * scale);
+            labelHeight = (int) (Math.min(preparedLabel.size() * this.mc.fontRenderer.FONT_HEIGHT, maxHeight) * scale);
+        }
+        else
+        {
+            preparedLabel = preparedLabel.subList(0, 1);
+            labelWidth = (int) (mc.fontRenderer.func_243245_a(preparedLabel.get(0)) * scale);
+            labelHeight = (int) (this.mc.fontRenderer.FONT_HEIGHT * scale);
+        }
     }
 
     public int getHoverColor()
@@ -134,23 +165,33 @@ public class Label extends AbstractTextElement
 
         ms.push();
         ms.translate((double) (getX() + offsetX), (double) (getY() + offsetY), 0D);
-        ms.scale((float) scale, (float) scale, (float) scale);
-        mc.getTextureManager().bindTexture(TEXTURE);
+        ms.scale((float) scale, (float) scale, 1.0f);
 
-        if (labelText != null && wrap)
+        if (preparedLabel != null)
         {
             // mc.fontRenderer.func_238418_a_(labelText, 0, 0, width, color);
             final Matrix4f matrix4f = ms.getLast().getMatrix();
             int lineShift = 0;
-            for (final IReorderingProcessor itextproperties : mc.fontRenderer.trimStringToWidth(labelText, width))
+            for (final IReorderingProcessor textLine : preparedLabel)
             {
-                mc.fontRenderer.func_238415_a_(itextproperties, 0, lineShift, color, matrix4f, false);
-                lineShift += 9;
+                final int xOffset;
+
+                if (textAlignment.isRightAligned())
+                {
+                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(textLine) * scale) / scale);
+                }
+                else if (textAlignment.isHorizontalCentered())
+                {
+                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(textLine) * scale) / 2 / scale);
+                }
+                else
+                {
+                    xOffset = 0;
+                }
+
+                mc.fontRenderer.func_238415_a_(textLine, xOffset, lineShift, color, matrix4f, false);
+                lineShift += mc.fontRenderer.FONT_HEIGHT;
             }
-        }
-        else
-        {
-            drawString(ms, labelText, 0, 0, color, shadow);
         }
 
         ms.pop();
@@ -163,7 +204,7 @@ public class Label extends AbstractTextElement
      */
     public int getStringWidth()
     {
-        return (int) (mc.fontRenderer.getStringPropertyWidth(labelText) * scale);
+        return labelWidth;
     }
 
     /**
@@ -173,6 +214,6 @@ public class Label extends AbstractTextElement
      */
     public int getTextHeight()
     {
-        return (int) (mc.fontRenderer.FONT_HEIGHT * scale);
+        return labelHeight;
     }
 }

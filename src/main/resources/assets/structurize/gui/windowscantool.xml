@@ -1,5 +1,5 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" type="OVERSIZED_VANILLA" pause="false"
-        lightbox="false" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd">
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" lightbox="false">
 
     <label size="50 11" pos="60 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.from)"/>
     <input id="pos1x" size="36 18" pos="90 5" maxlength="10"/>
