@@ -56,11 +56,6 @@ public class Label extends AbstractTextElement
 
         wrap = params.getBooleanAttribute("wrap", wrap);
 
-        if (width == 0)
-        {
-            width = Math.min(mc.fontRenderer.getStringPropertyWidth(labelText), params.getParentWidth());
-        }
-
         setLabelText(new StringTextComponent(params.getLocalizedStringAttribute("label", "")));
     }
 
@@ -117,6 +112,11 @@ public class Label extends AbstractTextElement
             preparedLabel = preparedLabel.subList(0, 1);
             labelWidth = (int) (mc.fontRenderer.func_243245_a(preparedLabel.get(0)) * scale);
             labelHeight = (int) (this.mc.fontRenderer.FONT_HEIGHT * scale);
+        }
+
+        if (width == 0)
+        {
+            width = labelWidth;
         }
     }
 
