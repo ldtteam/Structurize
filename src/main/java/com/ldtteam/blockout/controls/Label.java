@@ -113,11 +113,6 @@ public class Label extends AbstractTextElement
             labelWidth = (int) (mc.fontRenderer.func_243245_a(preparedLabel.get(0)) * scale);
             labelHeight = (int) (this.mc.fontRenderer.FONT_HEIGHT * scale);
         }
-
-        if (width == 0)
-        {
-            width = labelWidth;
-        }
     }
 
     public int getHoverColor()
