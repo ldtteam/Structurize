@@ -7,13 +7,19 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -850,20 +856,45 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Draws texture without scaling so one texel is one pixel. See comments in params for actual param description.
-     * Probably only useful for textures like vanilla button.
+     * Draws texture without scaling so one texel is one pixel, using repeatable texture center.
+     *
+     * @param ms            MatrixStack
+     * @param x             start target coords [pixels]
+     * @param y             start target coords [pixels]
+     * @param width         target rendering box [pixels]
+     * @param height        target rendering box [pixels]
+     * @param u             texture start offset [texels]
+     * @param v             texture start offset [texels]
+     * @param uWidth        texture rendering box [texels]
+     * @param vHeight       texture rendering box [texels]
+     * @param textureWidth  texture file size [texels]
+     * @param textureHeight texture file size [texels]
+     * @param uRepeat       offset relative to u, v [texels], smaller than uWidth
+     * @param vRepeat       offset relative to u, v [texels], smaller than vHeight
+     * @param repeatWidth   size of repeatable box in texture [texels], smaller than or equal uWidth - uRepeat
+     * @param repeatHeight  size of repeatable box in texture [texels], smaller than or equal vHeight - vRepeat
      */
     protected static void blitRepeatable(final MatrixStack ms,
-        final int x, final int y, // classical start target coords [pixels]
-        final int width, final int height, // target rendering box [pixels]
-        final int u, final int v, // texture start offset [texels]
-        final int uWidth, final int vHeight, // texture rendering box [texels]
-        final int textureWidth, final int textureHeight, // texture file size [texels]
-        final int uRepeat, final int vRepeat, // offset relative to u, v [texels]
-        final int repeatWidth, final int repeatHeight) // size of repeatable box in texture [texels]
+        final int x, final int y,
+        final int width, final int height,
+        final int u, final int v,
+        final int uWidth, final int vHeight,
+        final int textureWidth, final int textureHeight,
+        final int uRepeat, final int vRepeat,
+        final int repeatWidth, final int repeatHeight)
     {
+        if (uRepeat < 0 || vRepeat < 0 || uRepeat >= uWidth || vRepeat >= vHeight || repeatWidth < 1 || repeatHeight < 1
+            || repeatWidth > uWidth - uRepeat || repeatHeight > vHeight - vRepeat)
+        {
+            throw new IllegalArgumentException("Repeatable box is outside of texture box");
+        }
+
         final int repeatCountX = Math.max(1, Math.max(0, width - (uWidth - repeatWidth)) / repeatWidth);
         final int repeatCountY = Math.max(1, Math.max(0, height - (vHeight - repeatHeight)) / repeatHeight);
+
+        final Matrix4f mat = ms.getLast().getMatrix();
+        final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         // main
         for (int i = 0; i < repeatCountX; i++)
@@ -871,14 +902,21 @@ public class Pane extends AbstractGui
             final int uAdjust = i == 0 ? 0 : uRepeat;
             final int xStart = x + uAdjust + i * repeatWidth;
             final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - (uWidth - uRepeat - repeatWidth));
+            final float minU = (float) (u + uAdjust) / textureWidth;
+            final float maxU = (float) (u + uAdjust + w) / textureWidth;
 
             for (int j = 0; j < repeatCountY; j++)
             {
                 final int vAdjust = j == 0 ? 0 : vRepeat;
                 final int yStart = y + vAdjust + j * repeatHeight;
                 final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - (vHeight - vRepeat - repeatHeight));
+                final float minV = (float) (v + vAdjust) / textureHeight;
+                final float maxV = (float) (v + vAdjust + h) / textureHeight;
 
-                blit(ms, xStart, yStart, u + uAdjust, v + vAdjust, w, h, textureWidth, textureHeight);
+                buffer.pos(mat, xStart, yStart + h, 0).tex(minU, maxV).endVertex();
+                buffer.pos(mat, xStart + w, yStart + h, 0).tex(maxU, maxV).endVertex();
+                buffer.pos(mat, xStart + w, yStart, 0).tex(maxU, minV).endVertex();
+                buffer.pos(mat, xStart, yStart, 0).tex(minU, minV).endVertex();
             }
         }
 
@@ -886,6 +924,10 @@ public class Pane extends AbstractGui
         final int yEnd = y + Math.min(vRepeat + repeatCountY * repeatHeight, height - (vHeight - vRepeat - repeatHeight));
         final int uLeft = width - (xEnd - x);
         final int vLeft = height - (yEnd - y);
+        final float restMinU = (float) (u + uWidth - uLeft) / textureWidth;
+        final float restMaxU = (float) (u + uWidth) / textureWidth;
+        final float restMinV = (float) (v + vHeight - vLeft) / textureHeight;
+        final float restMaxV = (float) (v + vHeight) / textureHeight;
 
         // bot border
         for (int i = 0; i < repeatCountX; i++)
@@ -893,8 +935,13 @@ public class Pane extends AbstractGui
             final int uAdjust = i == 0 ? 0 : uRepeat;
             final int xStart = x + uAdjust + i * repeatWidth;
             final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - uLeft);
+            final float minU = (float) (u + uAdjust) / textureWidth;
+            final float maxU = (float) (u + uAdjust + w) / textureWidth;
 
-            blit(ms, xStart, yEnd, u + uAdjust, v + vHeight - vLeft, w, vLeft, textureWidth, textureHeight);
+            buffer.pos(mat, xStart, yEnd + vLeft, 0).tex(minU, restMaxV).endVertex();
+            buffer.pos(mat, xStart + w, yEnd + vLeft, 0).tex(maxU, restMaxV).endVertex();
+            buffer.pos(mat, xStart + w, yEnd, 0).tex(maxU, restMinV).endVertex();
+            buffer.pos(mat, xStart, yEnd, 0).tex(minU, restMinV).endVertex();
         }
 
         // left border
@@ -903,11 +950,23 @@ public class Pane extends AbstractGui
             final int vAdjust = j == 0 ? 0 : vRepeat;
             final int yStart = y + vAdjust + j * repeatHeight;
             final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - vLeft);
+            float minV = (float) (v + vAdjust) / textureHeight;
+            float maxV = (float) (v + vAdjust + h) / textureHeight;
 
-            blit(ms, xEnd, yStart, u + uWidth - uLeft, v + vAdjust, uLeft, h, textureWidth, textureHeight);
+            buffer.pos(mat, xEnd, yStart + h, 0).tex(restMinU, maxV).endVertex();
+            buffer.pos(mat, xEnd + uLeft, yStart + h, 0).tex(restMaxU, maxV).endVertex();
+            buffer.pos(mat, xEnd + uLeft, yStart, 0).tex(restMaxU, minV).endVertex();
+            buffer.pos(mat, xEnd, yStart, 0).tex(restMinU, minV).endVertex();
         }
 
         // bot left corner
-        blit(ms, xEnd, yEnd, u + uWidth - uLeft, v + vHeight - vLeft, uLeft, vLeft, textureWidth, textureHeight);
+        buffer.pos(mat, xEnd, yEnd + vLeft, 0).tex(restMinU, restMaxV).endVertex();
+        buffer.pos(mat, xEnd + uLeft, yEnd + vLeft, 0).tex(restMaxU, restMaxV).endVertex();
+        buffer.pos(mat, xEnd + uLeft, yEnd, 0).tex(restMaxU, restMinV).endVertex();
+        buffer.pos(mat, xEnd, yEnd, 0).tex(restMinU, restMinV).endVertex();
+
+        buffer.finishDrawing();
+        RenderSystem.enableAlphaTest();
+        WorldVertexBufferUploader.draw(buffer);
     }
 }

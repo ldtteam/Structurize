@@ -71,6 +71,7 @@
         <xs:attribute name="visible" type="xs:boolean"/>
         <xs:attribute name="enabled" type="xs:boolean"/>
         <xs:attribute name="tooltip" type="xs:string"/>
+        <xs:attribute name="onHoverId" type="xs:string"/>
 
         <xs:attribute name="style" type="xs:string"/>
     </xs:complexType>
@@ -100,6 +101,7 @@
             <xs:element name="label" type="labelType"/>
             <xs:element name="input" type="inputType"/>
             <xs:element name="image" type="imageType"/>
+            <xs:element name="imagerepeat" type="imageRepeatType"/>
             <xs:element name="gradient" type="gradientType"/>
             <xs:element name="box" type="boxType"/>
             <xs:element name="itemicon" type="itemIconType"/>
@@ -235,6 +237,18 @@
                 <xs:attribute name="source" type="xs:string"/>
                 <xs:attribute name="imageoffset" type="fixedSizePair"/>
                 <xs:attribute name="imagesize" type="fixedSizePair"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="imageRepeatType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="source" type="xs:string"/>
+                <xs:attribute name="uv" type="fixedSizePair"/>
+                <xs:attribute name="uvBox" type="fixedSizePair"/>
+                <xs:attribute name="uvRepeat" type="fixedSizePair"/>
+                <xs:attribute name="uvRepeatBox" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

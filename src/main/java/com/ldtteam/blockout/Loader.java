@@ -40,6 +40,7 @@ public final class Loader
         register("label", Label.class);
         register("input", TextFieldVanilla.class);
         register("image", Image.class);
+        register("imagerepeat", ImageRepeatable.class);
         register("box", Box.class);
         register("itemicon", ItemIcon.class);
         register("switch", SwitchView.class);
