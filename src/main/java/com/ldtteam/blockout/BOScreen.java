@@ -114,7 +114,6 @@ public class BOScreen extends Screen
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
         if (minecraft == null) // should never happen though

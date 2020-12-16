@@ -22,7 +22,6 @@ public class ItemIcon extends Pane
      * ItemStack represented in the itemIcon.
      */
     private ItemStack itemStack;
-    private float itemScale = 1.0f;
 
     /**
      * Standard constructor instantiating the itemIcon without any additional settings.
@@ -77,11 +76,9 @@ public class ItemIcon extends Pane
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            itemScale = Math.min(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE);
-
             ms.push();
-            ms.translate(x, y, 0.0f);
-            ms.scale(itemScale, itemScale, 1f);
+            ms.translate(x, y, GUI_ITEM_Z_TRANSLATE);
+            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
@@ -109,7 +106,7 @@ public class ItemIcon extends Pane
 
         ms.push();
         ms.translate(mx, my, GUI_ITEM_Z_TRANSLATE);
-        ms.scale(itemScale, itemScale, 1f);
+        ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
         window.getScreen().renderTooltipHook(ms, itemStack, 0, 0);
         ms.pop();
     }

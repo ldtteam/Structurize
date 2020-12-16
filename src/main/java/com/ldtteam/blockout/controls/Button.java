@@ -1,6 +1,5 @@
 package com.ldtteam.blockout.controls;
 
-import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.audio.SimpleSound;
