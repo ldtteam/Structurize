@@ -37,7 +37,7 @@ public final class Loader
         register("text", Text.class);
         register("button", ButtonVanilla.class);
         register("buttonimage", ButtonImage.class);
-        register("label", Label.class);
+        register("label", Text.class); // we don't want to deal with xml changes
         register("input", TextFieldVanilla.class);
         register("image", Image.class);
         register("imagerepeat", ImageRepeatable.class);

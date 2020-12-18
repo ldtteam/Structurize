@@ -17,7 +17,7 @@ public class ButtonImage extends Button
      * Default size is a small square button.
      */
     private static final int DEFAULT_BUTTON_SIZE = 20;
-    private static final float HALF = 0.5F;
+
     protected ResourceLocation image;
     protected ResourceLocation imageHighlight;
     protected ResourceLocation imageDisabled;
@@ -39,12 +39,7 @@ public class ButtonImage extends Button
     protected int disabledHeight = 0;
     protected int disabledMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
     protected int disabledMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected double textScale = 1.0;
-    protected Alignment textAlignment = Alignment.MIDDLE;
-    protected int textColor = 0xffffff;
-    protected int textHoverColor = 0xffffff;
-    protected int textDisabledColor = 0xffffff;
-    protected boolean shadow = false;
+
     protected int textOffsetX = 0;
     protected int textOffsetY = 0;
 
@@ -53,7 +48,7 @@ public class ButtonImage extends Button
      */
     public ButtonImage()
     {
-        super();
+        super(Alignment.MIDDLE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, DEFAULT_TEXT_WRAP);
 
         width = DEFAULT_BUTTON_SIZE;
         height = DEFAULT_BUTTON_SIZE;
@@ -66,7 +61,7 @@ public class ButtonImage extends Button
      */
     public ButtonImage(final PaneParams params)
     {
-        super(params);
+        super(params, Alignment.MIDDLE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, DEFAULT_TEXT_WRAP);
 
         loadImageInfo(params);
         loadHighlightInfo(params);
@@ -169,14 +164,11 @@ public class ButtonImage extends Button
      */
     private void loadTextInfo(final PaneParams params)
     {
-        textScale = params.getDoubleAttribute("textscale", textScale);
-        textAlignment = params.getEnumAttribute("textalign", Alignment.class, textAlignment);
         textColor = params.getColorAttribute("textcolor", textColor);
         // match textColor by default
         textHoverColor = params.getColorAttribute("texthovercolor", textColor);
         // match textColor by default
         textDisabledColor = params.getColorAttribute("textdisabledcolor", textColor);
-        shadow = params.getBooleanAttribute("shadow", shadow);
 
         final PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
         if (size != null)
@@ -379,108 +371,6 @@ public class ButtonImage extends Button
     }
 
     /**
-     * @return The standard textContent color.
-     */
-    public int getTextColor()
-    {
-        return textColor;
-    }
-
-    /**
-     * Set the standard textContent color.
-     *
-     * @param c New textContent color.
-     */
-    public void setTextColor(final int c)
-    {
-        setTextColor(c, c, c);
-    }
-
-    /**
-     * Set all textContent colors.
-     *
-     * @param c Standard textContent color.
-     * @param d Disabled textContent color.
-     * @param h Hover textContent color.
-     */
-    public void setTextColor(final int c, final int d, final int h)
-    {
-        textColor = c;
-        textDisabledColor = d;
-        textHoverColor = h;
-    }
-
-    /**
-     * @return The textContent color when you hover the button.
-     */
-    public int getTextHoverColor()
-    {
-        return textHoverColor;
-    }
-
-    /**
-     * @return The textContent color when the button is disabled.
-     */
-    public int getTextDisabledColor()
-    {
-        return textDisabledColor;
-    }
-
-    /**
-     * @return true if the shadow is enabled.
-     */
-    public boolean hasShadow()
-    {
-        return shadow;
-    }
-
-    /**
-     * Used to enabled or disable shadow.
-     *
-     * @param s true to enable shadow.
-     */
-    public void setShadow(final boolean s)
-    {
-        shadow = s;
-    }
-
-    /**
-     * @return the Text {@link Alignment}.
-     */
-    public Alignment getTextAlignment()
-    {
-        return textAlignment;
-    }
-
-    /**
-     * Set the textContent textContent {@link Alignment}.
-     *
-     * @param align textContent alignment.
-     */
-    public void setTextAlignment(final Alignment align)
-    {
-        textAlignment = align;
-    }
-
-    /**
-     * @return The textContent scale.
-     */
-    public double getTextScale()
-    {
-        return textScale;
-    }
-
-    /**
-     * Set the textContent scale.
-     *
-     * @param s New textContent scale.
-     */
-    public void setTextScale(final double s)
-    {
-        textScale = s;
-    }
-
-    /**
      * Draw the button.
      * Decide what image to use, and possibly draw textContent.
      *
@@ -489,19 +379,6 @@ public class ButtonImage extends Button
      */
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
-    {
-        final boolean mouseOver = isPointInPane(mx, my);
-
-        drawImage(ms, mouseOver);
-        drawlabel(ms, mouseOver);
-    }
-
-    /**
-     * Draw the correct image.
-     *
-     * @param mouseOver Is the mouse hovering over the button.
-     */
-    private void drawImage(final MatrixStack ms, final boolean mouseOver)
     {
         ResourceLocation bind = image;
         int u = imageOffsetX;
@@ -528,7 +405,7 @@ public class ButtonImage extends Button
                 return;
             }
         }
-        else if (mouseOver && imageHighlight != null)
+        else if (isPointInPane(mx, my) && imageHighlight != null)
         {
             bind = imageHighlight;
             u = highlightOffsetX;
@@ -562,69 +439,15 @@ public class ButtonImage extends Button
         }
         else
         {
-            RenderSystem.color4f(HALF, HALF, HALF, 1.0F);
+            RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
             blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
         }
 
         RenderSystem.disableBlend();
-    }
 
-    /**
-     * Draw the textContent if there is one.
-     *
-     * @param mouseOver If the mouse hovering over the button.
-     */
-    private void drawlabel(final MatrixStack ms, final boolean mouseOver)
-    {
-        if (label != null)
-        {
-            final int color = enabled ? (mouseOver ? textHoverColor : textColor) : textDisabledColor;
-
-            int offsetX = textOffsetX;
-            int offsetY = textOffsetY;
-
-            if (textAlignment.isRightAligned())
-            {
-                offsetX += (getWidth() - getStringWidth());
-            }
-            else if (textAlignment.isHorizontalCentered())
-            {
-                offsetX += (getWidth() - getStringWidth()) / 2;
-            }
-
-            if (textAlignment.isBottomAligned())
-            {
-                offsetY += (getHeight() - getTextHeight());
-            }
-            else if (textAlignment.isVerticalCentered())
-            {
-                offsetY += (getHeight() - getTextHeight()) / 2;
-            }
-
-            ms.push();
-            ms.scale((float) textScale, (float) textScale, 1.0f);
-            drawString(ms, label, getX() + offsetX, getY() + offsetY, color, shadow);
-            ms.pop();
-        }
-    }
-
-    /**
-     * The textContent width is calculated by multiplying the normal string width by the textContent scale.
-     *
-     * @return The width of the textContent.
-     */
-    public int getStringWidth()
-    {
-        return (int) (mc.fontRenderer.getStringPropertyWidth(label) * textScale);
-    }
-
-    /**
-     * Text height is calculated by multiplying FONT_HEIGHT and textContent scale.
-     *
-     * @return The textContent height.
-     */
-    public int getTextHeight()
-    {
-        return (int) (mc.fontRenderer.FONT_HEIGHT * textScale);
+        ms.push();
+        ms.translate(textOffsetX, textOffsetY, 0.0d); // does not affect the calculation, is this actually used?
+        super.drawSelf(ms, mx, my);
+        ms.pop();
     }
 }

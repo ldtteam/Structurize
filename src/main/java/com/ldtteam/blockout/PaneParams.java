@@ -7,6 +7,7 @@ import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -541,5 +542,25 @@ public class PaneParams
         {
             return y;
         }
+    }
+
+    /**
+     * Checks if any of attribute names are present and return first found, else return default.
+     *
+     * @param def default attribute name
+     * @param attributes attributes names to check
+     * @return first found attribute or default
+     */
+    public String hasAnyAttribute(final String def, final String... attributes)
+    {
+        final NamedNodeMap nodeMap = node.getAttributes();
+        for (final String attr : attributes)
+        {
+            if (nodeMap.getNamedItem(attr) != null) // inlined hasAttribute
+            {
+                return attr;
+            }
+        }
+        return def;
     }
 }

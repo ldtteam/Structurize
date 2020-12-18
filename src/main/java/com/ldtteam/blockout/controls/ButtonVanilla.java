@@ -1,13 +1,10 @@
 package com.ldtteam.blockout.controls;
 
-import java.util.List;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -36,19 +33,13 @@ public class ButtonVanilla extends Button
     private static final int HOVER_TEXTURE_V = 86;
     private static final int DISABLED_TEXTURE_V = 46;
 
-    protected double textScale = 1.0;
-    protected Alignment textAlignment = Alignment.MIDDLE;
-    protected boolean shadow = true;
-    private List<IReorderingProcessor> preparedLabel;
-    private int labelWidth;
-    private int labelHeight;
-
     /**
      * Default constructor.
      */
     public ButtonVanilla()
     {
-        super();
+        super(Alignment.MIDDLE, ENABLED_COLOR, HOVER_COLOR, DISABLED_COLOR, true, true);
+
         width = DEFAULT_BUTTON_WIDTH;
         height = DEFAULT_BUTTON_HEIGHT;
     }
@@ -60,7 +51,8 @@ public class ButtonVanilla extends Button
      */
     public ButtonVanilla(final PaneParams params)
     {
-        super(params);
+        super(params, Alignment.MIDDLE, ENABLED_COLOR, HOVER_COLOR, DISABLED_COLOR, true, true);
+
         if (width == 0)
         {
             width = DEFAULT_BUTTON_WIDTH;
@@ -69,10 +61,6 @@ public class ButtonVanilla extends Button
         {
             height = DEFAULT_BUTTON_HEIGHT;
         }
-
-        textScale = params.getDoubleAttribute("textscale", textScale);
-        textAlignment = params.getEnumAttribute("textalign", Alignment.class, textAlignment);
-        setLabel(getLabelNew()); // recalc label
     }
 
     /**
@@ -113,80 +101,8 @@ public class ButtonVanilla extends Button
                 TEXTURE_INNER_U_WIDTH, TEXTURE_INNER_V_HEIGHT);
         }
 
-        if (preparedLabel != null)
-        {
-            final int textColor = enabled ? (isMouseOver ? HOVER_COLOR : ENABLED_COLOR) : DISABLED_COLOR;
-            int offsetX = TEXTURE_INNER_U_OFFSET;
-            int offsetY = TEXTURE_INNER_V_OFFSET;
-
-            if (textAlignment.isRightAligned())
-            {
-                offsetX += (getWidth() - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH) - labelWidth);
-            }
-            else if (textAlignment.isHorizontalCentered())
-            {
-                offsetX += (getWidth() - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH) - labelWidth) / 2;
-            }
-
-            if (textAlignment.isBottomAligned())
-            {
-                offsetY += (getHeight() - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT) - labelHeight);
-            }
-            else if (textAlignment.isVerticalCentered())
-            {
-                offsetY += (getHeight() - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT) - labelHeight) / 2;
-            }
-            // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
-            offsetY += Math.ceil(textScale);
-
-            ms.push();
-            ms.translate(getX() + offsetX, getY() + offsetY, 0.0d);
-            ms.scale((float) textScale, (float) textScale, 1.0f);
-            int yShift = 0;
-            for (final IReorderingProcessor row : preparedLabel)
-            {
-                final int xOffset;
-
-                if (textAlignment.isRightAligned())
-                {
-                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(row) * textScale) / textScale);
-                }
-                else if (textAlignment.isHorizontalCentered())
-                {
-                    xOffset = (int) ((labelWidth - mc.fontRenderer.func_243245_a(row) * textScale) / 2 / textScale);
-                }
-                else
-                {
-                    xOffset = 0;
-                }
-
-                drawString(ms, row, xOffset, yShift, textColor, shadow);
-                yShift += mc.fontRenderer.FONT_HEIGHT;
-            }
-            ms.pop();
-        }
-
         RenderSystem.disableBlend();
-    }
 
-    @Override
-    public void setLabel(final IFormattableTextComponent label)
-    {
-        super.setLabel(label);
-
-        if (textScale <= 0.0d || label == null || label.getString().isEmpty())
-        {
-            preparedLabel = null;
-            return;
-        }
-
-        final int maxWidth = (int) ((width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH)) / textScale);
-        // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
-        final int maxHeight = (int) ((height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT)) / textScale + Math.ceil(textScale));
-
-        preparedLabel = mc.fontRenderer.trimStringToWidth(label, maxWidth);
-        preparedLabel = preparedLabel.subList(0, Math.min(preparedLabel.size(), maxHeight / this.mc.fontRenderer.FONT_HEIGHT));
-        labelWidth = (int) (preparedLabel.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * textScale);
-        labelHeight = (int) (Math.min(preparedLabel.size() * this.mc.fontRenderer.FONT_HEIGHT, maxHeight) * textScale);
+        super.drawSelf(ms, mx, my);
     }
 }

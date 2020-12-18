@@ -76,6 +76,24 @@
         <xs:attribute name="style" type="xs:string"/>
     </xs:complexType>
 
+    <!-- Abstract text element -->
+    <xs:complexType name="textElementType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="textscale" type="xs:string"/>
+                <xs:attribute name="textalign" type="align"/>
+                <xs:attribute name="color" type="xs:string"/> <!-- overrides all textcolors-->
+                <xs:attribute name="textcolor" type="xs:string"/>
+                <xs:attribute name="texthovercolor" type="xs:string"/>
+                <xs:attribute name="textdisabledcolor" type="xs:string"/>
+                <xs:attribute name="shadow" type="xs:boolean"/>
+                <xs:attribute name="wrap" type="xs:boolean"/>
+                <xs:attribute name="linespace" type="xs:integer"/>
+                <xs:attribute name="text" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <!-- View basic attributes and contents -->
     <xs:complexType name="viewType">
         <xs:complexContent>
@@ -158,10 +176,8 @@
     <!-- <button> -->
     <xs:complexType name="buttonType">
         <xs:complexContent>
-            <xs:extension base="paneType">
+            <xs:extension base="textElementType">
                 <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textscale" type="xs:double"/>
-                <xs:attribute name="textalign" type="align"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -169,14 +185,8 @@
     <!-- <label> -->
     <xs:complexType name="labelType">
         <xs:complexContent>
-            <xs:extension base="paneType">
+            <xs:extension base="textElementType">
                 <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="color" type="xs:string"/>
-                <xs:attribute name="hovercolor" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
-                <xs:attribute name="wrap" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -184,12 +194,7 @@
     <!-- <text> -->
     <xs:complexType name="textType">
         <xs:complexContent>
-            <xs:extension base="paneType">
-                <xs:attribute name="linespace" type="xs:integer"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="color" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
+            <xs:extension base="textElementType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -206,7 +211,7 @@
     <!-- <buttonimage> -->
     <xs:complexType name="buttonImageType">
         <xs:complexContent>
-            <xs:extension base="paneType">
+            <xs:extension base="textElementType">
                 <!-- Image and Highlight -->
                 <xs:attribute name="source" type="xs:string" use="required"/>
                 <xs:attribute name="imageoffset" type="fixedSizePair"/>
@@ -219,13 +224,6 @@
                 <xs:attribute name="disabledsize" type="fixedSizePair"/>
                 <!-- Label (optional) -->
                 <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="textoffset" type="fixedSizePair"/>
-                <xs:attribute name="textcolor" type="xs:string"/>
-                <xs:attribute name="texthovercolor" type="xs:string"/>
-                <xs:attribute name="textdisabledcolor" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -309,7 +307,6 @@
     <xs:complexType name="treeViewType">
         <xs:complexContent>
             <xs:extension base="zoomDragType">
-                <xs:group ref="paneContainerGroup" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:attribute name="nodeVertDist" type="xs:integer"/>
                 <xs:attribute name="nodeToLineHorizDist" type="xs:integer"/>
                 <xs:attribute name="lineSize" type="xs:integer"/>
