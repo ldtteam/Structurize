@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -235,6 +237,7 @@ public class BOScreen extends Screen
     public void init()
     {
         minecraft.keyboardListener.enableRepeatEvents(true);
+        ForgeIngameGui.renderCrosshairs = false;
     }
 
     @Override
@@ -265,6 +268,7 @@ public class BOScreen extends Screen
         window.onClosed();
         Window.clearFocus();
         minecraft.keyboardListener.enableRepeatEvents(false);
+        ForgeIngameGui.renderCrosshairs = true;
     }
 
     @Override
