@@ -78,7 +78,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         super.onOpened();
 
         findPaneOfTypeByID(INPUT_FIELD, TextField.class).setText(currentTag);
-        findPaneOfTypeByID(LIST_LABEL, Label.class).setLabelText("Existing tags in schematic:");
+        findPaneOfTypeByID(LIST_LABEL, Text.class).setText("Existing tags in schematic:");
         tagList = findPaneOfTypeByID(LIST_TAG_POS, ScrollingList.class);
 
         registerButton(BUTTON_CANCEL, this::onCancel);
@@ -188,7 +188,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                     rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
 
                     final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
-                    tagsText.setTextContent(tags.toString());
+                    tagsText.setText(tags.toString());
                 }
                 else
                 {
