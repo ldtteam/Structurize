@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     /**
      * BLockpos list
      */
-    private List<BlockPos> positionsList;
+    private List<BlockPos> positionsList = Collections.emptyList();
 
     /**
      * Constructor for the skeleton class of the windows.

@@ -6,6 +6,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.MathHelper;
+
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -39,9 +41,6 @@ public class ButtonImage extends Button
     protected int disabledHeight = 0;
     protected int disabledMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
     protected int disabledMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-
-    protected int textOffsetX = 0;
-    protected int textOffsetY = 0;
 
     /**
      * Default constructor. Makes a small square button.
@@ -170,12 +169,21 @@ public class ButtonImage extends Button
         // match textColor by default
         textDisabledColor = params.getColorAttribute("textdisabledcolor", textColor);
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
+        PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
         if (size != null)
         {
             textOffsetX = size.getX();
             textOffsetY = size.getY();
         }
+
+        size = params.getSizePairAttribute("textbox", null, null);
+        if (size != null)
+        {
+            textWidth = size.getX();
+            textHeight = size.getY();
+        }
+
+        recalcTextRendering();
     }
 
     /**
@@ -445,9 +453,45 @@ public class ButtonImage extends Button
 
         RenderSystem.disableBlend();
 
-        ms.push();
-        ms.translate(textOffsetX, textOffsetY, 0.0d); // does not affect the calculation, is this actually used?
         super.drawSelf(ms, mx, my);
-        ms.pop();
+    }
+
+    @Override
+    public void setSize(final int w, final int h)
+    {
+        final int newTextWidth = (int) ((double) (textWidth * w) / width);
+        final int newTextHeight = (int) ((double) (textHeight * h) / height);
+
+        super.setSize(w, h);
+
+        textWidth = newTextWidth;
+        textHeight = newTextHeight;
+        recalcTextRendering();
+    }
+
+    /**
+     * Sets text offset for rendering, relative to element start.
+     * Is automatically shrinked to element width and height.
+     *
+     * @param textOffsetX left offset
+     * @param textOffsetY top offset
+     */
+    public void setTextOffset(final int textOffsetX, final int textOffsetY)
+    {
+        this.textOffsetX = MathHelper.clamp(textOffsetX, 0, width);
+        this.textOffsetY = MathHelper.clamp(textOffsetY, 0, height);
+    }
+
+    /**
+     * Sets text rendering box.
+     * Is automatically shrinked to element width and height minus text offsets.
+     *
+     * @param textWidth  horizontal size
+     * @param textHeight vertical size
+     */
+    public void setTextRenderBox(final int textWidth, final int textHeight)
+    {
+        this.textWidth = MathHelper.clamp(textWidth, 0, width - textOffsetX);
+        this.textHeight = MathHelper.clamp(textHeight, 0, height - textOffsetY);
     }
 }

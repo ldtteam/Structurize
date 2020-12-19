@@ -224,6 +224,8 @@
                 <xs:attribute name="disabledsize" type="fixedSizePair"/>
                 <!-- Label (optional) -->
                 <xs:attribute name="label" type="xs:string"/>
+                <xs:attribute name="textoffset" type="fixedSizePair"/>
+                <xs:attribute name="textbox" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -42,6 +42,7 @@ public class ButtonVanilla extends Button
 
         width = DEFAULT_BUTTON_WIDTH;
         height = DEFAULT_BUTTON_HEIGHT;
+        recalcTextBox();
     }
 
     /**
@@ -61,6 +62,7 @@ public class ButtonVanilla extends Button
         {
             height = DEFAULT_BUTTON_HEIGHT;
         }
+        recalcTextBox();
     }
 
     /**
@@ -104,5 +106,21 @@ public class ButtonVanilla extends Button
         RenderSystem.disableBlend();
 
         super.drawSelf(ms, mx, my);
+    }
+
+    private void recalcTextBox()
+    {
+        textOffsetX = TEXTURE_INNER_U_OFFSET;
+        textOffsetY = TEXTURE_INNER_V_OFFSET;
+        textWidth = width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH);
+        textHeight = height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT);
+        recalcTextRendering();
+    }
+
+    @Override
+    public void setSize(final int w, final int h)
+    {
+        super.setSize(w, h);
+        recalcTextBox();
     }
 }

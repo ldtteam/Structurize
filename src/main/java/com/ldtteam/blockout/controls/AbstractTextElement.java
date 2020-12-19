@@ -73,6 +73,11 @@ public abstract class AbstractTextElement extends Pane
     private int renderedTextWidth;
     private int renderedTextHeight;
 
+    protected int textOffsetX = 0;
+    protected int textOffsetY = 0;
+    protected int textWidth = width;
+    protected int textHeight = height;
+
     /**
      * Creates an instance of the abstractTextElement.
      */
@@ -97,7 +102,6 @@ public abstract class AbstractTextElement extends Pane
         // setup
         recalcTextRendering();
     }
-
 
     /**
      * Create from xml.
@@ -140,18 +144,18 @@ public abstract class AbstractTextElement extends Pane
 
     protected void recalcTextRendering()
     {
-        if (textScale <= 0.0d || text == null || text.getString().isEmpty())
+        if (textScale <= 0.0d || text == null || text.getString().isEmpty() || textWidth < 1 || textHeight < 1)
         {
             preparedText = Collections.emptyList();
             return;
         }
 
-        final int maxWidth = (int) (width / textScale);
+        final int maxWidth = (int) (textWidth / textScale);
         preparedText = mc.fontRenderer.trimStringToWidth(text, maxWidth);
         if (textWrap)
         {
-            // + Math.ceil(textScale) is to negate last pixel of vanilla font rendering
-            final int maxHeight = (int) (height / textScale + Math.ceil(textScale));
+            // + Math.ceil(textScale) / textScale is to negate last pixel of vanilla font rendering
+            final int maxHeight = (int) (textHeight / textScale) + 1;
 
             preparedText = preparedText.subList(0, Math.min(preparedText.size(), maxHeight / (this.mc.fontRenderer.FONT_HEIGHT + textLinespace)));
             renderedTextWidth = (int) (preparedText.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * textScale);
@@ -180,25 +184,27 @@ public abstract class AbstractTextElement extends Pane
 
         final int color = enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
 
-        int offsetX = 0;
-        int offsetY = 0;
+        int offsetX = textOffsetX;
+        int offsetY = textOffsetY;
 
         if (textAlignment.isRightAligned())
         {
-            offsetX = width - renderedTextWidth;
+            offsetX += textWidth - renderedTextWidth;
         }
         else if (textAlignment.isHorizontalCentered())
         {
-            offsetX = (width - renderedTextWidth) / 2;
+            offsetX += (textWidth - renderedTextWidth) / 2;
         }
 
         if (textAlignment.isBottomAligned())
         {
-            offsetY = height - renderedTextHeight;
+            offsetY += textHeight - renderedTextHeight;
+            offsetY += Math.ceil(textScale);
         }
         else if (textAlignment.isVerticalCentered())
         {
-            offsetY = (height - renderedTextHeight) / 2;
+            offsetY += (textHeight - renderedTextHeight) / 2;
+            offsetY += Math.ceil(textScale);
         }
 
         ms.push();
@@ -265,9 +271,9 @@ public abstract class AbstractTextElement extends Pane
     /**
      * Set all textContent colors.
      *
-     * @param textColor Standard textContent color.
+     * @param textColor         Standard textContent color.
      * @param textDisabledColor Disabled textContent color.
-     * @param textHoverColor Hover textContent color.
+     * @param textHoverColor    Hover textContent color.
      */
     public void setColors(final int textColor, final int textDisabledColor, final int textHoverColor)
     {
@@ -301,7 +307,7 @@ public abstract class AbstractTextElement extends Pane
         return textDisabledColor;
     }
 
-    public void setTextDisabledColor(int textDisabledColor)
+    public void setTextDisabledColor(final int textDisabledColor)
     {
         this.textDisabledColor = textDisabledColor;
     }
@@ -311,7 +317,7 @@ public abstract class AbstractTextElement extends Pane
         return textLinespace;
     }
 
-    public void setTextLinespace(int textLinespace)
+    public void setTextLinespace(final int textLinespace)
     {
         this.textLinespace = textLinespace;
     }
@@ -378,6 +384,9 @@ public abstract class AbstractTextElement extends Pane
     public void setSize(final int w, final int h)
     {
         super.setSize(w, h);
+
+        textWidth = width;
+        textHeight = height;
         recalcTextRendering();
     }
 }
