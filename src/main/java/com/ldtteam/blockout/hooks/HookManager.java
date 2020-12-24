@@ -36,6 +36,10 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
      */
     private final Map<K, WindowEntry> activeWindows = new HashMap<>();
 
+    protected HookManager()
+    {
+    }
+
     protected void registerInternal(final U targetThing,
         final ResourceLocation guiLoc,
         final long expirationTime,
@@ -90,7 +94,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
      */
     protected abstract void translateToGuiBottomCenter(final MatrixStack ms, final T thing, final float partialTicks);
 
-    public void tick(final long ticks)
+    protected void tick(final long ticks)
     {
         final long now = System.currentTimeMillis();
 
@@ -130,7 +134,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         activeWindows.values().forEach(entry -> entry.screen.tick());
     }
 
-    public void render(final MatrixStack ms, final float partialTicks)
+    protected void render(final MatrixStack ms, final float partialTicks)
     {
         final long now = System.currentTimeMillis();
         final Iterator<WindowEntry> it = activeWindows.values().iterator();

@@ -146,7 +146,7 @@ public final class HookRegistries
             {
                 case DISTANCE:
                     targets = mc.world.getEntitiesWithinAABB((EntityType<Entity>) entityType,
-                        mc.player.getBoundingBox().grow((double) trigger.getConfig()),
+                        mc.player.getBoundingBox().grow(((TriggerMechanism<Double>) trigger).getConfig()),
                         Predicates.alwaysTrue());
                     break;
 
@@ -276,7 +276,7 @@ public final class HookRegistries
             switch (trigger.getType())
             {
                 case DISTANCE:
-                    final AxisAlignedBB aabb = mc.player.getBoundingBox().grow((double) trigger.getConfig());
+                    final AxisAlignedBB aabb = mc.player.getBoundingBox().grow(((TriggerMechanism<Double>) trigger).getConfig());
                     final int xStart = MathHelper.floor(aabb.minX / 16.0D);
                     final int xEnd = MathHelper.ceil(aabb.maxX / 16.0D);
                     final int zStart = MathHelper.floor(aabb.minZ / 16.0D);
