@@ -440,6 +440,18 @@ public class Pane extends AbstractGui
         }
     }
 
+    /**
+     * Returns the first Pane (depth-first search) of a given type.
+     *
+     * @param type Class of the desired Pane type.
+     * @param <T>  The type of pane returned.
+     * @return a Pane of the given type if found, null otherwise.
+     */
+    public final <T extends Pane> T findFirstPaneByType(@NotNull final Class<T> type)
+    {
+        return findPaneByType(type);
+    }
+
     // ----------Subpanes-------------//
 
     /**
@@ -452,6 +464,18 @@ public class Pane extends AbstractGui
     public Pane findPaneByID(final String idIn)
     {
         return id.equals(idIn) ? this : null;
+    }
+
+    /**
+     * Returns the first Pane of a given type. Performs a depth-first search on the hierarchy of Panes and Views.
+     *
+     * @param type type of Pane to find.
+     * @return a Pane of the given type.
+     */
+    @Nullable
+    public <T extends Pane> T findPaneByType(final Class<T> type)
+    {
+        return this.getClass().equals(type) ? type.cast(this) : null;
     }
 
     /**

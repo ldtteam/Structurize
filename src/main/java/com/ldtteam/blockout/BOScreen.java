@@ -23,7 +23,7 @@ public class BOScreen extends Screen
     protected double x = 0;
     protected double y = 0;
     public static boolean isMouseLeftDown = false;
-    private boolean isOpen = false;
+    protected boolean isOpen = false;
     private static final BitArray ACCEPTED_KEY_PRESSED_MAP = new BitArray(1, GLFW.GLFW_KEY_LAST + 1);
 
     static
