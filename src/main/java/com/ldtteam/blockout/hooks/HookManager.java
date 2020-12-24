@@ -47,8 +47,8 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         Objects.requireNonNull(guiLoc, "Gui location can't be null!");
         Objects.requireNonNull(trigger, "Trigger can't be null!");
 
-        final IGuiActionCallback<T> onOpenListener = Objects.requireNonNullElse((IGuiActionCallback<T>) onOpen, (t, w, tt) -> {});
-        final IGuiActionCallback<T> onClosedListener = Objects.requireNonNullElse((IGuiActionCallback<T>) onClose, (t, w, tt) -> {});
+        final IGuiActionCallback<T> onOpenListener = requireNonNullElse((IGuiActionCallback<T>) onOpen, (t, w, tt) -> {});
+        final IGuiActionCallback<T> onClosedListener = requireNonNullElse((IGuiActionCallback<T>) onClose, (t, w, tt) -> {});
         final ResourceLocation registryKey = targetThing.getRegistryName();
 
         if (registryKeys.contains(registryKey))
@@ -225,5 +225,11 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
             this.hook = hook;
             this.screen = windowFactory.apply(this).getScreen();
         }
+    }
+
+    // java 9 feature
+    private static <T> T requireNonNullElse(T obj, T defaultObj)
+    {
+        return (obj != null) ? obj : Objects.requireNonNull(defaultObj, "defaultObj");
     }
 }
