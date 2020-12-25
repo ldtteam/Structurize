@@ -27,6 +27,8 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public final class Loader
 {
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
     private static final Map<String, Constructor<? extends Pane>> paneConstructorMap = new HashMap<>();
     static
     {
@@ -180,8 +182,7 @@ public final class Loader
     {
         try
         {
-            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final DocumentBuilder dBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             final Document doc = dBuilder.parse(input);
             input.getByteStream().close();
 
