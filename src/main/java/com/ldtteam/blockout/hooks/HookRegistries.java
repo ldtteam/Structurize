@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.BiPredicate;
 import com.google.common.base.Predicates;
+import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
@@ -19,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -36,6 +38,7 @@ public final class HookRegistries
      */
     public static final TileEntityReg TILE_ENTITY_HOOKS = new TileEntityReg();
 
+    // should be in the same order as world render
     private static final HookManager<?, ?, ?>[] REGISTRIES = {TILE_ENTITY_HOOKS, ENTITY_HOOKS};
 
     public static void tick(final long ticks)
@@ -62,12 +65,13 @@ public final class HookRegistries
 
         /**
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
-         * will get closed once the condition stops being satisfied.
-         * Both of opened and closed actions are listened by targetThing.
+         * will get closed once the condition is no longer satisfied.
+         * Gui callbacks are managed by instance of targetThing.
          *
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
-         * @param trigger     opening condition
+         * @param trigger     trigger condition
+         * @see {@link IGuiHookable}
          */
         public <T extends Entity & IGuiHookable> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -79,61 +83,74 @@ public final class HookRegistries
         /**
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied + expirationTime.
-         * Both of opened and closed actions are listened by targetThing.
+         * Gui callbacks are managed by instance of targetThing.
          *
          * @param targetThing    registry object of thing on which gui should be displayed on
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
-         * @param trigger        opening condition
+         * @param trigger        trigger condition
+         * @see {@link IGuiHookable}
          */
         public <T extends Entity & IGuiHookable> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger)
         {
-            register(targetThing, guiLoc, expirationTime, trigger, IGuiHookable::onOpen, IGuiHookable::onClose);
+            register(targetThing, guiLoc, expirationTime, trigger, IGuiHookable::shouldOpen, IGuiHookable::onOpen, IGuiHookable::onClose);
         }
 
         /**
+         * <p>
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied.
-         * Both of opened and closed actions can be listened using respective window callbacks.
+         * </p><p>
+         * {@link IGuiHookable Gui callbacks} are managed by their respective parameters.
+         * </p>
          *
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
-         * @param trigger     opening condition
+         * @param trigger     trigger condition
+         * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen      gets fired when gui is opened
          * @param onClose     gets fired when gui is closed
+         * @see {@link IGuiHookable} for gui callbacks
          */
         public <T extends Entity> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final TriggerMechanism<?> trigger,
+            @Nullable final BiPredicate<T, Type> shouldOpen,
             @Nullable final IGuiActionCallback<T> onOpen,
             @Nullable final IGuiActionCallback<T> onClose)
         {
-            register(targetThing, guiLoc, 0, trigger, onOpen, onClose);
+            register(targetThing, guiLoc, 0, trigger, shouldOpen, onOpen, onClose);
         }
 
         /**
+         * <p>
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied + expirationTime.
-         * Both of opened and closed actions can be listened using respective window callbacks.
+         * </p><p>
+         * {@link IGuiHookable Gui callbacks} are managed by their respective parameters.
+         * </p>
          *
          * @param targetThing    registry object of thing on which gui should be displayed on
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
-         * @param trigger        opening condition
+         * @param trigger        trigger condition
+         * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen         gets fired when gui is opened
          * @param onClose        gets fired when gui is closed
+         * @see {@link IGuiHookable} for gui callbacks
          */
         public <T extends Entity> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger,
+            @Nullable final BiPredicate<T, Type> shouldOpen,
             @Nullable final IGuiActionCallback<T> onOpen,
             @Nullable final IGuiActionCallback<T> onClose)
         {
-            registerInternal(targetThing, guiLoc, expirationTime, trigger, onOpen, onClose);
+            registerInternal(targetThing, guiLoc, expirationTime, trigger, shouldOpen, onOpen, onClose);
         }
 
         @Override
@@ -151,7 +168,7 @@ public final class HookRegistries
                     break;
 
                 case RAY_TRACE:
-                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == Type.ENTITY)
+                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
                     {
                         final Entity entity = ((EntityRayTraceResult) mc.objectMouseOver).getEntity();
                         targets = entity.getType() == entityType ? Arrays.asList(entity) : Collections.emptyList();
@@ -194,11 +211,12 @@ public final class HookRegistries
         /**
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied.
-         * Both of opened and closed actions are listened by targetThing.
+         * Gui callbacks are managed by instance of targetThing.
          *
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
-         * @param trigger     opening condition
+         * @param trigger     trigger condition
+         * @see {@link IGuiHookable}
          */
         public <T extends TileEntity & IGuiHookable> void register(final TileEntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -210,61 +228,74 @@ public final class HookRegistries
         /**
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied + expirationTime.
-         * Both of opened and closed actions are listened by targetThing.
+         * Gui callbacks are managed by instance of targetThing.
          *
          * @param targetThing    registry object of thing on which gui should be displayed on
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
-         * @param trigger        opening condition
+         * @param trigger        trigger condition
+         * @see {@link IGuiHookable}
          */
         public <T extends TileEntity & IGuiHookable> void register(final TileEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger)
         {
-            register(targetThing, guiLoc, expirationTime, trigger, IGuiHookable::onOpen, IGuiHookable::onClose);
+            register(targetThing, guiLoc, expirationTime, trigger, IGuiHookable::shouldOpen, IGuiHookable::onOpen, IGuiHookable::onClose);
         }
 
         /**
+         * <p>
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied.
-         * Both of opened and closed actions can be listened using respective window callbacks.
+         * </p><p>
+         * {@link IGuiHookable Gui callbacks} are managed by their respective parameters.
+         * </p>
          *
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
-         * @param trigger     opening condition
+         * @param trigger     trigger condition
+         * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen      gets fired when gui is opened
          * @param onClose     gets fired when gui is closed
+         * @see {@link IGuiHookable} for gui callbacks
          */
         public <T extends TileEntity> void register(final TileEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final TriggerMechanism<?> trigger,
+            @Nullable final BiPredicate<T, Type> shouldOpen,
             @Nullable final IGuiActionCallback<T> onOpen,
             @Nullable final IGuiActionCallback<T> onClose)
         {
-            register(targetThing, guiLoc, 0, trigger, onOpen, onClose);
+            register(targetThing, guiLoc, 0, trigger, shouldOpen, onOpen, onClose);
         }
 
         /**
+         * <p>
          * Register a gui (located at guiLoc) to targetThing. This gui will be opened everytime trigger condition is satisfied and
          * will get closed once the condition is no longer satisfied + expirationTime.
-         * Both of opened and closed actions can be listened using respective window callbacks.
+         * </p><p>
+         * {@link IGuiHookable Gui callbacks} are managed by their respective parameters.
+         * </p>
          *
          * @param targetThing    registry object of thing on which gui should be displayed on
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
-         * @param trigger        opening condition
+         * @param trigger        trigger condition
+         * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen         gets fired when gui is opened
          * @param onClose        gets fired when gui is closed
+         * @see {@link IGuiHookable} for gui callbacks
          */
         public <T extends TileEntity> void register(final TileEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger,
+            @Nullable final BiPredicate<T, Type> shouldOpen,
             @Nullable final IGuiActionCallback<T> onOpen,
             @Nullable final IGuiActionCallback<T> onClose)
         {
-            registerInternal(targetThing, guiLoc, expirationTime, trigger, onOpen, onClose);
+            registerInternal(targetThing, guiLoc, expirationTime, trigger, shouldOpen, onOpen, onClose);
         }
 
         @Override
@@ -306,7 +337,7 @@ public final class HookRegistries
                     break;
 
                 case RAY_TRACE:
-                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == Type.BLOCK)
+                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK)
                     {
                         final TileEntity te = mc.world.getTileEntity(((BlockRayTraceResult) mc.objectMouseOver).getPos());
                         targets = te == null || te.getType() != teType ? Collections.emptyList() : Arrays.asList(te);

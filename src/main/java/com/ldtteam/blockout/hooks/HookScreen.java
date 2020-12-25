@@ -19,15 +19,29 @@ public class HookScreen extends BOScreen
         captureScroll = window.windowHolder.hook.trigger.getType() == Type.RAY_TRACE;
     }
 
+    @Override
+    @Deprecated
+    public void render(final MatrixStack ms, final int mx, final int my, final float f)
+    {
+        render(ms);
+    }
+
     public void render(final MatrixStack ms)
     {
-        if (!isOpen)
+        if (minecraft == null || !isOpen) // should never happen though
         {
             return;
         }
 
         ms.translate(-width / 2, -height, 0.0d);
-        window.draw(ms, 0, 0);
+        window.draw(ms, -1, -1);
+    }
+
+    @Override
+    @Deprecated
+    public boolean mouseScrolled(final double mx, final double my, final double scrollDiff)
+    {
+        return mouseScrolled(scrollDiff);
     }
 
     public boolean mouseScrolled(final double scrollDiff)

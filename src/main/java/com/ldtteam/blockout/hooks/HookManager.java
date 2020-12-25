@@ -3,19 +3,26 @@ package com.ldtteam.blockout.hooks;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
+/**
+ * Core class for managing and handling gui hooks
+ * 
+ * @param <T> instance of U
+ * @param <U> forge-register type
+ * @param <K> hashable thing to hash T, can be same as T
+ */
 public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
 {
     /**
@@ -40,10 +47,23 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
     {
     }
 
+    /**
+     * Creates a new entry in hook registry, making the system aware of new hook.
+     *
+     * @param targetThing    registry object of thing on which gui should be displayed on
+     * @param guiLoc         location of gui xml
+     * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
+     * @param trigger        trigger condition
+     * @param shouldOpen     gets fired when gui is about to be opened, can deny opening
+     * @param onOpen         gets fired when gui is opened
+     * @param onClose        gets fired when gui is closed
+     * @see {@link IGuiHookable} for gui callbacks
+     */
     protected void registerInternal(final U targetThing,
         final ResourceLocation guiLoc,
         final long expirationTime,
         final TriggerMechanism<?> trigger,
+        final BiPredicate<? extends T, Type> shouldOpen,
         final IGuiActionCallback<? extends T> onOpen,
         final IGuiActionCallback<? extends T> onClose)
     {
@@ -51,24 +71,24 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         Objects.requireNonNull(guiLoc, "Gui location can't be null!");
         Objects.requireNonNull(trigger, "Trigger can't be null!");
 
-        final IGuiActionCallback<T> onOpenListener = requireNonNullElse((IGuiActionCallback<T>) onOpen, (t, w, tt) -> {});
-        final IGuiActionCallback<T> onClosedListener = requireNonNullElse((IGuiActionCallback<T>) onClose, (t, w, tt) -> {});
+        final BiPredicate<T, Type> shouldOpenTest = requireNonNullElse((BiPredicate<T, Type>) shouldOpen, (t, tt) -> true);
+        final IGuiActionCallback<T> onOpenListener = requireNonNullElse((IGuiActionCallback<T>) onOpen, IGuiActionCallback.noAction());
+        final IGuiActionCallback<T> onClosedListener = requireNonNullElse((IGuiActionCallback<T>) onClose, IGuiActionCallback.noAction());
         final ResourceLocation registryKey = targetThing.getRegistryName();
 
         if (registryKeys.contains(registryKey))
         {
-            final HookEntry existing = registry.stream()
-                .filter(hook -> hook.targetThing.getRegistryName().equals(registryKey))
-                .findFirst()
-                .get();
-            if (existing.trigger.getType() == trigger.getType())
+            final Optional<HookEntry> existing = registry.stream()
+                .filter(hook -> hook.targetThing.getRegistryName().equals(registryKey) && hook.trigger.getType() == trigger.getType())
+                .findFirst();
+            if (existing.isPresent())
             {
                 throw new IllegalArgumentException(
-                    String.format("\"%s\" with trigger \"%s\" is already registerd!", targetThing, existing.trigger));
+                    String.format("\"%s\" with trigger \"%s\" is already registerd!", targetThing, existing.get().trigger.getName()));
             }
         }
 
-        registry.add(new HookEntry(targetThing, guiLoc, expirationTime, trigger, onOpenListener, onClosedListener));
+        registry.add(new HookEntry(targetThing, guiLoc, expirationTime, trigger, shouldOpenTest, onOpenListener, onClosedListener));
         registryKeys.add(registryKey);
     }
 
@@ -98,66 +118,60 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
     {
         final long now = System.currentTimeMillis();
 
-        // find new things
+        // find new things (aka trigger tick)
         registry.forEach(hook -> {
-            if (hook.trigger.getType() == Type.DISTANCE && ticks % (Constants.TICKS_SECOND / 2) != 0) // tick distance trigger only every half-second
+            if (hook.trigger.canTick(ticks))
             {
-                return;
+                findTriggered(hook.targetThing, hook.trigger).forEach(thing -> {
+                    final K key = keyMapper(thing);
+                    final WindowEntry entry = activeWindows.get(key);
+    
+                    if ((entry == null || entry.hook.trigger.isLowerPriority(hook.trigger))
+                        && hook.shouldOpen.test(thing, hook.trigger.getType())) // new entry or override
+                    {
+                        if (entry != null)
+                        {
+                            entry.screen.onClose();
+                        }
+    
+                        final WindowEntry window = new WindowEntry(now, thing, hook, HookWindow::new);
+                        activeWindows.put(key, window);
+                        window.screen.init(Minecraft.getInstance(), window.screen.getWindow().getWidth(), window.screen.getWindow().getHeight());
+                    }
+                    else // already existing entry
+                    {
+                        entry.lastTimeAccessed = now;
+                    }
+                });
             }
-
-            findTriggered(hook.targetThing, hook.trigger).forEach(thing -> {
-                final K key = keyMapper(thing);
-                final WindowEntry entry = activeWindows.get(key);
-
-                if (entry == null) // new entry
-                {
-                    final WindowEntry window = new WindowEntry(now, thing, hook, HookWindow::new);
-                    activeWindows.put(key, window);
-                    window.screen.init(Minecraft.getInstance(), window.screen.getWindow().getWidth(), window.screen.getWindow().getHeight());
-                }
-                else if (entry.hook.trigger.getType() != Type.RAY_TRACE && hook.trigger.getType() == Type.RAY_TRACE) // raytrace is priority trigger
-                {
-                    entry.screen.onClose();
-
-                    final WindowEntry window = new WindowEntry(now, thing, hook, HookWindow::new);
-                    activeWindows.put(key, window);
-                    window.screen.init(Minecraft.getInstance(), window.screen.getWindow().getWidth(), window.screen.getWindow().getHeight());
-                }
-                else // already existing entry
-                {
-                    entry.lastTimeAccessed = now;
-                }
-            });
         });
 
-        // tick them all
-        activeWindows.values().forEach(entry -> entry.screen.tick());
+        // check for expired windows or tick them
+        // values().remove() uses naive non-hash removing, but removeIf uses HashIterator
+        activeWindows.values().removeIf(entry -> {
+            if (entry.hook.trigger.canTick(ticks) && now - entry.lastTimeAccessed > entry.hook.expirationTime) // expired
+            {
+                entry.screen.onClose();
+                return true;
+            }
+            else // tickable
+            {
+                entry.screen.tick();
+                return false;
+            }
+        });
     }
 
     protected void render(final MatrixStack ms, final float partialTicks)
     {
-        final long now = System.currentTimeMillis();
-        final Iterator<WindowEntry> it = activeWindows.values().iterator();
-
-        while (it.hasNext())
-        {
-            final WindowEntry entry = it.next();
-            if (now - entry.lastTimeAccessed > entry.hook.expirationTime + 800) // expired entry
-            {
-                entry.screen.onClose();
-                it.remove();
-            }
-            else // renderable entry
-            {
-                ms.push();
-                translateToGuiBottomCenter(ms, entry.thing, partialTicks);
-                ms.rotate(Minecraft.getInstance().getRenderManager().getCameraOrientation());
-                ms.scale(-0.01F, -0.01F, 0.01F);
-                entry.screen.tick();
-                entry.screen.render(ms);
-                ms.pop();
-            }
-        }
+        activeWindows.values().forEach(entry -> {
+            ms.push();
+            translateToGuiBottomCenter(ms, entry.thing, partialTicks);
+            ms.rotate(Minecraft.getInstance().getRenderManager().getCameraOrientation());
+            ms.scale(-0.01F, -0.01F, 0.01F);
+            entry.screen.render(ms);
+            ms.pop();
+        });
     }
 
     // scroll hook management
@@ -190,6 +204,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         protected final ResourceLocation guiLoc;
         protected final long expirationTime;
         protected final TriggerMechanism<?> trigger;
+        protected final BiPredicate<T, Type> shouldOpen;
         protected final IGuiActionCallback<T> onOpen;
         protected final IGuiActionCallback<T> onClose;
 
@@ -197,6 +212,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger,
+            final BiPredicate<T, Type> shouldOpen,
             final IGuiActionCallback<T> onOpen,
             final IGuiActionCallback<T> onClose)
         {
@@ -204,6 +220,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
             this.guiLoc = guiLoc;
             this.expirationTime = expirationTime;
             this.trigger = trigger;
+            this.shouldOpen = shouldOpen;
             this.onOpen = onOpen;
             this.onClose = onClose;
         }

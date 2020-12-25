@@ -9,5 +9,24 @@ import com.ldtteam.blockout.views.Window;
 @FunctionalInterface
 public interface IGuiActionCallback<T>
 {
+    /**
+     * Default impl with no action.
+     */
+    public static IGuiActionCallback<?> NO_ACTION = (t, w, tt) -> {};
+
+    /**
+     * @param thing       instance of Forge-registered type
+     * @param window      window attached to instance above
+     * @param triggerType trigger condition type
+     */
     void onAction(final T thing, final Window window, final Type triggerType);
+
+    /**
+     * @return default impl with no action
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> IGuiActionCallback<T> noAction()
+    {
+        return (IGuiActionCallback<T>) NO_ACTION;
+    }
 }

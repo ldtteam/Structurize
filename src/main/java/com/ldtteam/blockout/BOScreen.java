@@ -118,7 +118,7 @@ public class BOScreen extends Screen
     @Override
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
-        if (minecraft == null) // should never happen though
+        if (minecraft == null || !isOpen) // should never happen though
         {
             return;
         }
