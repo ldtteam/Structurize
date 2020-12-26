@@ -7,6 +7,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
 import org.jetbrains.annotations.NotNull;
@@ -27,28 +29,27 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public final class Loader
 {
-    private static final Map<String, Constructor<? extends Pane>> paneConstructorMap = new HashMap<>();
+    private static final Map<ResourceLocation, Function<PaneParams,? extends Pane>> paneFactories = new HashMap<>();
     static
     {
-        register("view", View.class);
-        register("group", Group.class);
-        register("scrollgroup", ScrollingGroup.class);
-        register("list", ScrollingList.class);
-        register("text", Text.class);
-        register("button", ButtonVanilla.class);
-        register("buttonimage", ButtonImage.class);
-        register("label", Text.class); // we don't want to deal with xml changes
-        register("input", TextFieldVanilla.class);
-        register("image", Image.class);
-        register("imagerepeat", ImageRepeatable.class);
-        register("box", Box.class);
-        register("itemicon", ItemIcon.class);
-        register("switch", SwitchView.class);
-        register("dropdown", DropDownList.class);
-        register("overlay", OverlayView.class);
-        register("gradient", Gradient.class);
-        register("zoomdragview", ZoomDragView.class);
-        register("treeview", TreeView.class);
+        register("view", View::new);
+        register("group", Group::new);
+        register("scrollgroup", ScrollingGroup::new);
+        register("list", ScrollingList::new);
+        register("text", Text::new);
+        register("button", ButtonVanilla::new);
+        register("buttonimage", ButtonImage::new);
+        register("label", Label::new);
+        register("input", TextFieldVanilla::new);
+        register("image", Image::new);
+        register("box", Box::new);
+        register("itemicon", ItemIcon::new);
+        register("switch", SwitchView::new);
+        register("dropdown", DropDownList::new);
+        register("overlay", OverlayView::new);
+        register("gradient", Gradient::new);
+        register("zoomdragview", ZoomDragView::new);
+        register("treeview", TreeView::new);
     }
 
     private Loader()
@@ -56,63 +57,34 @@ public final class Loader
         // Hides default constructor.
     }
 
-    private static void register(final String name, final Class<? extends Pane> paneClass)
+    private static void register(final String name, final Function<PaneParams, ? extends Pane> factoryMethod)
     {
-        register(name, null, paneClass);
-    }
+        final ResourceLocation key = new ResourceLocation(name);
 
-    private static void register(final String name, final String style, final Class<? extends Pane> paneClass)
-    {
-        final String key = makeFactoryKey(name, style);
-
-        if (paneConstructorMap.containsKey(key))
+        if (paneFactories.containsKey(key))
         {
-            throw new IllegalArgumentException("Duplicate pane type '" + name + "' of style '" + style + "' when registering Pane class mapping for " + paneClass.getName());
+            throw new IllegalArgumentException("Duplicate pane type '" + name + "' when registering Pane class method.");
         }
 
-        try
-        {
-            final Constructor<? extends Pane> constructor = paneClass.getDeclaredConstructor(PaneParams.class);
-            paneConstructorMap.put(key, constructor);
-        }
-        catch (final NoSuchMethodException exception)
-        {
-            throw new IllegalArgumentException("Missing (XMLNode) constructor for type '" + name + "' when adding Pane class mapping for " + paneClass.getName(), exception);
-        }
-    }
-
-    @NotNull
-    private static String makeFactoryKey(final String name, final String style)
-    {
-        return name + ":" + (style != null ? style : "");
+        paneFactories.put(key, factoryMethod);
     }
 
     private static Pane createFromPaneParams(final PaneParams params)
     {
-        // Parse Attributes first, to full construct
-        final String paneType = params.getType();
-        final String style = params.getStringAttribute("style", null);
+        final ResourceLocation paneType = new ResourceLocation(params.getType());
 
-        String key = makeFactoryKey(paneType, style);
-        Constructor<? extends Pane> constructor = paneConstructorMap.get(key);
-        if (constructor == null && style != null)
+        if (paneFactories.containsKey(paneType))
         {
-            key = makeFactoryKey(paneType, null);
-            constructor = paneConstructorMap.get(key);
+            return paneFactories.get(paneType).apply(params);
         }
 
-        if (constructor != null)
+        if (paneFactories.containsKey(new ResourceLocation(paneType.getPath())))
         {
-            try
-            {
-                return constructor.newInstance(params);
-            }
-            catch (final InstantiationException | IllegalAccessException | InvocationTargetException exc)
-            {
-                Log.getLogger().error(String.format("Exception when parsing XML for pane type %s", paneType), exc);
-            }
+            Log.getLogger().warn("Namespace override for " + paneType.getPath() + " not found. Using default.");
+            return paneFactories.get(new ResourceLocation(paneType.getPath())).apply(params);
         }
 
+        Log.getLogger().error("There is no factory method for " + paneType.getPath());
         return null;
     }
 
