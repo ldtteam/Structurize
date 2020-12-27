@@ -1,6 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.google.common.collect.Lists;
+import com.ldtteam.blockout.controls.Tooltip;
+import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -53,6 +54,7 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    protected Tooltip tooltip;
 
     /**
      * Default constructor.
@@ -360,11 +362,6 @@ public class Pane extends AbstractGui
         if (visible)
         {
             drawSelfLast(ms, mx, my);
-
-            if (this.isPointInPane(mx, my) && !toolTipLines.isEmpty())
-            {
-                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), (int) mx, (int) my);
-            }
         }
     }
 
@@ -502,6 +499,7 @@ public class Pane extends AbstractGui
     public void setWindow(final Window w)
     {
         window = w;
+        genToolTip();
     }
 
     /**
@@ -867,24 +865,14 @@ public class Pane extends AbstractGui
         return false;
     }
 
-    /**
-     * Sets the tooltip to render on hovering this element
-     *
-     * @param lines the lines to display
-     */
-    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
+    private void genToolTip()
     {
-        this.toolTipLines = lines;
-    }
-
-    /**
-     * Gets the tooltip to render on hovering this element
-     *
-     * @return the lines to display
-     */
-    public List<IFormattableTextComponent> getHoverToolTip()
-    {
-        return this.toolTipLines;
+        if (!toolTipLines.isEmpty())
+        {
+            final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+            toolTipLines.forEach(ttBuilder::appendNL);
+            tooltip = ttBuilder.build();
+        }
     }
 
     /**
