@@ -24,6 +24,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -791,8 +792,10 @@ public class Pane extends AbstractGui
         if (onHover == null && !onHoverId.isEmpty())
         {
             onHover = window.findPaneByID(onHoverId);
+            Objects.requireNonNull(onHover, String.format("Hover pane \"%s\" for \"%s\" was not found.", onHoverId, id));
         }
-        else
+
+        if (onHover == null)
         {
             return;
         }
@@ -805,6 +808,11 @@ public class Pane extends AbstractGui
         {
             onHover.hide();
         }
+    }
+
+    public void setHoverPane(final Pane hoverPane)
+    {
+        this.onHover = hoverPane;
     }
 
     @Deprecated
