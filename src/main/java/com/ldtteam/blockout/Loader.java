@@ -3,15 +3,12 @@ package com.ldtteam.blockout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.util.Tuple;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -20,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,6 +27,18 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public final class Loader
 {
+    private static final int CACHE_CAP = 20;
+
+    private static final Map<ResourceLocation, Tuple<Integer,Document>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, Document>>()
+    {
+        @Override
+        public Tuple<Integer, Document> get(final Object o)
+        {
+            Tuple<Integer, Document> me = super.get(o);
+            this.replace((ResourceLocation) o, new Tuple<>(me.getA()+1,me.getB()));
+            return me;
+        }
+    });
     private static final Map<ResourceLocation, Function<PaneParams,? extends Pane>> paneFactories = new HashMap<>();
     static
     {
@@ -126,8 +136,10 @@ public final class Loader
      * @param doc    xml document.
      * @param parent parent view.
      */
-    private static void createFromXML(final Document doc, final View parent)
+    private static void createFromXML(@Nullable final Document doc, final View parent)
     {
+        if (doc == null) return;
+
         doc.getDocumentElement().normalize();
 
         final PaneParams root = new PaneParams(doc.getDocumentElement());
@@ -146,9 +158,8 @@ public final class Loader
      * Parse XML from an InputSource into contents for a View.
      *
      * @param input  xml file.
-     * @param parent parent view.
      */
-    private static void createFromXML(final InputSource input, final View parent)
+    private static Document parseXML(final InputSource input)
     {
         try
         {
@@ -157,12 +168,14 @@ public final class Loader
             final Document doc = dBuilder.parse(input);
             input.getByteStream().close();
 
-            createFromXML(doc, parent);
+            return doc;
         }
         catch (final ParserConfigurationException | SAXException | IOException exc)
         {
             Log.getLogger().error("Exception when parsing XML.", exc);
         }
+
+        return null;
     }
 
     /**
@@ -173,7 +186,7 @@ public final class Loader
      */
     public static void createFromXML(final String xmlString, final View parent)
     {
-        createFromXML(new InputSource(new StringReader(xmlString)), parent);
+        createFromXML(parseXML(new InputSource(new StringReader(xmlString))), parent);
     }
 
     /**
@@ -195,7 +208,16 @@ public final class Loader
      */
     public static void createFromXMLFile(final ResourceLocation resource, final View parent)
     {
-        createFromXML(new InputSource(createInputStream(resource)), parent);
+        if (parsedCache.containsKey(resource))
+        {
+            createFromXML(parsedCache.get(resource).getB(), parent);
+        }
+        else
+        {
+            Document doc = parseXML(new InputSource(createInputStream(resource)));
+            addToCache(resource, doc);
+            createFromXML(doc, parent);
+        }
     }
 
     /**
@@ -221,5 +243,22 @@ public final class Loader
             Log.getLogger().error("IOException Loader.java", e.getCause());
         }
         return null;
+    }
+
+    // ------ Cache Handling ------
+
+    public static void addToCache(ResourceLocation loc, Document doc)
+    {
+        if (parsedCache.size() >= CACHE_CAP)
+        {
+            parsedCache.replace(
+              parsedCache.entrySet().stream()
+                .min((a,b) -> Math.min(a.getValue().getA(), b.getValue().getA())).get().getKey(),
+              new Tuple<>(1,doc));
+        }
+        else
+        {
+            parsedCache.put(loc, new Tuple<>(1, doc));
+        }
     }
 }
