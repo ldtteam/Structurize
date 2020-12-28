@@ -1,5 +1,8 @@
-package com.ldtteam.blockout;
+package com.ldtteam.blockout.properties;
 
+import com.ldtteam.blockout.Color;
+import com.ldtteam.blockout.Log;
+import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -7,13 +10,14 @@ import net.minecraft.util.text.TextFormatting;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class Parsers
 {
+    private Parsers() { /* prevent construction */ }
+
     /**
      * Just a convenient way to put the Function lambda
      */
@@ -28,6 +32,7 @@ public final class Parsers
     public static Any<Float>    FLOAT = Float::parseFloat;
     public static Any<Double>   DOUBLE = Double::parseDouble;
 
+    /** Parses a potentially translatable portion of text as a component */
     public static Any<IFormattableTextComponent> TEXT = v -> {
         String result = v;
         Matcher m = Pattern.compile("(\\$[({](\\w+)[})])").matcher(v);
@@ -45,11 +50,13 @@ public final class Parsers
         return new StringTextComponent(result);
     };
 
+    /** Applies the TEXT parser across multiple lines */
     public static Any<List<IFormattableTextComponent>> MULTILINE = v ->
         Arrays.stream(v.split("(;|<br/?>|\\\\n)"))
           .map(s -> Parsers.TEXT.apply(s))
           .collect(Collectors.toList());
 
+    /** Parses a color from hex, rgba, name, or pure value */
     public static Any<Integer> COLOR = v -> {
         Matcher m = PaneParams.HEXADECIMAL.matcher(v);
         if (m.find()) return Integer.parseInt(m.group(), 16);
@@ -67,6 +74,12 @@ public final class Parsers
         }
     };
 
+    /**
+     * Supply an enumeration class and this will parse it
+     * @param clazz the enum class to parse against
+     * @param <T> they enum class type
+     * @return an Any value parsing method
+     */
     public static <T extends Enum<T>> Any<T> ENUM(Class<T> clazz)
     {
         return v -> {
@@ -81,13 +94,4 @@ public final class Parsers
             return null;
         };
     }
-
-    private final Function<String,?> method;
-
-    <T> Parsers(Function<String, T> parser)
-    {
-        this.method = parser;
-    }
-
-    public Function<String,?> get() { return method; }
 }

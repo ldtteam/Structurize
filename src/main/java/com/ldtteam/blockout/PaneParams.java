@@ -1,5 +1,6 @@
 package com.ldtteam.blockout;
 
+import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.views.View;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -89,6 +90,15 @@ public class PaneParams
         return node.getTextContent().trim();
     }
 
+    /**
+     * Finds an attribute by name from the XML node
+     * and parses it using the provided parser method
+     * @param name the attribute name to search for
+     * @param parser the parser to convert the attribute to its property
+     * @param fallback the default result value if one cannot be parsed
+     * @param <T> the type of value to work with
+     * @return the parsed value
+     */
     @SuppressWarnings("unchecked")
     public <T> T property(String name, Parsers.Any<T> parser, T fallback)
     {
@@ -216,7 +226,7 @@ public class PaneParams
      */
     public double numeral(final String name, final double fallback)
     {
-        return property(name, Double::parseDouble, fallback);
+        return property(name, Parsers.DOUBLE, fallback);
     }
 
     /**
@@ -370,19 +380,45 @@ public class PaneParams
         }
     }
 
-    public <T> void multiProperty(String name, Function<String, T> parser, Consumer<List<T>> applier)
+    /**
+     * Fetches a multi-part (shorthand) property
+     * @param name the name of the attribute to retrieve
+     * @param parser the parser applied to each part
+     * @param parts the maximum number of parts to fill to if less are given
+     * @param applier the method to utilise the parsed values
+     * @param <T> the type of each part
+     */
+    public <T> void property(String name, Function<String, T> parser, int parts, Consumer<List<T>> applier)
     {
         final String value = string(name);
         final List<T> results = new LinkedList<>();
+
         for (final String segment : value.split("\\s*[,\\s]\\s*"))
         {
             results.add(parser.apply(segment));
         }
 
+        while (results.size() < parts)
+        {
+            // Will duplicate in pairs, so a 4-part property defined
+            // from "2 8" will become "2 8 2 8"
+            // useful for syncing vertical and horizontal for each edge
+            results.add(results.get(Math.max(0, results.size() - 2)));
+        }
+
         applier.accept(results);
     }
 
-    public <T> T propertyAliases(T fallback, Parsers.Any<T> parser, String... aliases)
+    /**
+     * Will respond with the value of the first attribute
+     * that matches one of the aliases
+     * @param fallback the default value
+     * @param parser the parser to use to form the value
+     * @param aliases any attribute names that should all parse for the same thing
+     * @param <T> the type of the result
+     * @return the parsed value
+     */
+    public <T> T propertyFromAliases(T fallback, Parsers.Any<T> parser, String... aliases)
     {
         final NamedNodeMap map = node.getAttributes();
         for (final String name : aliases)

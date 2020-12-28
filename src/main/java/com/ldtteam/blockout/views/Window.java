@@ -104,7 +104,7 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.string("inherit", (String) null);
+        final String inherit = params.string("inherit");
         if (inherit != null)
         {
             Loader.createFromXMLFile(new ResourceLocation(inherit), this);
@@ -125,12 +125,6 @@ public class Window extends View
         lightbox = params.bool("lightbox", lightbox);
         windowPausesGame = params.bool("pause", windowPausesGame);
         windowRenderType = params.enumeration("type", WindowRenderType.class, windowRenderType);
-    }
-
-    @Override
-    public void parseChildren(final PaneParams params)
-    {
-        // Can be overridden
     }
 
     @Override

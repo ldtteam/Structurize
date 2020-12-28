@@ -27,18 +27,6 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public final class Loader
 {
-    private static final int CACHE_CAP = 20;
-
-    private static final Map<ResourceLocation, Tuple<Integer,Document>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, Document>>()
-    {
-        @Override
-        public Tuple<Integer, Document> get(final Object o)
-        {
-            Tuple<Integer, Document> me = super.get(o);
-            this.replace((ResourceLocation) o, new Tuple<>(me.getA()+1,me.getB()));
-            return me;
-        }
-    });
     private static final Map<ResourceLocation, Function<PaneParams,? extends Pane>> paneFactories = new HashMap<>();
     static
     {
@@ -63,12 +51,33 @@ public final class Loader
         register("treeview", TreeView::new);
     }
 
+    /** The maximum numer of cached documents */
+    private static final int CACHE_CAP = 20;
+
+    /** A map to store the parsed documents. Retains data based on a priority */
+    private static final Map<ResourceLocation, Tuple<Integer,PaneParams>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, PaneParams>>()
+    {
+        @Override
+        public Tuple<Integer, PaneParams> get(final Object o)
+        {
+            Tuple<Integer, PaneParams> me = super.get(o);
+            this.replace((ResourceLocation) o, new Tuple<>(me.getA()+1,me.getB()));
+            return me;
+        }
+    });
+
     private Loader()
     {
         // Hides default constructor.
     }
 
-    private static void register(final String name, final Function<PaneParams, ? extends Pane> factoryMethod)
+    /**
+     * registers an element definition class so it can be used in
+     * gui definition files
+     * @param name the tag name of the element in the definition file
+     * @param factoryMethod the constructor/method to create the element Pane
+     */
+    public static void register(final String name, final Function<PaneParams, ? extends Pane> factoryMethod)
     {
         final ResourceLocation key = new ResourceLocation(name);
 
@@ -80,6 +89,11 @@ public final class Loader
         paneFactories.put(key, factoryMethod);
     }
 
+    /**
+     * Uses the loaded parameters to construct a new Pane tree
+     * @param params the parameters for the new pane and its children
+     * @return the created Pane
+     */
     private static Pane createFromPaneParams(final PaneParams params)
     {
         final ResourceLocation paneType = new ResourceLocation(params.getType());
@@ -119,16 +133,24 @@ public final class Loader
             return null;
         }
 
-        params.setParentView(parent);
-        final Pane pane = createFromPaneParams(params);
-
-        if (pane != null)
+        if (parent instanceof Window && params.getType().equals("window"))
         {
-            pane.putInside(parent);
-            pane.parseChildren(params);
+            ((Window) parent).loadParams(params);
+            parent.parseChildren(params);
+            return parent;
         }
+        else
+        {
+            params.setParentView(parent);
+            final Pane pane = createFromPaneParams(params);
 
-        return pane;
+            if (pane != null)
+            {
+                pane.putInside(parent);
+                pane.parseChildren(params);
+            }
+            return pane;
+        }
     }
 
     /**
@@ -137,22 +159,15 @@ public final class Loader
      * @param doc    xml document.
      * @param parent parent view.
      */
-    private static void createFromXML(@Nullable final Document doc, final View parent)
+    private static PaneParams createFromDocument(@Nullable final Document doc, final View parent)
     {
-        if (doc == null) return;
+        if (doc == null) return null;
 
         doc.getDocumentElement().normalize();
 
         final PaneParams root = new PaneParams(doc.getDocumentElement());
-        if (parent instanceof Window)
-        {
-            ((Window) parent).loadParams(root);
-        }
-
-        for (final PaneParams child : root.getChildren())
-        {
-            createFromPaneParams(child, parent);
-        }
+        createFromPaneParams(root, parent);
+        return root;
     }
 
     /**
@@ -187,7 +202,7 @@ public final class Loader
      */
     public static void createFromXML(final String xmlString, final View parent)
     {
-        createFromXML(parseXML(new InputSource(new StringReader(xmlString))), parent);
+        createFromDocument(parseXML(new InputSource(new StringReader(xmlString))), parent);
     }
 
     /**
@@ -211,13 +226,12 @@ public final class Loader
     {
         if (parsedCache.containsKey(resource))
         {
-            createFromXML(parsedCache.get(resource).getB(), parent);
+            createFromPaneParams(parsedCache.get(resource).getB(), parent);
         }
         else
         {
             Document doc = parseXML(new InputSource(createInputStream(resource)));
-            addToCache(resource, doc);
-            createFromXML(doc, parent);
+            addToCache(resource, createFromDocument(doc, parent));
         }
     }
 
@@ -248,7 +262,13 @@ public final class Loader
 
     // ------ Cache Handling ------
 
-    public static void addToCache(ResourceLocation loc, Document doc)
+    /**
+     * Adds a new parsed document to the cache.
+     * If the cache is full, the least accessed document is removed.
+     * @param loc the resource for the gui definition file
+     * @param doc the processed document
+     */
+    public static void addToCache(ResourceLocation loc, PaneParams doc)
     {
         if (parsedCache.size() >= CACHE_CAP)
         {
