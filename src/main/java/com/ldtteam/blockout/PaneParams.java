@@ -1,18 +1,16 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
-import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,11 +21,14 @@ import static com.ldtteam.blockout.Log.getLogger;
  */
 public class PaneParams
 {
-    private static final Pattern      PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern      RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    private static final char         HASH_CHAR          = '#';
-    private final        Node         node;
-    private              View         parentView;
+    public static final Pattern       PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
+    public static final Pattern       RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    public static final Pattern       HEXADECIMAL        = Pattern.compile("#([0-9A-F]{6,8})", Pattern.CASE_INSENSITIVE);
+
+    private final Map<String, Object> propertyCache = new HashMap<>();
+    private final List<PaneParams>    children;
+    private final Node                node;
+    private       View                parentView;
 
     /**
      * Instantiates the pane parameters.
@@ -37,6 +38,7 @@ public class PaneParams
     public PaneParams(final Node n)
     {
         node = n;
+        children = new ArrayList<>(node.getChildNodes().getLength());
     }
 
     public String getType()
@@ -64,27 +66,21 @@ public class PaneParams
         return parentView != null ? parentView.getInteriorHeight() : 0;
     }
 
-    @Nullable
     public List<PaneParams> getChildren()
     {
-        List<PaneParams> list = null;
+        if (!children.isEmpty()) return children;
 
         Node child = node.getFirstChild();
         while (child != null)
         {
             if (child.getNodeType() == Node.ELEMENT_NODE)
             {
-                if (list == null)
-                {
-                    list = new ArrayList<>();
-                }
-
-                list.add(new PaneParams(child));
+                children.add(new PaneParams(child));
             }
             child = child.getNextSibling();
         }
 
-        return list;
+        return children;
     }
 
     @NotNull
@@ -93,45 +89,29 @@ public class PaneParams
         return node.getTextContent().trim();
     }
 
-    @Nullable
-    public String getLocalizedText()
+    @SuppressWarnings("unchecked")
+    public <T> T property(String name, Parsers.Any<T> parser, T fallback)
     {
-        return localize(node.getTextContent().trim());
-    }
+        T result = null;
 
-    @Nullable
-    private static String localize(final String str)
-    {
-        if (str == null)
+        if (propertyCache.containsKey(name))
         {
-            return null;
+            try
+            {
+                result = (T) propertyCache.get(name);
+                if (result != null) return result;
+            }
+            catch (ClassCastException cce)
+            {
+                Log.getLogger().warn("Invalid property: previous value of key does not match type.");
+            }
         }
 
-        String s = str;
-        int index = s.indexOf("$(");
-        while (index != -1)
-        {
-            final int endIndex = s.indexOf(')', index);
+        final Node attr = getAttribute(name);
+        if (attr != null) result = parser.apply(attr.getNodeValue());
 
-            if (endIndex == -1)
-            {
-                break;
-            }
-
-            final String key = s.substring(index + 2, endIndex);
-            String replacement = LanguageHandler.translateKey(key);
-
-            if (replacement.equals(key))
-            {
-                replacement = "MISSING:" + key;
-            }
-
-            s = s.substring(0, index) + replacement + s.substring(endIndex + 1);
-
-            index = s.indexOf("$(", index + replacement.length());
-        }
-
-        return s;
+        propertyCache.put(name, result);
+        return result != null ? result : fallback;
     }
 
     /**
@@ -140,22 +120,21 @@ public class PaneParams
      * @param name the name to search.
      * @return the attribute.
      */
-    public String getStringAttribute(final String name)
+    public String string(final String name)
     {
-        return getStringAttribute(name, "");
+        return string(name, null);
     }
 
     /**
      * Get the String attribute from the name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name      the name.
+     * @param fallback  the default value.
      * @return the String.
      */
-    public String getStringAttribute(final String name, final String def)
+    public String string(final String name, final String fallback)
     {
-        final Node attr = getAttribute(name);
-        return (attr != null) ? attr.getNodeValue() : def;
+        return property(name, String::toString, fallback);
     }
 
     /**
@@ -164,20 +143,9 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<String> getMultiLineAttributeAsString(final String name)
+    public List<IFormattableTextComponent> multiline(final String name)
     {
-        final String string = getStringAttribute(name, "");
-        if (string.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        final String[] split = string.split(";");
-        final List<String> list = new ArrayList<>();
-        for (final String st : split)
-        {
-            list.add(localize(st));
-        }
-        return list;
+        return multiline(name, Collections.emptyList());
     }
 
     /**
@@ -186,20 +154,9 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<IFormattableTextComponent> getMultiLineAttributeAsTextComp(final String name)
+    public List<IFormattableTextComponent> multiline(final String name, List<IFormattableTextComponent> fallback)
     {
-        final String string = getStringAttribute(name, "");
-        if (string.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        final String[] split = string.split(";");
-        final List<IFormattableTextComponent> list = new ArrayList<>();
-        for (final String st : split)
-        {
-            list.add(new StringTextComponent(localize(st)));
-        }
-        return list;
+        return property(name, Parsers.MULTILINE, fallback);
     }
 
     private Node getAttribute(final String name)
@@ -212,161 +169,80 @@ public class PaneParams
         return node.getAttributes().getNamedItem(name) != null;
     }
 
-    /**
-     * Get the localized string attribute from the name.
-     *
-     * @param name the name.
-     * @return the string attribute.
-     */
-    @Nullable
-    public String getLocalizedStringAttribute(final String name)
-    {
-        return getLocalizedStringAttribute(name, "");
-    }
 
     /**
      * Get the localized String attribute from the name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name      the name.
+     * @param fallback  the default value.
      * @return the string.
      */
     @Nullable
-    public String getLocalizedStringAttribute(final String name, final String def)
+    public IFormattableTextComponent text(final String name, final IFormattableTextComponent fallback)
     {
-        return localize(getStringAttribute(name, def));
-    }
-
-    /**
-     * Get the integer attribute from the name.
-     *
-     * @param name the name.
-     * @return the integer.
-     */
-    public int getIntAttribute(final String name)
-    {
-        return getIntAttribute(name, 0);
+        return property(name, Parsers.TEXT, fallback);
     }
 
     /**
      * Get the integer attribute from name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name     the name.
+     * @param fallback the default value.
      * @return the int.
      */
-    public int getIntAttribute(final String name, final int def)
+    public int numeral(final String name, final int fallback)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Integer.parseInt(attr);
-        }
-        return def;
-    }
-
-    /**
-     * Get the float attribute from name.
-     *
-     * @param name the name.
-     * @return the float.
-     */
-    public float getFloatAttribute(final String name)
-    {
-        return getFloatAttribute(name, 0);
+        return property(name, Parsers.INT, fallback);
     }
 
     /**
      * Get the float attribute from name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name     the name.
+     * @param fallback the definition.
      * @return the float.
      */
-    public float getFloatAttribute(final String name, final float def)
+    public float numeral(final String name, final float fallback)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Float.parseFloat(attr);
-        }
-        return def;
-    }
-
-    /**
-     * Get the double attribute from name.
-     *
-     * @param name the name.
-     * @return the double.
-     */
-    public double getDoubleAttribute(final String name)
-    {
-        return getDoubleAttribute(name, 0);
+        return property(name, Parsers.FLOAT, fallback);
     }
 
     /**
      * Get the double attribute from name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name     the name.
+     * @param fallback the definition.
      * @return the double.
      */
-    public double getDoubleAttribute(final String name, final double def)
+    public double numeral(final String name, final double fallback)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Double.parseDouble(attr);
-        }
-
-        return def;
-    }
-
-    /**
-     * Get the boolean attribute from name.
-     *
-     * @param name the name.
-     * @return the boolean.
-     */
-    public boolean getBooleanAttribute(final String name)
-    {
-        return getBooleanAttribute(name, false);
+        return property(name, Double::parseDouble, fallback);
     }
 
     /**
      * Get the boolean attribute from name and definition.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name     the name.
+     * @param fallback the definition.
      * @return the boolean.
      */
-    public boolean getBooleanAttribute(final String name, final boolean def)
+    public boolean bool(final String name, final boolean fallback)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Boolean.parseBoolean(attr);
-        }
-        return def;
+        return property(name, Parsers.BOOLEAN, fallback);
     }
 
     /**
      * Get the boolean attribute from name and class and definition..
      *
-     * @param name  the name.
-     * @param clazz the class.
-     * @param def   the definition.
-     * @param <T>   the type of class.
+     * @param name      the name.
+     * @param clazz     the class.
+     * @param fallback  the default value.
+     * @param <T>       the type of class.
      * @return the enum attribute.
      */
-    public <T extends Enum<T>> T getEnumAttribute(final String name, final Class<T> clazz, final T def)
+    public <T extends Enum<T>> T enumeration(final String name, final Class<T> clazz, final T fallback)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Enum.valueOf(clazz, attr);
-        }
-        return def;
+        return property(name, Parsers.ENUM(clazz), fallback);
     }
 
     /**
@@ -379,7 +255,7 @@ public class PaneParams
      */
     public int getScalableIntegerAttribute(final String name, final int def, final int scale)
     {
-        final String attr = getStringAttribute(name, null);
+        final String attr = string(name);
         if (attr != null)
         {
             final Matcher m = PERCENTAGE_PATTERN.matcher(attr);
@@ -427,7 +303,7 @@ public class PaneParams
     @Nullable
     public SizePair getSizePairAttribute(final String name, final SizePair def, final SizePair scale)
     {
-        final String attr = getStringAttribute(name, null);
+        final String attr = string(name);
         if (attr != null)
         {
             int w = def != null ? def.x : 0;
@@ -458,59 +334,9 @@ public class PaneParams
      * @param def  the definition
      * @return int color value.
      */
-    public int getColorAttribute(final String name, final int def)
+    public int color(final String name, final int def)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr == null)
-        {
-            return def;
-        }
-
-        final Matcher m = RGBA_PATTERN.matcher(attr);
-
-        if (attr.charAt(0) == HASH_CHAR)
-        {
-            // CSS Hex format: #00112233
-            return Integer.parseInt(attr.substring(1), 16);
-        }
-        // CSS RGB format: rgb(255,0,0) and rgba(255,0,0,0.3)
-        else if ((attr.startsWith("rgb(") || attr.startsWith("rgba(")) && m.find())
-        {
-            return getRGBA(attr, m);
-        }
-        else
-        {
-            return getColorByNumberOrName(def, attr);
-        }
-    }
-
-    private static int getRGBA(final String attr, final Matcher m)
-    {
-        final int r = MathHelper.clamp(Integer.parseInt(m.group(1)), 0, 255);
-        final int g = MathHelper.clamp(Integer.parseInt(m.group(2)), 0, 255);
-        final int b = MathHelper.clamp(Integer.parseInt(m.group(3)), 0, 255);
-
-        int color = ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
-
-        if (attr.startsWith("rgba"))
-        {
-            final int alpha = (int) (Double.parseDouble(m.group(4)) * 255.0F);
-            color |= MathHelper.clamp(alpha, 0, 255) << 24;
-        }
-
-        return color;
-    }
-
-    private static int getColorByNumberOrName(final int def, final String attr)
-    {
-        try
-        {
-            return Integer.parseInt(attr);
-        }
-        catch (final NumberFormatException ex)
-        {
-            return Color.getByName(attr, def);
-        }
+        return property(name, Parsers.COLOR, def);
     }
 
     /**
@@ -542,6 +368,32 @@ public class PaneParams
         {
             return y;
         }
+    }
+
+    public <T> void multiProperty(String name, Function<String, T> parser, Consumer<List<T>> applier)
+    {
+        final String value = string(name);
+        final List<T> results = new LinkedList<>();
+        for (final String segment : value.split("\\s*[,\\s]\\s*"))
+        {
+            results.add(parser.apply(segment));
+        }
+
+        applier.accept(results);
+    }
+
+    public <T> T propertyAliases(T fallback, Parsers.Any<T> parser, String... aliases)
+    {
+        final NamedNodeMap map = node.getAttributes();
+        for (final String name : aliases)
+        {
+            if (map.getNamedItem(name) != null)
+            {
+                return property(name, parser, fallback);
+            }
+        }
+
+        return fallback;
     }
 
     /**

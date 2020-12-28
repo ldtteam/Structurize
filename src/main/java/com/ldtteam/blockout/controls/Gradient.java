@@ -32,8 +32,8 @@ public class Gradient extends AbstractTextElement
     public Gradient(final PaneParams params)
     {
         super(params, DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
-        gradientStart = params.getIntAttribute("gradientstart", gradientStart);
-        gradientEnd = params.getColorAttribute("gradientend", gradientEnd);
+        gradientStart = params.numeral("gradientstart", gradientStart);
+        gradientEnd = params.numeral("gradientend", gradientEnd);
     }
 
     /**

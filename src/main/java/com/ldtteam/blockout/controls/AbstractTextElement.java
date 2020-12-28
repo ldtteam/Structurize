@@ -66,7 +66,7 @@ public abstract class AbstractTextElement extends Pane
     /**
      * The text holder.
      */
-    protected IFormattableTextComponent text;
+    protected IFormattableTextComponent text = new StringTextComponent("");
 
     // rendering
     private List<IReorderingProcessor> preparedText;
@@ -118,25 +118,25 @@ public abstract class AbstractTextElement extends Pane
     {
         super(params);
 
-        textAlignment = params.getEnumAttribute("textalign", Alignment.class, defaultTextAlignment);
+        textAlignment = params.enumeration("textalign", Alignment.class, defaultTextAlignment);
         if (params.hasAttribute("color"))
         {
             // provide fast way to set all colors
-            setColors(params.getColorAttribute("color", defaultTextColor));
+            setColors(params.color("color", defaultTextColor));
         }
         else
         {
-            textColor = params.getColorAttribute("textcolor", defaultTextColor);
-            textHoverColor = params.getColorAttribute("texthovercolor", defaultTextHoverColor);
-            textDisabledColor = params.getColorAttribute("textdisabledcolor", defaultTextDisabledColor);
+            textColor = params.color("textcolor", defaultTextColor);
+            textHoverColor = params.color("texthovercolor", defaultTextHoverColor);
+            textDisabledColor = params.color("textdisabledcolor", defaultTextDisabledColor);
         }
-        textShadow = params.getBooleanAttribute("shadow", defaultTextShadow);
-        textWrap = params.getBooleanAttribute("wrap", defaultTextWrap);
-        textScale = params.getDoubleAttribute("textscale", textScale);
-        textLinespace = params.getIntAttribute("linespace", textLinespace);
+        textShadow = params.bool("shadow", defaultTextShadow);
+        textWrap = params.bool("wrap", defaultTextWrap);
+        textScale = params.numeral("textscale", textScale);
+        textLinespace = params.numeral("linespace", textLinespace);
 
         // both label and text are allowed to merge label and text elements
-        text = new StringTextComponent(params.getLocalizedStringAttribute(params.hasAnyAttribute("label", "text"), ""));
+        text = params.text(params.hasAnyAttribute("label", "text"), text);
 
         // setup
         recalcTextRendering();

@@ -97,7 +97,7 @@ public class ScrollingList extends ScrollingView
     public void parseChildren(@NotNull final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }

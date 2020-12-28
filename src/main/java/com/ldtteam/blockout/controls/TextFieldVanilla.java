@@ -34,9 +34,9 @@ public class TextFieldVanilla extends TextField
     public TextFieldVanilla(final PaneParams params)
     {
         super(params);
-        backgroundEnabled = params.getBooleanAttribute("background", backgroundEnabled);
-        backgroundOuterColor = params.getColorAttribute("backgroundOuter", backgroundOuterColor);
-        backgroundInnerColor = params.getColorAttribute("backgroundInner", backgroundInnerColor);
+        backgroundEnabled = params.bool("background", backgroundEnabled);
+        backgroundOuterColor = params.color("backgroundOuter", backgroundOuterColor);
+        backgroundInnerColor = params.color("backgroundInner", backgroundInnerColor);
         filter = new FilterVanilla();
     }
 

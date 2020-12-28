@@ -49,9 +49,10 @@ public final class Loader
         register("text", Text::new);
         register("button", ButtonVanilla::new);
         register("buttonimage", ButtonImage::new);
-        register("label", Label::new);
+        register("label", Text::new);
         register("input", TextFieldVanilla::new);
         register("image", Image::new);
+        register("imagerepeatable", ImageRepeatable::new);
         register("box", Box::new);
         register("itemicon", ItemIcon::new);
         register("switch", SwitchView::new);
@@ -109,7 +110,7 @@ public final class Loader
     {
         if ("layout".equalsIgnoreCase(params.getType()))
         {
-            final String resource = params.getStringAttribute("source", null);
+            final String resource = params.string("source");
             if (resource != null)
             {
                 createFromXMLFile(resource, parent);

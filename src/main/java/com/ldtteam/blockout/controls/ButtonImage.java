@@ -76,7 +76,7 @@ public class ButtonImage extends Button
      */
     private void loadImageInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("source", null);
+        final String path = params.string("source");
         if (path != null)
         {
             image = new ResourceLocation(path);
@@ -105,7 +105,7 @@ public class ButtonImage extends Button
      */
     private void loadHighlightInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("highlight", null);
+        final String path = params.string("highlight");
         if (path != null)
         {
             imageHighlight = new ResourceLocation(path);
@@ -134,7 +134,7 @@ public class ButtonImage extends Button
      */
     private void loadDisabledInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("disabled", null);
+        final String path = params.string("disabled");
         if (path != null)
         {
             imageDisabled = new ResourceLocation(path);
@@ -163,11 +163,11 @@ public class ButtonImage extends Button
      */
     private void loadTextInfo(final PaneParams params)
     {
-        textColor = params.getColorAttribute("textcolor", textColor);
+        textColor = params.numeral("textcolor", textColor);
         // match textColor by default
-        textHoverColor = params.getColorAttribute("texthovercolor", textColor);
+        textHoverColor = params.numeral("texthovercolor", textColor);
         // match textColor by default
-        textDisabledColor = params.getColorAttribute("textdisabledcolor", textColor);
+        textDisabledColor = params.numeral("textdisabledcolor", textColor);
 
         PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
         if (size != null)

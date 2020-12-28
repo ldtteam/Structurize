@@ -43,12 +43,12 @@ public class ZoomDragView extends View
     public ZoomDragView(final PaneParams params)
     {
         super(params);
-        dragFactor = params.getDoubleAttribute("dragFactor", dragFactor);
-        dragEnabled = params.getBooleanAttribute("dragEnabled", dragEnabled);
-        zoomFactor = params.getDoubleAttribute("zoomFactor", zoomFactor);
-        zoomEnabled = params.getBooleanAttribute("zoomEnabled", zoomEnabled);
-        minScale = params.getDoubleAttribute("minScale", minScale);
-        maxScale = params.getDoubleAttribute("maxScale", maxScale);
+        dragFactor = params.numeral("dragFactor", dragFactor);
+        dragEnabled = params.bool("dragEnabled", dragEnabled);
+        zoomFactor = params.numeral("zoomFactor", zoomFactor);
+        zoomEnabled = params.bool("zoomEnabled", zoomEnabled);
+        minScale = params.numeral("minScale", minScale);
+        maxScale = params.numeral("maxScale", maxScale);
     }
 
     @Override

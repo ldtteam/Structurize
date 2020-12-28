@@ -70,7 +70,7 @@ public class Pane extends AbstractGui
     public Pane(@NotNull final PaneParams params)
     {
         super();
-        id = params.getStringAttribute("id", id);
+        id = params.string("id", id);
 
         @NotNull
         final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
@@ -98,11 +98,11 @@ public class Pane extends AbstractGui
             y = params.getScalableIntegerAttribute("y", y, parentSizePair.getY());
         }
 
-        alignment = params.getEnumAttribute("align", Alignment.class, alignment);
-        visible = params.getBooleanAttribute("visible", visible);
-        enabled = params.getBooleanAttribute("enabled", enabled);
-        onHoverId = params.getStringAttribute("onHoverId");
-        toolTipLines = params.getMultiLineAttributeAsTextComp("tooltip");
+        alignment = params.enumeration("align", Alignment.class, alignment);
+        visible = params.bool("visible", visible);
+        enabled = params.bool("enabled", enabled);
+        onHoverId = params.string("onHoverId", onHoverId);
+        toolTipLines = params.multiline("tooltip", toolTipLines);
     }
 
     /**

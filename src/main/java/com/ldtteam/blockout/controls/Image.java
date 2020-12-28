@@ -48,7 +48,7 @@ public class Image extends Pane
     public Image(final PaneParams params)
     {
         super(params);
-        final String source = params.getStringAttribute("source", null);
+        final String source = params.string("source");
         if (source != null)
         {
             resourceLocation = new ResourceLocation(source);
@@ -69,7 +69,7 @@ public class Image extends Pane
             imageHeight = size.getY();
         }
 
-        autoscale = params.getBooleanAttribute("autoscale", true);
+        autoscale = params.bool("autoscale", true);
     }
 
     private void loadMapDimensions()

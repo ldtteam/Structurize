@@ -1,8 +1,11 @@
 package com.ldtteam.blockout;
 
+import net.minecraft.util.math.MathHelper;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 /**
  * Color utility methods.
@@ -55,19 +58,36 @@ public final class Color
     }
 
     /**
+     * Get a color integer from its name.
+     *
+     * @param name name of the color.
+     * @return the color as an integer.
+     */
+    public static int getByName(final String name)
+    {
+        return nameToColorMap.get(name.toLowerCase(Locale.ENGLISH));
+    }
+
+    /**
      * Get the int from rgba.
-     * @param red the red.
-     * @param green the green.
-     * @param blue the blue.
-     * @param alpha the transparency.
+     * @param r the red value from 0-255.
+     * @param g the green value from 0-255.
+     * @param b the blue value from 0-255.
+     * @param a the transparency value from 0-255.
      * @return the accumulated int.
      */
-    public static int rgbaToInt(final int red, final int green, final int blue, final int alpha)
+    public static int rgbaToInt(final int r, final int g, final int b, final int a)
     {
-        int color = alpha;
-        color = (color << 8) + red;
-        color = (color << 8) + green;
-        color = (color << 8) + blue;
-        return color;
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    public static int rgbaToInt(Matcher m)
+    {
+        final int r = MathHelper.clamp(Integer.parseInt(m.group(1)), 0, 255);
+        final int g = MathHelper.clamp(Integer.parseInt(m.group(2)), 0, 255);
+        final int b = MathHelper.clamp(Integer.parseInt(m.group(3)), 0, 255);
+        final int a = MathHelper.clamp((int)Double.parseDouble(m.group(4))*255,0,255);
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 }

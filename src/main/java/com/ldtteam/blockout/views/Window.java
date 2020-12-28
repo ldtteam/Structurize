@@ -104,7 +104,7 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.getStringAttribute("inherit", null);
+        final String inherit = params.string("inherit", (String) null);
         if (inherit != null)
         {
             Loader.createFromXMLFile(new ResourceLocation(inherit), this);
@@ -113,8 +113,8 @@ public class Window extends View
         final PaneParams.SizePair size = params.getSizePairAttribute("size", null, null);
         if (size == null)
         {
-            final int w = params.getIntAttribute("width", width);
-            final int h = params.getIntAttribute("height", height);
+            final int w = params.numeral("width", width);
+            final int h = params.numeral("height", height);
             setSize(w, h);
         }
         else
@@ -122,9 +122,9 @@ public class Window extends View
             setSize(size.getX(), size.getY());
         }
 
-        lightbox = params.getBooleanAttribute("lightbox", lightbox);
-        windowPausesGame = params.getBooleanAttribute("pause", windowPausesGame);
-        windowRenderType = params.getEnumAttribute("type", WindowRenderType.class, windowRenderType);
+        lightbox = params.bool("lightbox", lightbox);
+        windowPausesGame = params.bool("pause", windowPausesGame);
+        windowRenderType = params.enumeration("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override

@@ -40,10 +40,10 @@ public class TreeView extends ZoomDragView
     public TreeView(final PaneParams params)
     {
         super(params);
-        nodeVerticalDistance = params.getIntAttribute("nodeVertDist", nodeVerticalDistance);
-        nodeToLineDistance = params.getIntAttribute("nodeToLineHorizDist", nodeToLineDistance);
-        lineSize = params.getIntAttribute("lineSize", lineSize);
-        final int linePackedColor = params.getIntAttribute("linePackedColor", 0xffffffff);
+        nodeVerticalDistance = params.numeral("nodeVertDist", nodeVerticalDistance);
+        nodeToLineDistance = params.numeral("nodeToLineHorizDist", nodeToLineDistance);
+        lineSize = params.numeral("lineSize", lineSize);
+        final int linePackedColor = params.numeral("linePackedColor", 0xffffffff);
         nodeHorizontalDistance = 2 * nodeToLineDistance + lineSize;
         color[0] = linePackedColor >> 24;
         color[1] = linePackedColor >> 16 & 0xff;
@@ -278,7 +278,7 @@ public class TreeView extends ZoomDragView
     public void parseChildren(@NotNull final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }

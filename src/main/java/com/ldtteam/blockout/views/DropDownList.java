@@ -82,9 +82,9 @@ public class DropDownList extends View implements ButtonHandler
         dropDownWidth = dropDownSize == null ? width : dropDownSize.getX();
         // When unknown, we use the same height as it is wide.
         dropDownHeight = dropDownSize == null ? width : dropDownSize.getY();
-        dropDownFixX = params.getIntAttribute("dropfixx", dropDownFixX);
+        dropDownFixX = params.numeral("dropfixx", dropDownFixX);
 
-        if (params.getStringAttribute("source", "").isEmpty())
+        if (params.string("source", "").isEmpty())
         {
             button = new ButtonVanilla(params);
         }
@@ -99,9 +99,9 @@ public class DropDownList extends View implements ButtonHandler
         overlay.setPosition(0, 0);
 
         list = new ScrollingList(params);
-        if (params.getIntAttribute("maxContentHeight") != 0)
+        if (params.numeral("maxContentHeight", 0) != 0)
         {
-            list.setMaxHeight(params.getIntAttribute("maxContentHeight"));
+            list.setMaxHeight(params.numeral("maxContentHeight", 0));
         }
         list.setSize(dropDownWidth, dropDownHeight);
         list.setPosition((x + width / 2) - dropDownWidth / 2 + dropDownFixX, y + height);
@@ -179,14 +179,7 @@ public class DropDownList extends View implements ButtonHandler
     public void refreshElementPanes()
     {
         list.refreshElementPanes();
-        if (list.getContentHeight() < dropDownHeight)
-        {
-            list.setSize(dropDownWidth, list.getContentHeight());
-        }
-        else
-        {
-            list.setSize(dropDownWidth, dropDownHeight);
-        }
+        list.setSize(dropDownWidth, Math.min(list.getContentHeight(), dropDownHeight));
     }
 
     /**

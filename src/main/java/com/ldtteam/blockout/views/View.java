@@ -38,7 +38,7 @@ public class View extends Pane
     public View(final PaneParams params)
     {
         super(params);
-        padding = params.getIntAttribute("padding", padding);
+        padding = params.numeral("padding", padding);
     }
 
     @NotNull
@@ -51,7 +51,7 @@ public class View extends Pane
     public void parseChildren(final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }

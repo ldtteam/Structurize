@@ -43,7 +43,7 @@ public class ImageRepeatable extends Pane
     public ImageRepeatable(final PaneParams params)
     {
         super(params);
-        final String source = params.getStringAttribute("source", null);
+        final String source = params.string("source");
         if (source != null)
         {
             resourceLocation = new ResourceLocation(source);
