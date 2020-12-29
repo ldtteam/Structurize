@@ -11,7 +11,6 @@ import org.w3c.dom.Node;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -381,32 +380,18 @@ public class PaneParams
     }
 
     /**
-     * Fetches a multi-part (shorthand) property
+     * Fetches a property and runs the result through a given method.
+     * Commonly used for shorthand properties.
      * @param name the name of the attribute to retrieve
      * @param parser the parser applied to each part
      * @param parts the maximum number of parts to fill to if less are given
      * @param applier the method to utilise the parsed values
      * @param <T> the type of each part
      */
-    public <T> void property(String name, Function<String, T> parser, int parts, Consumer<List<T>> applier)
+    public <T> void shorthand(String name, Parsers.Any<T> parser, int parts, Consumer<List<T>> applier)
     {
-        final String value = string(name);
-        final List<T> results = new LinkedList<>();
-
-        for (final String segment : value.split("\\s*[,\\s]\\s*"))
-        {
-            results.add(parser.apply(segment));
-        }
-
-        while (results.size() < parts)
-        {
-            // Will duplicate in pairs, so a 4-part property defined
-            // from "2 8" will become "2 8 2 8"
-            // useful for syncing vertical and horizontal for each edge
-            results.add(results.get(Math.max(0, results.size() - 2)));
-        }
-
-        applier.accept(results);
+        List<T> results = Parsers.shorthand(parser, parts).apply(string(name));
+        if (results != null) applier.accept(results);
     }
 
     /**

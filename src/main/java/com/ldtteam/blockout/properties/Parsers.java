@@ -8,6 +8,7 @@ import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -92,6 +93,30 @@ public final class Parsers
                 Log.getLogger().warn("Attempt to access non-existent enumeration '"+v+"'.");
             }
             return null;
+        };
+    }
+
+    public static <T> Any<List<T>> shorthand(Parsers.Any<T> parser, int parts)
+    {
+        return v -> {
+            final List<T> results = new ArrayList<>(parts);
+
+            if (v == null) return null;
+
+            for (final String segment : v.split("\\s*[,\\s]\\s*"))
+            {
+                results.add(parser.apply(segment));
+            }
+
+            while (results.size() < parts)
+            {
+                // Will duplicate in pairs, so a 4-part property defined
+                // from "2 8" will become "2 8 2 8"
+                // useful for syncing vertical and horizontal for each edge
+                results.add(results.get(Math.max(0, results.size() - 2)));
+            }
+
+            return results;
         };
     }
 }
