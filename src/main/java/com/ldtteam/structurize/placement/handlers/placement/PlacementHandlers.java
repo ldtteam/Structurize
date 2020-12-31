@@ -39,6 +39,7 @@ public final class PlacementHandlers
     static
     {
         handlers.add(new AirPlacementHandler());
+        handlers.add(new WaterPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new GrassPlacementHandler());
         handlers.add(new DoorPlacementHandler());
@@ -61,6 +62,39 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
+    }
+
+    public static class WaterPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+        {
+            return blockState.getBlock() == Blocks.WATER;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete)
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+          @NotNull World world,
+          @NotNull BlockPos pos,
+          @NotNull BlockState blockState,
+          @Nullable CompoundNBT tileEntityData,
+          boolean complete,
+          BlockPos centerPos)
+        {
+            world.setBlockState(pos, blockState, UPDATE_FLAG);
+            return ActionProcessingResult.PASS;
+        }
     }
 
     public static class FirePlacementHandler implements IPlacementHandler
@@ -119,7 +153,7 @@ public final class PlacementHandlers
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
             {
-                itemList.add(BlockUtils.getItemStackFromBlockState(BlockUtils.getSubstitutionBlockAtWorld(world, pos)));
+                itemList.addAll(getRequiredItemsForState(world, pos, BlockUtils.getSubstitutionBlockAtWorld(world, pos), tileEntityData, complete));
             }
             return itemList;
         }
@@ -211,7 +245,6 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            // todo maybe doors work from scratch?
             if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
                 world.setBlockState(pos, blockState.with(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
@@ -382,6 +415,10 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
+            if (world.getBlockState(pos).getBlock() == blockState.getBlock())
+            {
+                return ActionProcessingResult.PASS;
+            }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
@@ -712,6 +749,27 @@ public final class PlacementHandlers
                 newTile.mirror(settings.mirror);
             }
         }
+    }
+
+    /**
+     * Get the required items for this state.
+     * @param world the world it will be placed in.
+     * @param pos the pos to place it at.
+     * @param state the state to place.
+     * @param data its TE data.
+     * @param complete if complete.
+     * @return the required items.
+     */
+    public static List<ItemStack> getRequiredItemsForState(final World world, final BlockPos pos, final BlockState state, final CompoundNBT data, final boolean complete)
+    {
+        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
+        {
+            if (placementHandler.canHandle(world, pos, state))
+            {
+                return placementHandler.getRequiredItems(world, pos, state, data, complete);
+            }
+        }
+        return Collections.emptyList();
     }
 
     /**
