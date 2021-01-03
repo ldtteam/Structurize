@@ -39,7 +39,7 @@ public final class Loader
         register("text", Text.class);
         register("button", ButtonVanilla.class);
         register("buttonimage", ButtonImage.class);
-        register("label", Text.class); // we don't want to deal with xml changes
+        register("label", Text.class); // TODO: remove, but we don't want to deal with xml changes now
         register("input", TextFieldVanilla.class);
         register("image", Image.class);
         register("imagerepeat", ImageRepeatable.class);
