@@ -3,7 +3,6 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
-import com.ldtteam.blockout.controls.Label;
 import com.ldtteam.blockout.controls.Text;
 import com.ldtteam.blockout.views.OverlayView;
 import com.ldtteam.blockout.views.Window;
@@ -36,7 +35,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
     /**
      * Label for the title of the dialog.
      */
-    protected final Label titleLabel;
+    protected final Text titleLabel;
 
     /**
      * Text for the text content of the dialog.
@@ -67,7 +66,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
     {
         super();
         Loader.createFromXMLFile(Constants.MOD_ID + DIALOG_OK_CANCEL_SUFFIX, this);
-        titleLabel = findPaneOfTypeByID("title", Label.class);
+        titleLabel = findPaneOfTypeByID("title", Text.class);
         contentText = findPaneOfTypeByID("textcontent", Text.class);
         doneButton = findPaneOfTypeByID("done", Button.class);
         cancelButton = findPaneOfTypeByID("cancel", Button.class);
@@ -83,13 +82,13 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public IFormattableTextComponent getTitleNew()
     {
-        return titleLabel.getLabelTextNew();
+        return titleLabel.getText();
     }
 
     @Deprecated
     public String getTitle()
     {
-        return titleLabel.getLabelText();
+        return titleLabel.getTextAsString();
     }
 
     /**
@@ -99,13 +98,13 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void setTitle(final IFormattableTextComponent title)
     {
-        titleLabel.setLabelText(title);
+        titleLabel.setText(title);
     }
 
     @Deprecated
     public void setTitle(final String title)
     {
-        titleLabel.setLabelText(title);
+        titleLabel.setText(title);
     }
 
     /**
@@ -115,7 +114,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public String getTextContent()
     {
-        return contentText.getTextContent();
+        return contentText.getTextAsString();
     }
 
     /**
@@ -125,7 +124,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void setTextContent(final String content)
     {
-        contentText.setTextContent(content);
+        contentText.setText(content);
     }
 
     /**

@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -21,7 +23,7 @@ public class BOScreen extends Screen
     protected double x = 0;
     protected double y = 0;
     public static boolean isMouseLeftDown = false;
-    private boolean isOpen = false;
+    protected boolean isOpen = false;
     private static final BitArray ACCEPTED_KEY_PRESSED_MAP = new BitArray(1, GLFW.GLFW_KEY_LAST + 1);
 
     static
@@ -116,7 +118,7 @@ public class BOScreen extends Screen
     @Override
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
-        if (minecraft == null) // should never happen though
+        if (minecraft == null || !isOpen) // should never happen though
         {
             return;
         }
@@ -235,6 +237,7 @@ public class BOScreen extends Screen
     public void init()
     {
         minecraft.keyboardListener.enableRepeatEvents(true);
+        ForgeIngameGui.renderCrosshairs = false;
     }
 
     @Override
@@ -265,6 +268,7 @@ public class BOScreen extends Screen
         window.onClosed();
         Window.clearFocus();
         minecraft.keyboardListener.enableRepeatEvents(false);
+        ForgeIngameGui.renderCrosshairs = true;
     }
 
     @Override
