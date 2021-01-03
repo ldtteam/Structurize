@@ -136,6 +136,66 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     }
 
     /**
+     * Sets every style thing according given style. If null calls {@link #resetStyle()}
+     */
+    public R style(final Style style)
+    {
+        if (style == null)
+        {
+            return resetStyle();
+        }
+
+        color = style.getColor().getColor();
+        bold = style.getBold();
+        italic = style.getItalic();
+        underlined = style.getUnderlined();
+        strikeThrough = style.getStrikethrough();
+        obfuscated = style.getObfuscated();
+        clickEvent = style.getClickEvent();
+        insertionEvent = style.getInsertion();
+        return thiz;
+    }
+
+    /**
+     * Process given {@link TextFormatting}. If null calls {@link #resetStyle()}
+     */
+    public R style(final TextFormatting textFormatting)
+    {
+        if (textFormatting == null)
+        {
+            return resetStyle();
+        }
+
+        switch (textFormatting)
+        {
+            case BOLD:
+                return bold();
+
+            case ITALIC:
+                return italic();
+
+            case OBFUSCATED:
+                return obfuscated();
+
+            case RESET:
+                return resetStyle();
+
+            case STRIKETHROUGH:
+                return strikeThrough();
+
+            case UNDERLINE:
+                return underlined();
+
+            default:
+                if (!textFormatting.isColor())
+                {
+                    throw new IllegalArgumentException("Unknown non-color textformatting.");
+                }
+                return color(textFormatting.getColor());
+        }
+    }
+
+    /**
      * Sets color according to vanilla formatting system.
      * Valid input is anything between 0-9 and a-f/A-F, anything else resets the color to default.
      *
@@ -230,12 +290,18 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         return thiz;
     }
 
+    /**
+     * Currently not used.
+     */
     public R clickEvent(final ClickEvent clickEvent)
     {
         this.clickEvent = clickEvent;
         return thiz;
     }
 
+    /**
+     * Currently not used.
+     */
     public R insertionEvent(final String insertionEvent)
     {
         this.insertionEvent = insertionEvent;
@@ -291,8 +357,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
             }
 
             final Tooltip tooltipPane = super.build();
-            hoverPane.setHoverPane(tooltipPane);
-            tooltipPane.putInside(hoverPane.getWindow());
+            hoverPane.setTooltip(tooltipPane);
             return tooltipPane;
         }
     }

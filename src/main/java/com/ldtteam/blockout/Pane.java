@@ -813,6 +813,22 @@ public class Pane extends AbstractGui
         this.onHover = hoverPane;
     }
 
+    public Pane getHoverPane()
+    {
+        return onHover;
+    }
+
+    public void setTooltip(final Tooltip tooltip)
+    {
+        if (this.tooltip != null)
+        {
+            // gc
+            this.tooltip.putInside(null);
+        }
+        this.tooltip = tooltip;
+        this.tooltip.putInside(this.getWindow());
+    }
+
     @Deprecated
     protected int drawString(final MatrixStack ms, final String text, final float x, final float y, final int color, final boolean shadow)
     {
@@ -869,9 +885,17 @@ public class Pane extends AbstractGui
     {
         if (!toolTipLines.isEmpty())
         {
-            final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
-            toolTipLines.forEach(ttBuilder::appendNL);
-            tooltip = ttBuilder.build();
+            if (tooltip == null)
+            {
+                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+                toolTipLines.forEach(ttBuilder::appendNL);
+                tooltip = ttBuilder.build();
+            }
+            else
+            {
+                // renew window
+                setTooltip(tooltip);
+            }
         }
     }
 
