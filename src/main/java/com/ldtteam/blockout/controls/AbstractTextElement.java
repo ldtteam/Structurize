@@ -1,7 +1,11 @@
 package com.ldtteam.blockout.controls;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
@@ -66,12 +70,12 @@ public abstract class AbstractTextElement extends Pane
     /**
      * The text holder.
      */
-    protected IFormattableTextComponent text;
+    protected List<IFormattableTextComponent> text;
 
     // rendering
-    private List<IReorderingProcessor> preparedText;
-    private int renderedTextWidth;
-    private int renderedTextHeight;
+    protected List<IReorderingProcessor> preparedText;
+    protected int renderedTextWidth;
+    protected int renderedTextHeight;
 
     protected int textOffsetX = 0;
     protected int textOffsetY = 0;
@@ -97,7 +101,7 @@ public abstract class AbstractTextElement extends Pane
         this.textShadow = defaultTextShadow;
         this.textWrap = defaultTextWrap;
 
-        text = (IFormattableTextComponent) StringTextComponent.EMPTY;
+        setText((IFormattableTextComponent) StringTextComponent.EMPTY);
 
         // setup
         recalcTextRendering();
@@ -136,7 +140,7 @@ public abstract class AbstractTextElement extends Pane
         textLinespace = params.getIntAttribute("linespace", textLinespace);
 
         // both label and text are allowed to merge label and text elements
-        text = new StringTextComponent(params.getLocalizedStringAttribute(params.hasAnyAttribute("label", "text"), ""));
+        setText(new StringTextComponent(params.getLocalizedStringAttribute(params.hasAnyAttribute("label", "text"), "")));
 
         // setup
         recalcTextRendering();
@@ -144,28 +148,33 @@ public abstract class AbstractTextElement extends Pane
 
     protected void recalcTextRendering()
     {
-        if (textScale <= 0.0d || text == null || text.getString().isEmpty() || textWidth < 1 || textHeight < 1)
+        if (textScale <= 0.0d || text == null || !text.stream().filter(t -> !t.getString().isEmpty()).findAny().isPresent() || textWidth < 1
+            || textHeight < 1)
         {
             preparedText = Collections.emptyList();
             return;
         }
 
         final int maxWidth = (int) (textWidth / textScale);
-        preparedText = mc.fontRenderer.trimStringToWidth(text, maxWidth);
+        preparedText = text.stream()
+            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
+                : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
+            .collect(Collectors.toList());
         if (textWrap)
         {
             // + Math.ceil(textScale) / textScale is to negate last pixel of vanilla font rendering
             final int maxHeight = (int) (textHeight / textScale) + 1;
+            final int lineHeight = this.mc.fontRenderer.FONT_HEIGHT + textLinespace;
 
-            preparedText = preparedText.subList(0, Math.min(preparedText.size(), maxHeight / (this.mc.fontRenderer.FONT_HEIGHT + textLinespace)));
+            preparedText = preparedText.subList(0, Math.min(preparedText.size(), maxHeight / lineHeight));
             renderedTextWidth = (int) (preparedText.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * textScale);
-            renderedTextHeight = (int) (Math.min(preparedText.size() * this.mc.fontRenderer.FONT_HEIGHT, maxHeight) * textScale);
+            renderedTextHeight = (int) ((Math.min(preparedText.size() * lineHeight, maxHeight) - 1 - textLinespace) * textScale);
         }
         else
         {
             preparedText = preparedText.subList(0, 1);
             renderedTextWidth = (int) (mc.fontRenderer.func_243245_a(preparedText.get(0)) * textScale);
-            renderedTextHeight = (int) (this.mc.fontRenderer.FONT_HEIGHT * textScale);
+            renderedTextHeight = (int) ((this.mc.fontRenderer.FONT_HEIGHT - 1) * textScale);
         }
     }
 
@@ -199,12 +208,10 @@ public abstract class AbstractTextElement extends Pane
         if (textAlignment.isBottomAligned())
         {
             offsetY += textHeight - renderedTextHeight;
-            offsetY += Math.ceil(textScale);
         }
         else if (textAlignment.isVerticalCentered())
         {
             offsetY += (textHeight - renderedTextHeight) / 2;
-            offsetY += Math.ceil(textScale);
         }
 
         ms.push();
@@ -343,20 +350,31 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
-    public IFormattableTextComponent getText()
+    public List<IFormattableTextComponent> getTextAsList()
     {
         return text;
     }
 
-    public void setText(final IFormattableTextComponent text)
+    public IFormattableTextComponent getText()
+    {
+        return text.isEmpty() ? null : text.get(0);
+    }
+
+    public void setText(final List<IFormattableTextComponent> text)
     {
         this.text = text;
         recalcTextRendering();
     }
 
+    public void setText(final IFormattableTextComponent text)
+    {
+        this.text = Arrays.asList(text);
+        recalcTextRendering();
+    }
+
     public String getTextAsString()
     {
-        return text.getString();
+        return text.isEmpty() ? null : text.get(0).getString();
     }
 
     @Deprecated

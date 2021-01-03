@@ -141,6 +141,27 @@ public class View extends Pane
         return null;
     }
 
+    @Nullable
+    @Override
+    public <T extends Pane> T findPaneByType(final Class<T> type)
+    {
+        if (super.findPaneByType(type) != null)
+        {
+            return type.cast(this);
+        }
+
+        for (final Pane child : children)
+        {
+            final T found = child.findPaneByType(type);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void setWindow(final Window w)
     {
