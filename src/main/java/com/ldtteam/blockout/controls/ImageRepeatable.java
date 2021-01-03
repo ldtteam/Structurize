@@ -50,28 +50,28 @@ public class ImageRepeatable extends Pane
             loadMapDimensions();
         }
 
-        PaneParams.SizePair size = params.getSizePairAttribute("uv", null, null);
+        PaneParams.SizePair size = params.getSizePairAttribute("textureoffset", null, null);
         if (size != null)
         {
             u = size.getX();
             v = size.getY();
         }
 
-        size = params.getSizePairAttribute("uvBox", null, null);
+        size = params.getSizePairAttribute("texturesize", null, null);
         if (size != null)
         {
             uWidth = size.getX();
             vHeight = size.getY();
         }
 
-        size = params.getSizePairAttribute("uvRepeat", null, null);
+        size = params.getSizePairAttribute("repeatoffset", null, null);
         if (size != null)
         {
             uRepeat = size.getX();
             vRepeat = size.getY();
         }
 
-        size = params.getSizePairAttribute("uvRepeatBox", null, null);
+        size = params.getSizePairAttribute("repeatsize", null, null);
         if (size != null)
         {
             repeatWidth = size.getX();

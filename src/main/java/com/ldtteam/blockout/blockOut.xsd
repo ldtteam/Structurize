@@ -245,10 +245,10 @@
         <xs:complexContent>
             <xs:extension base="paneType">
                 <xs:attribute name="source" type="xs:string"/>
-                <xs:attribute name="uv" type="fixedSizePair"/>
-                <xs:attribute name="uvBox" type="fixedSizePair"/>
-                <xs:attribute name="uvRepeat" type="fixedSizePair"/>
-                <xs:attribute name="uvRepeatBox" type="fixedSizePair"/>
+                <xs:attribute name="textureoffset" type="fixedSizePair"/>
+                <xs:attribute name="texturesize" type="fixedSizePair"/>
+                <xs:attribute name="repeatoffset" type="fixedSizePair"/>
+                <xs:attribute name="repeatsize" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -295,12 +295,12 @@
     <xs:complexType name="zoomDragType">
         <xs:complexContent>
             <xs:extension base="viewType">
-                <xs:attribute name="dragFactor" type="xs:double"/>
-                <xs:attribute name="dragEnabled" type="xs:boolean"/>
-                <xs:attribute name="zoomFactor" type="xs:double"/>
-                <xs:attribute name="zoomEnabled" type="xs:boolean"/>
-                <xs:attribute name="minScale" type="xs:double"/>
-                <xs:attribute name="maxScale" type="xs:double"/>
+                <xs:attribute name="dragfactor" type="xs:double"/>
+                <xs:attribute name="dragenabled" type="xs:boolean"/>
+                <xs:attribute name="zoomfactor" type="xs:double"/>
+                <xs:attribute name="zoomenabled" type="xs:boolean"/>
+                <xs:attribute name="minscale" type="xs:double"/>
+                <xs:attribute name="maxscale" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
