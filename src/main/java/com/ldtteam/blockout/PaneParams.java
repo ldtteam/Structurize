@@ -466,6 +466,11 @@ public class PaneParams
             return def;
         }
 
+        return parseColor(attr, def);
+    }
+
+    public static int parseColor(final String attr, final int def)
+    {
         final Matcher m = RGBA_PATTERN.matcher(attr);
 
         if (attr.charAt(0) == HASH_CHAR)
