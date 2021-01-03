@@ -818,15 +818,20 @@ public class Pane extends AbstractGui
         return onHover;
     }
 
-    public void setTooltip(final Tooltip tooltip)
+    public void setTooltip(final Tooltip tooltipIn)
     {
-        if (this.tooltip != null)
+        if (tooltip != null)
         {
             // gc
-            this.tooltip.putInside(null);
+            tooltip.putInside(null);
         }
-        this.tooltip = tooltip;
-        this.tooltip.putInside(this.getWindow());
+        tooltip = tooltipIn;
+        tooltip.putInside(window);
+    }
+
+    public Tooltip getTooltip()
+    {
+        return tooltip;
     }
 
     @Deprecated
