@@ -70,4 +70,9 @@ public final class Color
         color = (color << 8) + blue;
         return color;
     }
+
+    public static net.minecraft.util.text.Color toVanilla(final int color)
+    {
+        return net.minecraft.util.text.Color.fromInt(color);
+    }
 }

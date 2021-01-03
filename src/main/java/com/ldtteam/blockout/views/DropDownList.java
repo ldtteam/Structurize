@@ -7,7 +7,7 @@ import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.ButtonImage;
 import com.ldtteam.blockout.controls.ButtonVanilla;
-import com.ldtteam.blockout.controls.Label;
+import com.ldtteam.blockout.controls.Text;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -164,10 +164,10 @@ public class DropDownList extends View implements ButtonHandler
      */
     private void onButtonClickedFromList(@NotNull final Button buttonIn)
     {
-        final Label idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Label.class);
+        final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.getLabelTextNew().getString());
+            final int index = Integer.parseInt(idLabel.getTextAsString());
             setSelectedIndex(index);
             close();
         }
@@ -212,7 +212,7 @@ public class DropDownList extends View implements ButtonHandler
         }
         selectedIndex = index;
 
-        button.setLabel(dataProvider.getLabelNew(selectedIndex));
+        button.setText(dataProvider.getLabelNew(selectedIndex));
         if (handler != null)
         {
             handler.accept(this);
@@ -288,12 +288,12 @@ public class DropDownList extends View implements ButtonHandler
         if (choiceButton != null)
         {
             // is idLabel necessary ?
-            final Label idLabel = rowPane.findPaneOfTypeByID("id", Label.class);
+            final Text idLabel = rowPane.findPaneOfTypeByID("id", Text.class);
             if (idLabel != null)
             {
-                idLabel.setLabelText(new StringTextComponent(Integer.toString(index)));
+                idLabel.setText(new StringTextComponent(Integer.toString(index)));
             }
-            choiceButton.setLabel(label);
+            choiceButton.setText(label);
             choiceButton.setHandler(this);
         }
     }

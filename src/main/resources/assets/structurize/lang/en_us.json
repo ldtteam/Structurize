@@ -1153,5 +1153,6 @@
   "structurize.gui.buildtool.creative_only": "Structurize does not support using the build tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
   "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s",
   "structurize.config.excludeentities": "Entities excluded from BP rendering",
-  "structurize.config.excludeentities.comment": "Excludes entities from blueprint rendering if they can't load on client side. If you are going to add \"minecraft\" entity or you believe it's our fault that an entity couldn't be set up, please, make an issue at our GitHub and add stacktrace to it (so we can try to fix it)."
+  "structurize.config.excludeentities.comment": "Excludes entities from blueprint rendering if they can't load on client side. If you are going to add \"minecraft\" entity or you believe it's our fault that an entity couldn't be set up, please, make an issue at our GitHub and add stacktrace to it (so we can try to fix it).",
+  "com.ldtteam.structurize.gui.structure.edit.title": "Structure path:"
 }

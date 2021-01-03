@@ -1,11 +1,10 @@
 package com.ldtteam.blockout.controls;
 
+import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,17 +12,21 @@ import org.jetbrains.annotations.NotNull;
  * Base button class.
  * Has a handler for when the button is clicked.
  */
-public class Button extends Pane
+public class Button extends AbstractTextElement
 {
     protected ButtonHandler handler;
-    protected IFormattableTextComponent label;
 
     /**
      * Default constructor.
      */
-    public Button()
+    public Button(final Alignment defaultTextAlignment,
+        final int defaultTextColor,
+        final int defaultTextHoverColor,
+        final int defaultTextDisabledColor,
+        final boolean defaultTextShadow,
+        final boolean defaultTextWrap)
     {
-        super();
+        super(defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
     }
 
     /**
@@ -31,42 +34,15 @@ public class Button extends Pane
      *
      * @param params PaneParams from xml file.
      */
-    public Button(@NotNull final PaneParams params)
+    public Button(@NotNull final PaneParams params,
+        final Alignment defaultTextAlignment,
+        final int defaultTextColor,
+        final int defaultTextHoverColor,
+        final int defaultTextDisabledColor,
+        final boolean defaultTextShadow,
+        final boolean defaultTextWrap)
     {
-        super(params);
-        setLabel(new StringTextComponent(params.getLocalizedStringAttribute("label", "")));
-    }
-
-    /**
-     * Button textContent getter.
-     *
-     * @return button textContent.
-     */
-    @Deprecated
-    public String getLabel()
-    {
-        return label.getString();
-    }
-
-    public IFormattableTextComponent getLabelNew()
-    {
-        return label;
-    }
-
-    /**
-     * Button textContent setter.
-     *
-     * @param s new textContent.
-     */
-    @Deprecated
-    public void setLabel(final String s)
-    {
-        setLabel(new StringTextComponent(s));
-    }
-
-    public void setLabel(final IFormattableTextComponent s)
-    {
-        label = s;
+        super(params, defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
     }
 
     /**

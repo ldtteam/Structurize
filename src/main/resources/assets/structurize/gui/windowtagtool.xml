@@ -1,10 +1,10 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
         pause="false" lightbox="true">
-    <label size="100% 11" pos="0 25" textalign="TOP_MIDDLE" color="white"
+    <label size="100% 9" pos="0 25" textalign="MIDDLE" color="white"
            label="$(com.ldtteam.structurize.gui.tagtool.currenttag)"/>
     <input id="currentTag" size="150 18" pos="135 40" maxlength="25"/>
 
-    <label id="taglistname" size="30 12" pos="135 65" color="white"/>
+    <label id="taglistname" size="230 12" pos="135 65" color="white"/>
 
     <list id="tagposlist" size="230 120" pos="135 80">
         <box size="100% 17" linewidth="2">
