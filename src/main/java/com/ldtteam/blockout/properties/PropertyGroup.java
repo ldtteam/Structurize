@@ -13,33 +13,21 @@ import net.minecraft.client.Minecraft;
 public abstract class PropertyGroup
 {
     protected final Minecraft mc = Minecraft.getInstance();
-    protected PaneParams parameters;
     protected String prefix;
 
     /** Allow subclasses to have custom impl without params or prefix */
     protected PropertyGroup() {}
 
     /**
-     * Construct a new property group and apply the provided parameters
-     * @param params the parameters to apply
+     * Construct a new property group and apply the provided parameters.
+     * @param p the parameters to apply
      */
-    public PropertyGroup(PaneParams params, String prefix)
+    public PropertyGroup(PaneParams p, String prefix)
     {
-        this.parameters = params;
         this.prefix = prefix;
-        this.apply(this.parameters);
+
+        // Override and apply parameters here
     }
-
-    /**
-     * Re-applies the saved parameters. Useful as a reset.
-     */
-    public final void apply() { apply(this.parameters); }
-
-    /**
-     * The method to fetch or re-fetch all the relevant parameters
-     * @param p the parameters to apply (does not have to be the saved one)
-     */
-    public abstract void apply(PaneParams p);
 
     /**
      * Draws the contents of the property group on the pane

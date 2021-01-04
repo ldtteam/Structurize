@@ -31,21 +31,26 @@ public class Texture extends PropertyGroup
     protected int fileWidth = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
     protected int fileHeight = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
 
-    protected boolean keepAspect = true;
+    protected boolean stretch = true;
 
-    public Texture(PaneParams params, String prefix)
+    public Texture(final ResourceLocation loc, final int x, final int y, final int w, final int h)
     {
-        super(params, prefix);
+        setImage(loc, x, y, w, h);
+    }
+
+    public Texture(ResourceLocation loc)
+    {
+        this(loc, 0, 0, 0, 0);
     }
 
     public Texture(PaneParams params)
     {
-        super(params, "texture");
+        this(params, "texture");
     }
 
-    @Override
-    public void apply(final PaneParams p)
+    public Texture(PaneParams p, String prefix)
     {
+        super(p, prefix);
         final String source = p.string(prefix.equals("texture") ? "source" : prefix+"source");
         if (source != null)
         {
@@ -63,7 +68,7 @@ public class Texture extends PropertyGroup
             height = a.get(1);
         });
 
-        keepAspect = !p.bool("autoscale", true);
+        stretch = p.bool("autoscale", true);
     }
 
     private void loadMapDimensions()
@@ -71,6 +76,9 @@ public class Texture extends PropertyGroup
         final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);
         fileWidth = dimensions.getA();
         fileHeight = dimensions.getB();
+
+        if (width == 0) width = fileWidth;
+        if (height == 0) height = fileHeight;
     }
 
     /**
@@ -168,27 +176,75 @@ public class Texture extends PropertyGroup
         setImage(loc, 0, 0, 0, 0);
     }
 
+    public void setDimensions(final int u, final int v, final int w, final int h)
+    {
+        setImage(this.resourceLocation, u, v, w, h);
+    }
+
+    public boolean hasSource()
+    {
+        return resourceLocation != null;
+    }
 
     @Override
     public void draw(final MatrixStack ms, final Pane pane, final double mx, final double my)
     {
+        if (!hasSource()) return;
+
         mc.getTextureManager().bindTexture(resourceLocation);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        applyColor(1.0F, 1.0F, 1.0F, 1.0F);
+        render(ms, pane);
+    }
+
+    /**
+     * Draws the contents of the property group on the pane
+     * @param ms the rendering stack
+     * @param pane the pane this is attached to
+     * @param dim if the texture should be made dimmer
+     */
+    public void draw(final MatrixStack ms, final Pane pane, final boolean dim)
+    {
+        if (!hasSource()) return;
+
+        if (!dim)
+        {
+            draw(ms, pane, 0, 0);
+            return;
+        }
+
+        mc.getTextureManager().bindTexture(resourceLocation);
+        applyColor(0.5F, 0.5F, 0.5F, 1.0F);
+        render(ms, pane);
+    }
+
+    protected void render(final MatrixStack ms, final Pane pane)
+    {
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         AbstractGui.blit(ms,
-          pane.getX(),
-          pane.getY(),
-          Math.min(width, pane.getWidth()),
-          Math.min(height, pane.getHeight()),
+          pane.getX(), pane.getY(),
+          stretch ? pane.getWidth() : width,
+          stretch ? pane.getHeight() : height,
           u, v,
-          width == 0 ? fileWidth : width,
-          height == 0 ? fileHeight : height,
+          width == 0 ? fileWidth : Math.min(width, fileWidth - u),
+          height == 0 ? fileHeight : Math.min(height, fileHeight - v),
           fileWidth,
           fileHeight);
 
         RenderSystem.disableBlend();
+    }
+
+    /**
+     * A convenience method for the "depracated" color4f function
+     * @param r a 0-1 red value
+     * @param g a 0-1 green value
+     * @param b a 0-1 blue value
+     * @param a a 0-1 alpha value
+     */
+    public static void applyColor(float r, float g, float b, float a)
+    {
+        RenderSystem.color4f(r, g, b, a);
     }
 }

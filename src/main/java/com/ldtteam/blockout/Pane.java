@@ -72,31 +72,18 @@ public class Pane extends AbstractGui
         super();
         id = params.string("id", id);
 
-        @NotNull
-        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
-        PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
-        if (sizePair != null)
-        {
-            width = sizePair.getX();
-            height = sizePair.getY();
-        }
-        else
-        {
-            width = params.getScalableIntegerAttribute("width", width, parentSizePair.getX());
-            height = params.getScalableIntegerAttribute("height", height, parentSizePair.getY());
-        }
+        width = params.getParentWidth();
+        height = params.getParentHeight();
 
-        sizePair = params.getSizePairAttribute("pos", null, parentSizePair);
-        if (sizePair != null)
-        {
-            x = sizePair.getX();
-            y = sizePair.getY();
-        }
-        else
-        {
-            x = params.getScalableIntegerAttribute("x", x, parentSizePair.getX());
-            y = params.getScalableIntegerAttribute("y", y, parentSizePair.getY());
-        }
+        params.scalable("size", params.getParentWidth(), params.getParentHeight(), a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
+
+        params.scalable("pos", params.getParentView().x, params.getParentView().y, a -> {
+            x = a.get(0);
+            y = a.get(1);
+        });
 
         alignment = params.enumeration("align", Alignment.class, alignment);
         visible = params.bool("visible", visible);
@@ -720,9 +707,7 @@ public class Pane extends AbstractGui
      */
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        /**
-         * Can be overwritten by child classes
-         */
+        // Can be overwritten by child classes
         return false;
     }
 
@@ -874,7 +859,7 @@ public class Pane extends AbstractGui
      * @param repeatWidth   size of repeatable box in texture [texels], smaller than or equal uWidth - uRepeat
      * @param repeatHeight  size of repeatable box in texture [texels], smaller than or equal vHeight - vRepeat
      */
-    protected static void blitRepeatable(final MatrixStack ms,
+    public static void blitRepeatable(final MatrixStack ms,
         final int x, final int y,
         final int width, final int height,
         final int u, final int v,

@@ -3,6 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.BOScreen;
+import com.ldtteam.blockout.properties.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -110,17 +111,10 @@ public class Window extends View
             Loader.createFromXMLFile(new ResourceLocation(inherit), this);
         }
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("size", null, null);
-        if (size == null)
-        {
-            final int w = params.numeral("width", width);
-            final int h = params.numeral("height", height);
-            setSize(w, h);
-        }
-        else
-        {
-            setSize(size.getX(), size.getY());
-        }
+        params.shorthand("size", Parsers.INT, 2, a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
 
         lightbox = params.bool("lightbox", lightbox);
         windowPausesGame = params.bool("pause", windowPausesGame);
@@ -273,7 +267,7 @@ public class Window extends View
     /**
      * Defines how gui should be rendered.
      */
-    public static enum WindowRenderType
+    public enum WindowRenderType
     {
         /**
          * upscaling according to minecraft gui scale settings, no downscaling, max gui resolution is 320*240 px, anything above might not be rendered

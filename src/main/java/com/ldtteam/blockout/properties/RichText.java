@@ -5,8 +5,10 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -15,45 +17,20 @@ import java.util.stream.Collectors;
 
 public class RichText extends PropertyGroup
 {
-    /**
-     * The text scale.
-     */
-    protected double scale = 1.0;
-
-    /**
-     * How the text aligns in it.
-     */
+    protected double scale = 1.0D;
     protected Alignment alignment = Alignment.MIDDLE_LEFT;
 
-    /**
-     * The standard text color.
-     */
-    protected int color = 0xFFFFFF;
+    public int color = 0xFFFFFF;
+    public int hoverColor = color;
+    public int disabledColor = color;
+
+    public boolean shadow = false;
+    public boolean wrap = false;
 
     /**
-     * The hover text color.
+     * The space between lines, identical if wrapped or forced.
      */
-    protected int hoverColor = color;
-
-    /**
-     * The disabled text color.
-     */
-    protected int disabledColor = color;
-
-    /**
-     * The default state for shadows.
-     */
-    protected boolean shadow = false;
-
-    /**
-     * The default state for wrapping.
-     */
-    protected boolean wrap = false;
-
-    /**
-     * The linespace of the text.
-     */
-    protected int linespace = 0;
+    public int linespace = 0;
 
     /**
      * The text holder.
@@ -67,18 +44,9 @@ public class RichText extends PropertyGroup
 
     protected int x = 0;
     protected int y = 0;
-    protected int width;
-    protected int height;
+    protected int width = 0;
+    protected int height = 0;
 
-    public RichText(final PaneParams params)
-    {
-        super(params, "text");
-    }
-
-    public RichText(final PaneParams params, final String prefix)
-    {
-        super(params, prefix);
-    }
 
     /**
      * Constructs a rich text property group from
@@ -109,13 +77,18 @@ public class RichText extends PropertyGroup
         // setup
         calcTextRendering();
     }
-
-    @Override
-    public void apply(final PaneParams p)
+    public RichText(final PaneParams params)
     {
+        this(params, "text");
+    }
+
+    public RichText(final PaneParams p, final String prefix)
+    {
+        super(p, prefix);
+
         alignment = p.enumeration(prefix+"align", Alignment.class, alignment);
 
-        color = p.propertyFromAliases(color, Parsers.COLOR, "color", prefix+"color");
+        color = p.color(p.hasAnyAttribute("color", prefix+color), color);
         hoverColor = p.hasAttribute(prefix+"hovercolor") ? p.color(prefix+"hovercolor", hoverColor) : color;
         disabledColor = p.hasAttribute(prefix+"disabledcolor") ? p.color(prefix+"disabledcolor", disabledColor) : color;
 
@@ -124,7 +97,14 @@ public class RichText extends PropertyGroup
         scale = p.numeral(prefix+"scale", scale);
         linespace = p.numeral("linespace", linespace);
 
-        text = p.propertyFromAliases(text, Parsers.MULTILINE, "text", "label");
+        p.shorthand(prefix+"box", Parsers.INT, 2, a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
+
+        text = p.multiline(p.hasAnyAttribute("text", "label"), text);
+
+        calcTextRendering();
     }
 
     @Override
@@ -135,7 +115,17 @@ public class RichText extends PropertyGroup
             return;
         }
 
+        if (width == 0 || height == 0)
+        {
+            width = pane.getWidth();
+            height = pane.getHeight();
+            calcTextRendering();
+        }
+
         final int color = pane.isEnabled() ? (pane.isPointInPane(mx, my) ? hoverColor : this.color) : disabledColor;
+
+        int x = this.x;
+        int y = this.y;
 
         if (alignment.isRightAligned())
         {
@@ -158,7 +148,7 @@ public class RichText extends PropertyGroup
         }
 
         ms.push();
-        ms.translate(this.x + x, this.y + y, 0.0d);
+        ms.translate(pane.getX() + x, pane.getY() + y, 0.0d);
         ms.scale((float) scale, (float) scale, 1.0f);
 
         final Matrix4f matrix4f = ms.getLast().getMatrix();
@@ -189,7 +179,7 @@ public class RichText extends PropertyGroup
 
     protected void calcTextRendering()
     {
-        if (scale <= 0.0d || text == null || getRawText().isEmpty() || width < 1 || height < 1)
+        if (scale <= 0.0d || text == null || getRawText().isEmpty())
         {
             preparedText = Collections.emptyList();
             return;
@@ -214,6 +204,25 @@ public class RichText extends PropertyGroup
             renderedWidth = (int) (mc.fontRenderer.func_243245_a(preparedText.get(0)) * scale);
             renderedHeight = (int) (mc.fontRenderer.FONT_HEIGHT * scale);
         }
+    }
+
+    public void set(int i, final IFormattableTextComponent text)
+    {
+        this.text.set(i, text);
+        calcTextRendering();
+    }
+
+    public void set(List<IFormattableTextComponent> text)
+    {
+        this.text = text;
+    }
+
+    public String getRawText()
+    {
+        return text.stream()
+          .map(ITextComponent::getString)
+          .collect(Collectors.joining("\\n"))
+          .trim();
     }
 
     public Alignment getTextAlignment()
@@ -261,64 +270,28 @@ public class RichText extends PropertyGroup
         this.hoverColor = textHoverColor;
     }
 
-    public int getTextColor()
-    {
-        return color;
-    }
-
-    public void setTextColor(final int textColor)
-    {
-        this.color = textColor;
-    }
-
-    public int getTextHoverColor()
-    {
-        return hoverColor;
-    }
-
-    public void setTextHoverColor(final int textHoverColor)
-    {
-        this.hoverColor = textHoverColor;
-    }
-
-    public int getTextDisabledColor()
-    {
-        return disabledColor;
-    }
-
-    public void setTextDisabledColor(final int textDisabledColor)
-    {
-        this.disabledColor = textDisabledColor;
-    }
-
-    public int getTextLinespace()
-    {
-        return linespace;
-    }
-
-    public void setTextLinespace(final int textLinespace)
-    {
-        this.linespace = textLinespace;
-    }
-
-    public boolean isTextShadow()
-    {
-        return shadow;
-    }
-
-    public void setTextShadow(final boolean textShadow)
-    {
-        this.shadow = textShadow;
-    }
-
-    public boolean isTextWrap()
+    public boolean shouldWrap()
     {
         return wrap;
     }
 
-    public void setTextWrap(final boolean textWrap)
+    public void setWrap(final boolean textWrap)
     {
         this.wrap = textWrap;
+        calcTextRendering();
+    }
+
+    /**
+     * Sets text rendering box.
+     * Is automatically shrunken to element width and height minus text offsets.
+     *
+     * @param w horizontal size
+     * @param h vertical size
+     */
+    public void setTextRenderBox(final int w, final int h)
+    {
+        this.width = MathHelper.clamp(w, 0, width - x);
+        this.height = MathHelper.clamp(h, 0, height - y);
         calcTextRendering();
     }
 
@@ -337,17 +310,6 @@ public class RichText extends PropertyGroup
         this.text.clear();
         this.text.add(text);
         calcTextRendering();
-    }
-
-    public void set(int i, final IFormattableTextComponent text)
-    {
-        this.text.set(i, text);
-        calcTextRendering();
-    }
-
-    public String getRawText()
-    {
-        return text.stream().map(Object::toString).collect(Collectors.joining("\\n"));
     }
 
     @Deprecated

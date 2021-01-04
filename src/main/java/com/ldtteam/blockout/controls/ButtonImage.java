@@ -2,13 +2,11 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.Parsers;
+import com.ldtteam.blockout.properties.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
-
-import org.lwjgl.opengl.GL11;
 
 /**
  * Clickable image.
@@ -20,27 +18,9 @@ public class ButtonImage extends Button
      */
     private static final int DEFAULT_BUTTON_SIZE = 20;
 
-    protected ResourceLocation image;
-    protected ResourceLocation imageHighlight;
-    protected ResourceLocation imageDisabled;
-    protected int imageOffsetX = 0;
-    protected int imageOffsetY = 0;
-    protected int imageWidth = 0;
-    protected int imageHeight = 0;
-    protected int imageMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int imageMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int highlightOffsetX = 0;
-    protected int highlightOffsetY = 0;
-    protected int highlightWidth = 0;
-    protected int highlightHeight = 0;
-    protected int highlightMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int highlightMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int disabledOffsetX = 0;
-    protected int disabledOffsetY = 0;
-    protected int disabledWidth = 0;
-    protected int disabledHeight = 0;
-    protected int disabledMapWidth = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int disabledMapHeight = Image.MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
+    protected Texture image;
+    protected Texture imageHighlight;
+    protected Texture imageDisabled;
 
     /**
      * Default constructor. Makes a small square button.
@@ -62,98 +42,11 @@ public class ButtonImage extends Button
     {
         super(params, Alignment.MIDDLE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, DEFAULT_TEXT_WRAP);
 
-        loadImageInfo(params);
-        loadHighlightInfo(params);
-        loadDisabledInfo(params);
+        image = new Texture(params);
+        imageHighlight = new Texture(params, "highlight");
+        imageDisabled = new Texture(params, "disabled");
 
         loadTextInfo(params);
-    }
-
-    /**
-     * Loads the parameters for the normal image.
-     *
-     * @param params PaneParams provided in the xml.
-     */
-    private void loadImageInfo(final PaneParams params)
-    {
-        final String path = params.string("source");
-        if (path != null)
-        {
-            image = new ResourceLocation(path);
-            loadImageDimensions();
-        }
-
-        PaneParams.SizePair size = params.getSizePairAttribute("imageoffset", null, null);
-        if (size != null)
-        {
-            imageOffsetX = size.getX();
-            imageOffsetY = size.getY();
-        }
-
-        size = params.getSizePairAttribute("imagesize", null, null);
-        if (size != null)
-        {
-            imageWidth = size.getX();
-            imageHeight = size.getY();
-        }
-    }
-
-    /**
-     * Loads the parameters for the hover image.
-     *
-     * @param params PaneParams provided in the xml.
-     */
-    private void loadHighlightInfo(final PaneParams params)
-    {
-        final String path = params.string("highlight");
-        if (path != null)
-        {
-            imageHighlight = new ResourceLocation(path);
-            loadImageHighlightDimensions();
-        }
-
-        PaneParams.SizePair size = params.getSizePairAttribute("highlightoffset", null, null);
-        if (size != null)
-        {
-            highlightOffsetX = size.getX();
-            highlightOffsetY = size.getY();
-        }
-
-        size = params.getSizePairAttribute("highlightsize", null, null);
-        if (size != null)
-        {
-            highlightWidth = size.getX();
-            highlightHeight = size.getY();
-        }
-    }
-
-    /**
-     * Loads the parameters for the disabled image.
-     *
-     * @param params PaneParams provided in the xml.
-     */
-    private void loadDisabledInfo(final PaneParams params)
-    {
-        final String path = params.string("disabled");
-        if (path != null)
-        {
-            imageDisabled = new ResourceLocation(path);
-            loadImageDisabledDimensions();
-        }
-
-        PaneParams.SizePair size = params.getSizePairAttribute("disabledoffset", null, null);
-        if (size != null)
-        {
-            disabledOffsetX = size.getX();
-            disabledOffsetY = size.getY();
-        }
-
-        size = params.getSizePairAttribute("disabledsize", null, null);
-        if (size != null)
-        {
-            disabledWidth = size.getX();
-            disabledHeight = size.getY();
-        }
     }
 
     /**
@@ -169,213 +62,37 @@ public class ButtonImage extends Button
         // match textColor by default
         textDisabledColor = params.numeral("textdisabledcolor", textColor);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
-        if (size != null)
-        {
-            textOffsetX = size.getX();
-            textOffsetY = size.getY();
-        }
+        params.shorthand("textoffset", Parsers.INT, 2, a -> {
+            textOffsetX = a.get(0);
+            textOffsetY = a.get(0);
+        });
 
-        size = params.getSizePairAttribute("textbox", null, null);
-        if (size != null)
-        {
-            textWidth = size.getX();
-            textHeight = size.getY();
-        }
+        params.shorthand("textbox", Parsers.INT, 2, a -> {
+            textWidth = a.get(0);
+            textHeight = a.get(0);
+        });
 
         recalcTextRendering();
     }
 
-    /**
-     * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of image texture.
-     */
-    private void loadImageDimensions()
+    public void setImage(final Texture tex)
     {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(image);
-        imageMapWidth = dimensions.getA();
-        imageMapHeight = dimensions.getB();
+        image = tex;
     }
 
-    /**
-     * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of hover image texture.
-     */
-    private void loadImageHighlightDimensions()
-    {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageHighlight);
-        highlightMapWidth = dimensions.getA();
-        highlightMapHeight = dimensions.getB();
-    }
-
-    /**
-     * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of disabled image texture.
-     */
-    private void loadImageDisabledDimensions()
-    {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageDisabled);
-        disabledMapWidth = dimensions.getA();
-        disabledMapHeight = dimensions.getB();
-    }
-
-    /**
-     * Set the default image.
-     *
-     * @param source String path.
-     */
-    public void setImage(final String source)
-    {
-        setImage(source, 0, 0, 0, 0);
-    }
-
-    /**
-     * Set the default image.
-     *
-     * @param source  String path.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImage(final String source, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        setImage(source != null ? new ResourceLocation(source) : null, offsetX, offsetY, w, h);
-    }
-
-    /**
-     * Set the default image.
-     *
-     * @param loc     ResourceLocation for the image.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        image = loc;
-        imageOffsetX = offsetX;
-        imageOffsetY = offsetY;
-        imageHeight = w;
-        imageWidth = h;
-
-        loadImageDimensions();
-    }
-
-    /**
-     * Set the default image.
-     *
-     * @param loc ResourceLocation for the image.
-     */
     public void setImage(final ResourceLocation loc)
     {
-        setImage(loc, 0, 0, 0, 0);
+        this.image.setImage(loc);
     }
 
-    /**
-     * Set the hover image.
-     *
-     * @param source String path.
-     */
-    public void setImageHighlight(final String source)
+    public void setImageHighlight(final Texture tex)
     {
-        setImageHighlight(source, 0, 0, 0, 0);
+        imageHighlight = tex;
     }
 
-    /**
-     * Set the hover image.
-     *
-     * @param source  String path.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImageHighlight(final String source, final int offsetX, final int offsetY, final int w, final int h)
+    public void setImageDisabled(final Texture tex)
     {
-        setImageHighlight(source != null ? new ResourceLocation(source) : null, offsetX, offsetY, w, h);
-    }
-
-    /**
-     * Set the hover image.
-     *
-     * @param loc     ResourceLocation for the image.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImageHighlight(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        imageHighlight = loc;
-        highlightOffsetX = offsetX;
-        highlightOffsetY = offsetY;
-        highlightHeight = w;
-        highlightWidth = h;
-
-        loadImageHighlightDimensions();
-    }
-
-    /**
-     * Set the hover image.
-     *
-     * @param loc ResourceLocation for the image.
-     */
-    public void setImageHighlight(final ResourceLocation loc)
-    {
-        setImageHighlight(loc, 0, 0, 0, 0);
-    }
-
-    /**
-     * Set the disabled image.
-     *
-     * @param source String path.
-     */
-    public void setImageDisabled(final String source)
-    {
-        setImageHighlight(source, 0, 0, 0, 0);
-    }
-
-    /**
-     * Set the disabled image.
-     *
-     * @param source  String path.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImageDisabled(final String source, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        setImageHighlight(source != null ? new ResourceLocation(source) : null, offsetX, offsetY, w, h);
-    }
-
-    /**
-     * Set the disabled image.
-     *
-     * @param loc ResourceLocation for the image.
-     */
-    public void setImageDisabled(final ResourceLocation loc)
-    {
-        setImageHighlight(loc, 0, 0, 0, 0);
-    }
-
-    /**
-     * Set the disabled image.
-     *
-     * @param loc     ResourceLocation for the image.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImageDisabled(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        imageDisabled = loc;
-        disabledOffsetX = offsetX;
-        disabledOffsetY = offsetY;
-        disabledHeight = w;
-        disabledWidth = h;
-
-        loadImageDisabledDimensions();
+        imageDisabled = tex;
     }
 
     /**
@@ -388,70 +105,25 @@ public class ButtonImage extends Button
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        ResourceLocation bind = image;
-        int u = imageOffsetX;
-        int v = imageOffsetY;
-        int w = imageWidth;
-        int h = imageHeight;
-        int mapWidth = imageMapWidth;
-        int mapHeight = imageMapHeight;
+        Texture bind = image;
 
         if (!enabled)
         {
-            if (imageDisabled != null)
+            if (imageDisabled.hasSource())
             {
                 bind = imageDisabled;
-                u = disabledOffsetX;
-                v = disabledOffsetY;
-                w = disabledWidth;
-                h = disabledHeight;
-                mapWidth = disabledMapWidth;
-                mapHeight = disabledMapHeight;
             }
             else
             {
                 return;
             }
         }
-        else if (isPointInPane(mx, my) && imageHighlight != null)
+        else if (isPointInPane(mx, my) && imageHighlight.hasSource())
         {
             bind = imageHighlight;
-            u = highlightOffsetX;
-            v = highlightOffsetY;
-            w = highlightWidth;
-            h = highlightHeight;
-            mapWidth = highlightMapWidth;
-            mapHeight = highlightMapHeight;
         }
 
-        if (w == 0 || w > getWidth())
-        {
-            w = getWidth();
-        }
-        if (h == 0 || h > getHeight())
-        {
-            h = getHeight();
-        }
-
-        mc.getTextureManager().bindTexture(bind);
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-        // Draw
-        if (enabled || imageDisabled != null)
-        {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
-        }
-        else
-        {
-            RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
-            blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
-        }
-
-        RenderSystem.disableBlend();
+        bind.draw(ms, this, !enabled && !imageDisabled.hasSource());
 
         super.drawSelf(ms, mx, my);
     }

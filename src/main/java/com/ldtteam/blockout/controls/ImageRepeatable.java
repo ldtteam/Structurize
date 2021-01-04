@@ -2,30 +2,17 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.TextureRepeatable;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Image element with repeatable middle part.
  */
 public class ImageRepeatable extends Pane
 {
-    public static final int MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE = 256;
+    protected TextureRepeatable texture;
 
-    protected ResourceLocation resourceLocation;
-    protected int u = 0;
-    protected int v = 0;
-    protected int uWidth = 0;
-    protected int vHeight = 0;
-    protected int uRepeat = 0;
-    protected int vRepeat = 0;
-    protected int repeatWidth = 0;
-    protected int repeatHeight = 0;
-    protected int fileWidth = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int fileHeight = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
 
     /**
      * Default Constructor.
@@ -43,47 +30,8 @@ public class ImageRepeatable extends Pane
     public ImageRepeatable(final PaneParams params)
     {
         super(params);
-        final String source = params.string("source");
-        if (source != null)
-        {
-            resourceLocation = new ResourceLocation(source);
-            loadMapDimensions();
-        }
 
-        PaneParams.SizePair size = params.getSizePairAttribute("uv", null, null);
-        if (size != null)
-        {
-            u = size.getX();
-            v = size.getY();
-        }
-
-        size = params.getSizePairAttribute("uvBox", null, null);
-        if (size != null)
-        {
-            uWidth = size.getX();
-            vHeight = size.getY();
-        }
-
-        size = params.getSizePairAttribute("uvRepeat", null, null);
-        if (size != null)
-        {
-            uRepeat = size.getX();
-            vRepeat = size.getY();
-        }
-
-        size = params.getSizePairAttribute("uvRepeatBox", null, null);
-        if (size != null)
-        {
-            repeatWidth = size.getX();
-            repeatHeight = size.getY();
-        }
-    }
-
-    private void loadMapDimensions()
-    {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(resourceLocation);
-        fileWidth = dimensions.getA();
-        fileHeight = dimensions.getB();
+        texture = new TextureRepeatable(params);
     }
 
     /**
@@ -103,7 +51,7 @@ public class ImageRepeatable extends Pane
      */
     public void setImageLoc(final ResourceLocation loc)
     {
-        resourceLocation = loc;
+        this.texture.setImage(loc);
     }
 
     /**
@@ -123,14 +71,7 @@ public class ImageRepeatable extends Pane
         final int uRepeat, final int vRepeat,
         final int repeatWidth, final int repeatHeight)
     {
-        this.u = u;
-        this.v = v;
-        this.uWidth = uWidth;
-        this.vHeight = vHeight;
-        this.uRepeat = uRepeat;
-        this.vRepeat = vRepeat;
-        this.repeatWidth = repeatWidth;
-        this.repeatHeight = repeatHeight;
+        this.texture.setDimensions(u, v, uWidth, vHeight, uRepeat, vRepeat, repeatWidth, repeatHeight);
     }
 
     /**
@@ -142,14 +83,6 @@ public class ImageRepeatable extends Pane
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        this.mc.getTextureManager().bindTexture(resourceLocation);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-        blitRepeatable(ms, x, y, width, height, u, v, uWidth, vHeight, fileWidth, fileHeight, uRepeat, vRepeat, repeatWidth, repeatHeight);
-
-        RenderSystem.disableBlend();
+        texture.draw(ms, this, false);
     }
 }

@@ -4,6 +4,7 @@ import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.ldtteam.blockout.Log.getLogger;
 
 public final class Parsers
 {
@@ -36,7 +39,7 @@ public final class Parsers
     /** Parses a potentially translatable portion of text as a component */
     public static Any<IFormattableTextComponent> TEXT = v -> {
         String result = v;
-        Matcher m = Pattern.compile("(\\$[({](\\w+)[})])").matcher(v);
+        Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(v);
 
         while (m.find())
         {
@@ -74,6 +77,45 @@ public final class Parsers
             return Color.getByName(v);
         }
     };
+
+    public static Any<Integer> SCALED(int total) {
+        return v -> {
+            try
+            {
+                Matcher m = PaneParams.PERCENTAGE_PATTERN.matcher(v);
+                if (!m.find()) return null;
+
+                int value = Integer.parseInt(m.group(1));
+                return m.group(2) != null && m.group(2).equals("%")
+                    ? total * MathHelper.clamp(value, 0, 100) / 100
+                    : value;
+            }
+            catch (final NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)
+            {
+                getLogger().warn(ex);
+            }
+
+            return null;
+        };
+    }
+
+    public static Any<List<Integer>> SCALED(int... totals)
+    {
+        return v -> {
+            final List<Integer> results = new ArrayList<>(totals.length);
+
+            if (v == null) return null;
+
+            String[] values = v.split("\\s*[,\\s]\\s*");
+            for (int i = 0; i < totals.length; i++)
+            {
+                int index = values.length > i ? i : Math.min(i % 2, values.length-1);
+                results.add(Parsers.SCALED(totals[i]).apply( values[index]));
+            }
+
+            return results;
+        };
+    }
 
     /**
      * Supply an enumeration class and this will parse it

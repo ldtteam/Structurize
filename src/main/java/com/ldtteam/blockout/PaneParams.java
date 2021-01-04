@@ -2,7 +2,6 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.views.View;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,10 +10,7 @@ import org.w3c.dom.Node;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.ldtteam.blockout.Log.getLogger;
 
 /**
  * Special parameters for the panes.
@@ -257,83 +253,27 @@ public class PaneParams
     /**
      * Get the scalable integer attribute from name and definition.
      *
-     * @param name  the name.
-     * @param def   the definition.
-     * @param scale the scale.
-     * @return the integer.
+     * @param name  the name
+     * @param scale the total value to be a fraction of
+     * @param fallback the default value
+     * @return the parsed value
      */
-    public int getScalableIntegerAttribute(final String name, final int def, final int scale)
+    private int scalable(String name, final int scale, final int fallback)
     {
-        final String attr = string(name);
-        if (attr != null)
-        {
-            final Matcher m = PERCENTAGE_PATTERN.matcher(attr);
-            if (m.find())
-            {
-                return parseScalableIntegerRegexMatch(m, def, scale);
-            }
-        }
-
-        return def;
-    }
-
-    private static int parseScalableIntegerRegexMatch(final Matcher m, final int def, final int scale)
-    {
-        try
-        {
-            int value = Integer.parseInt(m.group(1));
-
-            if ("%".equals(m.group(2)))
-            {
-                value = scale * MathHelper.clamp(value, 0, 100) / 100;
-            }
-            // DO NOT attempt to do a "value < 0" treated as (100% of parent) - abs(size)
-            // without differentiating between 'size' and 'position' value types
-            // even then, it's probably not actually necessary...
-
-            return value;
-        }
-        catch (final NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)
-        {
-            getLogger().warn(ex);
-        }
-
-        return def;
+        return property(name, Parsers.SCALED(scale), fallback);
     }
 
     /**
-     * Get the size pair attribute.
-     *
-     * @param name  the name.
-     * @param def   the definition.
-     * @param scale the scale.
-     * @return the SizePair.
+     * Parses two scalable values and processes them through an applicant
+     * @param name the attribute name to search for
+     * @param scaleX the first fraction total
+     * @param scaleY the second fraction total
+     * @param applier the method to utilise the result values
      */
-    @Nullable
-    public SizePair getSizePairAttribute(final String name, final SizePair def, final SizePair scale)
+    public void scalable(final String name, final int scaleX, final int scaleY, Consumer<List<Integer>> applier)
     {
-        final String attr = string(name);
-        if (attr != null)
-        {
-            int w = def != null ? def.x : 0;
-            int h = def != null ? def.y : 0;
-
-            final Matcher m = PERCENTAGE_PATTERN.matcher(attr);
-            if (m.find())
-            {
-                w = parseScalableIntegerRegexMatch(m, w, scale != null ? scale.x : 0);
-
-                if (m.find() || m.find(0))
-                {
-                    // If no second value is passed, use the first value
-                    h = parseScalableIntegerRegexMatch(m, h, scale != null ? scale.y : 0);
-                }
-            }
-
-            return new SizePair(w, h);
-        }
-
-        return def;
+        List<Integer> results = Parsers.SCALED(scaleX, scaleY).apply(string(name));
+        if (results != null) applier.accept(results);
     }
 
     /**
@@ -349,37 +289,6 @@ public class PaneParams
     }
 
     /**
-     * Size pair of width and height.
-     */
-    public static class SizePair
-    {
-        private final int x;
-        private final int y;
-
-        /**
-         * Instantiates a SizePair object.
-         *
-         * @param w width.
-         * @param h height.
-         */
-        public SizePair(final int w, final int h)
-        {
-            x = w;
-            y = h;
-        }
-
-        public int getX()
-        {
-            return x;
-        }
-
-        public int getY()
-        {
-            return y;
-        }
-    }
-
-    /**
      * Fetches a property and runs the result through a given method.
      * Commonly used for shorthand properties.
      * @param name the name of the attribute to retrieve
@@ -392,29 +301,6 @@ public class PaneParams
     {
         List<T> results = Parsers.shorthand(parser, parts).apply(string(name));
         if (results != null) applier.accept(results);
-    }
-
-    /**
-     * Will respond with the value of the first attribute
-     * that matches one of the aliases
-     * @param fallback the default value
-     * @param parser the parser to use to form the value
-     * @param aliases any attribute names that should all parse for the same thing
-     * @param <T> the type of the result
-     * @return the parsed value
-     */
-    public <T> T propertyFromAliases(T fallback, Parsers.Any<T> parser, String... aliases)
-    {
-        final NamedNodeMap map = node.getAttributes();
-        for (final String name : aliases)
-        {
-            if (map.getNamedItem(name) != null)
-            {
-                return property(name, parser, fallback);
-            }
-        }
-
-        return fallback;
     }
 
     /**

@@ -8,6 +8,7 @@ import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.ButtonImage;
 import com.ldtteam.blockout.controls.ButtonVanilla;
 import com.ldtteam.blockout.controls.Text;
+import com.ldtteam.blockout.properties.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -78,10 +79,13 @@ public class DropDownList extends View implements ButtonHandler
     public DropDownList(final PaneParams params)
     {
         super(params);
-        final PaneParams.SizePair dropDownSize = params.getSizePairAttribute("dropDownSize", null, null);
-        dropDownWidth = dropDownSize == null ? width : dropDownSize.getX();
-        // When unknown, we use the same height as it is wide.
-        dropDownHeight = dropDownSize == null ? width : dropDownSize.getY();
+        dropDownWidth = width;
+        dropDownHeight = (width);
+        params.shorthand("dropDownSize", Parsers.INT, 2, a -> {
+            dropDownWidth = a.get(0);
+            dropDownHeight = a.get(1);
+        });
+
         dropDownFixX = params.numeral("dropfixx", dropDownFixX);
 
         if (params.string("source", "").isEmpty())
@@ -167,7 +171,7 @@ public class DropDownList extends View implements ButtonHandler
         final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.getTextAsString());
+            final int index = Integer.parseInt(idLabel.getText().getString());
             setSelectedIndex(index);
             close();
         }

@@ -88,7 +88,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
     @Deprecated
     public String getTitle()
     {
-        return titleLabel.getTextAsString();
+        return titleLabel.getText().getString();
     }
 
     /**
@@ -114,7 +114,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public String getTextContent()
     {
-        return contentText.getTextAsString();
+        return contentText.getText().getString();
     }
 
     /**

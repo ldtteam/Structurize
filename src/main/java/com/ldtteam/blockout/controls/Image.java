@@ -2,12 +2,11 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -20,25 +19,7 @@ import static com.ldtteam.blockout.Log.getLogger;
  */
 public class Image extends Pane
 {
-    public static final int MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE = 256;
-
-    protected ResourceLocation resourceLocation;
-    protected int u = 0;
-    protected int v = 0;
-    protected int imageWidth = 0;
-    protected int imageHeight = 0;
-    protected int fileWidth = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected int fileHeight = MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE;
-    protected boolean customSized = true;
-    protected boolean autoscale = true;
-
-    /**
-     * Default Constructor.
-     */
-    public Image()
-    {
-        super();
-    }
+    protected Texture self;
 
     /**
      * Constructor used by the xml loader.
@@ -48,35 +29,8 @@ public class Image extends Pane
     public Image(final PaneParams params)
     {
         super(params);
-        final String source = params.string("source");
-        if (source != null)
-        {
-            resourceLocation = new ResourceLocation(source);
-            loadMapDimensions();
-        }
 
-        PaneParams.SizePair size = params.getSizePairAttribute("imageoffset", null, null);
-        if (size != null)
-        {
-            u = size.getX();
-            v = size.getY();
-        }
-
-        size = params.getSizePairAttribute("imagesize", null, null);
-        if (size != null)
-        {
-            imageWidth = size.getX();
-            imageHeight = size.getY();
-        }
-
-        autoscale = params.bool("autoscale", true);
-    }
-
-    private void loadMapDimensions()
-    {
-        final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);
-        fileWidth = dimensions.getA();
-        fileHeight = dimensions.getB();
+        self = new Texture(params);
     }
 
     /**
@@ -123,82 +77,11 @@ public class Image extends Pane
     /**
      * Set the image.
      *
-     * @param source String path.
+     * @param tex the new texture to be drawn.
      */
-    public void setImage(final String source)
+    public void setImage(final Texture tex)
     {
-        setImage(source, 0, 0, 0, 0);
-    }
-
-    /**
-     * Set the image.
-     *
-     * @param source  String path.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImage(final String source, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        setImage((source != null) ? new ResourceLocation(source) : null, offsetX, offsetY, w, h);
-    }
-
-    /**
-     * Set the image.
-     *
-     * @param loc     ResourceLocation for the image.
-     * @param offsetX image x offset.
-     * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
-     */
-    public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
-    {
-        resourceLocation = loc;
-        u = offsetX;
-        v = offsetY;
-        imageWidth = w;
-        imageHeight = h;
-
-        loadMapDimensions();
-    }
-
-    /**
-     * Set the image.
-     *
-     * @param loc         ResourceLocation for the image.
-     * @param offsetX     image x offset.
-     * @param offsetY     image y offset.
-     * @param w           image width.
-     * @param h           image height.
-     * @param customSized is it custom sized.
-     */
-    public void setImage(final ResourceLocation loc,
-        final int offsetX,
-        final int offsetY,
-        final int w,
-        final int h,
-        final boolean customSized)
-    {
-        this.customSized = customSized;
-        resourceLocation = loc;
-        u = offsetX;
-        v = offsetY;
-        imageWidth = w;
-        imageHeight = h;
-
-        loadMapDimensions();
-    }
-
-    /**
-     * Set the image.
-     *
-     * @param loc ResourceLocation for the image.
-     */
-    public void setImage(final ResourceLocation loc)
-    {
-        setImage(loc, 0, 0, 0, 0);
+        self = tex;
     }
 
     /**
@@ -210,31 +93,6 @@ public class Image extends Pane
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        this.mc.getTextureManager().bindTexture(resourceLocation);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-        if (this.customSized)
-        {
-            blit(ms,
-                x,
-                y,
-                getWidth(),
-                getHeight(),
-                u,
-                v,
-                imageWidth != 0 ? imageWidth : fileWidth,
-                imageHeight != 0 ? imageHeight : fileHeight,
-                fileWidth,
-                fileHeight);
-        }
-        else
-        {
-            blit(ms, x, y, u, v, imageWidth != 0 ? imageWidth : getWidth(), imageHeight != 0 ? imageHeight : getHeight());
-        }
-
-        RenderSystem.disableBlend();
+        self.draw(ms, this, mx, my);
     }
 }

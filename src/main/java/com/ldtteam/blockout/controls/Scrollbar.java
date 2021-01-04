@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.views.ScrollingContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.MathHelper;
@@ -64,12 +65,10 @@ public class Scrollbar extends Pane
         this(container);
         // TODO: Parse Scrollbar-specific Params
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("scrollbarOffset", null, null);
-        if (size != null)
-        {
-            offsetX = size.getX();
-            offsetY = size.getY();
-        }
+        params.shorthand("scrollbarOffset", Parsers.INT, 2, a -> {
+            offsetX = a.get(0);
+            offsetY = a.get(1);
+        });
     }
 
     /**
