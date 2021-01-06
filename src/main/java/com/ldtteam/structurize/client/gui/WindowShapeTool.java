@@ -208,9 +208,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             genShape();
         }
 
-        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setText(Settings.instance.isHollow()
-                                                                   ? LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")
-                                                                   : LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
+        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).text
+          .set(Settings.instance.isHollow()
+                 ? LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")
+                 : LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
     }
 
     /**
@@ -338,13 +339,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void replaceBlocksToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
-        if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace")))
+        if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace")))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore"));
+            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore"));
         }
-        else if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore")))
+        else if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore")))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace"));
+            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace"));
         }
     }
 
@@ -354,14 +355,14 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void hollowShapeToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
-        if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")))
+        if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
+            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
             Settings.instance.setHollow(false);
         }
-        else if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid")))
+        else if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid")))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow"));
+            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow"));
             Settings.instance.setHollow(true);
         }
 

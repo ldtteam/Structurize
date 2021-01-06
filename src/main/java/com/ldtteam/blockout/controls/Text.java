@@ -6,18 +6,14 @@ import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.properties.RichText;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-
-import java.util.List;
 
 /**
  * Formatted larger textContent area.
  */
 public class Text extends Pane
 {
-    protected RichText text;
+    public RichText text;
 
     /**
      * Create text from xml.
@@ -58,135 +54,6 @@ public class Text extends Pane
           wrap);
     }
 
-    public Alignment getTextAlignment()
-    {
-        return alignment;
-    }
-
-    public void setTextAlignment(final Alignment textAlignment)
-    {
-        this.alignment = textAlignment;
-    }
-
-    public double getTextScale()
-    {
-        return text.getTextScale();
-    }
-
-    public void setTextScale(final double textScale)
-    {
-        this.text.setTextScale(textScale);
-    }
-
-    /**
-     * Set all text colors to the same value.
-     *
-     * @param color new text colors.
-     */
-    public void setColors(final int color)
-    {
-        setColors(color, color, color);
-    }
-
-    /**
-     * Set all textContent colors.
-     *
-     * @param textColor         Standard textContent color.
-     * @param textDisabledColor Disabled textContent color.
-     * @param textHoverColor    Hover textContent color.
-     */
-    public void setColors(final int textColor, final int textDisabledColor, final int textHoverColor)
-    {
-        text.setColors(textColor, textDisabledColor, textHoverColor);
-    }
-
-    public IFormattableTextComponent getText()
-    {
-        return text.get();
-    }
-
-    public void setText(IFormattableTextComponent text)
-    {
-        this.text.set(text);
-    }
-
-    public void setText(String text)
-    {
-        this.text.set(new StringTextComponent(text));
-    }
-
-    public int getTextColor()
-    {
-        return text.color;
-    }
-
-    public void setTextColor(final int textColor)
-    {
-        text.color = textColor;
-    }
-
-    public int getTextHoverColor()
-    {
-        return text.hoverColor;
-    }
-
-    public void setTextHoverColor(final int textHoverColor)
-    {
-        text.hoverColor = textHoverColor;
-    }
-
-    public int getTextDisabledColor()
-    {
-        return text.disabledColor;
-    }
-
-    public void setTextDisabledColor(final int textDisabledColor)
-    {
-        text.disabledColor = textDisabledColor;
-    }
-
-    public int getTextLinespace()
-    {
-        return text.linespace;
-    }
-
-    public void setTextLinespace(final int textLinespace)
-    {
-        text.linespace = textLinespace;
-    }
-
-    public boolean isTextShadow()
-    {
-        return text.shadow;
-    }
-
-    public void setTextShadow(final boolean textShadow)
-    {
-        text.shadow = textShadow;
-    }
-
-    public boolean shouldTextWrap()
-    {
-        return text.shouldWrap();
-    }
-
-    public void setTextWrap(final boolean textWrap)
-    {
-        this.text.setWrap(textWrap);
-    }
-
-    /**
-     * Sets text rendering box.
-     * Is automatically shrinked to element width and height minus text offsets.
-     *
-     * @param w horizontal size
-     * @param h vertical size
-     */
-    public void setTextRenderBox(final int w, final int h)
-    {
-        this.text.setTextRenderBox(w, h);
-    }
-
     public IFormattableTextComponent get()
     {
         return text.get(0);
@@ -210,17 +77,6 @@ public class Text extends Pane
     public String getRawText()
     {
         return text.getRawText();
-    }
-
-    @Deprecated
-    public void fromString(final String text)
-    {
-        this.text.set(Parsers.MULTILINE.apply(text));
-    }
-
-    public List<IReorderingProcessor> getPreparedText()
-    {
-        return text.getPreparedText();
     }
 
     @Override

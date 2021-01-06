@@ -71,6 +71,16 @@ public class Texture extends PropertyGroup
         stretch = p.bool("autoscale", true);
     }
 
+    @Override
+    public void applyDefaults()
+    {
+        u = 0;
+        v = 0;
+        width = 0;
+        height = 0;
+        stretch = true;
+    }
+
     private void loadMapDimensions()
     {
         final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);

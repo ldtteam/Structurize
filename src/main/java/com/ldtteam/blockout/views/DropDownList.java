@@ -171,7 +171,7 @@ public class DropDownList extends View implements ButtonHandler
         final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.getText().getString());
+            final int index = Integer.parseInt(idLabel.text.get().getString());
             setSelectedIndex(index);
             close();
         }
@@ -209,7 +209,7 @@ public class DropDownList extends View implements ButtonHandler
         }
         selectedIndex = index;
 
-        button.setText(dataProvider.getLabelNew(selectedIndex));
+        button.text.set(dataProvider.getLabelNew(selectedIndex));
         if (handler != null)
         {
             handler.accept(this);
@@ -288,9 +288,9 @@ public class DropDownList extends View implements ButtonHandler
             final Text idLabel = rowPane.findPaneOfTypeByID("id", Text.class);
             if (idLabel != null)
             {
-                idLabel.setText(new StringTextComponent(Integer.toString(index)));
+                idLabel.text.set(new StringTextComponent(Integer.toString(index)));
             }
-            choiceButton.setText(label);
+            choiceButton.text.set(label);
             choiceButton.setHandler(this);
         }
     }

@@ -3,30 +3,43 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.RichText;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.util.SoundEvents;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Base button class.
  * Has a handler for when the button is clicked.
  */
-public class Button extends AbstractTextElement
+public class Button extends Pane
 {
     protected ButtonHandler handler;
+    public ButtonText text;
+
+    protected Button()
+    {
+        super();
+    }
 
     /**
      * Default constructor.
      */
-    public Button(final Alignment defaultTextAlignment,
-        final int defaultTextColor,
-        final int defaultTextHoverColor,
-        final int defaultTextDisabledColor,
-        final boolean defaultTextShadow,
-        final boolean defaultTextWrap)
+    public Button(
+        final Alignment alignment,
+        final int color,
+        final int hoverColor,
+        final int disabledColor,
+        final boolean hasShadow,
+        final boolean shouldWrap)
     {
-        super(defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
+        text = new ButtonText(
+          alignment,
+          color,
+          hoverColor,
+          disabledColor,
+          hasShadow,
+          shouldWrap);
     }
 
     /**
@@ -34,15 +47,17 @@ public class Button extends AbstractTextElement
      *
      * @param params PaneParams from xml file.
      */
-    public Button(@NotNull final PaneParams params,
-        final Alignment defaultTextAlignment,
-        final int defaultTextColor,
-        final int defaultTextHoverColor,
-        final int defaultTextDisabledColor,
-        final boolean defaultTextShadow,
-        final boolean defaultTextWrap)
+    public Button(final PaneParams params)
     {
-        super(params, defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
+        super(params);
+        text = new ButtonText(params) {
+            @Override
+            public void applyDefaults()
+            {
+                super.applyDefaults();
+                if (params.hasAttribute("source")) color = 0x101010;
+            }
+        };
     }
 
     /**
@@ -86,5 +101,41 @@ public class Button extends AbstractTextElement
             delegatedHandler.onButtonClicked(this);
         }
         return true;
+    }
+
+    @Override
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    {
+        super.drawSelf(ms, mx, my);
+        text.draw(ms, this, mx, my);
+    }
+
+    public static class ButtonText extends RichText
+    {
+        public ButtonText(final Alignment align, final int color, final int hoverColor, final int disabledColor, final boolean shadow, final boolean wrap)
+        {
+            super(align, color, hoverColor, disabledColor, shadow, wrap);
+        }
+
+        public ButtonText(final PaneParams params)
+        {
+            super(params);
+        }
+
+        public ButtonText(final PaneParams p, final String prefix)
+        {
+            super(p, prefix);
+        }
+
+        @Override
+        public void applyDefaults()
+        {
+            super.applyDefaults();
+
+            alignment = Alignment.MIDDLE;
+            color = 0xE0E0E0;
+            hoverColor = 0xFFFFA0;
+            disabledColor = 0xA0A0A0;
+        }
     }
 }

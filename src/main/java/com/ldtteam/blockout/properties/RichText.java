@@ -20,12 +20,12 @@ public class RichText extends PropertyGroup
     protected double scale = 1.0D;
     protected Alignment alignment = Alignment.MIDDLE_LEFT;
 
-    public int color = 0xFFFFFF;
-    public int hoverColor = color;
-    public int disabledColor = color;
+    protected int color = 0xFFFFFF;
+    protected int hoverColor = color;
+    protected int disabledColor = color;
 
-    public boolean shadow = false;
-    public boolean wrap = false;
+    protected boolean shadow = false;
+    protected boolean wrap = false;
 
     /**
      * The space between lines, identical if wrapped or forced.
@@ -46,7 +46,6 @@ public class RichText extends PropertyGroup
     protected int y = 0;
     protected int width = 0;
     protected int height = 0;
-
 
     /**
      * Constructs a rich text property group from
@@ -85,6 +84,7 @@ public class RichText extends PropertyGroup
     public RichText(final PaneParams p, final String prefix)
     {
         super(p, prefix);
+        this.applyDefaults();
 
         alignment = p.enumeration(prefix+"align", Alignment.class, alignment);
 
@@ -105,6 +105,22 @@ public class RichText extends PropertyGroup
         text = p.multiline(p.hasAnyAttribute("text", "label"), text);
 
         calcTextRendering();
+    }
+
+    @Override
+    public void applyDefaults()
+    {
+        scale = 1.0D;
+        alignment = Alignment.MIDDLE_LEFT;
+
+        color = 0xFFFFFF;
+        hoverColor = color;
+        disabledColor = color;
+
+        shadow = false;
+        wrap = false;
+
+        linespace = 0;
     }
 
     @Override
@@ -217,6 +233,11 @@ public class RichText extends PropertyGroup
         this.text = text;
     }
 
+    public void set(String text)
+    {
+        this.text = Parsers.MULTILINE.apply(text);
+    }
+
     public String getRawText()
     {
         return text.stream()
@@ -288,11 +309,18 @@ public class RichText extends PropertyGroup
      * @param w horizontal size
      * @param h vertical size
      */
-    public void setTextRenderBox(final int w, final int h)
+    public void setRenderBox(final Pane pane, final int w, final int h)
     {
-        this.width = MathHelper.clamp(w, 0, width - x);
-        this.height = MathHelper.clamp(h, 0, height - y);
+        this.width = MathHelper.clamp(w, 0, pane.getWidth() - x);
+        this.height = MathHelper.clamp(h, 0, pane.getHeight() - y);
         calcTextRendering();
+    }
+
+    public void setRenderBox(final Pane pane, final int x, final int y, final int w, final int h)
+    {
+        this.x = x;
+        this.y = y;
+        setRenderBox(pane, w, h);
     }
 
     public IFormattableTextComponent get()

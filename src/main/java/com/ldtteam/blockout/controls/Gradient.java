@@ -1,13 +1,15 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Color;
+import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.properties.RichText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 /**
  * BlockOut gradient pane. Used to render a gradient.
  */
-public class Gradient extends AbstractTextElement
+public class Gradient extends Pane
 {
     /**
      * Default Gradients. Some transparent gray value.
@@ -15,14 +17,7 @@ public class Gradient extends AbstractTextElement
     private int gradientStart = -1072689136;
     private int gradientEnd = -804253680;
 
-    /**
-     * Standard constructor which instantiates a new label.
-     */
-    public Gradient()
-    {
-        super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
-        // Required default constructor.
-    }
+    protected RichText text;
 
     /**
      * Create a label from xml.
@@ -31,9 +26,10 @@ public class Gradient extends AbstractTextElement
      */
     public Gradient(final PaneParams params)
     {
-        super(params, DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        super(params);
         gradientStart = params.numeral("gradientstart", gradientStart);
         gradientEnd = params.numeral("gradientend", gradientEnd);
+        text = new RichText(params);
     }
 
     /**
@@ -65,5 +61,6 @@ public class Gradient extends AbstractTextElement
     {
         fillGradient(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
         super.drawSelf(ms, mx, my);
+        text.draw(ms, this, mx, my);
     }
 }

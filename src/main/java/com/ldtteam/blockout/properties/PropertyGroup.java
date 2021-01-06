@@ -16,7 +16,10 @@ public abstract class PropertyGroup
     protected String prefix;
 
     /** Allow subclasses to have custom impl without params or prefix */
-    protected PropertyGroup() {}
+    protected PropertyGroup()
+    {
+        applyDefaults();
+    }
 
     /**
      * Construct a new property group and apply the provided parameters.
@@ -28,6 +31,13 @@ public abstract class PropertyGroup
 
         // Override and apply parameters here
     }
+
+    /**
+     * Sets or resets the properties to their default values.
+     * Useful especially for subclasses that should have different
+     * fallback values.
+     */
+    public abstract void applyDefaults();
 
     /**
      * Draws the contents of the property group on the pane

@@ -52,7 +52,8 @@ public class ButtonVanilla extends Button
      */
     public ButtonVanilla(final PaneParams params)
     {
-        super(params, Alignment.MIDDLE, ENABLED_COLOR, HOVER_COLOR, DISABLED_COLOR, true, true);
+        super(params);
+        text = new ButtonText(params);
 
         if (width == 0)
         {
@@ -110,11 +111,11 @@ public class ButtonVanilla extends Button
 
     private void recalcTextBox()
     {
-        textOffsetX = TEXTURE_INNER_U_OFFSET;
-        textOffsetY = TEXTURE_INNER_V_OFFSET;
-        textWidth = width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH);
-        textHeight = height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT);
-        recalcTextRendering();
+        text.setRenderBox(this,
+          TEXTURE_INNER_U_OFFSET,
+          TEXTURE_INNER_V_OFFSET,
+          width - (DEFAULT_BUTTON_WIDTH - TEXTURE_INNER_U_WIDTH),
+          height - (DEFAULT_BUTTON_HEIGHT - TEXTURE_INNER_V_HEIGHT));
     }
 
     @Override
