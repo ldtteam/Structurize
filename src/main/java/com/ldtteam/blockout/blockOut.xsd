@@ -177,7 +177,19 @@
     <xs:complexType name="buttonType">
         <xs:complexContent>
             <xs:extension base="textElementType">
+                <xs:attribute name="source" type="xs:string" />
+                <xs:attribute name="imageoffset" type="fixedSizePair"/>
+                <xs:attribute name="imagesize" type="fixedSizePair"/>
+                <xs:attribute name="highlight" type="xs:string"/>
+                <xs:attribute name="highlightoffset" type="fixedSizePair"/>
+                <xs:attribute name="highlightsize" type="fixedSizePair"/>
+                <xs:attribute name="disabled" type="xs:string"/>
+                <xs:attribute name="disabledoffset" type="fixedSizePair"/>
+                <xs:attribute name="disabledsize" type="fixedSizePair"/>
+                <!-- Label (optional) -->
                 <xs:attribute name="label" type="xs:string"/>
+                <xs:attribute name="textoffset" type="fixedSizePair"/>
+                <xs:attribute name="textbox" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -211,21 +223,8 @@
     <!-- <buttonimage> -->
     <xs:complexType name="buttonImageType">
         <xs:complexContent>
-            <xs:extension base="textElementType">
-                <!-- Image and Highlight -->
+            <xs:extension base="buttonType">
                 <xs:attribute name="source" type="xs:string" use="required"/>
-                <xs:attribute name="imageoffset" type="fixedSizePair"/>
-                <xs:attribute name="imagesize" type="fixedSizePair"/>
-                <xs:attribute name="highlight" type="xs:string"/>
-                <xs:attribute name="highlightoffset" type="fixedSizePair"/>
-                <xs:attribute name="highlightsize" type="fixedSizePair"/>
-                <xs:attribute name="disabled" type="xs:string"/>
-                <xs:attribute name="disabledoffset" type="fixedSizePair"/>
-                <xs:attribute name="disabledsize" type="fixedSizePair"/>
-                <!-- Label (optional) -->
-                <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textoffset" type="fixedSizePair"/>
-                <xs:attribute name="textbox" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

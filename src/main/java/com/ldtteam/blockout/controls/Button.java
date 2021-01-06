@@ -110,6 +110,13 @@ public class Button extends Pane
         text.draw(ms, this, mx, my);
     }
 
+    public static Button construct(PaneParams params)
+    {
+        return params.hasAttribute("source")
+                 ? new ButtonImage(params)
+                 : new ButtonVanilla(params);
+    }
+
     public static class ButtonText extends RichText
     {
         public ButtonText(final Alignment align, final int color, final int hoverColor, final int disabledColor, final boolean shadow, final boolean wrap)

@@ -15,12 +15,15 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ldtteam.blockout.Log.getLogger;
 
 public class Texture extends PropertyGroup
 {
-    public static final int MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE = 256;
+    public static final Pattern IMAGE_SOURCE_PATTERN = Pattern.compile("(\\S+:)?(textures/gui/)?(\\S+(?=\\.png)|\\S+)(\\.png)?");
+    public static final int     MINECRAFT_DEFAULT_TEXTURE_IMAGE_SIZE = 256;
 
     protected ResourceLocation resourceLocation;
 
@@ -51,9 +54,19 @@ public class Texture extends PropertyGroup
     public Texture(PaneParams p, String prefix)
     {
         super(p, prefix);
-        final String source = p.string(prefix.equals("texture") ? "source" : prefix+"source");
+        String source = p.string(prefix.equals("texture") ? "source" : prefix+"source");
         if (source != null)
         {
+            Matcher m = IMAGE_SOURCE_PATTERN.matcher(source);
+            if (m.find())
+            {
+                if (m.group(2) == null || m.group(4) == null)
+                {
+                    String namespace = m.group(1) != null ? m.group(1) : "";
+                    source = namespace + "textures/gui/" + m.group(3) + ".png";
+                }
+            }
+
             resourceLocation = new ResourceLocation(source);
             loadMapDimensions();
         }
