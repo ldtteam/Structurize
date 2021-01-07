@@ -4,6 +4,7 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 public class TextureRepeatable extends Texture
@@ -33,6 +34,17 @@ public class TextureRepeatable extends Texture
         });
     }
 
+    public TextureRepeatable(
+      final ResourceLocation loc,
+      final int u, final int v,
+      final int w, final int h,
+      final int uRepeat, final int vRepeat,
+      final int repeatWidth, final int repeatHeight)
+    {
+        super(loc, u, v, w, h);
+        setRepeatTile(uRepeat, vRepeat, repeatWidth, repeatHeight);
+    }
+
     public void setDimensions(
       final int u, final int v,
       final int w, final int h,
@@ -40,6 +52,13 @@ public class TextureRepeatable extends Texture
       final int repeatWidth, final int repeatHeight)
     {
         super.setDimensions(u, v, w, h);
+        setRepeatTile(uRepeat, vRepeat, repeatWidth, repeatHeight);
+    }
+
+    public void setRepeatTile(
+      final int uRepeat, final int vRepeat,
+      final int repeatWidth, final int repeatHeight)
+    {
         this.uRepeat = uRepeat;
         this.vRepeat = vRepeat;
         this.repeatWidth = repeatWidth;
@@ -49,6 +68,14 @@ public class TextureRepeatable extends Texture
     @Override
     protected void render(final MatrixStack ms, final Pane pane)
     {
+        // A texture using this subclass may not be repeatable anyway
+        if (width == pane.getWidth() && height == pane.getHeight()
+         || repeatWidth == 0 || repeatHeight == 0)
+        {
+            super.render(ms, pane);
+            return;
+        }
+
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

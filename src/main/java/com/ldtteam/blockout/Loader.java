@@ -35,8 +35,8 @@ public final class Loader
         register("scrollgroup", ScrollingGroup::new);
         register("list", ScrollingList::new);
         register("text", Text::new);
-        register("button", Button::construct);
-        register("buttonimage", ButtonImage::new);
+        register("button", Button::new);
+        register("buttonimage", Button::new);
         register("label", Text::new);
         register("input", TextFieldVanilla::new);
         register("image", Image::new);

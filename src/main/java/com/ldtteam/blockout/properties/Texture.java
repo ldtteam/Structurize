@@ -199,6 +199,12 @@ public class Texture extends PropertyGroup
         setImage(loc, 0, 0, 0, 0);
     }
 
+    public void setOffset(final int u, final int v)
+    {
+        this.u = u;
+        this.v = v;
+    }
+
     public void setDimensions(final int u, final int v, final int w, final int h)
     {
         setImage(this.resourceLocation, u, v, w, h);
@@ -266,6 +272,7 @@ public class Texture extends PropertyGroup
      * @param b a 0-1 blue value
      * @param a a 0-1 alpha value
      */
+    @SuppressWarnings("deprecation")
     public static void applyColor(float r, float g, float b, float a)
     {
         RenderSystem.color4f(r, g, b, a);

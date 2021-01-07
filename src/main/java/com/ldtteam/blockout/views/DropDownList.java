@@ -5,8 +5,6 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
-import com.ldtteam.blockout.controls.ButtonImage;
-import com.ldtteam.blockout.controls.ButtonVanilla;
 import com.ldtteam.blockout.controls.Text;
 import com.ldtteam.blockout.properties.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -88,14 +86,7 @@ public class DropDownList extends View implements ButtonHandler
 
         dropDownFixX = params.numeral("dropfixx", dropDownFixX);
 
-        if (params.string("source", "").isEmpty())
-        {
-            button = new ButtonVanilla(params);
-        }
-        else
-        {
-            button = new ButtonImage(params);
-        }
+        button = new Button(params);
         button.putInside(this);
 
         overlay = new OverlayView();
