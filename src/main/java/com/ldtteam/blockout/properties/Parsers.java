@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +37,12 @@ public final class Parsers
     public static Any<Float>    FLOAT = Float::parseFloat;
     public static Any<Double>   DOUBLE = Double::parseDouble;
 
+    public static String NO_TRANSLATION = TextFormatting.OBFUSCATED + "whoops!";
+
     /** Parses a potentially translatable portion of text as a component */
+    @NotNull
     public static Any<IFormattableTextComponent> TEXT = v -> {
-        String result = v;
+        String result = v == null ? "" : v;
         Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(v);
 
         while (m.find())
@@ -46,7 +50,7 @@ public final class Parsers
             String translated = LanguageHandler.translateKey(m.group(1));
             if (translated.equals(m.group(1)))
             {
-                translated = TextFormatting.OBFUSCATED + "whoops!";
+                translated = NO_TRANSLATION;
             }
             result = result.replace(m.group(0), translated);
         }

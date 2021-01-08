@@ -115,6 +115,7 @@
             <xs:element name="list" type="listType"/>
             <xs:element name="button" type="buttonType"/>
             <xs:element name="buttonimage" type="buttonImageType"/>
+            <xs:element name="toggle" type="toggleType"/>
             <xs:element name="text" type="textType"/>
             <xs:element name="label" type="labelType"/>
             <xs:element name="input" type="inputType"/>
@@ -225,6 +226,15 @@
         <xs:complexContent>
             <xs:extension base="buttonType">
                 <xs:attribute name="source" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <toggle> -->
+    <xs:complexType name="toggleType">
+        <xs:complexContent>
+            <xs:extension base="buttonType">
+                <xs:attribute name="options" type="xs:string" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

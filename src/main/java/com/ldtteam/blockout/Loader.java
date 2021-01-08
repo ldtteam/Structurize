@@ -37,6 +37,7 @@ public final class Loader
         register("text", Text::new);
         register("button", Button::new);
         register("buttonimage", Button::new);
+        register("toggle", ToggleButton::new);
         register("label", Text::new);
         register("input", TextFieldVanilla::new);
         register("image", Image::new);

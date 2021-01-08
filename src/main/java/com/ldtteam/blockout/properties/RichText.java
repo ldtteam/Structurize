@@ -9,6 +9,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -325,7 +326,7 @@ public class RichText extends PropertyGroup
 
     public IFormattableTextComponent get()
     {
-        return text.get(0);
+        return text.isEmpty() ? new StringTextComponent("") : text.get(0);
     }
 
     public IFormattableTextComponent get(int i)

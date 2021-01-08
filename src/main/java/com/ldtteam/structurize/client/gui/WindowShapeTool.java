@@ -1,9 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.controls.ItemIcon;
-import com.ldtteam.blockout.controls.Text;
-import com.ldtteam.blockout.controls.TextField;
+import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
@@ -354,17 +351,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void hollowShapeToggle()
     {
-        final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
-        if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")))
-        {
-            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
-            Settings.instance.setHollow(false);
-        }
-        else if (replaceButton.text.get().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid")))
-        {
-            replaceButton.text.set(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow"));
-            Settings.instance.setHollow(true);
-        }
+        final ToggleButton hollowButton = findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class);
+        Settings.instance.setHollow(hollowButton.isActiveState("hollow"));
 
         genShape();
     }

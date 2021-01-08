@@ -182,7 +182,6 @@ public class PaneParams
      * @param fallback  the default value.
      * @return the string.
      */
-    @Nullable
     public IFormattableTextComponent text(final String name, final IFormattableTextComponent fallback)
     {
         return property(name, Parsers.TEXT, fallback);
