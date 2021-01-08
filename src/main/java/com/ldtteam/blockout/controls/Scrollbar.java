@@ -65,7 +65,7 @@ public class Scrollbar extends Pane
         this(container);
         // TODO: Parse Scrollbar-specific Params
 
-        params.shorthand("scrollbarOffset", Parsers.INT, 2, a -> {
+        params.applyShorthand("scrollbarOffset", Parsers.INT, 2, a -> {
             offsetX = a.get(0);
             offsetY = a.get(1);
         });

@@ -106,20 +106,20 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.string("inherit");
+        final String inherit = params.getString("inherit");
         if (inherit != null)
         {
             Loader.createFromXMLFile(new ResourceLocation(inherit), this);
         }
 
-        params.shorthand("size", Parsers.INT, 2, a -> {
+        params.applyShorthand("size", Parsers.INT, 2, a -> {
             width = a.get(0);
             height = a.get(1);
         });
 
-        lightbox = params.bool("lightbox", lightbox);
-        windowPausesGame = params.bool("pause", windowPausesGame);
-        windowRenderType = params.enumeration("type", WindowRenderType.class, windowRenderType);
+        lightbox = params.getBoolean("lightbox", lightbox);
+        windowPausesGame = params.getBoolean("pause", windowPausesGame);
+        windowRenderType = params.getEnumeration("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override

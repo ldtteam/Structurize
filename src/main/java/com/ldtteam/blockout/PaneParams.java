@@ -84,17 +84,27 @@ public class PaneParams
         return node.getTextContent().trim();
     }
 
+    private Node getAttribute(final String name)
+    {
+        return node.getAttributes().getNamedItem(name);
+    }
+
+    public boolean hasAttribute(final String name)
+    {
+        return node.getAttributes().getNamedItem(name) != null;
+    }
+
     /**
      * Finds an attribute by name from the XML node
      * and parses it using the provided parser method
      * @param name the attribute name to search for
      * @param parser the parser to convert the attribute to its property
-     * @param fallback the default result value if one cannot be parsed
+     * @param def the default value if none can be found
      * @param <T> the type of value to work with
      * @return the parsed value
      */
     @SuppressWarnings("unchecked")
-    public <T> T property(String name, Parsers.Any<T> parser, T fallback)
+    public <T> T property(String name, Parsers.Any<T> parser, T def)
     {
         T result = null;
 
@@ -115,7 +125,7 @@ public class PaneParams
         if (attr != null) result = parser.apply(attr.getNodeValue());
 
         propertyCache.put(name, result);
-        return result != null ? result : fallback;
+        return result != null ? result : def;
     }
 
     /**
@@ -124,21 +134,21 @@ public class PaneParams
      * @param name the name to search.
      * @return the attribute.
      */
-    public String string(final String name)
+    public String getString(final String name)
     {
-        return string(name, null);
+        return getString(name, null);
     }
 
     /**
      * Get the String attribute from the name and definition.
      *
      * @param name      the name.
-     * @param fallback  the default value.
+     * @param def the default value if none can be found
      * @return the String.
      */
-    public String string(final String name, final String fallback)
+    public String getString(final String name, final String def)
     {
-        return property(name, String::toString, fallback);
+        return property(name, String::toString, def);
     }
 
     /**
@@ -147,9 +157,9 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<IFormattableTextComponent> multiline(final String name)
+    public List<IFormattableTextComponent> getMultilineText(final String name)
     {
-        return multiline(name, Collections.emptyList());
+        return getMultilineText(name, Collections.emptyList());
     }
 
     /**
@@ -158,80 +168,71 @@ public class PaneParams
      * @param name the name.
      * @return the String.
      */
-    public List<IFormattableTextComponent> multiline(final String name, List<IFormattableTextComponent> fallback)
+    public List<IFormattableTextComponent> getMultilineText(final String name, List<IFormattableTextComponent> def)
     {
-        return property(name, Parsers.MULTILINE, fallback);
+        return property(name, Parsers.MULTILINE, def);
     }
 
-    private Node getAttribute(final String name)
-    {
-        return node.getAttributes().getNamedItem(name);
-    }
-
-    public boolean hasAttribute(final String name)
-    {
-        return node.getAttributes().getNamedItem(name) != null;
-    }
 
 
     /**
      * Get the localized String attribute from the name and definition.
      *
      * @param name      the name.
-     * @param fallback  the default value.
+     * @param def the default value if none can be found
      * @return the string.
      */
-    public IFormattableTextComponent text(final String name, final IFormattableTextComponent fallback)
+    public IFormattableTextComponent getTextComponent(final String name, final IFormattableTextComponent def)
     {
-        return property(name, Parsers.TEXT, fallback);
+        return property(name, Parsers.TEXT, def);
     }
 
     /**
      * Get the integer attribute from name and definition.
      *
      * @param name     the name.
-     * @param fallback the default value.
+     * @param def the default value if none can be found
      * @return the int.
      */
-    public int numeral(final String name, final int fallback)
+    public int getInteger(final String name, final int def)
     {
-        return property(name, Parsers.INT, fallback);
+        return property(name, Parsers.INT, def);
     }
 
     /**
      * Get the float attribute from name and definition.
      *
      * @param name     the name.
-     * @param fallback the definition.
+     * @param def the default value if none can be found
      * @return the float.
      */
-    public float numeral(final String name, final float fallback)
+    public float getFloat(final String name, final float def)
     {
-        return property(name, Parsers.FLOAT, fallback);
+        return property(name, Parsers.FLOAT, def);
     }
 
     /**
      * Get the double attribute from name and definition.
      *
      * @param name     the name.
-     * @param fallback the definition.
+     * @param def the default value if none can be found
      * @return the double.
      */
-    public double numeral(final String name, final double fallback)
+    public double getDouble(final String name, final double def)
     {
-        return property(name, Parsers.DOUBLE, fallback);
+        return property(name, Parsers.DOUBLE, def);
     }
 
     /**
      * Get the boolean attribute from name and definition.
      *
      * @param name     the name.
-     * @param fallback the definition.
+     * @param def the default value if none can be found
      * @return the boolean.
      */
-    public boolean bool(final String name, final boolean fallback)
+    public boolean getBoolean(final String name, final boolean def)
     {
-        return property(name, Parsers.BOOLEAN, fallback);
+        return property(name, Parsers.BOOLEAN, def);
     }
 
     /**
@@ -239,13 +240,13 @@ public class PaneParams
      *
      * @param name      the name.
      * @param clazz     the class.
-     * @param fallback  the default value.
+     * @param def the default value if none can be found
      * @param <T>       the type of class.
      * @return the enum attribute.
      */
-    public <T extends Enum<T>> T enumeration(final String name, final Class<T> clazz, final T fallback)
+    public <T extends Enum<T>> T getEnumeration(final String name, final Class<T> clazz, final T def)
     {
-        return property(name, Parsers.ENUM(clazz), fallback);
+        return property(name, Parsers.ENUM(clazz), def);
     }
 
     /**
@@ -253,12 +254,12 @@ public class PaneParams
      *
      * @param name  the name
      * @param scale the total value to be a fraction of
-     * @param fallback the default value
+     * @param def the default value if none can be found
      * @return the parsed value
      */
-    private int scalable(String name, final int scale, final int fallback)
+    private int getScaledInteger(String name, final int scale, final int def)
     {
-        return property(name, Parsers.SCALED(scale), fallback);
+        return property(name, Parsers.SCALED(scale), def);
     }
 
     /**
@@ -268,9 +269,9 @@ public class PaneParams
      * @param scaleY the second fraction total
      * @param applier the method to utilise the result values
      */
-    public void scalable(final String name, final int scaleX, final int scaleY, Consumer<List<Integer>> applier)
+    public void getScaledInteger(final String name, final int scaleX, final int scaleY, Consumer<List<Integer>> applier)
     {
-        List<Integer> results = Parsers.SCALED(scaleX, scaleY).apply(string(name));
+        List<Integer> results = Parsers.SCALED(scaleX, scaleY).apply(getString(name));
         if (results != null) applier.accept(results);
     }
 
@@ -278,10 +279,10 @@ public class PaneParams
      * Get the color attribute from name and definition.
      *
      * @param name the name.
-     * @param def  the definition
+     * @param def  the default value if none can be found
      * @return int color value.
      */
-    public int color(final String name, final int def)
+    public int getColor(final String name, final int def)
     {
         return property(name, Parsers.COLOR, def);
     }
@@ -295,16 +296,16 @@ public class PaneParams
      * @param applier the method to utilise the parsed values
      * @param <T> the type of each part
      */
-    public <T> void shorthand(String name, Parsers.Any<T> parser, int parts, Consumer<List<T>> applier)
+    public <T> void applyShorthand(String name, Parsers.Any<T> parser, int parts, Consumer<List<T>> applier)
     {
-        List<T> results = Parsers.shorthand(parser, parts).apply(string(name));
+        List<T> results = Parsers.shorthand(parser, parts).apply(getString(name));
         if (results != null) applier.accept(results);
     }
 
     /**
      * Checks if any of attribute names are present and return first found, else return default.
      *
-     * @param def default attribute name
+     * @param def the default value if none can be found
      * @param attributes attributes names to check
      * @return first found attribute or default
      */

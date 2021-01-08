@@ -1,6 +1,5 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.properties.Tooltip;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
@@ -73,26 +72,26 @@ public class Pane extends AbstractGui
     public Pane(@NotNull final PaneParams params)
     {
         super();
-        id = params.string("id", id);
+        id = params.getString("id", id);
 
         width = params.getParentWidth();
         height = params.getParentHeight();
 
-        params.scalable("size", params.getParentWidth(), params.getParentHeight(), a -> {
+        params.getScaledInteger("size", params.getParentWidth(), params.getParentHeight(), a -> {
             width = a.get(0);
             height = a.get(1);
         });
 
-        params.scalable("pos", params.getParentView().x, params.getParentView().y, a -> {
+        params.getScaledInteger("pos", params.getParentView().x, params.getParentView().y, a -> {
             x = a.get(0);
             y = a.get(1);
         });
 
-        alignment = params.enumeration("align", Alignment.class, alignment);
-        visible = params.bool("visible", visible);
-        enabled = params.bool("enabled", enabled);
-        onHoverId = params.string("onHoverId", onHoverId);
-        toolTipLines = params.multiline("tooltip", toolTipLines);
+        alignment = params.getEnumeration("align", Alignment.class, alignment);
+        visible = params.getBoolean("visible", visible);
+        enabled = params.getBoolean("enabled", enabled);
+        onHoverId = params.getString("onHoverId", onHoverId);
+        toolTipLines = params.getMultilineText("tooltip", toolTipLines);
     }
 
     /**

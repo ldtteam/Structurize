@@ -87,23 +87,23 @@ public class RichText extends PropertyGroup
         super(p, prefix);
         this.applyDefaults();
 
-        alignment = p.enumeration(prefix+"align", Alignment.class, alignment);
+        alignment = p.getEnumeration(prefix+"align", Alignment.class, alignment);
 
-        color = p.color(p.hasAnyAttribute("color", prefix+color), color);
-        hoverColor = p.hasAttribute(prefix+"hovercolor") ? p.color(prefix+"hovercolor", hoverColor) : color;
-        disabledColor = p.hasAttribute(prefix+"disabledcolor") ? p.color(prefix+"disabledcolor", disabledColor) : color;
+        color = p.getColor(p.hasAnyAttribute("color", prefix+color), color);
+        hoverColor = p.hasAttribute(prefix+"hovercolor") ? p.getColor(prefix+"hovercolor", hoverColor) : color;
+        disabledColor = p.hasAttribute(prefix+"disabledcolor") ? p.getColor(prefix+"disabledcolor", disabledColor) : color;
 
-        shadow = p.bool(prefix+"shadow", shadow);
-        wrap = p.bool(prefix+"wrap", wrap);
-        scale = p.numeral(prefix+"scale", scale);
-        linespace = p.numeral("linespace", linespace);
+        shadow = p.getBoolean(prefix+"shadow", shadow);
+        wrap = p.getBoolean(prefix+"wrap", wrap);
+        scale = p.getDouble(prefix+"scale", scale);
+        linespace = p.getInteger("linespace", linespace);
 
-        p.shorthand(prefix+"box", Parsers.INT, 2, a -> {
+        p.applyShorthand(prefix+"box", Parsers.INT, 2, a -> {
             width = a.get(0);
             height = a.get(1);
         });
 
-        text = p.multiline(p.hasAnyAttribute("text", "label"), text);
+        text = p.getMultilineText(p.hasAnyAttribute("text", "label"), text);
 
         calcTextRendering();
     }

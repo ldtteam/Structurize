@@ -35,7 +35,7 @@ public class View extends Pane
     public View(final PaneParams params)
     {
         super(params);
-        padding = params.numeral("padding", padding);
+        padding = params.getInteger("padding", padding);
     }
 
     @NotNull

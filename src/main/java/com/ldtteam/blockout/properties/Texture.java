@@ -54,7 +54,7 @@ public class Texture extends PropertyGroup
     public Texture(PaneParams p, String prefix)
     {
         super(p, prefix);
-        String source = p.string(prefix.equals("texture") ? "source" : prefix+"source");
+        String source = p.getString(prefix.equals("texture") ? "source" : prefix+"source");
         if (source != null)
         {
             Matcher m = IMAGE_SOURCE_PATTERN.matcher(source);
@@ -71,17 +71,17 @@ public class Texture extends PropertyGroup
             loadMapDimensions();
         }
 
-        p.shorthand(prefix+"offset", Parsers.INT, 2, a -> {
+        p.applyShorthand(prefix+"offset", Parsers.INT, 2, a -> {
             u = a.get(0);
             v = a.get(1);
         });
 
-        p.shorthand(prefix+"size", Parsers.INT, 2, a -> {
+        p.applyShorthand(prefix+"size", Parsers.INT, 2, a -> {
             width = a.get(0);
             height = a.get(1);
         });
 
-        stretch = p.bool("autoscale", true);
+        stretch = p.getBoolean("autoscale", true);
     }
 
     @Override

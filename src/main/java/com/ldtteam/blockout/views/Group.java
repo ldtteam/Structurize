@@ -30,7 +30,7 @@ public class Group extends View
     public Group(@NotNull final PaneParams params)
     {
         super(params);
-        spacing = params.numeral("spacing", spacing);
+        spacing = params.getInteger("spacing", spacing);
     }
 
     @Override

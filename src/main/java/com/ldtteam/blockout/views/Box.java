@@ -30,8 +30,8 @@ public class Box extends View
     public Box(@NotNull final PaneParams params)
     {
         super(params);
-        lineWidth = params.numeral("linewidth", lineWidth);
-        color = params.numeral("color", color);
+        lineWidth = params.getFloat("linewidth", lineWidth);
+        color = params.getInteger("color", color);
     }
 
     /**

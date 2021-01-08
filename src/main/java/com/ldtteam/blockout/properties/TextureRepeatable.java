@@ -23,12 +23,12 @@ public class TextureRepeatable extends Texture
     {
         super(p, prefix);
 
-        p.shorthand("repeatoffset", Parsers.INT, 2, a -> {
+        p.applyShorthand("repeatoffset", Parsers.INT, 2, a -> {
             uRepeat = a.get(0);
             vRepeat = a.get(1);
         });
 
-        p.shorthand("repeatsize", Parsers.INT, 2, a -> {
+        p.applyShorthand("repeatsize", Parsers.INT, 2, a -> {
             repeatWidth = a.get(0);
             repeatHeight = a.get(1);
         });

@@ -27,8 +27,8 @@ public class Gradient extends Pane
     public Gradient(final PaneParams params)
     {
         super(params);
-        gradientStart = params.numeral("gradientstart", gradientStart);
-        gradientEnd = params.numeral("gradientend", gradientEnd);
+        gradientStart = params.getInteger("gradientstart", gradientStart);
+        gradientEnd = params.getInteger("gradientend", gradientEnd);
         text = new RichText(params);
     }
 

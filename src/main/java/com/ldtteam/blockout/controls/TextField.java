@@ -59,12 +59,12 @@ public class TextField extends Pane
     public TextField(@NotNull final PaneParams params)
     {
         super(params);
-        maxTextLength = params.numeral("maxlength", maxTextLength);
-        textColor = params.numeral("color", textColor);
-        textColorDisabled = params.numeral("colordisabled", textColorDisabled);
-        shadow = params.bool("shadow", shadow);
-        text = params.string("textContent", text);
-        tabNextPaneID = params.string("tab");
+        maxTextLength = params.getInteger("maxlength", maxTextLength);
+        textColor = params.getInteger("color", textColor);
+        textColorDisabled = params.getInteger("colordisabled", textColorDisabled);
+        shadow = params.getBoolean("shadow", shadow);
+        text = params.getString("textContent", text);
+        tabNextPaneID = params.getString("tab");
     }
 
     public Filter getFilter()

@@ -128,7 +128,7 @@ public final class Loader
     {
         if ("layout".equalsIgnoreCase(params.getType()))
         {
-            final String resource = params.string("source");
+            final String resource = params.getString("source");
             if (resource != null)
             {
                 createFromXMLFile(resource, parent);

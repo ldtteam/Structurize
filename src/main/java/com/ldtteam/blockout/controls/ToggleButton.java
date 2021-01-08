@@ -25,7 +25,7 @@ public class ToggleButton extends Button
         super(params);
         defaultLabel = text.get();
 
-        String options = params.string("options", "");
+        String options = params.getString("options", "");
 
         Matcher m = SHORT_TRANSLATION.matcher(options);
         while (m.find())
