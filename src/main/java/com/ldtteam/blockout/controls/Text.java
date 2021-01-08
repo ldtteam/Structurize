@@ -3,7 +3,6 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.properties.RichText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.IFormattableTextComponent;

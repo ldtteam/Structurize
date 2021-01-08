@@ -1,19 +1,17 @@
 package com.ldtteam.blockout.views;
 
-import java.util.function.Consumer;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.Text;
 import com.ldtteam.blockout.properties.Parsers;
-import com.ldtteam.blockout.controls.ButtonImage;
-import com.ldtteam.blockout.controls.ButtonVanilla;
-import com.ldtteam.blockout.controls.Text;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 /**
  * A DropDownList is a Button which when click display a ScrollingList below it.

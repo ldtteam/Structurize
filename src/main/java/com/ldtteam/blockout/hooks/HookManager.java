@@ -1,20 +1,14 @@
 package com.ldtteam.blockout.hooks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+
+import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 /**
  * Core class for managing and handling gui hooks

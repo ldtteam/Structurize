@@ -39,9 +39,9 @@ public class RichText extends PropertyGroup
     protected List<IFormattableTextComponent> text = new LinkedList<>();
 
     // rendering
-    private List<IReorderingProcessor> preparedText;
-    private int renderedWidth;
-    private int renderedHeight;
+    protected List<IReorderingProcessor> preparedText;
+    protected int renderedWidth;
+    protected int renderedHeight;
 
     protected int x = 0;
     protected int y = 0;

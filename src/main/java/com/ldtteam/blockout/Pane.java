@@ -1,7 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.controls.Tooltip;
 import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
+import com.ldtteam.blockout.properties.Tooltip;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -805,13 +805,7 @@ public class Pane extends AbstractGui
 
     public void setTooltip(final Tooltip tooltipIn)
     {
-        if (tooltip != null)
-        {
-            // gc
-            tooltip.putInside(null);
-        }
         tooltip = tooltipIn;
-        tooltip.putInside(window);
     }
 
     public Tooltip getTooltip()
@@ -877,9 +871,7 @@ public class Pane extends AbstractGui
         {
             if (tooltip == null)
             {
-                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
-                toolTipLines.forEach(ttBuilder::appendNL);
-                tooltip = ttBuilder.build();
+                tooltip = new Tooltip(toolTipLines, 0xFFFFFF);
             }
             else
             {
@@ -1002,5 +994,19 @@ public class Pane extends AbstractGui
         buffer.finishDrawing();
         RenderSystem.enableAlphaTest();
         WorldVertexBufferUploader.draw(buffer);
+    }
+
+    public static void fillGradient(
+      @NotNull final Matrix4f m4f,
+      final BufferBuilder bfb,
+      final int x1,
+      final int y1,
+      final int x2,
+      final int y2,
+      final int z,
+      final int colorFrom,
+      final int colorTo)
+    {
+        AbstractGui.fillGradient(m4f, bfb, x1, y1, x2, y2, z, colorFrom, colorTo);
     }
 }
