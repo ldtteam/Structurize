@@ -43,7 +43,7 @@ public final class Parsers
     @NotNull
     public static Any<IFormattableTextComponent> TEXT = v -> {
         String result = v == null ? "" : v;
-        Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(v);
+        Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(result);
 
         while (m.find())
         {

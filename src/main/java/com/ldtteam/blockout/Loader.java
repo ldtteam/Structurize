@@ -27,6 +27,8 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public final class Loader
 {
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
     private static final Map<ResourceLocation, Function<PaneParams,? extends Pane>> paneFactories = new HashMap<>();
     static
     {
