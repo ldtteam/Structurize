@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,25 +24,17 @@ public final class Parsers
 {
     private Parsers() { /* prevent construction */ }
 
-    /**
-     * Just a convenient way to put the Function lambda
-     */
-    public interface Any<T>
-    {
-        T apply(String value);
-    }
-
     // Primitives
-    public static Any<Boolean>  BOOLEAN = v -> v == null || !v.isEmpty() && !v.equals("disabled") && Boolean.parseBoolean(v);
-    public static Any<Integer>  INT = Integer::parseInt;
-    public static Any<Float>    FLOAT = Float::parseFloat;
-    public static Any<Double>   DOUBLE = Double::parseDouble;
+    public static Function<String, Boolean> BOOLEAN = v -> v == null || !v.isEmpty() && !v.equals("disabled") && Boolean.parseBoolean(v);
+    public static Function<String, Integer> INT    = Integer::parseInt;
+    public static Function<String, Float>   FLOAT  = Float::parseFloat;
+    public static Function<String, Double>          DOUBLE = Double::parseDouble;
 
     public static String NO_TRANSLATION = TextFormatting.OBFUSCATED + "whoops!";
 
     /** Parses a potentially translatable portion of text as a component */
     @NotNull
-    public static Any<IFormattableTextComponent> TEXT = v -> {
+    public static Function<String, IFormattableTextComponent> TEXT = v -> {
         String result = v == null ? "" : v;
         Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(result);
 
@@ -59,13 +52,13 @@ public final class Parsers
     };
 
     /** Applies the TEXT parser across multiple lines */
-    public static Any<List<IFormattableTextComponent>> MULTILINE = v ->
+    public static Function<String, List<IFormattableTextComponent>> MULTILINE = v ->
         Arrays.stream(v.split("(;|<br/?>|\\\\n)"))
           .map(s -> Parsers.TEXT.apply(s))
           .collect(Collectors.toList());
 
     /** Parses a color from hex, rgba, name, or pure value */
-    public static Any<Integer> COLOR = v -> {
+    public static Function<String, Integer> COLOR = v -> {
         Matcher m = PaneParams.HEXADECIMAL.matcher(v);
         if (m.find()) return Integer.parseInt(m.group(), 16);
 
@@ -82,7 +75,7 @@ public final class Parsers
         }
     };
 
-    public static Any<Integer> SCALED(int total) {
+    public static Function<String, Integer> SCALED(int total) {
         return v -> {
             try
             {
@@ -103,7 +96,7 @@ public final class Parsers
         };
     }
 
-    public static Any<List<Integer>> SCALED(int... totals)
+    public static Function<String, List<Integer>> SCALED(int... totals)
     {
         return v -> {
             final List<Integer> results = new ArrayList<>(totals.length);
@@ -127,7 +120,7 @@ public final class Parsers
      * @param <T> they enum class type
      * @return an Any value parsing method
      */
-    public static <T extends Enum<T>> Any<T> ENUM(Class<T> clazz)
+    public static <T extends Enum<T>> Function<String, T> ENUM(Class<T> clazz)
     {
         return v -> {
             try
@@ -142,7 +135,7 @@ public final class Parsers
         };
     }
 
-    public static <T> Any<List<T>> shorthand(Parsers.Any<T> parser, int parts)
+    public static <T> Function<String, List<T>> shorthand(Function<String, T> parser, int parts)
     {
         return v -> {
             final List<T> results = new ArrayList<>(parts);

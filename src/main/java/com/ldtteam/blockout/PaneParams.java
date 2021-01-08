@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
@@ -104,7 +105,7 @@ public class PaneParams
      * @return the parsed value
      */
     @SuppressWarnings("unchecked")
-    public <T> T property(String name, Parsers.Any<T> parser, T def)
+    public <T> T getProperty(String name, Function<String, T> parser, T def)
     {
         T result = null;
 
@@ -148,7 +149,7 @@ public class PaneParams
      */
     public String getString(final String name, final String def)
     {
-        return property(name, String::toString, def);
+        return getProperty(name, String::toString, def);
     }
 
     /**
@@ -170,7 +171,7 @@ public class PaneParams
      */
     public List<IFormattableTextComponent> getMultilineText(final String name, List<IFormattableTextComponent> def)
     {
-        return property(name, Parsers.MULTILINE, def);
+        return getProperty(name, Parsers.MULTILINE, def);
     }
 
 
@@ -184,7 +185,7 @@ public class PaneParams
      */
     public IFormattableTextComponent getTextComponent(final String name, final IFormattableTextComponent def)
     {
-        return property(name, Parsers.TEXT, def);
+        return getProperty(name, Parsers.TEXT, def);
     }
 
     /**
@@ -196,7 +197,7 @@ public class PaneParams
      */
     public int getInteger(final String name, final int def)
     {
-        return property(name, Parsers.INT, def);
+        return getProperty(name, Parsers.INT, def);
     }
 
     /**
@@ -208,7 +209,7 @@ public class PaneParams
      */
     public float getFloat(final String name, final float def)
     {
-        return property(name, Parsers.FLOAT, def);
+        return getProperty(name, Parsers.FLOAT, def);
     }
 
     /**
@@ -220,7 +221,7 @@ public class PaneParams
      */
     public double getDouble(final String name, final double def)
     {
-        return property(name, Parsers.DOUBLE, def);
+        return getProperty(name, Parsers.DOUBLE, def);
     }
 
     /**
@@ -232,7 +233,7 @@ public class PaneParams
      */
     public boolean getBoolean(final String name, final boolean def)
     {
-        return property(name, Parsers.BOOLEAN, def);
+        return getProperty(name, Parsers.BOOLEAN, def);
     }
 
     /**
@@ -246,7 +247,7 @@ public class PaneParams
      */
     public <T extends Enum<T>> T getEnumeration(final String name, final Class<T> clazz, final T def)
     {
-        return property(name, Parsers.ENUM(clazz), def);
+        return getProperty(name, Parsers.ENUM(clazz), def);
     }
 
     /**
@@ -259,7 +260,7 @@ public class PaneParams
      */
     private int getScaledInteger(String name, final int scale, final int def)
     {
-        return property(name, Parsers.SCALED(scale), def);
+        return getProperty(name, Parsers.SCALED(scale), def);
     }
 
     /**
@@ -284,7 +285,7 @@ public class PaneParams
      */
     public int getColor(final String name, final int def)
     {
-        return property(name, Parsers.COLOR, def);
+        return getProperty(name, Parsers.COLOR, def);
     }
 
     /**
@@ -296,7 +297,7 @@ public class PaneParams
      * @param applier the method to utilise the parsed values
      * @param <T> the type of each part
      */
-    public <T> void applyShorthand(String name, Parsers.Any<T> parser, int parts, Consumer<List<T>> applier)
+    public <T> void applyShorthand(String name, Function<String, T> parser, int parts, Consumer<List<T>> applier)
     {
         List<T> results = Parsers.shorthand(parser, parts).apply(getString(name));
         if (results != null) applier.accept(results);
