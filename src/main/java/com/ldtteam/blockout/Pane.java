@@ -1,6 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.google.common.collect.Lists;
+import com.ldtteam.blockout.controls.Tooltip;
+import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -24,6 +25,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -52,6 +54,7 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    protected Tooltip tooltip;
 
     /**
      * Default constructor.
@@ -346,11 +349,6 @@ public class Pane extends AbstractGui
         if (visible)
         {
             drawSelfLast(ms, mx, my);
-
-            if (this.isPointInPane(mx, my) && !toolTipLines.isEmpty())
-            {
-                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), (int) mx, (int) my);
-            }
         }
     }
 
@@ -427,6 +425,18 @@ public class Pane extends AbstractGui
         }
     }
 
+    /**
+     * Returns the first Pane (depth-first search) of a given type.
+     *
+     * @param type Class of the desired Pane type.
+     * @param <T>  The type of pane returned.
+     * @return a Pane of the given type if found, null otherwise.
+     */
+    public final <T extends Pane> T findFirstPaneByType(@NotNull final Class<T> type)
+    {
+        return findPaneByType(type);
+    }
+
     // ----------Subpanes-------------//
 
     /**
@@ -439,6 +449,18 @@ public class Pane extends AbstractGui
     public Pane findPaneByID(final String idIn)
     {
         return id.equals(idIn) ? this : null;
+    }
+
+    /**
+     * Returns the first Pane of a given type. Performs a depth-first search on the hierarchy of Panes and Views.
+     *
+     * @param type type of Pane to find.
+     * @return a Pane of the given type.
+     */
+    @Nullable
+    public <T extends Pane> T findPaneByType(final Class<T> type)
+    {
+        return this.getClass().equals(type) ? type.cast(this) : null;
     }
 
     /**
@@ -464,6 +486,7 @@ public class Pane extends AbstractGui
     public void setWindow(final Window w)
     {
         window = w;
+        genToolTip();
     }
 
     /**
@@ -752,8 +775,10 @@ public class Pane extends AbstractGui
         if (onHover == null && !onHoverId.isEmpty())
         {
             onHover = window.findPaneByID(onHoverId);
+            Objects.requireNonNull(onHover, String.format("Hover pane \"%s\" for \"%s\" was not found.", onHoverId, id));
         }
-        else
+
+        if (onHover == null)
         {
             return;
         }
@@ -766,6 +791,32 @@ public class Pane extends AbstractGui
         {
             onHover.hide();
         }
+    }
+
+    public void setHoverPane(final Pane hoverPane)
+    {
+        this.onHover = hoverPane;
+    }
+
+    public Pane getHoverPane()
+    {
+        return onHover;
+    }
+
+    public void setTooltip(final Tooltip tooltipIn)
+    {
+        if (tooltip != null)
+        {
+            // gc
+            tooltip.putInside(null);
+        }
+        tooltip = tooltipIn;
+        tooltip.putInside(window);
+    }
+
+    public Tooltip getTooltip()
+    {
+        return tooltip;
     }
 
     @Deprecated
@@ -820,24 +871,22 @@ public class Pane extends AbstractGui
         return false;
     }
 
-    /**
-     * Sets the tooltip to render on hovering this element
-     *
-     * @param lines the lines to display
-     */
-    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
+    private void genToolTip()
     {
-        this.toolTipLines = lines;
-    }
-
-    /**
-     * Gets the tooltip to render on hovering this element
-     *
-     * @return the lines to display
-     */
-    public List<IFormattableTextComponent> getHoverToolTip()
-    {
-        return this.toolTipLines;
+        if (!toolTipLines.isEmpty())
+        {
+            if (tooltip == null)
+            {
+                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+                toolTipLines.forEach(ttBuilder::appendNL);
+                tooltip = ttBuilder.build();
+            }
+            else
+            {
+                // renew window
+                setTooltip(tooltip);
+            }
+        }
     }
 
     /**

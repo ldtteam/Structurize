@@ -41,7 +41,7 @@ public final class Loader
         register("label", Text::new);
         register("input", TextFieldVanilla::new);
         register("image", Image::new);
-        register("imagerepeatable", ImageRepeatable::new);
+        register("imagerepeat", ImageRepeatable::new);
         register("box", Box::new);
         register("itemicon", ItemIcon::new);
         register("switch", SwitchView::new);
@@ -180,8 +180,7 @@ public final class Loader
     {
         try
         {
-            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final DocumentBuilder dBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             final Document doc = dBuilder.parse(input);
             input.getByteStream().close();
 

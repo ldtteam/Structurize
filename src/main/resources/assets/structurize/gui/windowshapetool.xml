@@ -52,5 +52,5 @@
         <buttonimage id="cancel" source="structurize:buildtool/cancel" size="32" pos="64 96"/>
     </view>
 
-    <buttonimage id="undo" source="structurize:buildtool/rotateleft" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
+    <button id="undo" source="structurize:buildtool/rotateleft" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
 </window>

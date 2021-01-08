@@ -321,4 +321,24 @@ public class PaneParams
         }
         return def;
     }
+
+    /**
+     * Checks if any of attribute names are present and return first found, else return default.
+     *
+     * @param def default attribute name
+     * @param attributes attributes names to check
+     * @return first found attribute or default
+     */
+    public String hasAnyAttribute(final String def, final String... attributes)
+    {
+        final NamedNodeMap nodeMap = node.getAttributes();
+        for (final String attr : attributes)
+        {
+            if (nodeMap.getNamedItem(attr) != null) // inlined hasAttribute
+            {
+                return attr;
+            }
+        }
+        return def;
+    }
 }

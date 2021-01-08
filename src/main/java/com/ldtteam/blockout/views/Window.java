@@ -25,12 +25,12 @@ public class Window extends View
     /**
      * The default width.
      */
-    private static final int DEFAULT_WIDTH = 420;
+    protected static final int DEFAULT_WIDTH = 420;
 
     /**
      * The default height.
      */
-    private static final int DEFAULT_HEIGHT = 240;
+    protected static final int DEFAULT_HEIGHT = 240;
 
     /**
      * The screen of the window.

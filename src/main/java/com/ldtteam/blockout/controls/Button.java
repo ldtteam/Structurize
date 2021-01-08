@@ -14,7 +14,7 @@ import net.minecraft.util.SoundEvents;
 /**
  * Base button class. Has a handler for when the button is clicked.
  */
-public class Button extends Pane
+public class Button extends AbstractTextElement
 {
     /**
      * Texture map that contains the button texture.
