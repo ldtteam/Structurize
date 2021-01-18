@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "structurize:blockbarreldeco_onside"
+        }
+    ],
+  "result": {
+    "item": "structurize:blockbarreldeco_standing",
+    "count": 1
+  }
+}
