@@ -12,8 +12,9 @@ public enum DataVersion
      * - successors match
      * - upcoming has data version = (latest data version + 1)
      */
-    UPCOMING(2585, null, null),
-    v1_16_4(2584, "1.16.4", UPCOMING),
+    UPCOMING(2586, null, null),
+    v1_16_5(2585, "1.16.4", UPCOMING),
+    v1_16_4(2584, "1.16.4", v1_16_5),
     v1_16_3(2580, "1.16.3", v1_16_4),
     v1_16_2(2578, "1.16.2", v1_16_3),
     v1_16_1(2567, "1.16.1", v1_16_2),
