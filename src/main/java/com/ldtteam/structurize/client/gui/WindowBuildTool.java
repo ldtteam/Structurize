@@ -270,7 +270,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Manager.setSchematicDownloaded(false);
         }
 
-        if (!DataFixerUtils.isVanillaDF)
+        if (DataFixerUtils.isVanillaDF)
         {
             findPaneByID(LABEL_WARNING).show();
         }

@@ -48,7 +48,7 @@ public class Structurize
 
         if (DataFixerUtils.isVanillaDF)
         {
-            if (DataFixesManager.getDataFixer().getSchema(Integer.MAX_VALUE - 10).getVersionKey() >= DataVersion.UPCOMING.getDataVersion())
+            if ((DataFixesManager.getDataFixer().getSchema(Integer.MAX_VALUE - 1).getVersionKey()) >= DataVersion.UPCOMING.getDataVersion() * 10)
             {
                 throw new RuntimeException("You are trying to run old mod on much newer vanilla. Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
             }
