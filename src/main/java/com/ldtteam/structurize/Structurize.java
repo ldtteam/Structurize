@@ -1,5 +1,6 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structures.blueprints.v1.DataVersion;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -15,6 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**
  * Mod main class.
@@ -44,13 +46,13 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
 
-        if (DataFixesManager.getDataFixer() instanceof com.mojang.datafixers.DataFixerUpper)
+        if (DataFixerUtils.isVanillaDF)
         {
             if (DataFixesManager.getDataFixer().getSchema(Integer.MAX_VALUE - 10).getVersionKey() >= DataVersion.UPCOMING.getDataVersion())
             {
-                throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
+                throw new RuntimeException("You are trying to run old mod on much newer vanilla. Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
             }
-            else if (DataVersion.CURRENT == DataVersion.UPCOMING)
+            else if (!FMLEnvironment.production && DataVersion.CURRENT == DataVersion.UPCOMING)
             {
                 throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
             }
