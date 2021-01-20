@@ -14,6 +14,11 @@ import net.minecraft.util.datafix.TypeReferences;
 public class DataFixerUtils
 {
     /**
+     * If the used datafixer is the vanilla one.
+     */
+    public static boolean isVanillaDF = DataFixesManager.getDataFixer() instanceof com.mojang.datafixers.DataFixerUpper;
+
+    /**
      * Private constructor to hide implicit one.
      */
     private DataFixerUtils()
