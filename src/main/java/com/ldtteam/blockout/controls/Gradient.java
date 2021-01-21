@@ -1,23 +1,19 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Color;
-import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.properties.RichText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 /**
  * BlockOut gradient pane. Used to render a gradient.
  */
-public class Gradient extends Pane
+public class Gradient extends AbstractTextElement
 {
     /**
      * Default Gradients. Some transparent gray value.
      */
     private int gradientStart = -1072689136;
     private int gradientEnd = -804253680;
-
-    protected RichText text;
 
     /**
      * Create a label from xml.
@@ -28,8 +24,7 @@ public class Gradient extends Pane
     {
         super(params);
         gradientStart = params.getInteger("gradientstart", gradientStart);
-        gradientEnd = params.getInteger("gradientend", gradientEnd);
-        text = new RichText(params);
+        gradientEnd = params.getColor("gradientend", gradientEnd);
     }
 
     /**
@@ -59,8 +54,8 @@ public class Gradient extends Pane
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
+        ms.push();
         fillGradient(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
-        super.drawSelf(ms, mx, my);
-        text.draw(ms, this, mx, my);
+        ms.pop();
     }
 }

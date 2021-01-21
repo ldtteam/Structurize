@@ -1,9 +1,7 @@
-package com.ldtteam.blockout.properties;
+package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.Color;
-import com.ldtteam.blockout.Log;
-import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -24,13 +22,20 @@ public final class Parsers
 {
     private Parsers() { /* prevent construction */ }
 
+    public static final Pattern PERCENTAGE_PATTERN  = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
+    public static final Pattern RGBA_PATTERN        = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
+    public static final Pattern HEXADECIMAL_PATTERN = Pattern.compile("#([0-9A-F]{6,8})", Pattern.CASE_INSENSITIVE);
+
     // Primitives
     public static Function<String, Boolean> BOOLEAN = v -> v == null || !v.isEmpty() && !v.equals("disabled") && Boolean.parseBoolean(v);
     public static Function<String, Integer> INT    = Integer::parseInt;
     public static Function<String, Float>   FLOAT  = Float::parseFloat;
-    public static Function<String, Double>          DOUBLE = Double::parseDouble;
+    public static Function<String, Double>  DOUBLE = Double::parseDouble;
 
     public static String NO_TRANSLATION = TextFormatting.OBFUSCATED + "whoops!";
+
+    /** Parses a resource location, include shorthand tricks */
+    public static Function<String, ResourceLocation> RESOURCE = ResourceLocation::new;
 
     /** Parses a potentially translatable portion of text as a component */
     @NotNull
@@ -59,10 +64,10 @@ public final class Parsers
 
     /** Parses a color from hex, rgba, name, or pure value */
     public static Function<String, Integer> COLOR = v -> {
-        Matcher m = PaneParams.HEXADECIMAL.matcher(v);
+        Matcher m = HEXADECIMAL_PATTERN.matcher(v);
         if (m.find()) return Integer.parseInt(m.group(), 16);
 
-        m = PaneParams.RGBA_PATTERN.matcher(v);
+        m = RGBA_PATTERN.matcher(v);
         if (m.find()) return Color.rgbaToInt(m);
 
         try
@@ -75,11 +80,15 @@ public final class Parsers
         }
     };
 
+    /**
+     * Parses a number, which may potentially be marked as a percentage of the given total
+     * @param total the number that the parsed value may be a percentage of
+     */
     public static Function<String, Integer> SCALED(int total) {
         return v -> {
             try
             {
-                Matcher m = PaneParams.PERCENTAGE_PATTERN.matcher(v);
+                Matcher m = PERCENTAGE_PATTERN.matcher(v);
                 if (!m.find()) return null;
 
                 int value = Integer.parseInt(m.group(1));
@@ -96,6 +105,10 @@ public final class Parsers
         };
     }
 
+    /**
+     * Parses multiple numbers, where each may be a percentage of a given total
+     * @param totals a list of totals that correlate with the position in the shorthand string
+     */
     public static Function<String, List<Integer>> SCALED(int... totals)
     {
         return v -> {
@@ -118,7 +131,6 @@ public final class Parsers
      * Supply an enumeration class and this will parse it
      * @param clazz the enum class to parse against
      * @param <T> they enum class type
-     * @return an Any value parsing method
      */
     public static <T extends Enum<T>> Function<String, T> ENUM(Class<T> clazz)
     {
@@ -135,6 +147,13 @@ public final class Parsers
         };
     }
 
+    /**
+     * A function factory to create a shorthand parser that will determine the number of parts
+     * in a string and fill it out to the given number of parts
+     * @param parser the parser to used for each individual part
+     * @param parts the max number of parts that the result will have
+     * @param <T> describes the type of each parsed value
+     */
     public static <T> Function<String, List<T>> shorthand(Function<String, T> parser, int parts)
     {
         return v -> {

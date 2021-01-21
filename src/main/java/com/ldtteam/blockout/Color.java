@@ -2,6 +2,7 @@ package com.ldtteam.blockout;
 
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,18 @@ public final class Color
     }
 
     /**
+     * Parses a color or returns the default
+     * @param color a string representation of the color, in rgba, hex, or int
+     * @param def the fallback value
+     * @return the parsed or defaulted color integer
+     */
+    public static int parse(String color, int def)
+    {
+        Integer result = Parsers.COLOR.apply(color);
+        return result != null ? result : def;
+    }
+
+    /**
      * Get a color integer from its name.
      *
      * @param name name of the color.
@@ -63,7 +76,8 @@ public final class Color
      * @param name name of the color.
      * @return the color as an integer.
      */
-    public static int getByName(final String name)
+    @Nullable
+    public static Integer getByName(final String name)
     {
         return nameToColorMap.get(name.toLowerCase(Locale.ENGLISH));
     }

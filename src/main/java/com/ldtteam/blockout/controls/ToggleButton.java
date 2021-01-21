@@ -1,7 +1,8 @@
 package com.ldtteam.blockout.controls;
 
+import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.properties.Parsers;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.IFormattableTextComponent;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ToggleButton extends Button
 {
@@ -20,10 +22,13 @@ public class ToggleButton extends Button
     protected IFormattableTextComponent defaultLabel;
     protected int active = 0;
 
+    protected Button button;
+
     public ToggleButton(final PaneParams params)
     {
         super(params);
-        defaultLabel = text.get();
+        button = Button.construct(params);
+        defaultLabel = button.getText();
 
         String options = params.getString("options", "");
 
@@ -39,7 +44,7 @@ public class ToggleButton extends Button
 
         if (!states.isEmpty())
         {
-            text.set(states.get(active));
+            button.setText(states.get(active));
         }
     }
 
@@ -51,13 +56,42 @@ public class ToggleButton extends Button
                  || rawStates.get(active).substring(0, rawStates.get(active).length() - 1).endsWith(state);
     }
 
+    /**
+     * Attempts to set the active state displayed on the button via a
+     * @param state the state to set, if it exists as an option
+     * @return whether the active state was changed
+     */
+    public boolean setActiveState(String state)
+    {
+        int index = -1;
+
+        for (int i = 0; i < rawStates.size(); i++)
+        {
+            String s = rawStates.get(i);
+            if (s.equals(state) || s.substring(0, s.length() - 1).endsWith(state))
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0)
+        {
+            active = index;
+            button.setText(states.get(active));
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public boolean handleClick(final double mx, final double my)
     {
         if (!states.isEmpty())
         {
             active = (active + 1) % states.size();
-            text.set(states.get(active));
+            button.setText(states.get(active));
         }
 
         return super.handleClick(mx, my);
@@ -66,6 +100,12 @@ public class ToggleButton extends Button
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        super.drawSelf(ms, mx, my);
+        button.drawSelf(ms, mx, my);
+    }
+
+    @Override
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    {
+        button.drawSelfLast(ms, mx, my);
     }
 }

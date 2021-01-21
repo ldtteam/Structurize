@@ -38,10 +38,10 @@ public final class Loader
         register("scrollgroup", ScrollingGroup::new);
         register("list", ScrollingList::new);
         register("text", Text::new);
-        register("button", Button::new);
-        register("buttonimage", Button::new);
+        register("button", Button::construct);
+        register("buttonimage", Button::construct); // TODO: remove, but we don't want to deal with xml changes now
         register("toggle", ToggleButton::new);
-        register("label", Text::new);
+        register("label", Text::new); // TODO: remove, but we don't want to deal with xml changes now
         register("input", TextFieldVanilla::new);
         register("image", Image::new);
         register("imagerepeat", ImageRepeatable::new);
@@ -55,7 +55,7 @@ public final class Loader
         register("treeview", TreeView::new);
     }
 
-    /** The maximum numer of cached documents */
+    /** The maximum number of cached documents */
     private static final int CACHE_CAP = 20;
 
     /** A map to store the parsed documents. Retains data based on a priority */
@@ -128,12 +128,7 @@ public final class Loader
     {
         if ("layout".equalsIgnoreCase(params.getType()))
         {
-            final String resource = params.getString("source");
-            if (resource != null)
-            {
-                createFromXMLFile(resource, parent);
-            }
-
+            params.getResource("source", r -> createFromXMLFile(r, parent));
             return null;
         }
 

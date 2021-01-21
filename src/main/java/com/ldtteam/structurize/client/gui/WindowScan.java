@@ -437,7 +437,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).text.set((IFormattableTextComponent) tempEntities.get(index).getName());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((IFormattableTextComponent) tempEntities.get(index).getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
@@ -476,10 +476,10 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
-                resourceLabel.text.set((IFormattableTextComponent) resource.getItemStack().getDisplayName());
-                quantityLabel.text.set(Integer.toString(resource.getAmount()));
-                resourceLabel.text.setColors(WHITE);
-                quantityLabel.text.setColors(WHITE);
+                resourceLabel.setText((IFormattableTextComponent) resource.getItemStack().getDisplayName());
+                quantityLabel.setText(Integer.toString(resource.getAmount()));
+                resourceLabel.setColors(WHITE);
+                quantityLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 1, resource.getItemStack().getTag()));
                 if (!Minecraft.getInstance().player.isCreative())
                 {

@@ -5,7 +5,7 @@ import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.Text;
-import com.ldtteam.blockout.properties.Parsers;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -87,7 +87,7 @@ public class DropDownList extends View implements ButtonHandler
 
         dropDownFixX = params.getInteger("dropfixx", dropDownFixX);
 
-        button = new Button(params);
+        button = Button.construct(params);
         button.putInside(this);
 
         overlay = new OverlayView();
@@ -163,7 +163,7 @@ public class DropDownList extends View implements ButtonHandler
         final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.text.get().getString());
+            final int index = Integer.parseInt(idLabel.getText().getString());
             setSelectedIndex(index);
             close();
         }
@@ -201,7 +201,7 @@ public class DropDownList extends View implements ButtonHandler
         }
         selectedIndex = index;
 
-        button.text.set(dataProvider.getLabelNew(selectedIndex));
+        button.setText(dataProvider.getLabelNew(selectedIndex));
         if (handler != null)
         {
             handler.accept(this);
@@ -280,9 +280,9 @@ public class DropDownList extends View implements ButtonHandler
             final Text idLabel = rowPane.findPaneOfTypeByID("id", Text.class);
             if (idLabel != null)
             {
-                idLabel.text.set(new StringTextComponent(Integer.toString(index)));
+                idLabel.setText(new StringTextComponent(Integer.toString(index)));
             }
-            choiceButton.text.set(label);
+            choiceButton.setText(label);
             choiceButton.setHandler(this);
         }
     }

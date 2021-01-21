@@ -1,15 +1,17 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.properties.Parsers;
 import com.ldtteam.blockout.views.View;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -17,10 +19,6 @@ import java.util.regex.Pattern;
  */
 public class PaneParams
 {
-    public static final Pattern       PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    public static final Pattern       RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    public static final Pattern       HEXADECIMAL        = Pattern.compile("#([0-9A-F]{6,8})", Pattern.CASE_INSENSITIVE);
-
     private final Map<String, Object> propertyCache = new HashMap<>();
     private final List<PaneParams>    children;
     private final Node                node;
@@ -114,7 +112,7 @@ public class PaneParams
             try
             {
                 result = (T) propertyCache.get(name);
-                if (result != null) return result;
+                return result != null ? result : def;
             }
             catch (ClassCastException cce)
             {
@@ -135,13 +133,14 @@ public class PaneParams
      * @param name the name to search.
      * @return the attribute.
      */
+    @Nullable
     public String getString(final String name)
     {
         return getString(name, null);
     }
 
     /**
-     * Get the String attribute from the name and definition.
+     * Get the String attribute from the name and revert to the default if not present.
      *
      * @param name      the name.
      * @param def the default value if none can be found
@@ -153,10 +152,39 @@ public class PaneParams
     }
 
     /**
-     * Get the String attribute from the name.
+     * Get the resource location from the name
+     * @param name the attribute name
+     * @param def the default value to fallback to
+     * @return the parsed resource location
+     */
+    public ResourceLocation getResource(final String name, final String def)
+    {
+        return getProperty(name, Parsers.RESOURCE, new ResourceLocation(def));
+    }
+
+    /**
+     * Get the resource location from the name and load it
+     * @param name the attribute name
+     * @param loader a method to act upon the resource if it is not blank or null
+     * @return the parsed resource location (or null if it couldn't be parsed)
+     */
+    @Nullable
+    public ResourceLocation getResource(final String name, final Consumer<ResourceLocation> loader)
+    {
+        ResourceLocation rl = getResource(name, "");
+        if (!rl.getPath().isEmpty())
+        {
+            loader.accept(rl);
+            return rl;
+        }
+        return null;
+    }
+
+    /**
+     * Get the text content with potential newlines from the name.
      *
-     * @param name the name.
-     * @return the String.
+     * @param name the name
+     * @return the parsed and localized list
      */
     public List<IFormattableTextComponent> getMultilineText(final String name)
     {
@@ -164,24 +192,23 @@ public class PaneParams
     }
 
     /**
-     * Get the String attribute from the name.
+     * Get the text content with potential newlines from the name and revert to the default if not present.
      *
-     * @param name the name.
-     * @return the String.
+     * @param name the name
+     * @param def the default value if none can be found
+     * @return the parsed and localized list
      */
     public List<IFormattableTextComponent> getMultilineText(final String name, List<IFormattableTextComponent> def)
     {
         return getProperty(name, Parsers.MULTILINE, def);
     }
-
-
-
+    
     /**
-     * Get the localized String attribute from the name and definition.
+     * Get the localized String attribute from the name and revert to the default if not present.
      *
      * @param name      the name.
      * @param def the default value if none can be found
-     * @return the string.
+     * @return the localized text component.
      */
     public IFormattableTextComponent getTextComponent(final String name, final IFormattableTextComponent def)
     {
@@ -189,7 +216,7 @@ public class PaneParams
     }
 
     /**
-     * Get the integer attribute from name and definition.
+     * Get the integer attribute from name and revert to the default if not present.
      *
      * @param name     the name.
      * @param def the default value if none can be found
@@ -201,7 +228,7 @@ public class PaneParams
     }
 
     /**
-     * Get the float attribute from name and definition.
+     * Get the float attribute from name and revert to the default if not present.
      *
      * @param name     the name.
      * @param def the default value if none can be found
@@ -213,7 +240,7 @@ public class PaneParams
     }
 
     /**
-     * Get the double attribute from name and definition.
+     * Get the double attribute from name and revert to the default if not present.
      *
      * @param name     the name.
      * @param def the default value if none can be found
@@ -225,7 +252,7 @@ public class PaneParams
     }
 
     /**
-     * Get the boolean attribute from name and definition.
+     * Get the boolean attribute from name and revert to the default if not present.
      *
      * @param name     the name.
      * @param def the default value if none can be found
@@ -237,7 +264,7 @@ public class PaneParams
     }
 
     /**
-     * Get the boolean attribute from name and class and definition..
+     * Get the boolean attribute from name and class and revert to the default if not present.
      *
      * @param name      the name.
      * @param clazz     the class.
@@ -245,13 +272,13 @@ public class PaneParams
      * @param <T>       the type of class.
      * @return the enum attribute.
      */
-    public <T extends Enum<T>> T getEnumeration(final String name, final Class<T> clazz, final T def)
+    public <T extends Enum<T>> T getEnum(final String name, final Class<T> clazz, final T def)
     {
         return getProperty(name, Parsers.ENUM(clazz), def);
     }
 
     /**
-     * Get the scalable integer attribute from name and definition.
+     * Get the scalable integer attribute from name and revert to the default if not present.
      *
      * @param name  the name
      * @param scale the total value to be a fraction of
@@ -265,6 +292,7 @@ public class PaneParams
 
     /**
      * Parses two scalable values and processes them through an applicant
+     *
      * @param name the attribute name to search for
      * @param scaleX the first fraction total
      * @param scaleY the second fraction total
@@ -277,7 +305,7 @@ public class PaneParams
     }
 
     /**
-     * Get the color attribute from name and definition.
+     * Get the color attribute from name and revert to the default if not present.
      *
      * @param name the name.
      * @param def  the default value if none can be found

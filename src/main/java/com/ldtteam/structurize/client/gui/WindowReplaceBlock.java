@@ -136,9 +136,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     public void onOpened()
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Text.class).text.set((IFormattableTextComponent) from.getDisplayName());
+        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getDisplayName());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Text.class).text.set((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
+        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
         updateResources();
         updateResourceList();
     }
@@ -211,7 +211,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Text.class).text.set((IFormattableTextComponent) to.getDisplayName());
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getDisplayName());
         }
     }
 
@@ -243,8 +243,8 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 final ItemStack resource = filteredItems.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
-                resourceLabel.text.set((IFormattableTextComponent) resource.getDisplayName());
-                resourceLabel.text.setColors(WHITE);
+                resourceLabel.setText((IFormattableTextComponent) resource.getDisplayName());
+                resourceLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });

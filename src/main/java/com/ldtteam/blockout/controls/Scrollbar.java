@@ -3,7 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.properties.Parsers;
+import com.ldtteam.blockout.Parsers;
 import com.ldtteam.blockout.views.ScrollingContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.MathHelper;

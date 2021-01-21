@@ -1,6 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.properties.Tooltip;
+import com.ldtteam.blockout.controls.AbstractTextBuilder;
+import com.ldtteam.blockout.controls.Tooltip;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -87,7 +88,7 @@ public class Pane extends AbstractGui
             y = a.get(1);
         });
 
-        alignment = params.getEnumeration("align", Alignment.class, alignment);
+        alignment = params.getEnum("align", Alignment.class, alignment);
         visible = params.getBoolean("visible", visible);
         enabled = params.getBoolean("enabled", enabled);
         onHoverId = params.getString("onHoverId", onHoverId);
@@ -804,7 +805,13 @@ public class Pane extends AbstractGui
 
     public void setTooltip(final Tooltip tooltipIn)
     {
+        if (tooltip != null)
+        {
+            // gc
+            tooltip.putInside(null);
+        }
         tooltip = tooltipIn;
+        tooltip.putInside(window);
     }
 
     public Tooltip getTooltip()
@@ -870,7 +877,9 @@ public class Pane extends AbstractGui
         {
             if (tooltip == null)
             {
-                tooltip = new Tooltip(toolTipLines, 0xFFFFFF);
+                final AbstractTextBuilder.TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+                toolTipLines.forEach(ttBuilder::appendNL);
+                tooltip = ttBuilder.build();
             }
             else
             {

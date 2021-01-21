@@ -3,7 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.properties.Parsers;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -106,11 +106,7 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.getString("inherit");
-        if (inherit != null)
-        {
-            Loader.createFromXMLFile(new ResourceLocation(inherit), this);
-        }
+        params.getResource("inherit", r -> Loader.createFromXMLFile(r, this));
 
         params.applyShorthand("size", Parsers.INT, 2, a -> {
             width = a.get(0);
@@ -119,7 +115,7 @@ public class Window extends View
 
         lightbox = params.getBoolean("lightbox", lightbox);
         windowPausesGame = params.getBoolean("pause", windowPausesGame);
-        windowRenderType = params.getEnumeration("type", WindowRenderType.class, windowRenderType);
+        windowRenderType = params.getEnum("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override
@@ -287,8 +283,8 @@ public class Window extends View
          * scaling to size of framebuffer with lower limit of 320*240 px, max gui resolution is unlimited
          */
         FULLSCREEN_VANILLA((mcWindow, window) -> {
-            final double widthScale = Math.max((double) mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
-            final double heightScale = Math.max((double) mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
+            final double widthScale = Math.max(mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
+            final double heightScale = Math.max(mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
 
             return Math.min(widthScale, heightScale);
         }),

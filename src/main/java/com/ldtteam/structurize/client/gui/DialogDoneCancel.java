@@ -82,13 +82,13 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public IFormattableTextComponent getTitleNew()
     {
-        return titleLabel.text.get();
+        return titleLabel.getText();
     }
 
     @Deprecated
     public String getTitle()
     {
-        return titleLabel.text.get().getString();
+        return titleLabel.getTextAsString();
     }
 
     /**
@@ -98,13 +98,13 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void setTitle(final IFormattableTextComponent title)
     {
-        titleLabel.text.set(title);
+        titleLabel.setText(title);
     }
 
     @Deprecated
     public void setTitle(final String title)
     {
-        titleLabel.text.set(title);
+        titleLabel.setText(title);
     }
 
     /**
@@ -114,7 +114,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public String getTextContent()
     {
-        return contentText.text.get().getString();
+        return contentText.getTextAsString();
     }
 
     /**
@@ -124,7 +124,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void setTextContent(final String content)
     {
-        contentText.text.set(content);
+        contentText.setText(content);
     }
 
     /**
