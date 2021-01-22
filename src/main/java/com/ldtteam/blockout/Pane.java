@@ -1003,18 +1003,4 @@ public class Pane extends AbstractGui
         RenderSystem.enableAlphaTest();
         WorldVertexBufferUploader.draw(buffer);
     }
-
-    public static void fillGradient(
-      @NotNull final Matrix4f m4f,
-      final BufferBuilder bfb,
-      final int x1,
-      final int y1,
-      final int x2,
-      final int y2,
-      final int z,
-      final int colorFrom,
-      final int colorTo)
-    {
-        AbstractGui.fillGradient(m4f, bfb, x1, y1, x2, y2, z, colorFrom, colorTo);
-    }
 }

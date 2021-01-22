@@ -48,7 +48,7 @@ public final class Parsers
             String translated = LanguageHandler.translateKey(m.group(1));
             if (translated.equals(m.group(1)))
             {
-                translated = NO_TRANSLATION;
+                translated = "MISSING: " + m.group(1);
             }
             result = result.replace(m.group(0), translated);
         }

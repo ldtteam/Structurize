@@ -2,6 +2,7 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
+import com.ldtteam.structurize.Structurize;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -54,9 +55,6 @@ public final class Loader
         register("zoomdragview", ZoomDragView::new);
         register("treeview", TreeView::new);
     }
-
-    /** The maximum number of cached documents */
-    private static final int CACHE_CAP = 2;
 
     /** A map to store the parsed documents. Retains data based on a priority */
     private static final Map<ResourceLocation, Tuple<Integer,PaneParams>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, PaneParams>>()
@@ -268,7 +266,7 @@ public final class Loader
      */
     public static void addToCache(ResourceLocation loc, PaneParams doc)
     {
-        if (parsedCache.size() >= CACHE_CAP)
+        if (parsedCache.size() >= Structurize.getConfig().getClient().windowCacheCap.get())
         {
             parsedCache.remove(
               parsedCache.entrySet().stream()

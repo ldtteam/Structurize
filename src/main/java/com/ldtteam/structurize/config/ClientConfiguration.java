@@ -17,6 +17,11 @@ public class ClientConfiguration extends AbstractConfiguration
     public final ForgeConfigSpec.ConfigValue<List<? extends String>> excludedEntities;
 
     /**
+     * How many parsed GUI windows to keep track of in the cache
+     */
+    public final ForgeConfigSpec.IntValue windowCacheCap;
+
+    /**
      * Builds client configuration.
      *
      * @param builder config builder
@@ -24,5 +29,6 @@ public class ClientConfiguration extends AbstractConfiguration
     protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
     {
         excludedEntities = defineList(builder, "excludeEntities", new ArrayList<>(), s -> s instanceof String && ResourceLocation.tryCreate((String) s) != null);
+        windowCacheCap = defineInteger(builder, "windowCacheCap", 12, 0, 100);
     }
 }
