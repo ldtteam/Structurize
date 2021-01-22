@@ -1154,5 +1154,7 @@
   "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s",
   "structurize.config.excludeentities": "Entities Excluded from Blueprint Rendering",
   "structurize.config.excludeentities.comment": "Excludes entities from blueprint rendering if they can't load clientside. If you are going to add a \"minecraft\" entity or you believe it's our fault that an entity couldn't be set up, please make an issue at our GitHub and add the stacktrace to it.",
+  "structurize.config.windowcachecap": "Max Cached GUI Windows",
+  "structurize.config.windowcachecap.comment": "Sets the maximum number of parsed gui window files to be stored for quick loading.",
   "com.ldtteam.structurize.gui.structure.edit.title": "Structure path:"
 }
