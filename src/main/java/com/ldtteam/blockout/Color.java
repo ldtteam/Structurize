@@ -92,7 +92,7 @@ public final class Color
      */
     public static int rgbaToInt(final int r, final int g, final int b, final int a)
     {
-        return (a << 24) | (r << 16) | (g << 8) | b;
+        return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     }
 
     public static int rgbaToInt(Matcher m)
