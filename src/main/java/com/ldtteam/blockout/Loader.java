@@ -56,7 +56,7 @@ public final class Loader
     }
 
     /** The maximum number of cached documents */
-    private static final int CACHE_CAP = 20;
+    private static final int CACHE_CAP = 2;
 
     /** A map to store the parsed documents. Retains data based on a priority */
     private static final Map<ResourceLocation, Tuple<Integer,PaneParams>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, PaneParams>>()
@@ -270,14 +270,11 @@ public final class Loader
     {
         if (parsedCache.size() >= CACHE_CAP)
         {
-            parsedCache.replace(
+            parsedCache.remove(
               parsedCache.entrySet().stream()
-                .min((a,b) -> Math.min(a.getValue().getA(), b.getValue().getA())).get().getKey(),
-              new Tuple<>(1,doc));
+                .min((a,b) -> Math.min(a.getValue().getA(), b.getValue().getA())).get().getKey());
         }
-        else
-        {
-            parsedCache.put(loc, new Tuple<>(1, doc));
-        }
+
+        parsedCache.put(loc, new Tuple<>(1, doc));
     }
 }
