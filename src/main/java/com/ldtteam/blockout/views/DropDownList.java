@@ -163,7 +163,7 @@ public class DropDownList extends View implements ButtonHandler
         final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
         {
-            final int index = Integer.parseInt(idLabel.getText().getString());
+            final int index = Integer.parseInt(idLabel.getTextAsString());
             setSelectedIndex(index);
             close();
         }
