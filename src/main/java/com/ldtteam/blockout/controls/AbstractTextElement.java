@@ -176,8 +176,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected void recalcTextRendering()
     {
-        if (textScale <= 0.0d || text == null || text.stream().allMatch(t -> t.getString().isEmpty()) || textWidth < 1
-              || textHeight < 1)
+        if (textScale <= 0.0d || text == null || text.stream().allMatch(t -> t.getString().isEmpty()) || textWidth < 1 || textHeight < 1)
         {
             preparedText = Collections.emptyList();
             return;
@@ -236,12 +235,10 @@ public abstract class AbstractTextElement extends Pane
         if (textAlignment.isBottomAligned())
         {
             offsetY += textHeight - renderedTextHeight;
-            offsetY += Math.ceil(textScale);
         }
         else if (textAlignment.isVerticalCentered())
         {
             offsetY += (textHeight - renderedTextHeight) / 2;
-            offsetY += Math.ceil(textScale);
         }
 
         ms.push();

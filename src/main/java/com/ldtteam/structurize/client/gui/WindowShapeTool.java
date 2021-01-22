@@ -328,17 +328,18 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
     }
 
+    // TODO: confirm whether this button actually exists. This function may be useless.
     /**
      * Ignore the blocks already in the world
      */
     private void replaceBlocksToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
-        if (replaceButton.getText().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace")))
+        if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace")))
         {
             replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore"));
         }
-        else if (replaceButton.getText().getString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore")))
+        else if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore")))
         {
             replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace"));
         }

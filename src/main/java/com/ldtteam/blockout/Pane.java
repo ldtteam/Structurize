@@ -1,7 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.controls.AbstractTextBuilder;
 import com.ldtteam.blockout.controls.Tooltip;
+import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -877,7 +877,7 @@ public class Pane extends AbstractGui
         {
             if (tooltip == null)
             {
-                final AbstractTextBuilder.TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
                 toolTipLines.forEach(ttBuilder::appendNL);
                 tooltip = ttBuilder.build();
             }
@@ -908,7 +908,7 @@ public class Pane extends AbstractGui
      * @param repeatWidth   size of repeatable box in texture [texels], smaller than or equal uWidth - uRepeat
      * @param repeatHeight  size of repeatable box in texture [texels], smaller than or equal vHeight - vRepeat
      */
-    public static void blitRepeatable(final MatrixStack ms,
+    protected static void blitRepeatable(final MatrixStack ms,
         final int x, final int y,
         final int width, final int height,
         final int u, final int v,

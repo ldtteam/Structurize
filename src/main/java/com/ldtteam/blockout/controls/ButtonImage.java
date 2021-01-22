@@ -135,19 +135,23 @@ public class ButtonImage extends Button
      */
     private void loadTextInfo(final PaneParams params)
     {
-        textScale = params.getDouble("textscale", textScale);
-        textAlignment = params.getEnum("textalign", Alignment.class, textAlignment);
         textColor = params.getColor("textcolor", textColor);
         // match textColor by default
         textHoverColor = params.getColor("texthovercolor", textColor);
         // match textColor by default
         textDisabledColor = params.getColor("textdisabledcolor", textColor);
-        textShadow = params.getBoolean("shadow", textShadow);
 
         params.applyShorthand("textoffset", Parsers.INT, 2, a -> {
             textOffsetX = a.get(0);
             textOffsetY = a.get(1);
         });
+
+        params.applyShorthand("textbox", Parsers.INT, 2, a -> {
+            textWidth = a.get(0);
+            textHeight = a.get(1);
+        });
+
+        recalcTextRendering();
     }
 
     /**
@@ -340,108 +344,6 @@ public class ButtonImage extends Button
         disabledWidth = h;
 
         loadImageDisabledDimensions(loc);
-    }
-
-    /**
-     * @return The standard textContent color.
-     */
-    public int getTextColor()
-    {
-        return textColor;
-    }
-
-    /**
-     * Set the standard textContent color.
-     *
-     * @param c New textContent color.
-     */
-    public void setTextColor(final int c)
-    {
-        setTextColor(c, c, c);
-    }
-
-    /**
-     * Set all textContent colors.
-     *
-     * @param c Standard textContent color.
-     * @param d Disabled textContent color.
-     * @param h Hover textContent color.
-     */
-    public void setTextColor(final int c, final int d, final int h)
-    {
-        textColor = c;
-        textDisabledColor = d;
-        textHoverColor = h;
-    }
-
-    /**
-     * @return The textContent color when you hover the button.
-     */
-    public int getTextHoverColor()
-    {
-        return textHoverColor;
-    }
-
-    /**
-     * @return The textContent color when the button is disabled.
-     */
-    public int getTextDisabledColor()
-    {
-        return textDisabledColor;
-    }
-
-    /**
-     * @return true if the shadow is enabled.
-     */
-    public boolean hasShadow()
-    {
-        return textShadow;
-    }
-
-    /**
-     * Used to enabled or disable shadow.
-     *
-     * @param s true to enable shadow.
-     */
-    public void setShadow(final boolean s)
-    {
-        textShadow = s;
-    }
-
-    /**
-     * @return the Text {@link Alignment}.
-     */
-    public Alignment getTextAlignment()
-    {
-        return textAlignment;
-    }
-
-    /**
-     * Set the textContent textContent {@link Alignment}.
-     *
-     * @param align textContent alignment.
-     */
-    public void setTextAlignment(final Alignment align)
-    {
-        textAlignment = align;
-    }
-
-    /**
-     * @return The textContent scale.
-     */
-    public double getTextScale()
-    {
-        return textScale;
-    }
-
-    /**
-     * Set the textContent scale.
-     *
-     * @param s New textContent scale.
-     */
-    public void setTextScale(final double s)
-    {
-        textScale = s;
     }
 
     /**

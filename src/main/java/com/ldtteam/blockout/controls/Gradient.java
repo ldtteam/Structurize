@@ -16,6 +16,14 @@ public class Gradient extends AbstractTextElement
     private int gradientEnd = -804253680;
 
     /**
+     * Standard constructor which instantiates a new label.
+     */
+    public Gradient()
+    {
+        super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+    }
+
+    /**
      * Create a label from xml.
      *
      * @param params xml parameters.
@@ -54,8 +62,7 @@ public class Gradient extends AbstractTextElement
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        ms.push();
         fillGradient(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
-        ms.pop();
+        super.drawSelf(ms, mx, my);
     }
 }
