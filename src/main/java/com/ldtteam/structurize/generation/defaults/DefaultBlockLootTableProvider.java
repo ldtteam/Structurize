@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * This class generates the default loot_table for blocks.
- * (if a block is destroyed, it drops its item.)
+ * (If a block is destroyed, it drops its item.)
  */
 public class DefaultBlockLootTableProvider implements IDataProvider
 {
