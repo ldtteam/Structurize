@@ -1155,5 +1155,8 @@
   "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!",
   "block.structurize.blockbrownbricks": "Brown Bricks",
   "block.structurize.blockbeigebricks": "Beige Bricks",
-  "block.structurize.blockcreambricks": "Cream Bricks"
+  "block.structurize.blockcreambricks": "Cream Bricks",
+  "block.structurize.blockbrownbrickslab": "Brown Brick Slab",
+  "block.structurize.blockbeigebrickslab": "Beige Brick Slab",
+  "block.structurize.blockcreambrickslab": "Cream Brick Slab"
 }

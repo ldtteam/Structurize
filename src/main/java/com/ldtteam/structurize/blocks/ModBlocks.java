@@ -55,6 +55,10 @@ public final class ModBlocks
     public static BlockBricks blockBeigeBricks;
     public static BlockBricks blockCreamBricks;
 
+    public static BlockMinecoloniesSlab<?> blockBrownBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockBeigeBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockCreamBrickSlab;
+
     /**
      * Utility blocks.
      */
@@ -139,6 +143,10 @@ public final class ModBlocks
         blockBeigeBricks = new BlockBricks("blockbeigebricks").registerBlock(registry);
         blockCreamBricks = new BlockBricks("blockcreambricks").registerBlock(registry);
 
+        blockBrownBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBrownBricks), "blockbrownbrickslab").registerBlock(registry);
+        blockBeigeBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBeigeBricks), "blockbeigebrickslab").registerBlock(registry);
+        blockCreamBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockCreamBricks), "blockcreambrickslab").registerBlock(registry);
+
         for (final PaperwallType type : PaperwallType.values())
         {
             final BlockPaperwall blockPaperWall = new BlockPaperwall(type.getName()).registerBlock(registry);
@@ -216,6 +224,10 @@ public final class ModBlocks
         blockBrownBricks.registerItemBlock(registry, properties);
         blockBeigeBricks.registerItemBlock(registry, properties);
         blockCreamBricks.registerItemBlock(registry, properties);
+
+        blockBrownBrickSlab.registerItemBlock(registry, properties);
+        blockBeigeBrickSlab.registerItemBlock(registry, properties);
+        blockCreamBrickSlab.registerItemBlock(registry, properties);
 
         for (final BlockTimberFrame frame : timberFrames)
         {
