@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.bricks.BlockBricks;
+import com.ldtteam.structurize.blocks.bricks.*;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
@@ -51,16 +51,16 @@ public final class ModBlocks
     public static BlockSolidSubstitution blockSolidSubstitution;
     public static BlockFluidSubstitution blockFluidSubstitution;
 
+    public static BlockBricks blockBrownBricks;
+    public static BlockBricks blockBeigeBricks;
+    public static BlockBricks blockCreamBricks;
+
     /**
      * Utility blocks.
      */
 
     public static BlockBarrel blockDecoBarrel_onside;
     public static BlockBarrel blockDecoBarrel_standing;
-
-    public static BlockBricks blockBrownBricks;
-    public static BlockBricks blockBeigeBricks;
-    public static BlockBricks blockCreamBricks;
 
     public static BlockCactusPlank         blockCactusPlank;
     public static BlockCactusDoor          blockCactusDoor;
@@ -135,9 +135,9 @@ public final class ModBlocks
         blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
         blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
 
-        blockBrownBricks = new BlockBricks().registerBlock(registry);
-        blockBeigeBricks = new BlockBricks().registerBlock(registry);
-        blockCreamBricks = new BlockBricks().registerBlock(registry);
+        blockBrownBricks = new BlockBricks("blockbrownbricks").registerBlock(registry);
+        blockBeigeBricks = new BlockBricks("blockbeigebricks").registerBlock(registry);
+        blockCreamBricks = new BlockBricks("blockcreambricks").registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {

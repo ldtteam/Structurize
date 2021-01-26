@@ -6,11 +6,9 @@ import net.minecraft.block.Blocks;
 
 public class BlockBricks extends AbstractBlockStructurize<BlockBricks>
 {
-    private static final String BLOCK_NAME = "blockbricks";
-
-    public BlockBricks()
+    public BlockBricks(final String modelName)
     {
         super(Block.Properties.from(Blocks.BRICKS));
-        setRegistryName(BLOCK_NAME);
+        this.setRegistryName(modelName);
     }
 }
