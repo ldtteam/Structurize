@@ -159,9 +159,9 @@ public final class ModBlocks
         blockBeigeBrickWall = new BlockBrickWall("blockbeigebrickwall").registerBlock(registry);
         blockCreamBrickWall = new BlockBrickWall("blockcreambrickwall").registerBlock(registry);
 
-        blockBrownBrickStairs = new BlockBrickStairs("blockbrownbrickstairs").registerBlock(registry);
-        blockBeigeBrickStairs = new BlockBrickStairs("blockbeigebrickstairs").registerBlock(registry);
-        blockCreamBrickStairs = new BlockBrickStairs("blockcreambrickstairs").registerBlock(registry);
+        blockBrownBrickStairs = new BlockBrickStairs().registerBlock(registry);
+        blockBeigeBrickStairs = new BlockBrickStairs().registerBlock(registry);
+        blockCreamBrickStairs = new BlockBrickStairs().registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {

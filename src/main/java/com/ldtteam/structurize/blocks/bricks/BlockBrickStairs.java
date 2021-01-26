@@ -1,14 +1,16 @@
 package com.ldtteam.structurize.blocks.bricks;
 
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import com.ldtteam.structurize.blocks.ModBlocks;
 
 public class BlockBrickStairs extends AbstractBlockStructurizeStairs<BlockBrickStairs>
 {
-    public BlockBrickStairs(final String modelName)
+
+    private static final String BLOCK_NAME = "blockbrickstairs";
+
+    public BlockBrickStairs()
     {
-        super(Block.Properties.from(Blocks.BRICK_STAIRS));
-        this.setRegistryName(modelName);
+        super(() -> ModBlocks.blockBeigeBricks.getDefaultState(), Properties.from(ModBlocks.blockBeigeBricks));
+        setRegistryName(BLOCK_NAME);
     }
 }
