@@ -57,6 +57,10 @@ public final class ModBlocks
     public static BlockBarrel blockDecoBarrel_onside;
     public static BlockBarrel blockDecoBarrel_standing;
 
+    public static BlockBrownBricks blockBrownBricks;
+    public static BlockBeigeBricks blockBeigeBricks;
+    public static BlockCreamBricks blockCreamBricks;
+
     public static BlockCactusPlank         blockCactusPlank;
     public static BlockCactusDoor          blockCactusDoor;
     public static BlockCactusTrapdoor      blockCactusTrapdoor;
@@ -106,7 +110,7 @@ public final class ModBlocks
 
     /**
      * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}
-     * Also this method registeres blocks with forge. kinda obvious.
+     * Also, this method registers blocks with Forge.
      *
      * @param event block registering event
      */
@@ -129,6 +133,10 @@ public final class ModBlocks
 
         blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
         blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
+
+        blockBrownBricks = new BlockBrownBricks().registerBlock(registry);
+        blockBeigeBricks = new BlockBeigeBricks().registerBlock(registry);
+        blockCreamBricks = new BlockCreamBricks().registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {
@@ -202,6 +210,9 @@ public final class ModBlocks
         blockCactusFenceGate.registerItemBlock(registry, properties);
         blockDecoBarrel_onside.registerItemBlock(registry, properties);
         blockDecoBarrel_standing.registerItemBlock(registry, properties);
+        blockBrownBricks.registerItemBlock(registry, properties);
+        blockBeigeBricks.registerItemBlock(registry, properties);
+        blockCreamBricks.registerItemBlock(registry, properties);
 
         for (final BlockTimberFrame frame : timberFrames)
         {

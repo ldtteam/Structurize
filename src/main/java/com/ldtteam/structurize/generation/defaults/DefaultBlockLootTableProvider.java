@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * This class generates the default loot_table for blocks.
- * (if a block is destroyed, it drops it's item).
+ * (if a block is destroyed, it drops its item.)
  */
 public class DefaultBlockLootTableProvider implements IDataProvider
 {
@@ -51,8 +51,13 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.blockCactusSlab, cache);
         saveBlock(ModBlocks.blockCactusFence, cache);
         saveBlock(ModBlocks.blockCactusFenceGate, cache);
+
         saveBlock(ModBlocks.blockDecoBarrel_onside, cache);
         saveBlock(ModBlocks.blockDecoBarrel_standing, cache);
+
+        saveBlock(ModBlocks.blockBrownBricks, cache);
+        saveBlock(ModBlocks.blockBeigeBricks, cache);
+        saveBlock(ModBlocks.blockCreamBricks, cache);
 
         saveBlock(ModBlocks.multiBlock, cache);
     }
