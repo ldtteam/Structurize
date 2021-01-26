@@ -6,11 +6,9 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 public class BlockBrickStairs extends AbstractBlockStructurizeStairs<BlockBrickStairs>
 {
 
-    private static final String BLOCK_NAME = "blockbrickstairs";
-
-    public BlockBrickStairs()
+    public BlockBrickStairs(final String modelName)
     {
         super(() -> ModBlocks.blockBeigeBricks.getDefaultState(), Properties.from(ModBlocks.blockBeigeBricks));
-        setRegistryName(BLOCK_NAME);
+        this.setRegistryName(modelName);
     }
 }
