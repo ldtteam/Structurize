@@ -1161,5 +1161,8 @@
   "block.structurize.blockcreambrickslab": "Cream Brick Slab",
   "block.structurize.blockbrownbrickwall": "Brown Brick Wall",
   "block.structurize.blockbeigebrickwall": "Beige Brick Wall",
-  "block.structurize.blockcreambrickwall": "Cream Brick Wall"
+  "block.structurize.blockcreambrickwall": "Cream Brick Wall",
+  "block.structurize.blockbrownbrickstairs": "Brown Brick Stairs",
+  "block.structurize.blockbeigebrickstairs": "Beige Brick Stairs",
+  "block.structurize.blockcreambrickstairs": "Cream Brick Stairs"
 }
