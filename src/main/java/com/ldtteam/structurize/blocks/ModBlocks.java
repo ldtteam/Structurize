@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.bricks.BlockBricks;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
@@ -57,9 +58,9 @@ public final class ModBlocks
     public static BlockBarrel blockDecoBarrel_onside;
     public static BlockBarrel blockDecoBarrel_standing;
 
-    public static BlockBrownBricks blockBrownBricks;
-    public static BlockBeigeBricks blockBeigeBricks;
-    public static BlockCreamBricks blockCreamBricks;
+    public static BlockBricks blockBrownBricks;
+    public static BlockBricks blockBeigeBricks;
+    public static BlockBricks blockCreamBricks;
 
     public static BlockCactusPlank         blockCactusPlank;
     public static BlockCactusDoor          blockCactusDoor;
@@ -134,9 +135,9 @@ public final class ModBlocks
         blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
         blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
 
-        blockBrownBricks = new BlockBrownBricks().registerBlock(registry);
-        blockBeigeBricks = new BlockBeigeBricks().registerBlock(registry);
-        blockCreamBricks = new BlockCreamBricks().registerBlock(registry);
+        blockBrownBricks = new BlockBricks().registerBlock(registry);
+        blockBeigeBricks = new BlockBricks().registerBlock(registry);
+        blockCreamBricks = new BlockBricks().registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {
@@ -208,8 +209,10 @@ public final class ModBlocks
         blockCactusSlab.registerItemBlock(registry, properties);
         blockCactusFence.registerItemBlock(registry, properties);
         blockCactusFenceGate.registerItemBlock(registry, properties);
+
         blockDecoBarrel_onside.registerItemBlock(registry, properties);
         blockDecoBarrel_standing.registerItemBlock(registry, properties);
+
         blockBrownBricks.registerItemBlock(registry, properties);
         blockBeigeBricks.registerItemBlock(registry, properties);
         blockCreamBricks.registerItemBlock(registry, properties);
