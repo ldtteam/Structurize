@@ -1158,5 +1158,8 @@
   "block.structurize.blockcreambricks": "Cream Bricks",
   "block.structurize.blockbrownbrickslab": "Brown Brick Slab",
   "block.structurize.blockbeigebrickslab": "Beige Brick Slab",
-  "block.structurize.blockcreambrickslab": "Cream Brick Slab"
+  "block.structurize.blockcreambrickslab": "Cream Brick Slab",
+  "block.structurize.blockbrownbrickwall": "Brown Brick Wall",
+  "block.structurize.blockbeigebrickwall": "Beige Brick Wall",
+  "block.structurize.blockcreambrickwall": "Cream Brick Wall"
 }

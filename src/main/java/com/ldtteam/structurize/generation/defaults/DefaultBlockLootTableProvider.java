@@ -63,6 +63,10 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.blockBeigeBrickSlab, cache);
         saveBlock(ModBlocks.blockCreamBrickSlab, cache);
 
+        saveBlock(ModBlocks.blockBrownBrickWall, cache);
+        saveBlock(ModBlocks.blockBeigeBrickWall, cache);
+        saveBlock(ModBlocks.blockCreamBrickWall, cache);
+
         saveBlock(ModBlocks.multiBlock, cache);
     }
 
