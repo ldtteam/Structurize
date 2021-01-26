@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.blocks.bricks;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
+import com.ldtteam.structurize.blocks.AbstractBlockStructurizeWall;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 
-public class BlockBrickWall extends AbstractBlockStructurize<BlockBrickWall>
+public class BlockBrickWall extends AbstractBlockStructurizeWall<BlockBrickWall>
 {
     public BlockBrickWall(final String modelName)
     {
