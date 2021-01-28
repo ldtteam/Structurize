@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameCentreType  implements IStringSerializable
 {
+    // Wood
     OAK("oak", "Oak"),
     ACACIA("acacia", "Acacia"),
     BIRCH("birch", "Birch"),
@@ -12,11 +13,14 @@ public enum TimberFrameCentreType  implements IStringSerializable
     SPRUCE("spruce", "Spruce"),
     DARK_OAK("dark_oak", "Dark Oak"),
     CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank"),
-    //OTHER
+    // Other
     COBBLE_STONE("cobble_stone", "Cobblestone", "block/cobblestone", "cobblestone"),
     STONE("stone", "Stone", "block/stone", "stone"),
     PAPER("paper", "Paper", "structurize:blocks/timber_frame_paper", "paper"),
-    BRICK("brick", "Brick", "block/bricks", "brick");
+    BRICK("brick", "Brick", "block/bricks", "brick"),
+    CREAM_BRICK("cream_brick", "Cream Brick", "structurize:blocks/bricks/bricks_cream", "structurize:blockcreambricks"),
+    BEIGE_BRICK("beige_brick", "Beige Brick", "structurize:blocks/bricks/bricks_beige", "structurize:blockbeigebricks"),
+    BROWN_BRICK("brown_brick", "Brown Brick", "structurize:blocks/bricks/bricks_brown", "structurize:blockbrownbricks");
 
     final String name;
     final String langName;
