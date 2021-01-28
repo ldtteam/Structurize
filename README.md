@@ -1,3 +1,9 @@
+[![CLA assistant](https://cla-assistant.io/readme/badge/ldtteam/structurize)](https://cla-assistant.io/ldtteam/structurize)
+[![Build Status](https://buildsystem.ldtteam.com/app/rest/builds/buildType:LetSDevTogether_Structurize_Alpha_Release/statusIcon)](http://buildsystem.ldtteam.com/)
+[![Crowdin](https://badges.crowdin.net/structurize/localized.svg)](https://crowdin.com/project/structurize)
+
+![structurize logo](structurize.png)
+
 # Structurize
 
 Structurize is a Minecraft mod to aid in designing and placing structures. See its Curseforge page [here](https://www.curseforge.com/minecraft/mc-mods/structurize).
