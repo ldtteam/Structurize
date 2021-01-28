@@ -1,0 +1,4 @@
+files:
+  - source: /src/main/resources/assets/structurize/lang/*.json
+    translation: >-
+      /src/main/resources/assets/structurize/lang/%two_letters_code%_%original_file_name%

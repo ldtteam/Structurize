@@ -1,6 +1,8 @@
 package com.ldtteam.structurize;
 
+import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structures.blueprints.v1.DataVersion;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
@@ -9,10 +11,12 @@ import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
+import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**
  * Mod main class.
@@ -42,9 +46,23 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
 
-        if (DataVersion.CURRENT == DataVersion.UPCOMING)
+        if (DataFixerUtils.isVanillaDF)
         {
-            throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
+            if ((DataFixesManager.getDataFixer().getSchema(Integer.MAX_VALUE - 1).getVersionKey()) >= DataVersion.UPCOMING.getDataVersion() * 10)
+            {
+                throw new RuntimeException("You are trying to run old mod on much newer vanilla. Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
+            }
+            else if (!FMLEnvironment.production && DataVersion.CURRENT == DataVersion.UPCOMING)
+            {
+                throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
+            }
+        }
+        else
+        {
+            Log.getLogger().error("----------------------------------------------------------------- \n "
+                                    + "Invalid DataFixer detected, schematics might not paste correctly! \n"
+                                    +  "The following DataFixer was added: " + DataFixesManager.getDataFixer().getClass() + "\n"
+                                    + "-----------------------------------------------------------------");
         }
     }
 

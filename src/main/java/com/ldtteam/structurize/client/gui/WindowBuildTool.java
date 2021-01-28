@@ -4,6 +4,7 @@ import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
@@ -75,6 +76,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Id of the paste nice button.
      */
     private static final String BUTTON_PASTE_NICE = "pastenice";
+
+    /**
+     * Id of the datafixer warning label.
+     */
+    private static final String LABEL_WARNING = "warning";
 
     /**
      * List of section.
@@ -262,6 +268,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (Manager.isSchematicDownloaded())
         {
             Manager.setSchematicDownloaded(false);
+        }
+
+        if (!DataFixerUtils.isVanillaDF)
+        {
+            findPaneByID(LABEL_WARNING).show();
         }
 
         init = false;

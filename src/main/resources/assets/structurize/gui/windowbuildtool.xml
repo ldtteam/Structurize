@@ -31,6 +31,8 @@
     <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
     <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
 
+    <label id="warning" size="70 12" pos="25 45" color="white" label="$(structurize.gui.buildtool.unexpecteddatafixer)" visible="false"/>
+
     <label size="300 9" pos="60 65" color="white" label="$(com.structurize.gui.buildtool.tip)" textalign="MIDDLE"/>
     <view size="96 128" pos="162 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>

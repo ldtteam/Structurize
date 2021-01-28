@@ -11,6 +11,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.DoubleBlockHalf;
@@ -214,7 +215,7 @@ public class StructurePlacer
                                 }
                             }
 
-                            if (foundEntity)
+                            if (foundEntity || (entity instanceof LivingEntity && !handler.isCreative()))
                             {
                                 continue;
                             }
