@@ -6,6 +6,7 @@ import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
 import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
+import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
@@ -40,6 +41,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlocks(ModBlocks.getShingles(), cache);
         saveBlocks(ModBlocks.getShingleSlabs(), cache);
         saveBlocks(ModBlocks.getFloatingCarpets(), cache);
+        saveBlocks(ModBlocks.getBricks(), cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);

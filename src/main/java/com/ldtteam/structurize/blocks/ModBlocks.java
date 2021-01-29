@@ -3,15 +3,18 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
+import com.ldtteam.structurize.blocks.interfaces.IBlockStructurize;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.*;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -22,6 +25,7 @@ import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class to create the modBlocks.
@@ -40,11 +44,12 @@ public final class ModBlocks
      * References can be made to here.
      */
 
-    private static final List<BlockTimberFrame> timberFrames = new ArrayList<>();
-    private static final List<BlockPaperwall>   paperwalls   = new ArrayList<>();
-    private static final List<BlockShingle> shingles = new ArrayList<>();
-    private static final List<BlockShingleSlab> shingleSlabs = new ArrayList<>();
+    private static final List<BlockTimberFrame> timberFrames       = new ArrayList<>();
+    private static final List<BlockPaperwall> paperwalls           = new ArrayList<>();
+    private static final List<BlockShingle> shingles               = new ArrayList<>();
+    private static final List<BlockShingleSlab> shingleSlabs       = new ArrayList<>();
     private static final List<BlockFloatingCarpet> floatingCarpets = new ArrayList<>();
+    private static       List<IBlockStructurize<?>> bricks                        = new ArrayList<>();
 
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
@@ -94,6 +99,11 @@ public final class ModBlocks
         return new ArrayList<>(floatingCarpets);
     }
 
+    public static List<Block> getBricks()
+    {
+        return bricks.stream().filter(b -> b instanceof Block).map(b -> (Block) b).collect(Collectors.toList());
+    }
+
     /**
      * Private constructor to hide the implicit public one.
      */
@@ -106,7 +116,7 @@ public final class ModBlocks
 
     /**
      * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}
-     * Also this method registeres blocks with forge. kinda obvious.
+     * Also this method registers blocks with forge. kinda obvious.
      *
      * @param event block registering event
      */
@@ -142,7 +152,7 @@ public final class ModBlocks
 
             for (final ShingleWoodType shingleWood : ShingleWoodType.values())
             {
-                shingles.add(new BlockShingle(() -> Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace).registerBlock(registry));
+                shingles.add(new BlockShingle(Blocks.OAK_PLANKS::getDefaultState, shingleWood, shingleFace).registerBlock(registry));
             }
         }
 
@@ -162,6 +172,14 @@ public final class ModBlocks
             floatingCarpets.add(new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)).registerBlock(registry));
         }
 
+        bricks = BlockSet.register(
+          BrickType.values(),
+          true,
+          AbstractBlock.Properties.create(Material.ROCK, MaterialColor.BROWN)
+            .setRequiresTool()
+            .hardnessAndResistance(2.0F, 6.0F),
+          registry);
+
         multiBlock = new MultiBlock().registerBlock(registry);
 
         placeholderBlock = new PlaceholderBlock().registerBlock(registry);
@@ -179,20 +197,10 @@ public final class ModBlocks
         blockSolidSubstitution.registerItemBlock(registry, properties);
         blockSubstitution.registerItemBlock(registry, properties);
 
-        for (final BlockPaperwall paperwall : paperwalls)
-        {
-            paperwall.registerItemBlock(registry, properties);
-        }
-
-        for (final BlockShingle shingle : shingles)
-        {
-            shingle.registerItemBlock(registry, shingleProperties);
-        }
-
-        for (BlockShingleSlab shingleSlab : shingleSlabs)
-        {
-            shingleSlab.registerItemBlock(registry, shingleProperties);
-        }
+        BlockSet.registerItems(paperwalls, registry, properties);
+        BlockSet.registerItems(shingles, registry, shingleProperties);
+        BlockSet.registerItems(shingleSlabs, registry, shingleProperties);
+        BlockSet.registerItems(bricks, registry, properties);
 
         blockCactusPlank.registerItemBlock(registry, properties);
         blockCactusTrapdoor.registerItemBlock(registry, properties);
@@ -203,15 +211,8 @@ public final class ModBlocks
         blockDecoBarrel_onside.registerItemBlock(registry, properties);
         blockDecoBarrel_standing.registerItemBlock(registry, properties);
 
-        for (final BlockTimberFrame frame : timberFrames)
-        {
-            frame.registerItemBlock(registry, timberframeProperties);
-        }
-
-        for (final BlockFloatingCarpet carpet : floatingCarpets)
-        {
-            carpet.registerItemBlock(registry, properties);
-        }
+        BlockSet.registerItems(timberFrames, registry, timberframeProperties);
+        BlockSet.registerItems(floatingCarpets, registry, properties);
 
         multiBlock.registerItemBlock(registry, properties);
 
