@@ -36,7 +36,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
-    /*
+    /**
      * Creating objects for all blocks in the mod.
      * References can be made to here.
      */
@@ -50,6 +50,10 @@ public final class ModBlocks
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
     public static BlockFluidSubstitution blockFluidSubstitution;
+
+    /**
+     * Brown, beige, and cream bricks (and variants)
+     */
 
     public static BlockBricks blockBrownBricks;
     public static BlockBricks blockBeigeBricks;
@@ -116,13 +120,13 @@ public final class ModBlocks
      */
     private ModBlocks()
     {
-        /*
+        /**
          * Intentionally left empty.
          */
     }
 
     /**
-     * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}
+     * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}.
      * Also, this method registers blocks with Forge.
      *
      * @param event block registering event
