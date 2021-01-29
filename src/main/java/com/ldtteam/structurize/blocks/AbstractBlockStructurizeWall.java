@@ -13,14 +13,12 @@ import net.minecraftforge.registries.IForgeRegistry;
  * Currently only used by brown brick, beige brick, and cream brick walls.
  */
 
-/**
- * Extend the vanilla WallBlock
- *
- * @param <B>
- */
-
 public abstract class AbstractBlockStructurizeWall<B extends AbstractBlockStructurizeWall<B>> extends WallBlock implements IBlockStructurize<B>
 {
+    /**
+     * Create a new instance of a wall block.
+     * @param properties the properties of the wall block.
+     */
     public AbstractBlockStructurizeWall(final Block.Properties properties)
     {
         super(properties);
