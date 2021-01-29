@@ -10,20 +10,19 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * The abstract class for structurize-added walls.
- * Currently only used by brown brick, beige brick,
- * and cream brick walls.
+ * Currently only used by brown brick, beige brick, and cream brick walls.
+ */
+
+/**
+ * Extend the vanilla WallBlock
+ *
+ * @param <B>
  */
 
 public abstract class AbstractBlockStructurizeWall<B extends AbstractBlockStructurizeWall<B>> extends WallBlock implements IBlockStructurize<B>
-        /**
-         * Extend the vanilla WallBlock
-         */
 {
     public AbstractBlockStructurizeWall(final Block.Properties properties)
     {
-        /**
-         * Lets you set the block properties
-         */
         super(properties);
     }
 
