@@ -236,10 +236,6 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
-        if (Settings.instance.getStructureName() != null)
-        {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(Settings.instance.getStructureName());
-        }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
@@ -320,6 +316,11 @@ public class WindowScan extends AbstractWindowSkeleton
         final World world = Minecraft.getInstance().world;
         resources.clear();
         entities.clear();
+
+        if (findPaneByID(BUTTON_SHOW_RES).isVisible())
+        {
+            return;
+        }
 
         for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
         {
