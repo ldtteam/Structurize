@@ -13,7 +13,7 @@ public final class PaneBuilders
     /**
      * Tooltip element builder.
      * Don't forget to set hoverPane.
-     * 
+     *
      * @see TooltipBuilder#hoverPane(Pane)
      */
     public static TooltipBuilder tooltipBuilder()

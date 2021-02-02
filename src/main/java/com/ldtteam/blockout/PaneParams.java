@@ -1,33 +1,28 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
-import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
-
-import static com.ldtteam.blockout.Log.getLogger;
 
 /**
  * Special parameters for the panes.
  */
 public class PaneParams
 {
-    private static final Pattern      PERCENTAGE_PATTERN = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern      RGBA_PATTERN       = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
-    private static final char         HASH_CHAR          = '#';
-    private final        Node         node;
-    private              View         parentView;
+    private final Map<String, Object> propertyCache = new HashMap<>();
+    private final List<PaneParams>    children;
+    private final Node                node;
+    private       View                parentView;
 
     /**
      * Instantiates the pane parameters.
@@ -37,6 +32,7 @@ public class PaneParams
     public PaneParams(final Node n)
     {
         node = n;
+        children = new ArrayList<>(node.getChildNodes().getLength());
     }
 
     public String getType()
@@ -64,142 +60,27 @@ public class PaneParams
         return parentView != null ? parentView.getInteriorHeight() : 0;
     }
 
-    @Nullable
     public List<PaneParams> getChildren()
     {
-        List<PaneParams> list = null;
+        if (!children.isEmpty()) return children;
 
         Node child = node.getFirstChild();
         while (child != null)
         {
             if (child.getNodeType() == Node.ELEMENT_NODE)
             {
-                if (list == null)
-                {
-                    list = new ArrayList<>();
-                }
-
-                list.add(new PaneParams(child));
+                children.add(new PaneParams(child));
             }
             child = child.getNextSibling();
         }
 
-        return list;
+        return children;
     }
 
     @NotNull
     public String getText()
     {
         return node.getTextContent().trim();
-    }
-
-    @Nullable
-    public String getLocalizedText()
-    {
-        return localize(node.getTextContent().trim());
-    }
-
-    @Nullable
-    private static String localize(final String str)
-    {
-        if (str == null)
-        {
-            return null;
-        }
-
-        String s = str;
-        int index = s.indexOf("$(");
-        while (index != -1)
-        {
-            final int endIndex = s.indexOf(')', index);
-
-            if (endIndex == -1)
-            {
-                break;
-            }
-
-            final String key = s.substring(index + 2, endIndex);
-            String replacement = LanguageHandler.translateKey(key);
-
-            if (replacement.equals(key))
-            {
-                replacement = "MISSING:" + key;
-            }
-
-            s = s.substring(0, index) + replacement + s.substring(endIndex + 1);
-
-            index = s.indexOf("$(", index + replacement.length());
-        }
-
-        return s;
-    }
-
-    /**
-     * Get the string attribute.
-     *
-     * @param name the name to search.
-     * @return the attribute.
-     */
-    public String getStringAttribute(final String name)
-    {
-        return getStringAttribute(name, "");
-    }
-
-    /**
-     * Get the String attribute from the name and definition.
-     *
-     * @param name the name.
-     * @param def  the definition.
-     * @return the String.
-     */
-    public String getStringAttribute(final String name, final String def)
-    {
-        final Node attr = getAttribute(name);
-        return (attr != null) ? attr.getNodeValue() : def;
-    }
-
-    /**
-     * Get the String attribute from the name.
-     *
-     * @param name the name.
-     * @return the String.
-     */
-    public List<String> getMultiLineAttributeAsString(final String name)
-    {
-        final String string = getStringAttribute(name, "");
-        if (string.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        final String[] split = string.split(";");
-        final List<String> list = new ArrayList<>();
-        for (final String st : split)
-        {
-            list.add(localize(st));
-        }
-        return list;
-    }
-
-    /**
-     * Get the String attribute from the name.
-     *
-     * @param name the name.
-     * @return the String.
-     */
-    public List<IFormattableTextComponent> getMultiLineAttributeAsTextComp(final String name)
-    {
-        final String string = getStringAttribute(name, "");
-        if (string.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        final String[] split = string.split(";");
-        final List<IFormattableTextComponent> list = new ArrayList<>();
-        for (final String st : split)
-        {
-            list.add(new StringTextComponent(localize(st)));
-        }
-        return list;
     }
 
     private Node getAttribute(final String name)
@@ -213,346 +94,247 @@ public class PaneParams
     }
 
     /**
-     * Get the localized string attribute from the name.
+     * Finds an attribute by name from the XML node
+     * and parses it using the provided parser method
+     * @param name the attribute name to search for
+     * @param parser the parser to convert the attribute to its property
+     * @param def the default value if none can be found
+     * @param <T> the type of value to work with
+     * @return the parsed value
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getProperty(String name, Function<String, T> parser, T def)
+    {
+        T result = null;
+
+        if (propertyCache.containsKey(name))
+        {
+            try
+            {
+                result = (T) propertyCache.get(name);
+                return result != null ? result : def;
+            }
+            catch (ClassCastException cce)
+            {
+                Log.getLogger().warn("Invalid property: previous value of key does not match type.");
+            }
+        }
+
+        final Node attr = getAttribute(name);
+        if (attr != null) result = parser.apply(attr.getNodeValue());
+
+        propertyCache.put(name, result);
+        return result != null ? result : def;
+    }
+
+    /**
+     * Get the string attribute.
      *
-     * @param name the name.
-     * @return the string attribute.
+     * @param name the name to search.
+     * @return the attribute.
      */
     @Nullable
-    public String getLocalizedStringAttribute(final String name)
+    public String getString(final String name)
     {
-        return getLocalizedStringAttribute(name, "");
+        return getString(name, null);
     }
 
     /**
-     * Get the localized String attribute from the name and definition.
+     * Get the String attribute from the name and revert to the default if not present.
      *
-     * @param name the name.
-     * @param def  the definition.
-     * @return the string.
+     * @param name      the name.
+     * @param def the default value if none can be found
+     * @return the String.
+     */
+    public String getString(final String name, final String def)
+    {
+        return getProperty(name, String::toString, def);
+    }
+
+    /**
+     * Get the resource location from the name
+     * @param name the attribute name
+     * @param def the default value to fallback to
+     * @return the parsed resource location
+     */
+    public ResourceLocation getResource(final String name, final String def)
+    {
+        return getProperty(name, Parsers.RESOURCE, new ResourceLocation(def));
+    }
+
+    /**
+     * Get the resource location from the name and load it
+     * @param name the attribute name
+     * @param loader a method to act upon the resource if it is not blank or null
+     * @return the parsed resource location (or null if it couldn't be parsed)
      */
     @Nullable
-    public String getLocalizedStringAttribute(final String name, final String def)
+    public ResourceLocation getResource(final String name, final Consumer<ResourceLocation> loader)
     {
-        return localize(getStringAttribute(name, def));
+        ResourceLocation rl = getResource(name, "");
+        if (!rl.getPath().isEmpty())
+        {
+            loader.accept(rl);
+            return rl;
+        }
+        return null;
     }
 
     /**
-     * Get the integer attribute from the name.
+     * Get the text content with potential newlines from the name.
      *
-     * @param name the name.
-     * @return the integer.
+     * @param name the name
+     * @return the parsed and localized list
      */
-    public int getIntAttribute(final String name)
+    public List<IFormattableTextComponent> getMultilineText(final String name)
     {
-        return getIntAttribute(name, 0);
+        return getMultilineText(name, Collections.emptyList());
     }
 
     /**
-     * Get the integer attribute from name and definition.
+     * Get the text content with potential newlines from the name and revert to the default if not present.
      *
-     * @param name the name.
-     * @param def  the definition.
+     * @param name the name
+     * @param def the default value if none can be found
+     * @return the parsed and localized list
+     */
+    public List<IFormattableTextComponent> getMultilineText(final String name, List<IFormattableTextComponent> def)
+    {
+        return getProperty(name, Parsers.MULTILINE, def);
+    }
+    
+    /**
+     * Get the localized String attribute from the name and revert to the default if not present.
+     *
+     * @param name      the name.
+     * @param def the default value if none can be found
+     * @return the localized text component.
+     */
+    public IFormattableTextComponent getTextComponent(final String name, final IFormattableTextComponent def)
+    {
+        return getProperty(name, Parsers.TEXT, def);
+    }
+
+    /**
+     * Get the integer attribute from name and revert to the default if not present.
+     *
+     * @param name     the name.
+     * @param def the default value if none can be found
      * @return the int.
      */
-    public int getIntAttribute(final String name, final int def)
+    public int getInteger(final String name, final int def)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Integer.parseInt(attr);
-        }
-        return def;
+        return getProperty(name, Parsers.INT, def);
     }
 
     /**
-     * Get the float attribute from name.
+     * Get the float attribute from name and revert to the default if not present.
      *
-     * @param name the name.
+     * @param name     the name.
+     * @param def the default value if none can be found
      * @return the float.
      */
-    public float getFloatAttribute(final String name)
+    public float getFloat(final String name, final float def)
     {
-        return getFloatAttribute(name, 0);
+        return getProperty(name, Parsers.FLOAT, def);
     }
 
     /**
-     * Get the float attribute from name and definition.
+     * Get the double attribute from name and revert to the default if not present.
      *
-     * @param name the name.
-     * @param def  the definition.
-     * @return the float.
-     */
-    public float getFloatAttribute(final String name, final float def)
-    {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Float.parseFloat(attr);
-        }
-        return def;
-    }
-
-    /**
-     * Get the double attribute from name.
-     *
-     * @param name the name.
+     * @param name     the name.
+     * @param def the default value if none can be found
      * @return the double.
      */
-    public double getDoubleAttribute(final String name)
+    public double getDouble(final String name, final double def)
     {
-        return getDoubleAttribute(name, 0);
+        return getProperty(name, Parsers.DOUBLE, def);
     }
 
     /**
-     * Get the double attribute from name and definition.
+     * Get the boolean attribute from name and revert to the default if not present.
      *
-     * @param name the name.
-     * @param def  the definition.
-     * @return the double.
-     */
-    public double getDoubleAttribute(final String name, final double def)
-    {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Double.parseDouble(attr);
-        }
-
-        return def;
-    }
-
-    /**
-     * Get the boolean attribute from name.
-     *
-     * @param name the name.
+     * @param name     the name.
+     * @param def the default value if none can be found
      * @return the boolean.
      */
-    public boolean getBooleanAttribute(final String name)
+    public boolean getBoolean(final String name, final boolean def)
     {
-        return getBooleanAttribute(name, false);
+        return getProperty(name, Parsers.BOOLEAN, def);
     }
 
     /**
-     * Get the boolean attribute from name and definition.
+     * Get the boolean attribute from name and class and revert to the default if not present.
      *
-     * @param name the name.
-     * @param def  the definition.
-     * @return the boolean.
-     */
-    public boolean getBooleanAttribute(final String name, final boolean def)
-    {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Boolean.parseBoolean(attr);
-        }
-        return def;
-    }
-
-    /**
-     * Get the boolean attribute from name and class and definition..
-     *
-     * @param name  the name.
-     * @param clazz the class.
-     * @param def   the definition.
-     * @param <T>   the type of class.
+     * @param name      the name.
+     * @param clazz     the class.
+     * @param def the default value if none can be found
+     * @param <T>       the type of class.
      * @return the enum attribute.
      */
-    public <T extends Enum<T>> T getEnumAttribute(final String name, final Class<T> clazz, final T def)
+    public <T extends Enum<T>> T getEnum(final String name, final Class<T> clazz, final T def)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            return Enum.valueOf(clazz, attr);
-        }
-        return def;
+        return getProperty(name, Parsers.ENUM(clazz), def);
     }
 
     /**
-     * Get the scalable integer attribute from name and definition.
+     * Get the scalable integer attribute from name and revert to the default if not present.
      *
-     * @param name  the name.
-     * @param def   the definition.
-     * @param scale the scale.
-     * @return the integer.
+     * @param name  the name
+     * @param scale the total value to be a fraction of
+     * @param def the default value if none can be found
+     * @return the parsed value
      */
-    public int getScalableIntegerAttribute(final String name, final int def, final int scale)
+    private int getScaledInteger(String name, final int scale, final int def)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            final Matcher m = PERCENTAGE_PATTERN.matcher(attr);
-            if (m.find())
-            {
-                return parseScalableIntegerRegexMatch(m, def, scale);
-            }
-        }
-
-        return def;
-    }
-
-    private static int parseScalableIntegerRegexMatch(final Matcher m, final int def, final int scale)
-    {
-        try
-        {
-            int value = Integer.parseInt(m.group(1));
-
-            if ("%".equals(m.group(2)))
-            {
-                value = scale * MathHelper.clamp(value, 0, 100) / 100;
-            }
-            // DO NOT attempt to do a "value < 0" treated as (100% of parent) - abs(size)
-            // without differentiating between 'size' and 'position' value types
-            // even then, it's probably not actually necessary...
-
-            return value;
-        }
-        catch (final NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)
-        {
-            getLogger().warn(ex);
-        }
-
-        return def;
+        return getProperty(name, Parsers.SCALED(scale), def);
     }
 
     /**
-     * Get the size pair attribute.
+     * Parses two scalable values and processes them through an applicant
      *
-     * @param name  the name.
-     * @param def   the definition.
-     * @param scale the scale.
-     * @return the SizePair.
+     * @param name the attribute name to search for
+     * @param scaleX the first fraction total
+     * @param scaleY the second fraction total
+     * @param applier the method to utilise the result values
      */
-    @Nullable
-    public SizePair getSizePairAttribute(final String name, final SizePair def, final SizePair scale)
+    public void getScaledInteger(final String name, final int scaleX, final int scaleY, Consumer<List<Integer>> applier)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr != null)
-        {
-            int w = def != null ? def.x : 0;
-            int h = def != null ? def.y : 0;
-
-            final Matcher m = PERCENTAGE_PATTERN.matcher(attr);
-            if (m.find())
-            {
-                w = parseScalableIntegerRegexMatch(m, w, scale != null ? scale.x : 0);
-
-                if (m.find() || m.find(0))
-                {
-                    // If no second value is passed, use the first value
-                    h = parseScalableIntegerRegexMatch(m, h, scale != null ? scale.y : 0);
-                }
-            }
-
-            return new SizePair(w, h);
-        }
-
-        return def;
+        List<Integer> results = Parsers.SCALED(scaleX, scaleY).apply(getString(name));
+        if (results != null) applier.accept(results);
     }
 
     /**
-     * Get the color attribute from name and definition.
+     * Get the color attribute from name and revert to the default if not present.
      *
      * @param name the name.
-     * @param def  the definition
+     * @param def  the default value if none can be found
      * @return int color value.
      */
-    public int getColorAttribute(final String name, final int def)
+    public int getColor(final String name, final int def)
     {
-        final String attr = getStringAttribute(name, null);
-        if (attr == null)
-        {
-            return def;
-        }
-
-        return parseColor(attr, def);
-    }
-
-    public static int parseColor(final String attr, final int def)
-    {
-        final Matcher m = RGBA_PATTERN.matcher(attr);
-
-        if (attr.charAt(0) == HASH_CHAR)
-        {
-            // CSS Hex format: #00112233
-            return Integer.parseInt(attr.substring(1), 16);
-        }
-        // CSS RGB format: rgb(255,0,0) and rgba(255,0,0,0.3)
-        else if ((attr.startsWith("rgb(") || attr.startsWith("rgba(")) && m.find())
-        {
-            return getRGBA(attr, m);
-        }
-        else
-        {
-            return getColorByNumberOrName(def, attr);
-        }
-    }
-
-    private static int getRGBA(final String attr, final Matcher m)
-    {
-        final int r = MathHelper.clamp(Integer.parseInt(m.group(1)), 0, 255);
-        final int g = MathHelper.clamp(Integer.parseInt(m.group(2)), 0, 255);
-        final int b = MathHelper.clamp(Integer.parseInt(m.group(3)), 0, 255);
-
-        int color = ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
-
-        if (attr.startsWith("rgba"))
-        {
-            final int alpha = (int) (Double.parseDouble(m.group(4)) * 255.0F);
-            color |= MathHelper.clamp(alpha, 0, 255) << 24;
-        }
-
-        return color;
-    }
-
-    private static int getColorByNumberOrName(final int def, final String attr)
-    {
-        try
-        {
-            return Integer.parseInt(attr);
-        }
-        catch (final NumberFormatException ex)
-        {
-            return Color.getByName(attr, def);
-        }
+        return getProperty(name, Parsers.COLOR, def);
     }
 
     /**
-     * Size pair of width and height.
+     * Fetches a property and runs the result through a given method.
+     * Commonly used for shorthand properties.
+     * @param name the name of the attribute to retrieve
+     * @param parser the parser applied to each part
+     * @param parts the maximum number of parts to fill to if less are given
+     * @param applier the method to utilise the parsed values
+     * @param <T> the type of each part
      */
-    public static class SizePair
+    public <T> void applyShorthand(String name, Function<String, T> parser, int parts, Consumer<List<T>> applier)
     {
-        private final int x;
-        private final int y;
-
-        /**
-         * Instantiates a SizePair object.
-         *
-         * @param w width.
-         * @param h height.
-         */
-        public SizePair(final int w, final int h)
-        {
-            x = w;
-            y = h;
-        }
-
-        public int getX()
-        {
-            return x;
-        }
-
-        public int getY()
-        {
-            return y;
-        }
+        List<T> results = Parsers.shorthand(parser, parts).apply(getString(name));
+        if (results != null) applier.accept(results);
     }
 
     /**
      * Checks if any of attribute names are present and return first found, else return default.
      *
-     * @param def default attribute name
+     * @param def the default value if none can be found
      * @param attributes attributes names to check
      * @return first found attribute or default
      */

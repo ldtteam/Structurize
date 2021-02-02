@@ -19,14 +19,9 @@ public class Button extends AbstractTextElement
     /**
      * Default constructor.
      */
-    public Button(final Alignment defaultTextAlignment,
-        final int defaultTextColor,
-        final int defaultTextHoverColor,
-        final int defaultTextDisabledColor,
-        final boolean defaultTextShadow,
-        final boolean defaultTextWrap)
+    public Button()
     {
-        super(defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
+        super();
     }
 
     /**
@@ -34,15 +29,38 @@ public class Button extends AbstractTextElement
      *
      * @param params PaneParams from xml file.
      */
-    public Button(@NotNull final PaneParams params,
-        final Alignment defaultTextAlignment,
-        final int defaultTextColor,
-        final int defaultTextHoverColor,
-        final int defaultTextDisabledColor,
-        final boolean defaultTextShadow,
-        final boolean defaultTextWrap)
+    public Button(@NotNull final PaneParams params)
     {
-        super(params, defaultTextAlignment, defaultTextColor, defaultTextHoverColor, defaultTextDisabledColor, defaultTextShadow, defaultTextWrap);
+        super(params);
+    }
+
+    /**
+     * Construct a button from the parameters according to set out text defaults
+     */
+    public Button(
+      final PaneParams params,
+      final Alignment alignment,
+      final int enabledColor,
+      final int hoverColor,
+      final int disabledColor,
+      final boolean hasShadow,
+      final boolean shouldWrap)
+    {
+        super(params, alignment, enabledColor, hoverColor, disabledColor, hasShadow, shouldWrap);
+    }
+
+    /**
+     * Construct a button according to set out text defaults
+     */
+    public Button(
+      final Alignment alignment,
+      final int enabledColor,
+      final int hoverColor,
+      final int disabledColor,
+      final boolean hasShadow,
+      final boolean shouldWrap)
+    {
+        super(alignment, enabledColor, hoverColor, disabledColor, hasShadow, shouldWrap);
     }
 
     /**
@@ -86,5 +104,12 @@ public class Button extends AbstractTextElement
             delegatedHandler.onButtonClicked(this);
         }
         return true;
+    }
+
+    public static Button construct(PaneParams params)
+    {
+        return params.hasAttribute("source")
+          ? new ButtonImage(params)
+          : new ButtonVanilla(params);
     }
 }

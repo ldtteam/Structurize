@@ -1,17 +1,17 @@
 package com.ldtteam.blockout.views;
 
-import java.util.function.Consumer;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
-import com.ldtteam.blockout.controls.ButtonImage;
-import com.ldtteam.blockout.controls.ButtonVanilla;
 import com.ldtteam.blockout.controls.Text;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 /**
  * A DropDownList is a Button which when click display a ScrollingList below it.
@@ -78,20 +78,16 @@ public class DropDownList extends View implements ButtonHandler
     public DropDownList(final PaneParams params)
     {
         super(params);
-        final PaneParams.SizePair dropDownSize = params.getSizePairAttribute("dropDownSize", null, null);
-        dropDownWidth = dropDownSize == null ? width : dropDownSize.getX();
-        // When unknown, we use the same height as it is wide.
-        dropDownHeight = dropDownSize == null ? width : dropDownSize.getY();
-        dropDownFixX = params.getIntAttribute("dropfixx", dropDownFixX);
+        dropDownWidth = width;
+        dropDownHeight = (width);
+        params.applyShorthand("dropDownSize", Parsers.INT, 2, a -> {
+            dropDownWidth = a.get(0);
+            dropDownHeight = a.get(1);
+        });
 
-        if (params.getStringAttribute("source", "").isEmpty())
-        {
-            button = new ButtonVanilla(params);
-        }
-        else
-        {
-            button = new ButtonImage(params);
-        }
+        dropDownFixX = params.getInteger("dropfixx", dropDownFixX);
+
+        button = Button.construct(params);
         button.putInside(this);
 
         overlay = new OverlayView();
@@ -99,9 +95,9 @@ public class DropDownList extends View implements ButtonHandler
         overlay.setPosition(0, 0);
 
         list = new ScrollingList(params);
-        if (params.getIntAttribute("maxContentHeight") != 0)
+        if (params.getInteger("maxContentHeight", 0) != 0)
         {
-            list.setMaxHeight(params.getIntAttribute("maxContentHeight"));
+            list.setMaxHeight(params.getInteger("maxContentHeight", 0));
         }
         list.setSize(dropDownWidth, dropDownHeight);
         list.setPosition((x + width / 2) - dropDownWidth / 2 + dropDownFixX, y + height);
@@ -179,14 +175,7 @@ public class DropDownList extends View implements ButtonHandler
     public void refreshElementPanes()
     {
         list.refreshElementPanes();
-        if (list.getContentHeight() < dropDownHeight)
-        {
-            list.setSize(dropDownWidth, list.getContentHeight());
-        }
-        else
-        {
-            list.setSize(dropDownWidth, dropDownHeight);
-        }
+        list.setSize(dropDownWidth, Math.min(list.getContentHeight(), dropDownHeight));
     }
 
     /**

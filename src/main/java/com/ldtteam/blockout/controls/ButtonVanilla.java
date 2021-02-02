@@ -94,13 +94,13 @@ public class ButtonVanilla extends Button
         else
         {
             blitRepeatable(ms,
-                x, y,
-                width, height,
-                u, v,
-                DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT,
-                TEXTURE_SIZE, TEXTURE_SIZE,
-                TEXTURE_INNER_U_OFFSET, TEXTURE_INNER_V_OFFSET,
-                TEXTURE_INNER_U_WIDTH, TEXTURE_INNER_V_HEIGHT);
+              x, y,
+              width, height,
+              u, v,
+              DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT,
+              TEXTURE_SIZE, TEXTURE_SIZE,
+              TEXTURE_INNER_U_OFFSET, TEXTURE_INNER_V_OFFSET,
+              TEXTURE_INNER_U_WIDTH, TEXTURE_INNER_V_HEIGHT);
         }
 
         RenderSystem.disableBlend();

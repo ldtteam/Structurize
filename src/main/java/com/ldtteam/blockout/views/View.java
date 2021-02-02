@@ -1,17 +1,14 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.*;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicReference;
-import com.ldtteam.blockout.Alignment;
-import com.ldtteam.blockout.Loader;
-import com.ldtteam.blockout.MouseEventCallback;
-import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A View is a Pane which can contain other Panes.
@@ -38,7 +35,7 @@ public class View extends Pane
     public View(final PaneParams params)
     {
         super(params);
-        padding = params.getIntAttribute("padding", padding);
+        padding = params.getInteger("padding", padding);
     }
 
     @NotNull
@@ -51,7 +48,7 @@ public class View extends Pane
     public void parseChildren(final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }

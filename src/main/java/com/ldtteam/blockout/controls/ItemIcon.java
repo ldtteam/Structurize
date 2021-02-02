@@ -40,7 +40,7 @@ public class ItemIcon extends Pane
     {
         super(params);
 
-        final String itemName = params.getStringAttribute("item", null);
+        final String itemName = params.getString("item");
         if (itemName != null)
         {
             final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName));

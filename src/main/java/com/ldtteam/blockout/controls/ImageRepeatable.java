@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
@@ -43,45 +44,32 @@ public class ImageRepeatable extends Pane
     public ImageRepeatable(final PaneParams params)
     {
         super(params);
-        final String source = params.getStringAttribute("source", null);
-        if (source != null)
-        {
-            resourceLocation = new ResourceLocation(source);
-            loadMapDimensions();
-        }
+        resourceLocation = params.getResource("source", this::loadMapDimensions);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("textureoffset", null, null);
-        if (size != null)
-        {
-            u = size.getX();
-            v = size.getY();
-        }
+        params.applyShorthand("textureoffset", Parsers.INT, 2, a -> {
+            u = a.get(0);
+            v = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("texturesize", null, null);
-        if (size != null)
-        {
-            uWidth = size.getX();
-            vHeight = size.getY();
-        }
+        params.applyShorthand("texturesize", Parsers.INT, 2, a -> {
+            uWidth = a.get(0);
+            vHeight = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("repeatoffset", null, null);
-        if (size != null)
-        {
-            uRepeat = size.getX();
-            vRepeat = size.getY();
-        }
+        params.applyShorthand("repeatoffset", Parsers.INT, 2, a -> {
+            uRepeat = a.get(0);
+            vRepeat = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("repeatsize", null, null);
-        if (size != null)
-        {
-            repeatWidth = size.getX();
-            repeatHeight = size.getY();
-        }
+        params.applyShorthand("repeatsize", Parsers.INT, 2, a -> {
+            repeatWidth = a.get(0);
+            repeatHeight = a.get(1);
+        });
     }
 
-    private void loadMapDimensions()
+    private void loadMapDimensions(final ResourceLocation rl)
     {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(resourceLocation);
+        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(rl);
         fileWidth = dimensions.getA();
         fileHeight = dimensions.getB();
     }

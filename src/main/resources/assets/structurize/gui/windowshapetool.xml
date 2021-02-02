@@ -12,7 +12,7 @@
 
     <itemicon id="resourceIconFill" item="minecraft:gold_block" size="17 17" pos="59 60"/>
 
-    <buttonimage label="$(com.ldtteam.structurize.gui.shapetool.solid)" id="hollowShape" pos="24 83" size="86 17"
+    <toggle id="hollowShape" options="$(com.ldtteam.structurize.gui.shapetool.solid)|$.hollow" pos="24 83" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
 
     <buttonimage id="previousShape" size="14 15" pos="130 3" label="&lt;"
@@ -52,5 +52,5 @@
         <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
     </view>
 
-    <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
+    <button id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
 </window>

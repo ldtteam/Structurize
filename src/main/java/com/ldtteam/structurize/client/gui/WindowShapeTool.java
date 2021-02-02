@@ -1,9 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.controls.ItemIcon;
-import com.ldtteam.blockout.controls.Text;
-import com.ldtteam.blockout.controls.TextField;
+import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
@@ -208,9 +205,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             genShape();
         }
 
-        findPaneOfTypeByID(BUTTON_HOLLOW, Button.class).setText(Settings.instance.isHollow()
-                                                                   ? LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")
-                                                                   : LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
+        findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class)
+          .setActiveState(Settings.instance.isHollow() ? "hollow" : "solid");
     }
 
     /**
@@ -332,6 +328,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
     }
 
+    // TODO: confirm whether this button actually exists. This function may be useless.
     /**
      * Ignore the blocks already in the world
      */
@@ -353,17 +350,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void hollowShapeToggle()
     {
-        final Button replaceButton = findPaneOfTypeByID(BUTTON_HOLLOW, Button.class);
-        if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow")))
-        {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid"));
-            Settings.instance.setHollow(false);
-        }
-        else if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.solid")))
-        {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.hollow"));
-            Settings.instance.setHollow(true);
-        }
+        final ToggleButton hollowButton = findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class);
+        Settings.instance.setHollow(hollowButton.isActiveState("hollow"));
 
         genShape();
     }

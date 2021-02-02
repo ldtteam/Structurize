@@ -73,39 +73,26 @@ public class Pane extends AbstractGui
     public Pane(@NotNull final PaneParams params)
     {
         super();
-        id = params.getStringAttribute("id", id);
+        id = params.getString("id", id);
 
-        @NotNull
-        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
-        PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
-        if (sizePair != null)
-        {
-            width = sizePair.getX();
-            height = sizePair.getY();
-        }
-        else
-        {
-            width = params.getScalableIntegerAttribute("width", width, parentSizePair.getX());
-            height = params.getScalableIntegerAttribute("height", height, parentSizePair.getY());
-        }
+        width = params.getParentWidth();
+        height = params.getParentHeight();
 
-        sizePair = params.getSizePairAttribute("pos", null, parentSizePair);
-        if (sizePair != null)
-        {
-            x = sizePair.getX();
-            y = sizePair.getY();
-        }
-        else
-        {
-            x = params.getScalableIntegerAttribute("x", x, parentSizePair.getX());
-            y = params.getScalableIntegerAttribute("y", y, parentSizePair.getY());
-        }
+        params.getScaledInteger("size", params.getParentWidth(), params.getParentHeight(), a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
 
-        alignment = params.getEnumAttribute("align", Alignment.class, alignment);
-        visible = params.getBooleanAttribute("visible", visible);
-        enabled = params.getBooleanAttribute("enabled", enabled);
-        onHoverId = params.getStringAttribute("onHoverId");
-        toolTipLines = params.getMultiLineAttributeAsTextComp("tooltip");
+        params.getScaledInteger("pos", params.getParentView().x, params.getParentView().y, a -> {
+            x = a.get(0);
+            y = a.get(1);
+        });
+
+        alignment = params.getEnum("align", Alignment.class, alignment);
+        visible = params.getBoolean("visible", visible);
+        enabled = params.getBoolean("enabled", enabled);
+        onHoverId = params.getString("onHoverId", onHoverId);
+        toolTipLines = params.getMultilineText("tooltip", toolTipLines);
     }
 
     /**
@@ -743,9 +730,7 @@ public class Pane extends AbstractGui
      */
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        /**
-         * Can be overwritten by child classes
-         */
+        // Can be overwritten by child classes
         return false;
     }
 

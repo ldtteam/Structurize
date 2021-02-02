@@ -1155,5 +1155,7 @@
   "structurize.config.excludeentities": "Entities Excluded from Blueprint Rendering",
   "structurize.config.excludeentities.comment": "Excludes entities from blueprint rendering if they can't load clientside. If you are going to add a \"minecraft\" entity or you believe it's our fault that an entity couldn't be set up, please make an issue at our GitHub and add the stacktrace to it.",
   "com.ldtteam.structurize.gui.structure.edit.title": "Structure path:",
-  "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!"
+  "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!",
+  "structurize.config.windowcachecap": "Max Cached GUI Windows",
+  "structurize.config.windowcachecap.comment": "Sets the maximum number of parsed GUI window files to be stored for quick loading."
 }

@@ -2,12 +2,12 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
-
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -19,7 +19,6 @@ public class ButtonImage extends Button
      * Default size is a small square button.
      */
     private static final int DEFAULT_BUTTON_SIZE = 20;
-
     protected ResourceLocation image;
     protected ResourceLocation imageHighlight;
     protected ResourceLocation imageDisabled;
@@ -76,26 +75,17 @@ public class ButtonImage extends Button
      */
     private void loadImageInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("source", null);
-        if (path != null)
-        {
-            image = new ResourceLocation(path);
-            loadImageDimensions();
-        }
+        image = params.getResource("source", this::loadImageDimensions);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("imageoffset", null, null);
-        if (size != null)
-        {
-            imageOffsetX = size.getX();
-            imageOffsetY = size.getY();
-        }
+        params.applyShorthand("imageoffset", Parsers.INT, 2, a -> {
+            imageOffsetX = a.get(0);
+            imageOffsetY = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("imagesize", null, null);
-        if (size != null)
-        {
-            imageWidth = size.getX();
-            imageHeight = size.getY();
-        }
+        params.applyShorthand("imagesize", Parsers.INT, 2, a -> {
+            imageWidth = a.get(0);
+            imageHeight = a.get(1);
+        });
     }
 
     /**
@@ -105,26 +95,17 @@ public class ButtonImage extends Button
      */
     private void loadHighlightInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("highlight", null);
-        if (path != null)
-        {
-            imageHighlight = new ResourceLocation(path);
-            loadImageHighlightDimensions();
-        }
+        imageHighlight = params.getResource("highlight", this::loadImageHighlightDimensions);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("highlightoffset", null, null);
-        if (size != null)
-        {
-            highlightOffsetX = size.getX();
-            highlightOffsetY = size.getY();
-        }
+        params.applyShorthand("highlightoffset", Parsers.INT, 2, a -> {
+            highlightOffsetX = a.get(0);
+            highlightOffsetY = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("highlightsize", null, null);
-        if (size != null)
-        {
-            highlightWidth = size.getX();
-            highlightHeight = size.getY();
-        }
+       params.applyShorthand("highlightsize", Parsers.INT, 2, a -> {
+            highlightWidth = a.get(0);
+            highlightHeight = a.get(1);
+        });
     }
 
     /**
@@ -134,26 +115,17 @@ public class ButtonImage extends Button
      */
     private void loadDisabledInfo(final PaneParams params)
     {
-        final String path = params.getStringAttribute("disabled", null);
-        if (path != null)
-        {
-            imageDisabled = new ResourceLocation(path);
-            loadImageDisabledDimensions();
-        }
+        imageDisabled = params.getResource("disabled", this::loadImageDisabledDimensions);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("disabledoffset", null, null);
-        if (size != null)
-        {
-            disabledOffsetX = size.getX();
-            disabledOffsetY = size.getY();
-        }
+        params.applyShorthand("disabledoffset", Parsers.INT, 2, a -> {
+            disabledOffsetX = a.get(0);
+            disabledOffsetY = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("disabledsize", null, null);
-        if (size != null)
-        {
-            disabledWidth = size.getX();
-            disabledHeight = size.getY();
-        }
+       params.applyShorthand("disabledsize", Parsers.INT, 2, a -> {
+            disabledWidth = a.get(0);
+            disabledHeight = a.get(1);
+        });
     }
 
     /**
@@ -163,25 +135,21 @@ public class ButtonImage extends Button
      */
     private void loadTextInfo(final PaneParams params)
     {
-        textColor = params.getColorAttribute("textcolor", textColor);
+        textColor = params.getColor("textcolor", textColor);
         // match textColor by default
-        textHoverColor = params.getColorAttribute("texthovercolor", textColor);
+        textHoverColor = params.getColor("texthovercolor", textColor);
         // match textColor by default
-        textDisabledColor = params.getColorAttribute("textdisabledcolor", textColor);
+        textDisabledColor = params.getColor("textdisabledcolor", textColor);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("textoffset", null, null);
-        if (size != null)
-        {
-            textOffsetX = size.getX();
-            textOffsetY = size.getY();
-        }
+        params.applyShorthand("textoffset", Parsers.INT, 2, a -> {
+            textOffsetX = a.get(0);
+            textOffsetY = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("textbox", null, null);
-        if (size != null)
-        {
-            textWidth = size.getX();
-            textHeight = size.getY();
-        }
+        params.applyShorthand("textbox", Parsers.INT, 2, a -> {
+            textWidth = a.get(0);
+            textHeight = a.get(1);
+        });
 
         recalcTextRendering();
     }
@@ -189,9 +157,9 @@ public class ButtonImage extends Button
     /**
      * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of image texture.
      */
-    private void loadImageDimensions()
+    private void loadImageDimensions(final ResourceLocation rl)
     {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(image);
+        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(rl);
         imageMapWidth = dimensions.getA();
         imageMapHeight = dimensions.getB();
     }
@@ -199,9 +167,9 @@ public class ButtonImage extends Button
     /**
      * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of hover image texture.
      */
-    private void loadImageHighlightDimensions()
+    private void loadImageHighlightDimensions(final ResourceLocation rl)
     {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageHighlight);
+        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(rl);
         highlightMapWidth = dimensions.getA();
         highlightMapHeight = dimensions.getB();
     }
@@ -209,9 +177,9 @@ public class ButtonImage extends Button
     /**
      * Uses {@link Image#getImageDimensions(ResourceLocation)} to determine the dimensions of disabled image texture.
      */
-    private void loadImageDisabledDimensions()
+    private void loadImageDisabledDimensions(final ResourceLocation rl)
     {
-        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(imageDisabled);
+        final Tuple<Integer, Integer> dimensions = Image.getImageDimensions(rl);
         disabledMapWidth = dimensions.getA();
         disabledMapHeight = dimensions.getB();
     }
@@ -257,7 +225,7 @@ public class ButtonImage extends Button
         imageHeight = w;
         imageWidth = h;
 
-        loadImageDimensions();
+        loadImageDimensions(loc);
     }
 
     /**
@@ -311,7 +279,7 @@ public class ButtonImage extends Button
         highlightHeight = w;
         highlightWidth = h;
 
-        loadImageHighlightDimensions();
+        loadImageHighlightDimensions(loc);
     }
 
     /**
@@ -375,7 +343,7 @@ public class ButtonImage extends Button
         disabledHeight = w;
         disabledWidth = h;
 
-        loadImageDisabledDimensions();
+        loadImageDisabledDimensions(loc);
     }
 
     /**

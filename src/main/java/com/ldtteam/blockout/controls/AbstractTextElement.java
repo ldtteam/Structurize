@@ -1,6 +1,5 @@
 package com.ldtteam.blockout.controls;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,14 +82,30 @@ public abstract class AbstractTextElement extends Pane
     protected int textHeight = height;
 
     /**
+     * Creates a stock text element using the programmed defaults
+     */
+    public AbstractTextElement()
+    {
+        this(
+          DEFAULT_TEXT_ALIGNMENT,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_SHADOW,
+          DEFAULT_TEXT_WRAP
+        );
+    }
+
+    /**
      * Creates an instance of the abstractTextElement.
      */
-    public AbstractTextElement(final Alignment defaultTextAlignment,
-        final int defaultTextColor,
-        final int defaultTextHoverColor,
-        final int defaultTextDisabledColor,
-        final boolean defaultTextShadow,
-        final boolean defaultTextWrap)
+    public AbstractTextElement(
+      final Alignment defaultTextAlignment,
+      final int defaultTextColor,
+      final int defaultTextHoverColor,
+      final int defaultTextDisabledColor,
+      final boolean defaultTextShadow,
+      final boolean defaultTextWrap)
     {
         super();
 
@@ -105,6 +120,19 @@ public abstract class AbstractTextElement extends Pane
 
         // setup
         recalcTextRendering();
+    }
+
+    public AbstractTextElement(final PaneParams params)
+    {
+        this(
+          params,
+          DEFAULT_TEXT_ALIGNMENT,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_COLOR,
+          DEFAULT_TEXT_SHADOW,
+          DEFAULT_TEXT_WRAP
+        );
     }
 
     /**
@@ -122,25 +150,25 @@ public abstract class AbstractTextElement extends Pane
     {
         super(params);
 
-        textAlignment = params.getEnumAttribute("textalign", Alignment.class, defaultTextAlignment);
+        textAlignment = params.getEnum("textalign", Alignment.class, defaultTextAlignment);
         if (params.hasAttribute("color"))
         {
             // provide fast way to set all colors
-            setColors(params.getColorAttribute("color", defaultTextColor));
+            setColors(params.getColor("color", defaultTextColor));
         }
         else
         {
-            textColor = params.getColorAttribute("textcolor", defaultTextColor);
-            textHoverColor = params.getColorAttribute("texthovercolor", defaultTextHoverColor);
-            textDisabledColor = params.getColorAttribute("textdisabledcolor", defaultTextDisabledColor);
+            textColor = params.getColor("textcolor", defaultTextColor);
+            textHoverColor = params.getColor("texthovercolor", defaultTextHoverColor);
+            textDisabledColor = params.getColor("textdisabledcolor", defaultTextDisabledColor);
         }
-        textShadow = params.getBooleanAttribute("shadow", defaultTextShadow);
-        textWrap = params.getBooleanAttribute("wrap", defaultTextWrap);
-        textScale = params.getDoubleAttribute("textscale", textScale);
-        textLinespace = params.getIntAttribute("linespace", textLinespace);
+        textShadow = params.getBoolean("shadow", defaultTextShadow);
+        textWrap = params.getBoolean("wrap", defaultTextWrap);
+        textScale = params.getDouble("textscale", textScale);
+        textLinespace = params.getInteger("linespace", textLinespace);
 
         // both label and text are allowed to merge label and text elements
-        setText(new StringTextComponent(params.getLocalizedStringAttribute(params.hasAnyAttribute("label", "text"), "")));
+        setText(params.getTextComponent(params.hasAnyAttribute("label", "text"), new StringTextComponent("")));
 
         // setup
         recalcTextRendering();
@@ -148,8 +176,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected void recalcTextRendering()
     {
-        if (textScale <= 0.0d || text == null || !text.stream().filter(t -> !t.getString().isEmpty()).findAny().isPresent() || textWidth < 1
-            || textHeight < 1)
+        if (textScale <= 0.0d || text == null || text.stream().allMatch(t -> t.getString().isEmpty()) || textWidth < 1 || textHeight < 1)
         {
             preparedText = Collections.emptyList();
             return;
@@ -157,9 +184,9 @@ public abstract class AbstractTextElement extends Pane
 
         final int maxWidth = (int) (textWidth / textScale);
         preparedText = text.stream()
-            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
-                : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
-            .collect(Collectors.toList());
+                         .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
+                                                 : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
+                         .collect(Collectors.toList());
         if (textWrap)
         {
             // + Math.ceil(textScale) / textScale is to negate last pixel of vanilla font rendering
@@ -368,7 +395,7 @@ public abstract class AbstractTextElement extends Pane
 
     public void setText(final IFormattableTextComponent text)
     {
-        this.text = Arrays.asList(text);
+        this.text = Collections.singletonList(text);
         recalcTextRendering();
     }
 

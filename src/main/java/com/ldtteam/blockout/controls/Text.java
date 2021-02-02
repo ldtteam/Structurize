@@ -12,7 +12,8 @@ public class Text extends AbstractTextElement
      */
     public Text()
     {
-        super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        super();
+        setTextWrap(true);
         // Required default constructor.
     }
 

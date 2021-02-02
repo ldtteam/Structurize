@@ -34,8 +34,8 @@ public class Tooltip extends AbstractTextElement
     /**
      * Standard constructor which instantiates the tooltip.
      * 
-     * @see AbstractTextBuilder#tooltipBuilder()
-     * @deprecated {@link AbstractTextBuilder#tooltipBuilder()}
+     * @see com.ldtteam.blockout.PaneBuilders#tooltipBuilder()
+     * @deprecated {@link com.ldtteam.blockout.PaneBuilders#tooltipBuilder()}
      */
     @Deprecated
     public Tooltip()

@@ -4,8 +4,8 @@ import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Zoomable and scrollable "online map"-like view
@@ -43,12 +43,12 @@ public class ZoomDragView extends View
     public ZoomDragView(final PaneParams params)
     {
         super(params);
-        dragFactor = params.getDoubleAttribute("dragfactor", dragFactor);
-        dragEnabled = params.getBooleanAttribute("dragenabled", dragEnabled);
-        zoomFactor = params.getDoubleAttribute("zoomfactor", zoomFactor);
-        zoomEnabled = params.getBooleanAttribute("zoomenabled", zoomEnabled);
-        minScale = params.getDoubleAttribute("minscale", minScale);
-        maxScale = params.getDoubleAttribute("maxscale", maxScale);
+        dragFactor = params.getDouble("dragfactor", dragFactor);
+        dragEnabled = params.getBoolean("dragenabled", dragEnabled);
+        zoomFactor = params.getDouble("zoomfactor", zoomFactor);
+        zoomEnabled = params.getBoolean("zoomenabled", zoomEnabled);
+        minScale = params.getDouble("minscale", minScale);
+        maxScale = params.getDouble("maxscale", maxScale);
     }
 
     @Override

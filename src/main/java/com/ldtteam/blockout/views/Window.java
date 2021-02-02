@@ -1,18 +1,20 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
-import com.ldtteam.blockout.BOScreen;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+
 import java.util.function.ToDoubleBiFunction;
 
 /**
@@ -104,33 +106,16 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.getStringAttribute("inherit", null);
-        if (inherit != null)
-        {
-            Loader.createFromXMLFile(new ResourceLocation(inherit), this);
-        }
+        params.getResource("inherit", r -> Loader.createFromXMLFile(r, this));
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("size", null, null);
-        if (size == null)
-        {
-            final int w = params.getIntAttribute("width", width);
-            final int h = params.getIntAttribute("height", height);
-            setSize(w, h);
-        }
-        else
-        {
-            setSize(size.getX(), size.getY());
-        }
+        params.applyShorthand("size", Parsers.INT, 2, a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
 
-        lightbox = params.getBooleanAttribute("lightbox", lightbox);
-        windowPausesGame = params.getBooleanAttribute("pause", windowPausesGame);
-        windowRenderType = params.getEnumAttribute("type", WindowRenderType.class, windowRenderType);
-    }
-
-    @Override
-    public void parseChildren(final PaneParams params)
-    {
-        // Can be overridden
+        lightbox = params.getBoolean("lightbox", lightbox);
+        windowPausesGame = params.getBoolean("pause", windowPausesGame);
+        windowRenderType = params.getEnum("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override
@@ -279,7 +264,7 @@ public class Window extends View
     /**
      * Defines how gui should be rendered.
      */
-    public static enum WindowRenderType
+    public enum WindowRenderType
     {
         /**
          * upscaling according to minecraft gui scale settings, no downscaling, max gui resolution is 320*240 px, anything above might not be rendered
@@ -298,8 +283,8 @@ public class Window extends View
          * scaling to size of framebuffer with lower limit of 320*240 px, max gui resolution is unlimited
          */
         FULLSCREEN_VANILLA((mcWindow, window) -> {
-            final double widthScale = Math.max((double) mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
-            final double heightScale = Math.max((double) mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
+            final double widthScale = Math.max(mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
+            final double heightScale = Math.max(mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
 
             return Math.min(widthScale, heightScale);
         }),

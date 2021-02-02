@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.PaneParams;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
@@ -119,7 +118,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
 
     /**
      * Resets style of current paragraph and current text line.
-     * 
+     *
      * @see #paragraphBreak()
      */
     public R resetStyle()
@@ -221,12 +220,12 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
 
     /**
      * Parses color string using BlockOut xml parser.
-     * 
+     *
      * @param colorIn any valid xml color format
      */
     public R colorParse(final String colorIn)
     {
-        return color(PaneParams.parseColor(colorIn, color));
+        return color(Color.parse(colorIn, color));
     }
 
     public R color(final int color)
@@ -336,7 +335,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         /**
          * The given pane hover function will show/hide this tooltip.
          *
-         * @param hoverPane
+         * @param hoverPane the pane to be applied on hover
          */
         public TooltipBuilder hoverPane(final Pane hoverPane)
         {
