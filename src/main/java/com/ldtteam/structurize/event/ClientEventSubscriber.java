@@ -62,7 +62,7 @@ public class ClientEventSubscriber
             final BlockPos pos = Settings.instance.getPosition();
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-            StructureClientHandler.renderStructure(blueprint, event.getPartialTicks(), pos, matrixStack, false);
+            StructureClientHandler.renderStructure(blueprint, event.getPartialTicks(), pos, matrixStack, true);
             renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
             RenderUtils.renderWhiteOutlineBox(posMinusOffset,
                 posMinusOffset.add(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
