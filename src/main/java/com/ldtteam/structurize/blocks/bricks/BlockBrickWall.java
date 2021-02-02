@@ -8,7 +8,6 @@ import net.minecraft.block.Blocks;
  * The class for brown, beige, and cream brick walls.
  * Extends `AbstractBlockStructurizeWall`.
  */
-
 public class BlockBrickWall extends AbstractBlockStructurizeWall<BlockBrickWall>
 {
     public BlockBrickWall(final String modelName)

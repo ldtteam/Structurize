@@ -7,7 +7,6 @@ import com.ldtteam.structurize.blocks.ModBlocks;
  * Class for brown, beige, and cream brick stairs.
  * Extends `AbstractBlockStructurizeStairs`.
  */
-
 public class BlockBrickStairs extends AbstractBlockStructurizeStairs<BlockBrickStairs>
 {
 

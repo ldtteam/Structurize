@@ -51,6 +51,22 @@ public final class ModBlocks
     public static BlockSolidSubstitution blockSolidSubstitution;
     public static BlockFluidSubstitution blockFluidSubstitution;
 
+    public static BlockBricks blockBrownBricks;
+    public static BlockBricks blockBeigeBricks;
+    public static BlockBricks blockCreamBricks;
+
+    public static BlockMinecoloniesSlab<?> blockBrownBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockBeigeBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockCreamBrickSlab;
+
+    public static BlockBrickWall blockBrownBrickWall;
+    public static BlockBrickWall blockBeigeBrickWall;
+    public static BlockBrickWall blockCreamBrickWall;
+
+    public static BlockBrickStairs blockBrownBrickStairs;
+    public static BlockBrickStairs blockBeigeBrickStairs;
+    public static BlockBrickStairs blockCreamBrickStairs;
+
     /**
      * Brown, beige, and cream bricks (and variants)
      */

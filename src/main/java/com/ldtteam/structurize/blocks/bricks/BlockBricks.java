@@ -8,7 +8,6 @@ import net.minecraft.block.Blocks;
  * The class for brown, beige, and cream bricks.
  * Extends the basic `AbstractBlockStructurize` class.
  */
-
 public class BlockBricks extends AbstractBlockStructurize<BlockBricks>
 {
     public BlockBricks(final String modelName)
