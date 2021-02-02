@@ -59,12 +59,12 @@ public class TextField extends Pane
     public TextField(@NotNull final PaneParams params)
     {
         super(params);
-        maxTextLength = params.getIntAttribute("maxlength", maxTextLength);
-        textColor = params.getColorAttribute("color", textColor);
-        textColorDisabled = params.getColorAttribute("colordisabled", textColorDisabled);
-        shadow = params.getBooleanAttribute("shadow", shadow);
-        text = params.getLocalizedStringAttribute("textContent", text);
-        tabNextPaneID = params.getStringAttribute("tab", null);
+        maxTextLength = params.getInteger("maxlength", maxTextLength);
+        textColor = params.getColor("color", textColor);
+        textColorDisabled = params.getColor("colordisabled", textColorDisabled);
+        shadow = params.getBoolean("shadow", shadow);
+        text = params.getString("textContent", text);
+        tabNextPaneID = params.getString("tab");
     }
 
     public Filter getFilter()
@@ -330,7 +330,7 @@ public class TextField extends Pane
      * Draw itself at positions mx and my.
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         final int color = enabled ? textColor : textColorDisabled;
         final int drawWidth = getInternalWidth();

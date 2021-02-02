@@ -1,17 +1,14 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.*;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicReference;
-import com.ldtteam.blockout.Alignment;
-import com.ldtteam.blockout.Loader;
-import com.ldtteam.blockout.MouseEventCallback;
-import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A View is a Pane which can contain other Panes.
@@ -38,7 +35,7 @@ public class View extends Pane
     public View(final PaneParams params)
     {
         super(params);
-        padding = params.getIntAttribute("padding", padding);
+        padding = params.getInteger("padding", padding);
     }
 
     @NotNull
@@ -51,7 +48,7 @@ public class View extends Pane
     public void parseChildren(final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }
@@ -63,7 +60,7 @@ public class View extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.push();
@@ -74,16 +71,22 @@ public class View extends Pane
         ms.translate(paddedX, paddedY, 0.0d);
 
         // Translate Mouse into the View
-        final int drawX = mx - paddedX;
-        final int drawY = my - paddedY;
+        final double drawX = mx - paddedX;
+        final double drawY = my - paddedY;
 
-        children.stream().filter(this::childIsVisible).forEach(child -> child.draw(ms, drawX, drawY));
+        for (final Pane child : children)
+        {
+            if (childIsVisible(child) && child.isVisible())
+            {
+                child.draw(ms, drawX, drawY);
+            }
+        }
 
         ms.pop();
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.push();
@@ -94,12 +97,12 @@ public class View extends Pane
         ms.translate(paddedX, paddedY, 0.0d);
 
         // Translate Mouse into the View
-        final int drawX = mx - paddedX;
-        final int drawY = my - paddedY;
+        final double drawX = mx - paddedX;
+        final double drawY = my - paddedY;
 
         for (final Pane child : children)
         {
-            if (child.isVisible())
+            if (childIsVisible(child) && child.isVisible())
             {
                 child.drawLast(ms, drawX, drawY);
             }
@@ -111,14 +114,7 @@ public class View extends Pane
     @Override
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        handleUnhover();
         return mousePointableEventHandler(mx, my, (child, mxChild, myChild) -> child.scrollInput(wheel, mxChild, myChild), null);
-    }
-
-    @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return mousePointableEventHandler(mx, my, Pane::handleHover, Pane::handleUnhover);
     }
 
     @Nullable
@@ -133,6 +129,27 @@ public class View extends Pane
         for (final Pane child : children)
         {
             final Pane found = child.findPaneByID(id);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public <T extends Pane> T findPaneByType(final Class<T> type)
+    {
+        if (super.findPaneByType(type) != null)
+        {
+            return type.cast(this);
+        }
+
+        for (final Pane child : children)
+        {
+            final T found = child.findPaneByType(type);
             if (found != null)
             {
                 return found;
@@ -218,15 +235,6 @@ public class View extends Pane
         children.add(child);
         adjustChild(child);
         child.setParentView(this);
-    }
-
-    @Override
-    public void handleUnhover()
-    {
-        for (final Pane child : children)
-        {
-            child.handleUnhover();
-        }
     }
 
     protected void adjustChild(final Pane child)
@@ -315,7 +323,7 @@ public class View extends Pane
      * @return true if event was used or propagation needs to be stopped
      */
     public boolean mousePointableEventHandler(final double mx, final double my,
-      final MouseEventCallback eventCallbackPositive, @Nullable final MouseEventCallback eventCallbackNegative)
+        final MouseEventCallback eventCallbackPositive, @Nullable final MouseEventCallback eventCallbackNegative)
     {
         return mouseEventProcessor(mx, my, Pane::isPointInPane, eventCallbackPositive, eventCallbackNegative);
     }
@@ -330,8 +338,8 @@ public class View extends Pane
      * @param eventCallbackNegative negative event callback.
      * @return true if event was used or propagation needs to be stopped
      */
-    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate
-      , final MouseEventCallback eventCallbackPositive, final MouseEventCallback eventCallbackNegative)
+    public boolean mouseEventProcessor(final double mx, final double my, final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive, final MouseEventCallback eventCallbackNegative)
     {
         final ListIterator<Pane> it = children.listIterator(children.size());
         final double mxChild = mx - x - padding;

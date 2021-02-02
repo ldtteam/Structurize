@@ -2,24 +2,27 @@ package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Wraps MineCrafts GuiScreen for BlockOut's Window.
  */
 public class BOScreen extends Screen
 {
-    protected static double scale = 0;
+    protected double renderScale = 1.0d;
+    protected double mcScale = 1.0d;
     protected Window window;
-    protected int x = 0;
-    protected int y = 0;
+    protected double x = 0;
+    protected double y = 0;
     public static boolean isMouseLeftDown = false;
-    private boolean isOpen = false;
+    protected boolean isOpen = false;
     private static final BitArray ACCEPTED_KEY_PRESSED_MAP = new BitArray(1, GLFW.GLFW_KEY_LAST + 1);
 
     static
@@ -111,44 +114,59 @@ public class BOScreen extends Screen
         window = w;
     }
 
-    public static double getScale()
-    {
-        return scale;
-    }
-
-    private static void setScale(final Minecraft mc)
-    {
-        // Seems to work without the sides now
-        // Failsave
-        if (mc != null)
-        {
-            scale = mc.mainWindow.getGuiScaleFactor();
-        }
-    }
-
     @Override
     public void render(final MatrixStack ms, final int mx, final int my, final float f)
     {
-        if (window.hasLightbox() && super.minecraft != null)
+        if (minecraft == null || !isOpen) // should never happen though
         {
+            return;
+        }
+
+        final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
+        final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
+        final double guiWidth = Math.max(fbWidth, 320.0d);
+        final double guiHeight = Math.max(fbHeight, 240.0d);
+
+        final float renderZlevel = MatrixUtils.getLastMatrixTranslateZ(ms);
+        final float oldZ = minecraft.getItemRenderer().zLevel;
+        minecraft.getItemRenderer().zLevel = renderZlevel;
+
+        mcScale = minecraft.mainWindow.getGuiScaleFactor();
+        renderScale = window.getRenderType().calcRenderScale(minecraft.mainWindow, window);
+
+        if (window.hasLightbox())
+        {
+            width = (int) fbWidth;
+            height = (int) fbHeight;
             super.renderBackground(ms);
         }
 
-        setScale(minecraft);
-        final float oldZ = Minecraft.getInstance().getItemRenderer().zLevel;
-        Minecraft.getInstance().getItemRenderer().zLevel = MatrixUtils.getLastMatrixTranslateZ(ms);
+        width = window.getWidth();
+        height = window.getHeight();
+        x = Math.floor((guiWidth - width * renderScale) / 2.0d);
+        y = Math.floor((guiHeight - height * renderScale) / 2.0d);
+
+        // replace vanilla projection
+        RenderSystem.matrixMode(GL11.GL_PROJECTION);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
         ms.push();
-        ms.translate(x, y, 0);
-        window.draw(ms, mx - x, my - y);
+        ms.getLast().getMatrix().setIdentity();
+        ms.translate(x, y, renderZlevel);
+        ms.scale((float) renderScale, (float) renderScale, 1.0f);
+        window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
+        window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.pop();
 
-        ms.push();
-        ms.translate(x, y, 0);
-        window.drawLast(ms, mx - x, my - y);
-        ms.pop();
+        // restore vanilla state
+        RenderSystem.matrixMode(GL11.GL_PROJECTION);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
-        Minecraft.getInstance().getItemRenderer().zLevel = oldZ;
+        minecraft.getItemRenderer().zLevel = oldZ;
     }
 
     @Override
@@ -171,8 +189,8 @@ public class BOScreen extends Screen
     @Override
     public boolean mouseClicked(final double mxIn, final double myIn, final int keyCode)
     {
-        final double mx = mxIn - x;
-        final double my = myIn - y;
+        final double mx = calcRelativeX(mxIn);
+        final double my = calcRelativeY(myIn);
         if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
@@ -191,24 +209,15 @@ public class BOScreen extends Screen
     {
         if (scrollDiff != 0)
         {
-            return window.scrollInput(scrollDiff * 10, mx - x, my - y);
+            return window.scrollInput(scrollDiff * 10, calcRelativeX(mx), calcRelativeY(my));
         }
         return false;
     }
 
     @Override
-    public void mouseMoved(final double mxIn, final double myIn)
-    {
-        // final int mx = (int) (super.minecraft.mouseHelper.getMouseX() * super.width / super.minecraft.mainWindow.getWidth()) - x;
-        // final int my = (int) (super.height - super.minecraft.mouseHelper.getMouseY() * super.height /
-        // super.minecraft.mainWindow.getHeight()) - 1 - y;
-        window.handleHover(mxIn - x, myIn - y);
-    }
-
-    @Override
     public boolean mouseDragged(final double xIn, final double yIn, final int speed, final double deltaX, final double deltaY)
     {
-        return window.onMouseDrag(xIn - x, yIn - y, speed, deltaX, deltaY);
+        return window.onMouseDrag(calcRelativeX(xIn), calcRelativeY(yIn), speed, deltaX, deltaY);
     }
 
     @Override
@@ -218,7 +227,7 @@ public class BOScreen extends Screen
         {
             // Adjust coordinate to origin of window
             isMouseLeftDown = false;
-            return window.onMouseReleased(mxIn - x, myIn - y);
+            return window.onMouseReleased(calcRelativeX(mxIn), calcRelativeY(myIn));
         }
         return false;
     }
@@ -226,10 +235,8 @@ public class BOScreen extends Screen
     @Override
     public void init()
     {
-        x = (width - window.getWidth()) / 2;
-        y = (height - window.getHeight()) / 2;
-
         minecraft.keyboardListener.enableRepeatEvents(true);
+        ForgeIngameGui.renderCrosshairs = false;
     }
 
     @Override
@@ -260,6 +267,7 @@ public class BOScreen extends Screen
         window.onClosed();
         Window.clearFocus();
         minecraft.keyboardListener.enableRepeatEvents(false);
+        ForgeIngameGui.renderCrosshairs = true;
     }
 
     @Override
@@ -278,5 +286,21 @@ public class BOScreen extends Screen
     public void renderTooltipHook(final MatrixStack ms, final ItemStack stack, final int mouseX, final int mouseY)
     {
         renderTooltip(ms, stack, mouseX, mouseY);
+    }
+
+    /**
+     * Converts X from event to unscaled and unscrolled X for child in relative (top-left) coordinates.
+     */
+    private double calcRelativeX(final double xIn)
+    {
+        return (xIn * mcScale - x) / renderScale;
+    }
+
+    /**
+     * Converts Y from event to unscaled and unscrolled Y for child in relative (top-left) coordinates.
+     */
+    private double calcRelativeY(final double yIn)
+    {
+        return (yIn * mcScale - y) / renderScale;
     }
 }

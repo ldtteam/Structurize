@@ -21,9 +21,6 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
 
@@ -416,7 +413,7 @@ public final class BlockUtils
      */
     public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
     {
-        return target.getClass().isInstance(propertiesOrigin.getBlock())
+        return target.getClass().equals(propertiesOrigin.getBlock().getClass())
             ? unsafeCopyBlockStateProperties(target.getDefaultState(), propertiesOrigin, propertiesOrigin.getProperties())
             : null;
     }
