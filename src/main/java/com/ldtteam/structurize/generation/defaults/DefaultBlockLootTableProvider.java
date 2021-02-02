@@ -72,6 +72,27 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.blockCreamBrickStairs, cache);
 
         saveBlock(ModBlocks.multiBlock, cache);
+
+        /**
+         * Brown, beige, and cream bricks (plus variants)
+         */
+
+        saveBlock(ModBlocks.blockBrownBricks, cache);
+        saveBlock(ModBlocks.blockBeigeBricks, cache);
+        saveBlock(ModBlocks.blockCreamBricks, cache);
+
+        saveBlock(ModBlocks.blockBrownBrickSlab, cache);
+        saveBlock(ModBlocks.blockBeigeBrickSlab, cache);
+        saveBlock(ModBlocks.blockCreamBrickSlab, cache);
+
+        saveBlock(ModBlocks.blockBrownBrickWall, cache);
+        saveBlock(ModBlocks.blockBeigeBrickWall, cache);
+        saveBlock(ModBlocks.blockCreamBrickWall, cache);
+
+        saveBlock(ModBlocks.blockBrownBrickStairs, cache);
+        saveBlock(ModBlocks.blockBeigeBrickStairs, cache);
+        saveBlock(ModBlocks.blockCreamBrickStairs, cache);
+
     }
 
     private <T extends Block> void saveBlocks(final List<T> blocks, final DirectoryCache cache) throws IOException
