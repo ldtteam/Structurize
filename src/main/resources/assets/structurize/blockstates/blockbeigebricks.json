@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "structurize:block/bricks/blockbeigebricks" }
+  }
+}

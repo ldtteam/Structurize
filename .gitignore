@@ -28,3 +28,5 @@
 /libs
 
 /src/main/generated/java
+
+/logs/

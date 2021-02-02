@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": {"model": "structurize:block/bricks/blockcreambrickslab_half" },
+    "type=top":  {"model": "structurize:block/bricks/blockcreambrickslab_upper" },
+    "type=double": { "model": "structurize:block/bricks/blockcreambricks" }
+  }
+}

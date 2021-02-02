@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "structurize:blockbrownbricks"
+    }
+  },
+  "result": {
+    "item": "structurize:blockbrownbrickwall",
+    "count": 6
+  }
+}
