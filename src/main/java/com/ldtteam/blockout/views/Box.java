@@ -31,7 +31,7 @@ public class Box extends View
     {
         super(params);
         lineWidth = params.getFloat("linewidth", lineWidth);
-        color = params.getInteger("color", color);
+        color = params.getColor("color", color);
     }
 
     /**

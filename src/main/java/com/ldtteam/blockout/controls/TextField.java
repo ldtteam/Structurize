@@ -60,8 +60,8 @@ public class TextField extends Pane
     {
         super(params);
         maxTextLength = params.getInteger("maxlength", maxTextLength);
-        textColor = params.getInteger("color", textColor);
-        textColorDisabled = params.getInteger("colordisabled", textColorDisabled);
+        textColor = params.getColor("color", textColor);
+        textColorDisabled = params.getColor("colordisabled", textColorDisabled);
         shadow = params.getBoolean("shadow", shadow);
         text = params.getString("textContent", text);
         tabNextPaneID = params.getString("tab");

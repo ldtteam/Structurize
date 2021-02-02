@@ -184,9 +184,9 @@ public abstract class AbstractTextElement extends Pane
 
         final int maxWidth = (int) (textWidth / textScale);
         preparedText = text.stream()
-                         .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
-                                                 : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
-                         .collect(Collectors.toList());
+            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
+                : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
+            .collect(Collectors.toList());
         if (textWrap)
         {
             // + Math.ceil(textScale) / textScale is to negate last pixel of vanilla font rendering
@@ -382,6 +382,9 @@ public abstract class AbstractTextElement extends Pane
         return text;
     }
 
+    /**
+     * @return null if empty, first line otherwise
+     */
     public IFormattableTextComponent getText()
     {
         return text.isEmpty() ? null : text.get(0);
@@ -399,6 +402,9 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
+    /**
+     * @return null if empty, otherwise first line as string
+     */
     public String getTextAsString()
     {
         return text.isEmpty() ? null : text.get(0).getString();

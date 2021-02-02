@@ -20,9 +20,9 @@ public class Tooltip extends AbstractTextElement
 
     private static final int CURSOR_BOX_SIZE = 12;
     private static final int Z_OFFSET = 400;
-    private static final int BACKGROUND_COLOR = -267386864;
-    private static final int BORDER_COLOR_A = 1347420415;
-    private static final int BORDER_COLOR_B = 1344798847;
+    private static final int BACKGROUND_COLOR = 0xf0100010;
+    private static final int BORDER_COLOR_A = 0x505000ff;
+    private static final int BORDER_COLOR_B = 0x5028007f;
 
     public static final int DEFAULT_TEXT_COLOR = 0xffffff; // white
 
@@ -88,6 +88,13 @@ public class Tooltip extends AbstractTextElement
         }
     }
 
+    /**
+     * Set the size of a pane.
+     * If either of sizes equals zero automatical calculation for that size is enabled.
+     *
+     * @param w the width.
+     * @param h the height.
+     */
     @Override
     public void setSize(int w, int h)
     {

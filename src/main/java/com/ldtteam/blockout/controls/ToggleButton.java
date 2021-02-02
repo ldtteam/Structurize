@@ -1,6 +1,5 @@
 package com.ldtteam.blockout.controls;
 
-import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ToggleButton extends Button
 {
@@ -58,6 +56,7 @@ public class ToggleButton extends Button
 
     /**
      * Attempts to set the active state displayed on the button via a
+     *
      * @param state the state to set, if it exists as an option
      * @return whether the active state was changed
      */
