@@ -13,6 +13,9 @@ public enum PaperwallType implements IStringSerializable
     SPRUCE("spruce"),
     BIRCH("birch"),
     JUNGLE("jungle");
+    ACACIA("acacia");
+    DARK_OAK("dark_oak");
+    CACTUS("cactus");
 
     private final String name;
 

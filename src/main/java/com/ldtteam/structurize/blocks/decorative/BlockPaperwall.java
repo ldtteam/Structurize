@@ -46,7 +46,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     }
 
     /**
-     * Registery block at gameregistry.
+     * Registry block at gameregistry.
      *
      * @param registry the registry to use.
      */
