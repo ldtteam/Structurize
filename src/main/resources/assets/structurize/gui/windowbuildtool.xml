@@ -1,55 +1,53 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" size="420 240" pause="false"
-        lightbox="false"
-        xsi:noNamespaceSchemaLocation="file:../../../../java/com/structurize/blockout/blockOut.xsd">
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" lightbox="false">
 
     <button id="previousBuildingType" size="15 15" pos="0 0" label="&lt;"/>
-    <dropdown id="buildingType" size="114 15" pos="13 0" maxContentHeight="75" dropDownSize="140 75">
+    <button id="nextBuildingType" size="15 15" pos="125 0" label="&gt;"/>
+    <dropdown id="buildingType" size="112 15" pos="14 0" maxContentHeight="75" dropDownSize="140 75">
         <view size="100% 15">
             <label id="id" size="100% 100%" label="" pos="0 0"/>
             <button id="button" size="100% 100%" label="" pos="0 0"/>
         </view>
     </dropdown>
-    <button id="nextBuildingType" size="15 15" pos="125 0" label="&gt;"/>
 
     <button id="previousStyle" size="15 15" pos="140 0" label="&lt;"/>
-    <dropdown id="style" size="114 15" pos="153 0" maxContentHeight="75" dropDownSize="140 75">
+    <button id="nextStyle" size="15 15" pos="265 0" label="&gt;"/>
+    <dropdown id="style" size="112 15" pos="154 0" maxContentHeight="75" dropDownSize="140 75">
         <view size="100% 15">
             <label id="id" size="100% 100%" label="" pos="0 0"/>
             <button id="button" size="100% 100%" label="" pos="0 0"/>
         </view>
     </dropdown>
-    <button id="nextStyle" size="15 15" pos="265 0" label="&gt;"/>
 
     <button id="previousSchematic" size="15 15" pos="280 0" label="&lt;"/>
-    <dropdown id="schematic" size="114 15" pos="293 0" maxContentHeight="75" dropDownSize="140 75">
+    <button id="nextSchematic" size="15 15" pos="405 0" label="&gt;"/>
+    <dropdown id="schematic" size="112 15" pos="294 0" maxContentHeight="75" dropDownSize="140 75">
         <view size="100% 15">
             <label id="id" size="100% 100%" label="" pos="0 0"/>
             <button id="button" size="100% 100%" label="" pos="0 0"/>
         </view>
     </dropdown>
-    <button id="nextSchematic" size="15 15" pos="405 0" label="&gt;"/>
 
     <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
     <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
 
-
     <label id="warning" size="70 12" pos="25 45" color="white" label="$(structurize.gui.buildtool.unexpecteddatafixer)" visible="false"/>
 
-    <label size="70 12" pos="120 60" color="white" label="$(com.structurize.gui.buildtool.tip)"/>
-    <view size="96 128" pos="160 80">
-        <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>
-        <buttonimage id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 0"/>
-        <buttonimage id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="32" pos="64 0"/>
-        <buttonimage id="left" source="structurize:textures/gui/buildtool/left.png" size="32" pos="0 32"/>
-        <buttonimage id="mirror" source="structurize:textures/gui/buildtool/mirror.png" size="32" pos="32 32"/>
-        <buttonimage id="right" source="structurize:textures/gui/buildtool/right.png" size="32" pos="64 32"/>
-        <buttonimage id="minus" source="structurize:textures/gui/buildtool/minus.png" size="32" pos="0 64"/>
-        <buttonimage id="down" source="structurize:textures/gui/buildtool/down.png" size="32" pos="32 64"/>
-        <buttonimage id="plus" source="structurize:textures/gui/buildtool/plus.png" size="32" pos="64 64"/>
-        <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="0 96"/>
-        <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
+    <label size="300 9" pos="60 65" color="white" label="$(com.structurize.gui.buildtool.tip)" textalign="MIDDLE"/>
+    <view size="96 128" pos="162 80">
+        <button id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>
+        <button id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 0"/>
+        <button id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="32" pos="64 0"/>
+        <button id="left" source="structurize:textures/gui/buildtool/left.png" size="32" pos="0 32"/>
+        <button id="mirror" source="structurize:textures/gui/buildtool/mirror.png" size="32" pos="32 32"/>
+        <button id="right" source="structurize:textures/gui/buildtool/right.png" size="32" pos="64 32"/>
+        <button id="minus" source="structurize:textures/gui/buildtool/minus.png" size="32" pos="0 64"/>
+        <button id="down" source="structurize:textures/gui/buildtool/down.png" size="32" pos="32 64"/>
+        <button id="plus" source="structurize:textures/gui/buildtool/plus.png" size="32" pos="64 64"/>
+        <button id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="0 96"/>
+        <button id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
     </view>
 
-    <buttonimage id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
-    <buttonimage id="pastenice" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
+    <button id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
+    <button id="pastenice" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
 </window>

@@ -2,6 +2,7 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Log;
 import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonImage;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.View;
@@ -239,8 +240,8 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         int speed = DEFAULT_SPEED;
         try
         {
-            range = Integer.valueOf(inputRange.getText());
-            speed = Integer.valueOf(inputSpeed.getText());
+            range = Integer.parseInt(inputRange.getText());
+            speed = Integer.parseInt(inputSpeed.getText());
         }
         catch (final NumberFormatException e)
         {
@@ -268,7 +269,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
         {
             pane = ((View) pane).findPaneForClick(mx, my);
         }
-        if (pane instanceof ButtonImage && pane.isEnabled())
+        if (pane instanceof Button && pane.isEnabled())
         {
             final Direction newFacing;
             switch (pane.getID())

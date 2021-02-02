@@ -3,6 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.function.IntSupplier;
 
@@ -97,7 +98,7 @@ public class ScrollingList extends ScrollingView
     public void parseChildren(@NotNull final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }

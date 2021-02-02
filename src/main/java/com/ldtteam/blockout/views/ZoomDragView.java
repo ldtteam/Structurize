@@ -1,10 +1,11 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Zoomable and scrollable "online map"-like view
@@ -42,12 +43,12 @@ public class ZoomDragView extends View
     public ZoomDragView(final PaneParams params)
     {
         super(params);
-        dragFactor = params.getDoubleAttribute("dragfactor", dragFactor);
-        dragEnabled = params.getBooleanAttribute("dragenabled", dragEnabled);
-        zoomFactor = params.getDoubleAttribute("zoomfactor", zoomFactor);
-        zoomEnabled = params.getBooleanAttribute("zoomenabled", zoomEnabled);
-        minScale = params.getDoubleAttribute("minscale", minScale);
-        maxScale = params.getDoubleAttribute("maxscale", maxScale);
+        dragFactor = params.getDouble("dragfactor", dragFactor);
+        dragEnabled = params.getBoolean("dragenabled", dragEnabled);
+        zoomFactor = params.getDouble("zoomfactor", zoomFactor);
+        zoomEnabled = params.getBoolean("zoomenabled", zoomEnabled);
+        minScale = params.getDouble("minscale", minScale);
+        maxScale = params.getDouble("maxscale", maxScale);
     }
 
     @Override
@@ -136,44 +137,44 @@ public class ZoomDragView extends View
         return Math.max(0, (double) contentWidth * scale - getWidth());
     }
 
-    protected void abstractDrawSelfPre(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPre(final MatrixStack ms, final double mx, final double my)
     {
     }
 
-    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
     {
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        scissorsStart(ms);
+        scissorsStart(ms, contentWidth, contentHeight);
 
         ms.push();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, 1.0f);
         abstractDrawSelfPre(ms, mx, my);
-        super.drawSelf(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        super.drawSelf(ms, calcRelativeX(mx), calcRelativeY(my));
         abstractDrawSelfPost(ms, mx, my);
         ms.pop();
 
-        scissorsEnd();
+        scissorsEnd(ms);
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
-        scissorsStart(ms);
+        scissorsStart(ms, contentWidth, contentHeight);
 
         ms.push();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, 1.0f);
-        super.drawSelfLast(ms, (int) calcRelativeX(mx), (int) calcRelativeY(my));
+        super.drawSelfLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.pop();
 
-        scissorsEnd();
+        scissorsEnd(ms);
     }
 
     private void setScrollY(final double offset)
@@ -189,8 +190,7 @@ public class ZoomDragView extends View
     @Override
     public boolean onMouseDrag(final double startX, final double startY, final int speed, final double x, final double y)
     {
-        final boolean childResult = super.onMouseDrag(calcRelativeX(
-            startX), calcRelativeY(startY), speed, calcRelativeX(x), calcRelativeY(y));
+        final boolean childResult = super.onMouseDrag(startX, startY, speed, calcRelativeX(x), calcRelativeY(y));
         if (!childResult && dragEnabled)
         {
             setScrollX(scrollX - x * dragFactor);
@@ -220,27 +220,13 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public boolean click(final double mx, final double my)
+    public boolean mouseEventProcessor(final double mx,
+        final double my,
+        final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive,
+        final MouseEventCallback eventCallbackNegative)
     {
-        return super.click(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public Pane findPaneForClick(final double mx, final double my)
-    {
-        return super.findPaneForClick(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return super.handleHover(calcRelativeX(mx), calcRelativeY(my));
-    }
-
-    @Override
-    public boolean rightClick(final double mx, final double my)
-    {
-        return super.rightClick(calcRelativeX(mx), calcRelativeY(my));
+        return super.mouseEventProcessor(calcRelativeX(mx), calcRelativeY(my), panePredicate, eventCallbackPositive, eventCallbackNegative);
     }
 
     public void treeViewHelperAddChild(final Pane child)

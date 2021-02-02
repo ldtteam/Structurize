@@ -2,6 +2,7 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -48,33 +49,24 @@ public class Image extends Pane
     public Image(final PaneParams params)
     {
         super(params);
-        final String source = params.getStringAttribute("source", null);
-        if (source != null)
-        {
-            resourceLocation = new ResourceLocation(source);
-            loadMapDimensions();
-        }
+        resourceLocation = params.getResource("source", this::loadMapDimensions);
 
-        PaneParams.SizePair size = params.getSizePairAttribute("imageoffset", null, null);
-        if (size != null)
-        {
-            u = size.getX();
-            v = size.getY();
-        }
+        params.applyShorthand("imageoffset", Parsers.INT, 2, a -> {
+            u = a.get(0);
+            v = a.get(1);
+        });
 
-        size = params.getSizePairAttribute("imagesize", null, null);
-        if (size != null)
-        {
-            imageWidth = size.getX();
-            imageHeight = size.getY();
-        }
+        params.applyShorthand("imagesize", Parsers.INT, 2, a -> {
+            imageWidth = a.get(0);
+            imageHeight = a.get(1);
+        });
 
-        autoscale = params.getBooleanAttribute("autoscale", true);
+        autoscale = params.getBoolean("autoscale", true);
     }
 
-    private void loadMapDimensions()
+    private void loadMapDimensions(final ResourceLocation rl)
     {
-        final Tuple<Integer, Integer> dimensions = getImageDimensions(resourceLocation);
+        final Tuple<Integer, Integer> dimensions = getImageDimensions(rl);
         fileWidth = dimensions.getA();
         fileHeight = dimensions.getB();
     }
@@ -161,7 +153,7 @@ public class Image extends Pane
         imageWidth = w;
         imageHeight = h;
 
-        loadMapDimensions();
+        loadMapDimensions(loc);
     }
 
     /**
@@ -188,7 +180,7 @@ public class Image extends Pane
         imageWidth = w;
         imageHeight = h;
 
-        loadMapDimensions();
+        loadMapDimensions(loc);
     }
 
     /**
@@ -208,7 +200,7 @@ public class Image extends Pane
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         this.mc.getTextureManager().bindTexture(resourceLocation);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
