@@ -2,12 +2,12 @@ package com.ldtteam.blockout;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Render utility functions.
@@ -48,8 +48,6 @@ public final class Render
 
     /**
      * Draw an outlined untextured rectangle.
-     * 
-     * @param color argb
      */
     public static void drawOutlineRect(final Matrix4f matrix,
         final int x,

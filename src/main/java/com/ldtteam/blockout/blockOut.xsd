@@ -37,6 +37,19 @@
         <xs:attribute name="height" type="xs:string"/>
         <xs:attribute name="lightbox" type="xs:boolean"/>
         <xs:attribute name="pause" type="xs:boolean"/>
+        <xs:attribute name="type" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="VANILLA"/>
+                    <xs:enumeration value="FULLSCREEN"/>
+                    <xs:enumeration value="FULLSCREEN_VANILLA"/>
+                    <xs:enumeration value="FIXED"/>
+                    <xs:enumeration value="FIXED_VANILLA"/>
+                    <xs:enumeration value="OVERSIZED"/>
+                    <xs:enumeration value="OVERSIZED_VANILLA"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="layoutType">
@@ -58,8 +71,27 @@
         <xs:attribute name="visible" type="xs:boolean"/>
         <xs:attribute name="enabled" type="xs:boolean"/>
         <xs:attribute name="tooltip" type="xs:string"/>
+        <xs:attribute name="onHoverId" type="xs:string"/>
 
         <xs:attribute name="style" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- Abstract text element -->
+    <xs:complexType name="textElementType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="textscale" type="xs:string"/>
+                <xs:attribute name="textalign" type="align"/>
+                <xs:attribute name="color" type="xs:string"/> <!-- overrides all textcolors-->
+                <xs:attribute name="textcolor" type="xs:string"/>
+                <xs:attribute name="texthovercolor" type="xs:string"/>
+                <xs:attribute name="textdisabledcolor" type="xs:string"/>
+                <xs:attribute name="shadow" type="xs:boolean"/>
+                <xs:attribute name="wrap" type="xs:boolean"/>
+                <xs:attribute name="linespace" type="xs:integer"/>
+                <xs:attribute name="text" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <!-- View basic attributes and contents -->
@@ -83,10 +115,12 @@
             <xs:element name="list" type="listType"/>
             <xs:element name="button" type="buttonType"/>
             <xs:element name="buttonimage" type="buttonImageType"/>
+            <xs:element name="toggle" type="toggleType"/>
             <xs:element name="text" type="textType"/>
             <xs:element name="label" type="labelType"/>
             <xs:element name="input" type="inputType"/>
             <xs:element name="image" type="imageType"/>
+            <xs:element name="imagerepeat" type="imageRepeatType"/>
             <xs:element name="gradient" type="gradientType"/>
             <xs:element name="box" type="boxType"/>
             <xs:element name="itemicon" type="itemIconType"/>
@@ -143,8 +177,20 @@
     <!-- <button> -->
     <xs:complexType name="buttonType">
         <xs:complexContent>
-            <xs:extension base="paneType">
+            <xs:extension base="textElementType">
+                <xs:attribute name="source" type="xs:string" />
+                <xs:attribute name="imageoffset" type="fixedSizePair"/>
+                <xs:attribute name="imagesize" type="fixedSizePair"/>
+                <xs:attribute name="highlight" type="xs:string"/>
+                <xs:attribute name="highlightoffset" type="fixedSizePair"/>
+                <xs:attribute name="highlightsize" type="fixedSizePair"/>
+                <xs:attribute name="disabled" type="xs:string"/>
+                <xs:attribute name="disabledoffset" type="fixedSizePair"/>
+                <xs:attribute name="disabledsize" type="fixedSizePair"/>
+                <!-- Label (optional) -->
                 <xs:attribute name="label" type="xs:string"/>
+                <xs:attribute name="textoffset" type="fixedSizePair"/>
+                <xs:attribute name="textbox" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -152,29 +198,18 @@
     <!-- <label> -->
     <xs:complexType name="labelType">
         <xs:complexContent>
-            <xs:extension base="paneType">
+            <xs:extension base="textElementType">
                 <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="color" type="xs:string"/>
-                <xs:attribute name="hovercolor" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
-                <xs:attribute name="wrap" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <!-- <text> -->
     <xs:complexType name="textType">
-        <xs:simpleContent>
-            <xs:extension base="paneType">
-                <xs:attribute name="linespace" type="xs:integer"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="color" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
+        <xs:complexContent>
+            <xs:extension base="textElementType">
             </xs:extension>
-        </xs:simpleContent>
+        </xs:complexContent>
     </xs:complexType>
 
     <!-- <itemicon> -->
@@ -189,26 +224,17 @@
     <!-- <buttonimage> -->
     <xs:complexType name="buttonImageType">
         <xs:complexContent>
-            <xs:extension base="paneType">
-                <!-- Image and Highlight -->
+            <xs:extension base="buttonType">
                 <xs:attribute name="source" type="xs:string" use="required"/>
-                <xs:attribute name="imageoffset" type="fixedSizePair"/>
-                <xs:attribute name="imagesize" type="fixedSizePair"/>
-                <xs:attribute name="highlight" type="xs:string"/>
-                <xs:attribute name="highlightoffset" type="fixedSizePair"/>
-                <xs:attribute name="highlightsize" type="fixedSizePair"/>
-                <xs:attribute name="disabled" type="xs:string"/>
-                <xs:attribute name="disabledoffset" type="fixedSizePair"/>
-                <xs:attribute name="disabledsize" type="fixedSizePair"/>
-                <!-- Label (optional) -->
-                <xs:attribute name="label" type="xs:string"/>
-                <xs:attribute name="textscale" type="xs:string"/>
-                <xs:attribute name="textalign" type="align"/>
-                <xs:attribute name="textoffset" type="fixedSizePair"/>
-                <xs:attribute name="textcolor" type="xs:string"/>
-                <xs:attribute name="texthovercolor" type="xs:string"/>
-                <xs:attribute name="textdisabledcolor" type="xs:string"/>
-                <xs:attribute name="shadow" type="xs:boolean"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <toggle> -->
+    <xs:complexType name="toggleType">
+        <xs:complexContent>
+            <xs:extension base="buttonType">
+                <xs:attribute name="options" type="xs:string" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -220,6 +246,18 @@
                 <xs:attribute name="source" type="xs:string"/>
                 <xs:attribute name="imageoffset" type="fixedSizePair"/>
                 <xs:attribute name="imagesize" type="fixedSizePair"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="imageRepeatType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="source" type="xs:string"/>
+                <xs:attribute name="textureoffset" type="fixedSizePair"/>
+                <xs:attribute name="texturesize" type="fixedSizePair"/>
+                <xs:attribute name="repeatoffset" type="fixedSizePair"/>
+                <xs:attribute name="repeatsize" type="fixedSizePair"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -266,12 +304,12 @@
     <xs:complexType name="zoomDragType">
         <xs:complexContent>
             <xs:extension base="viewType">
-                <xs:attribute name="dragFactor" type="xs:double"/>
-                <xs:attribute name="dragEnabled" type="xs:boolean"/>
-                <xs:attribute name="zoomFactor" type="xs:double"/>
-                <xs:attribute name="zoomEnabled" type="xs:boolean"/>
-                <xs:attribute name="minScale" type="xs:double"/>
-                <xs:attribute name="maxScale" type="xs:double"/>
+                <xs:attribute name="dragfactor" type="xs:double"/>
+                <xs:attribute name="dragenabled" type="xs:boolean"/>
+                <xs:attribute name="zoomfactor" type="xs:double"/>
+                <xs:attribute name="zoomenabled" type="xs:boolean"/>
+                <xs:attribute name="minscale" type="xs:double"/>
+                <xs:attribute name="maxscale" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -280,7 +318,6 @@
     <xs:complexType name="treeViewType">
         <xs:complexContent>
             <xs:extension base="zoomDragType">
-                <xs:group ref="paneContainerGroup" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:attribute name="nodeVertDist" type="xs:integer"/>
                 <xs:attribute name="nodeToLineHorizDist" type="xs:integer"/>
                 <xs:attribute name="lineSize" type="xs:integer"/>

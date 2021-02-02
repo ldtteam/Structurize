@@ -36,7 +36,7 @@ public class SwitchView extends View
     {
         super.parseChildren(params);
 
-        final String defaultView = params.getStringAttribute("default", null);
+        final String defaultView = params.getString("default");
         if (defaultView != null)
         {
             setView(defaultView);

@@ -110,10 +110,10 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
         }
 
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText((IFormattableTextComponent) from.getDisplayName());
+        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getDisplayName());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
-        findPaneOfTypeByID("taglistname", Label.class).setLabelText("Tags:");
+        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
+        findPaneOfTypeByID("taglistname", Text.class).setText("Tags:");
         updateResources();
         updateTags();
     }
@@ -182,7 +182,7 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
                 final int row = resourceList.getListElementIndexByPane(button);
                 final ItemStack to = allItems.get(row);
                 findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-                findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) to.getDisplayName());
+                findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getDisplayName());
                 break;
             }
             case BUTTON_TAG:
@@ -227,9 +227,9 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final ItemStack resource = tempRes.get(index);
-                final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
-                resourceLabel.setLabelText((IFormattableTextComponent) resource.getDisplayName());
-                resourceLabel.setColor(WHITE, WHITE);
+                final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
+                resourceLabel.setText((IFormattableTextComponent) resource.getDisplayName());
+                resourceLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });
@@ -264,9 +264,9 @@ public class WindowPlaceholderblock extends Window implements ButtonHandler
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                final Label tagLabel = rowPane.findPaneOfTypeByID(TAG_LABEL_NAME, Label.class);
-                tagLabel.setLabelText(tagStringList.get(index));
-                tagLabel.setColor(WHITE, WHITE);
+                final Text tagLabel = rowPane.findPaneOfTypeByID(TAG_LABEL_NAME, Text.class);
+                tagLabel.setText(tagStringList.get(index));
+                tagLabel.setColors(WHITE);
             }
         });
     }

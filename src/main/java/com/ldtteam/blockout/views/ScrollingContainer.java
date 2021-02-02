@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -65,40 +66,27 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        scissorsStart(ms);
+        scissorsStart(ms, width, contentHeight);
 
         // Translate the scroll
         ms.push();
         ms.translate(0.0d, -scrollY, 0.0d);
-        super.drawSelf(ms, mx, my + (int) scrollY);
+        super.drawSelf(ms, mx, my + scrollY);
         ms.pop();
 
-        scissorsEnd();
+        scissorsEnd(ms);
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the scroll
         ms.push();
         ms.translate(0.0d, -scrollY, 0.0d);
-        super.drawSelfLast(ms, mx, my + (int) scrollY);
+        super.drawSelfLast(ms, mx, my + scrollY);
         ms.pop();
-    }
-
-    @Override
-    public boolean handleHover(final double mx, final double my)
-    {
-        return super.handleHover(mx, my + (int) scrollY);
-    }
-
-    @Override
-    public boolean click(final double mx, final double my)
-    {
-        // Offset click by the scroll amounts; we'll adjust it back on clickSelf
-        return super.click(mx, my + scrollY);
     }
 
     @Override
@@ -147,5 +135,15 @@ public class ScrollingContainer extends View
     public void scrollBy(final double deltaY)
     {
         setScrollY(scrollY + deltaY);
+    }
+
+    @Override
+    public boolean mouseEventProcessor(final double mx,
+        final double my,
+        final MouseEventCallback panePredicate,
+        final MouseEventCallback eventCallbackPositive,
+        final MouseEventCallback eventCallbackNegative)
+    {
+        return super.mouseEventProcessor(mx, my + scrollY, panePredicate, eventCallbackPositive, eventCallbackNegative);
     }
 }
