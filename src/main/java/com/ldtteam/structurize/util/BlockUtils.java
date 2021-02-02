@@ -413,7 +413,7 @@ public final class BlockUtils
      */
     public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
     {
-        return target.getClass().isInstance(propertiesOrigin.getBlock())
+        return target.getClass().equals(propertiesOrigin.getBlock().getClass())
             ? unsafeCopyBlockStateProperties(target.getDefaultState(), propertiesOrigin, propertiesOrigin.getProperties())
             : null;
     }
