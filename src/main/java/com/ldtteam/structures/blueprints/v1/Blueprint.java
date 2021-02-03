@@ -109,7 +109,7 @@ public class Blueprint
     /**
      * Source of rendering.
      */
-    private BlockPos renderSource = new BlockPos(0, 0, 0);
+    private BlockPos renderSource = BlockPos.ZERO;
 
     /**
      * Constructor of a new Blueprint.
