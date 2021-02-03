@@ -9,6 +9,10 @@ import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -378,6 +382,7 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
+    @Nullable
     public List<IFormattableTextComponent> getTextAsList()
     {
         return text;
@@ -386,6 +391,7 @@ public abstract class AbstractTextElement extends Pane
     /**
      * @return null if empty, first line otherwise
      */
+    @Nullable
     public IFormattableTextComponent getText()
     {
         return isTextEmpty() ? null : text.get(0);
@@ -416,9 +422,19 @@ public abstract class AbstractTextElement extends Pane
     /**
      * @return null if empty, otherwise first line as string
      */
-    public String getTextAsString()
+    @Nullable
+    public String getTextAsStringStrict()
     {
         return isTextEmpty() ? null : text.get(0).getString();
+    }
+
+    /**
+     * @return emptyString if empty, otherwise first line as string
+     */
+    @NotNull
+    public String getTextAsString()
+    {
+        return isTextEmpty() ? "" : text.get(0).getString();
     }
 
     @Deprecated
