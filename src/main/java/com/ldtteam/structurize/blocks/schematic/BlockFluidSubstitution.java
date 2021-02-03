@@ -33,6 +33,5 @@ public class BlockFluidSubstitution extends AbstractBlockStructurize<BlockFluidS
     public BlockFluidSubstitution()
     {
         super(Properties.create(Material.WOOD).notSolid().hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(BLOCK_NAME);
     }
 }

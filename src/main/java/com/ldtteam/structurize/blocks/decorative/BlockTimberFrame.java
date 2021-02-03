@@ -44,7 +44,6 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
     public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
-        setRegistryName(getName(timberFrameType, frameType, centreType));
         this.timberFrameType = timberFrameType;
         this.frameType = frameType;
         this.centreType = centreType;

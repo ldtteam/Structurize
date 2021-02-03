@@ -7,11 +7,11 @@
   ],
   "key": {
     "X": {
-      "item": "structurize:blockcactusplank"
+      "item": "structurize:cactus_planks"
     }
   },
   "result": {
-    "item": "structurize:blockcactusdoor",
+    "item": "structurize:cactus_door",
     "count": 3
   }
 }

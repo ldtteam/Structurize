@@ -30,8 +30,6 @@ public class BlockFloatingCarpet extends AbstractBlockStructurize<BlockFloatingC
     {
         super(properties);
         this.color = color;
-
-        setRegistryName(color.getTranslationKey() + BLOCK_NAME);
     }
 
     public DyeColor getColor()

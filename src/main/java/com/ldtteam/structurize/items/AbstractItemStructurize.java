@@ -15,6 +15,5 @@ public abstract class AbstractItemStructurize extends Item
     public AbstractItemStructurize(final String name, final Properties properties)
     {
         super(properties);
-        setRegistryName(name);
     }
 }

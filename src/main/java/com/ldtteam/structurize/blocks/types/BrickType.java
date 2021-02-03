@@ -17,7 +17,7 @@ public enum BrickType implements IBlockCollection
     BEIGE("beige", Items.GRAVEL),
     CREAM("cream", Items.SANDSTONE);
 
-    private static final String                 SUFFIX = "_bricks";
+    private static final String                 SUFFIX = "_brick";
     private final List<RegistryObject<Block>> blocks;
     private final        String                 name;
     public final         Item            ingredient;
@@ -28,7 +28,7 @@ public enum BrickType implements IBlockCollection
         this.ingredient = ingredient;
 
         blocks = create(
-          ModBlocks.BLOCKS, ModItems.ITEMS,
+          ModBlocks.getRegistry(), ModItems.getRegistry(),
           IBlockCollection.BlockType.BLOCK,
           IBlockCollection.BlockType.SLAB,
           IBlockCollection.BlockType.STAIRS,

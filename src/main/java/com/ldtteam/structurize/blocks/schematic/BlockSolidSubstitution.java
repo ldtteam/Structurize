@@ -33,6 +33,5 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
     public BlockSolidSubstitution()
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(BLOCK_NAME);
     }
 }

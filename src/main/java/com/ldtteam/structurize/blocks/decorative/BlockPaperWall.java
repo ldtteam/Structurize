@@ -42,7 +42,6 @@ public class BlockPaperWall extends AbstractBlockStructurizePane<BlockPaperWall>
     public BlockPaperWall(final String type)
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(type + "_" + BLOCK_NAME);
     }
 
     /**

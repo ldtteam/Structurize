@@ -73,7 +73,6 @@ public class BlockShingleSlab extends AbstractBlockStructurizeDirectional<BlockS
     public BlockShingleSlab(final ShingleFaceType faceType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(faceType.getName() + "_shingle_slab");
         this.faceType = faceType;
         setDefaultState(getDefaultState().with(WATERLOGGED, false));
     }

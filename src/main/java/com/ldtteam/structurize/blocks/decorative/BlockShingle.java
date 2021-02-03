@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import java.util.function.Supplier;
-
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleWoodType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.state.properties.StairsShape;
+
+import java.util.function.Supplier;
 
 /**
  * Class defining the general shingle.
@@ -33,7 +33,6 @@ public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
     public BlockShingle(final Supplier<BlockState> modelState, final ShingleWoodType woodType, final ShingleFaceType faceType)
     {
         super(modelState, Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
-        setRegistryName(faceType.getName() + "_" + woodType.getName() + "_shingle");
         this.woodType = woodType;
         this.faceType = faceType;
     }

@@ -14,13 +14,13 @@
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "structurize:blockcactusdoor",
+              "block": "structurize:cactus_door",
               "properties": {
                 "half": "lower"
               }
             }
           ],
-          "name": "structurize:blockcactusdoor"
+          "name": "structurize:cactus_door"
         }
       ]
     }

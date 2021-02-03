@@ -60,7 +60,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     public ItemScanTool(final Properties properties)
     {
         super(properties);
-        setRegistryName("sceptersteel");
     }
 
     @Override

@@ -46,7 +46,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     public ItemTagTool(final Properties properties)
     {
         super(properties);
-        setRegistryName(TAG_TOOL_REGISTRY_NAME);
     }
 
     @Override

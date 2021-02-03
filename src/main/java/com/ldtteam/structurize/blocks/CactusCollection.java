@@ -1,14 +1,13 @@
 package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.blocks.types.IBlockCollection;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
 
-import static com.ldtteam.structurize.blocks.ModBlocks.BLOCKS;
 import static com.ldtteam.structurize.blocks.ModBlocks.getList;
-import static com.ldtteam.structurize.items.ModItems.ITEMS;
 
 public class CactusCollection implements IBlockCollection
 {
@@ -17,7 +16,7 @@ public class CactusCollection implements IBlockCollection
     public CactusCollection()
     {
         blocks = create(
-          BLOCKS, ITEMS,
+          ModBlocks.getRegistry(), ModItems.getRegistry(),
           BlockType.PLANKS,
           BlockType.SLAB,
           BlockType.STAIRS,

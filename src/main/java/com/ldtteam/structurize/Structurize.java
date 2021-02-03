@@ -43,8 +43,8 @@ public class Structurize
      */
     public Structurize()
     {
-        ModBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModItems.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModBlocks.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModItems.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         config = new Configuration(ModLoadingContext.get().getActiveContainer());
 
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);

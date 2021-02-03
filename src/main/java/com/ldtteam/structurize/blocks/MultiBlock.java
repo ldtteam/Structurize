@@ -43,7 +43,6 @@ public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
     public MultiBlock()
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(BLOCK_NAME);
     }
 
     @Override

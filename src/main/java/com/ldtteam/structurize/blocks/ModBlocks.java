@@ -7,6 +7,7 @@ import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.*;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
@@ -16,18 +17,15 @@ import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static com.ldtteam.structurize.items.ModItems.ITEMS;
 
 /**
  * Class to create the modBlocks.
@@ -37,15 +35,14 @@ import static com.ldtteam.structurize.items.ModItems.ITEMS;
  */
 
 @ObjectHolder(Constants.MOD_ID)
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
     private ModBlocks() { /* prevent construction */ }
 
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
 
     /*
-     *  Forge deferred registry injection
+     *  Forge deferred registry object injection
      */
 
     public static final BlockSubstitution      blockSubstitution        = null;
@@ -59,14 +56,8 @@ public final class ModBlocks
      *  Block Collections
      */
 
-    public static final IBlockCollection CACTI_BLOCKS = new CactusCollection();
-    public static final List<IBlockCollection> BRICKS = IBlockCollection.each(
-      BrickType.values(), BLOCKS, ITEMS,
-      IBlockCollection.BlockType.BLOCK,
-      IBlockCollection.BlockType.SLAB,
-      IBlockCollection.BlockType.STAIRS,
-      IBlockCollection.BlockType.WALL
-    );
+    public static IBlockCollection CACTI_BLOCKS = new CactusCollection();
+    public static List<IBlockCollection> BRICKS = Arrays.asList(BrickType.values());
 
     /*
      *  Non-collection Block lists for mass registration
@@ -108,22 +99,16 @@ public final class ModBlocks
         return list.stream().map(RegistryObject::get).collect(Collectors.toList());
     }
 
-    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
+    public static DeferredRegister<Block> getRegistry()
     {
-        RegistryObject<B> registered = BLOCKS.register(name, block);
-        ITEMS.register(name, () -> new BlockItem(registered.get(), new Item.Properties().group(group)));
-        return registered;
+        return BLOCKS;
     }
 
-    public static <T extends IBlockList<B>, B extends Block> List<RegistryObject<B>> register(T[] values, ItemGroup group)
+    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
-        List<RegistryObject<B>> blocks = new LinkedList<>();
-        for (T block : values)
-        {
-            blocks.add(register(block.getString(), block::construct, group));
-        }
-
-        return blocks;
+        RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
+        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().group(group)));
+        return registered;
     }
 
     static

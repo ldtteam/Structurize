@@ -17,7 +17,6 @@ public class BlockMinecoloniesSlab<B extends BlockMinecoloniesSlab<B>> extends S
     public BlockMinecoloniesSlab(final Properties properties, final String registryName)
     {
         super(properties);
-        this.setRegistryName(registryName);
     }
 
     @Override
