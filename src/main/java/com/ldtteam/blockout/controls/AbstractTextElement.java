@@ -176,7 +176,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected void recalcTextRendering()
     {
-        if (textScale <= 0.0d || text == null || text.stream().allMatch(t -> t.getString().isEmpty()) || textWidth < 1 || textHeight < 1)
+        if (textScale <= 0.0d || textWidth < 1 || textHeight < 1 || isTextEmpty())
         {
             preparedText = Collections.emptyList();
             return;
@@ -387,7 +387,7 @@ public abstract class AbstractTextElement extends Pane
      */
     public IFormattableTextComponent getText()
     {
-        return text.isEmpty() ? null : text.get(0);
+        return isTextEmpty() ? null : text.get(0);
     }
 
     public void setText(final List<IFormattableTextComponent> text)
@@ -407,13 +407,21 @@ public abstract class AbstractTextElement extends Pane
      */
     public String getTextAsString()
     {
-        return text.isEmpty() ? null : text.get(0).getString();
+        return isTextEmpty() ? null : text.get(0).getString();
     }
 
     @Deprecated
     public void setText(final String text)
     {
         setText(new StringTextComponent(text));
+    }
+
+    /**
+     * @return true if has no text or all lines are empty strings, false otherwise
+     */
+    public boolean isTextEmpty()
+    {
+        return text == null || text.stream().allMatch(t -> t.getString().isEmpty());
     }
 
     public int getRenderedTextWidth()
