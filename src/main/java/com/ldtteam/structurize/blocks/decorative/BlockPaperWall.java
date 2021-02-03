@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.AbstractBlockStructurizePane;
-import com.ldtteam.structurize.blocks.types.PaperwallType;
+import com.ldtteam.structurize.blocks.types.PaperWallType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
@@ -17,12 +17,12 @@ import net.minecraftforge.registries.IForgeRegistry;
 /**
  * The paperwall block class defining the paperwall.
  */
-public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
+public class BlockPaperWall extends AbstractBlockStructurizePane<BlockPaperWall>
 {
     /**
      * The variants for the paperwall.
      */
-    public static final EnumProperty<PaperwallType> VARIANT = EnumProperty.create("variant", PaperwallType.class);
+    public static final EnumProperty<PaperWallType> VARIANT = EnumProperty.create("variant", PaperWallType.class);
 
     /**
      * This blocks name.
@@ -39,7 +39,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
      */
     private static final float                      RESISTANCE     = 1F;
 
-    public BlockPaperwall(final String type)
+    public BlockPaperWall(final String type)
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
         setRegistryName(type + "_" + BLOCK_NAME);

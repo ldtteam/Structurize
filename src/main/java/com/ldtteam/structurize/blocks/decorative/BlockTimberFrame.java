@@ -52,7 +52,7 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
 
     public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
     {
-        return timberFrameType.getName() + "_" + frameType.getName() + "_" + centreType.getName() + "_timber_frame";
+        return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getName(), centreType.getName());
     }
 
     @Override

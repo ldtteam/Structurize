@@ -6,8 +6,8 @@ import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
 import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
@@ -37,26 +37,39 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
         saveBlocks(ModBlocks.getTimberFrames(), cache);
-        saveBlocks(ModBlocks.getPaperwalls(), cache);
+        saveBlocks(ModBlocks.getPaperWalls(), cache);
         saveBlocks(ModBlocks.getShingles(), cache);
         saveBlocks(ModBlocks.getShingleSlabs(), cache);
         saveBlocks(ModBlocks.getFloatingCarpets(), cache);
-        saveBlocks(ModBlocks.getBricks(), cache);
 
+        saveBlockCollection(ModBlocks.BRICKS, cache);
+        saveBlockCollection(ModBlocks.CACTI_BLOCKS, cache);
+
+        assert false;
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
         saveBlock(ModBlocks.blockFluidSubstitution, cache);
 
-        saveBlock(ModBlocks.blockCactusPlank, cache);
-        saveBlock(ModBlocks.blockCactusTrapdoor, cache);
-        saveBlock(ModBlocks.blockCactusStair, cache);
-        saveBlock(ModBlocks.blockCactusSlab, cache);
-        saveBlock(ModBlocks.blockCactusFence, cache);
-        saveBlock(ModBlocks.blockCactusFenceGate, cache);
         saveBlock(ModBlocks.blockDecoBarrel_onside, cache);
         saveBlock(ModBlocks.blockDecoBarrel_standing, cache);
 
         saveBlock(ModBlocks.multiBlock, cache);
+    }
+
+    private void saveBlockCollection(final List<IBlockCollection> blocks, final DirectoryCache cache) throws  IOException
+    {
+        for (IBlockCollection collection : blocks)
+        {
+            saveBlockCollection(collection, cache);
+        }
+    }
+
+    private void saveBlockCollection(final IBlockCollection blocks, final DirectoryCache cache) throws IOException
+    {
+        for (Block block : blocks.getBlocks())
+        {
+            saveBlock(block, cache);
+        }
     }
 
     private <T extends Block> void saveBlocks(final List<T> blocks, final DirectoryCache cache) throws IOException

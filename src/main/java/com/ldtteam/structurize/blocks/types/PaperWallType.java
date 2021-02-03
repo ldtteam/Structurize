@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.blocks.types;
 
-import com.ldtteam.structurize.blocks.decorative.BlockPaperwall;
-import net.minecraft.util.IStringSerializable;
+import com.ldtteam.structurize.blocks.IBlockList;
+import com.ldtteam.structurize.blocks.decorative.BlockPaperWall;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Types that the {@link BlockPaperwall} supports
+ * Types that the {@link BlockPaperWall} supports
  */
-public enum PaperwallType implements IStringSerializable
+public enum PaperWallType implements IBlockList<BlockPaperWall>
 {
     OAK("oak"),
     SPRUCE("spruce"),
@@ -16,11 +16,12 @@ public enum PaperwallType implements IStringSerializable
 
     private final String name;
 
-    PaperwallType(final String nameIn)
+    PaperWallType(final String nameIn)
     {
         this.name = nameIn;
     }
 
+    @NotNull
     @Override
     public String getString()
     {
@@ -28,8 +29,15 @@ public enum PaperwallType implements IStringSerializable
     }
 
     @NotNull
+    @Override
     public String getName()
     {
         return this.name;
+    }
+
+    @Override
+    public BlockPaperWall construct()
+    {
+        return new BlockPaperWall(getName());
     }
 }

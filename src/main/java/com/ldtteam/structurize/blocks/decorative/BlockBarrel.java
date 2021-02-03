@@ -27,10 +27,9 @@ public class BlockBarrel extends AbstractBlockStructurize<BlockBarrel>
      */
     protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
 
-    public BlockBarrel(final String modelName)
+    public BlockBarrel()
     {
         super(Block.Properties.from(Blocks.OAK_PLANKS).hardnessAndResistance(3f, 1f));
-        this.setRegistryName(modelName);
     }
 
     @Override

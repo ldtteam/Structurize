@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.TallBlockItem;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -21,6 +22,8 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModItems
 {
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
+
     public static ItemBuildTool buildTool;
     public static ItemShapeTool shapeTool;
     public static ItemScanTool scanTool;
@@ -54,8 +57,6 @@ public final class ModItems
         scanTool = new ItemScanTool(ModCreativeTabs.STRUCTURIZE);
         tagTool = new ItemTagTool(ModCreativeTabs.STRUCTURIZE);
         caliper = new ItemCaliper(properties);
-        cactusDoor = new TallBlockItem(ModBlocks.blockCactusDoor, properties.maxStackSize(16));
-        cactusDoor.setRegistryName(ModBlocks.blockCactusDoor.getRegistryName());
 
         registry.register(buildTool);
         registry.register(shapeTool);

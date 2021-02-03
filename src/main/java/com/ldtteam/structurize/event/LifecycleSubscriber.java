@@ -1,16 +1,12 @@
 package com.ldtteam.structurize.event;
 
-import java.util.function.Predicate;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.types.BlockSet;
-import com.ldtteam.structurize.blocks.types.BrickType;
 import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
-import com.ldtteam.structurize.generation.defaults.ProviderSet;
 import com.ldtteam.structurize.generation.floating_carpets.*;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
@@ -23,7 +19,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -34,7 +29,7 @@ import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.resource.VanillaResourceType;
 
-import static com.ldtteam.structurize.generation.defaults.DefaultProviderTemplates.*;
+import java.util.function.Predicate;
 
 public class LifecycleSubscriber
 {
@@ -61,7 +56,7 @@ public class LifecycleSubscriber
         ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
-        ModBlocks.getPaperwalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
+        ModBlocks.getPaperWalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
         ModBlocks.getFloatingCarpets().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
         ClientRegistry.bindTileEntityRenderer(StructurizeTileEntities.PLACERHOLDER_BLOCK, PlaceholderTileEntityRenderer::new);
         OptifineCompat.getInstance().intialize();
@@ -139,6 +134,5 @@ public class LifecycleSubscriber
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
 
-        event.getGenerator().addProvider(BrickType.getProvider(event.getGenerator()));
     }
 }

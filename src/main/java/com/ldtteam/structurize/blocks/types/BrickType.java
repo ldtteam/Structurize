@@ -1,86 +1,49 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.defaults.DefaultProviderTemplates;
-import com.ldtteam.structurize.generation.defaults.ProviderSet;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.data.ShapelessRecipeBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.Tuple;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.minecraftforge.fml.RegistryObject;
 
-import static com.ldtteam.structurize.generation.defaults.DefaultProviderTemplates.*;
+import java.util.List;
 
-public enum BrickType implements IStringSerializable, BlockSet<BrickType>
+import static com.ldtteam.structurize.blocks.ModBlocks.getList;
+
+public enum BrickType implements IBlockCollection
 {
     BROWN("brown", Items.TERRACOTTA),
     BEIGE("beige", Items.GRAVEL),
     CREAM("cream", Items.SANDSTONE);
 
-    private static final String SUFFIX = "_bricks";
-    private final String name;
-    private final Item   ingredient;
-    private       Block  normal;
+    private static final String                 SUFFIX = "_bricks";
+    private final List<RegistryObject<Block>> blocks;
+    private final        String                 name;
+    public final         Item            ingredient;
 
     BrickType(final String name, final Item ingredient)
     {
         this.name = name;
         this.ingredient = ingredient;
+
+        blocks = create(
+          ModBlocks.BLOCKS, ModItems.ITEMS,
+          IBlockCollection.BlockType.BLOCK,
+          IBlockCollection.BlockType.SLAB,
+          IBlockCollection.BlockType.STAIRS,
+          IBlockCollection.BlockType.WALL);
     }
 
     @Override
-    public String getString()
+    public String getName()
     {
         return this.name + SUFFIX;
     }
 
-    @NotNull
-    public String getName()
-    {
-        return this.name;
-    }
-
-    @Nullable
     @Override
-    public BrickType fromSearch(final String search)
+    public List<Block> getBlocks()
     {
-        return search.equals(getString()) ? this : null;
-    }
-
-    public Item getIngredient()
-    {
-        return ingredient;
-    }
-
-    public Block setNormalBlock(Block normal)
-    {
-        this.normal = normal;
-        return normal;
-    }
-
-    public Block getNormalBlock()
-    {
-        return this.normal;
-    }
-
-    public static IDataProvider getProvider(DataGenerator gen)
-    {
-        return new ProviderSet(gen, ModBlocks.getBricks())
-          .variants(blockstateFromParentSet("minecraft:block/bricks"))
-          .item(itemModelFromParentSet("minecraft:block/bricks"))
-          .shapeless(
-            block -> CutType.fromSuffix(block) == CutType.NORMAL,
-            block -> new ShapelessRecipeBuilder(block, 9)
-                       .setGroup("bricks")
-                       .addIngredient(Items.BRICKS, 8)
-                       .addIngredient(BlockSet.find(block, BrickType.values()).getIngredient()))
-          .shaped(
-            block -> true, // for the blocks that fail the previous test (i.e. are not the normal form)
-            block -> populateStandardSetRecipes(BlockSet.find(block, BrickType.values()).getNormalBlock().asItem(),null).apply(block));
+        return getList(blocks);
     }
 }
