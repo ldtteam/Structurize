@@ -410,8 +410,7 @@ public abstract class AbstractTextElement extends Pane
 
     public void setText(final IFormattableTextComponent text)
     {
-        this.text = Collections.singletonList(text);
-        recalcTextRendering();
+        setText(Collections.singletonList(text));
     }
 
     public void clearText()
