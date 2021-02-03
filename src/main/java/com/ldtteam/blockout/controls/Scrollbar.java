@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Parsers;
 import com.ldtteam.blockout.views.ScrollingContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.MathHelper;
@@ -64,12 +65,10 @@ public class Scrollbar extends Pane
         this(container);
         // TODO: Parse Scrollbar-specific Params
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("scrollbarOffset", null, null);
-        if (size != null)
-        {
-            offsetX = size.getX();
-            offsetY = size.getY();
-        }
+        params.applyShorthand("scrollbarOffset", Parsers.INT, 2, a -> {
+            offsetX = a.get(0);
+            offsetY = a.get(1);
+        });
     }
 
     /**
@@ -88,7 +87,7 @@ public class Scrollbar extends Pane
      *
      * @param my the y it is clicked on.
      */
-    public void dragScroll(final int my)
+    public void dragScroll(final double my)
     {
         if (container.getContentHeight() == 0)
         {
@@ -113,7 +112,7 @@ public class Scrollbar extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         barClicked = barClicked && (mc.mouseHelper.isLeftDown() || BOScreen.isMouseLeftDown);
         // TODO: catch from screen
@@ -191,5 +190,11 @@ public class Scrollbar extends Pane
     public int getScrollOffsetX()
     {
         return offsetX;
+    }
+
+    @Override
+    public boolean onMouseDrag(final double mx, final double my, final int speed, final double deltaX, final double deltaY)
+    {
+        return true;
     }
 }

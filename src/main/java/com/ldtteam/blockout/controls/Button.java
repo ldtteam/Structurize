@@ -1,11 +1,10 @@
 package com.ldtteam.blockout.controls;
 
+import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,10 +12,9 @@ import org.jetbrains.annotations.NotNull;
  * Base button class.
  * Has a handler for when the button is clicked.
  */
-public class Button extends Pane
+public class Button extends AbstractTextElement
 {
     protected ButtonHandler handler;
-    protected IFormattableTextComponent label;
 
     /**
      * Default constructor.
@@ -34,39 +32,35 @@ public class Button extends Pane
     public Button(@NotNull final PaneParams params)
     {
         super(params);
-        label = new StringTextComponent(params.getLocalizedStringAttribute("label", ""));
     }
 
     /**
-     * Button textContent getter.
-     *
-     * @return button textContent.
+     * Construct a button from the parameters according to set out text defaults
      */
-    @Deprecated
-    public String getLabel()
+    public Button(
+      final PaneParams params,
+      final Alignment alignment,
+      final int enabledColor,
+      final int hoverColor,
+      final int disabledColor,
+      final boolean hasShadow,
+      final boolean shouldWrap)
     {
-        return label.getString();
-    }
-
-    public IFormattableTextComponent getLabelNew()
-    {
-        return label;
+        super(params, alignment, enabledColor, hoverColor, disabledColor, hasShadow, shouldWrap);
     }
 
     /**
-     * Button textContent setter.
-     *
-     * @param s new textContent.
+     * Construct a button according to set out text defaults
      */
-    @Deprecated
-    public void setLabel(final String s)
+    public Button(
+      final Alignment alignment,
+      final int enabledColor,
+      final int hoverColor,
+      final int disabledColor,
+      final boolean hasShadow,
+      final boolean shouldWrap)
     {
-        label = new StringTextComponent(s);
-    }
-
-    public void setLabel(final IFormattableTextComponent s)
-    {
-        label = s;
+        super(alignment, enabledColor, hoverColor, disabledColor, hasShadow, shouldWrap);
     }
 
     /**
@@ -110,5 +104,12 @@ public class Button extends Pane
             delegatedHandler.onButtonClicked(this);
         }
         return true;
+    }
+
+    public static Button construct(PaneParams params)
+    {
+        return params.hasAttribute("source")
+          ? new ButtonImage(params)
+          : new ButtonVanilla(params);
     }
 }

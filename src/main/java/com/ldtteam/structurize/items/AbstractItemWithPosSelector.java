@@ -115,4 +115,13 @@ public abstract class AbstractItemWithPosSelector extends Item
         }
         return false;
     }
+
+    /**
+     * Override this so items have instant click in survival.
+     */
+    @Override
+    public float getDestroySpeed(final ItemStack stack, final BlockState state)
+    {
+        return Float.MAX_VALUE;
+    }
 }

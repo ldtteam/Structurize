@@ -20,8 +20,7 @@ public class Gradient extends AbstractTextElement
      */
     public Gradient()
     {
-        super();
-        // Required default constructor.
+        super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
     }
 
     /**
@@ -31,9 +30,9 @@ public class Gradient extends AbstractTextElement
      */
     public Gradient(final PaneParams params)
     {
-        super(params);
-        gradientStart = params.getIntAttribute("gradientstart", gradientStart);
-        gradientEnd = params.getColorAttribute("gradientend", gradientEnd);
+        super(params, DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        gradientStart = params.getColor("gradientstart", gradientStart);
+        gradientEnd = params.getColor("gradientend", gradientEnd);
     }
 
     /**
@@ -61,10 +60,9 @@ public class Gradient extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        ms.push();
         fillGradient(ms, getX(), getY(), getX() + width, getY() + height, gradientStart, gradientEnd);
-        ms.pop();
+        super.drawSelf(ms, mx, my);
     }
 }

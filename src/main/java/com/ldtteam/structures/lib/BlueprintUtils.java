@@ -4,11 +4,13 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.client.BlueprintBlockAccess;
 import com.ldtteam.structures.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structures.client.BlueprintEntityInfoTransformHandler;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.IAngerable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -147,13 +149,23 @@ public final class BlueprintUtils
             final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
             if (type.isPresent())
             {
-                // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
-                if (type.get().equals(EntityType.IRON_GOLEM) && blockAccess.isRemote)
+                if (blockAccess.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
                 {
+                    if (type.get().getRegistryName().getNamespace().equals("minecraft") && (type.get() != EntityType.WOLF || type.get() != EntityType.IRON_GOLEM))
+                    {
+                        Log.getLogger().error("Rather than using config, PLEASE REPORT an issue with minecraft entity to Structurize github issues. Thanks in advance");
+                    }
                     return null;
                 }
     
                 final Entity entity = type.get().create(blockAccess);
+
+                /** 1.16 fix {@link IAngerable#readAngerNBT(ServerWorld, CompoundNBT)} */
+                if (entity instanceof IAngerable && blockAccess.isRemote)
+                {
+                    return null;
+                }
+    
                 if (entity != null)
                 {
                     entity.deserializeNBT(compound);

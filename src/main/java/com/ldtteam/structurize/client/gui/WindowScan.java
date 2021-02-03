@@ -4,7 +4,7 @@ import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ItemIcon;
-import com.ldtteam.blockout.controls.Label;
+import com.ldtteam.blockout.controls.Text;
 import com.ldtteam.blockout.controls.TextField;
 import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structures.helpers.Settings;
@@ -18,7 +18,6 @@ import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.DoubleBlockHalf;
@@ -237,10 +236,6 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
-        if (Settings.instance.getStructureName() != null)
-        {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(Settings.instance.getStructureName());
-        }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
@@ -321,6 +316,11 @@ public class WindowScan extends AbstractWindowSkeleton
         final World world = Minecraft.getInstance().world;
         resources.clear();
         entities.clear();
+
+        if (findPaneByID(BUTTON_SHOW_RES).isVisible())
+        {
+            return;
+        }
 
         for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
         {
@@ -438,7 +438,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class).setLabelText((IFormattableTextComponent) tempEntities.get(index).getName());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((IFormattableTextComponent) tempEntities.get(index).getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
@@ -475,12 +475,12 @@ public class WindowScan extends AbstractWindowSkeleton
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final ItemStorage resource = tempRes.get(index);
-                final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
-                final Label quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Label.class);
-                resourceLabel.setLabelText((IFormattableTextComponent) resource.getItemStack().getDisplayName());
-                quantityLabel.setLabelText(Integer.toString(resource.getAmount()));
-                resourceLabel.setColor(WHITE, WHITE);
-                quantityLabel.setColor(WHITE, WHITE);
+                final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
+                final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
+                resourceLabel.setText((IFormattableTextComponent) resource.getItemStack().getDisplayName());
+                quantityLabel.setText(Integer.toString(resource.getAmount()));
+                resourceLabel.setColors(WHITE);
+                quantityLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 1, resource.getItemStack().getTag()));
                 if (!Minecraft.getInstance().player.isCreative())
                 {

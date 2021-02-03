@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.bricks.*;
 import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
@@ -35,7 +36,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
-    /*
+    /**
      * Creating objects for all blocks in the mod.
      * References can be made to here.
      */
@@ -49,6 +50,26 @@ public final class ModBlocks
     public static BlockSubstitution      blockSubstitution;
     public static BlockSolidSubstitution blockSolidSubstitution;
     public static BlockFluidSubstitution blockFluidSubstitution;
+
+    /**
+     * Brown, beige, and cream bricks (and variants)
+     */
+
+    public static BlockBricks blockBrownBricks;
+    public static BlockBricks blockBeigeBricks;
+    public static BlockBricks blockCreamBricks;
+
+    public static BlockMinecoloniesSlab<?> blockBrownBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockBeigeBrickSlab;
+    public static BlockMinecoloniesSlab<?> blockCreamBrickSlab;
+
+    public static BlockBrickWall blockBrownBrickWall;
+    public static BlockBrickWall blockBeigeBrickWall;
+    public static BlockBrickWall blockCreamBrickWall;
+
+    public static BlockBrickStairs blockBrownBrickStairs;
+    public static BlockBrickStairs blockBeigeBrickStairs;
+    public static BlockBrickStairs blockCreamBrickStairs;
 
     /**
      * Utility blocks.
@@ -99,14 +120,14 @@ public final class ModBlocks
      */
     private ModBlocks()
     {
-        /*
+        /**
          * Intentionally left empty.
          */
     }
 
     /**
-     * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}
-     * Also this method registeres blocks with forge. kinda obvious.
+     * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}.
+     * Also, this method registers blocks with Forge.
      *
      * @param event block registering event
      */
@@ -129,6 +150,22 @@ public final class ModBlocks
 
         blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
         blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
+
+        blockBrownBricks = new BlockBricks("blockbrownbricks").registerBlock(registry);
+        blockBeigeBricks = new BlockBricks("blockbeigebricks").registerBlock(registry);
+        blockCreamBricks = new BlockBricks("blockcreambricks").registerBlock(registry);
+
+        blockBrownBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBrownBricks), "blockbrownbrickslab").registerBlock(registry);
+        blockBeigeBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBeigeBricks), "blockbeigebrickslab").registerBlock(registry);
+        blockCreamBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockCreamBricks), "blockcreambrickslab").registerBlock(registry);
+
+        blockBrownBrickWall = new BlockBrickWall("blockbrownbrickwall").registerBlock(registry);
+        blockBeigeBrickWall = new BlockBrickWall("blockbeigebrickwall").registerBlock(registry);
+        blockCreamBrickWall = new BlockBrickWall("blockcreambrickwall").registerBlock(registry);
+
+        blockBrownBrickStairs = new BlockBrickStairs("blockbrownbrickstairs").registerBlock(registry);
+        blockBeigeBrickStairs = new BlockBrickStairs("blockbeigebrickstairs").registerBlock(registry);
+        blockCreamBrickStairs = new BlockBrickStairs("blockcreambrickstairs").registerBlock(registry);
 
         for (final PaperwallType type : PaperwallType.values())
         {
@@ -200,8 +237,25 @@ public final class ModBlocks
         blockCactusSlab.registerItemBlock(registry, properties);
         blockCactusFence.registerItemBlock(registry, properties);
         blockCactusFenceGate.registerItemBlock(registry, properties);
+
         blockDecoBarrel_onside.registerItemBlock(registry, properties);
         blockDecoBarrel_standing.registerItemBlock(registry, properties);
+
+        blockBrownBricks.registerItemBlock(registry, properties);
+        blockBeigeBricks.registerItemBlock(registry, properties);
+        blockCreamBricks.registerItemBlock(registry, properties);
+
+        blockBrownBrickSlab.registerItemBlock(registry, properties);
+        blockBeigeBrickSlab.registerItemBlock(registry, properties);
+        blockCreamBrickSlab.registerItemBlock(registry, properties);
+
+        blockBrownBrickWall.registerItemBlock(registry, properties);
+        blockBeigeBrickWall.registerItemBlock(registry, properties);
+        blockCreamBrickWall.registerItemBlock(registry, properties);
+
+        blockBrownBrickStairs.registerItemBlock(registry, properties);
+        blockBeigeBrickStairs.registerItemBlock(registry, properties);
+        blockCreamBrickStairs.registerItemBlock(registry, properties);
 
         for (final BlockTimberFrame frame : timberFrames)
         {

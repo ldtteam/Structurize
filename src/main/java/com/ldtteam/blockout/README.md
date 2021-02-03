@@ -137,7 +137,7 @@ Pane up.  Likewise, in the case of *Right* alignment modes, the __x__ attribute 
 instead of right.  These rules also apply in the case of text alignment and offset.
 
 ***
-#### Window root element <window>
+#### Window root element `<window>`
 Root element for Window layout files.  Does not support the Common attributes.
 
 Window elements can contain any non-root element.
@@ -151,13 +151,13 @@ Window elements can contain any non-root element.
 The default (and maximum) Window size is 420x240.
 
 ***
-#### Layout root element <layout>
+#### Layout root element `<layout>`
 Root element for embeddable layout files.  Layout root elements have no attributes, and exist only as a container.
 
 Layout (root) elements can contain any non-root element.
 
 ***
-#### View <view>
+#### View `<view>`
 Views are simple containers, and can contain any non-root element.
 
 Child elements of Views (including Windows) that are entirely outside the View's bounds will not be rendered or receive
@@ -167,7 +167,7 @@ clicks.
                                   are offset by the padding in both directions.
 
 ***
-#### Group <group>
+#### Group `<group>`
 An automatically Y-sorted list of child elements.
 
 Child elements are automatically re-positioned to be sorted vertically, in the order they appear in the layout file.
@@ -175,7 +175,7 @@ Child elements are automatically re-positioned to be sorted vertically, in the o
 * `spacing="{spacing}"`          Y-gap between elements
 
 ***
-#### List View <list>
+#### List View `<list>`
 A scrolling list, using identical rows.  Features a scroll-bar when the list cannot fit within the bounds of the Pane.
 
 Only the first child element defined in the file (and all of it's children) will be used, as the definition for the
@@ -187,26 +187,26 @@ handles setting up Panes in individual row elements.
 * `spacing="{spacing}"`           Y-gap between row elements
 
 ***
-#### Box <box>
+#### Box `<box>`
 A View which draws a box around it's border.
 
 * `color="{color}"`               Color of the line; see 'Supported Colors', above
 * `linewidth="{width}"`           Width of the line, in pixels
 
 ***
-#### Switch View <switch>
+#### Switch View `<switch>`
 A View which only shows one direct child Pane/View at a time, with code support for switching between them.
 
 * `default="{id}"`                Initial visible child pane.  If none is specified, defaults to the first child.
 
 ***
-#### Button <button>
+#### Button `<button>`
 A typical Minecraft-style button.
 
 * `label="{text}"`                Text label of the button
 
 ***
-#### Image Button <buttonimage>
+#### Image Button `<buttonimage>`
 A clickable image which functions like a Button
 
 * `source="{path}"`               **Required** Resource Location path to the texture png to use
@@ -228,7 +228,7 @@ A clickable image which functions like a Button
 * `shadow="{true|false}"`         Whether to render the label with a shadow
 
 ***
-#### Label <label>
+#### Label `<label>`
 A basic single-line text label.
 
 * `label="{text}"`                Text label of the button
@@ -239,7 +239,7 @@ A basic single-line text label.
 * `shadow="{true|false}"`         Whether to render the label with a shadow
 
 ***
-#### Text <text>
+#### Text `<text>`
 A multi-line wrapping text box.  The actual text is not an attribute but within the <text></text> element itself.
 
 * `linespace="{space}"`           Additional line spacing
@@ -249,7 +249,7 @@ A multi-line wrapping text box.  The actual text is not an attribute but within 
 * `shadow="{true|false}"`         Whether to render the label with a shadow
 
 ***
-#### Input <input>
+#### Input `<input>`
 
 * `text="{text}"`                 Initial text, if any
 * `maxlength="{length}"`          Maximum length of the text
@@ -259,7 +259,7 @@ A multi-line wrapping text box.  The actual text is not an attribute but within 
 * `tab="{id}"`                    If the user presses 'tab', the next input pane to switch input to
 
 ***
-#### Image <image>
+#### Image `<image>`
 A basic image.
 
 * `source="{path}"`               **Required** Resource Location path to the texture png to use
@@ -267,13 +267,13 @@ A basic image.
 * `imagesize="{width height}"`    Size of image in source texture
 
 ***
-#### Item Icon / Stack <itemicon>
+#### Item Icon / Stack `<itemicon>`
 An item icon or stack
 
 * `item="{item}"`                 Item name identifier (e.g, "gold_ingot")
 
 ***
-#### Layout child element <layout>
+#### Layout child element `<layout>`
 Layout child elements allow embedding the contents of other XML files directly, as if the contents under the <layout>
 root element in the embedded file existed in place of the <layout> child element in the embedding file.
 

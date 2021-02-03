@@ -1,16 +1,21 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
+import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.ldtteam.blockout.BOScreen;
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.function.ToDoubleBiFunction;
 
 /**
  * Blockout window, high level root pane.
@@ -21,12 +26,12 @@ public class Window extends View
     /**
      * The default width.
      */
-    private static final int DEFAULT_WIDTH = 420;
+    protected static final int DEFAULT_WIDTH = 420;
 
     /**
      * The default height.
      */
-    private static final int DEFAULT_HEIGHT = 240;
+    protected static final int DEFAULT_HEIGHT = 240;
 
     /**
      * The screen of the window.
@@ -42,6 +47,11 @@ public class Window extends View
      * Defines if the window should have a lightbox.
      */
     protected boolean lightbox = true;
+
+    /**
+     * Render using size or attemp to scale to fullscreen.
+     */
+    protected WindowRenderType windowRenderType = WindowRenderType.OVERSIZED_VANILLA;
 
     /**
      * Create a window from an xml file.
@@ -96,36 +106,20 @@ public class Window extends View
      */
     public void loadParams(@NotNull final PaneParams params)
     {
-        final String inherit = params.getStringAttribute("inherit", null);
-        if (inherit != null)
-        {
-            Loader.createFromXMLFile(new ResourceLocation(inherit), this);
-        }
+        params.getResource("inherit", r -> Loader.createFromXMLFile(r, this));
 
-        final PaneParams.SizePair size = params.getSizePairAttribute("size", null, null);
-        if (size == null)
-        {
-            final int w = params.getIntAttribute("width", width);
-            final int h = params.getIntAttribute("height", height);
-            setSize(w, h);
-        }
-        else
-        {
-            setSize(size.getX(), size.getY());
-        }
+        params.applyShorthand("size", Parsers.INT, 2, a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
 
-        lightbox = params.getBooleanAttribute("lightbox", lightbox);
-        windowPausesGame = params.getBooleanAttribute("pause", windowPausesGame);
+        lightbox = params.getBoolean("lightbox", lightbox);
+        windowPausesGame = params.getBoolean("pause", windowPausesGame);
+        windowRenderType = params.getEnum("type", WindowRenderType.class, windowRenderType);
     }
 
     @Override
-    public void parseChildren(final PaneParams params)
-    {
-        // Can be overridden
-    }
-
-    @Override
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         updateDebugging();
 
@@ -161,6 +155,14 @@ public class Window extends View
     public boolean doesWindowPauseGame()
     {
         return windowPausesGame;
+    }
+
+    /**
+     * @return {@link WindowRenderType}
+     */
+    public WindowRenderType getRenderType()
+    {
+        return windowRenderType;
     }
 
     /**
@@ -257,5 +259,70 @@ public class Window extends View
     public void onClosed()
     {
         // Can be overridden
+    }
+
+    /**
+     * Defines how gui should be rendered.
+     */
+    public enum WindowRenderType
+    {
+        /**
+         * upscaling according to minecraft gui scale settings, no downscaling, max gui resolution is 320*240 px, anything above might not be rendered
+         */
+        VANILLA((mcWindow, window) -> Math.max(mcWindow.getGuiScaleFactor(), 1.0d)),
+        /**
+         * scaling to size of framebuffer with no lower limit, max gui resolution is unlimited
+         */
+        FULLSCREEN((mcWindow, window) -> {
+            final double widthScale = ((double) mcWindow.getFramebufferWidth()) / window.getWidth();
+            final double heightScale = ((double) mcWindow.getFramebufferHeight()) / window.getHeight();
+
+            return Math.min(widthScale, heightScale);
+        }),
+        /**
+         * scaling to size of framebuffer with lower limit of 320*240 px, max gui resolution is unlimited
+         */
+        FULLSCREEN_VANILLA((mcWindow, window) -> {
+            final double widthScale = Math.max(mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
+            final double heightScale = Math.max(mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
+
+            return Math.min(widthScale, heightScale);
+        }),
+        /**
+         * no upscaling, no downscalling, max gui resolution is unlimited
+         */
+        FIXED((mcWindow, window) -> 1.0d),
+        /**
+         * no upscaling, downscaling down to 320*240 px according to size of framebuffer, max gui resolution is unlimited
+         */
+        FIXED_VANILLA((mcWindow, window) -> Math.min(FULLSCREEN_VANILLA.calcRenderScale(mcWindow, window), 1.0d)),
+        /**
+         * integer upscaling up to mc gui scale, downscaling down to size of framebuffer, max gui resolution is unlimited
+         */
+        OVERSIZED((mcWindow, window) -> {
+            final double fs = FULLSCREEN.calcRenderScale(mcWindow, window);
+            final int userScale = Minecraft.getInstance().gameSettings.guiScale;
+            return fs < 1.0d ? fs : Math.min(Math.floor(fs), userScale == 0 ? Double.MAX_VALUE : userScale);
+        }),
+        /**
+         * integer upscaling up to mc gui scale, downscaling down to 320*240 px according to size of framebuffer, max gui resolution is unlimited
+         */
+        OVERSIZED_VANILLA((mcWindow, window) -> {
+            final double fs_vanilla = FULLSCREEN_VANILLA.calcRenderScale(mcWindow, window);
+            final int userScale = Minecraft.getInstance().gameSettings.guiScale;
+            return fs_vanilla < 1.0d ? fs_vanilla : Math.min(Math.floor(fs_vanilla), userScale == 0 ? Double.MAX_VALUE : userScale);
+        });
+
+        private final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator;
+
+        private WindowRenderType(final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator)
+        {
+            this.renderScaleCalculator = renderScaleCalculator;
+        }
+
+        public double calcRenderScale(final MainWindow mcWindow, final Window window)
+        {
+            return renderScaleCalculator.applyAsDouble(mcWindow, window);
+        }
     }
 }
