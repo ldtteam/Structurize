@@ -107,6 +107,11 @@ public class Blueprint
     private BlockPos cachePrimaryOffset = null;
 
     /**
+     * Source of rendering.
+     */
+    private BlockPos renderSource = new BlockPos(0, 0, 0);
+
+    /**
      * Constructor of a new Blueprint.
      *
      * @param sizeX        the x size.
@@ -817,6 +822,7 @@ public class Blueprint
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + palleteSize;
         result = prime * result + getVolume();
+        result = prime * result + renderSource.hashCode();
         return result;
     }
 
@@ -833,6 +839,17 @@ public class Blueprint
         }
         final Blueprint other = (Blueprint) obj;
         return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume();
+    }
+
+    /**
+     * Set the render source of the blueprint.
+     * This will be included in the hash to differentiate.
+     * This is supposed to be used for static blueprints that are not moved around only.
+     * @param pos the source position.
+     */
+    public void setRenderSource(final BlockPos pos)
+    {
+        this.renderSource = pos;
     }
 
     /**
