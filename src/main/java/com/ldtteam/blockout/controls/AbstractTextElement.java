@@ -12,6 +12,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 /**
@@ -396,10 +397,20 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
+    public void setText(final ITextComponent text)
+    {
+        setText((IFormattableTextComponent) text);
+    }
+
     public void setText(final IFormattableTextComponent text)
     {
         this.text = Collections.singletonList(text);
         recalcTextRendering();
+    }
+
+    public void clearText()
+    {
+        setText(Collections.emptyList());
     }
 
     /**
