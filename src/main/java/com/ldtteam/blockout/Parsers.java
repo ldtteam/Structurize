@@ -5,7 +5,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,8 +30,6 @@ public final class Parsers
     public static Function<String, Integer> INT    = Integer::parseInt;
     public static Function<String, Float>   FLOAT  = Float::parseFloat;
     public static Function<String, Double>  DOUBLE = Double::parseDouble;
-
-    public static String NO_TRANSLATION = TextFormatting.OBFUSCATED + "whoops!";
 
     /** Parses a resource location, include shorthand tricks */
     public static Function<String, ResourceLocation> RESOURCE = ResourceLocation::new;

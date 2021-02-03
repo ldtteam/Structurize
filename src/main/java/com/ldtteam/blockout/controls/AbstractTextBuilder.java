@@ -319,14 +319,23 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         paragraphBreak();
 
         final P pane = paneFactory.get();
-        pane.setText(new ArrayList<>(text)); // copy, so different elements are not backed by the same list
+        pane.setText(this.getText());
         return pane;
+    }
+
+    /**
+     * @return unique array list with current text
+     */
+    public List<IFormattableTextComponent> getText()
+    {
+        return new ArrayList<>(text); // copy, so different elements are not backed by the same list
     }
 
     public static class TooltipBuilder extends AbstractTextBuilder<Tooltip, TooltipBuilder>
     {
         private Pane hoverPane;
 
+        @SuppressWarnings("deprecation")
         public TooltipBuilder()
         {
             super(Tooltip::new);
