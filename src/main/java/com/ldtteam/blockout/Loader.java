@@ -136,6 +136,11 @@ public final class Loader
             parent.parseChildren(params);
             return parent;
         }
+        else if (parent instanceof View && params.getType().equals("window")) // layout
+        {
+            parent.parseChildren(params);
+            return parent;
+        }
         else
         {
             params.setParentView(parent);
