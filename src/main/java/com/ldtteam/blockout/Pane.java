@@ -74,9 +74,6 @@ public class Pane extends AbstractGui
         super();
         id = params.getString("id", id);
 
-        width = params.getParentWidth();
-        height = params.getParentHeight();
-
         params.getScaledInteger("size", params.getParentWidth(), params.getParentHeight(), a -> {
             width = a.get(0);
             height = a.get(1);
