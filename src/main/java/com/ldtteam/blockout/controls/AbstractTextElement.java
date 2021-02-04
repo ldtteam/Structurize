@@ -413,6 +413,9 @@ public abstract class AbstractTextElement extends Pane
         setText(Collections.singletonList(text));
     }
 
+    /**
+     * Removes any text rendering the text element empty
+     */
     public void clearText()
     {
         setText(Collections.emptyList());

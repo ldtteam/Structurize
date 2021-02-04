@@ -5,6 +5,8 @@ import com.ldtteam.blockout.PaneParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.util.math.MathHelper;
+
 /**
  * Tabbed view.
  */
@@ -147,18 +149,7 @@ public class SwitchView extends View
      */
     public void nextView()
     {
-        if (children.isEmpty())
-        {
-            return;
-        }
-
-        int index = children.indexOf(currentView) + 1;
-        if (index >= children.size())
-        {
-            index = 0;
-        }
-
-        setCurrentView(children.get(index));
+        setView(true, 1);
     }
 
     /**
@@ -166,18 +157,27 @@ public class SwitchView extends View
      */
     public void previousView()
     {
+        setView(true, -1);
+    }
+
+    /**
+     * Generic shift method, abstract version of {@link #previousView()} and {@link #nextView()}.
+     * New index is clamped between zero and <code>children.size()</code>
+     *
+     * @param relative whether page param is relative or absolute
+     * @param shift    if relative go x views forward/backward, if absolute go to x-th view
+     */
+    public void setView(final boolean relative, final int shift)
+    {
         if (children.isEmpty())
         {
             return;
         }
 
-        int index = children.indexOf(currentView) - 1;
-        if (index < 0)
-        {
-            index = children.size();
-        }
+        int newIndex = relative ? children.indexOf(currentView) + shift : shift;
+        newIndex = MathHelper.clamp(newIndex, 0, getChildrenSize() - 1);
 
-        setCurrentView(children.get(index));
+        setCurrentView(children.get(newIndex));
     }
 
     /**
