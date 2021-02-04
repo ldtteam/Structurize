@@ -166,18 +166,21 @@ public class SwitchView extends View
      *
      * @param relative whether page param is relative or absolute
      * @param shift    if relative go x views forward/backward, if absolute go to x-th view
+     * @return new page index, -1 if empty
      */
-    public void setView(final boolean relative, final int shift)
+    public int setView(final boolean relative, final int shift)
     {
         if (children.isEmpty())
         {
-            return;
+            return -1;
         }
 
         int newIndex = relative ? children.indexOf(currentView) + shift : shift;
         newIndex = MathHelper.clamp(newIndex, 0, getChildrenSize() - 1);
 
         setCurrentView(children.get(newIndex));
+
+        return newIndex;
     }
 
     /**
