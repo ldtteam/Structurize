@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
@@ -48,11 +49,32 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      *
      * @param text text to append
      */
+    public R appendNL(final ITextComponent text)
+    {
+        return appendNL((IFormattableTextComponent) text);
+    }
+
+    /**
+     * Appends new line symbol plus the given text in this order.
+     *
+     * @param text text to append
+     */
     public R appendNL(final IFormattableTextComponent text)
     {
         newLine();
         append(text);
         return thiz;
+    }
+
+    /**
+     * Appends the given text to the current text line.
+     * Basically sentence appending.
+     *
+     * @param text text to append
+     */
+    public R append(final ITextComponent text)
+    {
+        return append((IFormattableTextComponent) text);
     }
 
     /**
