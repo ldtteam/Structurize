@@ -25,7 +25,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     public static final EnumProperty<PaperwallType> VARIANT = EnumProperty.create("variant", PaperwallType.class);
 
     /**
-     * This blocks name.
+     * This block's name.
      */
     public static final String                      BLOCK_NAME     = "blockpaperwall";
 
