@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum ShingleFaceType implements IStringSerializable
 {
-    //CLAY
+    // Clay
     CLAY("clay", "clay", "Clay", "minecraft:brick", false),
     BLACK_CLAY("black_clay", "clay", "Black Clay", "minecraft:black_dye"),
     BLUE_CLAY("blue_clay", "clay", "Blue Clay", "minecraft:blue_dye"),
@@ -30,7 +30,7 @@ public enum ShingleFaceType implements IStringSerializable
     RED_CLAY("red_clay", "clay", "Red Clay", "minecraft:red_dye"),
     WHITE_CLAY("white_clay", "clay", "White Clay", "minecraft:white_dye"),
     YELLOW_CLAY("yellow_clay", "clay", "Yellow Clay", "minecraft:yellow_dye"),
-    // SLATE
+    // Slate
     SLATE("slate", "slate", "Slate", "minecraft:cobblestone", false),
     BLUE_SLATE("blue_slate", "slate", "Blue Slate", "minecraft:blue_dye"),
     GREEN_SLATE("green_slate", "slate", "Green Slate", "minecraft:green_dye"),
