@@ -17,11 +17,11 @@ import net.minecraft.util.text.event.ClickEvent;
  */
 public abstract class AbstractTextBuilder<P extends AbstractTextElement, R extends AbstractTextBuilder<P, R>>
 {
-    public static final int DEFAULT_COLOR = Color.getByName("black", 0x000000);
+    protected int defaultColor = Color.getByName("black", 0x000000);
 
     private final Supplier<P> paneFactory;
 
-    private int color = DEFAULT_COLOR;
+    private int color = defaultColor;
     private boolean bold = false;
     private boolean italic = false;
     private boolean underlined = false;
@@ -145,7 +145,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R resetStyle()
     {
-        color = DEFAULT_COLOR;
+        color = defaultColor;
         bold = false;
         italic = false;
         underlined = false;
@@ -225,7 +225,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     public R colorVanillaCode(final char code)
     {
         final TextFormatting tf = TextFormatting.fromFormattingCode(code);
-        return color(tf == null || tf.getColor() == null ? DEFAULT_COLOR : tf.getColor());
+        return color(tf == null || tf.getColor() == null ? defaultColor : tf.getColor());
     }
 
     /**
@@ -361,6 +361,8 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         public TooltipBuilder()
         {
             super(Tooltip::new);
+            defaultColor = Tooltip.DEFAULT_TEXT_COLOR;
+            resetStyle();
         }
 
         /**
@@ -387,7 +389,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
             }
 
             final Tooltip tooltipPane = super.build();
-            hoverPane.setTooltip(tooltipPane);
+            hoverPane.setHoverPane(tooltipPane);
             return tooltipPane;
         }
     }
@@ -397,6 +399,8 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         public TextBuilder()
         {
             super(Text::new);
+            defaultColor = Text.DEFAULT_TEXT_COLOR;
+            resetStyle();
         }
     }
 }

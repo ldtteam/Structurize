@@ -41,10 +41,7 @@ public class Tooltip extends AbstractTextElement
     public Tooltip()
     {
         super(Alignment.TOP_LEFT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, true, true);
-        textLinespace = 1;
-        textOffsetX = 4;
-        textOffsetY = 4;
-        // Required default constructor.
+        init();
     }
 
     /**
@@ -55,12 +52,18 @@ public class Tooltip extends AbstractTextElement
     public Tooltip(final PaneParams params)
     {
         super(params, Alignment.TOP_LEFT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, true, true);
-        textLinespace = 1;
-        textOffsetX = 4;
-        textOffsetY = 4;
 
         autoWidth = width == 0;
         autoHeight = height == 0;
+        init();
+    }
+
+    protected void init()
+    {
+        textLinespace = 1;
+        textOffsetX = 4;
+        textOffsetY = 4;
+        hide();
     }
 
     @Override
@@ -69,7 +72,7 @@ public class Tooltip extends AbstractTextElement
         // we have wrap enabled, so we want to create as small bouding box as possible
         if (autoWidth)
         {
-            textWidth = Math.min(text.stream().mapToInt(mc.fontRenderer::getStringPropertyWidth).max().orElse(Integer.MAX_VALUE), maxWidth) - 8;
+            textWidth = Math.min(text.stream().mapToInt(mc.fontRenderer::getStringPropertyWidth).max().orElse(Integer.MAX_VALUE), maxWidth - 8);
         }
         if (autoHeight)
         {
@@ -112,7 +115,7 @@ public class Tooltip extends AbstractTextElement
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
-        if (!preparedText.isEmpty())
+        if (!preparedText.isEmpty() && enabled)
         {
             x = (int) mx + CURSOR_BOX_SIZE - 4;
             y = (int) my - CURSOR_BOX_SIZE - 4;
