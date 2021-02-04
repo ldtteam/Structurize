@@ -2639,5 +2639,8 @@
   "block.structurize.multiblock": "Multi-Piston",
   "block.structurize.double_crossed_cactus_purple_terracotta_timber_frame": "Double Crossed Cactus Purple Terracotta Timber Frame",
   "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
-  "block.structurize.one_crossed_rl_oak_gray_terracotta_timber_frame": "Right Left Crossed Oak Gray Terracotta Timber Frame"
+  "block.structurize.one_crossed_rl_oak_gray_terracotta_timber_frame": "Right Left Crossed Oak Gray Terracotta Timber Frame",
+  "block.structurize.dark_oak_blockpaperwall": "Dark Oak Paper Wall",
+  "block.structurize.acacia_blockpaperwall": "Acacia Paper Wall",
+  "block.structurize.cactus_blockpaperwall": "Cactus Paper Wall"
 }
