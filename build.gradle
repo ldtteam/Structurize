@@ -220,8 +220,6 @@ task sourceJar(type: Jar) {
     from sourceSets.api.allJava
 }
 
-build.dependsOn sourceJar
-
 idea {
     module {
         inheritOutputDirs = true
