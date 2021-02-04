@@ -280,4 +280,9 @@ public final class Loader
 
         parsedCache.put(loc, new Tuple<>(1, doc));
     }
+
+    public static void cleanXMLparseCache()
+    {
+        parsedCache.clear();
+    }
 }

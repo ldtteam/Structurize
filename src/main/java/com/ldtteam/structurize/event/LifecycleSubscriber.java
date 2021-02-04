@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.event;
 
 import java.util.function.Predicate;
+
+import com.ldtteam.blockout.Loader;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
@@ -74,6 +76,8 @@ public class LifecycleSubscriber
                     {
                         Log.getLogger().debug("Clearing blueprint renderer cache.");
                         BlueprintHandler.getInstance().clearCache();
+                        Log.getLogger().debug("Clearing gui XML cache.");
+                        Loader.cleanXMLparseCache();
                     }
                 }
             });
