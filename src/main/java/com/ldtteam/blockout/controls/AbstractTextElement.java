@@ -30,6 +30,11 @@ public abstract class AbstractTextElement extends Pane
     public static final boolean DEFAULT_TEXT_SHADOW = false;
     public static final boolean DEFAULT_TEXT_WRAP = false;
     public static final int DEFAULT_TEXT_LINESPACE = 0;
+    /**
+     * Useable when you want to have unlimited text etc.
+     * Currently 1M pixels.
+     */
+    public static final int SIZE_FOR_UNLIMITED_ELEMENTS = 1_000_000;
 
     /**
      * The text scale.

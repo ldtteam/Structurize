@@ -15,8 +15,8 @@ import net.minecraft.util.math.vector.Matrix4f;
  */
 public class Tooltip extends AbstractTextElement
 {
-    private static final int DEFAULT_MAX_WIDTH = 208;
-    private static final int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
+    public static final int DEFAULT_MAX_WIDTH = 208;
+    public static final int DEFAULT_MAX_HEIGHT = AbstractTextElement.SIZE_FOR_UNLIMITED_ELEMENTS;
 
     private static final int CURSOR_BOX_SIZE = 12;
     private static final int Z_OFFSET = 400;
@@ -183,7 +183,7 @@ public class Tooltip extends AbstractTextElement
 
     /**
      * If height is set to 0 then the smallest possible height is used based on the displayed text.
-     * This value can be used to cap such behaviour [default: unlimited].
+     * This value can be used to cap such behaviour [default: {@link AbstractTextElement#SIZE_FOR_UNLIMITED_ELEMENTS}].
      */
     public void setMaxHeight(final int maxHeight)
     {
