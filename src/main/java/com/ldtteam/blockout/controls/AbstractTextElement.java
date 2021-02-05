@@ -125,11 +125,6 @@ public abstract class AbstractTextElement extends Pane
         this.textDisabledColor = defaultTextDisabledColor;
         this.textShadow = defaultTextShadow;
         this.textWrap = defaultTextWrap;
-
-        setText((IFormattableTextComponent) StringTextComponent.EMPTY);
-
-        // setup
-        recalcTextRendering();
     }
 
     public AbstractTextElement(final PaneParams params)
@@ -178,10 +173,8 @@ public abstract class AbstractTextElement extends Pane
         textLinespace = params.getInteger("linespace", textLinespace);
 
         // both label and text are allowed to merge label and text elements
-        setText(params.getTextComponent(params.hasAnyAttribute("label", "text"), new StringTextComponent("")));
-
-        // setup
-        recalcTextRendering();
+        // don't use setText, implementing classes are responsible for calling recalcTextRendering()
+        text = params.getMultilineText(params.hasAnyAttribute("label", "text"));
     }
 
     protected void recalcTextRendering()

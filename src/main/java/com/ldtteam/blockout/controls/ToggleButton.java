@@ -76,6 +76,10 @@ public class ToggleButton extends Button
         {
             button.setText(states.get(active));
         }
+        else
+        {
+            button.clearText();
+        }
     }
 
     /**
@@ -132,8 +136,11 @@ public class ToggleButton extends Button
             button.setText(states.get(active));
             return true;
         }
-
-        return false;
+        else
+        {
+            button.clearText();
+            return false;
+        }
     }
 
     /**
@@ -146,6 +153,10 @@ public class ToggleButton extends Button
         if (!states.isEmpty())
         {
             button.setText(states.get(active));
+        }
+        else
+        {
+            button.clearText();
         }
     }
 

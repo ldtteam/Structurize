@@ -12,8 +12,8 @@ public class Text extends AbstractTextElement
      */
     public Text()
     {
-        super();
-        setTextWrap(true);
+        super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        recalcTextRendering();
         // Required default constructor.
     }
 
@@ -25,5 +25,6 @@ public class Text extends AbstractTextElement
     public Text(final PaneParams params)
     {
         super(params, DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        recalcTextRendering();
     }
 }

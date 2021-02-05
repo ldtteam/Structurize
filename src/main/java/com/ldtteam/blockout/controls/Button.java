@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * Base button class.
  * Has a handler for when the button is clicked.
  */
-public class Button extends AbstractTextElement
+public abstract class Button extends AbstractTextElement
 {
     protected ButtonHandler handler;
 

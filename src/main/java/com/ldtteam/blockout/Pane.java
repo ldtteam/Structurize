@@ -789,11 +789,11 @@ public class Pane extends AbstractGui
             return;
         }
 
-        if (this.isPointInPane(mx, my) && !onHover.isVisible())
+        if (this.isPointInPane(mx, my) && !onHover.isVisible() && onHover.isEnabled())
         {
             onHover.show();
         }
-        else if (!this.isPointInPane(mx, my) && onHover.isVisible())
+        else if (!onHover.isPointInPane(mx, my) && !this.isPointInPane(mx, my) && onHover.isVisible())
         {
             onHover.hide();
         }

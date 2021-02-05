@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.controls;
 
+import java.util.Collections;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -64,11 +65,18 @@ public class Tooltip extends AbstractTextElement
         textOffsetX = 4;
         textOffsetY = 4;
         hide();
+        recalcTextRendering();
     }
 
     @Override
     protected void recalcTextRendering()
     {
+        if (textScale <= 0.0d || isTextEmpty())
+        {
+            preparedText = Collections.emptyList();
+            return;
+        }
+
         // we have wrap enabled, so we want to create as small bouding box as possible
         if (autoWidth)
         {
