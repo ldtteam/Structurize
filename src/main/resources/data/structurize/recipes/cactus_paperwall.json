@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "PPP",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "structurize:blockcactusplank"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "result": {
+    "item": "structurize:cactus_blockpaperwall",
+    "count": 8
+  }
+}

@@ -25,7 +25,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     public static final EnumProperty<PaperwallType> VARIANT = EnumProperty.create("variant", PaperwallType.class);
 
     /**
-     * This blocks name.
+     * This block's name.
      */
     public static final String                      BLOCK_NAME     = "blockpaperwall";
 
@@ -46,7 +46,7 @@ public class BlockPaperwall extends AbstractBlockStructurizePane<BlockPaperwall>
     }
 
     /**
-     * Registery block at gameregistry.
+     * Registry block at gameregistry.
      *
      * @param registry the registry to use.
      */
