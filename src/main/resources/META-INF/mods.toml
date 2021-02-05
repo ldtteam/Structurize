@@ -32,13 +32,13 @@ credits="Every coffee anyone ever drank!" #optional
 authors="LDT Team" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-An astonishing way to copy & paste structures, cookies included :)
+An astonishing way to copy & paste structures!
 
 Allows you to:
  - save structures of your choice into a file of small size
- - load them back and place anywhere anytime
- - also upload them and share between others
- - create various shapes using math formula
+ - load them back and place them anywhere anytime
+ - upload them and share with others
+ - create various shapes using math formulas
  - and many other nice things a great builder would love to have!
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
