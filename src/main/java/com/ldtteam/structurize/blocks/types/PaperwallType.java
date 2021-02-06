@@ -12,7 +12,10 @@ public enum PaperwallType implements IStringSerializable
     OAK("oak"),
     SPRUCE("spruce"),
     BIRCH("birch"),
-    JUNGLE("jungle");
+    JUNGLE("jungle"),
+    ACACIA("acacia"),
+    DARK_OAK("dark_oak"),
+    CACTUS("cactus");
 
     private final String name;
 
