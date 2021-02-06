@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -24,6 +25,9 @@ import net.minecraft.util.text.StringTextComponent;
  */
 public abstract class AbstractTextElement extends Pane
 {
+    private static final int FILTERING_ROUNDING = 50;
+    private static final float FILTERING_THRESHOLD = 0.02f; // should be 1/FILTERING_ROUNDING
+
     public static final double DEFAULT_TEXT_SCALE = 1.0d;
     public static final Alignment DEFAULT_TEXT_ALIGNMENT = Alignment.MIDDLE_LEFT;
     public static final int DEFAULT_TEXT_COLOR = 0xffffff; // white
@@ -246,9 +250,29 @@ public abstract class AbstractTextElement extends Pane
 
         ms.push();
         ms.translate(x + offsetX, y + offsetY, 0.0d);
-        ms.scale((float) textScale, (float) textScale, 1.0f);
 
         final Matrix4f matrix4f = ms.getLast().getMatrix();
+
+        final Vector4f temp = new Vector4f(1, 1, 0, 0);
+        temp.transform(matrix4f);
+        final float oldScaleX = temp.getX();
+        final float oldScaleY = temp.getY();
+        final float newScaleX = (float) Math.round(oldScaleX * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
+        final float newScaleY = (float) Math.round(oldScaleY * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
+
+        if (Math.abs((float) Math.round(newScaleX) - newScaleX) > FILTERING_THRESHOLD
+            || Math.abs((float) Math.round(newScaleY) - newScaleY) > FILTERING_THRESHOLD)
+        {
+            // smooth the texture
+            // TODO: forge enable filtering
+            ms.scale((float) textScale, (float) textScale, 1.0f);
+        }
+        else
+        {
+            // round scale if not smoothing
+            ms.scale(newScaleX / oldScaleX, newScaleY / oldScaleY, 1.0f);
+        }
+
         int lineShift = 0;
         for (final IReorderingProcessor row : preparedText)
         {
@@ -270,6 +294,8 @@ public abstract class AbstractTextElement extends Pane
             mc.fontRenderer.func_238415_a_(row, xOffset, lineShift, color, matrix4f, textShadow);
             lineShift += mc.fontRenderer.FONT_HEIGHT + textLinespace;
         }
+
+        // TODO: forge disable filtering
 
         ms.pop();
     }
