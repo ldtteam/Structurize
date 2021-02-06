@@ -17,11 +17,10 @@ import net.minecraft.util.text.event.ClickEvent;
  */
 public abstract class AbstractTextBuilder<P extends AbstractTextElement, R extends AbstractTextBuilder<P, R>>
 {
-    protected int defaultColor = Color.getByName("black", 0x000000);
-
     private final Supplier<P> paneFactory;
 
-    private int color = defaultColor;
+    private int defaultColor = 0;
+    private int color = 0;
     private boolean bold = false;
     private boolean italic = false;
     private boolean underlined = false;
@@ -37,9 +36,11 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     @SuppressWarnings("unchecked")
     private R thiz = (R) this;
 
-    protected AbstractTextBuilder(final Supplier<P> paneFactory)
+    protected AbstractTextBuilder(final Supplier<P> paneFactory, final int defaultColor)
     {
         this.paneFactory = paneFactory;
+        this.color = defaultColor;
+        this.defaultColor = defaultColor;
     }
 
     // =============== TEXT ===============
@@ -360,9 +361,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         @SuppressWarnings("deprecation")
         public TooltipBuilder()
         {
-            super(Tooltip::new);
-            defaultColor = Tooltip.DEFAULT_TEXT_COLOR;
-            resetStyle();
+            super(Tooltip::new, Tooltip.DEFAULT_TEXT_COLOR);
         }
 
         /**
@@ -398,9 +397,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     {
         public TextBuilder()
         {
-            super(Text::new);
-            defaultColor = Text.DEFAULT_TEXT_COLOR;
-            resetStyle();
+            super(Text::new, Text.DEFAULT_TEXT_COLOR);
         }
     }
 }

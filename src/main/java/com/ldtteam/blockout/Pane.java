@@ -1,6 +1,5 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.controls.Tooltip;
 import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
@@ -488,7 +487,7 @@ public class Pane extends AbstractGui
         {
             final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this);
             toolTipLines.forEach(ttBuilder::appendNL);
-            toolTipLines.clear(); // do not regen it when window has changed (unlikely to happen)
+            toolTipLines.clear(); // do not regen it when window has changed (unlikely to happen) cuz onHover might have changed
             onHover = ttBuilder.build();
         }
 

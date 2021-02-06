@@ -28,6 +28,7 @@ public class ScrollingGroup extends ScrollingView
     {
         super(params);
     }
+
     /**
      * Redirect all predefined children into our container.
      *
