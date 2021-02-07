@@ -6,7 +6,7 @@ import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.*;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -113,19 +113,19 @@ public final class ModBlocks
 
     static
     {
-        register("blockSubstitution", BlockSubstitution::new, ModCreativeTabs.STRUCTURIZE);
-        register("blockSolidSubstitution", BlockSolidSubstitution::new, ModCreativeTabs.STRUCTURIZE);
-        register("blockFluidSubstitution", BlockFluidSubstitution::new, ModCreativeTabs.STRUCTURIZE);
-        register("multiBlock", MultiBlock::new, ModCreativeTabs.STRUCTURIZE);
-        register("blockbarreldeco_onside", BlockBarrel::new, ModCreativeTabs.STRUCTURIZE);
-        register("blockbarreldeco_standing", BlockBarrel::new, ModCreativeTabs.STRUCTURIZE);
+        register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
+        register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
+        register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
+        register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
 
         for (final PaperWallType paper : PaperWallType.values())
         {
             paperWalls.add(register(
               paper.getName() + "_blockpaperwall",
               () -> new BlockPaperWall(paper.getName()),
-              ModCreativeTabs.STRUCTURIZE
+              ModItemGroups.STRUCTURIZE
             ));
         }
 
@@ -134,14 +134,14 @@ public final class ModBlocks
             shingleSlabs.add(register(
               shingleFace.getName() + "_shingle_slab",
               () -> new BlockShingleSlab(shingleFace),
-              ModCreativeTabs.SHINGLES));
+              ModItemGroups.SHINGLES));
 
             for (final ShingleWoodType shingleWood : ShingleWoodType.values())
             {
                 shingles.add(register(
                   String.format("%s_%s_shingle", shingleFace.getName(), shingleWood.getName()),
                   () -> new BlockShingle(Blocks.OAK_PLANKS::getDefaultState, shingleWood, shingleFace),
-                  ModCreativeTabs.SHINGLES));
+                  ModItemGroups.SHINGLES));
             }
         }
 
@@ -154,7 +154,7 @@ public final class ModBlocks
                     timberFrames.add(register(
                       BlockTimberFrame.getName(blockType, frameType, centreType),
                       () -> new BlockTimberFrame(blockType, frameType, centreType),
-                      ModCreativeTabs.TIMBER_FRAMES));
+                      ModItemGroups.TIMBER_FRAMES));
                 }
             }
         }
@@ -164,7 +164,7 @@ public final class ModBlocks
             floatingCarpets.add(register(
               color.getTranslationKey() + "_floating_carpet",
               () -> new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)),
-              ModCreativeTabs.STRUCTURIZE));
+              ModItemGroups.STRUCTURIZE));
         }
     }
 }

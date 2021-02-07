@@ -1,15 +1,14 @@
-package com.ldtteam.structurize.creativetab;
+package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
 /**
  * Class used to handle the creativeTab of structurize.
  */
-public final class ModCreativeTabs
+public final class ModItemGroups
 {
     public static final ItemGroup STRUCTURIZE = new ItemGroup(Constants.MOD_ID)
     {
@@ -59,7 +58,7 @@ public final class ModCreativeTabs
     /**
      * Private constructor to hide the implicit one.
      */
-    private ModCreativeTabs()
+    private ModItemGroups()
     {
         /*
          * Intentionally left empty.

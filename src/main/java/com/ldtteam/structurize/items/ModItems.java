@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -45,12 +44,12 @@ public final class ModItems
 
     static
     {
-        final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
+        final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
 
         register("sceptergold", () -> new ItemBuildTool(properties));
         register("shapetool", () -> new ItemShapeTool(properties));
-        register("sceptersteel", () -> new ItemScanTool(ModCreativeTabs.STRUCTURIZE));
-        register("sceptertag", () -> new ItemTagTool(ModCreativeTabs.STRUCTURIZE));
+        register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
+        register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
         register("caliper", () -> new ItemCaliper(properties));
     }
 
