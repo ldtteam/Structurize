@@ -180,6 +180,9 @@ public abstract class AbstractTextElement extends Pane
         text = params.getMultilineText(params.hasAnyAttribute("label", "text"));
     }
 
+    /**
+     * Calculates the containing text rectangle based on the text contents
+     */
     protected void recalcTextRendering()
     {
         if (textScale <= 0.0d || textWidth < 1 || textHeight < 1 || isTextEmpty())

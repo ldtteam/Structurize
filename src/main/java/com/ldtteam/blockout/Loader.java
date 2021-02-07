@@ -281,7 +281,10 @@ public final class Loader
         parsedCache.put(loc, new Tuple<>(1, doc));
     }
 
-    public static void cleanXMLparseCache()
+    /**
+     * Clear the cache of parsed window parameters
+     */
+    public static void cleanParsedCache()
     {
         parsedCache.clear();
     }

@@ -78,7 +78,7 @@ public class LifecycleSubscriber
                         BlueprintHandler.getInstance().clearCache();
                     }
                     Log.getLogger().debug("Clearing gui XML cache.");
-                    Loader.cleanXMLparseCache();
+                    Loader.cleanParsedCache();
                 }
             });
         }
