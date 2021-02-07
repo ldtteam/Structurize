@@ -29,7 +29,14 @@ public class CactusCollection implements IBlockCollection
     @Override
     public String getName()
     {
-        return "cactus";
+        // TODO 1.17 restore just "cactus"
+        return "blockcactus";
+    }
+
+    @Override
+    public String getPluralName()
+    {
+        return getName();
     }
 
     @Override

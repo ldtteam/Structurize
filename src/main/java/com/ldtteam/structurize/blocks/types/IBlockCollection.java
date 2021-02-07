@@ -116,7 +116,18 @@ public interface IBlockCollection
         public String withSuffix(String name, String pluralName)
         {
             if (this == BLOCK) name = pluralName;
-            return suffix.isEmpty() ? name : name + "_" + suffix;
+            String result = suffix.isEmpty() ? name : name + "_" + suffix;
+
+            // TODO 1.17 remove cactus magic override
+            if (name.equals("blockcactus"))
+            {
+                result = result
+                  .replace("_", "")
+                  .replace("stairs", "stair")
+                  .replace("planks", "plank");
+            }
+
+            return result;
         }
 
         public ShapedRecipeBuilder formRecipe(IItemProvider result, IItemProvider material, ITag<Item> rod, ICriterionInstance criterion)
@@ -140,6 +151,15 @@ public interface IBlockCollection
 
         public static BlockType fromSuffix(String path)
         {
+            // TODO 1.17 remove cactus magic override
+            if (path.startsWith("blockcactus"))
+            {
+                path = path
+                  .replace("stair", "stairs")
+                  .replace("plank", "planks")
+                  .replace("fencegate", "fence_gate");
+            }
+
             for (BlockType cut : BlockType.values())
             {
                 if (!cut.suffix.isEmpty() && path.endsWith(cut.suffix)) return cut;
