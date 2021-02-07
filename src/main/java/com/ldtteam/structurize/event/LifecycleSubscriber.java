@@ -5,6 +5,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.generation.defaults.CollectionProviderSet;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.generation.floating_carpets.*;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
@@ -126,6 +127,8 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new FloatingCarpetsLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsTagsProvider(event.getGenerator()));
+
+        CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
 
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));

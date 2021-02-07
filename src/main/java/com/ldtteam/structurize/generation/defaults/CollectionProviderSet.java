@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.generation.defaults;
 
+import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.util.IItemProvider;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class CollectionProviderSet
 {
-    public CollectionProviderSet(
+    public static void collectionProviderSet(
       GatherDataEvent event,
       String modId,
       List<Block> collection,
@@ -24,7 +25,7 @@ public class CollectionProviderSet
         gen.addProvider(new CollectionLanguageProvider(gen, modId, collection));
     }
 
-    public CollectionProviderSet(
+    public static void collectionProviderSet(
       GatherDataEvent event,
       String modId,
       List<Block> collection,
@@ -37,8 +38,15 @@ public class CollectionProviderSet
         gen.addProvider(new CollectionLanguageProvider(gen, modId, collection));
     }
 
-    public static void each(List<List<Block>> collections)
+    public static void each(
+      GatherDataEvent event,
+      String modId,
+      List<IBlockCollection> collections,
+      String textureDirectory)
     {
-        //for (List<Block> collection : collections) new CollectionProviderSet();
+        for (IBlockCollection collection : collections)
+        {
+            collectionProviderSet(event, modId, collection.getBlocks(), textureDirectory);
+        }
     }
 }
