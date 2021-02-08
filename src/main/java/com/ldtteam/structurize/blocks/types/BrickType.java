@@ -3,6 +3,7 @@ package com.ldtteam.structurize.blocks.types;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
+import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.IFinishedRecipe;
@@ -52,11 +53,12 @@ public enum BrickType implements IBlockCollection
     }
 
     @Override
-    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer)
+    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
     {
         ShapelessRecipeBuilder.shapelessRecipe(getMainBlock(), 4)
           .addIngredient(getName().contains("stone") ? Blocks.STONE_BRICKS : Blocks.BRICKS, 2)
           .addIngredient(ingredient, 2)
+          .addCriterion("has_" + getName(), obtainment)
           .build(consumer);
     }
 }

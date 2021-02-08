@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public class CollectionRecipeProvider extends RecipeProvider
 {
     private final IBlockCollection blocks;
-    private final IItemProvider        material;
+    private final IItemProvider material;
 
     public CollectionRecipeProvider(final DataGenerator generatorIn, final IBlockCollection collection, final IItemProvider material)
     {
@@ -36,7 +36,7 @@ public class CollectionRecipeProvider extends RecipeProvider
         {
             if (IBlockCollection.BlockType.fromSuffix(ro.get()) == IBlockCollection.BlockType.BLOCK)
             {
-                blocks.provideMainRecipe(consumer);
+                blocks.provideMainRecipe(consumer, hasItem(blocks.getMainBlock()));
                 continue;
             }
 

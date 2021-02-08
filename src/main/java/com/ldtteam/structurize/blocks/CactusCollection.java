@@ -2,6 +2,7 @@ package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.items.ModItems;
+import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.IFinishedRecipe;
@@ -50,10 +51,11 @@ public class CactusCollection implements IBlockCollection
     }
 
     @Override
-    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer)
+    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
     {
         ShapelessRecipeBuilder.shapelessRecipe(getMainBlock(), 4)
           .addIngredient(Blocks.CACTUS)
+          .addCriterion("has_cactus_planks", obtainment)
           .build(consumer);
     }
 }

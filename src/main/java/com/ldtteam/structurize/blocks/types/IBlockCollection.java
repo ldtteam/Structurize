@@ -69,7 +69,7 @@ public interface IBlockCollection
         return results;
     }
 
-    void provideMainRecipe(Consumer<IFinishedRecipe> consumer);
+    void provideMainRecipe(Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment);
 
     static <B extends Block> B get(BlockType type, List<RegistryObject<B>> blocks)
     {
