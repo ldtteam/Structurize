@@ -48,7 +48,8 @@ public final class LanguageWriter implements IDataProvider
         translate(ModBlocks.getTimberFrames(), block ->
           block.getTimberFrameType().getLangName() + " " +
           block.getFrameType().getLangName() + " " +
-         (block.getCentreType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCentreType()));
+         (block.getCenterType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCenterType().getLangName() + " ") +
+          "Timber Frame");
 
         IDataProvider.save(DataGeneratorConstants.GSONLang, cache, lang.serialize(), en_us.toPath());
     }

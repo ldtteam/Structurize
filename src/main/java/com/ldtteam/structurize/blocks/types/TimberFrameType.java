@@ -7,15 +7,15 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TimberFrameType implements IStringSerializable
 {
-    PLAIN("plain", "Plain", false),
-    DOUBLE_CROSSED("double_crossed", "Double Crossed", false),
-    FRAMED("framed", "Framed", false),
+    PLAIN("plain", "Vertical", false),
+    DOUBLE_CROSSED("double_crossed", "Crossed", false),
+    FRAMED("framed", "Plain", false),
     SIDE_FRAMED("side_framed", "Side Framed", true),
-    UP_GATED("up_gated", "Up Gate Framed", true),
-    DOWN_GATED("down_gated", "Down Gate Framed", true),
-    ONE_CROSSED_LR("one_crossed_lr", "Left Right Crossed", false),
-    ONE_CROSSED_RL("one_crossed_rl", "Right Left Crossed", false),
-    HORIZONTAL_PLAIN("horizontal_plain", "Plain Horizontal", false),
+    UP_GATED("up_gated", "Up-gate", true),
+    DOWN_GATED("down_gated", "Down-gate", true),
+    ONE_CROSSED_LR("one_crossed_lr", "Right-hand Slope", false),
+    ONE_CROSSED_RL("one_crossed_rl", "Left-hand Slope", false),
+    HORIZONTAL_PLAIN("horizontal_plain", "Horizontal", false),
     SIDE_FRAMED_HORIZONTAL("side_framed_horizontal", "Side Framed Horizontal", true);
 
     private final String name;

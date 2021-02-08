@@ -37,7 +37,7 @@ public class TimberFramesItemModelProvider implements IDataProvider
             final String parent = "structurize:block/timber_frames/" +
                     timberFrame.getTimberFrameType().getName() + "_" +
                     timberFrame.getFrameType().getName() + "_" +
-                    timberFrame.getCentreType().getName() + "_timber_frame";
+                    timberFrame.getCenterType().getName() + "_timber_frame";
 
             modelJson.setParent(parent);
 

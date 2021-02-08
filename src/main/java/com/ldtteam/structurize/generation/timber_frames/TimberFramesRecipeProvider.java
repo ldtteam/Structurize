@@ -66,7 +66,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
 
         final ShapelessRecipeJson recipeJson = new ShapelessRecipeJson();
 
-        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
+        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCenterType().getName() + "_timber_frame";
 
         recipeJson.setGroup(groupName);
         recipeJson.setResult(new RecipeResultJson(1, timberFrame.getRegistryName().toString()));
@@ -74,7 +74,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
         final List<RecipeIngredientKeyJson> ingredients = new ArrayList<>();
 
         final TimberFrameType previous = timberFrame.getTimberFrameType().getPrevious();
-        final String recipeIngredient = "structurize:" + BlockTimberFrame.getName(previous, timberFrame.getFrameType(), timberFrame.getCentreType());
+        final String recipeIngredient = "structurize:" + BlockTimberFrame.getName(previous, timberFrame.getFrameType(), timberFrame.getCenterType());
 
         ingredients.add(new RecipeIngredientKeyJson(new RecipeIngredientJson(recipeIngredient, false)));
 
@@ -95,7 +95,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
             return;
 
         final String name = timberFrame.getRegistryName().getPath();
-        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame";
+        final String groupName = timberFrame.getFrameType().getName() + "_" + timberFrame.getCenterType().getName() + "_timber_frame";
 
         final ShapedRecipeJson recipeJson = new ShapedRecipeJson();
         recipeJson.setGroup(groupName);
@@ -105,7 +105,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
         final Map<String, RecipeIngredientKeyJson> ingredients = new HashMap<>();
         final RecipeIngredientJson ingredientF = new RecipeIngredientJson(timberFrame.getFrameType().getRecipeIngredient(), false);
         ingredients.put("F", new RecipeIngredientKeyJson(ingredientF));
-        final RecipeIngredientJson ingredientC = new RecipeIngredientJson(timberFrame.getCentreType().getRecipeIngredient(), false);
+        final RecipeIngredientJson ingredientC = new RecipeIngredientJson(timberFrame.getCenterType().getRecipeIngredient(), false);
         ingredients.put("C", new RecipeIngredientKeyJson(ingredientC));
         final RecipeIngredientJson ingredientS = new RecipeIngredientJson(ModItems.buildTool.get().getRegistryName().toString(), false);
         ingredients.put("S", new RecipeIngredientKeyJson(ingredientS));

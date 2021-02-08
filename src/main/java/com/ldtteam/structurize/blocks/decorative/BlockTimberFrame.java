@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
-import com.ldtteam.structurize.blocks.types.TimberFrameCentreType;
+import com.ldtteam.structurize.blocks.types.TimberFrameCenterType;
 import com.ldtteam.structurize.blocks.types.TimberFrameFrameType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import net.minecraft.block.Block;
@@ -35,13 +35,13 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
      * Fields defining the registered block's wood and face types, these are used by the Data Generators
      */
     private final TimberFrameType timberFrameType;
-    private final TimberFrameFrameType frameType;
-    private final TimberFrameCentreType centreType;
+    private final TimberFrameFrameType  frameType;
+    private final TimberFrameCenterType centreType;
 
     /**
      * Constructor for the TimberFrame
      */
-    public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
+    public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCenterType centreType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
         this.timberFrameType = timberFrameType;
@@ -49,7 +49,7 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
         this.centreType = centreType;
     }
 
-    public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
+    public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCenterType centreType)
     {
         return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getName(), centreType.getName());
     }
@@ -99,7 +99,7 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
      *
      * @return the registered TimberFrameCentreType
      */
-    public TimberFrameCentreType getCentreType()
+    public TimberFrameCenterType getCenterType()
     {
         return this.centreType;
     }
