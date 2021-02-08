@@ -35,7 +35,7 @@ public enum TimberFrameCentreType  implements IStringSerializable
     BLACK_TERRACOTTA("black_terracotta", "Black Terracotta", "block/black_terracotta", "black_terracotta"),
     // Bricks
     BRICK("brick", "Brick", "block/bricks", "brick"),
-    STONE_BRICK("stone_brick", "Stone Brick", "block/stone_bricks", "stone_brick"),
+    STONE_BRICK("stone_brick", "Stone Brick", "block/stone_bricks", "stone_bricks"),
     CREAM_BRICK("cream_brick", "Cream Brick", "structurize:blocks/bricks/bricks_cream", "structurize:blockcreambricks"),
     BEIGE_BRICK("beige_brick", "Beige Brick", "structurize:blocks/bricks/bricks_beige", "structurize:blockbeigebricks"),
     BROWN_BRICK("brown_brick", "Brown Brick", "structurize:blocks/bricks/bricks_brown", "structurize:blockbrownbricks"),
