@@ -4,6 +4,7 @@ import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
+import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -17,6 +18,7 @@ import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface IBlockCollection
@@ -26,6 +28,11 @@ public interface IBlockCollection
     default String getPluralName() { return getName() + "s"; }
 
     List<RegistryObject<Block>> getBlocks();
+
+    default Block getMainBlock()
+    {
+        return getBlocks().get(0).get();
+    }
 
     default AbstractBlock.Properties getProperties()
     {
@@ -61,6 +68,8 @@ public interface IBlockCollection
 
         return results;
     }
+
+    void provideMainRecipe(Consumer<IFinishedRecipe> consumer);
 
     static <B extends Block> B get(BlockType type, List<RegistryObject<B>> blocks)
     {

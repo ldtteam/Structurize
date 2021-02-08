@@ -3,10 +3,14 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.IFinishedRecipe;
+import net.minecraft.data.ShapelessRecipeBuilder;
 import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CactusCollection implements IBlockCollection
 {
@@ -43,5 +47,13 @@ public class CactusCollection implements IBlockCollection
     public List<RegistryObject<Block>> getBlocks()
     {
         return blocks;
+    }
+
+    @Override
+    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer)
+    {
+        ShapelessRecipeBuilder.shapelessRecipe(getMainBlock(), 4)
+          .addIngredient(Blocks.CACTUS)
+          .build(consumer);
     }
 }

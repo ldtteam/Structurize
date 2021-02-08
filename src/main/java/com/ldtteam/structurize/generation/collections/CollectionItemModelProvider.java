@@ -10,15 +10,13 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public class CollectionItemModelProvider extends ItemModelProvider
 {
-    private final List<RegistryObject<Block>> blocks;
+    private final IBlockCollection blocks;
     private final String texture;
     protected final ExistingFileHelper exFileHelper;
 
-    public CollectionItemModelProvider(final DataGenerator gen, final String modid, final ExistingFileHelper exFileHelper, List<RegistryObject<Block>> collection, String textureDirectory)
+    public CollectionItemModelProvider(final DataGenerator gen, final String modid, final ExistingFileHelper exFileHelper, IBlockCollection collection, String textureDirectory)
     {
         super(gen, modid, exFileHelper);
         this.blocks = collection;
@@ -47,7 +45,7 @@ public class CollectionItemModelProvider extends ItemModelProvider
             return new ResourceLocation(name.getNamespace(), texture + "/" + block.getRegistryName().getPath());
         }
 
-        return new ResourceLocation(blocks.get(0).get().getRegistryName().getNamespace(), texture + "/" + blocks.get(0).get().getRegistryName().getPath());
+        return new ResourceLocation(blocks.getMainBlock().getRegistryName().getNamespace(), texture + "/" + blocks.getMainBlock().getRegistryName().getPath());
     }
 
     protected ResourceLocation findTexture(Block block)
@@ -58,7 +56,7 @@ public class CollectionItemModelProvider extends ItemModelProvider
     @Override
     protected void registerModels()
     {
-        for (RegistryObject<Block> ro : blocks)
+        for (RegistryObject<Block> ro : blocks.getBlocks())
         {
             Block block = ro.get();
             if (block.getRegistryName() == null) continue;

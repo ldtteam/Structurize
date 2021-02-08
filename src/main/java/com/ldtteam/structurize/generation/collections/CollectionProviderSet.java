@@ -3,11 +3,9 @@ package com.ldtteam.structurize.generation.collections;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.generation.LanguageWriter;
-import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.util.IItemProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import java.util.List;
@@ -21,7 +19,7 @@ public class CollectionProviderSet
     public static void collectionProviderSet(
       GatherDataEvent event,
       String modId,
-      List<RegistryObject<Block>> collection,
+      IBlockCollection collection,
       IItemProvider material,
       String textureDirectory)
     {
@@ -30,13 +28,13 @@ public class CollectionProviderSet
         gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionRecipeProvider(gen, collection, material));
-        LanguageWriter.autoTranslate(ModBlocks.getList(collection));
+        LanguageWriter.autoTranslate(ModBlocks.getList(collection.getBlocks()));
     }
 
     public static void collectionProviderSet(
       GatherDataEvent event,
       String modId,
-      List<RegistryObject<Block>> collection,
+      IBlockCollection collection,
       String textureDirectory)
     {
         DataGenerator gen = event.getGenerator();
@@ -44,7 +42,7 @@ public class CollectionProviderSet
         gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionRecipeProvider(gen, collection));
-        LanguageWriter.autoTranslate(ModBlocks.getList(collection));
+        LanguageWriter.autoTranslate(ModBlocks.getList(collection.getBlocks()));
     }
 
     public static void each(
@@ -55,7 +53,7 @@ public class CollectionProviderSet
     {
         for (IBlockCollection collection : collections)
         {
-            collectionProviderSet(event, modId, collection.getBlocks(), textureDirectory);
+            collectionProviderSet(event, modId, collection, textureDirectory);
         }
     }
 }

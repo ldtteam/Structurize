@@ -10,31 +10,36 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class CollectionRecipeProvider extends RecipeProvider
 {
-    private final List<RegistryObject<Block>> blocks;
+    private final IBlockCollection blocks;
     private final IItemProvider        material;
 
-    public CollectionRecipeProvider(final DataGenerator generatorIn, final List<RegistryObject<Block>> collection, final IItemProvider material)
+    public CollectionRecipeProvider(final DataGenerator generatorIn, final IBlockCollection collection, final IItemProvider material)
     {
         super(generatorIn);
         this.blocks = collection;
         this.material = material;
     }
 
-    public CollectionRecipeProvider(final DataGenerator generatorIn, final List<RegistryObject<Block>> collection)
+    public CollectionRecipeProvider(final DataGenerator generatorIn, final IBlockCollection collection)
     {
-        this(generatorIn, collection, collection.get(0).get());
+        this(generatorIn, collection, collection.getMainBlock());
     }
 
     @Override
     protected void registerRecipes(@NotNull final Consumer<IFinishedRecipe> consumer)
     {
-        for (RegistryObject<Block> ro : blocks)
+        for (RegistryObject<Block> ro : blocks.getBlocks())
         {
+            if (IBlockCollection.BlockType.fromSuffix(ro.get()) == IBlockCollection.BlockType.BLOCK)
+            {
+                blocks.provideMainRecipe(consumer);
+                continue;
+            }
+
             IBlockCollection.BlockType.fromSuffix(ro.get())
               .formRecipe(ro.get(), material, Tags.Items.RODS_WOODEN, hasItem(material))
               .build(consumer);
