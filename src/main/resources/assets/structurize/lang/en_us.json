@@ -1173,5 +1173,6 @@
   "block.structurize.one_crossed_rl_acacia_birch_timber_frame": "Right Left Crossed Acacia Birch Timber Frame",
   "block.structurize.framed_cactus_cobble_stone_timber_frame": "Framed Cactus Cobblestone Timber Frame",
   "block.structurize.multiblock": "Multi-Piston",
-  "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame"
+  "block.structurize.horizontal_plain_cactus_birch_timber_frame": "Plain Horizontal Cactus Birch Timber Frame",
+  "itemGroup.structurize.construction": "Schematic Construction"
 }
