@@ -1,0 +1,7 @@
+{
+  "parent": "block/template_glass_pane_side_alt",
+  "textures": {
+    "edge": "structurize:blocks/paperwall/paperwall_crimson_top",
+    "pane": "structurize:blocks/paperwall/paperwall_crimson_white"
+  }
+}
