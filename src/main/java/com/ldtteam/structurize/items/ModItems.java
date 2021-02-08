@@ -10,11 +10,8 @@ import net.minecraftforge.registries.ObjectHolder;
 import java.util.function.Supplier;
 
 /**
- * Class handling the registering of the mod items.
- * <p>
- * We disabled the following finals since we are neither able to mark the items as final, nor do we want to provide public accessors.
+ * Class to register items to Structurize
  */
-@SuppressWarnings({"squid:ClassVariableVisibilityCheck", "squid:S2444", "squid:S1444"})
 @ObjectHolder(Constants.MOD_ID)
 public final class ModItems
 {
@@ -22,34 +19,41 @@ public final class ModItems
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
 
-    /*
-     *  Forge deferred registry object injection
-     */
-
-    private static final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
-
-    public static RegistryObject<ItemBuildTool> buildTool = register("sceptergold", () -> new ItemBuildTool(properties));;
-    public static final ItemShapeTool shapeTool = null;
-    public static final ItemScanTool  scanTool  = null;
-    public static final ItemTagTool   tagTool   = null;
-    public static final ItemCaliper   caliper   = null;
-
     public static DeferredRegister<Item> getRegistry()
     {
         return ITEMS;
     }
 
-    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> block)
+    /*
+     *  Items
+     */
+
+    public static final RegistryObject<ItemBuildTool> buildTool;
+    public static final RegistryObject<ItemShapeTool> shapeTool;
+    public static final RegistryObject<ItemScanTool> scanTool;
+    public static final RegistryObject<ItemTagTool>  tagTool;
+    public static final RegistryObject<ItemCaliper>  caliper;
+
+    /**
+     * Utility method to register an item
+     * @param name the registry key for the item
+     * @param item a factory/constructor to produce the item on demand
+     * @param <I> any item subclass
+     * @return the item entry saved to the registry
+     */
+    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> item)
     {
-        return ITEMS.register(name.toLowerCase(), block);
+        return ITEMS.register(name.toLowerCase(), item);
     }
 
     static
     {
-        register("shapetool", () -> new ItemShapeTool(properties));
-        register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
-        register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
-        register("caliper", () -> new ItemCaliper(properties));
-    }
+        final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
 
+        buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
+        shapeTool = register("shapetool", () -> new ItemShapeTool(properties));
+        scanTool  = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
+        tagTool   = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
+        caliper   = register("caliper", () -> new ItemCaliper(properties));
+    }
 }

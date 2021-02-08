@@ -30,7 +30,7 @@ public class ItemCaliper extends AbstractItemWithPosSelector
     @Override
     public AbstractItemWithPosSelector getRegisteredItemInstance()
     {
-        return ModItems.caliper;
+        return ModItems.caliper.get();
     }
 
     @Override

@@ -102,12 +102,12 @@ public final class ModBlocks
     }
 
     /**
-     * Utility dhorthand to register blocks useing the deferred registry
+     * Utility shorthand to register blocks using the deferred registry
      * @param name the registry name of the block
      * @param block a factory / constructor to create the block on demand
      * @param group the {@link ItemGroup} this belongs to (sets creative tab)
      * @param <B> the block subclass for the factory response
-     * @return the block saved to the registry
+     * @return the block entry saved to the registry
      */
     public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
