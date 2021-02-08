@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.generation.collections;
 
-import com.ldtteam.structurize.blocks.types.IBlockCollection;
+import com.ldtteam.structurize.blocks.IBlockCollection;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourcePackType;
@@ -65,7 +65,7 @@ public class CollectionItemModelProvider extends ItemModelProvider
 
             switch (IBlockCollection.BlockType.fromSuffix(block))
             {
-                case SLAB: slab(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top"));
+                case SLAB: slab(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
                 case STAIRS: stairs(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
                 case WALL: wallInventory(name, findTexture(block)); break;
                 case FENCE: fenceInventory(name, findTexture(block)); break;

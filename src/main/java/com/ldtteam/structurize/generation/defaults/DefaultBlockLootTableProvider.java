@@ -7,7 +7,7 @@ import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.types.IBlockCollection;
+import com.ldtteam.structurize.blocks.IBlockCollection;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;

@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.schematic;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 
 /**
@@ -8,7 +8,7 @@ import net.minecraft.block.material.Material;
  * Every solid block can be substituted by this block in schematics.
  * This helps make schematics independent from location and ground.
  */
-public class BlockFluidSubstitution extends AbstractBlockStructurize<BlockFluidSubstitution>
+public class BlockFluidSubstitution extends Block
 {
 
     /**

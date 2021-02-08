@@ -1,23 +1,20 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurizePane;
 import com.ldtteam.structurize.blocks.types.PaperWallType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.PaneBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * The paperwall block class defining the paperwall.
  */
-public class BlockPaperWall extends AbstractBlockStructurizePane<BlockPaperWall>
+public class BlockPaperWall extends PaneBlock
 {
     /**
      * The variants for the paperwall.
@@ -42,17 +39,6 @@ public class BlockPaperWall extends AbstractBlockStructurizePane<BlockPaperWall>
     public BlockPaperWall(final String type)
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-    }
-
-    /**
-     * Registry block at gameregistry.
-     *
-     * @param registry the registry to use.
-     */
-    @Override
-    public void registerItemBlock(final IForgeRegistry<Item> registry, final Item.Properties properties)
-    {
-        registry.register((new BlockItem(this, properties)).setRegistryName(this.getRegistryName()));
     }
 
     @Override

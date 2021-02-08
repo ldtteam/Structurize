@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.Block;

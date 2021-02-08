@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.generation.collections;
 
-import com.ldtteam.structurize.blocks.types.IBlockCollection;
+import com.ldtteam.structurize.blocks.IBlockCollection;
 import net.minecraft.block.*;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourcePackType;

@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import com.ldtteam.structurize.blocks.types.TimberFrameCenterType;
 import com.ldtteam.structurize.blocks.types.TimberFrameFrameType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
@@ -17,7 +16,7 @@ import net.minecraft.util.Rotation;
 /**
  * Decorative block
  */
-public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
+public class BlockTimberFrame extends Block
 {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
 

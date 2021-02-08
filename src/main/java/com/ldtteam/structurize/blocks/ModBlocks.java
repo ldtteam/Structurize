@@ -65,8 +65,9 @@ public final class ModBlocks
      *  Block mass registration lists
      */
 
+    public static final List<RegistryObject<BlockPaperWall>>      paperWalls   = IBlockList.asList(PaperWallType.values());
+
     public static final List<RegistryObject<BlockTimberFrame>>    timberFrames = new ArrayList<>();
-    public static final List<RegistryObject<BlockPaperWall>>      paperWalls   = new ArrayList<>();
     public static final List<RegistryObject<BlockShingle>>        shingles     = new ArrayList<>();
     public static final List<RegistryObject<BlockShingleSlab>>    shingleSlabs    = new ArrayList<>();
     public static final List<RegistryObject<BlockFloatingCarpet>> floatingCarpets = new ArrayList<>();
@@ -128,15 +129,6 @@ public final class ModBlocks
         multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
-
-        for (final PaperWallType paper : PaperWallType.values())
-        {
-            paperWalls.add(register(
-              paper.getName() + "_blockpaperwall",
-              () -> new BlockPaperWall(paper.getName()),
-              ModItemGroups.CONSTRUCTION
-            ));
-        }
 
         for (final ShingleFaceType shingleFace : ShingleFaceType.values())
         {

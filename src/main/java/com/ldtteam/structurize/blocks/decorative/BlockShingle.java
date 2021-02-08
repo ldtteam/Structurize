@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurizeStairs;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleWoodType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.state.properties.StairsShape;
 
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * Class defining the general shingle.
  */
-public class BlockShingle extends AbstractBlockStructurizeStairs<BlockShingle>
+public class BlockShingle extends StairsBlock
 {
     /**
      * The hardness this block has.

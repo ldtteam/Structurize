@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * This Class is about the MultiBlock which takes care of pushing others around (In a non mean way).
  */
-public class MultiBlock extends AbstractBlockStructurize<MultiBlock>
+public class MultiBlock extends Block
 {
 
     /**

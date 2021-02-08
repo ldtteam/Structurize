@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.DyeColor;
@@ -9,7 +8,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 
-public class BlockFloatingCarpet extends AbstractBlockStructurize<BlockFloatingCarpet>
+public class BlockFloatingCarpet extends Block
 {
     /**
      * This Blocks shape.

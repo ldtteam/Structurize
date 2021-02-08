@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -20,7 +19,7 @@ import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FAC
 /**
  * Decorative barrel block
  */
-public class BlockBarrel extends AbstractBlockStructurize<BlockBarrel>
+public class BlockBarrel extends Block
 {
     /**
      * This Blocks shape.

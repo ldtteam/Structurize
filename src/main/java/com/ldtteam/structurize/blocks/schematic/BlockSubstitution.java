@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.schematic;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.math.BlockPos;
@@ -13,7 +13,7 @@ import net.minecraft.world.IBlockReader;
  * This block is used as a substitution block for the Builder. Every solid block can be substituted by this block in schematics. This helps make schematics independent from
  * location and ground.
  */
-public class BlockSubstitution extends AbstractBlockStructurize<BlockSubstitution>
+public class BlockSubstitution extends Block
 {
 
     /**

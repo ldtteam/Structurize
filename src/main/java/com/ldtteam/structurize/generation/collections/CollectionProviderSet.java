@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.generation.collections;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.types.IBlockCollection;
+import com.ldtteam.structurize.blocks.IBlockCollection;
 import com.ldtteam.structurize.generation.LanguageWriter;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.util.IItemProvider;

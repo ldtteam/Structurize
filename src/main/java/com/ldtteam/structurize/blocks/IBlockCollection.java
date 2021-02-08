@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blocks.types;
+package com.ldtteam.structurize.blocks;
 
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
