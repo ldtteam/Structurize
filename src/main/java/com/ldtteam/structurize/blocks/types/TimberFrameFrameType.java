@@ -46,7 +46,7 @@ public enum TimberFrameFrameType implements IStringSerializable
     }
 
     /**
-     * Name used in the Lang data generator
+     * Name used in the lang data generator
      *
      * @return langName
      */

@@ -42,6 +42,7 @@ public enum TimberFrameCentreType  implements IStringSerializable
     // Other
     PAPER("paper", "Paper", "structurize:blocks/timber_frame_paper", "paper"),
     COBBLE_STONE("cobble_stone", "Cobblestone", "block/cobblestone", "cobblestone"),
+    BLACKSTONE("blackstone", "Blackstone", "block/blackstone", "blackstone"),
     STONE("stone", "Stone", "block/stone", "stone");
 
     final String name;

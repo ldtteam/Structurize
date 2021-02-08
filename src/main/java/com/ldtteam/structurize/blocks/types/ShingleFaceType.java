@@ -35,9 +35,11 @@ public enum ShingleFaceType implements IStringSerializable
     BLUE_SLATE("blue_slate", "slate", "Blue Slate", "minecraft:blue_dye"),
     GREEN_SLATE("green_slate", "slate", "Green Slate", "minecraft:green_dye"),
     PURPLE_SLATE("purple_slate", "slate", "Purple Slate", "minecraft:purple_dye"),
-    // Special
+    // Other
     MOSS_SLATE("moss_slate", "moss", "Moss Slate", "minecraft:mossy_cobblestone", false),
-    THATCHED("thatched", "thatched", "Thatched", "minecraft:wheat", false);
+    THATCHED("thatched", "thatched", "Thatched", "minecraft:wheat", false),
+    BLACKSTONE("blackstone", "blackstone", "Blackstone", "minecraft:blackstone", false),
+    GILDED_BLACKSTONE("gilded_blackstone", "gilded_blackstone", "Gilded Blackstone", "minecraft:gilded_blackstone", false);
 
     final String name;
     final String group;
@@ -79,7 +81,7 @@ public enum ShingleFaceType implements IStringSerializable
     }
 
     /**
-     * The face group the type belongs to, e.g. Clay, or Slate. used by data generators.
+     * The face group the type belongs to, e.g. Clay or Slate. Used by data generators.
      *
      * @return group
      */
@@ -89,7 +91,7 @@ public enum ShingleFaceType implements IStringSerializable
     }
 
     /**
-     * Name used in the Lang data generator
+     * Name used in the lang data generator
      *
      * @return langName
      */
