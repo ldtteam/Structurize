@@ -1,117 +1,117 @@
 package com.ldtteam.blockout;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
-import org.jetbrains.annotations.NotNull;
+import com.ldtteam.structurize.Structurize;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utilities to load xml files.
  */
 public final class Loader
 {
-    private static final Map<String, Constructor<? extends Pane>> paneConstructorMap = new HashMap<>();
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
+    private static final Map<ResourceLocation, Function<PaneParams,? extends Pane>> paneFactories = new HashMap<>();
     static
     {
-        register("view", View.class);
-        register("group", Group.class);
-        register("scrollgroup", ScrollingGroup.class);
-        register("list", ScrollingList.class);
-        register("text", Text.class);
-        register("button", ButtonVanilla.class);
-        register("buttonimage", ButtonImage.class);
-        register("label", Label.class);
-        register("input", TextFieldVanilla.class);
-        register("image", Image.class);
-        register("box", Box.class);
-        register("itemicon", ItemIcon.class);
-        register("switch", SwitchView.class);
-        register("dropdown", DropDownList.class);
-        register("overlay", OverlayView.class);
-        register("gradient", Gradient.class);
-        register("zoomdragview", ZoomDragView.class);
-        register("treeview", TreeView.class);
+        register("view", View::new);
+        register("group", Group::new);
+        register("scrollgroup", ScrollingGroup::new);
+        register("list", ScrollingList::new);
+        register("text", Text::new);
+        register("button", Button::construct);
+        register("buttonimage", Button::construct); // TODO: remove, but we don't want to deal with xml changes now
+        register("toggle", ToggleButton::new);
+        register("label", Text::new); // TODO: remove, but we don't want to deal with xml changes now
+        register("input", TextFieldVanilla::new);
+        register("image", Image::new);
+        register("imagerepeat", ImageRepeatable::new);
+        register("box", Box::new);
+        register("itemicon", ItemIcon::new);
+        register("switch", SwitchView::new);
+        register("dropdown", DropDownList::new);
+        register("overlay", OverlayView::new);
+        register("gradient", Gradient::new);
+        register("zoomdragview", ZoomDragView::new);
+        register("treeview", TreeView::new);
     }
+
+    /** A map to store the parsed documents. Retains data based on a priority */
+    private static final Map<ResourceLocation, Tuple<Integer,PaneParams>> parsedCache = Collections.synchronizedMap(new HashMap<ResourceLocation, Tuple<Integer, PaneParams>>()
+    {
+        @Override
+        public Tuple<Integer, PaneParams> get(final Object o)
+        {
+            Tuple<Integer, PaneParams> me = super.get(o);
+            this.replace((ResourceLocation) o, new Tuple<>(me.getA()+1,me.getB()));
+            return me;
+        }
+    });
 
     private Loader()
     {
         // Hides default constructor.
     }
 
-    private static void register(final String name, final Class<? extends Pane> paneClass)
+    /**
+     * registers an element definition class so it can be used in
+     * gui definition files
+     * @param name the tag name of the element in the definition file
+     * @param factoryMethod the constructor/method to create the element Pane
+     */
+    public static void register(final String name, final Function<PaneParams, ? extends Pane> factoryMethod)
     {
-        register(name, null, paneClass);
-    }
+        final ResourceLocation key = new ResourceLocation(name);
 
-    private static void register(final String name, final String style, final Class<? extends Pane> paneClass)
-    {
-        final String key = makeFactoryKey(name, style);
-
-        if (paneConstructorMap.containsKey(key))
+        if (paneFactories.containsKey(key))
         {
-            throw new IllegalArgumentException("Duplicate pane type '" + name + "' of style '" + style + "' when registering Pane class mapping for " + paneClass.getName());
+            throw new IllegalArgumentException("Duplicate pane type '" + name + "' when registering Pane class method.");
         }
 
-        try
-        {
-            final Constructor<? extends Pane> constructor = paneClass.getDeclaredConstructor(PaneParams.class);
-            paneConstructorMap.put(key, constructor);
-        }
-        catch (final NoSuchMethodException exception)
-        {
-            throw new IllegalArgumentException("Missing (XMLNode) constructor for type '" + name + "' when adding Pane class mapping for " + paneClass.getName(), exception);
-        }
+        paneFactories.put(key, factoryMethod);
     }
 
-    @NotNull
-    private static String makeFactoryKey(final String name, final String style)
-    {
-        return name + ":" + (style != null ? style : "");
-    }
-
+    /**
+     * Uses the loaded parameters to construct a new Pane tree
+     * @param params the parameters for the new pane and its children
+     * @return the created Pane
+     */
     private static Pane createFromPaneParams(final PaneParams params)
     {
-        // Parse Attributes first, to full construct
-        final String paneType = params.getType();
-        final String style = params.getStringAttribute("style", null);
+        final ResourceLocation paneType = new ResourceLocation(params.getType());
 
-        String key = makeFactoryKey(paneType, style);
-        Constructor<? extends Pane> constructor = paneConstructorMap.get(key);
-        if (constructor == null && style != null)
+        if (paneFactories.containsKey(paneType))
         {
-            key = makeFactoryKey(paneType, null);
-            constructor = paneConstructorMap.get(key);
+            return paneFactories.get(paneType).apply(params);
         }
 
-        if (constructor != null)
+        if (paneFactories.containsKey(new ResourceLocation(paneType.getPath())))
         {
-            try
-            {
-                return constructor.newInstance(params);
-            }
-            catch (final InstantiationException | IllegalAccessException | InvocationTargetException exc)
-            {
-                Log.getLogger().error(String.format("Exception when parsing XML for pane type %s", paneType), exc);
-            }
+            Log.getLogger().warn("Namespace override for " + paneType.getPath() + " not found. Using default.");
+            return paneFactories.get(new ResourceLocation(paneType.getPath())).apply(params);
         }
 
+        Log.getLogger().error("There is no factory method for " + paneType.getPath());
         return null;
     }
 
@@ -126,25 +126,28 @@ public final class Loader
     {
         if ("layout".equalsIgnoreCase(params.getType()))
         {
-            final String resource = params.getStringAttribute("source", null);
-            if (resource != null)
-            {
-                createFromXMLFile(resource, parent);
-            }
-
+            params.getResource("source", r -> createFromXMLFile(r, parent));
             return null;
         }
 
-        params.setParentView(parent);
-        final Pane pane = createFromPaneParams(params);
-
-        if (pane != null)
+        if (parent instanceof Window && params.getType().equals("window"))
         {
-            pane.putInside(parent);
-            pane.parseChildren(params);
+            ((Window) parent).loadParams(params);
+            parent.parseChildren(params);
+            return parent;
         }
+        else
+        {
+            params.setParentView(parent);
+            final Pane pane = createFromPaneParams(params);
 
-        return pane;
+            if (pane != null)
+            {
+                pane.putInside(parent);
+                pane.parseChildren(params);
+            }
+            return pane;
+        }
     }
 
     /**
@@ -153,43 +156,38 @@ public final class Loader
      * @param doc    xml document.
      * @param parent parent view.
      */
-    private static void createFromXML(final Document doc, final View parent)
+    private static PaneParams createFromDocument(@Nullable final Document doc, final View parent)
     {
+        if (doc == null) return null;
+
         doc.getDocumentElement().normalize();
 
         final PaneParams root = new PaneParams(doc.getDocumentElement());
-        if (parent instanceof Window)
-        {
-            ((Window) parent).loadParams(root);
-        }
-
-        for (final PaneParams child : root.getChildren())
-        {
-            createFromPaneParams(child, parent);
-        }
+        createFromPaneParams(root, parent);
+        return root;
     }
 
     /**
      * Parse XML from an InputSource into contents for a View.
      *
      * @param input  xml file.
-     * @param parent parent view.
      */
-    private static void createFromXML(final InputSource input, final View parent)
+    private static Document parseXML(final InputSource input)
     {
         try
         {
-            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final DocumentBuilder dBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             final Document doc = dBuilder.parse(input);
             input.getByteStream().close();
 
-            createFromXML(doc, parent);
+            return doc;
         }
         catch (final ParserConfigurationException | SAXException | IOException exc)
         {
             Log.getLogger().error("Exception when parsing XML.", exc);
         }
+
+        return null;
     }
 
     /**
@@ -200,7 +198,7 @@ public final class Loader
      */
     public static void createFromXML(final String xmlString, final View parent)
     {
-        createFromXML(new InputSource(new StringReader(xmlString)), parent);
+        createFromDocument(parseXML(new InputSource(new StringReader(xmlString))), parent);
     }
 
     /**
@@ -222,7 +220,15 @@ public final class Loader
      */
     public static void createFromXMLFile(final ResourceLocation resource, final View parent)
     {
-        createFromXML(new InputSource(createInputStream(resource)), parent);
+        if (parsedCache.containsKey(resource))
+        {
+            createFromPaneParams(parsedCache.get(resource).getB(), parent);
+        }
+        else
+        {
+            Document doc = parseXML(new InputSource(createInputStream(resource)));
+            addToCache(resource, createFromDocument(doc, parent));
+        }
     }
 
     /**
@@ -248,5 +254,25 @@ public final class Loader
             Log.getLogger().error("IOException Loader.java", e.getCause());
         }
         return null;
+    }
+
+    // ------ Cache Handling ------
+
+    /**
+     * Adds a new parsed document to the cache.
+     * If the cache is full, the least accessed document is removed.
+     * @param loc the resource for the gui definition file
+     * @param doc the processed document
+     */
+    public static void addToCache(ResourceLocation loc, PaneParams doc)
+    {
+        if (parsedCache.size() >= Structurize.getConfig().getClient().windowCacheCap.get())
+        {
+            parsedCache.remove(
+              parsedCache.entrySet().stream()
+                .min((a,b) -> Math.min(a.getValue().getA(), b.getValue().getA())).get().getKey());
+        }
+
+        parsedCache.put(loc, new Tuple<>(1, doc));
     }
 }

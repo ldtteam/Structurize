@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "structurize:blocks/bricks/bricks_brown"
+  }
+}

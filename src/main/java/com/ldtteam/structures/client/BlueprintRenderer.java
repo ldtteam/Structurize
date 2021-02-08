@@ -270,7 +270,10 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.getArmorGlint());
         renderBufferSource.finish(RenderType.getArmorEntityGlint());
         renderBufferSource.finish(RenderType.getGlint());
+        renderBufferSource.finish(RenderType.getGlintDirect());
+        renderBufferSource.finish(RenderType.getGlintTranslucent());
         renderBufferSource.finish(RenderType.getEntityGlint());
+        renderBufferSource.finish(RenderType.getEntityGlintDirect());
         renderBufferSource.finish(RenderType.getWaterMask());
         ClientEventSubscriber.renderBuffers.getCrumblingBufferSource().finish(); // not used now
         renderBufferSource.finish(RenderType.getLines());
@@ -279,8 +282,8 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
 
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
-        renderBlockLayer(RenderType.getTripwire(), rawPosMatrix);
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
+        renderBlockLayer(RenderType.getTripwire(), rawPosMatrix);
 
         OptifineCompat.getInstance().endWater();
 

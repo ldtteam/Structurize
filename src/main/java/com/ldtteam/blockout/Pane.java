@@ -1,12 +1,21 @@
 package com.ldtteam.blockout;
 
-import com.google.common.collect.Lists;
+import com.ldtteam.blockout.controls.Tooltip;
+import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +25,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -43,8 +53,8 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
-    protected boolean            isHovered    = false;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    protected Tooltip tooltip;
 
     /**
      * Default constructor.
@@ -63,39 +73,26 @@ public class Pane extends AbstractGui
     public Pane(@NotNull final PaneParams params)
     {
         super();
-        id = params.getStringAttribute("id", id);
+        id = params.getString("id", id);
 
-        @NotNull
-        final PaneParams.SizePair parentSizePair = new PaneParams.SizePair(params.getParentWidth(), params.getParentHeight());
-        PaneParams.SizePair sizePair = params.getSizePairAttribute("size", null, parentSizePair);
-        if (sizePair != null)
-        {
-            width = sizePair.getX();
-            height = sizePair.getY();
-        }
-        else
-        {
-            width = params.getScalableIntegerAttribute("width", width, parentSizePair.getX());
-            height = params.getScalableIntegerAttribute("height", height, parentSizePair.getY());
-        }
+        width = params.getParentWidth();
+        height = params.getParentHeight();
 
-        sizePair = params.getSizePairAttribute("pos", null, parentSizePair);
-        if (sizePair != null)
-        {
-            x = sizePair.getX();
-            y = sizePair.getY();
-        }
-        else
-        {
-            x = params.getScalableIntegerAttribute("x", x, parentSizePair.getX());
-            y = params.getScalableIntegerAttribute("y", y, parentSizePair.getY());
-        }
+        params.getScaledInteger("size", params.getParentWidth(), params.getParentHeight(), a -> {
+            width = a.get(0);
+            height = a.get(1);
+        });
 
-        alignment = params.getEnumAttribute("align", Alignment.class, alignment);
-        visible = params.getBooleanAttribute("visible", visible);
-        enabled = params.getBooleanAttribute("enabled", enabled);
-        onHoverId = params.getStringAttribute("onHoverId");
-        toolTipLines = params.getMultiLineAttributeAsTextComp("tooltip");
+        params.getScaledInteger("pos", params.getParentView().x, params.getParentView().y, a -> {
+            x = a.get(0);
+            y = a.get(1);
+        });
+
+        alignment = params.getEnum("align", Alignment.class, alignment);
+        visible = params.getBoolean("visible", visible);
+        enabled = params.getBoolean("enabled", enabled);
+        onHoverId = params.getString("onHoverId", onHoverId);
+        toolTipLines = params.getMultilineText("tooltip", toolTipLines);
     }
 
     /**
@@ -318,8 +315,10 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void draw(final MatrixStack ms, final int mx, final int my)
+    public void draw(final MatrixStack ms, final double mx, final double my)
     {
+        handleHover(mx, my);
+
         if (visible)
         {
             drawSelf(ms, mx, my);
@@ -345,16 +344,11 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public final void drawLast(final MatrixStack ms, final int mx, final int my)
+    public void drawLast(final MatrixStack ms, final double mx, final double my)
     {
         if (visible)
         {
             drawSelfLast(ms, mx, my);
-
-            if (isHovered && !toolTipLines.isEmpty())
-            {
-                window.getScreen().renderTooltip(ms, Lists.transform(toolTipLines, ITextComponent::func_241878_f), mx, my);
-            }
         }
     }
 
@@ -366,7 +360,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelf(final MatrixStack ms, final int mx, final int my)
+    public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }
@@ -379,7 +373,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelfLast(final MatrixStack ms, final int mx, final int my)
+    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }
@@ -431,6 +425,18 @@ public class Pane extends AbstractGui
         }
     }
 
+    /**
+     * Returns the first Pane (depth-first search) of a given type.
+     *
+     * @param type Class of the desired Pane type.
+     * @param <T>  The type of pane returned.
+     * @return a Pane of the given type if found, null otherwise.
+     */
+    public final <T extends Pane> T findFirstPaneByType(@NotNull final Class<T> type)
+    {
+        return findPaneByType(type);
+    }
+
     // ----------Subpanes-------------//
 
     /**
@@ -443,6 +449,18 @@ public class Pane extends AbstractGui
     public Pane findPaneByID(final String idIn)
     {
         return id.equals(idIn) ? this : null;
+    }
+
+    /**
+     * Returns the first Pane of a given type. Performs a depth-first search on the hierarchy of Panes and Views.
+     *
+     * @param type type of Pane to find.
+     * @return a Pane of the given type.
+     */
+    @Nullable
+    public <T extends Pane> T findPaneByType(final Class<T> type)
+    {
+        return this.getClass().equals(type) ? type.cast(this) : null;
     }
 
     /**
@@ -468,6 +486,7 @@ public class Pane extends AbstractGui
     public void setWindow(final Window w)
     {
         window = w;
+        genToolTip();
     }
 
     /**
@@ -599,41 +618,45 @@ public class Pane extends AbstractGui
         // Can be overloaded
     }
 
-    protected synchronized void scissorsStart(final MatrixStack ms)
+    protected synchronized void scissorsStart(final MatrixStack ms, final int contentWidth, final int contentHeight)
     {
-        int scissorsX = MatrixUtils.getLastMatrixTranslateXasInt(ms) + getX();
-        int scissorsY = MatrixUtils.getLastMatrixTranslateYasInt(ms) + getY();
-        int h = getHeight();
-        int w = getWidth();
+        final int fbWidth = mc.mainWindow.getFramebufferWidth();
+        final int fbHeight = mc.mainWindow.getFramebufferHeight();
+
+        final Vector4f start = new Vector4f(x, y, 0.0f, 1.0f);
+        final Vector4f end = new Vector4f(x + width, y + height, 0.0f, 1.0f);
+        start.transform(ms.getLast().getMatrix());
+        end.transform(ms.getLast().getMatrix());
+
+        int scissorsXstart = MathHelper.clamp((int) Math.floor(start.getX()), 0, fbWidth);
+        int scissorsXend = MathHelper.clamp((int) Math.floor(end.getX()), 0, fbWidth);
+
+        int scissorsYstart = MathHelper.clamp((int) Math.floor(start.getY()), 0, fbHeight);
+        int scissorsYend = MathHelper.clamp((int) Math.floor(end.getY()), 0, fbHeight);
+
+        // negate bottom top (opengl things)
+        final int temp = scissorsYstart;
+        scissorsYstart = fbHeight - scissorsYend;
+        scissorsYend = fbHeight - temp;
 
         if (!scissorsInfoStack.isEmpty())
         {
             final ScissorsInfo parentInfo = scissorsInfoStack.peek();
-            final int right = scissorsX + w;
-            final int bottom = scissorsY + h;
-            final int parentRight = parentInfo.x + parentInfo.width;
-            final int parentBottom = parentInfo.y + parentInfo.height;
 
-            scissorsX = Math.max(scissorsX, parentInfo.x);
-            scissorsY = Math.max(scissorsY, parentInfo.y);
+            scissorsXstart = Math.max(scissorsXstart, parentInfo.xStart);
+            scissorsXend = Math.max(scissorsXstart, Math.min(parentInfo.xEnd, scissorsXend));
 
-            w = Math.max(0, Math.min(right, parentRight) - scissorsX);
-            h = Math.max(0, Math.min(bottom, parentBottom) - scissorsY);
+            scissorsYstart = Math.max(scissorsYstart, parentInfo.yStart);
+            scissorsYend = Math.max(scissorsYstart, Math.min(parentInfo.yEnd, scissorsYend));
         }
 
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
         @NotNull
-        final ScissorsInfo info = new ScissorsInfo(scissorsX, scissorsY, w, h);
+        final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend, window.getScreen().width, window.getScreen().height);
         scissorsInfoStack.push(info);
+        window.getScreen().width = contentWidth;
+        window.getScreen().height = contentHeight;
 
-        final double scale = BOScreen.getScale();
-        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
-        GL11.glScissor(
-            (int) (info.x * scale),
-            (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-            (int) (info.width * scale),
-            (int) (info.height * scale));
+        RenderSystem.enableScissor(scissorsXstart, scissorsYstart, scissorsXend - scissorsXstart, scissorsYend - scissorsYstart);
     }
 
     /**
@@ -656,25 +679,44 @@ public class Pane extends AbstractGui
         return y;
     }
 
-    protected synchronized void scissorsEnd()
+    protected synchronized void scissorsEnd(final MatrixStack ms)
     {
-        scissorsInfoStack.pop();
+        final ScissorsInfo popped = scissorsInfoStack.pop();
+        if (debugging)
+        {
+            final int color = 0xffff0000;
+            final int w = popped.xEnd - popped.xStart;
+            final int h = popped.yEnd - popped.yStart;
 
-        GL11.glPopAttrib();
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+            final int yStart = mc.mainWindow.getFramebufferHeight() - popped.yEnd;
+
+            ms.push();
+            ms.getLast().getMatrix().setIdentity();
+            Render.drawOutlineRect(ms, popped.xStart, yStart, w, h, color, 2.0f);
+
+            final String scId = "scissor_" + (id.isEmpty() ? this.toString() : id);
+            final int scale = (int) mc.mainWindow.getGuiScaleFactor();
+            final int stringWidth = mc.fontRenderer.getStringWidth(scId);
+            ms.scale(scale, scale, 1.0f);
+            mc.fontRenderer.drawString(ms,
+                scId,
+                (popped.xStart + w) / scale - stringWidth,
+                (yStart + h) / scale - mc.fontRenderer.FONT_HEIGHT,
+                color);
+            ms.pop();
+        }
+
+        window.getScreen().width = popped.oldGuiWidth;
+        window.getScreen().height = popped.oldGuiHeight;
 
         if (!scissorsInfoStack.isEmpty())
         {
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
             final ScissorsInfo info = scissorsInfoStack.peek();
-            final double scale = BOScreen.getScale();
-            GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
-            GL11.glScissor(
-              (int) (info.x * scale),
-              (int) ((mc.mainWindow.getScaledHeight() - info.y - info.height) * scale),
-              (int) (info.width * scale),
-              (int) (info.height * scale));
+            RenderSystem.enableScissor(info.xStart, info.yStart, info.xEnd - info.xStart, info.yEnd - info.yStart);
+        }
+        else
+        {
+            RenderSystem.disableScissor();
         }
     }
 
@@ -688,9 +730,7 @@ public class Pane extends AbstractGui
      */
     public boolean scrollInput(final double wheel, final double mx, final double my)
     {
-        /**
-         * Can be overwritten by child classes
-         */
+        // Can be overwritten by child classes
         return false;
     }
 
@@ -706,43 +746,21 @@ public class Pane extends AbstractGui
 
     private static class ScissorsInfo
     {
-        private final int x;
-        private final int y;
-        private final int width;
-        private final int height;
+        private final int xStart;
+        private final int yStart;
+        private final int xEnd;
+        private final int yEnd;
+        private final int oldGuiWidth;
+        private final int oldGuiHeight;
 
-        ScissorsInfo(final int x, final int y, final int w, final int h)
+        ScissorsInfo(final int xStart, final int xEnd, final int yStart, final int yEnd, final int oldGuiWidth, final int oldGuiHeight)
         {
-            this.x = x;
-            this.y = y;
-            this.width = w;
-            this.height = h;
-        }
-    }
-
-    /**
-     * Handle unhover.
-     *
-     * @param mx ignored.
-     * @param mz ignored.
-     * @return ignored.
-     */
-    public boolean handleUnhover(final double mx, final double mz)
-    {
-        handleUnhover();
-        return true;
-    }
-
-    /**
-     * Handle unhover.
-     */
-    public void handleUnhover()
-    {
-        isHovered = false;
-
-        if (onHover != null)
-        {
-            onHover.hide();
+            this.xStart = xStart;
+            this.xEnd = xEnd;
+            this.yStart = yStart;
+            this.yEnd = yEnd;
+            this.oldGuiWidth = oldGuiWidth;
+            this.oldGuiHeight = oldGuiHeight;
         }
     }
 
@@ -751,38 +769,54 @@ public class Pane extends AbstractGui
      *
      * @param mx mouse x
      * @param my mouse y
-     * @return true if event was used or propagation needs to be stopped
      */
-    public boolean handleHover(final double mx, final double my)
+    protected void handleHover(final double mx, final double my)
     {
-        if (this.isPointInPane(mx, my))
+        if (onHover == null && !onHoverId.isEmpty())
         {
-            isHovered = true;
+            onHover = window.findPaneByID(onHoverId);
+            Objects.requireNonNull(onHover, String.format("Hover pane \"%s\" for \"%s\" was not found.", onHoverId, id));
         }
+
         if (onHover == null)
         {
-            if (!onHoverId.isEmpty())
-            {
-                onHover = window.findPaneByID(onHoverId);
-            }
-            else
-            {
-                return false;
-            }
+            return;
         }
-        if (!this.isVisible())
-        {
-            if (onHover.isVisible())
-            {
-                onHover.hide();
-            }
-            return false;
-        }
+
         if (this.isPointInPane(mx, my) && !onHover.isVisible())
         {
             onHover.show();
         }
-        return true;
+        else if (!this.isPointInPane(mx, my) && onHover.isVisible())
+        {
+            onHover.hide();
+        }
+    }
+
+    public void setHoverPane(final Pane hoverPane)
+    {
+        this.onHover = hoverPane;
+    }
+
+    public Pane getHoverPane()
+    {
+        return onHover;
+    }
+
+    public void setTooltip(final Tooltip tooltipIn)
+    {
+        if (tooltip != null)
+        {
+            // gc
+            tooltip.putInside(null);
+        }
+        tooltip = tooltipIn;
+        tooltip.putInside(window);
+    }
+
+    public Tooltip getTooltip()
+    {
+        return tooltip;
     }
 
     @Deprecated
@@ -837,23 +871,136 @@ public class Pane extends AbstractGui
         return false;
     }
 
-    /**
-     * Sets the tooltip to render on hovering this element
-     *
-     * @param lines the lines to display
-     */
-    public void setHoverToolTip(final List<IFormattableTextComponent> lines)
+    private void genToolTip()
     {
-        this.toolTipLines = lines;
+        if (!toolTipLines.isEmpty())
+        {
+            if (tooltip == null)
+            {
+                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
+                toolTipLines.forEach(ttBuilder::appendNL);
+                tooltip = ttBuilder.build();
+            }
+            else
+            {
+                // renew window
+                setTooltip(tooltip);
+            }
+        }
     }
 
     /**
-     * Gets the tooltip to render on hovering this element
+     * Draws texture without scaling so one texel is one pixel, using repeatable texture center.
      *
-     * @return the lines to display
+     * @param ms            MatrixStack
+     * @param x             start target coords [pixels]
+     * @param y             start target coords [pixels]
+     * @param width         target rendering box [pixels]
+     * @param height        target rendering box [pixels]
+     * @param u             texture start offset [texels]
+     * @param v             texture start offset [texels]
+     * @param uWidth        texture rendering box [texels]
+     * @param vHeight       texture rendering box [texels]
+     * @param textureWidth  texture file size [texels]
+     * @param textureHeight texture file size [texels]
+     * @param uRepeat       offset relative to u, v [texels], smaller than uWidth
+     * @param vRepeat       offset relative to u, v [texels], smaller than vHeight
+     * @param repeatWidth   size of repeatable box in texture [texels], smaller than or equal uWidth - uRepeat
+     * @param repeatHeight  size of repeatable box in texture [texels], smaller than or equal vHeight - vRepeat
      */
-    public List<IFormattableTextComponent> getHoverToolTip()
+    protected static void blitRepeatable(final MatrixStack ms,
+        final int x, final int y,
+        final int width, final int height,
+        final int u, final int v,
+        final int uWidth, final int vHeight,
+        final int textureWidth, final int textureHeight,
+        final int uRepeat, final int vRepeat,
+        final int repeatWidth, final int repeatHeight)
     {
-        return this.toolTipLines;
+        if (uRepeat < 0 || vRepeat < 0 || uRepeat >= uWidth || vRepeat >= vHeight || repeatWidth < 1 || repeatHeight < 1
+            || repeatWidth > uWidth - uRepeat || repeatHeight > vHeight - vRepeat)
+        {
+            throw new IllegalArgumentException("Repeatable box is outside of texture box");
+        }
+
+        final int repeatCountX = Math.max(1, Math.max(0, width - (uWidth - repeatWidth)) / repeatWidth);
+        final int repeatCountY = Math.max(1, Math.max(0, height - (vHeight - repeatHeight)) / repeatHeight);
+
+        final Matrix4f mat = ms.getLast().getMatrix();
+        final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+
+        // main
+        for (int i = 0; i < repeatCountX; i++)
+        {
+            final int uAdjust = i == 0 ? 0 : uRepeat;
+            final int xStart = x + uAdjust + i * repeatWidth;
+            final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - (uWidth - uRepeat - repeatWidth));
+            final float minU = (float) (u + uAdjust) / textureWidth;
+            final float maxU = (float) (u + uAdjust + w) / textureWidth;
+
+            for (int j = 0; j < repeatCountY; j++)
+            {
+                final int vAdjust = j == 0 ? 0 : vRepeat;
+                final int yStart = y + vAdjust + j * repeatHeight;
+                final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - (vHeight - vRepeat - repeatHeight));
+                final float minV = (float) (v + vAdjust) / textureHeight;
+                final float maxV = (float) (v + vAdjust + h) / textureHeight;
+
+                buffer.pos(mat, xStart, yStart + h, 0).tex(minU, maxV).endVertex();
+                buffer.pos(mat, xStart + w, yStart + h, 0).tex(maxU, maxV).endVertex();
+                buffer.pos(mat, xStart + w, yStart, 0).tex(maxU, minV).endVertex();
+                buffer.pos(mat, xStart, yStart, 0).tex(minU, minV).endVertex();
+            }
+        }
+
+        final int xEnd = x + Math.min(uRepeat + repeatCountX * repeatWidth, width - (uWidth - uRepeat - repeatWidth));
+        final int yEnd = y + Math.min(vRepeat + repeatCountY * repeatHeight, height - (vHeight - vRepeat - repeatHeight));
+        final int uLeft = width - (xEnd - x);
+        final int vLeft = height - (yEnd - y);
+        final float restMinU = (float) (u + uWidth - uLeft) / textureWidth;
+        final float restMaxU = (float) (u + uWidth) / textureWidth;
+        final float restMinV = (float) (v + vHeight - vLeft) / textureHeight;
+        final float restMaxV = (float) (v + vHeight) / textureHeight;
+
+        // bot border
+        for (int i = 0; i < repeatCountX; i++)
+        {
+            final int uAdjust = i == 0 ? 0 : uRepeat;
+            final int xStart = x + uAdjust + i * repeatWidth;
+            final int w = Math.min(repeatWidth + uRepeat - uAdjust, width - uLeft);
+            final float minU = (float) (u + uAdjust) / textureWidth;
+            final float maxU = (float) (u + uAdjust + w) / textureWidth;
+
+            buffer.pos(mat, xStart, yEnd + vLeft, 0).tex(minU, restMaxV).endVertex();
+            buffer.pos(mat, xStart + w, yEnd + vLeft, 0).tex(maxU, restMaxV).endVertex();
+            buffer.pos(mat, xStart + w, yEnd, 0).tex(maxU, restMinV).endVertex();
+            buffer.pos(mat, xStart, yEnd, 0).tex(minU, restMinV).endVertex();
+        }
+
+        // left border
+        for (int j = 0; j < repeatCountY; j++)
+        {
+            final int vAdjust = j == 0 ? 0 : vRepeat;
+            final int yStart = y + vAdjust + j * repeatHeight;
+            final int h = Math.min(repeatHeight + vRepeat - vAdjust, height - vLeft);
+            float minV = (float) (v + vAdjust) / textureHeight;
+            float maxV = (float) (v + vAdjust + h) / textureHeight;
+
+            buffer.pos(mat, xEnd, yStart + h, 0).tex(restMinU, maxV).endVertex();
+            buffer.pos(mat, xEnd + uLeft, yStart + h, 0).tex(restMaxU, maxV).endVertex();
+            buffer.pos(mat, xEnd + uLeft, yStart, 0).tex(restMaxU, minV).endVertex();
+            buffer.pos(mat, xEnd, yStart, 0).tex(restMinU, minV).endVertex();
+        }
+
+        // bot left corner
+        buffer.pos(mat, xEnd, yEnd + vLeft, 0).tex(restMinU, restMaxV).endVertex();
+        buffer.pos(mat, xEnd + uLeft, yEnd + vLeft, 0).tex(restMaxU, restMaxV).endVertex();
+        buffer.pos(mat, xEnd + uLeft, yEnd, 0).tex(restMaxU, restMinV).endVertex();
+        buffer.pos(mat, xEnd, yEnd, 0).tex(restMinU, restMinV).endVertex();
+
+        buffer.finishDrawing();
+        RenderSystem.enableAlphaTest();
+        WorldVertexBufferUploader.draw(buffer);
     }
 }

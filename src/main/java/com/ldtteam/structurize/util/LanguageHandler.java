@@ -177,7 +177,7 @@ public final class LanguageHandler
      */
     public static String translateKeyWithFormat(final String key, final Object... format)
     {
-        return String.format(translateKey(key.toLowerCase(Locale.US)), format);
+        return String.format(translateKey(key), format);
     }
 
     /**

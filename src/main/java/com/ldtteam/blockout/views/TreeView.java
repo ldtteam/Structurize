@@ -1,9 +1,5 @@
 package com.ldtteam.blockout.views;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
@@ -11,11 +7,16 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class TreeView extends ZoomDragView
 {
@@ -40,10 +41,10 @@ public class TreeView extends ZoomDragView
     public TreeView(final PaneParams params)
     {
         super(params);
-        nodeVerticalDistance = params.getIntAttribute("nodeVertDist", nodeVerticalDistance);
-        nodeToLineDistance = params.getIntAttribute("nodeToLineHorizDist", nodeToLineDistance);
-        lineSize = params.getIntAttribute("lineSize", lineSize);
-        final int linePackedColor = params.getIntAttribute("linePackedColor", 0xffffffff);
+        nodeVerticalDistance = params.getInteger("nodeVertDist", nodeVerticalDistance);
+        nodeToLineDistance = params.getInteger("nodeToLineHorizDist", nodeToLineDistance);
+        lineSize = params.getInteger("lineSize", lineSize);
+        final int linePackedColor = params.getInteger("linePackedColor", 0xffffffff);
         nodeHorizontalDistance = 2 * nodeToLineDistance + lineSize;
         color[0] = linePackedColor >> 24;
         color[1] = linePackedColor >> 16 & 0xff;
@@ -278,7 +279,7 @@ public class TreeView extends ZoomDragView
     public void parseChildren(@NotNull final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
-        if (childNodes == null)
+        if (childNodes.isEmpty())
         {
             return;
         }
@@ -322,7 +323,7 @@ public class TreeView extends ZoomDragView
     }
 
     @Override
-    protected void abstractDrawSelfPost(final MatrixStack ms, final int mx, final int my)
+    protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
     {
         ms.push();
         ms.translate(x, y, 0.0d);

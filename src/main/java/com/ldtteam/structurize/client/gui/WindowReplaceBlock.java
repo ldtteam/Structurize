@@ -136,9 +136,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     public void onOpened()
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Label.class).setLabelText((IFormattableTextComponent) from.getDisplayName());
+        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getDisplayName());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
+        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
         updateResources();
         updateResourceList();
     }
@@ -211,7 +211,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Label.class).setLabelText((IFormattableTextComponent) to.getDisplayName());
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getDisplayName());
         }
     }
 
@@ -242,9 +242,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final ItemStack resource = filteredItems.get(index);
-                final Label resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Label.class);
-                resourceLabel.setLabelText((IFormattableTextComponent) resource.getDisplayName());
-                resourceLabel.setColor(WHITE, WHITE);
+                final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
+                resourceLabel.setText((IFormattableTextComponent) resource.getDisplayName());
+                resourceLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });

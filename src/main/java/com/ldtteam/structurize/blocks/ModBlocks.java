@@ -164,5 +164,45 @@ public final class ModBlocks
               () -> new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)),
               ModItemGroups.STRUCTURIZE));
         }
+
+        blockCactusPlank.registerItemBlock(registry, properties);
+        blockCactusTrapdoor.registerItemBlock(registry, properties);
+        blockCactusStair.registerItemBlock(registry, properties);
+        blockCactusSlab.registerItemBlock(registry, properties);
+        blockCactusFence.registerItemBlock(registry, properties);
+        blockCactusFenceGate.registerItemBlock(registry, properties);
+
+        blockDecoBarrel_onside.registerItemBlock(registry, properties);
+        blockDecoBarrel_standing.registerItemBlock(registry, properties);
+
+        blockBrownBricks.registerItemBlock(registry, properties);
+        blockBeigeBricks.registerItemBlock(registry, properties);
+        blockCreamBricks.registerItemBlock(registry, properties);
+
+        blockBrownBrickSlab.registerItemBlock(registry, properties);
+        blockBeigeBrickSlab.registerItemBlock(registry, properties);
+        blockCreamBrickSlab.registerItemBlock(registry, properties);
+
+        blockBrownBrickWall.registerItemBlock(registry, properties);
+        blockBeigeBrickWall.registerItemBlock(registry, properties);
+        blockCreamBrickWall.registerItemBlock(registry, properties);
+
+        blockBrownBrickStairs.registerItemBlock(registry, properties);
+        blockBeigeBrickStairs.registerItemBlock(registry, properties);
+        blockCreamBrickStairs.registerItemBlock(registry, properties);
+
+        for (final BlockTimberFrame frame : timberFrames)
+        {
+            frame.registerItemBlock(registry, timberframeProperties);
+        }
+
+        for (final BlockFloatingCarpet carpet : floatingCarpets)
+        {
+            carpet.registerItemBlock(registry, properties);
+        }
+
+        multiBlock.registerItemBlock(registry, properties);
+
+        placeholderBlock.registerItemBlock(registry, properties);
     }
 }

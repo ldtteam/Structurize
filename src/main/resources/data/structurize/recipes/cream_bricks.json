@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " Y ",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:bricks"
+    },
+    "Y": {
+      "item": "minecraft:sandstone"
+    }
+  },
+  "result": {
+    "item": "structurize:blockcreambricks",
+    "count": 4
+  }
+}

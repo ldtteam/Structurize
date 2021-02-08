@@ -15,6 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -104,6 +105,11 @@ public class Blueprint
      * Cache for storing rotate/mirror anchor
      */
     private BlockPos cachePrimaryOffset = null;
+
+    /**
+     * Source of rendering.
+     */
+    private BlockPos renderSource = BlockPos.ZERO;
 
     /**
      * Constructor of a new Blueprint.
@@ -713,13 +719,19 @@ public class Blueprint
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
         {
-            // 1.16 fix IronGolemEntity#readAdditional() requires ServerWorld
             if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
             {
                 return null;
             }
 
             final Entity finalEntity = type.get().create(world);
+
+            /** 1.16 fix {@link IAngerable#readAngerNBT(ServerWorld, CompoundNBT)} */
+            if (world.isRemote && finalEntity instanceof IAngerable)
+            {
+                return null;
+            }
+
             if (finalEntity != null)
             {
                 try
@@ -810,6 +822,7 @@ public class Blueprint
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + palleteSize;
         result = prime * result + getVolume();
+        result = prime * result + renderSource.hashCode();
         return result;
     }
 
@@ -826,6 +839,17 @@ public class Blueprint
         }
         final Blueprint other = (Blueprint) obj;
         return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume();
+    }
+
+    /**
+     * Set the render source of the blueprint.
+     * This will be included in the hash to differentiate.
+     * This is supposed to be used for static blueprints that are not moved around only.
+     * @param pos the source position.
+     */
+    public void setRenderSource(final BlockPos pos)
+    {
+        this.renderSource = pos;
     }
 
     /**
