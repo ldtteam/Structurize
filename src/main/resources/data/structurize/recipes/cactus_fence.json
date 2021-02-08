@@ -10,11 +10,11 @@
       "item": "minecraft:stick"
     },
     "W": {
-      "item": "structurize:cactus_planks"
+      "item": "structurize:blockcactusplank"
     }
   },
   "result": {
-    "item": "structurize:cactus_fence",
+    "item": "structurize:blockcactusfence",
     "count": 3
   }
 }
