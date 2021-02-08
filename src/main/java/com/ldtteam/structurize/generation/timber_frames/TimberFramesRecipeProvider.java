@@ -91,7 +91,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
 
     private void createPlainTimberFrameRecipe(final DirectoryCache cache, final BlockTimberFrame timberFrame) throws IOException
     {
-        if (timberFrame.getRegistryName() == null || ModItems.buildTool.getRegistryName() == null)
+        if (timberFrame.getRegistryName() == null || ModItems.buildTool.get().getRegistryName() == null)
             return;
 
         final String name = timberFrame.getRegistryName().getPath();
@@ -107,7 +107,7 @@ public class TimberFramesRecipeProvider implements IDataProvider
         ingredients.put("F", new RecipeIngredientKeyJson(ingredientF));
         final RecipeIngredientJson ingredientC = new RecipeIngredientJson(timberFrame.getCentreType().getRecipeIngredient(), false);
         ingredients.put("C", new RecipeIngredientKeyJson(ingredientC));
-        final RecipeIngredientJson ingredientS = new RecipeIngredientJson(ModItems.buildTool.getRegistryName().toString(), false);
+        final RecipeIngredientJson ingredientS = new RecipeIngredientJson(ModItems.buildTool.get().getRegistryName().toString(), false);
         ingredients.put("S", new RecipeIngredientKeyJson(ingredientS));
 
         recipeJson.setKey(ingredients);

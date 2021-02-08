@@ -52,7 +52,7 @@ public class FloatingCarpetsRecipeProvider implements IDataProvider
 
     private void createBaseCarpetRecipe(final DirectoryCache cache, final BlockFloatingCarpet floatingCarpet) throws IOException
     {
-        if (floatingCarpet.getRegistryName() == null || ModItems.buildTool.getRegistryName() == null) return;
+        if (floatingCarpet.getRegistryName() == null || ModItems.buildTool.get().getRegistryName() == null) return;
 
         final ShapedRecipeJson recipeJson = new ShapedRecipeJson();
         recipeJson.setGroup("floating_carpet");
@@ -60,7 +60,7 @@ public class FloatingCarpetsRecipeProvider implements IDataProvider
         recipeJson.setPattern(new ShapedPatternJson(" B ", " C ", " S "));
 
         final Map<String, RecipeIngredientKeyJson> ingredients = new HashMap<>();
-        ingredients.put("B", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.buildTool.getRegistryName().toString(), false)));
+        ingredients.put("B", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.buildTool.get().getRegistryName().toString(), false)));
         ingredients.put("C", new RecipeIngredientKeyJson(new RecipeIngredientJson("minecraft:" + floatingCarpet.getColor().getTranslationKey() + "_carpet", false)));
         ingredients.put("S", new RecipeIngredientKeyJson(new RecipeIngredientJson("minecraft:string", false)));
         recipeJson.setKey(ingredients);
@@ -72,7 +72,7 @@ public class FloatingCarpetsRecipeProvider implements IDataProvider
 
     private void createDyingCarpetRecipe(final DirectoryCache cache, final BlockFloatingCarpet floatingCarpet) throws IOException
     {
-        if (floatingCarpet.getRegistryName() == null || ModItems.buildTool.getRegistryName() == null) return;
+        if (floatingCarpet.getRegistryName() == null || ModItems.buildTool.get().getRegistryName() == null) return;
 
         final ShapedRecipeJson recipeJson = new ShapedRecipeJson();
         recipeJson.setGroup("floating_carpet");

@@ -19,7 +19,7 @@ public class StructurizeTileEntities
     public static void registerTileEntity(final RegistryEvent.Register<TileEntityType<?>> event)
     {
         MULTIBLOCK = TileEntityType.Builder.create(TileEntityMultiBlock::new,
-          ModBlocks.multiBlock).build(null);
+          ModBlocks.multiBlock.get()).build(null);
         MULTIBLOCK.setRegistryName(Constants.MOD_ID, "multiblock");
     }
 }

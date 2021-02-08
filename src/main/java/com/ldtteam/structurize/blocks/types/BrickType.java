@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -8,8 +9,6 @@ import net.minecraft.item.Items;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
-
-import static com.ldtteam.structurize.blocks.ModBlocks.getList;
 
 public enum BrickType implements IBlockCollection
 {
@@ -29,6 +28,7 @@ public enum BrickType implements IBlockCollection
 
         blocks = create(
           ModBlocks.getRegistry(), ModItems.getRegistry(),
+          ModItemGroups.CONSTRUCTION,
           IBlockCollection.BlockType.BLOCK,
           IBlockCollection.BlockType.SLAB,
           IBlockCollection.BlockType.STAIRS,
@@ -42,8 +42,8 @@ public enum BrickType implements IBlockCollection
     }
 
     @Override
-    public List<Block> getBlocks()
+    public List<RegistryObject<Block>> getBlocks()
     {
-        return getList(blocks);
+        return blocks;
     }
 }

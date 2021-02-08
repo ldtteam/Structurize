@@ -2,6 +2,7 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.blocks.types.BrickType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
@@ -15,7 +16,22 @@ public final class ModItemGroups
         @Override
         public ItemStack createIcon()
         {
-            return new ItemStack(ModItems.buildTool);
+            return new ItemStack(ModItems.buildTool.get());
+        }
+
+        @Override
+        public boolean hasSearchBar()
+        {
+            return true;
+        }
+    };
+
+    public static final ItemGroup CONSTRUCTION = new ItemGroup(Constants.MOD_ID + ".construction")
+    {
+        @Override
+        public ItemStack createIcon()
+        {
+            return new ItemStack(BrickType.BROWN.getBlocks().get(0).get());
         }
 
         @Override

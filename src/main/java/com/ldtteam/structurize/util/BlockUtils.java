@@ -198,23 +198,23 @@ public final class BlockUtils
 
         if (fancy)
         {
-            if (block1 == ModBlocks.blockSubstitution || blockState2.equals(blockState1) || block2 == ModBlocks.blockSubstitution)
+            if (block1 == ModBlocks.blockSubstitution.get() || blockState2.equals(blockState1) || block2 == ModBlocks.blockSubstitution.get())
             {
                 return true;
             }
 
-            if ((block1 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState2))
-            || (block2 == ModBlocks.blockSolidSubstitution && !shallReplace.test(blockState1)))
+            if ((block1 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState2))
+            || (block2 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState1)))
             {
                 return true;
             }
 
             // if the other block has fluid already or is not waterloggable, take no action
-            if ((block1 == ModBlocks.blockFluidSubstitution
+            if ((block1 == ModBlocks.blockFluidSubstitution.get()
                 && (blockState2.getFluidState().isSource()
                     || !blockState2.hasProperty(BlockStateProperties.WATERLOGGED)
                     && blockState2.getMaterial().isSolid()))
-             || (block2 == ModBlocks.blockFluidSubstitution
+             || (block2 == ModBlocks.blockFluidSubstitution.get()
                 && (blockState1.getFluidState().isSource()
                     || !blockState1.hasProperty(BlockStateProperties.WATERLOGGED)
                     && blockState1.getMaterial().isSolid())))

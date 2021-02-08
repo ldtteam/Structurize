@@ -13,6 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
+import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -36,16 +37,15 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     @Override
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
-        saveBlocks(ModBlocks.getTimberFrames(), cache);
-        saveBlocks(ModBlocks.getPaperWalls(), cache);
-        saveBlocks(ModBlocks.getShingles(), cache);
-        saveBlocks(ModBlocks.getShingleSlabs(), cache);
-        saveBlocks(ModBlocks.getFloatingCarpets(), cache);
+        saveBlocks(ModBlocks.timberFrames, cache);
+        saveBlocks(ModBlocks.paperWalls, cache);
+        saveBlocks(ModBlocks.shingles, cache);
+        saveBlocks(ModBlocks.shingleSlabs, cache);
+        saveBlocks(ModBlocks.floatingCarpets, cache);
 
         saveBlockCollection(ModBlocks.BRICKS, cache);
         saveBlockCollection(ModBlocks.CACTI_BLOCKS, cache);
 
-        assert false;
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
         saveBlock(ModBlocks.blockFluidSubstitution, cache);
@@ -66,28 +66,28 @@ public class DefaultBlockLootTableProvider implements IDataProvider
 
     private void saveBlockCollection(final IBlockCollection blocks, final DirectoryCache cache) throws IOException
     {
-        for (Block block : blocks.getBlocks())
+        for (RegistryObject<Block> block : blocks.getBlocks())
         {
             saveBlock(block, cache);
         }
     }
 
-    private <T extends Block> void saveBlocks(final List<T> blocks, final DirectoryCache cache) throws IOException
+    private <T extends Block> void saveBlocks(final List<RegistryObject<T>> blocks, final DirectoryCache cache) throws IOException
     {
-        for (Block block : blocks)
+        for (RegistryObject<T> block : blocks)
         {
             saveBlock(block, cache);
         }
     }
 
-    private void saveBlock(final Block block, final DirectoryCache cache) throws IOException
+    private void saveBlock(final RegistryObject<? extends Block> block, final DirectoryCache cache) throws IOException
     {
-        if (block.getRegistryName() != null)
+        if (block.get().getRegistryName() != null)
         {
 
             final EntryJson entryJson = new EntryJson();
             entryJson.setType(EntryTypeEnum.ITEM);
-            entryJson.setName(block.getRegistryName().toString());
+            entryJson.setName(block.get().getRegistryName().toString());
 
             final PoolJson poolJson = new PoolJson();
             poolJson.setEntries(Collections.singletonList(entryJson));
@@ -98,7 +98,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
             lootTableJson.setType(LootTableTypeEnum.BLOCK);
             lootTableJson.setPools(Collections.singletonList(poolJson));
 
-            final Path savePath = generator.getOutputFolder().resolve(DataGeneratorConstants.LOOT_TABLES_DIR).resolve(block.getRegistryName().getPath() + ".json");
+            final Path savePath = generator.getOutputFolder().resolve(DataGeneratorConstants.LOOT_TABLES_DIR).resolve(block.get().getRegistryName().getPath() + ".json");
             IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(lootTableJson), savePath);
         }
     }

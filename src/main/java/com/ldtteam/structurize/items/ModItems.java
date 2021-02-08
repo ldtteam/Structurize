@@ -26,7 +26,9 @@ public final class ModItems
      *  Forge deferred registry object injection
      */
 
-    public static final ItemBuildTool buildTool = null;
+    private static final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
+
+    public static RegistryObject<ItemBuildTool> buildTool = register("sceptergold", () -> new ItemBuildTool(properties));;
     public static final ItemShapeTool shapeTool = null;
     public static final ItemScanTool  scanTool  = null;
     public static final ItemTagTool   tagTool   = null;
@@ -44,9 +46,6 @@ public final class ModItems
 
     static
     {
-        final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
-
-        register("sceptergold", () -> new ItemBuildTool(properties));
         register("shapetool", () -> new ItemShapeTool(properties));
         register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
         register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));

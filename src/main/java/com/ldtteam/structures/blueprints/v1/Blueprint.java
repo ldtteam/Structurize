@@ -161,7 +161,7 @@ public class Blueprint
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
-        this.palette.add(0, ModBlocks.blockSubstitution.getDefaultState());
+        this.palette.add(0, ModBlocks.blockSubstitution.get().getDefaultState());
     }
 
     /**

@@ -5,7 +5,8 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.defaults.CollectionProviderSet;
+import com.ldtteam.structurize.generation.LanguageWriter;
+import com.ldtteam.structurize.generation.collections.CollectionProviderSet;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.generation.floating_carpets.*;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
@@ -97,11 +98,13 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
+        // Load the default language file
+        LanguageWriter.load(event.getGenerator());
+
         // Shingles
         event.getGenerator().addProvider(new ShinglesBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShinglesLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShinglesTagsProvider(event.getGenerator()));
 
@@ -109,7 +112,6 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ShingleSlabsBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShingleSlabsLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new ShingleSlabsTagsProvider(event.getGenerator()));
 
@@ -117,14 +119,12 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new TimberFramesBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesTagsProvider(event.getGenerator()));
 
         // Floating Carpets
         event.getGenerator().addProvider(new FloatingCarpetsBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsItemModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new FloatingCarpetsLangEntryProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsTagsProvider(event.getGenerator()));
 
@@ -133,5 +133,7 @@ public class LifecycleSubscriber
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
 
+        // Write all language keys
+        event.getGenerator().addProvider(new LanguageWriter());
     }
 }

@@ -19,7 +19,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,24 +32,27 @@ import java.util.stream.Collectors;
  * <p>
  * We disabled the following finals since we are neither able to mark the items as final, nor do we want to provide public accessors.
  */
-
-@ObjectHolder(Constants.MOD_ID)
 public final class ModBlocks
 {
     private ModBlocks() { /* prevent construction */ }
 
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
 
+    public static DeferredRegister<Block> getRegistry()
+    {
+        return BLOCKS;
+    }
+
     /*
-     *  Forge deferred registry object injection
+     *  Lone Blocks
      */
 
-    public static final BlockSubstitution      blockSubstitution        = null;
-    public static final BlockSolidSubstitution blockSolidSubstitution   = null;
-    public static final BlockFluidSubstitution blockFluidSubstitution   = null;
-    public static final BlockBarrel            blockDecoBarrel_onside   = null;
-    public static final BlockBarrel            blockDecoBarrel_standing = null;
-    public static final MultiBlock             multiBlock               = null;
+    public static final RegistryObject<BlockSubstitution> blockSubstitution;
+    public static final RegistryObject<BlockSolidSubstitution> blockSolidSubstitution;
+    public static final RegistryObject<BlockFluidSubstitution> blockFluidSubstitution;
+    public static final RegistryObject<MultiBlock>  multiBlock;
+    public static final RegistryObject<BlockBarrel> blockDecoBarrel_onside;
+    public static final RegistryObject<BlockBarrel> blockDecoBarrel_standing;
 
     /*
      *  Block Collections
@@ -60,14 +62,14 @@ public final class ModBlocks
     public static List<IBlockCollection> BRICKS = Arrays.asList(BrickType.values());
 
     /*
-     *  Non-collection Block lists for mass registration
+     *  Block mass registration lists
      */
 
-    private static final List<RegistryObject<BlockTimberFrame>> timberFrames = new ArrayList<>();
-    private static final List<RegistryObject<BlockPaperWall>>   paperWalls   = new ArrayList<>();
-    private static final List<RegistryObject<BlockShingle>>     shingles     = new ArrayList<>();
-    private static final List<RegistryObject<BlockShingleSlab>>     shingleSlabs    = new ArrayList<>();
-    private static final List<RegistryObject<BlockFloatingCarpet>>  floatingCarpets = new ArrayList<>();
+    public static final List<RegistryObject<BlockTimberFrame>>    timberFrames = new ArrayList<>();
+    public static final List<RegistryObject<BlockPaperWall>>      paperWalls   = new ArrayList<>();
+    public static final List<RegistryObject<BlockShingle>>        shingles     = new ArrayList<>();
+    public static final List<RegistryObject<BlockShingleSlab>>    shingleSlabs    = new ArrayList<>();
+    public static final List<RegistryObject<BlockFloatingCarpet>> floatingCarpets = new ArrayList<>();
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
@@ -99,10 +101,6 @@ public final class ModBlocks
         return list.stream().map(RegistryObject::get).collect(Collectors.toList());
     }
 
-    public static DeferredRegister<Block> getRegistry()
-    {
-        return BLOCKS;
-    }
 
     public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
@@ -113,19 +111,19 @@ public final class ModBlocks
 
     static
     {
-        register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
-        register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
-        register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
-        register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
-        register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
-        register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
+        blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
+        blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
+        blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
 
         for (final PaperWallType paper : PaperWallType.values())
         {
             paperWalls.add(register(
               paper.getName() + "_blockpaperwall",
               () -> new BlockPaperWall(paper.getName()),
-              ModItemGroups.STRUCTURIZE
+              ModItemGroups.CONSTRUCTION
             ));
         }
 

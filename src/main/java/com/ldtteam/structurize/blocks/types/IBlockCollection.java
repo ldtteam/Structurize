@@ -15,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
@@ -26,7 +25,7 @@ public interface IBlockCollection
 
     default String getPluralName() { return getName() + "s"; }
 
-    List<Block> getBlocks();
+    List<RegistryObject<Block>> getBlocks();
 
     default AbstractBlock.Properties getProperties()
     {
@@ -36,7 +35,7 @@ public interface IBlockCollection
                  .sound(SoundType.WOOD);
     }
 
-    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, BlockType... types)
+    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
     {
         List<RegistryObject<Block>> results = new LinkedList<>();
 
@@ -53,7 +52,7 @@ public interface IBlockCollection
                   {
                       return new TallBlockItem(block.get(), new Item.Properties().maxStackSize(16).group(type.group));
                   }
-                  return new BlockItem(block.get(), new Item.Properties().group(type.group));
+                  return new BlockItem(block.get(), new Item.Properties().group(group));
               }
             );
 
@@ -61,16 +60,6 @@ public interface IBlockCollection
         }
 
         return results;
-    }
-
-    static List<IBlockCollection> each(IBlockCollection[] collections, DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, BlockType... types)
-    {
-        for (IBlockCollection group : collections)
-        {
-            group.create(registrar, itemRegistrar, types);
-        }
-
-        return Arrays.asList(collections);
     }
 
     static <B extends Block> B get(BlockType type, List<RegistryObject<B>> blocks)

@@ -3,11 +3,10 @@ package com.ldtteam.structurize.blocks;
 import com.ldtteam.structurize.blocks.types.IBlockCollection;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
-
-import static com.ldtteam.structurize.blocks.ModBlocks.getList;
 
 public class CactusCollection implements IBlockCollection
 {
@@ -17,6 +16,7 @@ public class CactusCollection implements IBlockCollection
     {
         blocks = create(
           ModBlocks.getRegistry(), ModItems.getRegistry(),
+          ItemGroup.BUILDING_BLOCKS,
           BlockType.PLANKS,
           BlockType.SLAB,
           BlockType.STAIRS,
@@ -40,8 +40,8 @@ public class CactusCollection implements IBlockCollection
     }
 
     @Override
-    public List<Block> getBlocks()
+    public List<RegistryObject<Block>> getBlocks()
     {
-        return getList(blocks);
+        return blocks;
     }
 }
