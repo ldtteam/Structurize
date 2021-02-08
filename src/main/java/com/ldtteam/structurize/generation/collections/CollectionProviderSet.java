@@ -12,6 +12,10 @@ import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import java.util.List;
 
+/**
+ * A utility class to create providers for collections.
+ * Preferably collection providers should not be sold separately
+ */
 public class CollectionProviderSet
 {
     public static void collectionProviderSet(
@@ -19,12 +23,12 @@ public class CollectionProviderSet
       String modId,
       List<RegistryObject<Block>> collection,
       IItemProvider material,
-      String texture)
+      String textureDirectory)
     {
         DataGenerator gen = event.getGenerator();
         ExistingFileHelper filer = event.getExistingFileHelper();
-        gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, texture));
-        gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, texture));
+        gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, textureDirectory));
+        gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionRecipeProvider(gen, collection, material));
         LanguageWriter.autoTranslate(ModBlocks.getList(collection));
     }
@@ -33,12 +37,12 @@ public class CollectionProviderSet
       GatherDataEvent event,
       String modId,
       List<RegistryObject<Block>> collection,
-      String texture)
+      String textureDirectory)
     {
         DataGenerator gen = event.getGenerator();
         ExistingFileHelper filer = event.getExistingFileHelper();
-        gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, texture));
-        gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, texture));
+        gen.addProvider(new CollectionBlockStateProvider(gen, modId, filer, collection, textureDirectory));
+        gen.addProvider(new CollectionItemModelProvider(gen, modId, filer, collection, textureDirectory));
         gen.addProvider(new CollectionRecipeProvider(gen, collection));
         LanguageWriter.autoTranslate(ModBlocks.getList(collection));
     }

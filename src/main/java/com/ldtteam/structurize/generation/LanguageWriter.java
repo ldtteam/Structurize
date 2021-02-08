@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
-import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -18,7 +17,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.TreeMap;
+import java.util.function.Function;
 
 public final class LanguageWriter implements IDataProvider
 {
@@ -36,6 +39,40 @@ public final class LanguageWriter implements IDataProvider
         }
     };
 
+    @Override
+    public void act(@NotNull final DirectoryCache cache) throws IOException
+    {
+        autoTranslate(ModBlocks.getFloatingCarpets());
+        autoTranslate(ModBlocks.getShingles());
+        autoTranslate(ModBlocks.getShingleSlabs());
+        translate(ModBlocks.getTimberFrames(), block ->
+          block.getTimberFrameType().getLangName() + " " +
+          block.getFrameType().getLangName() + " " +
+         (block.getCentreType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCentreType()));
+
+        IDataProvider.save(DataGeneratorConstants.GSONLang, cache, lang.serialize(), en_us.toPath());
+    }
+
+    /**
+     * Establishes a default translation for a list of blocks according to a function
+     * @param blocks the list of blocks to make entries for
+     * @param getLangValue the function to respond with the translation value
+     * @param <B> a subclass of block
+     */
+    public static <B extends Block> void translate(List<B> blocks, Function<B, String> getLangValue)
+    {
+        for (B block : blocks)
+        {
+            if (block.getRegistryName() == null || getLangValue.apply(block) == null) continue;
+            lang.put(block.getTranslationKey(), getLangValue.apply(block));
+        }
+    }
+
+    /**
+     * Transforms the registry name into a default translation
+     * @param blocks the list of blocks to add entries for
+     * @param <B> the block subclass
+     */
     public static <B extends Block> void autoTranslate(List<B> blocks)
     {
         for (B block : blocks)
@@ -45,11 +82,13 @@ public final class LanguageWriter implements IDataProvider
         }
     }
 
-    public static void autoTranslate(RegistryObject<Block>[] blocks)
-    {
-        autoTranslate(ModBlocks.getList(Arrays.asList(blocks)));
-    }
 
+
+    /**
+     * Formats a registry key, e.g. from cactus_planks to Cactus Planks
+     * @param key the name to format
+     * @return the formatted name
+     */
     public static String format(String key)
     {
         List<String> name = new ArrayList<>();
@@ -60,6 +99,12 @@ public final class LanguageWriter implements IDataProvider
         return String.join(" ", name);
     }
 
+    /**
+     * MUST be called before any other generators that use it.
+     * Pulls the default language file in to the lifecycle
+     * @param gen the generator
+     * @return the loaded language json
+     */
     public static LangJson load(DataGenerator gen)
     {
         try
@@ -78,17 +123,6 @@ public final class LanguageWriter implements IDataProvider
         }
 
         return lang;
-    }
-
-    @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
-    {
-        autoTranslate(ModBlocks.getFloatingCarpets());
-        autoTranslate(ModBlocks.getShingles());
-        autoTranslate(ModBlocks.getShingleSlabs());
-        autoTranslate(ModBlocks.getTimberFrames());
-
-        IDataProvider.save(DataGeneratorConstants.GSONLang, cache, lang.serialize(), en_us.toPath());
     }
 
     @Override

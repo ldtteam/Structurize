@@ -60,6 +60,7 @@ public enum TimberFrameCentreType  implements IStringSerializable
         this.recipeIngredient = recipeIngredient;
     }
 
+    @NotNull
     @Override
     public String getString()
     {

@@ -27,10 +27,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Class to create the modBlocks.
- * References to the blocks can be made here
- * <p>
- * We disabled the following finals since we are neither able to mark the items as final, nor do we want to provide public accessors.
+ * Class to register blocks to Structurize
+ *
+ * Don't forget to add them to the generators!
+ * Minimum is a save call in {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}.
  */
 public final class ModBlocks
 {
@@ -101,13 +101,24 @@ public final class ModBlocks
         return list.stream().map(RegistryObject::get).collect(Collectors.toList());
     }
 
-
+    /**
+     * Utility dhorthand to register blocks useing the deferred registry
+     * @param name the registry name of the block
+     * @param block a factory / constructor to create the block on demand
+     * @param group the {@link ItemGroup} this belongs to (sets creative tab)
+     * @param <B> the block subclass for the factory response
+     * @return the block saved to the registry
+     */
     public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
         RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
         ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().group(group)));
         return registered;
     }
+
+    /*
+     *  Registration
+     */
 
     static
     {
