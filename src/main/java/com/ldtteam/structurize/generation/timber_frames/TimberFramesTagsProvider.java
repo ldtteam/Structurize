@@ -27,12 +27,12 @@ public class TimberFramesTagsProvider implements IDataProvider
     @Override
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
-        final List<TimberFrameCenterType> centerTypes = Arrays.stream(TimberFrameCenterType.values()).collect(Collectors.toList());
-        for (TimberFrameCenterType timberFrameCenter : centerTypes)
+        final List<TimberFrameCentreType> centerTypes = Arrays.stream(TimberFrameCentreType.values()).collect(Collectors.toList());
+        for (TimberFrameCentreType timberFrameCenter : centerTypes)
         {
 
             final List<String> centers = new ArrayList<>();
-            Arrays.stream(TimberFrameCenterType.values())
+            Arrays.stream(TimberFrameCentreType.values())
               .forEach(subName -> centers.add("#structurize:timber_frames/" + subName.getName()));
 
 

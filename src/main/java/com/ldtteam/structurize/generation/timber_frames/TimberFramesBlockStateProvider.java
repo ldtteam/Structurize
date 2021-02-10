@@ -52,7 +52,7 @@ public class TimberFramesBlockStateProvider implements IDataProvider
             final String modelLocation = "structurize:block/timber_frames/" +
                     timberFrame.getTimberFrameType().getName() + "_" +
                     timberFrame.getFrameType().getName() + "_" +
-                    timberFrame.getCenterType().getName() + "_timber_frame";
+                    timberFrame.getCentreType().getName() + "_timber_frame";
 
             int x = 0;
             int y = 0;

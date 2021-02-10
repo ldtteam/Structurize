@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.types.TimberFrameCenterType;
+import com.ldtteam.structurize.blocks.types.TimberFrameCentreType;
 import com.ldtteam.structurize.blocks.types.TimberFrameFrameType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import net.minecraft.block.Block;
@@ -35,12 +35,12 @@ public class BlockTimberFrame extends Block
      */
     private final TimberFrameType timberFrameType;
     private final TimberFrameFrameType  frameType;
-    private final TimberFrameCenterType centreType;
+    private final TimberFrameCentreType centreType;
 
     /**
      * Constructor for the TimberFrame
      */
-    public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCenterType centreType)
+    public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
         this.timberFrameType = timberFrameType;
@@ -48,7 +48,7 @@ public class BlockTimberFrame extends Block
         this.centreType = centreType;
     }
 
-    public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCenterType centreType)
+    public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
     {
         return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getName(), centreType.getName());
     }
@@ -98,7 +98,7 @@ public class BlockTimberFrame extends Block
      *
      * @return the registered TimberFrameCentreType
      */
-    public TimberFrameCenterType getCenterType()
+    public TimberFrameCentreType getCentreType()
     {
         return this.centreType;
     }

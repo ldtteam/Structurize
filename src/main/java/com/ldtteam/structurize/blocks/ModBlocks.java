@@ -150,7 +150,7 @@ public final class ModBlocks
         {
             for (final TimberFrameFrameType frameType : TimberFrameFrameType.values())
             {
-                for (TimberFrameCenterType centreType : TimberFrameCenterType.values())
+                for (TimberFrameCentreType centreType : TimberFrameCentreType.values())
                 {
                     timberFrames.add(register(
                       BlockTimberFrame.getName(blockType, frameType, centreType),

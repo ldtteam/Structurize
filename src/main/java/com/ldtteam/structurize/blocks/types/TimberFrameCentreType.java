@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public enum TimberFrameCenterType implements IStringSerializable
+public enum TimberFrameCentreType implements IStringSerializable
 {
     // Wood
     OAK("oak", "Oak"),
@@ -51,17 +51,17 @@ public enum TimberFrameCenterType implements IStringSerializable
     final String textureLocation;
     final String recipeIngredient;
 
-    TimberFrameCenterType(final String name, final String langName)
+    TimberFrameCentreType(final String name, final String langName)
     {
         this(name, langName, "minecraft:block/" + name + "_planks", "minecraft:" + name + "_planks");
     }
 
-    TimberFrameCenterType(final Block block, final String langName)
+    TimberFrameCentreType(final Block block, final String langName)
     {
         this(Objects.requireNonNull(block.getRegistryName()).getPath(), langName, "block/" + block.getRegistryName().getPath(), block.getRegistryName().toString());
     }
 
-    TimberFrameCenterType(final String name, final String langName, final String textureLocation, final String recipeIngredient)
+    TimberFrameCentreType(final String name, final String langName, final String textureLocation, final String recipeIngredient)
     {
         this.name = name;
         this.langName = langName;

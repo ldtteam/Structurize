@@ -23,6 +23,12 @@ import java.util.Locale;
 import java.util.TreeMap;
 import java.util.function.Function;
 
+/**
+ * A central provider and utilities for creating default language keys.
+ * Makes all other language providers obsolete.
+ * Must be statically loaded at the start of the generation lifecycle
+ * and constructed at the end (to allow other providers to add keys).
+ */
 public final class LanguageWriter implements IDataProvider
 {
     private static File en_us = null;
@@ -48,7 +54,7 @@ public final class LanguageWriter implements IDataProvider
         translate(ModBlocks.getTimberFrames(), block ->
           block.getTimberFrameType().getLangName() + " " +
           block.getFrameType().getLangName() + " " +
-         (block.getCenterType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCenterType().getLangName() + " ") +
+         (block.getCentreType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCentreType().getLangName() + " ") +
           "Timber Frame");
 
         IDataProvider.save(DataGeneratorConstants.GSONLang, cache, lang.serialize(), en_us.toPath());
