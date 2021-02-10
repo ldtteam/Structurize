@@ -10,16 +10,10 @@ import net.minecraft.block.material.Material;
  */
 public class BlockSolidSubstitution extends Block
 {
-
     /**
      * The hardness this block has.
      */
     private static final float BLOCK_HARDNESS = 0.0F;
-
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "blocksolidsubstitution";
 
     /**
      * The resistance this block has.

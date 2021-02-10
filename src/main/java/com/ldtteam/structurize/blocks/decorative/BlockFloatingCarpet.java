@@ -20,11 +20,6 @@ public class BlockFloatingCarpet extends Block
      */
     private final DyeColor color;
 
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "_floating_carpet";
-
     public BlockFloatingCarpet(final DyeColor color, final Properties properties)
     {
         super(properties);

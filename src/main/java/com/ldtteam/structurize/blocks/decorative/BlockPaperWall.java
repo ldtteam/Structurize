@@ -22,11 +22,6 @@ public class BlockPaperWall extends PaneBlock
     public static final EnumProperty<PaperWallType> VARIANT = EnumProperty.create("variant", PaperWallType.class);
 
     /**
-     * This block's name.
-     */
-    public static final String                      BLOCK_NAME     = "blockpaperwall";
-
-    /**
      * The hardness this block has.
      */
     private static final float                      BLOCK_HARDNESS = 3F;
