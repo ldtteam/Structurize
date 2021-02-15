@@ -119,16 +119,29 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     }
 
     /**
-     * Ends the current paragraph by adding new line symbol and resetting style.
+     * Ends the current paragraph by adding new line symbol and applying + resetting style.
      */
     public R paragraphBreak()
+    {
+        return paragraphBreak(false);
+    }
+
+    /**
+     * Ends the current paragraph by adding new line symbol and applying + resetting style.
+     *
+     * @param forceStyle if true replace all styles since last paragraph break, if false replace all {@link Style#EMPTY} only
+     */
+    public R paragraphBreak(final boolean forceStyle)
     {
         newLine();
 
         final Style style = new Style(Color.toVanilla(color), bold, italic, underlined, strikeThrough, obfuscated, clickEvent, null, insertionEvent, null);
         for (int i = lastParagraphStart; i < text.size(); i++)
         {
-            text.get(i).setStyle(style);
+            if (forceStyle || text.get(i).getStyle().equals(Style.EMPTY))
+            {
+                text.get(i).setStyle(style);
+            }
         }
         lastParagraphStart = text.size();
 

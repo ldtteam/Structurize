@@ -104,9 +104,6 @@ public class ItemIcon extends Pane
             return;
         }
 
-        ms.push();
-        ms.translate(mx, my, GUI_ITEM_Z_TRANSLATE);
-        window.getScreen().renderTooltipHook(ms, itemStack, 0, 0);
-        ms.pop();
+        window.getScreen().renderTooltipHook(ms, itemStack, (int) mx, (int) my);
     }
 }
