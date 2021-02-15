@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.controls;
 
+import java.util.Collections;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -15,8 +16,8 @@ import net.minecraft.util.math.vector.Matrix4f;
  */
 public class Tooltip extends AbstractTextElement
 {
-    private static final int DEFAULT_MAX_WIDTH = 208;
-    private static final int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
+    public static final int DEFAULT_MAX_WIDTH = 208;
+    public static final int DEFAULT_MAX_HEIGHT = AbstractTextElement.SIZE_FOR_UNLIMITED_ELEMENTS;
 
     private static final int CURSOR_BOX_SIZE = 12;
     private static final int Z_OFFSET = 400;
@@ -41,10 +42,7 @@ public class Tooltip extends AbstractTextElement
     public Tooltip()
     {
         super(Alignment.TOP_LEFT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, true, true);
-        textLinespace = 1;
-        textOffsetX = 4;
-        textOffsetY = 4;
-        // Required default constructor.
+        init();
     }
 
     /**
@@ -55,21 +53,34 @@ public class Tooltip extends AbstractTextElement
     public Tooltip(final PaneParams params)
     {
         super(params, Alignment.TOP_LEFT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, true, true);
-        textLinespace = 1;
-        textOffsetX = 4;
-        textOffsetY = 4;
 
         autoWidth = width == 0;
         autoHeight = height == 0;
+        init();
+    }
+
+    protected void init()
+    {
+        textLinespace = 1;
+        textOffsetX = 4;
+        textOffsetY = 4;
+        hide();
+        recalcTextRendering();
     }
 
     @Override
     protected void recalcTextRendering()
     {
+        if (textScale <= 0.0d || isTextEmpty())
+        {
+            preparedText = Collections.emptyList();
+            return;
+        }
+
         // we have wrap enabled, so we want to create as small bouding box as possible
         if (autoWidth)
         {
-            textWidth = Math.min(text.stream().mapToInt(mc.fontRenderer::getStringPropertyWidth).max().orElse(Integer.MAX_VALUE), maxWidth) - 8;
+            textWidth = Math.min(text.stream().mapToInt(mc.fontRenderer::getStringPropertyWidth).max().orElse(Integer.MAX_VALUE), maxWidth - 8);
         }
         if (autoHeight)
         {
@@ -112,7 +123,7 @@ public class Tooltip extends AbstractTextElement
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
-        if (!preparedText.isEmpty())
+        if (!preparedText.isEmpty() && enabled)
         {
             x = (int) mx + CURSOR_BOX_SIZE - 4;
             y = (int) my - CURSOR_BOX_SIZE - 4;
@@ -183,7 +194,7 @@ public class Tooltip extends AbstractTextElement
 
     /**
      * If height is set to 0 then the smallest possible height is used based on the displayed text.
-     * This value can be used to cap such behaviour [default: unlimited].
+     * This value can be used to cap such behaviour [default: {@link AbstractTextElement#SIZE_FOR_UNLIMITED_ELEMENTS}].
      */
     public void setMaxHeight(final int maxHeight)
     {

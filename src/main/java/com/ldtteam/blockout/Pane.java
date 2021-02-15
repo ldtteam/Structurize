@@ -1,6 +1,5 @@
 package com.ldtteam.blockout;
 
-import com.ldtteam.blockout.controls.Tooltip;
 import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
@@ -54,7 +53,6 @@ public class Pane extends AbstractGui
     protected Window window;
     protected View parent;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
-    protected Tooltip tooltip;
 
     /**
      * Default constructor.
@@ -74,9 +72,6 @@ public class Pane extends AbstractGui
     {
         super();
         id = params.getString("id", id);
-
-        width = params.getParentWidth();
-        height = params.getParentHeight();
 
         params.getScaledInteger("size", params.getParentWidth(), params.getParentHeight(), a -> {
             width = a.get(0);
@@ -486,7 +481,17 @@ public class Pane extends AbstractGui
     public void setWindow(final Window w)
     {
         window = w;
-        genToolTip();
+
+        // can't gen tooltip from xml until first window is set
+        if (!toolTipLines.isEmpty())
+        {
+            final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this);
+            toolTipLines.forEach(ttBuilder::appendNL);
+            toolTipLines.clear(); // do not regen it when window has changed (unlikely to happen) cuz onHover might have changed
+            onHover = ttBuilder.build();
+        }
+
+        setHoverPane(onHover); // renew hover mount
     }
 
     /**
@@ -765,7 +770,7 @@ public class Pane extends AbstractGui
     }
 
     /**
-     * Handle onHover element, element must be visible. TODO: bug: must have pos set from xml (or be not in a group)
+     * Handle onHover element, element must be visible.
      *
      * @param mx mouse x
      * @param my mouse y
@@ -774,7 +779,7 @@ public class Pane extends AbstractGui
     {
         if (onHover == null && !onHoverId.isEmpty())
         {
-            onHover = window.findPaneByID(onHoverId);
+            onHover = window.findPaneByID(onHoverId); // do not use setHoverPane, here onHover is defined in xml
             Objects.requireNonNull(onHover, String.format("Hover pane \"%s\" for \"%s\" was not found.", onHoverId, id));
         }
 
@@ -783,40 +788,46 @@ public class Pane extends AbstractGui
             return;
         }
 
-        if (this.isPointInPane(mx, my) && !onHover.isVisible())
+        if (this.isPointInPane(mx, my) && !onHover.isVisible() && onHover.isEnabled())
         {
             onHover.show();
         }
-        else if (!this.isPointInPane(mx, my) && onHover.isVisible())
+        else if (!onHover.isPointInPane(mx, my) && !this.isPointInPane(mx, my) && onHover.isVisible())
         {
             onHover.hide();
         }
     }
 
-    public void setHoverPane(final Pane hoverPane)
+    /**
+     * Overrides current hover pane with given pane.
+     * Old hover is removed from window of this pane.
+     * New hover is added (as last child) to window of this pane.
+     *
+     * @param hoverPane new hover pane
+     * @return old hover pane
+     */
+    public Pane setHoverPane(final Pane hoverPane)
     {
+        if (onHover != null)
+        {
+            // gc
+            onHover.putInside(null);
+        }
+
+        final Pane oldHover = onHover;
         this.onHover = hoverPane;
+
+        if (onHover != null)
+        {
+            onHover.putInside(window);
+        }
+
+        return oldHover;
     }
 
     public Pane getHoverPane()
     {
         return onHover;
-    }
-
-    public void setTooltip(final Tooltip tooltipIn)
-    {
-        if (tooltip != null)
-        {
-            // gc
-            tooltip.putInside(null);
-        }
-        tooltip = tooltipIn;
-        tooltip.putInside(window);
-    }
-
-    public Tooltip getTooltip()
-    {
-        return tooltip;
     }
 
     @Deprecated
@@ -869,24 +880,6 @@ public class Pane extends AbstractGui
     public boolean onMouseDrag(final double mx, final double my, final int speed, final double deltaX, final double deltaY)
     {
         return false;
-    }
-
-    private void genToolTip()
-    {
-        if (!toolTipLines.isEmpty())
-        {
-            if (tooltip == null)
-            {
-                final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this).colorName("white");
-                toolTipLines.forEach(ttBuilder::appendNL);
-                tooltip = ttBuilder.build();
-            }
-            else
-            {
-                // renew window
-                setTooltip(tooltip);
-            }
-        }
     }
 
     /**

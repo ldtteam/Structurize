@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * Base button class.
  * Has a handler for when the button is clicked.
  */
-public class Button extends AbstractTextElement
+public abstract class Button extends AbstractTextElement
 {
     protected ButtonHandler handler;
 
@@ -106,6 +106,11 @@ public class Button extends AbstractTextElement
         return true;
     }
 
+    /**
+     * Selects and constructs a Button type based on its parameters
+     * @param params the patameters
+     * @return a freshly constructed Button
+     */
     public static Button construct(PaneParams params)
     {
         return params.hasAttribute("source")

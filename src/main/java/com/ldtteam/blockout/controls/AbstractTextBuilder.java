@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
@@ -16,11 +17,10 @@ import net.minecraft.util.text.event.ClickEvent;
  */
 public abstract class AbstractTextBuilder<P extends AbstractTextElement, R extends AbstractTextBuilder<P, R>>
 {
-    public static final int DEFAULT_COLOR = Color.getByName("black", 0x000000);
-
     private final Supplier<P> paneFactory;
 
-    private int color = DEFAULT_COLOR;
+    private int defaultColor = 0;
+    private int color = 0;
     private boolean bold = false;
     private boolean italic = false;
     private boolean underlined = false;
@@ -36,12 +36,24 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     @SuppressWarnings("unchecked")
     private R thiz = (R) this;
 
-    protected AbstractTextBuilder(final Supplier<P> paneFactory)
+    protected AbstractTextBuilder(final Supplier<P> paneFactory, final int defaultColor)
     {
         this.paneFactory = paneFactory;
+        this.color = defaultColor;
+        this.defaultColor = defaultColor;
     }
 
     // =============== TEXT ===============
+
+    /**
+     * Appends new line symbol plus the given text in this order.
+     *
+     * @param text text to append
+     */
+    public R appendNL(final ITextComponent text)
+    {
+        return appendNL((IFormattableTextComponent) text);
+    }
 
     /**
      * Appends new line symbol plus the given text in this order.
@@ -53,6 +65,17 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         newLine();
         append(text);
         return thiz;
+    }
+
+    /**
+     * Appends the given text to the current text line.
+     * Basically sentence appending.
+     *
+     * @param text text to append
+     */
+    public R append(final ITextComponent text)
+    {
+        return append((IFormattableTextComponent) text);
     }
 
     /**
@@ -96,16 +119,29 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     }
 
     /**
-     * Ends the current paragraph by adding new line symbol and resetting style.
+     * Ends the current paragraph by adding new line symbol and applying + resetting style.
      */
     public R paragraphBreak()
+    {
+        return paragraphBreak(false);
+    }
+
+    /**
+     * Ends the current paragraph by adding new line symbol and applying + resetting style.
+     *
+     * @param forceStyle if true replace all styles since last paragraph break, if false replace all {@link Style#EMPTY} only
+     */
+    public R paragraphBreak(final boolean forceStyle)
     {
         newLine();
 
         final Style style = new Style(Color.toVanilla(color), bold, italic, underlined, strikeThrough, obfuscated, clickEvent, null, insertionEvent, null);
         for (int i = lastParagraphStart; i < text.size(); i++)
         {
-            text.get(i).setStyle(style);
+            if (forceStyle || text.get(i).getStyle().equals(Style.EMPTY))
+            {
+                text.get(i).setStyle(style);
+            }
         }
         lastParagraphStart = text.size();
 
@@ -123,7 +159,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R resetStyle()
     {
-        color = DEFAULT_COLOR;
+        color = defaultColor;
         bold = false;
         italic = false;
         underlined = false;
@@ -203,7 +239,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     public R colorVanillaCode(final char code)
     {
         final TextFormatting tf = TextFormatting.fromFormattingCode(code);
-        return color(tf == null || tf.getColor() == null ? DEFAULT_COLOR : tf.getColor());
+        return color(tf == null || tf.getColor() == null ? defaultColor : tf.getColor());
     }
 
     /**
@@ -319,17 +355,26 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         paragraphBreak();
 
         final P pane = paneFactory.get();
-        pane.setText(new ArrayList<>(text)); // copy, so different elements are not backed by the same list
+        pane.setText(this.getText());
         return pane;
+    }
+
+    /**
+     * @return unique array list with current text
+     */
+    public List<IFormattableTextComponent> getText()
+    {
+        return new ArrayList<>(text); // copy, so different elements are not backed by the same list
     }
 
     public static class TooltipBuilder extends AbstractTextBuilder<Tooltip, TooltipBuilder>
     {
         private Pane hoverPane;
 
+        @SuppressWarnings("deprecation")
         public TooltipBuilder()
         {
-            super(Tooltip::new);
+            super(Tooltip::new, Tooltip.DEFAULT_TEXT_COLOR);
         }
 
         /**
@@ -356,7 +401,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
             }
 
             final Tooltip tooltipPane = super.build();
-            hoverPane.setTooltip(tooltipPane);
+            hoverPane.setHoverPane(tooltipPane);
             return tooltipPane;
         }
     }
@@ -365,7 +410,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     {
         public TextBuilder()
         {
-            super(Text::new);
+            super(Text::new, Text.DEFAULT_TEXT_COLOR);
         }
     }
 }

@@ -5,7 +5,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,14 +31,11 @@ public final class Parsers
     public static Function<String, Float>   FLOAT  = Float::parseFloat;
     public static Function<String, Double>  DOUBLE = Double::parseDouble;
 
-    public static String NO_TRANSLATION = TextFormatting.OBFUSCATED + "whoops!";
-
     /** Parses a resource location, include shorthand tricks */
     public static Function<String, ResourceLocation> RESOURCE = ResourceLocation::new;
 
     /** Parses a potentially translatable portion of text as a component */
-    @NotNull
-    public static Function<String, IFormattableTextComponent> TEXT = v -> {
+    private static Function<String, String> RAW_TEXT = v -> {
         String result = v == null ? "" : v;
         Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(result);
 
@@ -53,14 +49,21 @@ public final class Parsers
             result = result.replace(m.group(0), translated);
         }
 
-        return new StringTextComponent(result);
+        return result;
+    };
+
+    /** Parses a potentially translatable portion of text as a component */
+    @NotNull
+    public static Function<String, IFormattableTextComponent> TEXT = v -> {
+        String result = RAW_TEXT.apply(v);
+        return result == null ? null : new StringTextComponent(result);
     };
 
     /** Applies the TEXT parser across multiple lines */
-    public static Function<String, List<IFormattableTextComponent>> MULTILINE = v ->
-        Arrays.stream(v.split("(;|<br/?>|\\\\n)"))
-          .map(s -> Parsers.TEXT.apply(s))
-          .collect(Collectors.toList());
+    public static Function<String, List<IFormattableTextComponent>> MULTILINE = v -> Arrays
+        .stream(Parsers.RAW_TEXT.apply(v).split("(\\\\n|\\n)"))
+        .map(StringTextComponent::new)
+        .collect(Collectors.toList());
 
     /** Parses a color from hex, rgba, name, or pure value */
     public static Function<String, Integer> COLOR = v -> {
