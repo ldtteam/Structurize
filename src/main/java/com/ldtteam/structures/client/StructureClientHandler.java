@@ -42,9 +42,10 @@ public final class StructureClientHandler
 
     /**
      * Renders blueprint at list of positions.
-     *
-     * @param blueprint what to render
-     * @param pos       where to render
+     * @param blueprint the blueprint to render.
+     * @param partialTicks the partial ticks.
+     * @param points the list of points.
+     * @param stack the matrix stack to render it in.
      */
     public static void renderStructureAtPosList(@NotNull final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final MatrixStack stack)
     {

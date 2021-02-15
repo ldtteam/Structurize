@@ -139,7 +139,7 @@ public final class BlueprintHandler
 
         for (final BlockPos coord : points)
         {
-            renderer.draw(coord.down(), stack, partialTicks);
+            renderer.draw(coord, stack, partialTicks);
         }
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
