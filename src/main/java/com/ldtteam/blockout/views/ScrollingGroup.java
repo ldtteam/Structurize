@@ -29,6 +29,29 @@ public class ScrollingGroup extends ScrollingView
         super(params);
     }
 
+    /**
+     * Redirect all predefined children into our container.
+     *
+     * @param params the xml parameters.
+     */
+    @Override
+    public void parseChildren(final PaneParams params)
+    {
+        container.parseChildren(params);
+
+        for (int i = 1; i < container.children.size(); i++)
+        {
+            final Pane child = container.children.get(i);
+            final Pane lastChild = container.children.get(i-1);
+            final int childY = lastChild.getY() + lastChild.getHeight();
+
+            child.setPosition(0, childY);
+            child.setSize(getInteriorWidth(), child.getHeight());
+        }
+
+        container.computeContentHeight();
+    }
+
     @Override
     public void adjustChild(final Pane child)
     {

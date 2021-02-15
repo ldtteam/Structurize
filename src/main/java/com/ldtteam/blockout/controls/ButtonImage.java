@@ -50,6 +50,7 @@ public class ButtonImage extends Button
 
         width = DEFAULT_BUTTON_SIZE;
         height = DEFAULT_BUTTON_SIZE;
+        recalcTextRendering();
     }
 
     /**
@@ -461,5 +462,6 @@ public class ButtonImage extends Button
     {
         this.textWidth = MathHelper.clamp(textWidth, 0, width - textOffsetX);
         this.textHeight = MathHelper.clamp(textHeight, 0, height - textOffsetY);
+        recalcTextRendering();
     }
 }

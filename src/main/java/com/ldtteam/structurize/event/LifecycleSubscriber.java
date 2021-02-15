@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.event;
 
-import java.util.function.Predicate;
+import com.ldtteam.blockout.Loader;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
@@ -29,6 +29,8 @@ import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.resource.VanillaResourceType;
+
+import java.util.function.Predicate;
 
 public class LifecycleSubscriber
 {
@@ -75,6 +77,8 @@ public class LifecycleSubscriber
                         Log.getLogger().debug("Clearing blueprint renderer cache.");
                         BlueprintHandler.getInstance().clearCache();
                     }
+                    Log.getLogger().debug("Clearing gui XML cache.");
+                    Loader.cleanParsedCache();
                 }
             });
         }

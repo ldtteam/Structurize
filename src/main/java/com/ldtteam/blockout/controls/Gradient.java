@@ -21,6 +21,7 @@ public class Gradient extends AbstractTextElement
     public Gradient()
     {
         super(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
+        recalcTextRendering();
     }
 
     /**
@@ -33,6 +34,7 @@ public class Gradient extends AbstractTextElement
         super(params, DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_SHADOW, true);
         gradientStart = params.getColor("gradientstart", gradientStart);
         gradientEnd = params.getColor("gradientend", gradientEnd);
+        recalcTextRendering();
     }
 
     /**
