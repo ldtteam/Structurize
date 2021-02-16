@@ -12,6 +12,8 @@ public enum TimberFrameCentreType  implements IStringSerializable
     JUNGLE("jungle", "Jungle"),
     SPRUCE("spruce", "Spruce"),
     DARK_OAK("dark_oak", "Dark Oak"),
+    CRIMSON("crimson", "Crimson"),
+    WARPED("warped", "Warped"),
     CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank"),
     // Terracotta
     TERRACOTTA("terracotta", "Terracotta", "block/terracotta", "terracotta"),
@@ -33,13 +35,14 @@ public enum TimberFrameCentreType  implements IStringSerializable
     BLACK_TERRACOTTA("black_terracotta", "Black Terracotta", "block/black_terracotta", "black_terracotta"),
     // Bricks
     BRICK("brick", "Brick", "block/bricks", "brick"),
-    STONE_BRICK("stone_brick", "Stone Brick", "block/stone_bricks", "stone_brick"),
+    STONE_BRICK("stone_brick", "Stone Brick", "block/stone_bricks", "stone_bricks"),
     CREAM_BRICK("cream_brick", "Cream Brick", "structurize:blocks/bricks/bricks_cream", "structurize:blockcreambricks"),
     BEIGE_BRICK("beige_brick", "Beige Brick", "structurize:blocks/bricks/bricks_beige", "structurize:blockbeigebricks"),
     BROWN_BRICK("brown_brick", "Brown Brick", "structurize:blocks/bricks/bricks_brown", "structurize:blockbrownbricks"),
     // Other
     PAPER("paper", "Paper", "structurize:blocks/timber_frame_paper", "paper"),
     COBBLE_STONE("cobble_stone", "Cobblestone", "block/cobblestone", "cobblestone"),
+    BLACKSTONE("blackstone", "Blackstone", "block/blackstone", "blackstone"),
     STONE("stone", "Stone", "block/stone", "stone");
 
     final String name;
