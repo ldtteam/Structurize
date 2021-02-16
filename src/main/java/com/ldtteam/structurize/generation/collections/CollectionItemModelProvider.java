@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.generation.collections;
 
+import com.ldtteam.structurize.blocks.BlockType;
 import com.ldtteam.structurize.blocks.IBlockCollection;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
@@ -63,7 +64,7 @@ public class CollectionItemModelProvider extends ItemModelProvider
 
             String name = block.getRegistryName().getPath();
 
-            switch (IBlockCollection.BlockType.fromSuffix(block))
+            switch (BlockType.fromSuffix(block))
             {
                 case SLAB: slab(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
                 case STAIRS: stairs(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;

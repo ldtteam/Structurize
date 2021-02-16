@@ -5,10 +5,12 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.LanguageWriter;
-import com.ldtteam.structurize.generation.collections.CollectionProviderSet;
+import com.ldtteam.structurize.generation.*;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
-import com.ldtteam.structurize.generation.floating_carpets.*;
+import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsBlockStateProvider;
+import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsItemModelProvider;
+import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsRecipeProvider;
+import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsTagsProvider;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.generation.timber_frames.*;
@@ -98,8 +100,15 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        // Load the default language file
-        LanguageWriter.load(event.getGenerator());
+        // Initialise All Singletons
+        event.getGenerator().addProvider(new ModLanguageProvider(event.getGenerator(), Constants.MOD_ID, "en_us"));
+        event.getGenerator().addProvider(new ModRecipeProvider(event.getGenerator()));
+        // Initialise Tags singletons
+        ModBlockTagsProvider mbt = new ModBlockTagsProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper());
+        event.getGenerator().addProvider(mbt);
+        event.getGenerator().addProvider(new ModItemTagsProvider(event.getGenerator(), mbt, Constants.MOD_ID, event.getExistingFileHelper()));
+        event.getGenerator().addProvider(new ModBlockStateProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
+        event.getGenerator().addProvider(new ModItemModelProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
 
         // Shingles
         event.getGenerator().addProvider(new ShinglesBlockStateProvider(event.getGenerator()));
@@ -128,12 +137,12 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new FloatingCarpetsRecipeProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsTagsProvider(event.getGenerator()));
 
-        CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
+        // CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
+        ModBlocks.BRICKS.forEach(type -> type.provide(event));
+        ModBlocks.paperWalls.provide(event);
 
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
 
-        // Write all language keys
-        event.getGenerator().addProvider(new LanguageWriter());
     }
 }

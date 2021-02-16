@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.types.PaperWallType;
+import com.ldtteam.structurize.blocks.types.WoodType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PaneBlock;
@@ -19,7 +19,7 @@ public class BlockPaperWall extends PaneBlock
     /**
      * The variants for the paperwall.
      */
-    public static final EnumProperty<PaperWallType> VARIANT = EnumProperty.create("variant", PaperWallType.class);
+    public static final EnumProperty<WoodType> VARIANT = EnumProperty.create("variant", WoodType.class);
 
     /**
      * The hardness this block has.
@@ -31,7 +31,7 @@ public class BlockPaperWall extends PaneBlock
      */
     private static final float                      RESISTANCE     = 1F;
 
-    public BlockPaperWall(final String type)
+    public BlockPaperWall()
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
     }

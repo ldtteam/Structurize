@@ -1,21 +1,17 @@
 package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.event.LifecycleSubscriber;
+import com.ldtteam.structurize.generation.*;
 import com.ldtteam.structurize.generation.collections.CollectionProviderSet;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.TallBlockItem;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -23,10 +19,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
- * A block collection is any set of blocks with a common material,
+ * A block collection is any set of blocks with a common material but many forms,
  * for example a brick collection consists of brick stairs, brick slab, etc.
  *
  * Implementing allows a collection to be rapidly registered, referenced,
@@ -35,7 +30,7 @@ import java.util.function.Function;
  *
  * Implements effectively as both a class and enum (for many related sets, like brick variants).
  */
-public interface IBlockCollection
+public interface IBlockCollection extends IGenerated
 {
     /**
      * Gets the name applied to the whole collection as an id and prefix for registry names.
@@ -105,8 +100,7 @@ public interface IBlockCollection
                       return new TallBlockItem(block.get(), new Item.Properties().maxStackSize(16).group(group));
                   }
                   return new BlockItem(block.get(), new Item.Properties().group(group));
-              }
-            );
+              });
 
             results.add(block);
         }
@@ -122,126 +116,95 @@ public interface IBlockCollection
      */
     void provideMainRecipe(Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment);
 
-    static <B extends Block> B get(BlockType type, List<RegistryObject<B>> blocks)
+    default ResourceLocation findTexture(Block block, String model)
     {
-        for (RegistryObject<B> ro : blocks)
-        {
-            if (BlockType.fromSuffix(ro.get()) == type)
-            {
-                return ro.get();
-            }
-        }
-        return blocks.get(0).get();
+        return ModBlockStateProvider.getInstance().findTexture(getTextureDirectory(), model, block, getMainBlock());
     }
 
-    /**
-     * A utility closely related to a collection that defines the different block types'
-     * instantiation and generation. Allows the identification of block types from their conventional
-     * registry name suffix
-     */
-    enum BlockType
+    default ResourceLocation findTexture(Block block)
     {
-        BLOCK("", Block::new, null, null, 4, "##", "##"),
-        SLAB("slab", SlabBlock::new, BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
-        STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::getDefaultState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
-        WALL("wall", WallBlock::new, BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
+        return findTexture(block, "");
+    }
 
-        // TODO wood tags
-        PLANKS("planks", Block::new, BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
-        FENCE("fence", FenceBlock::new, BlockTags.FENCES, ItemTags.FENCES, 3, "#-#", "#-#"),
-        FENCE_GATE("fence_gate", FenceGateBlock::new, BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
-        DOOR("door", DoorBlock::new, BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##"),
-        TRAPDOOR("trapdoor", TrapDoorBlock::new, BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3, "###", "###");
-
-        public final String suffix;
-        public final Function<AbstractBlock.Properties, ? extends Block> constructor;
-        public final ITag.INamedTag<Block> blockTag;
-        public final ITag.INamedTag<Item> itemTag;
-        private final int recipeYield;
-        private final String[] patterns;
-
-        BlockType(
-          String suffix,
-          Function<AbstractBlock.Properties, ? extends Block> constructor,
-          final ITag.INamedTag<Block> blockTag,
-          final ITag.INamedTag<Item> itemTag, int yield,
-          String... patterns)
+    @Override
+    default void generateBlockStates(ModBlockStateProvider states)
+    {
+        for (RegistryObject<Block> ro : getBlocks())
         {
-            this.suffix = suffix;
-            this.constructor = constructor;
-            this.blockTag = blockTag;
-            this.itemTag = itemTag;
-            this.recipeYield = yield;
-            this.patterns = patterns.length < 4 ? patterns : new String[0];
-        }
+            Block block = ro.get();
+            ResourceLocation name = block.getRegistryName();
+            if (name == null) continue;
 
-        public String withSuffix(String name, String pluralName)
-        {
-            if (this == BLOCK) name = pluralName;
-            String result = suffix.isEmpty() ? name : name + "_" + suffix;
-
-            // TODO 1.17 remove cactus magic override
-            if (name.equals("blockcactus"))
+            switch (BlockType.fromSuffix(block))
             {
-                result = result
-                  .replace("_", "")
-                  .replace("stairs", "stair")
-                  .replace("planks", "plank");
+                case STAIRS: states.stairsBlock((StairsBlock) block, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
+                case WALL: states.wallBlock((WallBlock) block, findTexture(block)); break;
+                case FENCE: states.fenceBlock((FenceBlock) block, findTexture(block)); break;
+                case FENCE_GATE: states.fenceGateBlock((FenceGateBlock) block, findTexture(block)); break;
+                case SLAB:
+                    ResourceLocation side = findTexture(block, "side");
+                    ResourceLocation bottom = findTexture(block, "bottom");
+                    ResourceLocation top  = findTexture(block, "top");
+                    states.slabBlock((SlabBlock) block,
+                      states.models().slab(name.getPath(), side, bottom, top),
+                      states.models().slabTop(name.getPath() + "_top", side, bottom, top),
+                      states.models().cubeBottomTop(name.getPath() + "_double", side, bottom, top));
+                    break;
+                case BLOCK: states.simpleBlock(block, states.models().cubeAll(block.getRegistryName().getPath(), findTexture(block))); break;
             }
-
-            return result;
         }
+    }
 
-        // TODO enable stone cutter recipes
-        public ShapedRecipeBuilder formRecipe(IItemProvider result, IItemProvider material, ITag<Item> rod, ICriterionInstance criterion)
+    @Override
+    default void generateItemModels(ModItemModelProvider models)
+    {
+        for (RegistryObject<Block> ro : getBlocks())
         {
-            ShapedRecipeBuilder builder = new ShapedRecipeBuilder(result, recipeYield);
+            Block block = ro.get();
+            if (block.getRegistryName() == null) continue;
 
-            for (String line : patterns)
+            String name = block.getRegistryName().getPath();
+
+            switch (BlockType.fromSuffix(block))
             {
-                builder.patternLine(line);
+                case SLAB: models.slab(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
+                case STAIRS: models.stairs(name, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
+                case WALL: models.wallInventory(name, findTexture(block)); break;
+                case FENCE: models.fenceInventory(name, findTexture(block)); break;
+                case FENCE_GATE: models.fenceGate(name, findTexture(block)); break;
+                case BLOCK: models.withExistingParent(name, models.modLoc("block/" + name));break;
             }
+        }
+    }
 
-            if (this == BlockType.FENCE || this == BlockType.FENCE_GATE)
+    @Override
+    default void generateRecipes(ModRecipeProvider provider)
+    {
+        getBlocks().forEach(
+          ro -> provider.add(consumer -> {
+            if (ro.get() == getMainBlock())
             {
-                builder.key('-', rod);
+                provideMainRecipe(consumer, ModRecipeProvider.getDefaultCriterion(getMainBlock()));
+                return;
             }
+            BlockType.fromSuffix(ro.get())
+              .formRecipe(ro.get(), getMainBlock(), ModRecipeProvider.getDefaultCriterion(getMainBlock()))
+              .build(consumer);
+        }));
+    }
 
-            return builder
-              .key('#', material)
-              .addCriterion("has_" + material.asItem().getRegistryName().getPath(), criterion);
-        }
+    @Override
+    default void generateTags(ModBlockTagsProvider blocks, ModItemTagsProvider items)
+    {
+        getBlocks().forEach(
+          ro -> BlockType.fromSuffix(ro.get()).blockTag.forEach(
+            tag -> ModBlockTagsProvider.getInstance().buildTag(tag).add(ro.get())
+        ));
+    }
 
-        public static BlockType fromSuffix(String path)
-        {
-            // TODO 1.17 remove cactus magic override
-            if (path.startsWith("blockcactus"))
-            {
-                path = path
-                  .replace("stair", "stairs")
-                  .replace("plank", "planks")
-                  .replace("fencegate", "fence_gate");
-            }
-
-            for (BlockType cut : BlockType.values())
-            {
-                if (!cut.suffix.isEmpty() && path.endsWith(cut.suffix)) return cut;
-            }
-
-            return BlockType.BLOCK;
-        }
-
-        public static BlockType fromSuffix(Block block)
-        {
-            return block.getRegistryName() != null ? fromSuffix(block.getRegistryName().getPath()) : BlockType.BLOCK;
-        }
-
-        public static String copySuffix(Block source, Block copycat)
-        {
-            ResourceLocation name = copycat.getRegistryName();
-            if (name == null) return "";
-
-            return fromSuffix(source).withSuffix(name.getPath(), "");
-        }
+    @Override
+    default void generateTranslations(ModLanguageProvider lang)
+    {
+        lang.autoTranslate(ModBlocks.getList(getBlocks()));
     }
 }

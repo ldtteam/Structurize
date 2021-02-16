@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.generation.collections;
 
+import com.ldtteam.structurize.blocks.BlockType;
 import com.ldtteam.structurize.blocks.IBlockCollection;
 import net.minecraft.block.*;
 import net.minecraft.data.DataGenerator;
@@ -62,7 +63,7 @@ public class CollectionBlockStateProvider extends BlockStateProvider
             ResourceLocation name = block.getRegistryName();
             if (name == null) continue;
 
-            switch (IBlockCollection.BlockType.fromSuffix(block))
+            switch (BlockType.fromSuffix(block))
             {
                 case STAIRS: stairsBlock((StairsBlock) block, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
                 case WALL: wallBlock((WallBlock) block, findTexture(block)); break;

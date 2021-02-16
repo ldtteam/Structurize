@@ -65,7 +65,7 @@ public final class ModBlocks
      *  Block mass registration lists
      */
 
-    public static final List<RegistryObject<BlockPaperWall>>      paperWalls   = IBlockList.asList(PaperWallType.values());
+    public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallBlocks();
 
     public static final List<RegistryObject<BlockTimberFrame>>    timberFrames = new ArrayList<>();
     public static final List<RegistryObject<BlockShingle>>        shingles     = new ArrayList<>();
@@ -79,7 +79,7 @@ public final class ModBlocks
 
     public static List<BlockPaperWall> getPaperWalls()
     {
-        return getList(paperWalls);
+        return paperWalls.getBlocks();
     }
 
     public static List<BlockShingle> getShingles()

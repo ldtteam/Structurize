@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.blocks.types;
 
+import com.ldtteam.structurize.blocks.BlockType;
 import com.ldtteam.structurize.blocks.IBlockCollection;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
@@ -61,5 +62,11 @@ public enum BrickType implements IBlockCollection
           .addIngredient(ingredient, 2)
           .addCriterion("has_" + getName(), obtainment)
           .build(consumer);
+    }
+
+    @Override
+    public String getTextureDirectory()
+    {
+        return "blocks/bricks";
     }
 }
