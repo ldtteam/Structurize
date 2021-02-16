@@ -205,7 +205,8 @@ public class View extends Pane
     @Override
     public void onUpdate()
     {
-        children.forEach(Pane::onUpdate);
+        // copy to prevent CME during scrolling list updates, ctor uses fast array copy so it's cheap
+        new ArrayList<>(children).forEach(Pane::onUpdate);
     }
 
     protected boolean childIsVisible(final Pane child)
