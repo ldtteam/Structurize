@@ -3,7 +3,7 @@ package com.ldtteam.structurize.blocks.types;
 import net.minecraft.util.IStringSerializable;
 import org.jetbrains.annotations.NotNull;
 
-//Creates types for TimberFrame with different variants of wood and texture
+// Creates types for TimberFrame with different variants of wood and texture
 
 public enum TimberFrameType implements IStringSerializable
 {
@@ -30,7 +30,7 @@ public enum TimberFrameType implements IStringSerializable
     }
 
     /**
-     * Get the Type previous to the current (used by data generators for recipes)
+     * Get the type previous to the current (used by data generators for recipes)
      * @return the previous type.
      */
     public TimberFrameType getPrevious()

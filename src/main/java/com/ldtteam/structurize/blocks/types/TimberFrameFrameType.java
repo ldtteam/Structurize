@@ -11,6 +11,8 @@ public enum TimberFrameFrameType implements IStringSerializable
     JUNGLE("jungle", "Jungle"),
     SPRUCE("spruce", "Spruce"),
     DARK_OAK("dark_oak", "Dark Oak"),
+    CRIMSON("crimson", "Crimson"),
+    WARPED("warped", "Warped"),
     CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank");
 
     final String name;
@@ -44,7 +46,7 @@ public enum TimberFrameFrameType implements IStringSerializable
     }
 
     /**
-     * Name used in the Lang data generator
+     * Name used in the lang data generator
      *
      * @return langName
      */
