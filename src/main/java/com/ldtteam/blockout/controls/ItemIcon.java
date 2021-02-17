@@ -5,6 +5,7 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -88,11 +89,21 @@ public class ItemIcon extends Pane
 
             RenderSystem.pushMatrix();
             RenderSystem.multMatrix(ms.getLast().getMatrix());
+            RenderHelper.enableStandardItemLighting();
+
+            // TODO: fix lighting source properly
+            ms.push();
+            ms.translate(-250.0d, -1000.0d, 800.0d);
+            RenderHelper.setupDiffuseGuiLighting(ms.getLast().getMatrix());
+            ms.pop();
+
             mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             mc.getItemRenderer().renderItemOverlays(font, itemStack, 0, 0);
+            RenderHelper.disableStandardItemLighting();
             RenderSystem.popMatrix();
 
             ms.pop();
+            RenderHelper.setupGui3DDiffuseLighting();
         }
     }
 
