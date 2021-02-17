@@ -1,11 +1,9 @@
 package com.ldtteam.structurize.commands.arguments;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -16,7 +14,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.multiplayer.ClientSuggestionProvider;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.command.arguments.IArgumentSerializer;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
 
 /**
  * Command argument for selecting from string collection.
@@ -34,7 +34,7 @@ public class MultipleStringArgument implements ArgumentType<String>
     /**
      * Constructs new select from given collection argument.
      *
-     * @param dataProvider collection of choices
+     * @param dataProvider choices provider, called server-side only
      * @return argument type
      */
     public static MultipleStringArgument multipleString(final BiFunction<CommandContext<CommandSource>, ServerPlayerEntity, Collection<String>> dataProvider)
@@ -68,52 +68,40 @@ public class MultipleStringArgument implements ArgumentType<String>
             final CommandContext<ISuggestionProvider> ctx = (CommandContext<ISuggestionProvider>) context;
             return ctx.getSource().getSuggestionsFromServer(ctx, builder);
         }
-        final CommandContext<CommandSource> ctx = (CommandContext<CommandSource>) context;
-        final StringReader reader = new StringReader(builder.getInput());
-        reader.setCursor(builder.getStart());
-        final int cursorBegin = reader.getCursor();
-
-        while (reader.canRead() && isValidCharacter(reader.peek()))
-        {
-            reader.skip();
-        }
-
-        final String argument = reader.getString().substring(cursorBegin, reader.getCursor());
-        final int suggestionLength = argument.length();
-        List<String> suggestions = new ArrayList<>();
-
         try
         {
-            for (final String s : dataProvider.apply(ctx, ctx.getSource().asPlayer()))
-            {
-                if (argument.equals(s))
-                {
-                    suggestions = Arrays.asList(s);
-                    break;
-                }
-                if (argument.equals(s.substring(0, suggestionLength)))
-                {
-                    suggestions.add(s);
-                }
-            }
+            final CommandContext<CommandSource> ctx = (CommandContext<CommandSource>) context;
+            return ISuggestionProvider.suggest(dataProvider.apply(ctx, ctx.getSource().asPlayer()), builder);
         }
         catch (final CommandSyntaxException | NullPointerException e)
         {
+            e.printStackTrace();
             return Suggestions.empty();
         }
-
-        if (suggestions.isEmpty())
-        {
-            return Suggestions.empty();
-        }
-        return ISuggestionProvider.suggest(suggestions, builder);
     }
 
     /**
-     * Checks if char is non-space ascii char.
+     * Noop serializer, we always go for server suggestions and it's impossible to create suggestions with command source
      */
-    private static boolean isValidCharacter(final char charIn)
+    public static class Serializer implements IArgumentSerializer<MultipleStringArgument>
     {
-        return charIn >= '!' && charIn <= '~';
+        @Override
+        public void write(final MultipleStringArgument argument, final PacketBuffer buffer)
+        {
+            // noop
+        }
+
+        @Override
+        public MultipleStringArgument read(final PacketBuffer buffer)
+        {
+            // noop
+            return null;
+        }
+
+        @Override
+        public void write(final MultipleStringArgument argument, final JsonObject json)
+        {
+            // noop
+        }
     }
 }

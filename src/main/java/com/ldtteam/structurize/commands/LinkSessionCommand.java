@@ -46,7 +46,7 @@ public class LinkSessionCommand
         {
             final ServerPlayerEntity sender = command.getSource().asPlayer();
             final UUID ownerUUID = sender.getUniqueID();
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) != null)
+            if (!LinkSessionManager.INSTANCE.getMembersOf(ownerUUID).isEmpty())
             {
                 throwSyntaxException("structurize.command.ls.create.already");
             }
@@ -114,7 +114,7 @@ public class LinkSessionCommand
                 .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
             inviteMsg.append(acceptButton);
 
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID).isEmpty())
             {
                 throwSyntaxException("structurize.command.ls.generic.dontexist");
             }
@@ -154,7 +154,7 @@ public class LinkSessionCommand
             final ServerPlayerEntity sender = command.getSource().asPlayer();
             final MinecraftServer server = command.getSource().getServer();
             final UUID ownerUUID = sender.getUniqueID();
-            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID) == null)
+            if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID).isEmpty())
             {
                 throwSyntaxException("structurize.command.ls.generic.dontexist");
             }
@@ -254,7 +254,7 @@ public class LinkSessionCommand
             }
 
             // is owner?
-            if (ownerSession == null)
+            if (ownerSession.isEmpty())
             {
                 sender.sendMessage(new StringTextComponent("  §cYou don't have your own session."), sender.getUniqueID());
             }
@@ -276,7 +276,7 @@ public class LinkSessionCommand
 
             // is member?
             ownerSession = LinkSessionManager.INSTANCE.getSessionNamesOf(senderUUID);
-            if (ownerSession == null)
+            if (ownerSession.isEmpty())
             {
                 sender.sendMessage(new StringTextComponent("  §cYou are not a part of other sessions."), sender.getUniqueID());
             }
