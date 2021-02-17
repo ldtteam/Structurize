@@ -119,7 +119,7 @@ public final class BlueprintHandler
         final MatrixStack stack,
         final float partialTicks)
     {
-        if (points.isEmpty())
+        if (points.isEmpty() || blueprint == null)
         {
             return;
         }
