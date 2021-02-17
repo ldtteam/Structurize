@@ -32,8 +32,8 @@ public class TimberFramesTagsProvider implements IDataProvider
         {
 
             final List<String> centers = new ArrayList<>();
-            Arrays.stream(TimberFrameCentreType.values())
-              .forEach(subName -> centers.add("#structurize:timber_frames/" + subName.getName()));
+            //Arrays.stream(TimberFrameCentreType.values())
+            //  .forEach(subName -> centers.add("#structurize:timber_frames/" + subName.getName()));
 
 
             final TagJson timberFrameCenters = new TagJson(false, centers);
@@ -55,23 +55,23 @@ public class TimberFramesTagsProvider implements IDataProvider
             {
 
                 final List<String> woods = new ArrayList<>();
-                Arrays.stream(TimberFrameFrameType.values())
-                  .forEach(subName -> woods.add("#structurize:timber_frames/" + timberFrameCenter.getName() + "/" + subName.getName()));
+                //Arrays.stream(TimberFrameFrameType.values())
+                //  .forEach(subName -> woods.add("#structurize:timber_frames/" + timberFrameCenter.getName() + "/" + subName.getName()));
 
 
                 final TagJson woodsJson = new TagJson(false, woods);
 
-                final Path itemsTagsWoodsPath = this.generator.getOutputFolder()
-                                                  .resolve(DataGeneratorConstants.TAGS_DIR)
-                                                  .resolve("items")
-                                                  .resolve("timber_frames")
-                                                  .resolve(timberFrameCenter.getName().concat(".json"));
-                final Path blocksTagsWoodsPath = this.generator.getOutputFolder()
-                                                   .resolve(DataGeneratorConstants.TAGS_DIR)
-                                                   .resolve("blocks")
-                                                   .resolve("timber_frames")
-                                                   .resolve(timberFrameCenter.getName().concat(".json"));
-
+                //final Path itemsTagsWoodsPath = this.generator.getOutputFolder()
+                //                                  .resolve(DataGeneratorConstants.TAGS_DIR)
+                //                                  .resolve("items")
+                //                                  .resolve("timber_frames")
+                //                                  .resolve(timberFrameCenter.getName().concat(".json"));
+                //final Path blocksTagsWoodsPath = this.generator.getOutputFolder()
+                //                                   .resolve(DataGeneratorConstants.TAGS_DIR)
+                //                                   .resolve("blocks")
+                //                                   .resolve("timber_frames")
+                //                                   .resolve(timberFrameCenter.getName().concat(".json"));
+/*
                 IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(woodsJson), itemsTagsWoodsPath);
                 IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(woodsJson), blocksTagsWoodsPath);
 
@@ -96,7 +96,7 @@ public class TimberFramesTagsProvider implements IDataProvider
                                               .resolve(timberFrameFrame.getName().concat(".json"));
                 IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(tagJson), itemsTagsPath);
                 IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(tagJson), blocksTagsPath);
-            }
+            */}
         }
     }
 

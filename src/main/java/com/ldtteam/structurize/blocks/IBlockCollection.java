@@ -59,7 +59,12 @@ public interface IBlockCollection extends IGenerated
      */
     default Block getMainBlock()
     {
-        return getBlocks().get(0).get();
+        return getMainRegisteredBlock().get();
+    }
+
+    default RegistryObject<Block> getMainRegisteredBlock()
+    {
+        return getBlocks().get(0);
     }
 
     /**

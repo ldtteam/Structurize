@@ -73,6 +73,11 @@ public class ModItemTagsProvider extends ItemTagsProvider
         super.copy(blockTag, itemTag);
     }
 
+    public void copy(ITag.INamedTag<Block> blockTag)
+    {
+        copy(blockTag, ItemTags.makeWrapperTag(blockTag.getName().toString()));
+    }
+
     public static ModItemTagsProvider getInstance()
     {
         return instance;

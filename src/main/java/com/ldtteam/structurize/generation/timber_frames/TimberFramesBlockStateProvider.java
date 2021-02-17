@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.generation.timber_frames;
 
 import com.ldtteam.datagenerators.blockstate.BlockstateJson;
-import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
@@ -49,11 +48,11 @@ public class TimberFramesBlockStateProvider implements IDataProvider
 
         for (final Direction direction : BlockTimberFrame.FACING.getAllowedValues())
         {
-            final String modelLocation = "structurize:block/timber_frames/" +
+            /*final String modelLocation = "structurize:block/timber_frames/" +
                     timberFrame.getTimberFrameType().getName() + "_" +
                     timberFrame.getFrameType().getName() + "_" +
                     timberFrame.getCentreType().getName() + "_timber_frame";
-
+*/
             int x = 0;
             int y = 0;
 
@@ -63,11 +62,11 @@ public class TimberFramesBlockStateProvider implements IDataProvider
                 y = getYfromDirection(direction);
             }
 
-            final BlockstateModelJson model = new BlockstateModelJson(modelLocation, x, y);
+            //final BlockstateModelJson model = new BlockstateModelJson(modelLocation, x, y);
 
-            final BlockstateVariantJson variant = new BlockstateVariantJson(model);
+            //final BlockstateVariantJson variant = new BlockstateVariantJson(model);
 
-            variants.put("facing=" + direction.getString(), variant);
+            //variants.put("facing=" + direction.getString(), variant);
         }
 
         final BlockstateJson blockstate = new BlockstateJson(variants);

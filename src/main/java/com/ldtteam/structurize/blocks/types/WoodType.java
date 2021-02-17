@@ -18,6 +18,8 @@ public enum WoodType implements IStringSerializable
     JUNGLE("jungle", Blocks.JUNGLE_PLANKS),
     ACACIA("acacia", Blocks.ACACIA_PLANKS),
     DARK_OAK("dark_oak", Blocks.DARK_OAK_PLANKS),
+    WARPED("warped", Blocks.WARPED_PLANKS),
+    CRIMSON("crimson", Blocks.CRIMSON_PLANKS),
     CACTUS("cactus", ModBlocks.CACTI_BLOCKS.getBlocks().get(0));
 
     private final String name;

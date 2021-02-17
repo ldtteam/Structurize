@@ -34,12 +34,12 @@ public class TimberFramesItemModelProvider implements IDataProvider
 
         for (BlockTimberFrame timberFrame : ModBlocks.getTimberFrames())
         {
-            final String parent = "structurize:block/timber_frames/" +
-                    timberFrame.getTimberFrameType().getName() + "_" +
-                    timberFrame.getFrameType().getName() + "_" +
-                    timberFrame.getCentreType().getName() + "_timber_frame";
+            //final String parent = "structurize:block/timber_frames/" +
+            //        timberFrame.getTimberFrameType().getName() + "_" +
+            //        timberFrame.getFrameType().getName() + "_" +
+            //        timberFrame.getCentreType().getName() + "_timber_frame";
 
-            modelJson.setParent(parent);
+            //modelJson.setParent(parent);
 
             if (timberFrame.getRegistryName() == null)
                 continue;

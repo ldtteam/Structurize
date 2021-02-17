@@ -34,11 +34,6 @@ public final class ModLanguageProvider extends LanguageProvider
         autoTranslate(ModBlocks.getFloatingCarpets());
         autoTranslate(ModBlocks.getShingles());
         autoTranslate(ModBlocks.getShingleSlabs());
-        translate(ModBlocks.getTimberFrames(), block ->
-          block.getTimberFrameType().getLangName() + " " +
-          block.getFrameType().getLangName() + " " +
-         (block.getCentreType().getLangName().equals(block.getFrameType().getLangName()) ? "" : block.getCentreType().getLangName() + " ") +
-          "Timber Frame");
 
         this.add("AUTO-GENERATED TRANSLATION OBJECT", "Coder, leave those keys alone! *TOUCH THEM AT YOUR PERIL* (use the data generators)!");
     }

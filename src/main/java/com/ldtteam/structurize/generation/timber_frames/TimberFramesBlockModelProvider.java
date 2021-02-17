@@ -46,16 +46,16 @@ public class TimberFramesBlockModelProvider implements IDataProvider
             if (textures == null)
                 textures = new HashMap<>();
 
-            textures.put("frame", timberFrame.getFrameType().getTextureLocation());
+            //textures.put("frame", timberFrame.getFrameType().getTextureLocation());
             textures.put("centre", timberFrame.getCentreType().getTextureLocation());
-            textures.put("particle", timberFrame.getFrameType().getTextureLocation());
+            //textures.put("particle", timberFrame.getFrameType().getTextureLocation());
 
             modelJson.setTextures(textures);
 
-            final String name = timberFrame.getTimberFrameType().getName() + "_" + timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame.json";
-            final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TIMBER_FRAMES_BLOCK_MODELS_DIR).resolve(name);
+            //final String name = timberFrame.getTimberFrameType().getName() + "_" + timberFrame.getFrameType().getName() + "_" + timberFrame.getCentreType().getName() + "_timber_frame.json";
+            //final Path saveFile = this.generator.getOutputFolder().resolve(DataGeneratorConstants.TIMBER_FRAMES_BLOCK_MODELS_DIR).resolve(name);
 
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), saveFile);
+            //IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), saveFile);
         }
     }
 

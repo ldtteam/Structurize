@@ -13,7 +13,6 @@ import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsRecipe
 import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsTagsProvider;
 import com.ldtteam.structurize.generation.shingle_slabs.*;
 import com.ldtteam.structurize.generation.shingles.*;
-import com.ldtteam.structurize.generation.timber_frames.*;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -125,11 +124,11 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ShingleSlabsTagsProvider(event.getGenerator()));
 
         // Timber Frames
-        event.getGenerator().addProvider(new TimberFramesBlockStateProvider(event.getGenerator()));
+        /*event.getGenerator().addProvider(new TimberFramesBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesItemModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
         event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesTagsProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new TimberFramesTagsProvider(event.getGenerator()));*/
 
         // Floating Carpets
         event.getGenerator().addProvider(new FloatingCarpetsBlockStateProvider(event.getGenerator()));
@@ -139,6 +138,7 @@ public class LifecycleSubscriber
 
         // CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
         ModBlocks.BRICKS.forEach(type -> type.provide(event));
+        ModBlocks.timberFrames.forEach(type -> type.provide(event));
         ModBlocks.paperWalls.provide(event);
 
         // Default

@@ -6,8 +6,9 @@ import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
 import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.IBlockCollection;
+import com.ldtteam.structurize.blocks.IBlockList;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
@@ -37,7 +38,6 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     @Override
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
-        saveBlocks(ModBlocks.timberFrames, cache);
         saveBlocks(ModBlocks.paperWalls.getRegisteredBlocks(), cache);
         saveBlocks(ModBlocks.shingles, cache);
         saveBlocks(ModBlocks.shingleSlabs, cache);
@@ -45,6 +45,8 @@ public class DefaultBlockLootTableProvider implements IDataProvider
 
         saveBlockCollection(ModBlocks.BRICKS, cache);
         saveBlockCollection(ModBlocks.CACTI_BLOCKS, cache);
+
+        saveBlockList(ModBlocks.timberFrames, cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
@@ -67,6 +69,22 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     private void saveBlockCollection(final IBlockCollection blocks, final DirectoryCache cache) throws IOException
     {
         for (RegistryObject<Block> block : blocks.getBlocks())
+        {
+            saveBlock(block, cache);
+        }
+    }
+
+    private <B extends Block, L extends IBlockList<B>> void saveBlockList(final List<L> blocks, final DirectoryCache cache) throws IOException
+    {
+        for (L list : blocks)
+        {
+            saveBlockList(list, cache);
+        }
+    }
+
+    private <B extends Block> void saveBlockList(final IBlockList<B> blocks, final DirectoryCache cache) throws IOException
+    {
+        for (RegistryObject<B> block : blocks.getRegisteredBlocks())
         {
             saveBlock(block, cache);
         }

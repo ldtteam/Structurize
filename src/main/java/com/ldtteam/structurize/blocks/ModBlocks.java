@@ -67,14 +67,14 @@ public final class ModBlocks
 
     public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallBlocks();
 
-    public static final List<RegistryObject<BlockTimberFrame>>    timberFrames = new ArrayList<>();
+    public static final List<TimberFrameType>                     timberFrames = TimberFrameType.getAll();
     public static final List<RegistryObject<BlockShingle>>        shingles     = new ArrayList<>();
     public static final List<RegistryObject<BlockShingleSlab>>    shingleSlabs    = new ArrayList<>();
     public static final List<RegistryObject<BlockFloatingCarpet>> floatingCarpets = new ArrayList<>();
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
-        return getList(timberFrames);
+        return timberFrames.stream().flatMap(type -> type.getBlocks().stream()).collect(Collectors.toList());
     }
 
     public static List<BlockPaperWall> getPaperWalls()
@@ -146,19 +146,6 @@ public final class ModBlocks
             }
         }
 
-        for (final TimberFrameType blockType : TimberFrameType.values())
-        {
-            for (final TimberFrameFrameType frameType : TimberFrameFrameType.values())
-            {
-                for (TimberFrameCentreType centreType : TimberFrameCentreType.values())
-                {
-                    timberFrames.add(register(
-                      BlockTimberFrame.getName(blockType, frameType, centreType),
-                      () -> new BlockTimberFrame(blockType, frameType, centreType),
-                      ModItemGroups.TIMBER_FRAMES));
-                }
-            }
-        }
 
         for (final DyeColor color : DyeColor.values())
         {

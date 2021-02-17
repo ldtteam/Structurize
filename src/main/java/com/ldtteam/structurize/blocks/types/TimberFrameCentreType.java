@@ -1,85 +1,92 @@
 package com.ldtteam.structurize.blocks.types;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.generation.ModLanguageProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.Items;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public enum TimberFrameCentreType implements IStringSerializable
 {
     // Wood
-    OAK("oak", "Oak"),
-    ACACIA("acacia", "Acacia"),
-    BIRCH("birch", "Birch"),
-    JUNGLE("jungle", "Jungle"),
-    SPRUCE("spruce", "Spruce"),
-    DARK_OAK("dark_oak", "Dark Oak"),
-    CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank"),
+    OAK(Blocks.OAK_PLANKS, "Oak"),
+    ACACIA(Blocks.ACACIA_PLANKS, "Acacia"),
+    BIRCH(Blocks.BIRCH_PLANKS, "Birch"),
+    JUNGLE(Blocks.JUNGLE_PLANKS, "Jungle"),
+    SPRUCE(Blocks.SPRUCE_PLANKS, "Spruce"),
+    DARK_OAK(Blocks.DARK_OAK_PLANKS, "Dark Oak"),
+    CACTUS(ModBlocks.CACTI_BLOCKS.getMainRegisteredBlock(), "Cactus", "structurize:blocks/blockcactusplank"),
     // Terracotta
-    TERRACOTTA(Blocks.TERRACOTTA, "Terracotta"),
-    WHITE_TERRACOTTA(Blocks.WHITE_TERRACOTTA, "White Terracotta"),
-    ORANGE_TERRACOTTA(Blocks.ORANGE_TERRACOTTA, "Orange Terracotta"),
-    MAGENTA_TERRACOTTA(Blocks.MAGENTA_TERRACOTTA, "Magenta Terracotta"),
-    LIGHT_BLUE_TERRACOTTA(Blocks.LIGHT_BLUE_TERRACOTTA, "Light Blue Terracotta"),
-    YELLOW_TERRACOTTA(Blocks.YELLOW_TERRACOTTA, "Yellow Terracotta"),
-    LIME_TERRACOTTA(Blocks.LIME_TERRACOTTA, "Lime Terracotta"),
-    PINK_TERRACOTTA(Blocks.PINK_TERRACOTTA, "Pink Terracotta"),
-    GRAY_TERRACOTTA(Blocks.GRAY_TERRACOTTA, "Gray Terracotta"),
-    LIGHT_GRAY_TERRACOTTA(Blocks.LIGHT_GRAY_TERRACOTTA, "Light Gray Terracotta"),
-    CYAN_TERRACOTTA(Blocks.CYAN_TERRACOTTA, "Cyan Terracotta"),
-    PURPLE_TERRACOTTA(Blocks.PURPLE_TERRACOTTA, "Purple Terracotta"),
-    BLUE_TERRACOTTA(Blocks.BLUE_TERRACOTTA, "Blue Terracotta"),
-    BROWN_TERRACOTTA(Blocks.BROWN_TERRACOTTA, "Brown Terracotta"),
-    GREEN_TERRACOTTA(Blocks.GREEN_TERRACOTTA, "Green Terracotta"),
-    RED_TERRACOTTA(Blocks.RED_TERRACOTTA, "Red Terracotta"),
-    BLACK_TERRACOTTA(Blocks.BLACK_TERRACOTTA, "Black Terracotta"),
+    TERRACOTTA(Blocks.TERRACOTTA),
+    WHITE_TERRACOTTA(Blocks.WHITE_TERRACOTTA),
+    ORANGE_TERRACOTTA(Blocks.ORANGE_TERRACOTTA),
+    MAGENTA_TERRACOTTA(Blocks.MAGENTA_TERRACOTTA),
+    LIGHT_BLUE_TERRACOTTA(Blocks.LIGHT_BLUE_TERRACOTTA),
+    YELLOW_TERRACOTTA(Blocks.YELLOW_TERRACOTTA),
+    LIME_TERRACOTTA(Blocks.LIME_TERRACOTTA),
+    PINK_TERRACOTTA(Blocks.PINK_TERRACOTTA),
+    GRAY_TERRACOTTA(Blocks.GRAY_TERRACOTTA),
+    LIGHT_GRAY_TERRACOTTA(Blocks.LIGHT_GRAY_TERRACOTTA),
+    CYAN_TERRACOTTA(Blocks.CYAN_TERRACOTTA),
+    PURPLE_TERRACOTTA(Blocks.PURPLE_TERRACOTTA),
+    BLUE_TERRACOTTA(Blocks.BLUE_TERRACOTTA),
+    BROWN_TERRACOTTA(Blocks.BROWN_TERRACOTTA),
+    GREEN_TERRACOTTA(Blocks.GREEN_TERRACOTTA),
+    RED_TERRACOTTA(Blocks.RED_TERRACOTTA),
+    BLACK_TERRACOTTA(Blocks.BLACK_TERRACOTTA),
     // Bricks
     BRICK(Blocks.BRICKS, "Bricks"),
     STONE_BRICK(Blocks.STONE_BRICKS, "Stone Bricks"),
-    CREAM_BRICK("cream_brick", "Cream Brick", "structurize:blocks/bricks/cream_bricks", "structurize:cream_bricks"),
-    BEIGE_BRICK("beige_brick", "Beige Brick", "structurize:blocks/bricks/beige_bricks", "structurize:beige_bricks"),
-    BROWN_BRICK("brown_brick", "Brown Brick", "structurize:blocks/bricks/brown_bricks", "structurize:brown_bricks"),
+    CREAM_BRICK(BrickType.CREAM.getMainRegisteredBlock(), "Cream Brick", "structurize:blocks/bricks/cream_bricks"),
+    BEIGE_BRICK(BrickType.BEIGE.getMainRegisteredBlock(), "Beige Brick", "structurize:blocks/bricks/beige_bricks"),
+    BROWN_BRICK(BrickType.BROWN.getMainRegisteredBlock(), "Brown Brick", "structurize:blocks/bricks/brown_bricks"),
     // Other
-    PAPER("paper", "Paper", "structurize:blocks/timber_frame_paper", "paper"),
-    COBBLE_STONE("cobble_stone", "Cobblestone", "block/cobblestone", "cobblestone"),
-    STONE(Blocks.STONE, "Stone");
+    PAPER(Items.PAPER, "Paper", "structurize:blocks/timber_frame_paper"),
+    COBBLESTONE(Blocks.COBBLESTONE),
+    STONE(Blocks.STONE);
 
-    final String name;
+    private IItemProvider         block           = null;
+    private RegistryObject<Block> registeredBlock = null;
     final String langName;
     final String textureLocation;
-    final String recipeIngredient;
 
-    TimberFrameCentreType(final String name, final String langName)
+    TimberFrameCentreType(final Block block)
     {
-        this(name, langName, "minecraft:block/" + name + "_planks", "minecraft:" + name + "_planks");
+        this(block, ModLanguageProvider.format(block.getRegistryName().getPath()));
     }
 
     TimberFrameCentreType(final Block block, final String langName)
     {
-        this(Objects.requireNonNull(block.getRegistryName()).getPath(), langName, "block/" + block.getRegistryName().getPath(), block.getRegistryName().toString());
+        this(block, langName, "minecraft:block/" + block.getRegistryName().getPath());
     }
 
-    TimberFrameCentreType(final String name, final String langName, final String textureLocation, final String recipeIngredient)
+    TimberFrameCentreType(final IItemProvider block, final String langName, final String textureLocation)
     {
-        this.name = name;
+        this.block = block;
         this.langName = langName;
         this.textureLocation = textureLocation;
-        this.recipeIngredient = recipeIngredient;
+    }
+
+    TimberFrameCentreType(final RegistryObject<Block> block, final String langName, final String textureLocation)
+    {
+        this.registeredBlock = block;
+        this.langName = langName;
+        this.textureLocation = textureLocation;
     }
 
     @NotNull
     @Override
     public String getString()
     {
-        return this.name;
-    }
-
-    @NotNull
-    public String getName()
-    {
-        return this.name;
+        // This gets used before the registry is properly populated
+        // so ensure that RegistryObjects don't get called
+        return (this.block == null
+                 ? this.langName.replace(' ', '_').toLowerCase()
+                 : this.getMaterial().asItem().getRegistryName().getPath()).replace("_planks", "");
     }
 
     /**
@@ -107,8 +114,8 @@ public enum TimberFrameCentreType implements IStringSerializable
      *
      * @return recipeIngredient
      */
-    public String getRecipeIngredient()
+    public IItemProvider getMaterial()
     {
-        return this.recipeIngredient;
+        return this.block == null && this.registeredBlock != null ? registeredBlock.get() : this.block;
     }
 }

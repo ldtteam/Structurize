@@ -53,6 +53,11 @@ public class ModBlockTagsProvider extends BlockTagsProvider
         return this.getOrCreateBuilder(BlockTags.makeWrapperTag(name));
     }
 
+    public ITag.INamedTag<Block> createTag(String path)
+    {
+        return BlockTags.makeWrapperTag(modId + ":" + path);
+    }
+
     public static ModBlockTagsProvider getInstance()
     {
         return instance;
