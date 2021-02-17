@@ -77,7 +77,6 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      *         <p>
      *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<UUID> getMembersOf(@NotNull final UUID ownerUUID)
     {
         return sessions.get(ownerUUID) == null ? Collections.emptyList() : sessions.get(ownerUUID).getMembersUUID();
@@ -91,7 +90,6 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      *         <p>
      *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<String> getMembersNamesOf(@NotNull final UUID ownerUUID)
     {
         return sessions.get(ownerUUID) == null ? Collections.emptyList() : sessions.get(ownerUUID).getMembersDisplayNames();
@@ -105,7 +103,6 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      *         <p>
      *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<String> getSessionNamesOf(@NotNull final UUID memberUUID)
     {
         final List<String> ses = sessions.entrySet()

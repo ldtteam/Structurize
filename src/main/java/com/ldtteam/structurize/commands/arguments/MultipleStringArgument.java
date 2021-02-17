@@ -81,7 +81,7 @@ public class MultipleStringArgument implements ArgumentType<String>
     }
 
     /**
-     * Noop serializer, we always go for server suggestions and it's impossible to create suggestions with command source
+     * Noop serializer, we always go for server suggestions and it's impossible to create suggestions without command source
      */
     public static class Serializer implements IArgumentSerializer<MultipleStringArgument>
     {
