@@ -39,14 +39,14 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     public void act(@NotNull DirectoryCache cache) throws IOException
     {
         saveBlocks(ModBlocks.paperWalls.getRegisteredBlocks(), cache);
-        saveBlocks(ModBlocks.shingles, cache);
-        saveBlocks(ModBlocks.shingleSlabs, cache);
+        saveBlocks(ModBlocks.shingleSlabs.getRegisteredBlocks(), cache);
         saveBlocks(ModBlocks.floatingCarpets, cache);
 
         saveBlockCollection(ModBlocks.BRICKS, cache);
         saveBlockCollection(ModBlocks.CACTI_BLOCKS, cache);
 
         saveBlockList(ModBlocks.timberFrames, cache);
+        saveBlockList(ModBlocks.shingles, cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);

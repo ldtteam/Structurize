@@ -5,11 +5,12 @@ import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
-import com.ldtteam.structurize.blocks.types.*;
+import com.ldtteam.structurize.blocks.types.BrickType;
+import com.ldtteam.structurize.blocks.types.ShingleFaceType;
+import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItem;
@@ -68,13 +69,13 @@ public final class ModBlocks
     public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallBlocks();
 
     public static final List<TimberFrameType>                     timberFrames = TimberFrameType.getAll();
-    public static final List<RegistryObject<BlockShingle>>        shingles     = new ArrayList<>();
-    public static final List<RegistryObject<BlockShingleSlab>>    shingleSlabs    = new ArrayList<>();
+    public static final List<ShingleFaceType> shingles = Arrays.asList(ShingleFaceType.values());
+    public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
     public static final List<RegistryObject<BlockFloatingCarpet>> floatingCarpets = new ArrayList<>();
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
-        return timberFrames.stream().flatMap(type -> type.getBlocks().stream()).collect(Collectors.toList());
+        return getBlocks(timberFrames);
     }
 
     public static List<BlockPaperWall> getPaperWalls()
@@ -84,12 +85,12 @@ public final class ModBlocks
 
     public static List<BlockShingle> getShingles()
     {
-        return getList(shingles);
+        return getBlocks(shingles);
     }
 
     public static List<BlockShingleSlab> getShingleSlabs()
     {
-        return getList(shingleSlabs);
+        return shingleSlabs.getBlocks();
     }
 
     public static List<BlockFloatingCarpet> getFloatingCarpets()
@@ -100,6 +101,11 @@ public final class ModBlocks
     public static <B extends Block> List<B> getList(List<RegistryObject<B>> list)
     {
         return list.stream().map(RegistryObject::get).collect(Collectors.toList());
+    }
+
+    public static <B extends Block, L extends IBlockList<B>> List<B> getBlocks(List<L> list)
+    {
+        return list.stream().flatMap(type -> type.getBlocks().stream()).collect(Collectors.toList());
     }
 
     /**
@@ -129,23 +135,6 @@ public final class ModBlocks
         multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
-
-        for (final ShingleFaceType shingleFace : ShingleFaceType.values())
-        {
-            shingleSlabs.add(register(
-              shingleFace.getName() + "_shingle_slab",
-              () -> new BlockShingleSlab(shingleFace),
-              ModItemGroups.SHINGLES));
-
-            for (final ShingleWoodType shingleWood : ShingleWoodType.values())
-            {
-                shingles.add(register(
-                  String.format("%s_%s_shingle", shingleFace.getName(), shingleWood.getName()),
-                  () -> new BlockShingle(Blocks.OAK_PLANKS::getDefaultState, shingleWood, shingleFace),
-                  ModItemGroups.SHINGLES));
-            }
-        }
-
 
         for (final DyeColor color : DyeColor.values())
         {

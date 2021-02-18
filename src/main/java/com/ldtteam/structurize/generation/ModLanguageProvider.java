@@ -32,8 +32,6 @@ public final class ModLanguageProvider extends LanguageProvider
     protected void addTranslations()
     {
         autoTranslate(ModBlocks.getFloatingCarpets());
-        autoTranslate(ModBlocks.getShingles());
-        autoTranslate(ModBlocks.getShingleSlabs());
 
         this.add("AUTO-GENERATED TRANSLATION OBJECT", "Coder, leave those keys alone! *TOUCH THEM AT YOUR PERIL* (use the data generators)!");
     }

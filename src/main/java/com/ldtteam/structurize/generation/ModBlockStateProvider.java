@@ -1,14 +1,15 @@
 package com.ldtteam.structurize.generation;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.resources.ResourcePackType;
+import net.minecraft.state.properties.Half;
+import net.minecraft.state.properties.StairsShape;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.generators.BlockModelBuilder;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.IGeneratedBlockstate;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
+import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import java.io.IOException;
@@ -69,6 +70,29 @@ public class ModBlockStateProvider extends BlockStateProvider
 
         // Take the last one when none are found. It gives a clearer error message
         return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
+    }
+
+    public void stairsBlockLockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter) {
+        getVariantBuilder(block)
+          .forAllStatesExcept(state -> {
+              Direction facing = state.get(StairsBlock.FACING);
+              Half half = state.get(StairsBlock.HALF);
+              StairsShape shape = state.get(StairsBlock.SHAPE);
+              int yRot = (int) facing.rotateY().getHorizontalAngle(); // Stairs model is rotated 90 degrees clockwise for some reason
+              if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT) {
+                  yRot += 270; // Left facing stairs are rotated 90 degrees clockwise
+              }
+              if (shape != StairsShape.STRAIGHT && half == Half.TOP) {
+                  yRot += 90; // Top stairs are rotated 90 degrees clockwise
+              }
+              yRot %= 360;
+              return ConfiguredModel.builder()
+                       .modelFile(shape == StairsShape.STRAIGHT ? stairs : shape == StairsShape.INNER_LEFT || shape == StairsShape.INNER_RIGHT ? stairsInner : stairsOuter)
+                       .rotationX(half == Half.BOTTOM ? 0 : 180)
+                       .rotationY(yRot)
+                       .uvLock(false)
+                       .build();
+          }, StairsBlock.WATERLOGGED);
     }
 
     public static ModBlockStateProvider getInstance()

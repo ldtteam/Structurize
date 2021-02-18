@@ -11,8 +11,6 @@ import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsBlockS
 import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsItemModelProvider;
 import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsRecipeProvider;
 import com.ldtteam.structurize.generation.floating_carpets.FloatingCarpetsTagsProvider;
-import com.ldtteam.structurize.generation.shingle_slabs.*;
-import com.ldtteam.structurize.generation.shingles.*;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -109,27 +107,6 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ModBlockStateProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
         event.getGenerator().addProvider(new ModItemModelProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
 
-        // Shingles
-        event.getGenerator().addProvider(new ShinglesBlockStateProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShinglesItemModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShinglesBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShinglesRecipeProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShinglesTagsProvider(event.getGenerator()));
-
-        // Shingle Slabs
-        event.getGenerator().addProvider(new ShingleSlabsBlockStateProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShingleSlabsItemModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShingleSlabsBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShingleSlabsRecipeProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new ShingleSlabsTagsProvider(event.getGenerator()));
-
-        // Timber Frames
-        /*event.getGenerator().addProvider(new TimberFramesBlockStateProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesItemModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesBlockModelProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesRecipeProvider(event.getGenerator()));
-        event.getGenerator().addProvider(new TimberFramesTagsProvider(event.getGenerator()));*/
-
         // Floating Carpets
         event.getGenerator().addProvider(new FloatingCarpetsBlockStateProvider(event.getGenerator()));
         event.getGenerator().addProvider(new FloatingCarpetsItemModelProvider(event.getGenerator()));
@@ -139,6 +116,8 @@ public class LifecycleSubscriber
         // CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
         ModBlocks.BRICKS.forEach(type -> type.provide(event));
         ModBlocks.timberFrames.forEach(type -> type.provide(event));
+        ModBlocks.shingles.forEach(type -> type.provide(event));
+        ModBlocks.shingleSlabs.provide(event);
         ModBlocks.paperWalls.provide(event);
 
         // Default

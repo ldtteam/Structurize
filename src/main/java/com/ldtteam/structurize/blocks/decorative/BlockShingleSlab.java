@@ -10,6 +10,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.DyeColor;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
@@ -66,14 +67,16 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
      * Registered ShingleFaceType for this block, used by the Data Generators.
      */
     private final ShingleFaceType faceType;
+    private final DyeColor color;
 
     /**
      * Constructor for the TimberFrame
      */
-    public BlockShingleSlab(final ShingleFaceType faceType)
+    public BlockShingleSlab(final ShingleFaceType faceType, final DyeColor color)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
         this.faceType = faceType;
+        this.color = color;
         setDefaultState(getDefaultState().with(WATERLOGGED, false));
     }
 
@@ -123,6 +126,11 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
     public ShingleFaceType getFaceType()
     {
         return this.faceType;
+    }
+
+    public DyeColor getColor()
+    {
+        return color;
     }
 
     /**

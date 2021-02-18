@@ -1,12 +1,14 @@
 package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
-import com.ldtteam.structurize.blocks.types.ShingleWoodType;
+import com.ldtteam.structurize.blocks.types.WoodType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.DyeColor;
 import net.minecraft.state.properties.StairsShape;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
@@ -27,14 +29,16 @@ public class BlockShingle extends StairsBlock
     /**
      * Fields defining the registered block's wood and face types, these are used by the Data Generators
      */
-    private final ShingleWoodType woodType;
+    private final WoodType woodType;
     private final ShingleFaceType faceType;
+    private final DyeColor color;
 
-    public BlockShingle(final Supplier<BlockState> modelState, final ShingleWoodType woodType, final ShingleFaceType faceType)
+    public BlockShingle(final Supplier<BlockState> modelState, final WoodType woodType, final ShingleFaceType faceType, final DyeColor color)
     {
         super(modelState, Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
         this.woodType = woodType;
         this.faceType = faceType;
+        this.color = color;
     }
 
     /**
@@ -63,7 +67,7 @@ public class BlockShingle extends StairsBlock
      *
      * @return the registered ShingleWoodType
      */
-    public ShingleWoodType getWoodType()
+    public WoodType getWoodType()
     {
         return this.woodType;
     }
@@ -76,5 +80,16 @@ public class BlockShingle extends StairsBlock
     public ShingleFaceType getFaceType()
     {
         return this.faceType;
+    }
+
+    @Nullable
+    public DyeColor getColor()
+    {
+        return color;
+    }
+
+    public String getTypeString()
+    {
+        return (getColor() == null ? "" : getColor().getString() + "_") + getFaceType().getGroup();
     }
 }

@@ -1,8 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.generation.*;
-import com.ldtteam.structurize.generation.collections.CollectionProviderSet;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -23,10 +21,6 @@ import java.util.function.Consumer;
 /**
  * A block collection is any set of blocks with a common material but many forms,
  * for example a brick collection consists of brick stairs, brick slab, etc.
- *
- * Implementing allows a collection to be rapidly registered, referenced,
- * and generated. Simply add a variable to store the reference,then invoke
- * a {@link CollectionProviderSet} in the data gen {@link LifecycleSubscriber}.
  *
  * Implements effectively as both a class and enum (for many related sets, like brick variants).
  */
