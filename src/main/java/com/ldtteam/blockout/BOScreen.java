@@ -152,13 +152,12 @@ public class BOScreen extends Screen
         RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
-        ms.push();
-        ms.getLast().getMatrix().setIdentity();
-        ms.translate(x, y, renderZlevel);
-        ms.scale((float) renderScale, (float) renderScale, 1.0f);
-        window.draw(ms, calcRelativeX(mx), calcRelativeY(my));
-        window.drawLast(ms, calcRelativeX(mx), calcRelativeY(my));
-        ms.pop();
+        final MatrixStack newMs = new MatrixStack();
+        newMs.translate(x, y, renderZlevel);
+        newMs.scale((float) renderScale, (float) renderScale, (float) renderScale);
+        window.draw(newMs, calcRelativeX(mx), calcRelativeY(my));
+        window.drawLast(newMs, calcRelativeX(mx), calcRelativeY(my));
+        newMs.pop();
 
         // restore vanilla state
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
