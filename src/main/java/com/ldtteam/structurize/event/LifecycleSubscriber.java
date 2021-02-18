@@ -8,6 +8,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.renderer.PlaceholderTileEntityRenderer;
+import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.generation.defaults.GlobalLangProvider;
 import com.ldtteam.structurize.generation.floating_carpets.*;
@@ -20,6 +21,7 @@ import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,6 +47,7 @@ public class LifecycleSubscriber
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Network.getNetwork().registerCommonMessages();
+        ArgumentTypes.register(Constants.MOD_ID + ":multistring", MultipleStringArgument.class, new MultipleStringArgument.Serializer());
         StructureLoadingUtils.addOriginMod(Constants.MOD_ID);
     }
 
