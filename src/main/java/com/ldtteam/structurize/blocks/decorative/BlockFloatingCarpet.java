@@ -2,6 +2,8 @@ package com.ldtteam.structurize.blocks.decorative;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -20,9 +22,9 @@ public class BlockFloatingCarpet extends Block
      */
     private final DyeColor color;
 
-    public BlockFloatingCarpet(final DyeColor color, final Properties properties)
+    public BlockFloatingCarpet(final DyeColor color)
     {
-        super(properties);
+        super(Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH));
         this.color = color;
     }
 

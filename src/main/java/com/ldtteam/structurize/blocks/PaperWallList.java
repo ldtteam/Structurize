@@ -20,14 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PaperWallBlocks implements IBlockList<BlockPaperWall>
+public class PaperWallList implements IBlockList<BlockPaperWall>
 {
     public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.makeWrapperTag("structurize:paper_walls");
     public static final ITag.INamedTag<Item>  ITEM_TAG  = ItemTags.makeWrapperTag("structurize:paper_walls");
 
     public static final Map<RegistryObject<BlockPaperWall>, WoodType> blocks = new HashMap<>();
 
-    public PaperWallBlocks()
+    public PaperWallList()
     {
         for (WoodType type : WoodType.values())
         {

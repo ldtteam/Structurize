@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.generation;
 
-import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
@@ -31,8 +30,6 @@ public final class ModLanguageProvider extends LanguageProvider
     @Override
     protected void addTranslations()
     {
-        autoTranslate(ModBlocks.getFloatingCarpets());
-
         this.add("AUTO-GENERATED TRANSLATION OBJECT", "Coder, leave those keys alone! *TOUCH THEM AT YOUR PERIL* (use the data generators)!");
     }
 

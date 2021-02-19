@@ -11,17 +11,13 @@ import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -66,12 +62,12 @@ public final class ModBlocks
      *  Block mass registration lists
      */
 
-    public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallBlocks();
-
+    public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallList();
+    public static final IBlockList<BlockFloatingCarpet> floatingCarpets = new FloatingCarpetList();
     public static final List<TimberFrameType>                     timberFrames = TimberFrameType.getAll();
     public static final List<ShingleFaceType> shingles = Arrays.asList(ShingleFaceType.values());
     public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
-    public static final List<RegistryObject<BlockFloatingCarpet>> floatingCarpets = new ArrayList<>();
+
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
@@ -95,7 +91,7 @@ public final class ModBlocks
 
     public static List<BlockFloatingCarpet> getFloatingCarpets()
     {
-        return getList(floatingCarpets);
+        return floatingCarpets.getBlocks();
     }
 
     public static <B extends Block> List<B> getList(List<RegistryObject<B>> list)
@@ -135,13 +131,5 @@ public final class ModBlocks
         multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
-
-        for (final DyeColor color : DyeColor.values())
-        {
-            floatingCarpets.add(register(
-              color.getTranslationKey() + "_floating_carpet",
-              () -> new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)),
-              ModItemGroups.STRUCTURIZE));
-        }
     }
 }

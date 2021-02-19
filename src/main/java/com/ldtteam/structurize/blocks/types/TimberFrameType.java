@@ -119,9 +119,9 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
             {
                 provider.add(
                   consumer -> new ShapedRecipeBuilder(block.get(), 4)
-                    .patternLine(" F ")
-                    .patternLine(" C ")
-                    .patternLine(" S ")
+                    .patternLine("F")
+                    .patternLine("C")
+                    .patternLine("S")
                     .key('F', block.get().getFrameType().getMaterial())
                     .key('C', block.get().getCentreType().getMaterial())
                     .key('S', ModItems.buildTool.get())

@@ -10,33 +10,12 @@ public class DataGeneratorConstants
 {
 
     public static final Gson GSON     = new GsonBuilder().disableHtmlEscaping().create();
-    public static final Gson GSONLang = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
     private static final String DATAPACK_DIR = "data/" + Constants.MOD_ID + "/";
-    private static final String RESOURCEPACK_DIR = "assets/" + Constants.MOD_ID + "/";
 
     // DataPack Directories \\
 
     public static final String LOOT_TABLES_DIR = DATAPACK_DIR + "loot_tables/blocks";
-
-    public static final String TAGS_DIR = DATAPACK_DIR + "tags/";
-
-    public static final String RECIPES_DIR = DATAPACK_DIR + "/recipes/";
-
-    // ResourcePack Directories \\
-
-    public static final String SHINGLES_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/shingle/";
-    public static final String SHINGLE_SLABS_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/shingle_slab/";
-    public static final String FLOATING_CARPETS_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/floating_carpet/";
-    public static final String BRICKS_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/brick/";
-
-    public static final String TIMBER_FRAMES_BLOCK_MODELS_DIR = RESOURCEPACK_DIR + "models/block/timber_frames/";
-
-    public static final String EN_US_LANG = "assets/structurize/lang/en_us.json";
-
-    public static final String ITEM_MODEL_DIR = "assets/structurize/models/item/";
-
-    public static final String BLOCKSTATE_DIR = RESOURCEPACK_DIR + "blockstates/";
 
     /**
      * Utility method to add a "message" to the json objects before writing.
