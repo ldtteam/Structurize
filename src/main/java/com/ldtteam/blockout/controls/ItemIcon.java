@@ -1,6 +1,7 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -17,7 +18,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ItemIcon extends Pane
 {
     private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
-    private static final double GUI_ITEM_Z_TRANSLATE  = 32.0d;
 
     /**
      * ItemStack represented in the itemIcon.
@@ -47,7 +47,7 @@ public class ItemIcon extends Pane
             final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName));
             if (item != null)
             {
-                itemStack = new ItemStack(item, 1);
+                setItem(item.getDefaultInstance());
             }
         }
     }
@@ -60,6 +60,10 @@ public class ItemIcon extends Pane
     public void setItem(final ItemStack itemStackIn)
     {
         this.itemStack = itemStackIn;
+        if (onHover instanceof Tooltip)
+        {
+            ((Tooltip) onHover).setTextOld(window.getScreen().getTooltipFromItem(itemStack));
+        }
     }
 
     /**
@@ -97,18 +101,15 @@ public class ItemIcon extends Pane
             RenderSystem.popMatrix();
 
             ms.pop();
-            RenderHelper.setupGui3DDiffuseLighting();
         }
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void onUpdate()
     {
-        if (itemStack == null || itemStack.isEmpty() || !wasCursorInPane)
+        if (onHover == null && itemStack != null && !itemStack.isEmpty())
         {
-            return;
+            PaneBuilders.tooltipBuilder().hoverPane(this).build().setTextOld(window.getScreen().getTooltipFromItem(itemStack));
         }
-
-        window.getScreen().renderTooltipHook(ms, itemStack, (int) mx, (int) my);
     }
 }

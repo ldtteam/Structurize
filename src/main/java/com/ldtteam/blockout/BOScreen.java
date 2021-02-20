@@ -276,18 +276,6 @@ public class BOScreen extends Screen
     }
 
     /**
-     * Render the tooltip.
-     * @param ms the matrix stack.
-     * @param stack the stack to render.
-     * @param mouseX x pos.
-     * @param mouseY y pos.
-     */
-    public void renderTooltipHook(final MatrixStack ms, final ItemStack stack, final int mouseX, final int mouseY)
-    {
-        renderTooltip(ms, stack, mouseX, mouseY);
-    }
-
-    /**
      * Converts X from event to unscaled and unscrolled X for child in relative (top-left) coordinates.
      */
     private double calcRelativeX(final double xIn)

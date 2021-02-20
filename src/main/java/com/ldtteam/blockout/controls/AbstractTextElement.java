@@ -423,6 +423,12 @@ public abstract class AbstractTextElement extends Pane
         return isTextEmpty() ? null : text.get(0);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void setTextOld(final List<ITextComponent> text)
+    {
+        setText((List<IFormattableTextComponent>)((List) text));
+    }
+
     public void setText(final List<IFormattableTextComponent> text)
     {
         this.text = text;
