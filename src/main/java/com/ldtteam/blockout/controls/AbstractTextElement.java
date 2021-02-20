@@ -216,7 +216,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected int getTextRenderingColor(final double mx, final double my)
     {
-        return isPointInPane(mx, my) ? textHoverColor : textColor;
+        return enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
     }
 
     @Override
@@ -227,7 +227,7 @@ public abstract class AbstractTextElement extends Pane
             return;
         }
 
-        final int color = enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
+        final int color = enabled ? (wasCursorInPane ? textHoverColor : textColor) : textDisabledColor;
 
         int offsetX = textOffsetX;
         int offsetY = textOffsetY;

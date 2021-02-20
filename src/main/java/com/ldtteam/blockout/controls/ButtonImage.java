@@ -382,7 +382,7 @@ public class ButtonImage extends Button
                 return;
             }
         }
-        else if (isPointInPane(mx, my) && imageHighlight != null)
+        else if (wasCursorInPane && imageHighlight != null)
         {
             bind = imageHighlight;
             u = highlightOffsetX;

@@ -200,4 +200,11 @@ public class Tooltip extends AbstractTextElement
     {
         this.maxHeight = maxHeight;
     }
+
+    @Override
+    public boolean isPointInPane(final double mx, final double my)
+    {
+        // untargetable element
+        return false;
+    }
 }
