@@ -3,6 +3,7 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
@@ -40,7 +41,7 @@ public final class ClientStructureWrapper
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
 
-        final File file = new File(StructureLoadingUtils.getClientSchematicsFolders().get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
+        final File file = new File(new File(Minecraft.getInstance().gameDir, Constants.MOD_ID), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());
 
         try (final OutputStream outputstream = new FileOutputStream(file))
