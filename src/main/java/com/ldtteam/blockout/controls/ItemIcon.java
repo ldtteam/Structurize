@@ -5,6 +5,7 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -77,8 +78,9 @@ public class ItemIcon extends Pane
         if (itemStack != null && !itemStack.isEmpty())
         {
             ms.push();
-            ms.translate(x, y, GUI_ITEM_Z_TRANSLATE);
-            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+            final float itemScale = this.getWidth() / DEFAULT_ITEMSTACK_SIZE;
+            ms.translate(x, y, itemScale * -100.0f);
+            ms.scale(itemScale, itemScale, itemScale);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
@@ -88,11 +90,14 @@ public class ItemIcon extends Pane
 
             RenderSystem.pushMatrix();
             RenderSystem.multMatrix(ms.getLast().getMatrix());
+            RenderHelper.enableStandardItemLighting();
             mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             mc.getItemRenderer().renderItemOverlays(font, itemStack, 0, 0);
+            RenderHelper.disableStandardItemLighting();
             RenderSystem.popMatrix();
 
             ms.pop();
+            RenderHelper.setupGui3DDiffuseLighting();
         }
     }
 

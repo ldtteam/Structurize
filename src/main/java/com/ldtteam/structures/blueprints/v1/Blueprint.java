@@ -719,18 +719,7 @@ public class Blueprint
         final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
         if (type.isPresent())
         {
-            if (world.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
-            {
-                return null;
-            }
-
             final Entity finalEntity = type.get().create(world);
-
-            /** 1.16 fix {@link IAngerable#readAngerNBT(ServerWorld, CompoundNBT)} */
-            if (world.isRemote && finalEntity instanceof IAngerable)
-            {
-                return null;
-            }
 
             if (finalEntity != null)
             {

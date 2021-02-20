@@ -5,6 +5,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -72,12 +75,11 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * @param ownerUUID {@link PlayerEntity#getUniqueID()}
      * @return List UUID: list of UUIDs of session members
      *         <p>
-     *         null: if ownerUUID was not found
+     *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<UUID> getMembersOf(@NotNull final UUID ownerUUID)
     {
-        return sessions.get(ownerUUID) == null ? null : sessions.get(ownerUUID).getMembersUUID();
+        return sessions.get(ownerUUID) == null ? Collections.emptyList() : sessions.get(ownerUUID).getMembersUUID();
     }
 
     /**
@@ -86,12 +88,11 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * @param ownerUUID {@link PlayerEntity#getUniqueID()}
      * @return List String: list of player's name (nickname) of session members
      *         <p>
-     *         null: if ownerUUID was not found
+     *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<String> getMembersNamesOf(@NotNull final UUID ownerUUID)
     {
-        return sessions.get(ownerUUID) == null ? null : sessions.get(ownerUUID).getMembersDisplayNames();
+        return sessions.get(ownerUUID) == null ? Collections.emptyList() : sessions.get(ownerUUID).getMembersDisplayNames();
     }
 
     /**
@@ -100,9 +101,8 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * @param memberUUID {@link PlayerEntity#getUniqueID()}
      * @return List String: list of player's name (nickname) of session members
      *         <p>
-     *         null: if ownerUUID was not found
+     *         empty list: if ownerUUID was not found
      */
-    @Nullable
     public List<String> getSessionNamesOf(@NotNull final UUID memberUUID)
     {
         final List<String> ses = sessions.entrySet()
@@ -110,7 +110,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
             .filter(en -> en.getValue().isMember(memberUUID))// && !en.getKey().equals(memberUUID))
             .map(en -> en.getValue().getMemberDisplayName(en.getKey()))
             .collect(Collectors.toList());
-        return ses.isEmpty() ? null : ses;
+        return ses.isEmpty() ? Collections.emptyList() : ses;
     }
 
     /**
