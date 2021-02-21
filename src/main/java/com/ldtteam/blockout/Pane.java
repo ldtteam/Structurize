@@ -52,6 +52,10 @@ public class Pane extends AbstractGui
     // Runtime
     protected Window window;
     protected View parent;
+    /**
+     * Should be only used during drawing methods. Outside drawing scope value may be outdated.
+     */
+    protected boolean wasCursorInPane = false;
     private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
 
     /**
@@ -312,19 +316,19 @@ public class Pane extends AbstractGui
      */
     public void draw(final MatrixStack ms, final double mx, final double my)
     {
-        handleHover(mx, my);
+        wasCursorInPane = isPointInPane(mx, my);
+        handleHover();
 
         if (visible)
         {
             drawSelf(ms, mx, my);
             if (debugging)
             {
-                final boolean isMouseOver = isPointInPane(mx, my);
-                final int color = isMouseOver ? 0xFF00FF00 : 0xFF0000FF;
+                final int color = wasCursorInPane ? 0xFF00FF00 : 0xFF0000FF;
 
                 Render.drawOutlineRect(ms, x, y, getWidth(), getHeight(), color);
 
-                if (isMouseOver && !id.isEmpty())
+                if (wasCursorInPane && !id.isEmpty())
                 {
                     final int stringWidth = mc.fontRenderer.getStringWidth(id);
                     mc.fontRenderer.drawString(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
@@ -383,6 +387,16 @@ public class Pane extends AbstractGui
     public boolean isPointInPane(final double mx, final double my)
     {
         return isVisible() && mx >= x && mx < (x + width) && my >= y && my < (y + height);
+    }
+
+    /**
+     * Was the cursor in pane during draw method?
+     *
+     * @return true if the cursor was in pane, false otherwise
+     */
+    public boolean wasCursorInPane()
+    {
+        return wasCursorInPane;
     }
 
     // Dimensions
@@ -775,7 +789,7 @@ public class Pane extends AbstractGui
      * @param mx mouse x
      * @param my mouse y
      */
-    protected void handleHover(final double mx, final double my)
+    protected void handleHover()
     {
         if (onHover == null && !onHoverId.isEmpty())
         {
@@ -788,11 +802,13 @@ public class Pane extends AbstractGui
             return;
         }
 
-        if (this.isPointInPane(mx, my) && !onHover.isVisible() && onHover.isEnabled())
+        if (this.wasCursorInPane && !onHover.isVisible() && onHover.isEnabled())
         {
             onHover.show();
         }
-        else if (!onHover.isPointInPane(mx, my) && !this.isPointInPane(mx, my) && onHover.isVisible())
+        // if onHover was already drawn then we good
+        // else we have to wait for next frame
+        else if (!onHover.wasCursorInPane && !this.wasCursorInPane && onHover.isVisible())
         {
             onHover.hide();
         }

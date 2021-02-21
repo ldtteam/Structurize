@@ -20,7 +20,7 @@ public class Tooltip extends AbstractTextElement
     public static final int DEFAULT_MAX_HEIGHT = AbstractTextElement.SIZE_FOR_UNLIMITED_ELEMENTS;
 
     private static final int CURSOR_BOX_SIZE = 12;
-    private static final int Z_OFFSET = 400;
+    private static final int Z_OFFSET = 200;
     private static final int BACKGROUND_COLOR = 0xf0100010;
     private static final int BORDER_COLOR_A = 0x505000ff;
     private static final int BORDER_COLOR_B = 0x5028007f;
@@ -199,5 +199,12 @@ public class Tooltip extends AbstractTextElement
     public void setMaxHeight(final int maxHeight)
     {
         this.maxHeight = maxHeight;
+    }
+
+    @Override
+    public boolean isPointInPane(final double mx, final double my)
+    {
+        // untargetable element
+        return false;
     }
 }

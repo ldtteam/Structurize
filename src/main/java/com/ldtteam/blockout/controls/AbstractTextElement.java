@@ -216,7 +216,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected int getTextRenderingColor(final double mx, final double my)
     {
-        return isPointInPane(mx, my) ? textHoverColor : textColor;
+        return enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
     }
 
     @Override
@@ -227,7 +227,7 @@ public abstract class AbstractTextElement extends Pane
             return;
         }
 
-        final int color = enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
+        final int color = enabled ? (wasCursorInPane ? textHoverColor : textColor) : textDisabledColor;
 
         int offsetX = textOffsetX;
         int offsetY = textOffsetY;
@@ -421,6 +421,12 @@ public abstract class AbstractTextElement extends Pane
     public IFormattableTextComponent getText()
     {
         return isTextEmpty() ? null : text.get(0);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void setTextOld(final List<ITextComponent> text)
+    {
+        setText((List<IFormattableTextComponent>)((List) text));
     }
 
     public void setText(final List<IFormattableTextComponent> text)
