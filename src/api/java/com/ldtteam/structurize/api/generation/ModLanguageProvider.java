@@ -1,12 +1,16 @@
-package com.ldtteam.structurize.generation;
+package com.ldtteam.structurize.api.generation;
 
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.util.IItemProvider;
 import net.minecraftforge.common.data.LanguageProvider;
+import net.minecraftforge.fml.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -15,22 +19,22 @@ import java.util.function.Function;
  * Must be initialised at the start of the lifecycle
  * to allow other providers to add keys.
  */
-public final class ModLanguageProvider extends LanguageProvider
+public class ModLanguageProvider extends LanguageProvider
 {
     private static ModLanguageProvider instance;
-    protected final DataGenerator gen;
+    private final String modId;
 
     public ModLanguageProvider(final DataGenerator gen, final String modid, final String locale)
     {
         super(gen, modid, locale);
+        this.modId = modid;
         instance = this;
-        this.gen = gen;
     }
 
     @Override
     protected void addTranslations()
     {
-        this.add("AUTO-GENERATED TRANSLATION OBJECT", "Coder, leave those keys alone! *TOUCH THEM AT YOUR PERIL* (use the data generators)!");
+        this.add("AUTO-GENERATED TRANSLATION OBJECT", "Coder, leave those keys alone! *TOUCH THEM AT YOUR PERIL* (use the data generator)!");
     }
 
     /**
@@ -75,6 +79,31 @@ public final class ModLanguageProvider extends LanguageProvider
             name.add(word.substring(0,1).toUpperCase(Locale.US) + word.substring(1));
         }
         return String.join(" ", name);
+    }
+
+    protected void add(RegistryObject<?> key)
+    {
+        add((IItemProvider) key.get());
+    }
+
+    protected void add(IItemProvider key)
+    {
+        add(key.asItem(), format(Objects.requireNonNull(key.asItem().getRegistryName()).getPath()));
+    }
+
+    protected void add(ItemGroup key, String name)
+    {
+        add(key.getGroupName().getString(), name);
+    }
+
+    protected void add(KeyPrefix prefix, String key, String name)
+    {
+        add(String.join(".", prefix.name().toLowerCase(), modId, key), name);
+    }
+
+    public enum KeyPrefix
+    {
+        CONFIG, COMMAND, CHAT, GUI
     }
 
     @Override

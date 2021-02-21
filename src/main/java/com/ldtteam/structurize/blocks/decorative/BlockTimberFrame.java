@@ -30,7 +30,7 @@ public class BlockTimberFrame extends DirectionalBlock
      * Fields defining the registered block's wood and face types, these are used by the Data Generators
      */
     private final TimberFrameType timberFrameType;
-    private final WoodType frameType;
+    private final WoodType        frameType;
     private final TimberFrameCentreType centreType;
 
     /**
@@ -75,9 +75,9 @@ public class BlockTimberFrame extends DirectionalBlock
     }
 
     /**
-     * Get the registered TimberFrameFrameType, used by the Data Generators
+     * Get the associated wood, used for data gen
      *
-     * @return the registered TimberFrameFrameType
+     * @return the wood type
      */
     public WoodType getFrameType()
     {

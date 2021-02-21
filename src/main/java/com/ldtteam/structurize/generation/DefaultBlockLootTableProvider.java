@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.generation.defaults;
+package com.ldtteam.structurize.generation;
 
 import com.ldtteam.datagenerators.loot_table.LootTableJson;
 import com.ldtteam.datagenerators.loot_table.LootTableTypeEnum;
@@ -6,10 +6,9 @@ import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
 import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
-import com.ldtteam.structurize.blocks.IBlockCollection;
-import com.ldtteam.structurize.blocks.IBlockList;
+import com.ldtteam.structurize.api.blocks.IBlockCollection;
+import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.DataGeneratorConstants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;

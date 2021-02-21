@@ -1,6 +1,6 @@
-package com.ldtteam.structurize.generation;
+package com.ldtteam.structurize.api.generation;
 
-import com.ldtteam.structurize.blocks.BlockType;
+import com.ldtteam.structurize.api.blocks.BlockType;
 import net.minecraft.block.Block;
 import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;

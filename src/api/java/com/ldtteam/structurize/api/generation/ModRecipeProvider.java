@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.generation;
+package com.ldtteam.structurize.api.generation;
 
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.data.DataGenerator;

@@ -1,6 +1,6 @@
-package com.ldtteam.structurize.blocks;
+package com.ldtteam.structurize.api.blocks;
 
-import com.ldtteam.structurize.generation.*;
+import com.ldtteam.structurize.api.generation.*;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 /**

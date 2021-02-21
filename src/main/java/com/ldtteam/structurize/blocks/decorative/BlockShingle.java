@@ -63,9 +63,9 @@ public class BlockShingle extends StairsBlock
     }
 
     /**
-     * Get the registered ShingleWoodType, used by the Data Generators
+     * Get the associate wood, used for data gen
      *
-     * @return the registered ShingleWoodType
+     * @return the wood type
      */
     public WoodType getWoodType()
     {

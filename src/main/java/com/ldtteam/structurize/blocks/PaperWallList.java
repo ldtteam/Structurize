@@ -1,9 +1,10 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.blocks.*;
+import com.ldtteam.structurize.api.generation.*;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.decorative.BlockPaperWall;
 import com.ldtteam.structurize.blocks.types.WoodType;
-import com.ldtteam.structurize.generation.*;
 import com.ldtteam.structurize.items.ModItemGroups;
 import net.minecraft.block.Block;
 import net.minecraft.data.ShapedRecipeBuilder;

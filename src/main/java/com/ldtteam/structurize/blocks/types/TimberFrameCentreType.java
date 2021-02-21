@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.generation.ModLanguageProvider;
+import com.ldtteam.structurize.api.generation.ModLanguageProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;

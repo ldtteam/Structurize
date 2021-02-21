@@ -1,8 +1,9 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.blocks.*;
+import com.ldtteam.structurize.api.generation.*;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
-import com.ldtteam.structurize.generation.*;
 import com.ldtteam.structurize.items.ModItemGroups;
 import net.minecraft.block.Block;
 import net.minecraft.data.ShapedRecipeBuilder;

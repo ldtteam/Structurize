@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
-import com.ldtteam.structurize.blocks.BlockType;
-import com.ldtteam.structurize.blocks.IBlockCollection;
+import com.ldtteam.structurize.api.blocks.BlockType;
+import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;

@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blocks;
+package com.ldtteam.structurize.api.blocks;
 
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.ICriterionInstance;

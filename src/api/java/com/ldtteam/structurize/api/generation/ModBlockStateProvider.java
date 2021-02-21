@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.generation;
+package com.ldtteam.structurize.api.generation;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.StairsBlock;

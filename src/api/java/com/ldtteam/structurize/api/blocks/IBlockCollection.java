@@ -1,5 +1,6 @@
-package com.ldtteam.structurize.blocks;
+package com.ldtteam.structurize.api.blocks;
 
+import com.ldtteam.structurize.api.generation.*;
 import com.ldtteam.structurize.generation.*;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
@@ -17,6 +18,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * A block collection is any set of blocks with a common material but many forms,
@@ -204,6 +206,6 @@ public interface IBlockCollection extends IGenerated
     @Override
     default void generateTranslations(ModLanguageProvider lang)
     {
-        lang.autoTranslate(ModBlocks.getList(getBlocks()));
+        lang.autoTranslate(getBlocks().stream().map(RegistryObject::get).collect(Collectors.toList()));
     }
 }

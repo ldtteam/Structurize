@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.blocks.IBlockCollection;
+import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
@@ -8,6 +10,7 @@ import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.types.BrickType;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
  * Class to register blocks to Structurize
  *
  * Don't forget to add them to the generators!
- * Minimum is a save call in {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}.
+ * Minimum is a save call in {@link DefaultBlockLootTableProvider}.
  */
 public final class ModBlocks
 {
@@ -55,17 +58,17 @@ public final class ModBlocks
      *  Block Collections
      */
 
-    public static IBlockCollection CACTI_BLOCKS = new CactusCollection();
-    public static List<IBlockCollection> BRICKS = Arrays.asList(BrickType.values());
+    public static IBlockCollection       CACTI_BLOCKS = new CactusCollection();
+    public static List<IBlockCollection> BRICKS       = Arrays.asList(BrickType.values());
 
     /*
      *  Block mass registration lists
      */
 
-    public static final IBlockList<BlockPaperWall> paperWalls = new PaperWallList();
+    public static final IBlockList<BlockPaperWall>      paperWalls      = new PaperWallList();
     public static final IBlockList<BlockFloatingCarpet> floatingCarpets = new FloatingCarpetList();
-    public static final List<TimberFrameType>                     timberFrames = TimberFrameType.getAll();
-    public static final List<ShingleFaceType> shingles = Arrays.asList(ShingleFaceType.values());
+    public static final List<TimberFrameType>           timberFrames    = TimberFrameType.getAll();
+    public static final List<ShingleFaceType>           shingles        = Arrays.asList(ShingleFaceType.values());
     public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
 
 

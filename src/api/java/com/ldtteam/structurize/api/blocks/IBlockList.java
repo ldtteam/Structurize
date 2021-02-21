@@ -1,12 +1,13 @@
-package com.ldtteam.structurize.blocks;
+package com.ldtteam.structurize.api.blocks;
 
-import com.ldtteam.structurize.generation.ModItemModelProvider;
-import com.ldtteam.structurize.generation.ModLanguageProvider;
+import com.ldtteam.structurize.api.generation.ModItemModelProvider;
+import com.ldtteam.structurize.api.generation.ModLanguageProvider;
 import net.minecraft.block.Block;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A list of blocks that are all of the same type.
@@ -32,7 +33,7 @@ public interface IBlockList<B extends Block> extends IGenerated
 
     default List<B> getBlocks()
     {
-        return ModBlocks.getList(getRegisteredBlocks());
+        return getRegisteredBlocks().stream().map(RegistryObject::get).collect(Collectors.toList());
     }
 
     @Override
