@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "parent": "block/block",
 	"textures": {
 		"frame": "structurize:block/oak_planks",
 		"centre": "structurize:block/dark_oak_planks"
