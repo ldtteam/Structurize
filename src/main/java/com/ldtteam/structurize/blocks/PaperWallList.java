@@ -34,7 +34,7 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
         {
             RegistryObject<BlockPaperWall> block = ModBlocks.register(
               type.getString() + "_blockpaperwall",
-              BlockPaperWall::new,
+              () -> new BlockPaperWall(type),
               ModItemGroups.CONSTRUCTION
             );
 
@@ -86,5 +86,11 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
     {
         blocks.buildTag(BLOCK_TAG).add(getBlocks().toArray(new Block[0]));
         items.copy(BLOCK_TAG, ITEM_TAG);
+    }
+
+    @Override
+    public void generateTranslations(final ModLanguageProvider lang)
+    {
+        getBlocks().forEach(block -> lang.add(block, ModLanguageProvider.format(block.getType().getString() + " Paper Wall")));
     }
 }

@@ -7,6 +7,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
+import com.ldtteam.structurize.generation.StructurizeTranslations;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -94,16 +95,14 @@ public class LifecycleSubscriber
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
         // Initialise All Singletons
-        event.getGenerator().addProvider(new ModLanguageProvider(event.getGenerator(), Constants.MOD_ID, "en_us"));
+        event.getGenerator().addProvider(new StructurizeTranslations(event.getGenerator(), Constants.MOD_ID, "en_us"));
         event.getGenerator().addProvider(new ModRecipeProvider(event.getGenerator()));
-        // Initialise Tags singletons
         ModBlockTagsProvider mbt = new ModBlockTagsProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper());
         event.getGenerator().addProvider(mbt);
         event.getGenerator().addProvider(new ModItemTagsProvider(event.getGenerator(), mbt, Constants.MOD_ID, event.getExistingFileHelper()));
         event.getGenerator().addProvider(new ModBlockStateProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
         event.getGenerator().addProvider(new ModItemModelProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
 
-        // CollectionProviderSet.each(event, Constants.MOD_ID, ModBlocks.BRICKS, "blocks/bricks");
         ModBlocks.BRICKS.forEach(type -> type.provide(event));
         ModBlocks.timberFrames.forEach(type -> type.provide(event));
         ModBlocks.shingles.forEach(type -> type.provide(event));

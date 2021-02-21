@@ -31,9 +31,12 @@ public class BlockPaperWall extends PaneBlock
      */
     private static final float                      RESISTANCE     = 1F;
 
-    public BlockPaperWall()
+    private final WoodType type;
+
+    public BlockPaperWall(WoodType type)
     {
         super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        this.type = type;
     }
 
     @Override
@@ -61,5 +64,10 @@ public class BlockPaperWall extends PaneBlock
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(NORTH, EAST, WEST, SOUTH, VARIANT, WATERLOGGED);
+    }
+
+    public WoodType getType()
+    {
+        return type;
     }
 }
