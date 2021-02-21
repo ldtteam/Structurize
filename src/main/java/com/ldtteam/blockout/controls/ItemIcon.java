@@ -83,7 +83,7 @@ public class ItemIcon extends Pane
         {
             ms.push();
             final float itemScale = this.getWidth() / DEFAULT_ITEMSTACK_SIZE;
-            ms.translate(x, y, itemScale * -100.0f);
+            ms.translate(x, y, 0.0f);
             ms.scale(itemScale, itemScale, itemScale);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);

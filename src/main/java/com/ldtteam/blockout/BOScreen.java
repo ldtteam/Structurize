@@ -4,7 +4,6 @@ import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.BitArray;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.gui.ForgeIngameGui;
@@ -149,7 +148,7 @@ public class BOScreen extends Screen
         // replace vanilla projection
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
         RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
+        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 6000.0D);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
         final MatrixStack newMs = new MatrixStack();
