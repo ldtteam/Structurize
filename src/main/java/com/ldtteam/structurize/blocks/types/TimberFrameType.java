@@ -105,7 +105,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
             states.models()
               .getBuilder(block.get().getRegistryName().getPath())
               .parent(new ModelFile.UncheckedModelFile(states.modLoc("block/timber_frames/" + this.getName())))
-                .texture("frame", block.get().getFrameType() == WoodType.CACTUS ? "blocks/blockcactusplank" : "minecraft:block/" + block.get().getFrameType().getMaterial().getRegistryName().getPath())
+                .texture("frame", block.get().getFrameType() == WoodType.CACTUS ? "blocks/cactus/blockcactusplank" : "minecraft:block/" + block.get().getFrameType().getMaterial().getRegistryName().getPath())
                 .texture("centre", block.get().getCentreType().textureLocation)
                 .texture("particle", block.get().getCentreType().textureLocation)
           ));

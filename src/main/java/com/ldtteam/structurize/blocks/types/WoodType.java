@@ -20,7 +20,7 @@ public enum WoodType implements IStringSerializable
     DARK_OAK("dark_oak", Blocks.DARK_OAK_PLANKS),
     WARPED("warped", Blocks.WARPED_PLANKS),
     CRIMSON("crimson", Blocks.CRIMSON_PLANKS),
-    CACTUS("cactus", ModBlocks.CACTI_BLOCKS.getBlocks().get(0));
+    CACTUS("cactus", ModBlocks.CACTI_BLOCKS.getRegisteredBlocks().get(0));
 
     private final String name;
     private final Block  material;

@@ -30,7 +30,7 @@ public class StructurizeTranslations extends ModLanguageProvider
         add(ModItems.tagTool.get(), "Tag Tool");
         add(ModItems.shapeTool.get(), "Shape Tool");
         add(ModItemGroups.STRUCTURIZE, "Structurize");
-        add(ModItemGroups.CONSTRUCTION, "Schematic Construction");
+        add(ModItemGroups.CONSTRUCTION, "Structurize Construction Blocks");
         add(ModItemGroups.SHINGLES, "Structurize Shingles");
         add(ModItemGroups.TIMBER_FRAMES, "Structurize Timber Frames");
 

@@ -6,6 +6,7 @@ import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
 import com.ldtteam.datagenerators.loot_table.pool.conditions.survives_explosion.SurvivesExplosionConditionJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryJson;
 import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
+import com.ldtteam.structurize.api.blocks.BlockType;
 import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -67,8 +68,10 @@ public class DefaultBlockLootTableProvider implements IDataProvider
 
     private void saveBlockCollection(final IBlockCollection blocks, final DirectoryCache cache) throws IOException
     {
-        for (RegistryObject<Block> block : blocks.getBlocks())
+        for (RegistryObject<Block> block : blocks.getRegisteredBlocks())
         {
+            // Do the door manually, so it doesn't drop one for each half
+            if (BlockType.fromSuffix(block.get()) == BlockType.DOOR) continue;
             saveBlock(block, cache);
         }
     }

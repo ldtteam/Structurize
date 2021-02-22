@@ -113,7 +113,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
                  .texture("1", "blocks/shingle/" + location + "_1")
                  .texture("2", "blocks/shingle/" + location + "_2")
                  .texture("3", "blocks/shingle/" + location + "_3")
-                 .texture("plank", shingle.getWoodType() == WoodType.CACTUS ? "blocks/blockcactusplank" : "minecraft:block/" + shingle.getWoodType().getMaterial().getRegistryName().getPath())
+                 .texture("plank", shingle.getWoodType() == WoodType.CACTUS ? "blocks/cactus/blockcactusplank" : "minecraft:block/" + shingle.getWoodType().getMaterial().getRegistryName().getPath())
                  .texture("particle", "blocks/shingle/" + location + "_1");
     }
 
@@ -123,7 +123,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
         getRegisteredBlocks().forEach(block -> {
           BlockShingle shingle = block.get();
 
-          states.stairsBlockLockUV(shingle,
+          states.stairsBlockUnlockUV(shingle,
             makeBlockModel(states.models(), shingle, "straight"),
             makeBlockModel(states.models(), shingle, "concave"),
             makeBlockModel(states.models(), shingle, "convex"));

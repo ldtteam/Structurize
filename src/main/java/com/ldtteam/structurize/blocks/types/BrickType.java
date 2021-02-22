@@ -49,7 +49,7 @@ public enum BrickType implements IBlockCollection
     }
 
     @Override
-    public List<RegistryObject<Block>> getBlocks()
+    public List<RegistryObject<Block>> getRegisteredBlocks()
     {
         return blocks;
     }

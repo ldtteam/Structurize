@@ -58,8 +58,8 @@ public final class ModBlocks
      *  Block Collections
      */
 
-    public static IBlockCollection       CACTI_BLOCKS = new CactusCollection();
-    public static List<IBlockCollection> BRICKS       = Arrays.asList(BrickType.values());
+    public static final IBlockCollection       CACTI_BLOCKS = new CactusCollection();
+    public static final List<IBlockCollection> BRICKS       = Arrays.asList(BrickType.values());
 
     /*
      *  Block mass registration lists

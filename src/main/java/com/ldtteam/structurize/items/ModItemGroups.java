@@ -31,7 +31,7 @@ public final class ModItemGroups
         @Override
         public ItemStack createIcon()
         {
-            return new ItemStack(BrickType.BROWN.getBlocks().get(0).get());
+            return new ItemStack(BrickType.BROWN.getMainRegisteredBlock().get());
         }
 
         @Override

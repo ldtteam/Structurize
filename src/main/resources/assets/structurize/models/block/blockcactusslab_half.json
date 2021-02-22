@@ -1,8 +1,0 @@
-{
-  "parent": "block/slab",
-  "textures": {
-    "bottom": "structurize:blocks/blockcactusplank",
-    "top": "structurize:blocks/blockcactusplank",
-    "side": "structurize:blocks/blockcactusplank"
-  }
-}

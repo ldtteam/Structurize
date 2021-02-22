@@ -104,6 +104,7 @@ public class LifecycleSubscriber
         event.getGenerator().addProvider(new ModItemModelProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper()));
 
         ModBlocks.BRICKS.forEach(type -> type.provide(event));
+        ModBlocks.CACTI_BLOCKS.provide(event);
         ModBlocks.timberFrames.forEach(type -> type.provide(event));
         ModBlocks.shingles.forEach(type -> type.provide(event));
         ModBlocks.floatingCarpets.provide(event);

@@ -1,8 +1,0 @@
-{
-    "parent": "block/outer_stairs",
-    "textures": {
-        "bottom": "structurize:blocks/blockcactusplank",
-        "top": "structurize:blocks/blockcactusplank",
-        "side": "structurize:blocks/blockcactusplank"
-    }
-}

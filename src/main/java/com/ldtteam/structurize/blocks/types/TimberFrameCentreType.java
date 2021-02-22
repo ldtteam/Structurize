@@ -19,7 +19,7 @@ public enum TimberFrameCentreType implements IStringSerializable
     JUNGLE(Blocks.JUNGLE_PLANKS, "Jungle"),
     SPRUCE(Blocks.SPRUCE_PLANKS, "Spruce"),
     DARK_OAK(Blocks.DARK_OAK_PLANKS, "Dark Oak"),
-    CACTUS(ModBlocks.CACTI_BLOCKS.getMainRegisteredBlock(), "Cactus", "structurize:blocks/blockcactusplank"),
+    CACTUS(ModBlocks.CACTI_BLOCKS.getMainRegisteredBlock(), "Cactus", "structurize:blocks/cactus/blockcactusplank"),
     // Terracotta
     TERRACOTTA(Blocks.TERRACOTTA),
     WHITE_TERRACOTTA(Blocks.WHITE_TERRACOTTA),
