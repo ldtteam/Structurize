@@ -203,6 +203,11 @@ public final class BlockUtils
                 return true;
             }
 
+            if (block1 instanceof AirBlock && block2 instanceof AirBlock)
+            {
+                return true;
+            }
+
             if ((block1 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState2))
             || (block2 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState1)))
             {

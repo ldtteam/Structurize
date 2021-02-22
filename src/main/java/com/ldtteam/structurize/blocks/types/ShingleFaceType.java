@@ -35,6 +35,8 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     SLATE("slate", "Slate", Blocks.COBBLESTONE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.PURPLE),
     MOSS_SLATE("moss_slate", "Moss Slate", Blocks.MOSSY_COBBLESTONE),
     THATCHED("thatched", "Thatched", Items.WHEAT);
+    BLACKSTONE("blackstone", "Blackstone", Blocks.BLACKSTONE),
+    GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
     private final Map<WoodType, List<RegistryObject<BlockShingle>>> blocks    = new HashMap<>();
     private final Map<WoodType, ITag.INamedTag<Block>> blockTags = new HashMap<>();
@@ -68,7 +70,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     }
 
     /**
-     * The face group the type belongs to, e.g. Clay, or Slate. used by data generators.
+     * The face group the type belongs to, e.g. Clay or Slate. Used by data generators.
      *
      * @return group
      */
@@ -78,7 +80,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     }
 
     /**
-     * Name used in the Lang data generator
+     * Name used in the lang data generator
      *
      * @return langName
      */

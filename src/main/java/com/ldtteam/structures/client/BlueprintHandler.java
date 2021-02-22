@@ -119,7 +119,7 @@ public final class BlueprintHandler
         final MatrixStack stack,
         final float partialTicks)
     {
-        if (points.isEmpty())
+        if (points.isEmpty() || blueprint == null)
         {
             return;
         }
@@ -139,7 +139,7 @@ public final class BlueprintHandler
 
         for (final BlockPos coord : points)
         {
-            renderer.draw(coord.down(), stack, partialTicks);
+            renderer.draw(coord, stack, partialTicks);
         }
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.util.IItemProvider;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,8 @@ public enum TimberFrameCentreType implements IStringSerializable
     JUNGLE(Blocks.JUNGLE_PLANKS, "Jungle"),
     SPRUCE(Blocks.SPRUCE_PLANKS, "Spruce"),
     DARK_OAK(Blocks.DARK_OAK_PLANKS, "Dark Oak"),
+    CRIMSON(Blocks.CRIMSON_PLANKS, "Crimson"),
+    WARPED(Blocks.WARPED_PLANKS, "Warped"),
     CACTUS(ModBlocks.CACTI_BLOCKS.getMainRegisteredBlock(), "Cactus", "structurize:blocks/cactus/blockcactusplank"),
     // Terracotta
     TERRACOTTA(Blocks.TERRACOTTA),
@@ -47,6 +50,7 @@ public enum TimberFrameCentreType implements IStringSerializable
     // Other
     PAPER(Items.PAPER, "Paper", "structurize:blocks/timber_frame_paper"),
     COBBLESTONE(Blocks.COBBLESTONE),
+    BLACKSTONE(Blocks.BLACKSTONE),
     STONE(Blocks.STONE);
 
     private IItemProvider         block           = null;

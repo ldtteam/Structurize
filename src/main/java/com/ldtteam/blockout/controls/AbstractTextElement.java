@@ -1,30 +1,43 @@
 package com.ldtteam.blockout.controls;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Contains any code common to text controls.
  */
 public abstract class AbstractTextElement extends Pane
 {
+    private static final int FILTERING_ROUNDING = 50;
+    private static final float FILTERING_THRESHOLD = 0.02f; // should be 1/FILTERING_ROUNDING
+
     public static final double DEFAULT_TEXT_SCALE = 1.0d;
     public static final Alignment DEFAULT_TEXT_ALIGNMENT = Alignment.MIDDLE_LEFT;
     public static final int DEFAULT_TEXT_COLOR = 0xffffff; // white
     public static final boolean DEFAULT_TEXT_SHADOW = false;
     public static final boolean DEFAULT_TEXT_WRAP = false;
     public static final int DEFAULT_TEXT_LINESPACE = 0;
+    /**
+     * Useable when you want to have unlimited text etc.
+     * Currently 1M pixels.
+     */
+    public static final int SIZE_FOR_UNLIMITED_ELEMENTS = 1_000_000;
 
     /**
      * The text scale.
@@ -115,11 +128,6 @@ public abstract class AbstractTextElement extends Pane
         this.textDisabledColor = defaultTextDisabledColor;
         this.textShadow = defaultTextShadow;
         this.textWrap = defaultTextWrap;
-
-        setText((IFormattableTextComponent) StringTextComponent.EMPTY);
-
-        // setup
-        recalcTextRendering();
     }
 
     public AbstractTextElement(final PaneParams params)
@@ -168,12 +176,13 @@ public abstract class AbstractTextElement extends Pane
         textLinespace = params.getInteger("linespace", textLinespace);
 
         // both label and text are allowed to merge label and text elements
-        setText(params.getTextComponent(params.hasAnyAttribute("label", "text"), new StringTextComponent("")));
-
-        // setup
-        recalcTextRendering();
+        // don't use setText, implementing classes are responsible for calling recalcTextRendering()
+        text = params.getMultilineText(params.hasAnyAttribute("label", "text"));
     }
 
+    /**
+     * Calculates the containing text rectangle based on the text contents
+     */
     protected void recalcTextRendering()
     {
         if (textScale <= 0.0d || textWidth < 1 || textHeight < 1 || isTextEmpty())
@@ -207,7 +216,7 @@ public abstract class AbstractTextElement extends Pane
 
     protected int getTextRenderingColor(final double mx, final double my)
     {
-        return isPointInPane(mx, my) ? textHoverColor : textColor;
+        return enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
     }
 
     @Override
@@ -218,7 +227,7 @@ public abstract class AbstractTextElement extends Pane
             return;
         }
 
-        final int color = enabled ? (isPointInPane(mx, my) ? textHoverColor : textColor) : textDisabledColor;
+        final int color = enabled ? (wasCursorInPane ? textHoverColor : textColor) : textDisabledColor;
 
         int offsetX = textOffsetX;
         int offsetY = textOffsetY;
@@ -243,9 +252,29 @@ public abstract class AbstractTextElement extends Pane
 
         ms.push();
         ms.translate(x + offsetX, y + offsetY, 0.0d);
-        ms.scale((float) textScale, (float) textScale, 1.0f);
 
         final Matrix4f matrix4f = ms.getLast().getMatrix();
+
+        final Vector4f temp = new Vector4f(1, 1, 0, 0);
+        temp.transform(matrix4f);
+        final float oldScaleX = temp.getX();
+        final float oldScaleY = temp.getY();
+        final float newScaleX = (float) Math.round(oldScaleX * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
+        final float newScaleY = (float) Math.round(oldScaleY * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
+
+        if (Math.abs((float) Math.round(newScaleX) - newScaleX) > FILTERING_THRESHOLD
+            || Math.abs((float) Math.round(newScaleY) - newScaleY) > FILTERING_THRESHOLD)
+        {
+            // smooth the texture
+            // TODO: forge enable filtering
+            ms.scale((float) textScale, (float) textScale, 1.0f);
+        }
+        else
+        {
+            // round scale if not smoothing
+            ms.scale(newScaleX / oldScaleX, newScaleY / oldScaleY, 1.0f);
+        }
+
         int lineShift = 0;
         for (final IReorderingProcessor row : preparedText)
         {
@@ -267,6 +296,8 @@ public abstract class AbstractTextElement extends Pane
             mc.fontRenderer.func_238415_a_(row, xOffset, lineShift, color, matrix4f, textShadow);
             lineShift += mc.fontRenderer.FONT_HEIGHT + textLinespace;
         }
+
+        // TODO: forge disable filtering
 
         ms.pop();
     }
@@ -377,6 +408,7 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
+    @Nullable
     public List<IFormattableTextComponent> getTextAsList()
     {
         return text;
@@ -385,9 +417,16 @@ public abstract class AbstractTextElement extends Pane
     /**
      * @return null if empty, first line otherwise
      */
+    @Nullable
     public IFormattableTextComponent getText()
     {
         return isTextEmpty() ? null : text.get(0);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void setTextOld(final List<ITextComponent> text)
+    {
+        setText((List<IFormattableTextComponent>)((List) text));
     }
 
     public void setText(final List<IFormattableTextComponent> text)
@@ -396,18 +435,40 @@ public abstract class AbstractTextElement extends Pane
         recalcTextRendering();
     }
 
+    public void setText(final ITextComponent text)
+    {
+        setText((IFormattableTextComponent) text);
+    }
+
     public void setText(final IFormattableTextComponent text)
     {
-        this.text = Collections.singletonList(text);
-        recalcTextRendering();
+        setText(Collections.singletonList(text));
+    }
+
+    /**
+     * Removes any text rendering the text element empty
+     */
+    public void clearText()
+    {
+        setText(Collections.emptyList());
     }
 
     /**
      * @return null if empty, otherwise first line as string
      */
-    public String getTextAsString()
+    @Nullable
+    public String getTextAsStringStrict()
     {
         return isTextEmpty() ? null : text.get(0).getString();
+    }
+
+    /**
+     * @return emptyString if empty, otherwise first line as string
+     */
+    @NotNull
+    public String getTextAsString()
+    {
+        return isTextEmpty() ? "" : text.get(0).getString();
     }
 
     @Deprecated

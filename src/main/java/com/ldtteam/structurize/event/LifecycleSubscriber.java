@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.blockout.Loader;
+import com.ldtteam.datagenerators.lang.LangJson;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.generation.*;
@@ -13,6 +15,7 @@ import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +40,7 @@ public class LifecycleSubscriber
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Network.getNetwork().registerCommonMessages();
+        ArgumentTypes.register(Constants.MOD_ID + ":multistring", MultipleStringArgument.class, new MultipleStringArgument.Serializer());
         StructureLoadingUtils.addOriginMod(Constants.MOD_ID);
     }
 
@@ -70,6 +74,8 @@ public class LifecycleSubscriber
                         Log.getLogger().debug("Clearing blueprint renderer cache.");
                         BlueprintHandler.getInstance().clearCache();
                     }
+                    Log.getLogger().debug("Clearing gui XML cache.");
+                    Loader.cleanParsedCache();
                 }
             });
         }
@@ -113,6 +119,5 @@ public class LifecycleSubscriber
 
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
-
     }
 }

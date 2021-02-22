@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-//Creates types for TimberFrame with different variants of wood and texture
+// Creates types for TimberFrame with different variants of wood and texture
 
 public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 {
@@ -64,7 +64,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     }
 
     /**
-     * Get the Type previous to the current (used by data generators for recipes)
+     * Get the type previous to the current (used by data generators for recipes)
      * @return the previous type.
      */
     public TimberFrameType getPrevious()

@@ -3,6 +3,7 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 
 import java.util.Arrays;
@@ -11,13 +12,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * A Button pane for conveniently cycling through different states on click
+ * with a shorthand to define different options quickly from the parameters.
+ */
 public class ToggleButton extends Button
 {
     private static final Pattern SHORT_TRANSLATION = Pattern.compile("(\\$[({]\\S+)\\.\\S+([})])\\|(\\$\\.[^$|\\s]+)");
 
     protected List<String> rawStates;
     protected List<IFormattableTextComponent> states;
-    protected IFormattableTextComponent defaultLabel;
     protected int active = 0;
 
     protected Button button;
@@ -26,10 +30,38 @@ public class ToggleButton extends Button
     {
         super(params);
         button = Button.construct(params);
-        defaultLabel = button.getText();
 
-        String options = params.getString("options", "");
+        setStateList(params.getString("options", ""));
+    }
 
+    /**
+     * Creates a new toggleable vanilla button
+     * @param options the available states as raw text strings
+     */
+    public ToggleButton(String... options)
+    {
+        button = new ButtonVanilla();
+        setStateList(String.join("|", options));
+    }
+
+    /**
+     * Creates a new custom image button
+     * @param image the image to set as the button's background
+     * @param options the available states as raw text strings
+     */
+    public ToggleButton(ResourceLocation image, String... options)
+    {
+        button = new ButtonImage();
+        ((ButtonImage) button).setImage(image);
+        setStateList(String.join("|", options));
+    }
+
+    /**
+     * Initializes the states and raw states from the given raw text
+     * @param options the available options, delimited with a pipe (|) $. will copy the previous translation option
+     */
+    protected void setStateList(String options)
+    {
         Matcher m = SHORT_TRANSLATION.matcher(options);
         while (m.find())
         {
@@ -44,8 +76,32 @@ public class ToggleButton extends Button
         {
             button.setText(states.get(active));
         }
+        else
+        {
+            button.clearText();
+        }
     }
 
+    /**
+     * @param raw true if the result should not be localized
+     * @return the list of states as strings
+     */
+    public List<String> getStateStrings(boolean raw)
+    {
+        return raw ? rawStates : states.stream().map(IFormattableTextComponent::getString).collect(Collectors.toList());
+    }
+
+    public List<IFormattableTextComponent> getStates()
+    {
+        return states;
+    }
+
+    /**
+     * Reports if the given state pattern is currently the active one
+     *
+     * @param state the state or raw state to check against
+     * @return true if the state is active
+     */
     public boolean isActiveState(String state)
     {
         return states.get(active).getString().equals(state)
@@ -55,7 +111,7 @@ public class ToggleButton extends Button
     }
 
     /**
-     * Attempts to set the active state displayed on the button via a
+     * Attempts to set the active state displayed on the button via a raw text string
      *
      * @param state the state to set, if it exists as an option
      * @return whether the active state was changed
@@ -80,8 +136,33 @@ public class ToggleButton extends Button
             button.setText(states.get(active));
             return true;
         }
+        else
+        {
+            button.clearText();
+            return false;
+        }
+    }
 
-        return false;
+    /**
+     * Change the underlying button pane
+     * @param button the new button pane to render
+     */
+    public void setButton(Button button)
+    {
+        this.button = button;
+        if (!states.isEmpty())
+        {
+            button.setText(states.get(active));
+        }
+        else
+        {
+            button.clearText();
+        }
+    }
+
+    public Button getButton()
+    {
+        return button;
     }
 
     @Override

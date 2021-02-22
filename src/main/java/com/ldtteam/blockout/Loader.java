@@ -136,6 +136,11 @@ public final class Loader
             parent.parseChildren(params);
             return parent;
         }
+        else if (parent instanceof View && params.getType().equals("window")) // layout
+        {
+            parent.parseChildren(params);
+            return parent;
+        }
         else
         {
             params.setParentView(parent);
@@ -274,5 +279,13 @@ public final class Loader
         }
 
         parsedCache.put(loc, new Tuple<>(1, doc));
+    }
+
+    /**
+     * Clear the cache of parsed window parameters
+     */
+    public static void cleanParsedCache()
+    {
+        parsedCache.clear();
     }
 }

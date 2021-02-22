@@ -76,7 +76,7 @@ public class View extends Pane
 
         for (final Pane child : children)
         {
-            if (childIsVisible(child) && child.isVisible())
+            if (childIsVisible(child))
             {
                 child.draw(ms, drawX, drawY);
             }
@@ -102,7 +102,7 @@ public class View extends Pane
 
         for (final Pane child : children)
         {
-            if (childIsVisible(child) && child.isVisible())
+            if (childIsVisible(child))
             {
                 child.drawLast(ms, drawX, drawY);
             }
@@ -205,7 +205,8 @@ public class View extends Pane
     @Override
     public void onUpdate()
     {
-        children.forEach(Pane::onUpdate);
+        // copy to prevent CME during scrolling list updates, ctor uses fast array copy so it's cheap
+        new ArrayList<>(children).forEach(Pane::onUpdate);
     }
 
     protected boolean childIsVisible(final Pane child)

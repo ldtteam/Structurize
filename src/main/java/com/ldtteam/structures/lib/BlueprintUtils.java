@@ -148,23 +148,8 @@ public final class BlueprintUtils
             compound.putUniqueId("UUID", UUID.randomUUID());
             final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
             if (type.isPresent())
-            {
-                if (blockAccess.isRemote && Structurize.getConfig().getClient().excludedEntities.get().stream().anyMatch(e -> type.get().equals(EntityType.byKey(e).orElse(null))))
-                {
-                    if (type.get().getRegistryName().getNamespace().equals("minecraft") && (type.get() != EntityType.WOLF || type.get() != EntityType.IRON_GOLEM))
-                    {
-                        Log.getLogger().error("Rather than using config, PLEASE REPORT an issue with minecraft entity to Structurize github issues. Thanks in advance");
-                    }
-                    return null;
-                }
-    
+            {    
                 final Entity entity = type.get().create(blockAccess);
-
-                /** 1.16 fix {@link IAngerable#readAngerNBT(ServerWorld, CompoundNBT)} */
-                if (entity instanceof IAngerable && blockAccess.isRemote)
-                {
-                    return null;
-                }
     
                 if (entity != null)
                 {

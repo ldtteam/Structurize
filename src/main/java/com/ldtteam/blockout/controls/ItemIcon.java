@@ -1,10 +1,12 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.Pane;
+import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +18,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ItemIcon extends Pane
 {
     private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
-    private static final double GUI_ITEM_Z_TRANSLATE  = 32.0d;
 
     /**
      * ItemStack represented in the itemIcon.
@@ -46,7 +47,7 @@ public class ItemIcon extends Pane
             final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName));
             if (item != null)
             {
-                itemStack = new ItemStack(item, 1);
+                setItem(item.getDefaultInstance());
             }
         }
     }
@@ -59,6 +60,10 @@ public class ItemIcon extends Pane
     public void setItem(final ItemStack itemStackIn)
     {
         this.itemStack = itemStackIn;
+        if (onHover instanceof Tooltip)
+        {
+            ((Tooltip) onHover).setTextOld(window.getScreen().getTooltipFromItem(itemStack));
+        }
     }
 
     /**
@@ -77,8 +82,9 @@ public class ItemIcon extends Pane
         if (itemStack != null && !itemStack.isEmpty())
         {
             ms.push();
-            ms.translate(x, y, GUI_ITEM_Z_TRANSLATE);
-            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
+            final float itemScale = this.getWidth() / DEFAULT_ITEMSTACK_SIZE;
+            ms.translate(x, y, 0.0f);
+            ms.scale(itemScale, itemScale, itemScale);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
@@ -88,8 +94,10 @@ public class ItemIcon extends Pane
 
             RenderSystem.pushMatrix();
             RenderSystem.multMatrix(ms.getLast().getMatrix());
+            RenderHelper.enableStandardItemLighting();
             mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             mc.getItemRenderer().renderItemOverlays(font, itemStack, 0, 0);
+            RenderHelper.disableStandardItemLighting();
             RenderSystem.popMatrix();
 
             ms.pop();
@@ -97,17 +105,11 @@ public class ItemIcon extends Pane
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void onUpdate()
     {
-        if (itemStack == null || itemStack.isEmpty() || !this.isPointInPane(mx, my))
+        if (onHover == null && itemStack != null && !itemStack.isEmpty())
         {
-            return;
+            PaneBuilders.tooltipBuilder().hoverPane(this).build().setTextOld(window.getScreen().getTooltipFromItem(itemStack));
         }
-
-        ms.push();
-        ms.translate(mx, my, GUI_ITEM_Z_TRANSLATE);
-        ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1f);
-        window.getScreen().renderTooltipHook(ms, itemStack, 0, 0);
-        ms.pop();
     }
 }
