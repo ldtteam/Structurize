@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -235,7 +236,8 @@ public final class LanguageHandler
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format((generatedDefault ? "../generated/resources/" : "") + path, defaultLocale));
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                  String.format((generatedDefault && !FMLEnvironment.production ? "../generated/resources/" : "") + path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
             {}.getType());
