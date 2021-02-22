@@ -87,27 +87,31 @@ public class ModBlockStateProvider extends BlockStateProvider
         return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
     }
 
-    public void stairsBlockUnlockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter) {
-        getVariantBuilder(block)
-          .forAllStatesExcept(state -> {
-              Direction facing = state.get(StairsBlock.FACING);
-              Half half = state.get(StairsBlock.HALF);
-              StairsShape shape = state.get(StairsBlock.SHAPE);
-              int yRot = (int) facing.rotateY().getHorizontalAngle(); // Stairs model is rotated 90 degrees clockwise for some reason
-              if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT) {
-                  yRot += 270; // Left facing stairs are rotated 90 degrees clockwise
-              }
-              if (shape != StairsShape.STRAIGHT && half == Half.TOP) {
-                  yRot += 90; // Top stairs are rotated 90 degrees clockwise
-              }
-              yRot %= 360;
-              return ConfiguredModel.builder()
-                       .modelFile(shape == StairsShape.STRAIGHT ? stairs : shape == StairsShape.INNER_LEFT || shape == StairsShape.INNER_RIGHT ? stairsInner : stairsOuter)
-                       .rotationX(half == Half.BOTTOM ? 0 : 180)
-                       .rotationY(yRot)
-                       .uvLock(false)
-                       .build();
-          }, StairsBlock.WATERLOGGED);
+    public void stairsBlockUnlockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter)
+    {
+        getVariantBuilder(block).forAllStatesExcept(state -> {
+            Direction facing = state.get(StairsBlock.FACING);
+            Half half = state.get(StairsBlock.HALF);
+            StairsShape shape = state.get(StairsBlock.SHAPE);
+            int yRot = (int) facing.rotateY().getHorizontalAngle(); // Stairs model is rotated 90 degrees clockwise for some reason
+
+            if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT)
+            {
+                yRot += 270; // Left facing stairs are rotated 90 degrees clockwise
+            }
+            if (shape != StairsShape.STRAIGHT && half == Half.TOP)
+            {
+                yRot += 90; // Top stairs are rotated 90 degrees clockwise
+            }
+            yRot %= 360;
+
+            return ConfiguredModel.builder()
+              .modelFile(shape == StairsShape.STRAIGHT ? stairs : shape == StairsShape.INNER_LEFT || shape == StairsShape.INNER_RIGHT ? stairsInner : stairsOuter)
+              .rotationX(half == Half.BOTTOM ? 0 : 180)
+              .rotationY(yRot)
+              .uvLock(false)
+              .build();
+        }, StairsBlock.WATERLOGGED);
     }
 
     public static ModBlockStateProvider getInstance()
