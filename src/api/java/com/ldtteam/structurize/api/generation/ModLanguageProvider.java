@@ -15,9 +15,8 @@ import java.util.function.Function;
 
 /**
  * A central provider and utilities for creating default language keys.
- * Makes all other language providers obsolete.
- * Must be initialised at the start of the lifecycle
- * to allow other providers to add keys.
+ * A singleton - makes all other language providers obsolete.
+ * Must be initialised before providing IGenerated sets
  */
 public class ModLanguageProvider extends LanguageProvider
 {
@@ -81,22 +80,22 @@ public class ModLanguageProvider extends LanguageProvider
         return String.join(" ", name);
     }
 
-    protected void add(RegistryObject<?> key)
+    public void add(RegistryObject<?> key)
     {
         add((IItemProvider) key.get());
     }
 
-    protected void add(IItemProvider key)
+    public void add(IItemProvider key)
     {
         add(key.asItem(), format(Objects.requireNonNull(key.asItem().getRegistryName()).getPath()));
     }
 
-    protected void add(ItemGroup key, String name)
+    public void add(ItemGroup key, String name)
     {
         add(key.getGroupName().getString(), name);
     }
 
-    protected void add(KeyPrefix prefix, String key, String name)
+    public void add(KeyPrefix prefix, String key, String name)
     {
         add(String.join(".", prefix.name().toLowerCase(), modId, key), name);
     }
@@ -109,7 +108,7 @@ public class ModLanguageProvider extends LanguageProvider
     @Override
     public String getName()
     {
-        return "Mass Language Writer";
+        return modId + " Language Writer";
     }
 
     public static ModLanguageProvider getInstance()

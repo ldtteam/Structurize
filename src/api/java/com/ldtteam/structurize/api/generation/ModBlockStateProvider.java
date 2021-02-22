@@ -17,6 +17,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A singleton manifestation of a data gen provider that can be used during the lifecycle
+ * instead of explicitly during the register functions.
+ *
+ * Has helper methods for some added automation.
+ *
+ * Use directly in the lifecycle before providing blocks, or extend once and use that.
+ */
 public class ModBlockStateProvider extends BlockStateProvider
 {
     private static ModBlockStateProvider                    instance;
@@ -49,6 +57,13 @@ public class ModBlockStateProvider extends BlockStateProvider
         super.act(cache);
     }
 
+    /**
+     * Finds an existing texture, searching using the model suffix for each block in turn
+     * @param directory the directory to search in
+     * @param model an suffix to find specific variants if possible
+     * @param blocks a list of blocks specifying the names of where to search, in order of preference
+     * @return the first texture it finds, or the last location possible from the provided blocks
+     */
     public ResourceLocation findTexture(String directory, String model, Block... blocks)
     {
         ResourceLocation name = new ResourceLocation("");
@@ -62,7 +77,7 @@ public class ModBlockStateProvider extends BlockStateProvider
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath() + "_" + model);
             }
-            if (models().existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
+            if (models().existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, (model.isEmpty() ? "" : "_" + model) + ".png", "textures/" + directory))
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
             }
@@ -72,7 +87,7 @@ public class ModBlockStateProvider extends BlockStateProvider
         return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
     }
 
-    public void stairsBlockLockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter) {
+    public void stairsBlockUnlockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter) {
         getVariantBuilder(block)
           .forAllStatesExcept(state -> {
               Direction facing = state.get(StairsBlock.FACING);

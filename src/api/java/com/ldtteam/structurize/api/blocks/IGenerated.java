@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
+import net.minecraft.block.Block;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 /**
@@ -9,6 +10,21 @@ import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
  */
 public interface IGenerated
 {
+    /**
+     * A convenience method to get the registry path for this block,
+     * and to stop a ton of unnecessary warnings
+     * @param block the block
+     * @return the registry key
+     */
+    default String getRegistryPath(Block block)
+    {
+        return block.getRegistryName() != null? block.getRegistryName().getPath() : "";
+    }
+
+    /**
+     * A default place to look for textures. Override to change directory
+     * @return the directory path relative to 'textures/' ending with a slash
+     */
     default String getTextureDirectory()
     {
         return "block/";
@@ -38,6 +54,11 @@ public interface IGenerated
         generateTranslations(ModLanguageProvider.getInstance());
     }
 
+    /**
+     * Convenience method to provide many generated sets at once
+     * @param event the life cycle event
+     * @param values the list of sets or blocks to generate
+     */
     static void provide(GatherDataEvent event, IGenerated[] values)
     {
         for (final IGenerated value : values)

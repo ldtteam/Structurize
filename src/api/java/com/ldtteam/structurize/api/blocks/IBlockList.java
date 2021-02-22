@@ -20,17 +20,15 @@ import java.util.stream.Collectors;
 public interface IBlockList<B extends Block> extends IGenerated
 {
     /**
-     * A convenience method to get the registry path for this block
-     * @param block the block
-     * @return the registry key
+     * Provides a list of blocks associated with the list for use in various methods
+     * @return the list as gettable registry object entries
      */
-    default String getRegistryPath(B block)
-    {
-        return block.getRegistryName() != null? block.getRegistryName().getPath() : "";
-    }
-
     List<RegistryObject<B>> getRegisteredBlocks();
 
+    /**
+     * A convenience method to fetch the blocks from their registry entries
+     * @return the raw list of blocks, freshly retrieved
+     */
     default List<B> getBlocks()
     {
         return getRegisteredBlocks().stream().map(RegistryObject::get).collect(Collectors.toList());
@@ -40,8 +38,8 @@ public interface IBlockList<B extends Block> extends IGenerated
     default void generateItemModels(ModItemModelProvider models)
     {
         getBlocks().forEach(
-          block -> models.getBuilder(block.getRegistryName().getPath())
-            .parent(new ModelFile.UncheckedModelFile(models.modLoc("block/" + block.getRegistryName().getPath())))
+          block -> models.getBuilder(getRegistryPath(block))
+            .parent(new ModelFile.UncheckedModelFile(models.modLoc("block/" + getRegistryPath(block))))
         );
     }
 

@@ -32,8 +32,8 @@ public enum BlockType
     PLANKS("planks", Block::new, BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
     FENCE("fence", FenceBlock::new, BlockTags.FENCES, ItemTags.FENCES, 3,  "#-#", "#-#"),
     FENCE_GATE("fence_gate", FenceGateBlock::new, BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
-    DOOR("door", DoorBlock::new, BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##"),
-    TRAPDOOR("trapdoor", TrapDoorBlock::new, BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###");
+    TRAPDOOR("trapdoor", TrapDoorBlock::new, BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###"),
+    DOOR("door", DoorBlock::new, BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##");
 
     public final  String                               suffix;
     public final Function<Properties, ? extends Block> constructor;
