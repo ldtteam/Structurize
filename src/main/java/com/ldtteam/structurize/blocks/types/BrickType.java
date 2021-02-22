@@ -6,8 +6,11 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.advancements.ICriterionInstance;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.ShapelessRecipeBuilder;
 import net.minecraft.item.Item;
@@ -62,6 +65,14 @@ public enum BrickType implements IBlockCollection
           .addIngredient(ingredient, 2)
           .addCriterion("has_" + getName(), obtainment)
           .build(consumer);
+    }
+
+    @Override
+    public AbstractBlock.Properties getProperties()
+    {
+        return AbstractBlock.Properties.create(Material.ROCK, MaterialColor.RED)
+                 .setRequiresTool()
+                 .hardnessAndResistance(2.0F, 6.0F);
     }
 
     @Override
