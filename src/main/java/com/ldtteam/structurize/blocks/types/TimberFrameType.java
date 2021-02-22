@@ -103,12 +103,21 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
           block -> states.directionalBlock(
             block.get(),
             states.models()
-              .getBuilder(block.get().getRegistryName().getPath())
+              .getBuilder("block/timber_frames/" + block.get().getRegistryName().getPath())
               .parent(new ModelFile.UncheckedModelFile(states.modLoc("block/timber_frames/" + this.getName())))
                 .texture("frame", block.get().getFrameType() == WoodType.CACTUS ? "blocks/cactus/blockcactusplank" : "minecraft:block/" + block.get().getFrameType().getMaterial().getRegistryName().getPath())
                 .texture("centre", block.get().getCentreType().textureLocation)
                 .texture("particle", block.get().getCentreType().textureLocation)
           ));
+    }
+
+    @Override
+    public void generateItemModels(final ModItemModelProvider models)
+    {
+        getBlocks().forEach(
+          block -> models.getBuilder(getRegistryPath(block))
+                     .parent(new ModelFile.UncheckedModelFile(models.modLoc("block/timber_frames/" + getRegistryPath(block))))
+        );
     }
 
     @Override
