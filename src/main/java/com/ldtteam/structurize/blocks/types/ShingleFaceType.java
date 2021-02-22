@@ -34,7 +34,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     CLAY("clay", "Clay", Items.BRICK, DyeColor.values()),
     SLATE("slate", "Slate", Blocks.COBBLESTONE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.PURPLE),
     MOSS_SLATE("moss_slate", "Moss Slate", Blocks.MOSSY_COBBLESTONE),
-    THATCHED("thatched", "Thatched", Items.WHEAT);
+    THATCHED("thatched", "Thatched", Items.WHEAT),
     BLACKSTONE("blackstone", "Blackstone", Blocks.BLACKSTONE),
     GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
