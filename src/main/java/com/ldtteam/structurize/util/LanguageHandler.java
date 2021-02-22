@@ -199,7 +199,12 @@ public final class LanguageHandler
 
     public static void loadLangPath(final String path)
     {
-        LanguageCache.getInstance().load(path);
+        LanguageCache.getInstance().load(path, false);
+    }
+
+    public static void loadLangPath(final String path, final boolean generatedDefault)
+    {
+        LanguageCache.getInstance().load(path, generatedDefault);
     }
 
     private static class LanguageCache
@@ -211,10 +216,10 @@ public final class LanguageHandler
         private LanguageCache()
         {
             final String fileLoc = "assets/structurize/lang/%s.json";
-            load(fileLoc);
+            load(fileLoc, true);
         }
 
-        private void load(final String path)
+        private void load(final String path, final boolean generatedDefault)
         {
             final String defaultLocale = "en_us";
 
@@ -230,7 +235,7 @@ public final class LanguageHandler
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format("../generated/resources/" + path, defaultLocale));
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format((generatedDefault ? "../generated/resources/" : "") + path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
             {}.getType());
