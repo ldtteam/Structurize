@@ -13,6 +13,7 @@ import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -39,8 +40,9 @@ public enum BlockType
     public final Function<Properties, ? extends Block> constructor;
     public final List<ITag.INamedTag<Block>>           blockTag;
     public final List<ITag.INamedTag<Item>>            itemTag;
-    private final int                                  recipeYield;
-    private final String[]                             patterns;
+
+    private final int          recipeYield;
+    private final List<String> craftingPatterns;
 
     BlockType(
       String suffix,
@@ -48,14 +50,14 @@ public enum BlockType
       final List<ITag.INamedTag<Block>> blockTag,
       final List<ITag.INamedTag<Item>> itemTag,
       int yield,
-      String... patterns)
+      String... craftingPatterns)
     {
         this.suffix = suffix;
         this.constructor = constructor;
         this.blockTag = blockTag;
         this.itemTag = itemTag;
         this.recipeYield = yield;
-        this.patterns = patterns.length < 4 ? patterns : new String[0];
+        this.craftingPatterns = Arrays.asList(craftingPatterns.length < 4 ? craftingPatterns : new String[0]);
     }
 
     BlockType(
@@ -64,9 +66,9 @@ public enum BlockType
       final ITag.INamedTag<Block> blockTag,
       final ITag.INamedTag<Item> itemTag,
       int yield,
-      String... patterns)
+      String... craftingPatterns)
     {
-        this(suffix, constructor, Lists.newArrayList(blockTag), Lists.newArrayList(itemTag), yield, patterns);
+        this(suffix, constructor, Lists.newArrayList(blockTag), Lists.newArrayList(itemTag), yield, craftingPatterns);
     }
 
     public String withSuffix(String name, String pluralName)
@@ -94,7 +96,7 @@ public enum BlockType
     {
         ShapedRecipeBuilder builder = new ShapedRecipeBuilder(result, recipeYield);
 
-        for (String line : patterns)
+        for (String line : craftingPatterns)
         {
             builder.patternLine(line);
         }
