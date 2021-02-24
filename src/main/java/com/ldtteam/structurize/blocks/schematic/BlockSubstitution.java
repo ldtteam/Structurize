@@ -3,11 +3,11 @@ package com.ldtteam.structurize.blocks.schematic;
 import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IBlockAccess;
 
 /**
  * This block is used as a substitution block for the Builder. Every solid block can be substituted by this block in schematics. This helps make schematics independent from
@@ -41,8 +41,8 @@ public class BlockSubstitution extends AbstractBlockStructurize<BlockSubstitutio
     }
 
     @Override
-    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
-        return VoxelShapes.create(.125D, .125D, .125D, .875D, .875D, .875D);
+        return BlockFaceShape.UNDEFINED;
     }
 }
