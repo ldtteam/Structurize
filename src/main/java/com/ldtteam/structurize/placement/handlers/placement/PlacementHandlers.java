@@ -21,6 +21,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -301,7 +302,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK;
+            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.getBlock().isIn(Tags.Blocks.DIRT) && world.getBiome(pos).biomeGenerationSettings.getSurfaceBuilderConfig().getTop().getBlock() == blockState.getBlock());
         }
 
         @Override
@@ -313,7 +314,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, Blocks.GRASS_BLOCK.getDefaultState(), UPDATE_FLAG))
+            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
