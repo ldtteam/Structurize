@@ -43,11 +43,6 @@ public final class Constants
     public static final int MAX_AMOUNT_OF_PIECES = 20;
 
     /**
-     * Max schematic size to create.
-     */
-    public static final int MAX_SCHEMATIC_SIZE = 100_000;
-
-    /**
      * Rotation by 90°.
      */
     public static final double NINETY_DEGREES = 90D;
