@@ -138,13 +138,18 @@ public class StructurePlacer
             }
             count++;
 
-            if (operation != Operation.GET_RES_REQUIREMENTS && (result.getResult() == BlockPlacementResult.Result.MISSING_ITEMS || result.getResult() == BlockPlacementResult.Result.FAIL || result.getResult() == BlockPlacementResult.Result.BREAK_BLOCK || count >= handler.getStepsPerCall()))
+            if (operation != Operation.GET_RES_REQUIREMENTS && (result.getResult() == BlockPlacementResult.Result.MISSING_ITEMS || result.getResult() == BlockPlacementResult.Result.FAIL || result.getResult() == BlockPlacementResult.Result.BREAK_BLOCK))
             {
                 return new StructurePhasePlacementResult(lastPos, result);
             }
 
             lastPos = localPos;
             iterationResult = iterateFunction.get();
+
+            if (count >= handler.getStepsPerCall())
+            {
+                return new StructurePhasePlacementResult(lastPos, result);
+            }
         }
 
         if (iterationResult == BlueprintIterator.Result.AT_END)
