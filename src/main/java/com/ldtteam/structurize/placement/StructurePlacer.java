@@ -146,7 +146,7 @@ public class StructurePlacer
             lastPos = localPos;
             iterationResult = iterateFunction.get();
 
-            if (count >= handler.getStepsPerCall())
+            if (operation != Operation.GET_RES_REQUIREMENTS && count >= handler.getStepsPerCall())
             {
                 return new StructurePhasePlacementResult(lastPos, result);
             }
