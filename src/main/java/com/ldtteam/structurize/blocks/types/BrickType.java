@@ -24,7 +24,11 @@ public enum BrickType implements IBlockCollection
 {
     BROWN("brown", Items.TERRACOTTA),
     BEIGE("beige", Items.GRAVEL),
-    CREAM("cream", Items.SANDSTONE);
+    CREAM("cream", Items.SANDSTONE),
+
+    BROWN_STONE("brown_stone", Items.TERRACOTTA),
+    BEIGE_STONE("beige_stone", Items.GRAVEL),
+    CREAM_STONE("cream_stone", Items.SANDSTONE),;
 
     private static final String SUFFIX = "_brick";
     private final List<RegistryObject<Block>> blocks;
