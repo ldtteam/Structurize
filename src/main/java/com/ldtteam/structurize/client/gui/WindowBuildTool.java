@@ -22,12 +22,9 @@ import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -472,18 +469,14 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         if (Settings.instance.getActiveStructure() != null)
         {
-            final ByteBuf buffer = Unpooled.buffer();
-            final PacketBuffer packetBuffer = new PacketBuffer(buffer);
-
             Settings.instance.setSchematicInfo(schematics.get(schematicsDropDownList.getSelectedIndex()), rotation);
-            Settings.instance.toBytes(packetBuffer);
 
             if (!Settings.instance.hasReceivedInfo())
             {
                 Settings.instance.setReceivedInfo();
                 LanguageHandler.sendPlayerMessage(Minecraft.getInstance().player, "com.structurize.gui.buildtool.leave.tip");
             }
-            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
+            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(Settings.instance.serializeNBT(), true));
         }
     }
 
@@ -1128,7 +1121,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public void cancelClicked()
     {
         Settings.instance.softReset();
-        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
+        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(null, false));
         close();
     }
 

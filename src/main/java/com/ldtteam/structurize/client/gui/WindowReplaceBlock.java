@@ -195,9 +195,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
                     }
                     Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }
-                else
+                else if (origin instanceof WindowShapeTool)
                 {
-                    new WindowShapeTool(pos1, to, mainBlock).open();
+                    ((WindowShapeTool) origin).updateBlock(to, mainBlock);
                 }
                 origin.open();
             }

@@ -3,15 +3,17 @@ package com.ldtteam.structures.helpers;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
-import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.INBTSerializable;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -19,7 +21,7 @@ import java.util.Optional;
 /**
  * Class used to store.
  */
-public final class Settings
+public final class Settings implements INBTSerializable<CompoundNBT>
 {
     /**
      * Single instance of this class.
@@ -515,63 +517,60 @@ public final class Settings
         this.hollow = hollow;
     }
 
-    /**
-     * Serializable from {@link LSStructureDisplayerMessage}
-     * @param buf the packet buffer to read it from.
-     */
-    public void fromBytes(final PacketBuffer buf)
+    @Override
+    public void deserializeNBT(final CompoundNBT nbt)
     {
-        isMirrored = buf.readBoolean();
-        staticSchematicMode = buf.readBoolean();
-        hollow = buf.readBoolean();
+        isMirrored = nbt.getBoolean("mirror");
+        staticSchematicMode = nbt.getBoolean("static");
+        hollow = nbt.getBoolean("hollow");
 
-        rotation = buf.readInt();
-        width = buf.readInt();
-        height = buf.readInt();
-        length = buf.readInt();
-        frequency = buf.readInt();
+        rotation = nbt.getInt("rot");
+        width = nbt.getInt("w");
+        height = nbt.getInt("h");
+        length = nbt.getInt("len");
+        frequency = nbt.getInt("freq");
 
         // enums
 
-        if (buf.readBoolean())
+        if (nbt.contains("shape"))
         {
-            shape = Shape.values()[buf.readInt()];
+            shape = Shape.values()[nbt.getInt("shape")];
         }
         else
         {
             shape = Shape.CUBE;
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("pos"))
         {
-            pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+            pos = NBTUtil.readBlockPos(nbt.getCompound("pos"));
         }
         else
         {
             pos = null;
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("box"))
         {
-            box = new Tuple<>(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()));
+            box = new Tuple<>(NBTUtil.readBlockPos(nbt.getCompound("box")), NBTUtil.readBlockPos(nbt.getCompound("box2")));
         }
         else
         {
             box = null;
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("struct_name"))
         {
-            structureName = buf.readString(32767);
+            structureName = nbt.getString("struct_name");
         }
         else
         {
             structureName = null;
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("static_name"))
         {
-            staticSchematicName = buf.readString(32767);
+            staticSchematicName = nbt.getString("static_name");
         }
         else
         {
@@ -580,100 +579,87 @@ public final class Settings
 
         // itemstack
 
-        if (buf.readBoolean())
+        if (nbt.contains("stack"))
         {
-            stack = new Tuple<>(buf.readItemStack(), buf.readItemStack());
+            stack = new Tuple<>(ItemStack.read(nbt.getCompound("stack")), ItemStack.read(nbt.getCompound("stack2")));
         }
         else
         {
             stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("equa"))
         {
-            equation = buf.readString(32767);
+            equation = nbt.getString("equa");
         }
 
-        if (buf.readBoolean())
+        if (nbt.contains("anch_pos"))
         {
-            anchorPos = Optional.of(buf.readBlockPos());
+            anchorPos = Optional.of(NBTUtil.readBlockPos(nbt.getCompound("anch_pos")));
         }
     }
 
-    /**
-     * Serializable from {@link LSStructureDisplayerMessage}
-     * @param buf the packet buffer to write it in.
-     */
-    public void toBytes(final PacketBuffer buf)
+    @Override
+    public CompoundNBT serializeNBT()
     {
-        buf.writeBoolean(isMirrored);
-        buf.writeBoolean(staticSchematicMode);
-        buf.writeBoolean(hollow);
+        final CompoundNBT nbt = new CompoundNBT();
 
-        buf.writeInt(rotation);
-        buf.writeInt(width);
-        buf.writeInt(height);
-        buf.writeInt(length);
-        buf.writeInt(frequency);
+        nbt.putBoolean("mirror", isMirrored);
+        nbt.putBoolean("static", staticSchematicMode);
+        nbt.putBoolean("hollow", hollow);
+
+        nbt.putInt("rot", rotation);
+        nbt.putInt("w", width);
+        nbt.putInt("h", height);
+        nbt.putInt("len", length);
+        nbt.putInt("freq", frequency);
 
         // enums
 
-        buf.writeBoolean(shape != null);
         if (shape != null)
         {
-            buf.writeInt(shape.ordinal());
+            nbt.putInt("shape", shape.ordinal());
         }
 
-        buf.writeBoolean(pos != null);
         if (pos != null)
         {
-            buf.writeInt(pos.getX());
-            buf.writeInt(pos.getY());
-            buf.writeInt(pos.getZ());
+            nbt.put("pos", NBTUtil.writeBlockPos(pos));
         }
 
-        buf.writeBoolean(box != null);
         if (box != null)
         {
-            buf.writeInt(box.getA().getX());
-            buf.writeInt(box.getA().getY());
-            buf.writeInt(box.getA().getZ());
-            buf.writeInt(box.getB().getX());
-            buf.writeInt(box.getB().getY());
-            buf.writeInt(box.getB().getZ());
+            nbt.put("box", NBTUtil.writeBlockPos(box.getA()));
+            nbt.put("box2", NBTUtil.writeBlockPos(box.getB()));
         }
 
         // strings
 
-        buf.writeBoolean(structureName != null);
         if (structureName != null)
         {
-            buf.writeString(structureName);
+            nbt.putString("struct_name", structureName);
         }
 
-        buf.writeBoolean(staticSchematicName != null);
         if (staticSchematicName != null)
         {
-            buf.writeString(staticSchematicName);
+            nbt.putString("static_name", staticSchematicName);
         }
 
         // itemstacks
 
-        buf.writeBoolean(stack != null);
         if (stack != null)
         {
-            buf.writeItemStack(stack.getA());
-            buf.writeItemStack(stack.getB());
+            nbt.put("stack", stack.getA().serializeNBT());
+            nbt.put("stack2", stack.getB().serializeNBT());
         }
 
-        buf.writeBoolean(!equation.isEmpty());
         if (!equation.isEmpty())
         {
-            buf.writeString(equation);
+            nbt.putString("equa", equation);
         }
 
-        buf.writeBoolean(anchorPos.isPresent());
-        anchorPos.ifPresent(buf::writeBlockPos);
+        anchorPos.ifPresent(anch_pos -> nbt.put("anch_pos", NBTUtil.writeBlockPos(anch_pos)));
+
+        return nbt;
     }
 
     /**

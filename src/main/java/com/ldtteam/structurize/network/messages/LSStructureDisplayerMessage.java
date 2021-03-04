@@ -9,6 +9,7 @@ import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -23,7 +24,7 @@ import java.util.UUID;
  */
 public class LSStructureDisplayerMessage implements IMessage
 {
-    private final PacketBuffer settings;
+    private final CompoundNBT settings;
     private final boolean show;
 
     /**
@@ -32,27 +33,18 @@ public class LSStructureDisplayerMessage implements IMessage
     public LSStructureDisplayerMessage(final PacketBuffer buf)
     {
         this.show = buf.readBoolean();
-        if (show)
-        {
-            final byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            this.settings = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
-        }
-        else
-        {
-            this.settings = null;
-        }
+        this.settings = show ? buf.readCompoundTag() : null;
     }
 
     /**
      * Message for sharing structure Settings between players in one session
      * 
-     * @param settings structure settings
+     * @param compoundNBT structure settings
      * @param show if true create or update, if false destroy
      */
-    public LSStructureDisplayerMessage(@NotNull final PacketBuffer settings, @NotNull final boolean show)
+    public LSStructureDisplayerMessage(@NotNull final CompoundNBT compoundNBT, @NotNull final boolean show)
     {
-        this.settings = settings;
+        this.settings = compoundNBT;
         this.show = show;
     }
 
@@ -62,7 +54,7 @@ public class LSStructureDisplayerMessage implements IMessage
         buf.writeBoolean(show);
         if (show)
         {
-            buf.writeBytes(settings);
+            buf.writeCompoundTag(settings);
         }
     }
 
@@ -86,10 +78,10 @@ public class LSStructureDisplayerMessage implements IMessage
 
             final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
             targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
-            for(final UUID target : targets)
+            for (final UUID target : targets)
             {
                 final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayerByUUID(target);
-                if(playerEntity != null)
+                if (playerEntity != null)
                 {
                     Network.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);
                 }
@@ -99,7 +91,7 @@ public class LSStructureDisplayerMessage implements IMessage
         {
             if (show)
             {
-                Settings.instance.fromBytes(settings);
+                Settings.instance.deserializeNBT(settings);
                 // TODO: better solution would be great
                 if (Settings.instance.getStructureName() == null && Settings.instance.getStaticSchematicName() == null)
                 {
