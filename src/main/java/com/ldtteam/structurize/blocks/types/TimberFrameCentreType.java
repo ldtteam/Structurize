@@ -1,12 +1,11 @@
 package com.ldtteam.structurize.blocks.types;
 
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.api.generation.ModLanguageProvider;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.util.IItemProvider;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +46,10 @@ public enum TimberFrameCentreType implements IStringSerializable
     CREAM_BRICK(BrickType.CREAM.getMainRegisteredBlock(), "Cream Brick", "structurize:blocks/bricks/cream_bricks"),
     BEIGE_BRICK(BrickType.BEIGE.getMainRegisteredBlock(), "Beige Brick", "structurize:blocks/bricks/beige_bricks"),
     BROWN_BRICK(BrickType.BROWN.getMainRegisteredBlock(), "Brown Brick", "structurize:blocks/bricks/brown_bricks"),
+
+    CREAM_STONE_BRICK(BrickType.CREAM_STONE.getMainRegisteredBlock(), "Cream Stone Brick", "structurize:blocks/bricks/cream_stone_bricks"),
+    BEIGE_STONE_BRICK(BrickType.BEIGE_STONE.getMainRegisteredBlock(), "Beige Stone Brick", "structurize:blocks/bricks/beige_stone_bricks"),
+    BROWN_STONE_BRICK(BrickType.BROWN_STONE.getMainRegisteredBlock(), "Brown Stone Brick", "structurize:blocks/bricks/brown_stone_bricks"),
     // Other
     PAPER(Items.PAPER, "Paper", "structurize:blocks/timber_frame_paper"),
     COBBLESTONE(Blocks.COBBLESTONE),
