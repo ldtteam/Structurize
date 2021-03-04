@@ -7,7 +7,9 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -285,7 +287,7 @@ public final class StructureLoadingUtils
                 }
             }
         }
-        else if (Structures.SCHEMATICS_SCAN.equals(sn.getPrefix()))
+        else if (Structures.SCHEMATICS_SCAN.equals(sn.getPrefix()) && FMLEnvironment.dist == Dist.CLIENT)
         {
             for (final File cachedFile : StructureLoadingUtils.getClientSchematicsFolders())
             {
