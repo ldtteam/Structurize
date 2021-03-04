@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,11 +108,6 @@ public final class LanguageHandler
             }
         }
 
-        if (translation == null)
-        {
-            translation = new TranslationTextComponent(key);
-        }
-
         return translation;
     }
 
@@ -200,27 +194,21 @@ public final class LanguageHandler
 
     public static void loadLangPath(final String path)
     {
-        LanguageCache.getInstance().load(path, false);
-    }
-
-    public static void loadLangPath(final String path, final boolean generatedDefault)
-    {
-        LanguageCache.getInstance().load(path, generatedDefault);
+        LanguageCache.getInstance().load(path);
     }
 
     private static class LanguageCache
     {
-        private static LanguageCache instance = new LanguageCache();
+        private static final LanguageCache instance = new LanguageCache();
         private boolean isMCloaded = false;
         private Map<String, String> languageMap;
 
         private LanguageCache()
         {
-            final String fileLoc = "assets/structurize/lang/%s.json";
-            load(fileLoc, true);
+            load("assets/structurize/lang/%s.json");
         }
 
-        private void load(final String path, final boolean generatedDefault)
+        private void load(final String path)
         {
             final String defaultLocale = "en_us";
 
@@ -236,8 +224,7 @@ public final class LanguageHandler
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, locale));
             if (is == null)
             {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                  String.format((generatedDefault && !FMLEnvironment.production ? "../generated/resources/" : "") + path, defaultLocale));
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(path, defaultLocale));
             }
             languageMap = new Gson().fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), new TypeToken<Map<String, String>>()
             {}.getType());

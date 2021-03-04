@@ -9,7 +9,6 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
-import com.ldtteam.structurize.generation.StructurizeTranslations;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -23,11 +22,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
-import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.resource.VanillaResourceType;
-
-import java.util.function.Predicate;
 
 public class LifecycleSubscriber
 {
@@ -62,21 +58,15 @@ public class LifecycleSubscriber
         final IResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
         if (rm instanceof IReloadableResourceManager)
         {
-            ((IReloadableResourceManager) rm).addReloadListener(new ISelectiveResourceReloadListener()
-            {
-                @Override
-                public void onResourceManagerReload(final IResourceManager resourceManager,
-                    final Predicate<IResourceType> resourcePredicate)
+            ((IReloadableResourceManager) rm).addReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
+                if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
+                      || resourcePredicate.test(VanillaResourceType.SHADERS))
                 {
-                    if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
-                        || resourcePredicate.test(VanillaResourceType.SHADERS))
-                    {
-                        Log.getLogger().debug("Clearing blueprint renderer cache.");
-                        BlueprintHandler.getInstance().clearCache();
-                    }
-                    Log.getLogger().debug("Clearing gui XML cache.");
-                    Loader.cleanParsedCache();
+                    Log.getLogger().debug("Clearing blueprint renderer cache.");
+                    BlueprintHandler.getInstance().clearCache();
                 }
+                Log.getLogger().debug("Clearing gui XML cache.");
+                Loader.cleanParsedCache();
             });
         }
     }
@@ -101,7 +91,7 @@ public class LifecycleSubscriber
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
         // Initialise All Singletons
-        event.getGenerator().addProvider(new StructurizeTranslations(event.getGenerator(), Constants.MOD_ID, "en_us"));
+        event.getGenerator().addProvider(new ModLanguageProvider(event.getGenerator(), Constants.MOD_ID, "default"));
         event.getGenerator().addProvider(new ModRecipeProvider(event.getGenerator()));
         ModBlockTagsProvider mbt = new ModBlockTagsProvider(event.getGenerator(), Constants.MOD_ID, event.getExistingFileHelper());
         event.getGenerator().addProvider(mbt);
