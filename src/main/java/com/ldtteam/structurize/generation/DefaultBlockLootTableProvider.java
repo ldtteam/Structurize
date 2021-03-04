@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.generation;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ldtteam.datagenerators.loot_table.LootTableJson;
 import com.ldtteam.datagenerators.loot_table.LootTableTypeEnum;
 import com.ldtteam.datagenerators.loot_table.pool.PoolJson;
@@ -9,6 +11,7 @@ import com.ldtteam.datagenerators.loot_table.pool.entry.EntryTypeEnum;
 import com.ldtteam.structurize.api.blocks.BlockType;
 import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.api.blocks.IBlockList;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
@@ -28,6 +31,10 @@ import java.util.List;
  */
 public class DefaultBlockLootTableProvider implements IDataProvider
 {
+    private static final String DATAPACK_DIR = "data/" + Constants.MOD_ID + "/";
+    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final String LOOT_TABLES_DIR = DATAPACK_DIR + "loot_tables/blocks";
+
     private final DataGenerator generator;
 
     public DefaultBlockLootTableProvider(final DataGenerator generator)
@@ -118,8 +125,8 @@ public class DefaultBlockLootTableProvider implements IDataProvider
             lootTableJson.setType(LootTableTypeEnum.BLOCK);
             lootTableJson.setPools(Collections.singletonList(poolJson));
 
-            final Path savePath = generator.getOutputFolder().resolve(DataGeneratorConstants.LOOT_TABLES_DIR).resolve(block.get().getRegistryName().getPath() + ".json");
-            IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(lootTableJson), savePath);
+            final Path savePath = generator.getOutputFolder().resolve(LOOT_TABLES_DIR).resolve(block.get().getRegistryName().getPath() + ".json");
+            IDataProvider.save(GSON, cache, lootTableJson.serialize(), savePath);
         }
     }
 
