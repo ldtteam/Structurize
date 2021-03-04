@@ -194,21 +194,24 @@ public class TickedWorldOperation
                         // not solid
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
                           () -> placer.getIterator().increment((info, pos, handler) -> info.getBlockInfo().getState().getMaterial().isSolid()), false);
-
                         currentPos = result.getIteratorPos();
                         break;
                     default:
                         // entities
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
                           () -> placer.getIterator().increment((info, pos, handler) -> info.getEntities().length == 0), true);
-                        structurePhase = -1;
-                        currentPos = null;
+                        currentPos = result.getIteratorPos();
                         break;
                 }
 
                 if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
                 {
                     structurePhase++;
+                    if (structurePhase > 3)
+                    {
+                        structurePhase = 0;
+                        currentPos = null;
+                    }
                 }
 
                 return currentPos == null;

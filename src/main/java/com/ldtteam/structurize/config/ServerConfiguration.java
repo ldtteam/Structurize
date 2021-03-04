@@ -39,6 +39,11 @@ public class ServerConfiguration extends AbstractConfiguration
     public final ForgeConfigSpec.IntValue maxBlocksChecked;
 
     /**
+     * Max amount of blocks checked by a possible worker.
+     */
+    public final ForgeConfigSpec.IntValue schematicBlockLimit;
+
+    /**
      * Builds server configuration.
      *
      * @param builder config builder
@@ -53,6 +58,7 @@ public class ServerConfiguration extends AbstractConfiguration
         maxCachedChanges = defineInteger(builder, "maxCachedChanges", 10, 0, 100);
         maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
+        schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
 
         finishCategory(builder);
     }

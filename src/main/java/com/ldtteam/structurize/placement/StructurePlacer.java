@@ -145,6 +145,11 @@ public class StructurePlacer
 
             lastPos = localPos;
             iterationResult = iterateFunction.get();
+
+            if (operation != Operation.GET_RES_REQUIREMENTS && count >= handler.getStepsPerCall())
+            {
+                return new StructurePhasePlacementResult(lastPos, result);
+            }
         }
 
         if (iterationResult == BlueprintIterator.Result.AT_END)
