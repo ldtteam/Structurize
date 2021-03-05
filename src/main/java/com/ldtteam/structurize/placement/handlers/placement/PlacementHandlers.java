@@ -47,13 +47,13 @@ public final class PlacementHandlers
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new WaterPlacementHandler());
         handlers.add(new FirePlacementHandler());
+        handlers.add(new BlockGrassPathPlacementHandler());
         handlers.add(new GrassPlacementHandler());
         handlers.add(new DoorPlacementHandler());
         handlers.add(new BedPlacementHandler());
         handlers.add(new DoublePlantPlacementHandler());
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
-        handlers.add(new BlockGrassPathPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
         handlers.add(new ChestPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
