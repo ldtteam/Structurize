@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -23,7 +24,7 @@ public final class BackUpHelper
 {
     private static final String FILENAME_EXT_OLD = ".old";
     private static final String FILENAME_EXT_DAT = ".dat";
-    private static final String FILENAME_STRUCTURIZE_PATH = "structurize";
+    private static final String FILENAME_STRUCTURIZE_PATH = Constants.MOD_ID;
     private static final String FILENAME_LINKSESSION = "_linksession";
     // ISO_LOCAL_DATE_TIME with dots
     private static final DateTimeFormatter BACKUP_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss");
@@ -46,7 +47,7 @@ public final class BackUpHelper
         @NotNull final CompoundNBT data = LinkSessionManager.INSTANCE.serializeNBT();
         @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
 
-        cycleNewBackup(FILENAME_LINKSESSION, 2);  // TODO: make configurable
+        cycleNewBackup(FILENAME_LINKSESSION, 2); // TODO: make configurable
         saveNBTToPath(file, data);
     }
 
@@ -58,7 +59,7 @@ public final class BackUpHelper
         @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
         @NotNull final CompoundNBT data = loadNBTFromPath(file);
 
-        if(data != null)
+        if (data != null)
         {
             LinkSessionManager.INSTANCE.deserializeNBT(data);
         }
@@ -67,14 +68,14 @@ public final class BackUpHelper
     /**
      * Convert existing file and cycle backup files up to N files
      * 
-     * @param additionalPath additional path in the file name
+     * @param additionalPath  additional path in the file name
      * @param cycleUpToNFiles how many backup files should be present at max
      */
     private static void cycleNewBackup(@NotNull final String additionalPath, @NotNull final int cycleUpToNFiles)
     {
         @NotNull final File current = getSaveLocation(additionalPath);
         @NotNull final File newBackup = getBackupSaveLocation(additionalPath, LocalDateTime.now());
-        if(!current.exists() || getSaveDir().list() == null)
+        if (!current.exists() || getSaveDir().list() == null)
         {
             return;
         }
@@ -82,7 +83,7 @@ public final class BackUpHelper
         @NotNull final Supplier<Stream<String>> allBackups = () -> Stream.of(getSaveDir().list())
             .filter(fileName -> fileName.contains(FILENAME_EXT_OLD) && fileName.contains(FILENAME_STRUCTURIZE_PATH + additionalPath));
 
-        if(allBackups.get().count() > cycleUpToNFiles)
+        if (allBackups.get().count() > cycleUpToNFiles)
         {
             final AtomicInteger toRemove = new AtomicInteger((int) allBackups.get().count() - cycleUpToNFiles);
             allBackups.get()
@@ -126,15 +127,16 @@ public final class BackUpHelper
     @NotNull
     private static File getBackupSaveLocation(@NotNull final String additionalPath, @NotNull final LocalDateTime date)
     {
-        return new File(getSaveDir(), 
-            String.format(FILENAME_STRUCTURIZE_PATH + additionalPath + "-%s" + FILENAME_EXT_DAT + FILENAME_EXT_OLD, BACKUP_TIMESTAMP.format(date)));
+        return new File(getSaveDir(),
+            String.format(FILENAME_STRUCTURIZE_PATH + additionalPath + "-%s" + FILENAME_EXT_DAT + FILENAME_EXT_OLD,
+                BACKUP_TIMESTAMP.format(date)));
     }
 
     /**
      * Parser for a date time from file name
      * 
      * @param additionalPath additional path in the file name
-     * @param fileName to parse from
+     * @param fileName       to parse from
      * @return LocalDateTime: interpretation of date time in the file name
      * @throws java.time.format.DateTimeParseException if the text cannot be parsed
      */
@@ -147,7 +149,7 @@ public final class BackUpHelper
     }
 
     /**
-     * Save an CompoundNBT to a file.  Does so in a safe manner using an
+     * Save an CompoundNBT to a file. Does so in a safe manner using an
      * intermediate tmp file.
      *
      * @param file     The destination file to write the data to.

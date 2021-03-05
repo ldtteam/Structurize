@@ -6,6 +6,8 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
+import com.ldtteam.structurize.util.BackUpHelper;
+
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -13,6 +15,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,6 +49,13 @@ public class EventSubscriber
     public static void onServerStarted(final FMLServerStartedEvent event)
     {
         Structures.init();
+        BackUpHelper.loadLinkSessionManager();
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(final FMLServerStoppingEvent event)
+    {
+        BackUpHelper.saveLinkSessionManager();
     }
 
     /**

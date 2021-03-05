@@ -4,6 +4,8 @@ import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector4f;
@@ -275,6 +277,7 @@ public abstract class AbstractTextElement extends Pane
             ms.scale(newScaleX / oldScaleX, newScaleY / oldScaleY, 1.0f);
         }
 
+        final IRenderTypeBuffer.Impl drawBuffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
         int lineShift = 0;
         for (final IReorderingProcessor row : preparedText)
         {
@@ -293,9 +296,10 @@ public abstract class AbstractTextElement extends Pane
                 xOffset = 0;
             }
 
-            mc.fontRenderer.func_238415_a_(row, xOffset, lineShift, color, matrix4f, textShadow);
+            mc.fontRenderer.func_238416_a_(row, xOffset, lineShift, color, textShadow, matrix4f, drawBuffer, false, 0, 15728880);
             lineShift += mc.fontRenderer.FONT_HEIGHT + textLinespace;
         }
+        drawBuffer.finish();
 
         // TODO: forge disable filtering
 

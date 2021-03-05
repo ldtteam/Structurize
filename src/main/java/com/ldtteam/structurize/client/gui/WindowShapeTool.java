@@ -14,11 +14,8 @@ import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
@@ -116,26 +113,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         if (Minecraft.getInstance().player.isCreative())
         {
             this.init(pos, false);
-        }
-    }
-
-    /**
-     * Creates a window inputShape tool.
-     * This requires X, Y and Z coordinates.
-     * If a structure is active, recalculates the X Y Z with offset.
-     * Otherwise the given parameters are used.
-     *
-     * @param pos       coordinate.
-     * @param mainBlock if main or fill block.
-     * @param stack     the stack to use.
-     */
-    public WindowShapeTool(@Nullable final BlockPos pos, final ItemStack stack, final boolean mainBlock)
-    {
-        super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        if (Minecraft.getInstance().player.isCreative())
-        {
-            Settings.instance.setBlock(stack, mainBlock);
-            this.init(pos, true);
         }
     }
 
@@ -409,6 +386,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
+    public void updateBlock(final ItemStack stack, final boolean mainBlock)
+    {
+        Settings.instance.setBlock(stack, mainBlock);
+        findPaneOfTypeByID(mainBlock ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
+        genShape();
+    }
+
     /*
      * ---------------- Input Handling -----------------
      */
@@ -570,7 +554,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void cancelClicked()
     {
         Settings.instance.reset();
-        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(new PacketBuffer(Unpooled.buffer()), false));
+        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(null, false));
         close();
     }
 
@@ -609,10 +593,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     {
         if (Settings.instance.getActiveStructure() != null)
         {
-            final ByteBuf buffer = Unpooled.buffer();
-            final PacketBuffer packetBuffer = new PacketBuffer(buffer);
-            Settings.instance.toBytes(packetBuffer);
-            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(packetBuffer, true));
+            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(Settings.instance.serializeNBT(), true));
         }
     }
 }
