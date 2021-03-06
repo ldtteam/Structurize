@@ -22,10 +22,11 @@ import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_P
  */
 public abstract class AbstractItemWithPosSelector extends Item
 {
-    public static final  String NBT_START_POS  = FIRST_POS_STRING;
-    public static final  String NBT_END_POS    = SECOND_POS_STRING;
-    private static final String START_POS_TKEY = "item.possetter.firstpos";
-    private static final String END_POS_TKEY   = "item.possetter.secondpos";
+    public static final  String NBT_START_POS    = FIRST_POS_STRING;
+    public static final  String NBT_END_POS      = SECOND_POS_STRING;
+    private static final String START_POS_TKEY   = "item.possetter.firstpos";
+    private static final String END_POS_TKEY     = "item.possetter.secondpos";
+    private static final String MISSING_POS_TKEY = "item.possetter.missingpos";
 
     /**
      * MC redirect.
@@ -66,6 +67,25 @@ public abstract class AbstractItemWithPosSelector extends Item
     {
         final ItemStack itemstack = playerIn.getHeldItem(handIn);
         final CompoundNBT compound = itemstack.getOrCreateTag();
+
+        if (!compound.contains(NBT_START_POS))
+        {
+            if (worldIn.isRemote())
+            {
+                LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "1");
+            }
+            return ActionResult.resultFail(itemstack);
+        }
+
+        if (!compound.contains(NBT_END_POS))
+        {
+            if (worldIn.isRemote())
+            {
+                LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "2");
+            }
+            return ActionResult.resultFail(itemstack);
+        }
+
         return new ActionResult<>(
             onAirRightClick(
                 NBTUtil.readBlockPos(compound.getCompound(NBT_START_POS)),

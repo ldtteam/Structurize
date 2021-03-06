@@ -3500,6 +3500,8 @@
   "item.possetter.anchorpos": "Anchor pos set to x=%d y=%d z=%d",
   "item.possetter.firstpos": "First pos set to x=%d y=%d z=%d",
   "item.possetter.secondpos": "Second pos set to x=%d y=%d z=%d",
+  "item.possetter.missingpos1": "First pos was not set yet!",
+  "item.possetter.missingpos2": "Second pos was not set yet!",
   "item.sceptersteel.badanchorpos": "The Scan Tool's anchor position is outside the scanned area! Please move it using shift + right-click!",
   "item.sceptersteel.point": "Point one saved: %d %d %d",
   "item.sceptersteel.point2": "Point two saved: %d %d %d.",
