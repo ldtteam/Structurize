@@ -4,6 +4,7 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
@@ -30,7 +31,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MAX_SCHEMATIC_SIZE;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 
@@ -158,9 +158,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final BlockPos blockpos1 =
           new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
         final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
-        if (size.getX() * size.getY() * size.getZ() > MAX_SCHEMATIC_SIZE)
+        if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
-            LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, MAX_SCHEMATIC_SIZE);
+            LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get());
             return;
         }
 
@@ -232,7 +232,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
           Math.max(from.getY(), to.getY()),
           Math.max(from.getZ(), to.getZ()));
         final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
-        if (size.getX() * size.getY() * size.getZ() > MAX_SCHEMATIC_SIZE)
+        if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             Log.getLogger().warn("Saving too large schematic for:" + name);
         }

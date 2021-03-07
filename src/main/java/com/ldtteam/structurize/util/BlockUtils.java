@@ -11,6 +11,7 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.Property;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +21,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
@@ -180,55 +182,59 @@ public final class BlockUtils
 
     /**
      * For structure placement, check if two blocks are alike or if action has to be taken.
-     * @param blockState1 the first blockState.
-     * @param blockState2 the second blockState.
+     * @param structureState the first blockState.
+     * @param worldState the second blockState.
      * @param shallReplace the not solid condition.
      * @param fancy if fancy paste.
      * @return true if nothing has to be done.
      */
-    public static boolean areBlockStatesEqual(final BlockState blockState1, final BlockState blockState2, final Predicate<BlockState> shallReplace, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
+    public static boolean areBlockStatesEqual(final BlockState structureState, final BlockState worldState, final Predicate<BlockState> shallReplace, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
     {
-        if (blockState1 == null || blockState2 == null)
+        if (structureState == null || worldState == null)
         {
             return true;
         }
 
-        final Block block1 = blockState1.getBlock();
-        final Block block2 = blockState2.getBlock();
+        final Block structureBlock = structureState.getBlock();
+        final Block worldBlock = worldState.getBlock();
 
         if (fancy)
         {
-            if (block1 == ModBlocks.blockSubstitution.get() || blockState2.equals(blockState1) || block2 == ModBlocks.blockSubstitution.get())
+            if (structureBlock == ModBlocks.blockSubstitution.get() || worldState.equals(structureState))
             {
                 return true;
             }
 
-            if (block1 instanceof AirBlock && block2 instanceof AirBlock)
+            if (structureBlock instanceof AirBlock && worldBlock instanceof AirBlock)
             {
                 return true;
             }
 
-            if ((block1 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState2))
-            || (block2 == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(blockState1)))
+            if (structureBlock == Blocks.DIRT && worldBlock.isIn(Tags.Blocks.DIRT))
+            {
+                return true;
+            }
+
+            if (structureBlock == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(worldState))
             {
                 return true;
             }
 
             // if the other block has fluid already or is not waterloggable, take no action
-            if ((block1 == ModBlocks.blockFluidSubstitution.get()
-                && (blockState2.getFluidState().isSource()
-                    || !blockState2.hasProperty(BlockStateProperties.WATERLOGGED)
-                    && blockState2.getMaterial().isSolid()))
-             || (block2 == ModBlocks.blockFluidSubstitution.get()
-                && (blockState1.getFluidState().isSource()
-                    || !blockState1.hasProperty(BlockStateProperties.WATERLOGGED)
-                    && blockState1.getMaterial().isSolid())))
+            if ((structureBlock == ModBlocks.blockFluidSubstitution.get()
+                && (worldState.getFluidState().isSource()
+                    || !worldState.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && worldState.getMaterial().isSolid()))
+             || (worldBlock == ModBlocks.blockFluidSubstitution.get()
+                && (structureState.getFluidState().isSource()
+                    || !structureState.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && structureState.getMaterial().isSolid())))
             {
                 return true;
             }
         }
 
-        return specialEqualRule.test(blockState1, blockState2);
+        return specialEqualRule.test(structureState, worldState);
     }
 
     /**

@@ -109,9 +109,9 @@ public class LinkSessionCommand
             final IFormattableTextComponent acceptButton = LanguageHandler.buildChatComponent("structurize.command.ls.invite.accept");
             final IFormattableTextComponent inviteMsg = LanguageHandler.buildChatComponent("structurize.command.ls.invite.message", sender.getGameProfile().getName());
 
-            acceptButton.getStyle()
+            acceptButton.setStyle(acceptButton.getStyle()
                 .setFormatting(TextFormatting.DARK_RED)
-                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString()));
+                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/structurize linksession acceptinvite " + ownerUUID.toString())));
             inviteMsg.append(acceptButton);
 
             if (LinkSessionManager.INSTANCE.getMembersOf(ownerUUID).isEmpty())
@@ -122,13 +122,12 @@ public class LinkSessionCommand
             int timesSucceeded = 0;
             for (final GameProfile gp : GameProfileArgument.getGameProfiles(command, TARGETS_ARG))
             {
-                final String name = gp.getName();
-                final ServerPlayerEntity target = server.getPlayerList().getPlayerByUsername(name);
+                final ServerPlayerEntity target = server.getPlayerList().getPlayerByUUID(gp.getId());
                 if (target != null)
                 {
                     LinkSessionManager.INSTANCE.createInvite(target.getUniqueID(), ownerUUID);
                     target.sendMessage(inviteMsg, target.getUniqueID());
-                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.done", name, sender.getGameProfile().getName()), sender.getUniqueID());
+                    sender.sendMessage(LanguageHandler.buildChatComponent("structurize.command.ls.invite.done", gp.getName(), sender.getGameProfile().getName()), ownerUUID);
                     timesSucceeded++;
                 }
             }
@@ -197,8 +196,8 @@ public class LinkSessionCommand
             final Set<UUID> uniqueMembers = LinkSessionManager.INSTANCE.execute(senderUUID, ChannelsEnum.COMMAND_MESSAGE);
             final TranslationTextComponent msgWithHead = new TranslationTextComponent(
                 "commands.message.display.incoming",
-                new Object[] {LanguageHandler.buildChatComponent("structurize.command.ls.message.head", Constants.MOD_NAME, sender.getGameProfile().getName()),
-                    MessageArgument.getMessage(command, MESSAGE_ARG)});
+                LanguageHandler.buildChatComponent("structurize.command.ls.message.head", Constants.MOD_NAME, sender.getGameProfile().getName()),
+                    MessageArgument.getMessage(command, MESSAGE_ARG));
 
             if (LinkSessionManager.INSTANCE.getMuteState(senderUUID, ChannelsEnum.COMMAND_MESSAGE))
             {
@@ -209,7 +208,7 @@ public class LinkSessionCommand
                 throwSyntaxException("structurize.command.ls.message.norecipient");
             }
 
-            msgWithHead.getStyle().setFormatting(TextFormatting.GRAY).setBold(true);
+            msgWithHead.setStyle(msgWithHead.getStyle().setFormatting(TextFormatting.GRAY).setBold(true));
             uniqueMembers.forEach(member -> {
                 final ServerPlayerEntity target = server.getPlayerList().getPlayerByUUID(member);
                 if (target != null)
