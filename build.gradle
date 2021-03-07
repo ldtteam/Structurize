@@ -391,7 +391,7 @@ processResources {
 
         standard += generated
 
-        file('build/resources/main/assets/structurize/lang/en_us.json').write(JsonOutput.prettyPrint(JsonOutput.toJson(standard)))
+        file('build/resources/main/assets/structurize/lang/en_us.json').write(JsonOutput.toJson(standard))
     }
 }
 
