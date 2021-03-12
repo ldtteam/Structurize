@@ -24,7 +24,6 @@ import java.util.Map;
  */
 public class ItemTagTool extends AbstractItemWithPosSelector
 {
-    public static final String TAG_TOOL_REGISTRY_NAME = "sceptertag";
     public static final String TAG_ANCHOR_POS         = "anchorpostag";
     public static final String TAG_CURRENT_TAG        = "currenttag";
 
@@ -46,13 +45,12 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     public ItemTagTool(final Properties properties)
     {
         super(properties);
-        setRegistryName(TAG_TOOL_REGISTRY_NAME);
     }
 
     @Override
     public AbstractItemWithPosSelector getRegisteredItemInstance()
     {
-        return ModItems.tagTool;
+        return ModItems.tagTool.get();
     }
 
     @Override
@@ -148,7 +146,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         }
 
         final ItemStack stack = player.getHeldItemMainhand();
-        if (stack.getItem() != ModItems.tagTool || player == null || worldIn == null)
+        if (stack.getItem() != ModItems.tagTool.get() || player == null || worldIn == null)
         {
             return false;
         }

@@ -1,274 +1,138 @@
 package com.ldtteam.structurize.blocks;
 
+import com.ldtteam.structurize.api.blocks.IBlockCollection;
+import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.bricks.*;
-import com.ldtteam.structurize.blocks.cactus.*;
 import com.ldtteam.structurize.blocks.decorative.*;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
-import com.ldtteam.structurize.blocks.types.*;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
+import com.ldtteam.structurize.blocks.types.BrickType;
+import com.ldtteam.structurize.blocks.types.ShingleFaceType;
+import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
+import com.ldtteam.structurize.items.ModItemGroups;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.DyeColor;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraft.item.ItemGroup;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
- * Class to create the modBlocks.
- * References to the blocks can be made here
- * <p>
- * We disabled the following finals since we are neither able to mark the items as final, nor do we want to provide public accessors.
+ * Class to register blocks to Structurize
+ *
+ * Don't forget to add them to the generators!
+ * Minimum is a save call in {@link DefaultBlockLootTableProvider}.
  */
-@SuppressWarnings({"squid:ClassVariableVisibilityCheck", "squid:S2444", "squid:S1444", "squid:S1820",})
-
-@ObjectHolder(Constants.MOD_ID)
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModBlocks
 {
-    /**
-     * Creating objects for all blocks in the mod.
-     * References can be made to here.
+    private ModBlocks() { /* prevent construction */ }
+
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
+
+    public static DeferredRegister<Block> getRegistry()
+    {
+        return BLOCKS;
+    }
+
+    /*
+     *  Lone Blocks
      */
 
-    private static final List<BlockTimberFrame> timberFrames = new ArrayList<>();
-    private static final List<BlockPaperwall>   paperwalls   = new ArrayList<>();
-    private static final List<BlockShingle> shingles = new ArrayList<>();
-    private static final List<BlockShingleSlab> shingleSlabs = new ArrayList<>();
-    private static final List<BlockFloatingCarpet> floatingCarpets = new ArrayList<>();
+    public static final RegistryObject<BlockSubstitution> blockSubstitution;
+    public static final RegistryObject<BlockSolidSubstitution> blockSolidSubstitution;
+    public static final RegistryObject<BlockFluidSubstitution> blockFluidSubstitution;
+    public static final RegistryObject<MultiBlock>  multiBlock;
+    public static final RegistryObject<BlockBarrel> blockDecoBarrel_onside;
+    public static final RegistryObject<BlockBarrel> blockDecoBarrel_standing;
 
-    public static BlockSubstitution      blockSubstitution;
-    public static BlockSolidSubstitution blockSolidSubstitution;
-    public static BlockFluidSubstitution blockFluidSubstitution;
-
-    /**
-     * Brown, beige, and cream bricks (and variants)
+    /*
+     *  Block Collections
      */
 
-    public static BlockBricks blockBrownBricks;
-    public static BlockBricks blockBeigeBricks;
-    public static BlockBricks blockCreamBricks;
+    public static final IBlockCollection       CACTI_BLOCKS = new CactusCollection();
+    public static final List<IBlockCollection> BRICKS       = Arrays.asList(BrickType.values());
 
-    public static BlockMinecoloniesSlab<?> blockBrownBrickSlab;
-    public static BlockMinecoloniesSlab<?> blockBeigeBrickSlab;
-    public static BlockMinecoloniesSlab<?> blockCreamBrickSlab;
-
-    public static BlockBrickWall blockBrownBrickWall;
-    public static BlockBrickWall blockBeigeBrickWall;
-    public static BlockBrickWall blockCreamBrickWall;
-
-    public static BlockBrickStairs blockBrownBrickStairs;
-    public static BlockBrickStairs blockBeigeBrickStairs;
-    public static BlockBrickStairs blockCreamBrickStairs;
-
-    /**
-     * Utility blocks.
+    /*
+     *  Block mass registration lists
      */
 
-    public static BlockBarrel blockDecoBarrel_onside;
-    public static BlockBarrel blockDecoBarrel_standing;
+    public static final IBlockList<BlockPaperWall>      paperWalls      = new PaperWallList();
+    public static final IBlockList<BlockFloatingCarpet> floatingCarpets = new FloatingCarpetList();
+    public static final List<TimberFrameType>           timberFrames    = TimberFrameType.getAll();
+    public static final List<ShingleFaceType>           shingles        = Arrays.asList(ShingleFaceType.values());
+    public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
 
-    public static BlockCactusPlank         blockCactusPlank;
-    public static BlockCactusDoor          blockCactusDoor;
-    public static BlockCactusTrapdoor      blockCactusTrapdoor;
-    public static BlockCactusStair         blockCactusStair;
-    public static BlockMinecoloniesSlab<?> blockCactusSlab;
-    public static BlockCactusFence         blockCactusFence;
-    public static BlockCactusFenceGate     blockCactusFenceGate;
-
-    public static MultiBlock multiBlock;
-
-    public static PlaceholderBlock placeholderBlock;
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
-        return new ArrayList<>(timberFrames);
+        return getBlocks(timberFrames);
     }
 
-    public static List<BlockPaperwall> getPaperwalls()
+    public static List<BlockPaperWall> getPaperWalls()
     {
-        return new ArrayList<>(paperwalls);
+        return paperWalls.getBlocks();
     }
 
     public static List<BlockShingle> getShingles()
     {
-        return new ArrayList<>(shingles);
+        return getBlocks(shingles);
     }
 
     public static List<BlockShingleSlab> getShingleSlabs()
     {
-        return new ArrayList<>(shingleSlabs);
+        return shingleSlabs.getBlocks();
     }
 
     public static List<BlockFloatingCarpet> getFloatingCarpets()
     {
-        return new ArrayList<>(floatingCarpets);
+        return floatingCarpets.getBlocks();
+    }
+
+    public static <B extends Block> List<B> getList(List<RegistryObject<B>> list)
+    {
+        return list.stream().map(RegistryObject::get).collect(Collectors.toList());
+    }
+
+    public static <B extends Block, L extends IBlockList<B>> List<B> getBlocks(List<L> list)
+    {
+        return list.stream().flatMap(type -> type.getBlocks().stream()).collect(Collectors.toList());
     }
 
     /**
-     * Private constructor to hide the implicit public one.
+     * Utility shorthand to register blocks using the deferred registry
+     * @param name the registry name of the block
+     * @param block a factory / constructor to create the block on demand
+     * @param group the {@link ItemGroup} this belongs to (sets creative tab)
+     * @param <B> the block subclass for the factory response
+     * @return the block entry saved to the registry
      */
-    private ModBlocks()
+    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
-        /**
-         * Intentionally left empty.
-         */
+        RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
+        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().group(group)));
+        return registered;
     }
 
-    /**
-     * Make sure to add any new blocks to {@link com.ldtteam.structurize.generation.defaults.DefaultBlockLootTableProvider}.
-     * Also, this method registers blocks with Forge.
-     *
-     * @param event block registering event
+    /*
+     *  Registration
      */
-    @SubscribeEvent
-    public static void registerBlocks(RegistryEvent.Register<Block> event)
+
+    static
     {
-        final IForgeRegistry<Block> registry = event.getRegistry();
-        blockCactusPlank = new BlockCactusPlank().registerBlock(registry);
-        blockCactusDoor = new BlockCactusDoor().registerBlock(registry);
-        blockCactusTrapdoor = new BlockCactusTrapdoor().registerBlock(registry);
-        blockCactusSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockCactusPlank), "blockcactusslab").registerBlock(registry);
-
-        blockCactusStair = new BlockCactusStair().registerBlock(registry);
-        blockCactusFence = new BlockCactusFence().registerBlock(registry);
-        blockCactusFenceGate = new BlockCactusFenceGate().registerBlock(registry);
-
-        blockFluidSubstitution = new BlockFluidSubstitution().registerBlock(registry);
-        blockSolidSubstitution = new BlockSolidSubstitution().registerBlock(registry);
-        blockSubstitution = new BlockSubstitution().registerBlock(registry);
-
-        blockDecoBarrel_onside = new BlockBarrel("blockbarreldeco_onside").registerBlock(registry);
-        blockDecoBarrel_standing = new BlockBarrel("blockbarreldeco_standing").registerBlock(registry);
-
-        blockBrownBricks = new BlockBricks("blockbrownbricks").registerBlock(registry);
-        blockBeigeBricks = new BlockBricks("blockbeigebricks").registerBlock(registry);
-        blockCreamBricks = new BlockBricks("blockcreambricks").registerBlock(registry);
-
-        blockBrownBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBrownBricks), "blockbrownbrickslab").registerBlock(registry);
-        blockBeigeBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockBeigeBricks), "blockbeigebrickslab").registerBlock(registry);
-        blockCreamBrickSlab = new BlockMinecoloniesSlab<>(Block.Properties.from(blockCreamBricks), "blockcreambrickslab").registerBlock(registry);
-
-        blockBrownBrickWall = new BlockBrickWall("blockbrownbrickwall").registerBlock(registry);
-        blockBeigeBrickWall = new BlockBrickWall("blockbeigebrickwall").registerBlock(registry);
-        blockCreamBrickWall = new BlockBrickWall("blockcreambrickwall").registerBlock(registry);
-
-        blockBrownBrickStairs = new BlockBrickStairs("blockbrownbrickstairs").registerBlock(registry);
-        blockBeigeBrickStairs = new BlockBrickStairs("blockbeigebrickstairs").registerBlock(registry);
-        blockCreamBrickStairs = new BlockBrickStairs("blockcreambrickstairs").registerBlock(registry);
-
-        for (final PaperwallType type : PaperwallType.values())
-        {
-            final BlockPaperwall blockPaperWall = new BlockPaperwall(type.getName()).registerBlock(registry);
-            paperwalls.add(blockPaperWall);
-        }
-
-        for (final ShingleFaceType shingleFace : ShingleFaceType.values())
-        {
-            shingleSlabs.add(new BlockShingleSlab(shingleFace).registerBlock(registry));
-
-            for (final ShingleWoodType shingleWood : ShingleWoodType.values())
-            {
-                shingles.add(new BlockShingle(() -> Blocks.OAK_PLANKS.getDefaultState(), shingleWood, shingleFace).registerBlock(registry));
-            }
-        }
-
-        for (final TimberFrameType blockType : TimberFrameType.values())
-        {
-            for (final TimberFrameFrameType frameType : TimberFrameFrameType.values())
-            {
-                for (TimberFrameCentreType centreType : TimberFrameCentreType.values())
-                {
-                    timberFrames.add(new BlockTimberFrame(blockType, frameType, centreType).registerBlock(registry));
-                }
-            }
-        }
-
-        for (final DyeColor color : DyeColor.values())
-        {
-            floatingCarpets.add(new BlockFloatingCarpet(color, Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH)).registerBlock(registry));
-        }
-
-        multiBlock = new MultiBlock().registerBlock(registry);
-
-        placeholderBlock = new PlaceholderBlock().registerBlock(registry);
-    }
-
-    @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event)
-    {
-        final IForgeRegistry<Item> registry = event.getRegistry();
-        final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
-        final Item.Properties shingleProperties = new Item.Properties().group(ModCreativeTabs.SHINGLES);
-        final Item.Properties timberframeProperties = new Item.Properties().group(ModCreativeTabs.TIMBER_FRAMES);
-
-        blockFluidSubstitution.registerItemBlock(registry, properties);
-        blockSolidSubstitution.registerItemBlock(registry, properties);
-        blockSubstitution.registerItemBlock(registry, properties);
-
-        for (final BlockPaperwall paperwall : paperwalls)
-        {
-            paperwall.registerItemBlock(registry, properties);
-        }
-
-        for (final BlockShingle shingle : shingles)
-        {
-            shingle.registerItemBlock(registry, shingleProperties);
-        }
-
-        for (BlockShingleSlab shingleSlab : shingleSlabs)
-        {
-            shingleSlab.registerItemBlock(registry, shingleProperties);
-        }
-
-        blockCactusPlank.registerItemBlock(registry, properties);
-        blockCactusTrapdoor.registerItemBlock(registry, properties);
-        blockCactusStair.registerItemBlock(registry, properties);
-        blockCactusSlab.registerItemBlock(registry, properties);
-        blockCactusFence.registerItemBlock(registry, properties);
-        blockCactusFenceGate.registerItemBlock(registry, properties);
-
-        blockDecoBarrel_onside.registerItemBlock(registry, properties);
-        blockDecoBarrel_standing.registerItemBlock(registry, properties);
-
-        blockBrownBricks.registerItemBlock(registry, properties);
-        blockBeigeBricks.registerItemBlock(registry, properties);
-        blockCreamBricks.registerItemBlock(registry, properties);
-
-        blockBrownBrickSlab.registerItemBlock(registry, properties);
-        blockBeigeBrickSlab.registerItemBlock(registry, properties);
-        blockCreamBrickSlab.registerItemBlock(registry, properties);
-
-        blockBrownBrickWall.registerItemBlock(registry, properties);
-        blockBeigeBrickWall.registerItemBlock(registry, properties);
-        blockCreamBrickWall.registerItemBlock(registry, properties);
-
-        blockBrownBrickStairs.registerItemBlock(registry, properties);
-        blockBeigeBrickStairs.registerItemBlock(registry, properties);
-        blockCreamBrickStairs.registerItemBlock(registry, properties);
-
-        for (final BlockTimberFrame frame : timberFrames)
-        {
-            frame.registerItemBlock(registry, timberframeProperties);
-        }
-
-        for (final BlockFloatingCarpet carpet : floatingCarpets)
-        {
-            carpet.registerItemBlock(registry, properties);
-        }
-
-        multiBlock.registerItemBlock(registry, properties);
-
-        placeholderBlock.registerItemBlock(registry, properties);
+        blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
+        blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
+        blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
     }
 }

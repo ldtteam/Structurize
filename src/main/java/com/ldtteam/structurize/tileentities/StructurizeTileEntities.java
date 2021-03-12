@@ -15,20 +15,11 @@ public class StructurizeTileEntities
     @ObjectHolder("multiblock")
     public static TileEntityType<TileEntityMultiBlock> MULTIBLOCK;
 
-    @ObjectHolder("placeholderblock")
-    public static TileEntityType<TileEntityPlaceholder> PLACERHOLDER_BLOCK;
-
     @SubscribeEvent
     public static void registerTileEntity(final RegistryEvent.Register<TileEntityType<?>> event)
     {
         MULTIBLOCK = TileEntityType.Builder.create(TileEntityMultiBlock::new,
-          ModBlocks.multiBlock).build(null);
+          ModBlocks.multiBlock.get()).build(null);
         MULTIBLOCK.setRegistryName(Constants.MOD_ID, "multiblock");
-
-        PLACERHOLDER_BLOCK = TileEntityType.Builder.create(TileEntityPlaceholder::new,
-          ModBlocks.placeholderBlock).build(null);
-        PLACERHOLDER_BLOCK.setRegistryName(Constants.MOD_ID, "placeholderblock");
-
-        event.getRegistry().registerAll(MULTIBLOCK, PLACERHOLDER_BLOCK);
     }
 }

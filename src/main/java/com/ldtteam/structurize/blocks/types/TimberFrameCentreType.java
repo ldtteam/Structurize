@@ -1,78 +1,99 @@
 package com.ldtteam.structurize.blocks.types;
 
+import com.ldtteam.structurize.api.generation.ModLanguageProvider;
+import com.ldtteam.structurize.blocks.ModBlocks;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.Items;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
-public enum TimberFrameCentreType  implements IStringSerializable
+public enum TimberFrameCentreType implements IStringSerializable
 {
     // Wood
-    OAK("oak", "Oak"),
-    ACACIA("acacia", "Acacia"),
-    BIRCH("birch", "Birch"),
-    JUNGLE("jungle", "Jungle"),
-    SPRUCE("spruce", "Spruce"),
-    DARK_OAK("dark_oak", "Dark Oak"),
-    CRIMSON("crimson", "Crimson"),
-    WARPED("warped", "Warped"),
-    CACTUS("cactus", "Cactus", "structurize:blocks/blockcactusplank", "structurize:blockcactusplank"),
+    OAK(Blocks.OAK_PLANKS, "Oak"),
+    ACACIA(Blocks.ACACIA_PLANKS, "Acacia"),
+    BIRCH(Blocks.BIRCH_PLANKS, "Birch"),
+    JUNGLE(Blocks.JUNGLE_PLANKS, "Jungle"),
+    SPRUCE(Blocks.SPRUCE_PLANKS, "Spruce"),
+    DARK_OAK(Blocks.DARK_OAK_PLANKS, "Dark Oak"),
+    CRIMSON(Blocks.CRIMSON_PLANKS, "Crimson"),
+    WARPED(Blocks.WARPED_PLANKS, "Warped"),
+    CACTUS(ModBlocks.CACTI_BLOCKS.getMainRegisteredBlock(), "Cactus", "structurize:blocks/cactus/blockcactusplank"),
     // Terracotta
-    TERRACOTTA("terracotta", "Terracotta", "block/terracotta", "terracotta"),
-    WHITE_TERRACOTTA("white_terracotta", "White Terracotta", "block/white_terracotta", "white_terracotta"),
-    ORANGE_TERRACOTTA("orange_terracotta", "Orange Terracotta", "block/orange_terracotta", "orange_terracotta"),
-    MAGENTA_TERRACOTTA("magenta_terracotta", "Magenta Terracotta", "block/magenta_terracotta", "magenta_terracotta"),
-    LIGHT_BLUE_TERRACOTTA("light_blue_terracotta", "Light Blue Terracotta", "block/light_blue_terracotta", "light_blue_terracotta"),
-    YELLOW_TERRACOTTA("yellow_terracotta", "Yellow Terracotta", "block/yellow_terracotta", "yellow_terracotta"),
-    LIME_TERRACOTTA("lime_terracotta", "Lime Terracotta", "block/lime_terracotta", "lime_terracotta"),
-    PINK_TERRACOTTA("pink_terracotta", "Pink Terracotta", "block/pink_terracotta", "pink_terracotta"),
-    GRAY_TERRACOTTA("gray_terracotta", "Gray Terracotta", "block/gray_terracotta", "gray_terracotta"),
-    LIGHT_GRAY_TERRACOTTA("light_gray_terracotta", "Light Gray Terracotta", "block/light_gray_terracotta", "light_gray_terracotta"),
-    CYAN_TERRACOTTA("cyan_terracotta", "Cyan Terracotta", "block/cyan_terracotta", "cyan_terracotta"),
-    PURPLE_TERRACOTTA("purple_terracotta", "Purple Terracotta", "block/purple_terracotta", "purple_terracotta"),
-    BLUE_TERRACOTTA("blue_terracotta", "Blue Terracotta", "block/blue_terracotta", "blue_terracotta"),
-    BROWN_TERRACOTTA("brown_terracotta", "Brown Terracotta", "block/brown_terracotta", "brown_terracotta"),
-    GREEN_TERRACOTTA("green_terracotta", "Green Terracotta", "block/green_terracotta", "green_terracotta"),
-    RED_TERRACOTTA("red_terracotta", "Red Terracotta", "block/red_terracotta", "red_terracotta"),
-    BLACK_TERRACOTTA("black_terracotta", "Black Terracotta", "block/black_terracotta", "black_terracotta"),
+    TERRACOTTA(Blocks.TERRACOTTA),
+    WHITE_TERRACOTTA(Blocks.WHITE_TERRACOTTA),
+    ORANGE_TERRACOTTA(Blocks.ORANGE_TERRACOTTA),
+    MAGENTA_TERRACOTTA(Blocks.MAGENTA_TERRACOTTA),
+    LIGHT_BLUE_TERRACOTTA(Blocks.LIGHT_BLUE_TERRACOTTA),
+    YELLOW_TERRACOTTA(Blocks.YELLOW_TERRACOTTA),
+    LIME_TERRACOTTA(Blocks.LIME_TERRACOTTA),
+    PINK_TERRACOTTA(Blocks.PINK_TERRACOTTA),
+    GRAY_TERRACOTTA(Blocks.GRAY_TERRACOTTA),
+    LIGHT_GRAY_TERRACOTTA(Blocks.LIGHT_GRAY_TERRACOTTA),
+    CYAN_TERRACOTTA(Blocks.CYAN_TERRACOTTA),
+    PURPLE_TERRACOTTA(Blocks.PURPLE_TERRACOTTA),
+    BLUE_TERRACOTTA(Blocks.BLUE_TERRACOTTA),
+    BROWN_TERRACOTTA(Blocks.BROWN_TERRACOTTA),
+    GREEN_TERRACOTTA(Blocks.GREEN_TERRACOTTA),
+    RED_TERRACOTTA(Blocks.RED_TERRACOTTA),
+    BLACK_TERRACOTTA(Blocks.BLACK_TERRACOTTA),
     // Bricks
-    BRICK("brick", "Brick", "block/bricks", "brick"),
-    STONE_BRICK("stone_brick", "Stone Brick", "block/stone_bricks", "stone_bricks"),
-    CREAM_BRICK("cream_brick", "Cream Brick", "structurize:blocks/bricks/bricks_cream", "structurize:blockcreambricks"),
-    BEIGE_BRICK("beige_brick", "Beige Brick", "structurize:blocks/bricks/bricks_beige", "structurize:blockbeigebricks"),
-    BROWN_BRICK("brown_brick", "Brown Brick", "structurize:blocks/bricks/bricks_brown", "structurize:blockbrownbricks"),
-    // Other
-    PAPER("paper", "Paper", "structurize:blocks/timber_frame_paper", "paper"),
-    COBBLE_STONE("cobble_stone", "Cobblestone", "block/cobblestone", "cobblestone"),
-    BLACKSTONE("blackstone", "Blackstone", "block/blackstone", "blackstone"),
-    STONE("stone", "Stone", "block/stone", "stone");
+    BRICK(Blocks.BRICKS, "Bricks"),
+    STONE_BRICK(Blocks.STONE_BRICKS, "Stone Bricks"),
+    CREAM_BRICK(BrickType.CREAM.getMainRegisteredBlock(), "Cream Brick", "structurize:blocks/bricks/cream_bricks"),
+    BEIGE_BRICK(BrickType.BEIGE.getMainRegisteredBlock(), "Beige Brick", "structurize:blocks/bricks/beige_bricks"),
+    BROWN_BRICK(BrickType.BROWN.getMainRegisteredBlock(), "Brown Brick", "structurize:blocks/bricks/brown_bricks"),
 
-    final String name;
+    CREAM_STONE_BRICK(BrickType.CREAM_STONE.getMainRegisteredBlock(), "Cream Stone Brick", "structurize:blocks/bricks/cream_stone_bricks"),
+    BEIGE_STONE_BRICK(BrickType.BEIGE_STONE.getMainRegisteredBlock(), "Beige Stone Brick", "structurize:blocks/bricks/beige_stone_bricks"),
+    BROWN_STONE_BRICK(BrickType.BROWN_STONE.getMainRegisteredBlock(), "Brown Stone Brick", "structurize:blocks/bricks/brown_stone_bricks"),
+    // Other
+    PAPER(Items.PAPER, "Paper", "structurize:blocks/timber_frame_paper"),
+    COBBLESTONE(Blocks.COBBLESTONE),
+    BLACKSTONE(Blocks.BLACKSTONE),
+    STONE(Blocks.STONE);
+
+    private IItemProvider         block           = null;
+    private RegistryObject<Block> registeredBlock = null;
     final String langName;
     final String textureLocation;
-    final String recipeIngredient;
 
-    TimberFrameCentreType(final String name, final String langName)
+    TimberFrameCentreType(final Block block)
     {
-        this(name, langName, "minecraft:block/" + name + "_planks", "minecraft:" + name + "_planks");
+        this(block, ModLanguageProvider.format(block.getRegistryName().getPath()));
     }
 
-    TimberFrameCentreType(final String name, final String langName, final String textureLocation, final String recipeIngredient)
+    TimberFrameCentreType(final Block block, final String langName)
     {
-        this.name = name;
+        this(block, langName, "minecraft:block/" + block.getRegistryName().getPath());
+    }
+
+    TimberFrameCentreType(final IItemProvider block, final String langName, final String textureLocation)
+    {
+        this.block = block;
         this.langName = langName;
         this.textureLocation = textureLocation;
-        this.recipeIngredient = recipeIngredient;
     }
 
-    @Override
-    public String getString()
+    TimberFrameCentreType(final RegistryObject<Block> block, final String langName, final String textureLocation)
     {
-        return this.name;
+        this.registeredBlock = block;
+        this.langName = langName;
+        this.textureLocation = textureLocation;
     }
 
     @NotNull
-    public String getName()
+    @Override
+    public String getString()
     {
-        return this.name;
+        // This gets used before the registry is properly populated
+        // so ensure that RegistryObjects don't get called
+        return (this.block == null
+                 ? this.langName.replace(' ', '_').toLowerCase()
+                 : this.getMaterial().asItem().getRegistryName().getPath()).replace("_planks", "");
     }
 
     /**
@@ -100,8 +121,8 @@ public enum TimberFrameCentreType  implements IStringSerializable
      *
      * @return recipeIngredient
      */
-    public String getRecipeIngredient()
+    public IItemProvider getMaterial()
     {
-        return this.recipeIngredient;
+        return this.block == null && this.registeredBlock != null ? registeredBlock.get() : this.block;
     }
 }

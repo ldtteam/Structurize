@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -20,17 +19,16 @@ import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FAC
 /**
  * Decorative barrel block
  */
-public class BlockBarrel extends AbstractBlockStructurize<BlockBarrel>
+public class BlockBarrel extends Block
 {
     /**
      * This Blocks shape.
      */
     protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
 
-    public BlockBarrel(final String modelName)
+    public BlockBarrel()
     {
         super(Block.Properties.from(Blocks.OAK_PLANKS).hardnessAndResistance(3f, 1f));
-        this.setRegistryName(modelName);
     }
 
     @Override

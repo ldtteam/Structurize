@@ -1,10 +1,5 @@
 package com.ldtteam.structures.client;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
@@ -16,20 +11,11 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.Blocks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -44,9 +30,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * The renderer for blueprint.
@@ -121,11 +116,11 @@ public class BlueprintRenderer implements AutoCloseable
                 try
                 {
                     BlockState state = blockInfo.getState();
-                    if (state.getBlock() == ModBlocks.blockSubstitution)
+                    if (state.getBlock() == ModBlocks.blockSubstitution.get())
                     {
                         state = Blocks.AIR.getDefaultState();
                     }
-                    if (state.getBlock() == ModBlocks.blockFluidSubstitution)
+                    if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                     {
                         state = Minecraft.getInstance().world != null
                                 ? BlockUtils.getFluidForDimension( Minecraft.getInstance().world)

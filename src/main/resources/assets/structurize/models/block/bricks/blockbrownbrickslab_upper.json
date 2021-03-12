@@ -1,8 +1,0 @@
-{
-  "parent": "block/slab_top",
-  "textures": {
-    "bottom": "structurize:blocks/bricks/bricks_brown",
-    "top": "structurize:blocks/bricks/bricks_brown",
-    "side": "structurize:blocks/bricks/bricks_brown"
-  }
-}

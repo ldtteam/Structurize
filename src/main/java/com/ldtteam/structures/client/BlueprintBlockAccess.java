@@ -1,21 +1,9 @@
 package com.ldtteam.structures.client;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.world.storage.ISpawnWorldInfo;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -32,6 +20,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -39,14 +28,9 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.Explosion;
+import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.world.*;
 import net.minecraft.world.Explosion.Mode;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.ITickList;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.border.WorldBorder;
@@ -57,8 +41,19 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.Heightmap.Type;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.lighting.WorldLightManager;
+import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.IWorldInfo;
 import net.minecraft.world.storage.MapData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Our world/blockAccess dummy.
@@ -115,17 +110,17 @@ public class BlueprintBlockAccess extends World
     public BlockState getBlockState(@NotNull final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
-        if (state.getBlock() == ModBlocks.blockSolidSubstitution)
+        if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
             return Blocks.DIRT.getDefaultState();
         }
-        if (state.getBlock() == ModBlocks.blockFluidSubstitution)
+        if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
         {
             return Minecraft.getInstance().world != null
                     ? BlockUtils.getFluidForDimension( Minecraft.getInstance().world)
                     : Blocks.WATER.getDefaultState();
         }
-        return state.getBlock() == ModBlocks.blockSubstitution ? Blocks.AIR.getDefaultState() : state;
+        return state.getBlock() == ModBlocks.blockSubstitution.get() ? Blocks.AIR.getDefaultState() : state;
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 
-public class BlockFloatingCarpet extends AbstractBlockStructurize<BlockFloatingCarpet>
+public class BlockFloatingCarpet extends Block
 {
     /**
      * This Blocks shape.
@@ -21,17 +22,10 @@ public class BlockFloatingCarpet extends AbstractBlockStructurize<BlockFloatingC
      */
     private final DyeColor color;
 
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "_floating_carpet";
-
-    public BlockFloatingCarpet(final DyeColor color, final Properties properties)
+    public BlockFloatingCarpet(final DyeColor color)
     {
-        super(properties);
+        super(Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH));
         this.color = color;
-
-        setRegistryName(color.getTranslationKey() + BLOCK_NAME);
     }
 
     public DyeColor getColor()

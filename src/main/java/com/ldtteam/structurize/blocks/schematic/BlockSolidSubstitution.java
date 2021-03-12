@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.schematic;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 
 /**
@@ -8,18 +8,12 @@ import net.minecraft.block.material.Material;
  * Every solid block can be substituted by this block in schematics.
  * This helps make schematics independent from location and ground.
  */
-public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidSubstitution>
+public class BlockSolidSubstitution extends Block
 {
-
     /**
      * The hardness this block has.
      */
     private static final float BLOCK_HARDNESS = 0.0F;
-
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "blocksolidsubstitution";
 
     /**
      * The resistance this block has.
@@ -33,6 +27,5 @@ public class BlockSolidSubstitution extends AbstractBlockStructurize<BlockSolidS
     public BlockSolidSubstitution()
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
-        setRegistryName(BLOCK_NAME);
     }
 }

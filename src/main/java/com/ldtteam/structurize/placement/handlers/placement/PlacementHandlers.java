@@ -187,7 +187,7 @@ public final class PlacementHandlers
         {
             if (complete)
             {
-                world.setBlockState(pos, ModBlocks.blockFluidSubstitution.getDefaultState(), UPDATE_FLAG);
+                world.setBlockState(pos, ModBlocks.blockFluidSubstitution.get().getDefaultState(), UPDATE_FLAG);
                 return ActionProcessingResult.PASS;
             }
 

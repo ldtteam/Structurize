@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.network;
 
-import java.util.function.Function;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
@@ -10,11 +9,13 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+import java.util.function.Function;
 
 /**
  * Our wrapper for Forge network layer
@@ -60,7 +61,6 @@ public class NetworkChannel
         registerMessage(++idx, StructurizeStylesMessage.class, StructurizeStylesMessage::new);
         registerMessage(++idx, UndoMessage.class, UndoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
-        registerMessage(++idx, UpdatePlaceholderBlockMessage.class, UpdatePlaceholderBlockMessage::new);
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
     }
 

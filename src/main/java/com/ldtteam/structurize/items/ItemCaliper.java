@@ -25,13 +25,12 @@ public class ItemCaliper extends AbstractItemWithPosSelector
     public ItemCaliper(final Properties properties)
     {
         super(properties.maxStackSize(1));
-        setRegistryName("caliper");
     }
 
     @Override
     public AbstractItemWithPosSelector getRegisteredItemInstance()
     {
-        return ModItems.caliper;
+        return ModItems.caliper.get();
     }
 
     @Override

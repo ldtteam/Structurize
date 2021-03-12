@@ -200,7 +200,7 @@ public final class BlockUtils
 
         if (fancy)
         {
-            if (structureBlock == ModBlocks.blockSubstitution || worldState.equals(structureState))
+            if (structureBlock == ModBlocks.blockSubstitution.get() || worldState.equals(structureState))
             {
                 return true;
             }
@@ -215,17 +215,17 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == ModBlocks.blockSolidSubstitution && !shallReplace.test(worldState))
+            if (structureBlock == ModBlocks.blockSolidSubstitution.get() && !shallReplace.test(worldState))
             {
                 return true;
             }
 
             // if the other block has fluid already or is not waterloggable, take no action
-            if ((structureBlock == ModBlocks.blockFluidSubstitution
+            if ((structureBlock == ModBlocks.blockFluidSubstitution.get()
                 && (worldState.getFluidState().isSource()
                     || !worldState.hasProperty(BlockStateProperties.WATERLOGGED)
                     && worldState.getMaterial().isSolid()))
-             || (worldBlock == ModBlocks.blockFluidSubstitution
+             || (worldBlock == ModBlocks.blockFluidSubstitution.get()
                 && (structureState.getFluidState().isSource()
                     || !structureState.hasProperty(BlockStateProperties.WATERLOGGED)
                     && structureState.getMaterial().isSolid())))

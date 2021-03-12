@@ -1,26 +1,21 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import com.ldtteam.structurize.blocks.AbstractBlockStructurize;
 import com.ldtteam.structurize.blocks.types.TimberFrameCentreType;
-import com.ldtteam.structurize.blocks.types.TimberFrameFrameType;
 import com.ldtteam.structurize.blocks.types.TimberFrameType;
+import com.ldtteam.structurize.blocks.types.WoodType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.DirectionalBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 
 /**
  * Decorative block
  */
-public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
+public class BlockTimberFrame extends DirectionalBlock
 {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
-
     /**
      * The hardness this block has.
      */
@@ -35,24 +30,23 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
      * Fields defining the registered block's wood and face types, these are used by the Data Generators
      */
     private final TimberFrameType timberFrameType;
-    private final TimberFrameFrameType frameType;
+    private final WoodType        frameType;
     private final TimberFrameCentreType centreType;
 
     /**
      * Constructor for the TimberFrame
      */
-    public BlockTimberFrame(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
+    public BlockTimberFrame(final TimberFrameType timberFrameType, final WoodType frameType, final TimberFrameCentreType centreType)
     {
         super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
-        setRegistryName(getName(timberFrameType, frameType, centreType));
         this.timberFrameType = timberFrameType;
         this.frameType = frameType;
         this.centreType = centreType;
     }
 
-    public static String getName(final TimberFrameType timberFrameType, final TimberFrameFrameType frameType, final TimberFrameCentreType centreType)
+    public static String getName(final TimberFrameType timberFrameType, final WoodType frameType, final TimberFrameCentreType centreType)
     {
-        return timberFrameType.getName() + "_" + frameType.getName() + "_" + centreType.getName() + "_timber_frame";
+        return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getString(), centreType.getString());
     }
 
     @Override
@@ -60,11 +54,6 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
     {
         super.fillStateContainer(builder);
         builder.add(FACING);
-    }
-
-    @Override
-    public BlockState rotate(BlockState state, Rotation rot) {
-        return state.with(FACING, rot.rotate(state.get(FACING)));
     }
 
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
@@ -86,11 +75,11 @@ public class BlockTimberFrame extends AbstractBlockStructurize<BlockTimberFrame>
     }
 
     /**
-     * Get the registered TimberFrameFrameType, used by the Data Generators
+     * Get the associated wood, used for data gen
      *
-     * @return the registered TimberFrameFrameType
+     * @return the wood type
      */
-    public TimberFrameFrameType getFrameType()
+    public WoodType getFrameType()
     {
         return this.frameType;
     }

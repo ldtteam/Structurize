@@ -1,67 +1,57 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.creativetab.ModCreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.TallBlockItem;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.function.Supplier;
 
 /**
- * Class handling the registering of the mod items.
- * <p>
- * We disabled the following finals since we are neither able to mark the items as final, nor do we want to provide public accessors.
+ * Class to register items to Structurize
  */
-@SuppressWarnings({"squid:ClassVariableVisibilityCheck", "squid:S2444", "squid:S1444"})
-@ObjectHolder(Constants.MOD_ID)
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ModItems
 {
-    public static ItemBuildTool buildTool;
-    public static ItemShapeTool shapeTool;
-    public static ItemScanTool scanTool;
-    public static ItemTagTool tagTool;
-    public static ItemCaliper caliper;
-    public static TallBlockItem cactusDoor;
+    private ModItems() { /* prevent construction */ }
 
-    /**
-     * Private constructor to hide the implicit public one.
-     */
-    private ModItems()
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
+
+    public static DeferredRegister<Item> getRegistry()
     {
-        /*
-         * Intentionally left empty.
-         */
+        return ITEMS;
     }
 
-    /**
-     * Initates all the items. At the correct time.
-     * @param event the registry event object.
+    /*
+     *  Items
      */
-    @SubscribeEvent
-    public static void registerItems(final RegistryEvent.Register<Item> event)
+
+    public static final RegistryObject<ItemBuildTool> buildTool;
+    public static final RegistryObject<ItemShapeTool> shapeTool;
+    public static final RegistryObject<ItemScanTool> scanTool;
+    public static final RegistryObject<ItemTagTool>  tagTool;
+    public static final RegistryObject<ItemCaliper>  caliper;
+
+    /**
+     * Utility method to register an item
+     * @param name the registry key for the item
+     * @param item a factory/constructor to produce the item on demand
+     * @param <I> any item subclass
+     * @return the item entry saved to the registry
+     */
+    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> item)
     {
-        final Item.Properties properties = new Item.Properties().group(ModCreativeTabs.STRUCTURIZE);
+        return ITEMS.register(name.toLowerCase(), item);
+    }
 
-        final IForgeRegistry<Item> registry = event.getRegistry();
+    static
+    {
+        final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
 
-        buildTool = new ItemBuildTool(properties);
-        shapeTool = new ItemShapeTool(properties);
-        scanTool = new ItemScanTool(ModCreativeTabs.STRUCTURIZE);
-        tagTool = new ItemTagTool(ModCreativeTabs.STRUCTURIZE);
-        caliper = new ItemCaliper(properties);
-        cactusDoor = new TallBlockItem(ModBlocks.blockCactusDoor, properties.maxStackSize(16));
-        cactusDoor.setRegistryName(ModBlocks.blockCactusDoor.getRegistryName());
-
-        registry.register(buildTool);
-        registry.register(shapeTool);
-        registry.register(scanTool);
-        registry.register(tagTool);
-        registry.register(caliper);
-        registry.register(cactusDoor);
+        buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
+        shapeTool = register("shapetool", () -> new ItemShapeTool(properties));
+        scanTool  = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
+        tagTool   = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
+        caliper   = register("caliper", () -> new ItemCaliper(properties));
     }
 }

@@ -1,8 +1,5 @@
 package com.ldtteam.structurize.event;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 import com.ldtteam.blockout.hooks.HookManager;
 import com.ldtteam.blockout.hooks.HookRegistries;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
@@ -19,7 +16,6 @@ import com.ldtteam.structurize.util.RenderUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -31,12 +27,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ClientEventSubscriber
 {
@@ -98,7 +99,7 @@ public class ClientEventSubscriber
         }
 
         final ItemStack itemStack = player.getHeldItem(Hand.MAIN_HAND);
-        if (itemStack.getItem() == ModItems.tagTool && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
+        if (itemStack.getItem() == ModItems.tagTool.get() && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
         {
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
             final TileEntity te = Minecraft.getInstance().player.world.getTileEntity(tagAnchor);

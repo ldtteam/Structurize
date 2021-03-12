@@ -1,5 +1,6 @@
 {
 	"credit": "Made by d3miurge.vallek@gmail.com",
+	"parent": "block/slab",
 	"textures": {
 		"0": "structurize:blocks/shingle_slab/clay_shingle_1",
 		"1": "structurize:blocks/shingle_slab/clay_shingle_2",

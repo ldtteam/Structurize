@@ -1,3 +1,5 @@
+import groovy.json.*
+
 buildscript {
     repositories {
         jcenter()
@@ -48,6 +50,7 @@ sourceSets {
         resources {
             srcDir 'src/main/resources'
             srcDir 'src/main/generated/resources'
+            exclude "assets/structurize/lang/default.json"
         }
         compileClasspath += sourceSets.main.compileClasspath
         compileClasspath += sourceSets.api.output
@@ -141,7 +144,7 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
 
-            args '--mod', project.base_mod_id, '--all', '--output', file('src/main/generated/resources'), '--input', file('src/main/resources')
+            args '--mod', project.base_mod_id, '--all', '--output', file('src/main/generated/resources'), '--input', file('src/main/resources'), '--existing', file('src/main/resources/')
 
             mods {
                 structurize {
@@ -373,6 +376,22 @@ task setupDecompWorkspace {
 task setupCIWorkspace {
     afterEvaluate {
         println "Setup"
+    }
+}
+
+processResources {
+    onlyIf {
+        // this won't exist on the first time running data gen after wiping the generated folder
+        file('src/main/generated/resources/assets/structurize/lang/default.json').exists()
+    }
+    doLast {
+        def slurper = new JsonSlurper()
+        def standard = slurper.parse(file('src/main/resources/assets/structurize/lang/en_us.json'))
+        def generated = slurper.parse(file('src/main/generated/resources/assets/structurize/lang/default.json'))
+
+        standard += generated
+
+        file('build/resources/main/assets/structurize/lang/en_us.json').write(JsonOutput.toJson(standard))
     }
 }
 

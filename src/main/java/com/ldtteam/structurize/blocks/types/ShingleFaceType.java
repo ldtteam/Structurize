@@ -1,7 +1,25 @@
 package com.ldtteam.structurize.blocks.types;
 
-import net.minecraft.util.IStringSerializable;
-import org.jetbrains.annotations.NotNull;
+import com.ldtteam.structurize.api.blocks.*;
+import com.ldtteam.structurize.api.generation.*;
+import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.blocks.decorative.BlockShingle;
+import com.ldtteam.structurize.items.ModItemGroups;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.ShapedRecipeBuilder;
+import net.minecraft.data.ShapelessRecipeBuilder;
+import net.minecraft.item.DyeColor;
+import net.minecraft.item.DyeItem;
+import net.minecraft.item.Items;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.IItemProvider;
+import net.minecraftforge.client.model.generators.BlockModelProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.fml.RegistryObject;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Face types used by both Shingles and Shingle Slabs.
@@ -10,74 +28,45 @@ import org.jetbrains.annotations.NotNull;
  *
  *  -> gradle runData <-
  */
-public enum ShingleFaceType implements IStringSerializable
+public enum ShingleFaceType implements IBlockList<BlockShingle>
 {
-    // Clay
-    CLAY("clay", "clay", "Clay", "minecraft:brick", false),
-    BLACK_CLAY("black_clay", "clay", "Black Clay", "minecraft:black_dye"),
-    BLUE_CLAY("blue_clay", "clay", "Blue Clay", "minecraft:blue_dye"),
-    BROWN_CLAY("brown_clay", "clay", "Brown Clay", "minecraft:brown_dye"),
-    CYAN_CLAY("cyan_clay", "clay", "Cyan Clay", "minecraft:cyan_dye"),
-    GRAY_CLAY("gray_clay", "clay", "Gray Clay", "minecraft:gray_dye"),
-    GREEN_CLAY("green_clay", "clay", "Green Clay", "minecraft:green_dye"),
-    LIGHT_BLUE_CLAY("light_blue_clay", "clay", "Light Blue Clay", "minecraft:light_blue_dye"),
-    LIGHT_GRAY_CLAY("light_gray_clay", "clay", "Light Gray Clay", "minecraft:light_gray_dye"),
-    LIME_CLAY("lime_clay", "clay", "Lime Clay", "minecraft:lime_dye"),
-    MAGENTA_CLAY("magenta_clay", "clay", "Magenta Clay", "minecraft:magenta_dye"),
-    ORANGE_CLAY("orange_clay", "clay", "Orange Clay", "minecraft:orange_dye"),
-    PINK_CLAY("pink_clay", "clay", "Pink Clay", "minecraft:pink_dye"),
-    PURPLE_CLAY("purple_clay", "clay", "Purple Clay", "minecraft:purple_dye"),
-    RED_CLAY("red_clay", "clay", "Red Clay", "minecraft:red_dye"),
-    WHITE_CLAY("white_clay", "clay", "White Clay", "minecraft:white_dye"),
-    YELLOW_CLAY("yellow_clay", "clay", "Yellow Clay", "minecraft:yellow_dye"),
-    // Slate
-    SLATE("slate", "slate", "Slate", "minecraft:cobblestone", false),
-    BLUE_SLATE("blue_slate", "slate", "Blue Slate", "minecraft:blue_dye"),
-    GREEN_SLATE("green_slate", "slate", "Green Slate", "minecraft:green_dye"),
-    PURPLE_SLATE("purple_slate", "slate", "Purple Slate", "minecraft:purple_dye"),
-    // Other
-    MOSS_SLATE("moss_slate", "moss", "Moss Slate", "minecraft:mossy_cobblestone", false),
-    THATCHED("thatched", "thatched", "Thatched", "minecraft:wheat", false),
-    BLACKSTONE("blackstone", "blackstone", "Blackstone", "minecraft:blackstone", false),
-    GILDED_BLACKSTONE("gilded_blackstone", "gilded_blackstone", "Gilded Blackstone", "minecraft:gilded_blackstone", false);
+    //CLAY
+    CLAY("clay", "Clay", Items.BRICK, DyeColor.values()),
+    SLATE("slate", "Slate", Blocks.COBBLESTONE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.PURPLE),
+    MOSS_SLATE("moss_slate", "Moss Slate", Blocks.MOSSY_COBBLESTONE),
+    THATCHED("thatched", "Thatched", Items.WHEAT),
+    BLACKSTONE("blackstone", "Blackstone", Blocks.BLACKSTONE),
+    GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
-    final String name;
+    private final Map<WoodType, List<RegistryObject<BlockShingle>>> blocks    = new HashMap<>();
+    private final Map<WoodType, ITag.INamedTag<Block>> blockTags = new HashMap<>();
+
     final String group;
     final String langName;
-    final String textureLocation;
-    final String recipeIngredient;
-    final boolean isDyed;
+    final IItemProvider ingredient;
+    final DyeColor[] colors;
 
-    ShingleFaceType(final String name, final String group, final String langName, final String recipeIngredient)
+    ShingleFaceType(final String group, final String langGroup, IItemProvider material, DyeColor... colors)
     {
-        this(name, group, langName, recipeIngredient, true);
-    }
-
-    ShingleFaceType(final String name, final String group, final String langName, final String recipeIngredient, final boolean isDyed)
-    {
-        this(name, group, langName, "structurize:blocks/shingle/" + name + "_shingle_", recipeIngredient, isDyed);
-    }
-
-    ShingleFaceType(final String name, final String group, final String langName, final String textureLocation, final String recipeIngredient, final boolean isDyed)
-    {
-        this.name = name;
         this.group = group;
-        this.langName = langName;
-        this.textureLocation = textureLocation;
-        this.recipeIngredient = recipeIngredient;
-        this.isDyed = isDyed;
-    }
+        this.langName = langGroup;
+        this.ingredient = material;
+        this.colors = colors;
 
-    @Override
-    public String getString()
-    {
-        return this.name;
-    }
+        for (int i = -1; i < colors.length; i++)
+        {
+            DyeColor color = i < 0 ? null : colors[i];
+            String prefix = (i < 0 ? "" : color.getString() + "_") + group;
 
-    @NotNull
-    public String getName()
-    {
-        return this.name;
+            for (WoodType wood : WoodType.values())
+            {
+                this.blocks.putIfAbsent(wood, new LinkedList<>());
+                this.blocks.get(wood).add(ModBlocks.register(
+                  String.format("%s_%s_shingle", prefix, wood.getString()),
+                  () -> new BlockShingle(Blocks.OAK_PLANKS::getDefaultState, wood, this, color),
+                  ModItemGroups.SHINGLES));
+            }
+        }
     }
 
     /**
@@ -100,43 +89,108 @@ public enum ShingleFaceType implements IStringSerializable
         return this.langName;
     }
 
-    /**
-     * ResourceLocation for the wood type's texture, plus a suffix used in texture locations, used in data generator for models
-     *
-     * @return textureLocation
-     */
-    public String getTexture(final int suffix)
+    public IItemProvider getMaterial()
     {
-        return getTextureLocation() + suffix;
+        return ingredient;
     }
 
-    /**
-     * ResourceLocation for the wood type's texture, used in data generator for models
-     *
-     * @return textureLocation
-     */
-    public String getTextureLocation()
+    public DyeColor[] getColors()
     {
-        return this.textureLocation;
+        return colors;
     }
 
-    /**
-     * ResourceLocation for the face's item, used in data generator for recipes
-     *
-     * @return recipeIngredient
-     */
-    public String getRecipeIngredient()
+    @Override
+    public List<RegistryObject<BlockShingle>> getRegisteredBlocks()
     {
-        return this.recipeIngredient;
+        return blocks.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    /**
-     * Whether this is a dyed version of another shingle in the same group, or if this is the group's "parent" per se
-     *
-     * @return isDyed
-     */
-    public boolean isDyed()
+    private ModelFile makeBlockModel(BlockModelProvider models, BlockShingle shingle, String shape)
     {
-        return this.isDyed;
+        String location = shingle.getTypeString() + "_shingle";
+
+        return models.withExistingParent(
+          String.format("block/shingle/%s/%s/%s", shape, shingle.getWoodType().getString(), location),
+          models.modLoc("block/shingle/shingle_" + shape))
+                 .texture("1", "blocks/shingle/" + location + "_1")
+                 .texture("2", "blocks/shingle/" + location + "_2")
+                 .texture("3", "blocks/shingle/" + location + "_3")
+                 .texture("plank", shingle.getWoodType() == WoodType.CACTUS ? "blocks/cactus/blockcactusplank" : "minecraft:block/" + shingle.getWoodType().getMaterial().getRegistryName().getPath())
+                 .texture("particle", "blocks/shingle/" + location + "_1");
+    }
+
+    @Override
+    public void generateBlockStates(final ModBlockStateProvider states)
+    {
+        getRegisteredBlocks().forEach(block -> {
+          BlockShingle shingle = block.get();
+
+          states.stairsBlockUnlockUV(shingle,
+            makeBlockModel(states.models(), shingle, "straight"),
+            makeBlockModel(states.models(), shingle, "concave"),
+            makeBlockModel(states.models(), shingle, "convex"));
+        });
+    }
+
+    @Override
+    public void generateItemModels(final ModItemModelProvider models)
+    {
+        getBlocks().forEach(
+          block -> models.getBuilder(block.getRegistryName().getPath())
+            .parent(new ModelFile.UncheckedModelFile(
+              models.modLoc(String.format(
+                "block/shingle/straight/%s/%s_shingle",
+                block.getWoodType().getString(),
+                block.getTypeString()))))
+        );
+    }
+
+    @Override
+    public void generateRecipes(final ModRecipeProvider provider)
+    {
+        getRegisteredBlocks().forEach(
+          block -> provider.add(consumer -> {
+            DyeColor color = block.get().getColor();
+
+            if (color == null)
+            {
+                new ShapedRecipeBuilder(block.get(), 8)
+                  .patternLine("I  ")
+                  .patternLine("SI ")
+                  .patternLine("PSI")
+                  .key('I', block.get().getFaceType().getMaterial())
+                  .key('S', Items.STICK)
+                  .key('P', block.get().getWoodType().getMaterial())
+                  .addCriterion("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
+                  .build(consumer);
+            }
+            else
+            {
+                new ShapelessRecipeBuilder(block.get(), 8)
+                  .addIngredient(blocks.get(block.get().getWoodType()).get(0).get(), 8)
+                  .addIngredient(DyeItem.getItem(color))
+                  .addCriterion("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
+                  .build(consumer);
+            }
+          }));
+    }
+
+    @Override
+    public void generateTags(final ModBlockTagsProvider blocks, final ModItemTagsProvider items)
+    {
+        getRegisteredBlocks().forEach(block -> {
+            if (!blockTags.containsKey(block.get().getWoodType()))
+            {
+                blockTags.put(block.get().getWoodType(), blocks.createTag("shingles/" + getGroup() + "/" + block.get().getWoodType().getString()));
+            }
+
+            blocks.buildTag(blockTags.get(block.get().getWoodType())).add(block.get());
+        });
+
+        ITag.INamedTag<Block> groupTag = blocks.createTag("shingles/" + getGroup());
+        blockTags.values().forEach(blocks.buildTag(groupTag)::addTag);
+        blockTags.values().forEach(items::copy);
+
+        items.copy(groupTag);
     }
 }

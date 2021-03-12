@@ -47,7 +47,7 @@ public class UpdateScanToolMessage implements IMessage
     public UpdateScanToolMessage(@NotNull final BlockPos from, @NotNull final BlockPos to)
     {
         final ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
-        if (stack.getItem() == ModItems.scanTool)
+        if (stack.getItem() == ModItems.scanTool.get())
         {
             final CompoundNBT compound = stack.getOrCreateTag();
             compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));
@@ -75,7 +75,7 @@ public class UpdateScanToolMessage implements IMessage
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
         final ItemStack stack = ctxIn.getSender().getHeldItemMainhand();
-        if (stack.getItem() == ModItems.scanTool)
+        if (stack.getItem() == ModItems.scanTool.get())
         {
             final CompoundNBT compound = stack.getOrCreateTag();
             compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));

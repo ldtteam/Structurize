@@ -1,25 +1,22 @@
 package com.ldtteam.structurize.util;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
+import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.TranslationTextComponent;
-import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
 /**
  * Helper class for localization and sending player messages.
@@ -109,11 +106,6 @@ public final class LanguageHandler
                     translation.appendString(" " + object);
                 }
             }
-        }
-
-        if (translation == null)
-        {
-            translation = new TranslationTextComponent(key);
         }
 
         return translation;
@@ -207,14 +199,13 @@ public final class LanguageHandler
 
     private static class LanguageCache
     {
-        private static LanguageCache instance = new LanguageCache();
+        private static final LanguageCache instance = new LanguageCache();
         private boolean isMCloaded = false;
         private Map<String, String> languageMap;
 
         private LanguageCache()
         {
-            final String fileLoc = "assets/structurize/lang/%s.json";
-            load(fileLoc);
+            load("assets/structurize/lang/%s.json");
         }
 
         private void load(final String path)
