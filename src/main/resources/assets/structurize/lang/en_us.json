@@ -95,7 +95,7 @@
     "structurize.config.ignoreschematicsfromjar": "Ignore Schematics from Jar",
     "structurize.config.ignoreschematicsfromjar.comment": "Should the default schematics be ignored (from the jar)?",
     "structurize.config.maxblockschecked": "Max Blocks Checked",
-    "structurize.config.maxblockschecked.comment": "Ma, ModRecipeProvider.getDefaultCriterion(block)x amount of blocks checked by a possible worker",
+    "structurize.config.maxblockschecked.comment": "Max amount of blocks checked by a possible worker.",
     "structurize.config.maxcachedchanges": "Max Cached Changes",
     "structurize.config.maxcachedchanges.comment": "Max amount of undos saved. A higher number requires more memory.",
     "structurize.config.maxcachedschematics": "Max Cached Schematics",
