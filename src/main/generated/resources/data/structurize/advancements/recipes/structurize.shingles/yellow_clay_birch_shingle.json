@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:yellow_clay_birch_shingle"
+    ]
+  },
+  "criteria": {
+    "has_yellow_clay_birch_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:yellow_clay_birch_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:yellow_clay_birch_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_yellow_clay_birch_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

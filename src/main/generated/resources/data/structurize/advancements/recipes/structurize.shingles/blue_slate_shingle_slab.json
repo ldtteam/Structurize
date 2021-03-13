@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:blue_slate_shingle_slab"
+    ]
+  },
+  "criteria": {
+    "has_blue_slate_shingle_slab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:blue_slate_shingle_slab"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:blue_slate_shingle_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blue_slate_shingle_slab",
+      "has_the_recipe"
+    ]
+  ]
+}

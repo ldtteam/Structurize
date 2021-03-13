@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_cactus_bricks_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:framed_cactus_bricks_timber_frame"
+  }
+}

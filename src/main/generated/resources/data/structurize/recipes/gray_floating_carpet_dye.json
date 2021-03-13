@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "item": "minecraft:gray_dye"
+    }
+  ],
+  "result": {
+    "item": "structurize:gray_floating_carpet",
+    "count": 8
+  }
+}

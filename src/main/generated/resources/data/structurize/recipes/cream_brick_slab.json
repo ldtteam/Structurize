@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "structurize:cream_bricks"
+    }
+  },
+  "result": {
+    "item": "structurize:cream_brick_slab",
+    "count": 6
+  }
+}

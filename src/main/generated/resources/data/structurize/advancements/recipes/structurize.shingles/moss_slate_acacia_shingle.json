@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:moss_slate_acacia_shingle"
+    ]
+  },
+  "criteria": {
+    "has_moss_slate_acacia_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:moss_slate_acacia_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:moss_slate_acacia_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_moss_slate_acacia_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

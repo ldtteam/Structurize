@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:birch_blockpaperwall"
+    ]
+  },
+  "criteria": {
+    "has_birch_blockpaperwall": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:birch_blockpaperwall"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:birch_blockpaperwall"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_birch_blockpaperwall",
+      "has_the_recipe"
+    ]
+  ]
+}

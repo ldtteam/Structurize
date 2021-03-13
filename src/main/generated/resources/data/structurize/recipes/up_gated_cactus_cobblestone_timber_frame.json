@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_cactus_cobblestone_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:up_gated_cactus_cobblestone_timber_frame"
+  }
+}

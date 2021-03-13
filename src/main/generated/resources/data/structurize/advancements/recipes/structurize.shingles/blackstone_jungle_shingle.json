@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:blackstone_jungle_shingle"
+    ]
+  },
+  "criteria": {
+    "has_blackstone_jungle_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:blackstone_jungle_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:blackstone_jungle_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blackstone_jungle_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

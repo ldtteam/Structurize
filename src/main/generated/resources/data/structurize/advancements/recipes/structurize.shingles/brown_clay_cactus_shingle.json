@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:brown_clay_cactus_shingle"
+    ]
+  },
+  "criteria": {
+    "has_brown_clay_cactus_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:brown_clay_cactus_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:brown_clay_cactus_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_brown_clay_cactus_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

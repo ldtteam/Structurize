@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "F",
+    "C",
+    "S"
+  ],
+  "key": {
+    "F": {
+      "item": "structurize:blockcactusplank"
+    },
+    "C": {
+      "item": "minecraft:blue_terracotta"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "result": {
+    "item": "structurize:plain_cactus_blue_terracotta_timber_frame",
+    "count": 4
+  }
+}

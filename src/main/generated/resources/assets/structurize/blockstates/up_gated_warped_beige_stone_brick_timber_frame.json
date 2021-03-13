@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame"
+    },
+    "facing=north": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "structurize:block/timber_frames/up_gated_warped_beige_stone_brick_timber_frame",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

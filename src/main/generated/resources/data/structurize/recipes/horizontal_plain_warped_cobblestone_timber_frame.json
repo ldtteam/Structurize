@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:one_crossed_rl_warped_cobblestone_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:horizontal_plain_warped_cobblestone_timber_frame"
+  }
+}

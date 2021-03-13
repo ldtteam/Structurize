@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "side": "structurize:blocks/bricks/beige_stone_bricks",
+    "bottom": "structurize:blocks/bricks/beige_stone_bricks",
+    "top": "structurize:blocks/bricks/beige_stone_bricks"
+  }
+}

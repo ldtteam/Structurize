@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:lime_clay_warped_shingle"
+    ]
+  },
+  "criteria": {
+    "has_lime_clay_warped_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:lime_clay_warped_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:lime_clay_warped_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_lime_clay_warped_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

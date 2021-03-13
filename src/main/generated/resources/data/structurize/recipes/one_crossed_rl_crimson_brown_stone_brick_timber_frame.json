@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:one_crossed_lr_crimson_brown_stone_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:one_crossed_rl_crimson_brown_stone_brick_timber_frame"
+  }
+}

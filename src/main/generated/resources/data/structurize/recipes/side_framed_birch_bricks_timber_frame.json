@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:framed_birch_bricks_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:side_framed_birch_bricks_timber_frame"
+  }
+}

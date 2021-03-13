@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_dark_oak_brown_stone_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:framed_dark_oak_brown_stone_brick_timber_frame"
+  }
+}

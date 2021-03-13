@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:framed_dark_oak_stone_timber_frame"
+    ]
+  },
+  "criteria": {
+    "has_framed_dark_oak_stone_timber_frame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:framed_dark_oak_stone_timber_frame"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:framed_dark_oak_stone_timber_frame"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_framed_dark_oak_stone_timber_frame",
+      "has_the_recipe"
+    ]
+  ]
+}

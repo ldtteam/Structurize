@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:yellow_clay_shingle_slab"
+    ]
+  },
+  "criteria": {
+    "has_yellow_clay_shingle_slab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:yellow_clay_shingle_slab"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:yellow_clay_shingle_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_yellow_clay_shingle_slab",
+      "has_the_recipe"
+    ]
+  ]
+}

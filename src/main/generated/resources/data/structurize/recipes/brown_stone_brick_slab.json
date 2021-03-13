@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "structurize:brown_stone_bricks"
+    }
+  },
+  "result": {
+    "item": "structurize:brown_stone_brick_slab",
+    "count": 6
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_rh",
+  "textures": {
+    "bottom": "structurize:blocks/cactus/blockcactusdoor_lower",
+    "top": "structurize:blocks/cactus/blockcactusdoor_upper"
+  }
+}

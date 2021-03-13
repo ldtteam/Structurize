@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=top": {
+      "model": "structurize:block/blockcactusslab_top"
+    },
+    "type=bottom": {
+      "model": "structurize:block/blockcactusslab"
+    },
+    "type=double": {
+      "model": "structurize:block/blockcactusslab_double"
+    }
+  }
+}

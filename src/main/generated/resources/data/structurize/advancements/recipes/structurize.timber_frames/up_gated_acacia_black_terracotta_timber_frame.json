@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:up_gated_acacia_black_terracotta_timber_frame"
+    ]
+  },
+  "criteria": {
+    "has_up_gated_acacia_black_terracotta_timber_frame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:up_gated_acacia_black_terracotta_timber_frame"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:up_gated_acacia_black_terracotta_timber_frame"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_up_gated_acacia_black_terracotta_timber_frame",
+      "has_the_recipe"
+    ]
+  ]
+}

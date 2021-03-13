@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:crimson_blockpaperwall"
+    ]
+  },
+  "criteria": {
+    "has_crimson_blockpaperwall": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:crimson_blockpaperwall"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:crimson_blockpaperwall"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_crimson_blockpaperwall",
+      "has_the_recipe"
+    ]
+  ]
+}

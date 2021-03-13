@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:purple_clay_spruce_shingle"
+    ]
+  },
+  "criteria": {
+    "has_purple_clay_spruce_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:purple_clay_spruce_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:purple_clay_spruce_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_purple_clay_spruce_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

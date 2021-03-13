@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:blue_floating_carpet"
+    ]
+  },
+  "criteria": {
+    "has_blue_floating_carpet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:blue_floating_carpet"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:blue_floating_carpet"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blue_floating_carpet",
+      "has_the_recipe"
+    ]
+  ]
+}

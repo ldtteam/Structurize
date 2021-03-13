@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:double_crossed_warped_bricks_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:framed_warped_bricks_timber_frame"
+  }
+}

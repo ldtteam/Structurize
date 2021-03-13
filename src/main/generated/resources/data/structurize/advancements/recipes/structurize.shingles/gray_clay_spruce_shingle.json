@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:gray_clay_spruce_shingle"
+    ]
+  },
+  "criteria": {
+    "has_gray_clay_spruce_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:gray_clay_spruce_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:gray_clay_spruce_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gray_clay_spruce_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}
