@@ -1,0 +1,8 @@
+{
+  "parent": "structurize:block/timber_frames/framed",
+  "textures": {
+    "frame": "minecraft:block/acacia_planks",
+    "centre": "minecraft:block/sandstone",
+    "particle": "minecraft:block/sandstone"
+  }
+}

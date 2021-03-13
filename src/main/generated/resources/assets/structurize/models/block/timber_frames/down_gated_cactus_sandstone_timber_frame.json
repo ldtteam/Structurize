@@ -1,0 +1,8 @@
+{
+  "parent": "structurize:block/timber_frames/down_gated",
+  "textures": {
+    "frame": "structurize:blocks/cactus/blockcactusplank",
+    "centre": "minecraft:block/sandstone",
+    "particle": "minecraft:block/sandstone"
+  }
+}

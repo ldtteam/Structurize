@@ -1,0 +1,8 @@
+{
+  "parent": "structurize:block/timber_frames/up_gated",
+  "textures": {
+    "frame": "minecraft:block/warped_planks",
+    "centre": "minecraft:block/sandstone",
+    "particle": "minecraft:block/sandstone"
+  }
+}
