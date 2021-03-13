@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:light_blue_clay_oak_shingle"
+    ]
+  },
+  "criteria": {
+    "has_light_blue_clay_oak_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:light_blue_clay_oak_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:light_blue_clay_oak_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_light_blue_clay_oak_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

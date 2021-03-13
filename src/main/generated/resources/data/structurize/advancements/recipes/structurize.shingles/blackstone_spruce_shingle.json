@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:blackstone_spruce_shingle"
+    ]
+  },
+  "criteria": {
+    "has_blackstone_spruce_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:blackstone_spruce_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:blackstone_spruce_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blackstone_spruce_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

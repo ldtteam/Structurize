@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:warped_blockpaperwall"
+    ]
+  },
+  "criteria": {
+    "has_warped_blockpaperwall": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:warped_blockpaperwall"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:warped_blockpaperwall"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_warped_blockpaperwall",
+      "has_the_recipe"
+    ]
+  ]
+}

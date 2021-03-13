@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "item": "minecraft:pink_dye"
+    }
+  ],
+  "result": {
+    "item": "structurize:pink_floating_carpet",
+    "count": 8
+  }
+}

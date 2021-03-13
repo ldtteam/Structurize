@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:one_crossed_rl_crimson_cream_stone_brick_timber_frame"
+    ]
+  },
+  "criteria": {
+    "has_one_crossed_rl_crimson_cream_stone_brick_timber_frame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:one_crossed_rl_crimson_cream_stone_brick_timber_frame"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:one_crossed_rl_crimson_cream_stone_brick_timber_frame"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_one_crossed_rl_crimson_cream_stone_brick_timber_frame",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:up_gated_warped_cobblestone_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:down_gated_warped_cobblestone_timber_frame"
+  }
+}

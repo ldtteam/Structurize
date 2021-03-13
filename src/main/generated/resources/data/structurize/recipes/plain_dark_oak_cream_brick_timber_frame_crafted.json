@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "F",
+    "C",
+    "S"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:dark_oak_planks"
+    },
+    "C": {
+      "item": "structurize:cream_bricks"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "result": {
+    "item": "structurize:plain_dark_oak_cream_brick_timber_frame",
+    "count": 4
+  }
+}

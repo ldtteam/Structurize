@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:lime_clay_shingle_slab"
+    ]
+  },
+  "criteria": {
+    "has_lime_clay_shingle_slab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:lime_clay_shingle_slab"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:lime_clay_shingle_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_lime_clay_shingle_slab",
+      "has_the_recipe"
+    ]
+  ]
+}

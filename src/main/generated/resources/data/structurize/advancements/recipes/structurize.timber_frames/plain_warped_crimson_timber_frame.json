@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:plain_warped_crimson_timber_frame"
+    ]
+  },
+  "criteria": {
+    "has_plain_warped_crimson_timber_frame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:plain_warped_crimson_timber_frame"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:plain_warped_crimson_timber_frame"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_plain_warped_crimson_timber_frame",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:cream_brick_slab"
+    ]
+  },
+  "criteria": {
+    "has_cream_bricks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:cream_bricks"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:cream_brick_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_cream_bricks",
+      "has_the_recipe"
+    ]
+  ]
+}

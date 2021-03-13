@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_glass_pane_post",
+  "textures": {
+    "pane": "structurize:blocks/paperwall/birch_pane",
+    "edge": "structurize:blocks/paperwall/birch_edge"
+  }
+}

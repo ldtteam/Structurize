@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:purple_slate_dark_oak_shingle"
+    ]
+  },
+  "criteria": {
+    "has_purple_slate_dark_oak_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:purple_slate_dark_oak_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:purple_slate_dark_oak_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_purple_slate_dark_oak_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

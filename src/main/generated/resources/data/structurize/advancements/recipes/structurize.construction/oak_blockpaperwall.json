@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:oak_blockpaperwall"
+    ]
+  },
+  "criteria": {
+    "has_oak_blockpaperwall": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:oak_blockpaperwall"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:oak_blockpaperwall"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_oak_blockpaperwall",
+      "has_the_recipe"
+    ]
+  ]
+}

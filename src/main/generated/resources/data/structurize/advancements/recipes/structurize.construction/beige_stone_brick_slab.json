@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:beige_stone_brick_slab"
+    ]
+  },
+  "criteria": {
+    "has_beige_stone_bricks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:beige_stone_bricks"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:beige_stone_brick_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_beige_stone_bricks",
+      "has_the_recipe"
+    ]
+  ]
+}

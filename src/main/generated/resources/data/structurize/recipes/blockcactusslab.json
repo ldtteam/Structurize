@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "structurize:blockcactusplank"
+    }
+  },
+  "result": {
+    "item": "structurize:blockcactusslab",
+    "count": 6
+  }
+}

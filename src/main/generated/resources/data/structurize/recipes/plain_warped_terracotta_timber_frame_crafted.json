@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "F",
+    "C",
+    "S"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:warped_planks"
+    },
+    "C": {
+      "item": "minecraft:terracotta"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "result": {
+    "item": "structurize:plain_warped_terracotta_timber_frame",
+    "count": 4
+  }
+}

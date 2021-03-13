@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:jungle_blockpaperwall"
+    ]
+  },
+  "criteria": {
+    "has_jungle_blockpaperwall": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:jungle_blockpaperwall"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:jungle_blockpaperwall"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_jungle_blockpaperwall",
+      "has_the_recipe"
+    ]
+  ]
+}

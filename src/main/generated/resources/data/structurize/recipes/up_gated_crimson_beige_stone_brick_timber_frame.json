@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "structurize:side_framed_crimson_beige_stone_brick_timber_frame"
+    }
+  ],
+  "result": {
+    "item": "structurize:up_gated_crimson_beige_stone_brick_timber_frame"
+  }
+}

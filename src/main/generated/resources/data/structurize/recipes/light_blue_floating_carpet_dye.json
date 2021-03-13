@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "tag": "structurize:floating_carpets"
+    },
+    {
+      "item": "minecraft:light_blue_dye"
+    }
+  ],
+  "result": {
+    "item": "structurize:light_blue_floating_carpet",
+    "count": 8
+  }
+}

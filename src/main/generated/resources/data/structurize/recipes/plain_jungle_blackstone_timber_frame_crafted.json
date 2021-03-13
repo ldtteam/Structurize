@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "F",
+    "C",
+    "S"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:jungle_planks"
+    },
+    "C": {
+      "item": "minecraft:blackstone"
+    },
+    "S": {
+      "item": "structurize:sceptergold"
+    }
+  },
+  "result": {
+    "item": "structurize:plain_jungle_blackstone_timber_frame",
+    "count": 4
+  }
+}

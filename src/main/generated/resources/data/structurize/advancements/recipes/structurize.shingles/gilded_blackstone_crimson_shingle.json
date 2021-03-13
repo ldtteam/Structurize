@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:gilded_blackstone_crimson_shingle"
+    ]
+  },
+  "criteria": {
+    "has_gilded_blackstone_crimson_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:gilded_blackstone_crimson_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:gilded_blackstone_crimson_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gilded_blackstone_crimson_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}
