@@ -1,7 +1,0 @@
-{
-  "parent": "block/template_glass_pane_side",
-  "textures": {
-    "edge": "structurize:blocks/paperwall/paperwall_dark_oak_top",
-    "pane": "structurize:blocks/paperwall/paperwall_dark_oak_white"
-  }
-}
