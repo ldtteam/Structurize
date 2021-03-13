@@ -1,13 +1,6 @@
 {
     "block.structurize.blockbarreldeco_onside": "Barrel Horizontal",
     "block.structurize.blockbarreldeco_standing": "Barrel Vertical",
-    "block.structurize.blockcactusdoor": "Cactus Door",
-    "block.structurize.blockcactusfence": "Cactus Fence",
-    "block.structurize.blockcactusfencegate": "Cactus Fence Gate",
-    "block.structurize.blockcactusplank": "Cactus Planks",
-    "block.structurize.blockcactusslab": "Cactus Slab",
-    "block.structurize.blockcactusstair": "Cactus Stairs",
-    "block.structurize.blockcactustrapdoor": "Cactus Trapdoor",
     "block.structurize.blockfluidsubstitution": "Fluid Placeholder",
     "block.structurize.blocksolidsubstitution": "Solid Placeholder",
     "block.structurize.blocksubstitution": "Placeholder Block",
