@@ -2,7 +2,6 @@ package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.api.blocks.*;
 import com.ldtteam.structurize.api.generation.*;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
@@ -21,10 +20,8 @@ import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
-// Creates types for TimberFrame with different variants of wood and texture
-
+/** Creates types for TimberFrame with different variants of wood and texture */
 public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 {
     PLAIN("plain", "Vertical", false),
