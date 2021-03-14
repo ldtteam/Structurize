@@ -10,6 +10,7 @@ import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
+import com.ldtteam.structurize.util.BlockToItemMaps.MapEnum;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -419,7 +420,7 @@ public class Blueprint
      * @return an item or null if not initialized.
      */
     @Nullable
-    public Item getItem(final BlockPos pos)
+    public Item getItem(final BlockPos pos, final MapEnum mapEnum)
     {
         @Nullable
         final BlockInfo info = this.getBlockInfoAsMap().getOrDefault(pos, null);
@@ -429,7 +430,7 @@ public class Blueprint
             return null;
         }
 
-        final ItemStack stack = BlockUtils.getItemStackFromBlockState(info.getState());
+        final ItemStack stack = BlockUtils.getItemStackFromBlockState(info.getState(), mapEnum);
 
         if (!ItemStackUtils.isEmpty(stack))
         {

@@ -4,8 +4,10 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockToItemMaps;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.BlockToItemMaps.MapEnum;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -256,7 +258,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
             {
@@ -372,7 +374,7 @@ public final class PlacementHandlers
             final List<ItemStack> itemList = new ArrayList<>();
             if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+                itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             }
             return itemList;
         }
@@ -467,7 +469,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             return itemList;
         }
     }
@@ -547,7 +549,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
@@ -723,8 +725,9 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            final List<ItemStack> itemList = new ArrayList<>();
+            itemList.add(BlockToItemMaps.getVanillaItem(((FlowerPotBlock) blockState.getBlock()).getFlower()).asItem().getDefaultInstance());
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }
@@ -769,7 +772,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
 
             itemList.removeIf(ItemStackUtils::isEmpty);
@@ -826,7 +829,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.SURVIVAL_PLUS_BUILDING));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }

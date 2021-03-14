@@ -6,6 +6,7 @@ import com.ldtteam.structurize.network.messages.ReplaceBlockClientUpdateMessage;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
+import com.ldtteam.structurize.util.BlockToItemMaps.MapEnum;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -245,7 +246,7 @@ public class TickedWorldOperation
                     final BlockPos here = new BlockPos(x, y, z);
                     final BlockState blockState = world.getBlockState(here);
                     // can not use strict version because we are placing block
-                    ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
+                    ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState, MapEnum.CREATIVE_NOT_BUILDING);
                     if (blockState.getBlock() == Blocks.CAVE_AIR)
                     {
                         stack = ModItems.vanillaCaveAir.get().getDefaultInstance();

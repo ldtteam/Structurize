@@ -9,6 +9,7 @@ import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockToItemMaps.MapEnum;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -185,7 +186,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                     final BlockPos pos = positionsList.get(index);
                     final List<String> tags = dataTE.getPositionedTags().get(pos);
 
-                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)));
+                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)), MapEnum.ALL);
                     rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
 
                     final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);

@@ -14,6 +14,7 @@ import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.BlockToItemMaps.MapEnum;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -45,19 +46,14 @@ public class WindowScan extends AbstractWindowSkeleton
     private static final String BUILDING_NAME_RESOURCE_SUFFIX = ":gui/windowscantool.xml";
 
     /**
-     * Id of clicking enter.
-     */
-    //private static final int ENTER_KEY = 28;
-
-    /**
      * Contains all resources needed for a certain build.
      */
-    private Map<String, ItemStorage> resources = new HashMap<>();
+    private final Map<String, ItemStorage> resources = new HashMap<>(256);
 
     /**
      * Contains all entities needed for a certain build.
      */
-    private Map<String, Entity> entities = new HashMap<>();
+    private final Map<String, Entity> entities = new HashMap<>();
 
     /**
      * White color.
@@ -312,8 +308,8 @@ public class WindowScan extends AbstractWindowSkeleton
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
         final World world = Minecraft.getInstance().world;
-        resources = new HashMap<>(300);
-        entities = new HashMap<>(30);
+        resources.clear();
+        entities.clear();
 
         if (findPaneByID(BUTTON_SHOW_RES).isVisible())
         {
@@ -342,7 +338,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 }
                 else
                 {
-                    addNeededResource(BlockUtils.getItemStackFromBlockStateStrict(blockState), 1);
+                    addNeededResource(BlockUtils.getItemStackFromBlockState(blockState, MapEnum.CREATIVE_NOT_BUILDING), 1);
                 }
             }
         });
