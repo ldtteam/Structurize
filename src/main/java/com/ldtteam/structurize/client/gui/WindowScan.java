@@ -18,7 +18,6 @@ import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BedPart;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
@@ -53,12 +52,12 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all resources needed for a certain build.
      */
-    private final Map<String, ItemStorage> resources = new HashMap<>();
+    private Map<String, ItemStorage> resources = new HashMap<>();
 
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Map<String, Entity> entities = new HashMap<>();
+    private Map<String, Entity> entities = new HashMap<>();
 
     /**
      * White color.
@@ -274,20 +273,20 @@ public class WindowScan extends AbstractWindowSkeleton
     public boolean onKeyTyped(final char ch, final int key)
     {
         final boolean result = super.onKeyTyped(ch, key);
-        final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
-        if (!name.isEmpty())
+        final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText().toLowerCase(Locale.US);
+        if (!filter.equals(name))
         {
             filter = name;
+            updateResources();
         }
 
-        updateResources();
         return result;
     }
 
     /**
      * Clears and resets/updates all resources.
      */
-    private void updateResources()
+    public void updateResources()
     {
         final BlockPos def = Minecraft.getInstance().player.getPosition();
         try
@@ -304,8 +303,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUniqueID());
-            close();
+            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid number in scal tool positions!"), Minecraft.getInstance().player.getUniqueID());
             return;
         }
 
@@ -314,66 +312,50 @@ public class WindowScan extends AbstractWindowSkeleton
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
         final World world = Minecraft.getInstance().world;
-        resources.clear();
-        entities.clear();
+        resources = new HashMap<>(300);
+        entities = new HashMap<>(30);
 
         if (findPaneByID(BUTTON_SHOW_RES).isVisible())
         {
             return;
         }
 
-        for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
-        {
-            for(int y = Math.min(pos1.getY(), pos2.getY()); y <= Math.max(pos1.getY(), pos2.getY()); y++)
+        BlockPos.getAllInBoxMutable(pos1, pos2).forEach(here -> {
+            final BlockState blockState = world.getBlockState(here);
+            final TileEntity tileEntity = world.getTileEntity(here);
+
+            @Nullable final Block block = blockState.getBlock();
+            if (block != null)
             {
-                for(int z = Math.min(pos1.getZ(), pos2.getZ()); z <= Math.max(pos1.getZ(), pos2.getZ()); z++)
+                if (tileEntity != null)
                 {
-                    final BlockPos here = new BlockPos(x, y, z);
-                    final BlockState blockState = world.getBlockState(here);
-                    final TileEntity tileEntity = world.getTileEntity(here);
-                    final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
-
-                    for (final Entity entity : list)
+                    for (final ItemStack stack : ItemStackUtils.getItemStacksOfTileEntity(tileEntity))
                     {
-                        if (!entities.containsKey(entity.getName().getString())
-                                && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                                    || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
-                        {
-                            entities.put(entity.getName().getString(), entity);
-                        }
-                    }
-
-                    @Nullable final Block block = blockState.getBlock();
-                    if (block != null)
-                    {
-                        if (tileEntity != null)
-                        {
-                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world, here));
-                            for (final ItemStack stack : itemList)
-                            {
-                                addNeededResource(stack, 1);
-                            }
-                        }
-
-                        if ((block instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD)
-                        || block instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
-                        {
-                            // noop
-                        }
-                        else if (block == Blocks.AIR)
-                        {
-                            addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
-                        }
-                        else
-                        {
-                            addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
-                        }
+                        addNeededResource(stack.copy(), 1);
                     }
                 }
+
+                if ((block instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD)
+                || block instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
+                {
+                    // noop
+                }
+                else
+                {
+                    addNeededResource(BlockUtils.getItemStackFromBlockStateStrict(blockState), 1);
+                }
+            }
+        });
+
+        for (final Entity entity : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos1, pos2)))
+        {
+            if (!entities.containsKey(entity.getName().getString())
+                    && (filter.isEmpty() || entity.getName().getString().toLowerCase(Locale.US).contains(filter)))
+            {
+                entities.put(entity.getName().getString(), entity);
             }
         }
 
-        window.findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class).refreshElementPanes();
         updateResourceList();
         updateEntitylist();
     }
@@ -391,23 +373,21 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
-        ItemStorage resource = resources.get(res.getTranslationKey() + ":" + res.getDamage() + "-" + hashCode);
+        final String key = res.getTranslationKey() + ":" + res.getDamage() + "-" + (res.hasTag() ? res.getTag().hashCode() : 0);
+        ItemStorage resource = resources.get(key);
         if (resource == null)
         {
             resource = new ItemStorage(res);
             resource.setAmount(amount);
+
+            if (filter.isEmpty() || res.getDisplayName().getString().toLowerCase(Locale.US).contains(filter))
+            {
+                resources.put(key, resource);
+            }
         }
         else
         {
             resource.setAmount(resource.getAmount() + amount);
-        }
-
-        if (filter.isEmpty()
-                || res.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                || res.getDisplayName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
-        {
-            resources.put(res.getTranslationKey() + ":" + res.getDamage() + "-" + hashCode, resource);
         }
     }
 

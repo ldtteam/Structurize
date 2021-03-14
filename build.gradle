@@ -1,4 +1,5 @@
 import groovy.json.*
+import java.nio.file.Path
 
 buildscript {
     repositories {
@@ -155,6 +156,22 @@ minecraft {
         }
     }
 }
+
+/* TODO: possible only with newer gradle, now lang changes are NOT working for eclipse and vscode
+eclipse {
+    autoBuildTasks mergeLangJson(with proper file argument)
+}
+
+// this doesnt work as it's overriden every eclipse build call
+eclipse.classpath.file.beforeMerged {
+    entries.each {
+        if (it.path.equals('src/main/resources'))
+        {
+            project.mergeLangJson(file(it.output).toPath())
+        }
+    }
+}
+*/
 
 //From forge
 task downloadCrowdin() {
@@ -381,15 +398,20 @@ task setupCIWorkspace {
 
 processResources {
     doLast {
-        if (file('src/main/generated/resources/assets/structurize/lang/default.json').exists()) {
-            def slurper = new JsonSlurper()
-            def standard = slurper.parse(file('src/main/resources/assets/structurize/lang/en_us.json'))
-            def generated = slurper.parse(file('src/main/generated/resources/assets/structurize/lang/default.json'))
+        mergeLangJson(getDestinationDir().toPath())
+    }
+}
 
-            standard += generated
+def mergeLangJson(Path destDir) {
+    if (file('src/main/generated/resources/assets/structurize/lang/default.json').exists()) {
+        def slurper = new JsonSlurper()
+        def standard = slurper.parse(file('src/main/resources/assets/structurize/lang/en_us.json'))
+        def generated = slurper.parse(file('src/main/generated/resources/assets/structurize/lang/default.json'))
 
-            file('build/resources/main/assets/structurize/lang/en_us.json').write(JsonOutput.toJson(standard))
-        }
+        standard += generated
+
+        println destDir.resolve('assets/structurize/lang/en_us.json')
+        file(destDir.resolve('assets/structurize/lang/en_us.json')).write(JsonOutput.toJson(standard))
     }
 }
 

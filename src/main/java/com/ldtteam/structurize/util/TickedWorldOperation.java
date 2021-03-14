@@ -1,12 +1,14 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.items.ModItems;
+import com.ldtteam.structurize.network.messages.ReplaceBlockClientUpdateMessage;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -20,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
+
+import com.ldtteam.structurize.Network;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
@@ -63,7 +67,7 @@ public class TickedWorldOperation
      * The creator of the operation.
      */
     @Nullable
-    private final PlayerEntity player;
+    private final ServerPlayerEntity player;
 
     /**
      * The changeStorage associated to this operation..
@@ -100,7 +104,7 @@ public class TickedWorldOperation
       final OperationType type,
       final BlockPos startPos,
       final BlockPos endPos,
-      @Nullable final PlayerEntity player,
+      @Nullable final ServerPlayerEntity player,
       final ItemStack firstBlock,
       final ItemStack secondBlock)
     {
@@ -120,7 +124,7 @@ public class TickedWorldOperation
      * @param storage the storage for the UNDO.
      * @param player the player.
      */
-    public TickedWorldOperation(final ChangeStorage storage, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final ChangeStorage storage, @Nullable final ServerPlayerEntity player)
     {
         this.operation = OperationType.UNDO;
         this.startPos = BlockPos.ZERO;
@@ -138,7 +142,7 @@ public class TickedWorldOperation
      * @param placer the structure for the placement..
      * @param player the player.
      */
-    public TickedWorldOperation(final StructurePlacer placer, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final StructurePlacer placer, @Nullable final ServerPlayerEntity player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ZERO;
@@ -240,7 +244,12 @@ public class TickedWorldOperation
                 {
                     final BlockPos here = new BlockPos(x, y, z);
                     final BlockState blockState = world.getBlockState(here);
-                    final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
+                    // can not use strict version because we are placing block
+                    ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
+                    if (blockState.getBlock() == Blocks.CAVE_AIR)
+                    {
+                        stack = ModItems.vanillaCaveAir.get().getDefaultInstance();
+                    }
                     if (correctBlockToRemoveOrReplace(stack, blockState, firstBlock))
                     {
                         if ((blockState.getBlock() instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
@@ -287,6 +296,10 @@ public class TickedWorldOperation
                 currentPos = new BlockPos(x, y, startPos.getZ());
             }
             currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
+        }
+        if (operation == OperationType.REPLACE_BLOCK && player != null)
+        {
+            Network.getNetwork().sendToPlayer(new ReplaceBlockClientUpdateMessage(), player);
         }
         return true;
     }

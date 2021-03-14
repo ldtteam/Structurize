@@ -10,7 +10,6 @@ import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
@@ -478,7 +477,7 @@ public final class Manager
      *
      * @param player the player who made it.
      */
-    public static void undo(final PlayerEntity player)
+    public static void undo(final ServerPlayerEntity player)
     {
         final Iterable<ChangeStorage> iterable = () -> changeQueue.iterator();
         final Stream<ChangeStorage> storageStream = StreamSupport.stream(iterable.spliterator(), false);

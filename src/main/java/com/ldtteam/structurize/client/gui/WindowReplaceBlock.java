@@ -162,7 +162,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         {
             filter = filterNew;
             filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                .filter(stack -> stack.getTranslationKey().toLowerCase(Locale.US).contains(filter))
+                .filter(stack -> stack.getDisplayName().getString().toLowerCase(Locale.US).contains(filter))
                 .collect(Collectors.toList());
         }
         return result;

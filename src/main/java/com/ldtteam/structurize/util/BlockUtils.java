@@ -2,6 +2,8 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.items.ModItems;
+
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -11,7 +13,6 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.Property;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -25,12 +26,15 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -135,14 +139,14 @@ public final class BlockUtils
         return iBlockState.getBlock() == Blocks.WATER;
     }
 
-    private static Item getItem(@NotNull final BlockState blockState)
+    private static Item getItem(@NotNull final BlockState blockState, final boolean strict)
     {
         final Block block = blockState.getBlock();
         if (block.equals(Blocks.LAVA))
         {
             return Items.LAVA_BUCKET;
         }
-        else if (block instanceof CropsBlock)
+        else if (!strict && block instanceof CropsBlock)
         {
             final ItemStack stack = ((CropsBlock) block).getItem(null, null, blockState);
             if (stack != null)
@@ -153,11 +157,11 @@ public final class BlockUtils
             return Items.WHEAT_SEEDS;
         }
         // oh no... 
-        else if (block instanceof FarmlandBlock || block instanceof GrassPathBlock)
+        else if (!strict && (block instanceof FarmlandBlock || block instanceof GrassPathBlock))
         {
             return getItemFromBlock(Blocks.DIRT);
         }
-        else if (block instanceof FireBlock)
+        else if (block instanceof AbstractFireBlock)
         {
             return Items.FLINT_AND_STEEL;
         }
@@ -257,27 +261,28 @@ public final class BlockUtils
      */
     public static BlockState getBlockStateFromStack(final ItemStack stack, final BlockState def)
     {
-        if (stack.getItem() == Items.AIR)
+        final Item item = stack.getItem();
+        if (item instanceof AirItem)
         {
-            return Blocks.AIR.getDefaultState();
+            return ((AirItem) item).block.getDefaultState();
         }
-        else if (stack.getItem() instanceof BucketItem)
+        else if (item instanceof BucketItem)
         {
-            return ((BucketItem) stack.getItem()).getFluid().getDefaultState().getBlockState();
+            return ((BucketItem) item).getFluid().getDefaultState().getBlockState();
         }
-        else if (stack.getItem() instanceof BlockItem)
+        else if (item instanceof BlockItem)
         {
-            return ((BlockItem) stack.getItem()).getBlock().getDefaultState();
+            return ((BlockItem) item).getBlock().getDefaultState();
         }
 
         return def;
     }
 
     /**
-     * Mimics pick block.
+     * Mimics pick block. Tries to behave in vanilla-like behaviour.
      *
      * @param blockState the block and state we are creating an ItemStack for.
-     * @return ItemStack fromt the BlockState.
+     * @return ItemStack from the BlockState.
      */
     public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
     {
@@ -285,13 +290,45 @@ public final class BlockUtils
         {
             return new ItemStack(((FlowingFluidBlock) blockState.getBlock()).getFluid().getFilledBucket(), 1);
         }
-        final Item item = getItem(blockState);
+        final Item item = getItem(blockState, false);
         if (item != Items.AIR && item != null)
         {
             return new ItemStack(item, 1);
         }
 
         return new ItemStack(blockState.getBlock(), 1);
+    }
+
+    /**
+     * Mimics pick block. Behaves as strictly as possible - can return vanilla non-existent items like air.
+     *
+     * @param blockState the block and state we are creating an ItemStack for.
+     * @return ItemStack from the BlockState.
+     */
+    public static ItemStack getItemStackFromBlockStateStrict(@NotNull final BlockState blockState)
+    {
+        final Block block = blockState.getBlock();
+        IItemProvider item = null;
+
+        // overrides
+        if (block instanceof FlowingFluidBlock)
+        {
+            item = ((FlowingFluidBlock) block).getFluid().getFilledBucket();
+        }
+        if (block instanceof AirBlock)
+        {
+            item = AirItemHack.getByBlock(block);
+        }
+        // missing items: END_GATEWAY, END_PORTAL, NETHER_PORTAL
+        // MOVING_PISTON, PISTON_HEAD
+        // FROSTED_ICE
+        // TALL_SEAGRASS, KELP_PLANT, TWISTING_VINES_PLANT, WEEPING_VINES_PLANT
+
+        // actually get the block
+        item = item == null ? getItem(blockState, true) : item;
+        item = item == null ? block : item;
+
+        return new ItemStack(item, 1);
     }
 
     /**
@@ -314,9 +351,13 @@ public final class BlockUtils
         final Item item = stackToPlace.getItem();
         stackToPlace.setCount(stackToPlace.getMaxStackSize());
 
-        if (item instanceof AirItem)
+        if (item == Items.AIR)
         {
             world.removeBlock(here, false);
+        }
+        else if (item instanceof AirItem)
+        {
+            world.setBlockState(here, ((AirItem) item).block.getDefaultState(), Constants.UPDATE_FLAG);
         }
         else if (item instanceof BlockItem)
         {
@@ -478,5 +519,41 @@ public final class BlockUtils
             blockState = blockState.with(property, propertiesOrigin.get(property));
         }
         return blockState;
+    }
+
+    public static class AirItemHack implements IItemProvider
+    {
+        private static final Map<Block, AirItemHack> LOOKUP_MAP = new HashMap<>();
+
+        public static final AirItemHack AIR = new AirItemHack(Items.AIR, Blocks.AIR);
+        public static final AirItemHack CAVE_AIR = new AirItemHack(ModItems.vanillaCaveAir.get(), Blocks.CAVE_AIR);
+        public static final AirItemHack VOID_AIR = new AirItemHack(ModItems.vanillaVoidAir.get(), Blocks.VOID_AIR);
+
+        private final AirItem vanillaItem;
+        private final Block vanillaBlock;
+
+        private AirItemHack(final Item vanillaItem, final Block vanillaBlock)
+        {
+            this.vanillaItem = (AirItem) vanillaItem;
+            this.vanillaBlock = vanillaBlock;
+            LOOKUP_MAP.put(vanillaBlock, this);
+        }
+
+        @Override
+        public Item asItem()
+        {
+            return vanillaItem;
+        }
+
+        public Block getVanillaBlock()
+        {
+            return vanillaBlock;
+        }
+
+        @Nullable
+        public static AirItemHack getByBlock(final Block block)
+        {
+            return LOOKUP_MAP.get(block);
+        }
     }
 }

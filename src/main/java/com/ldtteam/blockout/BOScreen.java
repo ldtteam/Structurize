@@ -289,4 +289,9 @@ public class BOScreen extends Screen
     {
         return (yIn * mcScale - y) / renderScale;
     }
+
+    public Window getWindow()
+    {
+        return window;
+    }
 }

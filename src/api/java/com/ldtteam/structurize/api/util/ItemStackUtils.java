@@ -3,6 +3,7 @@ package com.ldtteam.structurize.api.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.*;
@@ -47,13 +48,25 @@ public final class ItemStackUtils
      */
     public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world, final BlockPos pos)
     {
+        return getItemStacksOfTileEntity(TileEntity.readTileEntity(world.getBlockState(pos), compound));
+    }
+
+    /**
+     * Get itemStack of tileEntityData. Retrieve the data from the tileEntity.
+     *
+     * @param compound the tileEntity stored in a compound.
+     * @param world the world.
+     * @return the list of itemstacks.
+     */
+    public static List<ItemStack> getItemStacksOfTileEntity(final TileEntity tileEntity)
+    {
         final List<ItemStack> items = new ArrayList<>();
-        final TileEntity tileEntity = TileEntity.readTileEntity(world.getBlockState(pos), compound);
-        if (tileEntity instanceof LockableTileEntity)
+        if (tileEntity instanceof IInventory)
         {
-            for (int i = 0; i < ((LockableTileEntity) tileEntity).getSizeInventory(); i++)
+            final IInventory inv = (IInventory) tileEntity;
+            for (int i = 0; i < inv.getSizeInventory(); i++)
             {
-                final ItemStack stack = ((LockableTileEntity) tileEntity).getStackInSlot(i);
+                final ItemStack stack = inv.getStackInSlot(i);
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     items.add(stack);
@@ -71,7 +84,7 @@ public final class ItemStackUtils
      * @return True when the stack is empty, false when not.
      */
     @NotNull
-    public static Boolean isEmpty(@Nullable final ItemStack stack)
+    public static boolean isEmpty(@Nullable final ItemStack stack)
     {
         return stack == null || stack == EMPTY || stack.getCount() <= 0;
     }

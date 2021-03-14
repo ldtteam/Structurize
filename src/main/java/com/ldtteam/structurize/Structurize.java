@@ -47,6 +47,7 @@ public class Structurize
 
         ModBlocks.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         ModItems.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModItems.getVanillaOverrideRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
