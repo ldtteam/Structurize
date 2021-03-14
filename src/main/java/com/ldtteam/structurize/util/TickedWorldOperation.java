@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ReplaceBlockClientUpdateMessage;
@@ -23,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
-
-import com.ldtteam.structurize.Network;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.

@@ -186,7 +186,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                     final BlockPos pos = positionsList.get(index);
                     final List<String> tags = dataTE.getPositionedTags().get(pos);
 
-                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)), MapEnum.ALL);
+                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)), MapEnum.CREATIVE_NOT_BUILDING);
                     rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
 
                     final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
