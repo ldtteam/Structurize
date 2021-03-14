@@ -2,6 +2,7 @@ package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.api.blocks.*;
 import com.ldtteam.structurize.api.generation.*;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // Creates types for TimberFrame with different variants of wood and texture
 
@@ -42,7 +44,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     private final List<RegistryObject<BlockTimberFrame>> blocks = new LinkedList<>();
 
     // <centre, pair<tag group, map<wood, tag>>
-    public static final Map<TimberFrameCentreType, Tuple<ITag.INamedTag<Block>, Map<WoodType, ITag.INamedTag<Block>>>> blockTags = new HashMap<>();
+    public static final Map<TimberFrameCentreType, Tuple<ITag.INamedTag<Block>, Map<WoodType, ITag.INamedTag<Block>>>> blockTags = new LinkedHashMap<>();
     public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.makeWrapperTag("structurize:timber_frames/timber_frames");
 
     TimberFrameType(final String name, final String langName, final boolean rotatable)
@@ -173,7 +175,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
             if (!blockTags.containsKey(centre))
             {
                 ITag.INamedTag<Block> tag = blocks.createTag("timber_frames/" + centre.getString());
-                blockTags.put(centre, new Tuple<>(tag, new HashMap<>()));
+                blockTags.put(centre, new Tuple<>(tag, new LinkedHashMap<>()));
                 blocks.buildTag(BLOCK_TAG).addTag(tag);
             }
 
@@ -184,6 +186,9 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 
             blocks.buildTag(blockTags.get(centre).getB().get(wood)).add(block.get());
         });
+
+        // Run precisely once, not for every frame type
+        if (this.ordinal() < TimberFrameType.values().length - 1) return;
 
         blockTags.forEach((c, pair) -> {
             TagsProvider.Builder<Block> builder = blocks.buildTag(pair.getA());

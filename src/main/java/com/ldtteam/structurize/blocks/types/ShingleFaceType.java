@@ -38,8 +38,8 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     BLACKSTONE("blackstone", "Blackstone", Blocks.BLACKSTONE),
     GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
-    private final Map<WoodType, List<RegistryObject<BlockShingle>>> blocks    = new HashMap<>();
-    private final Map<WoodType, ITag.INamedTag<Block>> blockTags = new HashMap<>();
+    private final Map<WoodType, List<RegistryObject<BlockShingle>>> blocks    = new LinkedHashMap<>();
+    private final Map<WoodType, ITag.INamedTag<Block>> blockTags = new LinkedHashMap<>();
 
     final String group;
     final String langName;
