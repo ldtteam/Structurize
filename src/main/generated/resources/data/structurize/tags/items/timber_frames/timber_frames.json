@@ -38,6 +38,7 @@
     "#structurize:timber_frames/paper",
     "#structurize:timber_frames/cobblestone",
     "#structurize:timber_frames/blackstone",
+    "#structurize:timber_frames/sandstone",
     "#structurize:timber_frames/stone"
   ]
 }
