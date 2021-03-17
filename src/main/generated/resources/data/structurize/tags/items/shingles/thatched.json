@@ -1,14 +1,14 @@
 {
   "replace": false,
   "values": [
+    "#structurize:shingles/thatched/oak",
+    "#structurize:shingles/thatched/spruce",
+    "#structurize:shingles/thatched/birch",
+    "#structurize:shingles/thatched/jungle",
     "#structurize:shingles/thatched/acacia",
     "#structurize:shingles/thatched/dark_oak",
-    "#structurize:shingles/thatched/jungle",
     "#structurize:shingles/thatched/warped",
-    "#structurize:shingles/thatched/oak",
     "#structurize:shingles/thatched/crimson",
-    "#structurize:shingles/thatched/cactus",
-    "#structurize:shingles/thatched/birch",
-    "#structurize:shingles/thatched/spruce"
+    "#structurize:shingles/thatched/cactus"
   ]
 }
