@@ -30,11 +30,11 @@ import java.util.stream.Collectors;
  */
 public enum ShingleFaceType implements IBlockList<BlockShingle>
 {
-    //CLAY
     CLAY("clay", "Clay", Items.BRICK, DyeColor.values()),
     SLATE("slate", "Slate", Blocks.COBBLESTONE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.PURPLE),
     MOSS_SLATE("moss_slate", "Moss Slate", Blocks.MOSSY_COBBLESTONE),
     THATCHED("thatched", "Thatched", Items.WHEAT),
+    REED("reed", "Reed", Items.SUGAR_CANE),
     BLACKSTONE("blackstone", "Blackstone", Blocks.BLACKSTONE),
     GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
