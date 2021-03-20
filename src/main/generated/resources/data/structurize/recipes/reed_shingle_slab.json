@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "SSS"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:sugar_cane"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "structurize:reed_shingle_slab",
+    "count": 8
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "#structurize:shingles/reed/oak",
+    "#structurize:shingles/reed/spruce",
+    "#structurize:shingles/reed/birch",
+    "#structurize:shingles/reed/jungle",
+    "#structurize:shingles/reed/acacia",
+    "#structurize:shingles/reed/dark_oak",
+    "#structurize:shingles/reed/warped",
+    "#structurize:shingles/reed/crimson",
+    "#structurize:shingles/reed/cactus"
+  ]
+}

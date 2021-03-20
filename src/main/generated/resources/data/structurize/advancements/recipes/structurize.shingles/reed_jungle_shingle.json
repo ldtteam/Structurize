@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "structurize:reed_jungle_shingle"
+    ]
+  },
+  "criteria": {
+    "has_reed_jungle_shingle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "structurize:reed_jungle_shingle"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "structurize:reed_jungle_shingle"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_reed_jungle_shingle",
+      "has_the_recipe"
+    ]
+  ]
+}

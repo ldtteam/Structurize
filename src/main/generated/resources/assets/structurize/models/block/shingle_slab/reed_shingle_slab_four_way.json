@@ -1,0 +1,9 @@
+{
+  "parent": "structurize:block/shingle_slab/shingle_slab_four_way",
+  "textures": {
+    "1": "structurize:blocks/shingle/reed_shingle_1",
+    "2": "structurize:blocks/shingle/reed_shingle_2",
+    "3": "structurize:blocks/shingle/reed_shingle_3",
+    "particle": "structurize:blocks/shingle/reed_shingle_1"
+  }
+}
