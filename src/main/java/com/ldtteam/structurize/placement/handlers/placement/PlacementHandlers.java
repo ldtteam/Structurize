@@ -735,7 +735,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof ChestBlock;
+            return blockState.getBlock() instanceof ContainerBlock;
         }
 
         @Override
@@ -900,10 +900,10 @@ public final class PlacementHandlers
      */
     public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final World world, final BlockPos pos)
     {
-        if (tileEntityData != null)
+        if (tileEntityData == null)
         {
-            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
     }
 }
