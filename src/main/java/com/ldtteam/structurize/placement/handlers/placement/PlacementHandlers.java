@@ -45,7 +45,6 @@ public final class PlacementHandlers
     {
         handlers.add(new AirPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
-        handlers.add(new WaterPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new BlockGrassPathPlacementHandler());
         handlers.add(new GrassPlacementHandler());
@@ -99,39 +98,6 @@ public final class PlacementHandlers
         /*
          * Intentionally left empty.
          */
-    }
-
-    public static class WaterPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(@NotNull World world, @NotNull BlockPos pos, @NotNull BlockState blockState)
-        {
-            return blockState.getBlock() == Blocks.WATER;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          @NotNull World world,
-          @NotNull BlockPos pos,
-          @NotNull BlockState blockState,
-          @Nullable CompoundNBT tileEntityData,
-          boolean complete)
-        {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public ActionProcessingResult handle(
-          @NotNull World world,
-          @NotNull BlockPos pos,
-          @NotNull BlockState blockState,
-          @Nullable CompoundNBT tileEntityData,
-          boolean complete,
-          BlockPos centerPos)
-        {
-            world.setBlockState(pos, blockState, UPDATE_FLAG);
-            return ActionProcessingResult.PASS;
-        }
     }
 
     public static class FluidSubstitutionPlacementHandler implements IPlacementHandler
