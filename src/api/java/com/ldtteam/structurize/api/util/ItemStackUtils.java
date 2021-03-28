@@ -6,16 +6,20 @@ import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
  * Utility methods for the inventories.
@@ -47,20 +51,45 @@ public final class ItemStackUtils
      */
     public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world, final BlockPos pos)
     {
-        final List<ItemStack> items = new ArrayList<>();
         final TileEntity tileEntity = TileEntity.readTileEntity(world.getBlockState(pos), compound);
-        if (tileEntity instanceof LockableTileEntity)
+        if (tileEntity == null)
         {
-            for (int i = 0; i < ((LockableTileEntity) tileEntity).getSizeInventory(); i++)
+            return Collections.emptyList();
+        }
+        tileEntity.setWorldAndPos(world, pos);
+
+        final List<ItemStack> items = new ArrayList<>();
+        for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
+        {
+            for (int slot = 0; slot < handler.getSlots(); slot++)
             {
-                final ItemStack stack = ((LockableTileEntity) tileEntity).getStackInSlot(i);
+                final ItemStack stack = handler.getStackInSlot(slot);
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     items.add(stack);
                 }
             }
         }
+
         return items;
+    }
+
+    /**
+     * Method to get all the IItemHandlers from a given Provider.
+     *
+     * @param provider The provider to get the IItemHandlers from.
+     * @return A list with all the unique IItemHandlers a provider has.
+     */
+    @NotNull
+    public static Set<IItemHandler> getItemHandlersFromProvider(@NotNull final ICapabilityProvider provider)
+    {
+        final Set<IItemHandler> handlerSet = new HashSet<>();
+        for (final Direction side : Direction.values())
+        {
+           provider.getCapability(ITEM_HANDLER_CAPABILITY, side).ifPresent(handlerSet::add);
+        }
+        provider.getCapability(ITEM_HANDLER_CAPABILITY, null).ifPresent(handlerSet::add);
+        return handlerSet;
     }
 
     /**
