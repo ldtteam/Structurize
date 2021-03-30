@@ -181,7 +181,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             final TileEntity te = world.getTileEntity(anchorPos.get());
             if (te instanceof IBlueprintDataProvider)
             {
-                ((IBlueprintDataProvider) te).setSchematicName(fileName);
+                if (((IBlueprintDataProvider) te).getSchematicName().length() == 0) {
+                    ((IBlueprintDataProvider) te).setSchematicName(fileName);
+                }
                 ((IBlueprintDataProvider) te).setCorners(from.subtract(anchorPos.get()), to.subtract(anchorPos.get()));
             }
         }
