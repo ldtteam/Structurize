@@ -28,7 +28,7 @@ import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FAC
 public class BlockBarrel extends Block implements IWaterLoggable
 {
     /**
-     * This Blocks shape.
+     * This block's shape.
      */
     protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
 
@@ -72,11 +72,13 @@ public class BlockBarrel extends Block implements IWaterLoggable
         return super.getStateForPlacement(context).with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing()).with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
     }
 
+    @Override
     public FluidState getFluidState(BlockState state)
     {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
     }
 
+    @Override
     public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
     {
         if (stateIn.get(WATERLOGGED))
