@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.event;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.Network;
@@ -12,18 +14,27 @@ import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraft.item.Item;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.resource.VanillaResourceType;
+
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LifecycleSubscriber
 {
@@ -109,5 +120,81 @@ public class LifecycleSubscriber
 
         // Default
         event.getGenerator().addProvider(new DefaultBlockLootTableProvider(event.getGenerator()));
+    }
+
+    @SubscribeEvent
+    public static void onMissingBlockMappings(final RegistryEvent.MissingMappings<Block> missingBlockEvent)
+    {
+        final ImmutableList<RegistryEvent.MissingMappings.Mapping<Block>> missingBlocks = missingBlockEvent.getMappings(Constants.MOD_ID);
+        if (missingBlocks.isEmpty())
+        {
+            return;
+        }
+
+        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingBlocks);
+    }
+
+    @SubscribeEvent
+    public static void onMissingItemMappings(final RegistryEvent.MissingMappings<Item> missingBlockEvent)
+    {
+        final ImmutableList<RegistryEvent.MissingMappings.Mapping<Item>> missingItems = missingBlockEvent.getMappings(Constants.MOD_ID);
+        if (missingItems.isEmpty())
+        {
+            return;
+        }
+
+        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingItems);
+    }
+
+    private static <T extends IForgeRegistryEntry<T>> void handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(ImmutableList<RegistryEvent.MissingMappings.Mapping<T>> missingMappings)
+    {
+        final Map<Pattern, String> replacementPatterns = ImmutableMap.<Pattern, String>builder()
+                                                           .put(
+                                                             Pattern.compile("(\\S+)stone_brick(\\S+)"),
+                                                             "stone_bricks"
+                                                           )
+                                                           .put(
+                                                             Pattern.compile("(\\S+)cobble_stone(\\S+)"),
+                                                             "cobblestone"
+                                                           )
+                                                           .put(
+                                                             Pattern.compile("(\\S+)blockbrownbrick(\\S+)"),
+                                                             "brown_brick"
+                                                           )
+                                                           .put(
+                                                             Pattern.compile("(\\S+)blockbeigebrick(\\S+)"),
+                                                             "beige_brick"
+                                                           )
+                                                           .put(
+                                                             Pattern.compile("(\\S+)blockcreambrick(\\S+)"),
+                                                             "cream_brick"
+                                                           )
+                                                           .build();
+
+
+        missingMappings.forEach(mapping -> {
+            if (mapping.key.getPath().equals("placeholderblock"))
+            {
+                mapping.ignore();
+                return;
+            }
+
+            final String namespace = mapping.key.getNamespace();
+            final String path = mapping.key.getPath();
+            for (final Map.Entry<Pattern, String> patternToReplace : replacementPatterns.entrySet())
+            {
+                final Matcher patternMatcher = patternToReplace.getKey().matcher(path);
+                if (patternMatcher.find()) {
+                    final String replacedPath = patternMatcher.replaceAll("$1" + patternToReplace.getValue() + "$2");
+                    final ResourceLocation remappedObjectKey = new ResourceLocation(namespace, replacedPath);
+
+                    if (mapping.registry.containsKey(remappedObjectKey)) {
+                        final T remappedObject = mapping.registry.getValue(remappedObjectKey);
+                        mapping.remap(remappedObject);
+                        break;
+                    }
+                }
+            }
+        });
     }
 }
