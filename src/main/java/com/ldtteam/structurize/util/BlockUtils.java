@@ -198,9 +198,14 @@ public final class BlockUtils
         final Block structureBlock = structureState.getBlock();
         final Block worldBlock = worldState.getBlock();
 
+        if (worldState.equals(structureState))
+        {
+            return true;
+        }
+
         if (fancy)
         {
-            if (structureBlock == ModBlocks.blockSubstitution.get() || worldState.equals(structureState))
+            if (structureBlock == ModBlocks.blockSubstitution.get())
             {
                 return true;
             }
