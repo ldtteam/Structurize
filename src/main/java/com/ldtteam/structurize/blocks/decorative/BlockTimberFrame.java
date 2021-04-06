@@ -58,17 +58,20 @@ public class BlockTimberFrame extends DirectionalBlock
     }
 
     @Override
-    public BlockState rotate(BlockState state, Rotation rot) {
+    public BlockState rotate(BlockState state, Rotation rot)
+    {
         return state.with(FACING, rot.rotate(state.get(FACING)));
     }
 
     @Override
-    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+    public BlockState mirror(BlockState state, Mirror mirrorIn)
+    {
         return state.rotate(mirrorIn.toRotation(state.get(FACING)));
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockItemUseContext context)
+    {
         return this.getDefaultState().with(FACING, context.getNearestLookingDirection().getOpposite());
     }
 
