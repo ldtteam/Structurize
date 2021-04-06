@@ -10,6 +10,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 
 /**
  * Decorative block
@@ -19,12 +20,12 @@ public class BlockTimberFrame extends DirectionalBlock
     /**
      * The hardness this block has.
      */
-    private static final float                         BLOCK_HARDNESS = 3F;
+    private static final float BLOCK_HARDNESS = 3F;
 
     /**
      * The resistance this block has.
      */
-    private static final float                         RESISTANCE     = 1F;
+    private static final float RESISTANCE     = 1F;
 
     /**
      * Fields defining the registered block's wood and face types, these are used by the Data Generators
@@ -56,10 +57,17 @@ public class BlockTimberFrame extends DirectionalBlock
         builder.add(FACING);
     }
 
+    @Override
+    public BlockState rotate(BlockState state, Rotation rot) {
+        return state.with(FACING, rot.rotate(state.get(FACING)));
+    }
+
+    @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.toRotation(state.get(FACING)));
     }
 
+    @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return this.getDefaultState().with(FACING, context.getNearestLookingDirection().getOpposite());
     }
