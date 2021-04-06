@@ -262,6 +262,11 @@ public class StructurePlacer
             }
         }
 
+        if (BlockUtils.areBlockStatesEqual(localState, worldState, handler::replaceWithSolidBlock, handler.fancyPlacement(), handler::shouldBlocksBeConsideredEqual))
+        {
+            return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
+        }
+
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution.get() && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
