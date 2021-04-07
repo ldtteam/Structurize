@@ -11,10 +11,13 @@ import net.minecraft.block.Block;
 import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.data.ShapelessRecipeBuilder;
 import net.minecraft.data.TagsProvider;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
@@ -99,7 +102,8 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     public void generateBlockStates(final ModBlockStateProvider states)
     {
         getRegisteredBlocks().forEach(
-          block -> states.directionalBlock(
+          block -> processStates(
+            states,
             block.get(),
             states.models()
               .getBuilder("block/timber_frames/" + block.get().getRegistryName().getPath())
@@ -108,6 +112,19 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
                 .texture("centre", block.get().getCentreType().textureLocation)
                 .texture("particle", block.get().getCentreType().textureLocation)
           ));
+    }
+
+    public void processStates(ModBlockStateProvider states, BlockTimberFrame block, ModelFile model)
+    {
+        states.getVariantBuilder(block)
+          .forAllStates(state -> {
+              Direction dir = state.get(BlockStateProperties.FACING);
+              return ConfiguredModel.builder()
+                .modelFile(model)
+                .rotationX(!isRotatable() ? 0 : dir == Direction.DOWN ? 180 : dir.getAxis().isHorizontal() ? 90 : 0)
+                .rotationY(!isRotatable() ? 0 : dir.getAxis().isVertical() ? 0 : ((int) dir.getHorizontalAngle()) % 360)
+                .build();
+          });
     }
 
     @Override
