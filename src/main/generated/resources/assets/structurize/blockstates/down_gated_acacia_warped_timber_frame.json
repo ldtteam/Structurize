@@ -9,22 +9,22 @@
     },
     "facing=north": {
       "model": "structurize:block/timber_frames/down_gated_acacia_warped_timber_frame",
-      "x": 90
+      "x": 90,
+      "y": 180
     },
     "facing=south": {
       "model": "structurize:block/timber_frames/down_gated_acacia_warped_timber_frame",
-      "x": 90,
-      "y": 180
+      "x": 90
     },
     "facing=west": {
       "model": "structurize:block/timber_frames/down_gated_acacia_warped_timber_frame",
       "x": 90,
-      "y": 270
+      "y": 90
     },
     "facing=east": {
       "model": "structurize:block/timber_frames/down_gated_acacia_warped_timber_frame",
       "x": 90,
-      "y": 90
+      "y": 270
     }
   }
 }
