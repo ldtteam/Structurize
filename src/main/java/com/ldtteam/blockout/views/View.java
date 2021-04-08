@@ -191,7 +191,7 @@ public class View extends Pane
             {
                 p = p.parent;
             }
-            width = p.width - x;
+            width = Math.max(0, p.width - x);
         }
         if (height == 0)
         {
@@ -199,7 +199,7 @@ public class View extends Pane
             {
                 p = p.parent;
             }
-            height = p.height - y;
+            height = Math.max(0, p.height - y);
         }
     }
 
