@@ -199,7 +199,7 @@ public class View extends Pane
             {
                 p = p.parent;
             }
-            height = parent.height - y;
+            height = p.height - y;
         }
     }
 
