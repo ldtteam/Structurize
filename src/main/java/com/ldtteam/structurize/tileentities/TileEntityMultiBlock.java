@@ -97,7 +97,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     public TileEntityMultiBlock()
     {
-        super(StructurizeTileEntities.MULTIBLOCK);
+        super(ModTileEntities.MULTIBLOCK);
     }
 
     /**

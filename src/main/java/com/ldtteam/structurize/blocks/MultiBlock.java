@@ -27,11 +27,6 @@ public class MultiBlock extends Block
     private static final float BLOCK_HARDNESS = 0.0F;
 
     /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "multiblock";
-
-    /**
      * The resistance this block has.
      */
     private static final float RESISTANCE = 1F;

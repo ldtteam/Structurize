@@ -131,7 +131,7 @@ public final class ModBlocks
         blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
-        multiBlock              = register("multiBlock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
+        multiBlock              = register("multiblock", MultiBlock::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_onside  = register("blockbarreldeco_onside", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
         blockDecoBarrel_standing = register("blockbarreldeco_standing", BlockBarrel::new, ModItemGroups.STRUCTURIZE);
     }

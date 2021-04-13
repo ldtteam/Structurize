@@ -25,6 +25,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
@@ -108,7 +110,7 @@ public class EventSubscriber
             return;
         }
 
-        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingBlocks);
+        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingBlocks, ForgeRegistries.BLOCKS);
     }
 
     @SubscribeEvent
@@ -120,10 +122,10 @@ public class EventSubscriber
             return;
         }
 
-        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingItems);
+        handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(missingItems, ForgeRegistries.ITEMS);
     }
 
-    private static <T extends IForgeRegistryEntry<T>> void handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(ImmutableList<RegistryEvent.MissingMappings.Mapping<T>> missingMappings)
+    private static <T extends IForgeRegistryEntry<T>> void handleMissingMappingsDueToRestructureIn9af7543d7dcefa0bf7b52c2e809d6c8d48b803a6(final ImmutableList<RegistryEvent.MissingMappings.Mapping<T>> missingMappings, final IForgeRegistry<T> registry)
     {
         final Map<Pattern, List<String>> replacementPatterns = ImmutableMap.<Pattern, List<String>>builder()
                                                            .put(
@@ -186,8 +188,9 @@ public class EventSubscriber
                         final String replacedPath = patternMatcher.replaceAll("$1" + replacementCandidate + "$2");
                         final ResourceLocation remappedObjectKey = new ResourceLocation(namespace, replacedPath);
 
-                        if (mapping.registry.containsKey(remappedObjectKey)) {
-                            final T remappedObject = mapping.registry.getValue(remappedObjectKey);
+                        if (registry.containsKey(remappedObjectKey))
+                        {
+                            final T remappedObject = registry.getValue(remappedObjectKey);
                             mapping.remap(remappedObject);
                             return;
                         }
