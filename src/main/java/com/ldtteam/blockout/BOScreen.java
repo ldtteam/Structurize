@@ -148,12 +148,12 @@ public class BOScreen extends Screen
         // replace vanilla projection
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
         RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 10000.0D);
+        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
         final MatrixStack newMs = new MatrixStack();
         newMs.translate(x, y, renderZlevel);
-        newMs.scale((float) renderScale, (float) renderScale, (float) renderScale);
+        newMs.scale((float) renderScale, (float) renderScale, 1.0f);
         window.draw(newMs, calcRelativeX(mx), calcRelativeY(my));
         window.drawLast(newMs, calcRelativeX(mx), calcRelativeY(my));
         newMs.pop();
