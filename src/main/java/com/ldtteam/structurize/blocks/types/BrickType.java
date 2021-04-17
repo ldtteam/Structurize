@@ -13,10 +13,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.ShapelessRecipeBuilder;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -83,5 +87,26 @@ public enum BrickType implements IBlockCollection
     public String getTextureDirectory()
     {
         return "blocks/bricks";
+    }
+
+    @Override
+    public List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
+    {
+        List<RegistryObject<Block>> results = new LinkedList<>();
+
+        for (BlockType type : types)
+        {
+            RegistryObject<Block> block = registrar.register(
+              type.withSuffix(getName(), getPluralName()),
+              () -> type.constructor.apply(getProperties()));
+
+            itemRegistrar.register(
+              type.withSuffix(getName(), getPluralName()),
+              () -> new BlockItem(block.get(), new Item.Properties().group(group)));
+
+            results.add(block);
+        }
+
+        return results;
     }
 }
