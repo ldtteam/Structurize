@@ -16,6 +16,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -75,6 +76,7 @@ public interface IBlockCollection extends IGenerated
 
     /**
      * Constructs and registers each block in the collection
+     * See interface comments for the preferred content.
      * @param registrar the DeferredRegistry instance to apply the block to
      * @param itemRegistrar the DeferredRegistry instance to apply the item to
      * @param group the item group (or creative tab) to place this block in
@@ -87,13 +89,30 @@ public interface IBlockCollection extends IGenerated
 
         for (BlockType type : types)
         {
+            // J9+ has incompatibilities with J8-compiled default interfaces that use lambda generated suppliers.
+            // Do not replace the anonymous suppliers below with a lambda.
             RegistryObject<Block> block = registrar.register(
               type.withSuffix(getName(), getPluralName()),
-              () -> type.constructor.apply(getProperties()));
+              new Supplier<Block>()
+              {
+                  @Override
+                  public Block get()
+                  {
+                      return type.constructor.apply(getProperties());
+                  }
+              });
 
             itemRegistrar.register(
               type.withSuffix(getName(), getPluralName()),
-              () -> new BlockItem(block.get(), new Item.Properties().group(group)));
+              new Supplier<Item>()
+              {
+
+                  @Override
+                  public Item get()
+                  {
+                      return new BlockItem(block.get(), new Item.Properties().group(group));
+                  }
+              });
 
             results.add(block);
         }
