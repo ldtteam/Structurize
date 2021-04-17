@@ -84,30 +84,42 @@ public interface IBlockCollection extends IGenerated
      * @param types a selection of each block type that is part of the collection
      * @return each registered block in the collection
      */
-    List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types);
-    // J9+ has incompatibilities with J8-compiled default interfaces that use lambda generated suppliers.
-    // Until a better workaround to generating the suppliers is found, these must be implemented in the descendant classes instead.
-    // And, unfortunately, enums can't inherit from abstract classes.
-    // Merely having the class-specific overrides prevents the default method from causing inconsistent pool errors, but makes it easy to miss the problem in a future implementing class.
-    /*default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
+    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
     {
         List<RegistryObject<Block>> results = new LinkedList<>();
 
         for (BlockType type : types)
         {
+            // J9+ has incompatibilities with J8-compiled default interfaces that use lambda generated suppliers.
+            // Do not replace the anonymous suppliers below with a lambda.
             RegistryObject<Block> block = registrar.register(
               type.withSuffix(getName(), getPluralName()),
-              () -> type.constructor.apply(getProperties()));
+              new Supplier<Block>()
+              {
+                  @Override
+                  public Block get()
+                  {
+                      return type.constructor.apply(getProperties());
+                  }
+              });
 
             itemRegistrar.register(
               type.withSuffix(getName(), getPluralName()),
-              () -> new BlockItem(block.get(), new Item.Properties().group(group)));
+              new Supplier<Item>()
+              {
+
+                  @Override
+                  public Item get()
+                  {
+                      return new BlockItem(block.get(), new Item.Properties().group(group));
+                  }
+              });
 
             results.add(block);
         }
 
         return results;
-    }*/
+    }
 
     /**
      * Specifies the recipe of the main block, which is then the block

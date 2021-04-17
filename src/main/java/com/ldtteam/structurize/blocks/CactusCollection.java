@@ -87,25 +87,4 @@ public class CactusCollection implements IBlockCollection
     {
         return "blocks/cactus";
     }
-
-    @Override
-    public List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
-    {
-        List<RegistryObject<Block>> results = new LinkedList<>();
-
-        for (BlockType type : types)
-        {
-            RegistryObject<Block> block = registrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              () -> type.constructor.apply(getProperties()));
-
-            itemRegistrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              () -> new BlockItem(block.get(), new Item.Properties().group(group)));
-
-            results.add(block);
-        }
-
-        return results;
-    }
 }
