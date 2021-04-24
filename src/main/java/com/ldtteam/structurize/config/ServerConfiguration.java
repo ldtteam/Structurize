@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.config;
 
-import com.google.gson.JsonArray;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
