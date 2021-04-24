@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -72,8 +73,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * this checks that you are not in liquid. Will check for all liquids, even
-     * those from other mods before TP
+     * this checks that you are not in liquid. Will check for all liquids, even those from other mods before TP
      *
      * @param blockPos for the current block LOC
      * @param sender   uses the player to get the world
@@ -146,8 +146,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * Create a method for using a {@link BlockPos} when using {@link
-     * BlockPos.Mutable#setPos(int, int, int)}.
+     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#setPos(int, int, int)}.
      *
      * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
@@ -173,6 +172,7 @@ public final class BlockPosUtil
 
     /**
      * Get the rotation enum value from the amount of rotations.
+     *
      * @param rotations the amount of rotations.
      * @return the enum Rotation.
      */
@@ -189,5 +189,125 @@ public final class BlockPosUtil
             default:
                 return Rotation.NONE;
         }
+    }
+
+    /**
+     * Gets the next position to use in a circular-creeping inward snake manner. Its iterating the rectangle of corners in clockwise rotation
+     *
+     * @param start   current positions
+     * @param corner1 rectangle top left corner
+     * @param corner2 rectangle bottom left corner
+     * @return next position
+     */
+    public static BlockPos getNextPosInCircleFrom(final BlockPos start, final BlockPos corner1, final BlockPos corner2, final int ringHeight)
+    {
+        if (corner1.getX() > corner2.getX() || corner1.getZ() > corner2.getZ() || Math.abs(corner1.getX() - corner2.getX()) < 1 || Math.abs(corner1.getZ() - corner2.getZ()) < 1)
+        {
+            Log.getLogger().warn("Insufficient dimensions for:" + corner1 + corner2);
+            return start;
+        }
+
+        // Distances to all borders
+        final int wDist = Math.abs(corner1.getX() - start.getX());
+        final int nDist = Math.abs(corner1.getZ() - start.getZ());
+        final int eDist = Math.abs(corner2.getX() - start.getX());
+        final int sDist = Math.abs(corner2.getZ() - start.getZ());
+
+        // Find the closest direction in clockwise rotation
+        Direction closestDir = Direction.NORTH;
+        int closest = nDist;
+
+        if (eDist < closest || eDist == closest && closestDir.rotateY() == Direction.EAST)
+        {
+            closest = eDist;
+            closestDir = Direction.EAST;
+        }
+
+        if (sDist < closest || sDist == closest && closestDir.rotateY() == Direction.SOUTH)
+        {
+            closest = sDist;
+            closestDir = Direction.SOUTH;
+        }
+
+        if (wDist < closest || wDist == closest && closestDir.rotateY() == Direction.WEST)
+        {
+            closest = wDist;
+            closestDir = Direction.WEST;
+        }
+
+        // Determines the amount of outer circles, to see if we're in the last circle
+        final int outerRings = (Math.min(Math.abs(corner2.getX() - corner1.getX()), Math.abs(corner2.getZ() - corner1.getZ()))) >> 1;
+
+        // Special case to advance into the next ring:
+        if ((closestDir == Direction.WEST && (nDist - wDist) == 1)
+              // Check if there exists another ring
+              && wDist != outerRings)
+        {
+            /**
+             * Here we could advance to a higher Y level first before going into the next inner ring, to e.g. do two blocks high first outwards
+             * Should be simple to add with just a %2 modulo
+             * Ringheight specific stuff
+             */
+
+            // Jump row we're currently in
+            int traverseRow = ((start.getY() - corner1.getY()) + 1) % ringHeight;
+            if (traverseRow != 0)
+            {
+                // Jump up to the same ring next Y level
+                if (start.getY() < corner2.getY())
+                {
+                    return start.offset(Direction.NORTH).add(0, 1, 0);
+                }
+                else
+                // We can't jump up, at boundary: jump down into next smaller circle
+                {
+                    return start.offset(Direction.EAST).add(0, -((traverseRow) - 1), 0);
+                }
+            }
+            else
+            {
+                return start.offset(Direction.EAST).add(0, -(ringHeight - 1), 0);
+            }
+        }
+
+        // Advance in clockwise rotations
+        final Direction advancingDir = closestDir.rotateY();
+        final BlockPos next = start.offset(advancingDir);
+
+        /**
+         * End conditions:
+         * Within the final circle we're at the end under two conditions:
+         * 1. We're trying to go top or left
+         * 2. We'll end up on the top boundary when doing so
+         * Or
+         * 3. We're at the central bottom block of the 1 wide inner circle
+         */
+
+        // Within the last circle we're not allowed to go up or left when that would put us right onto the circle's edge
+        // Check within mostinner-circle
+        if (nDist >= outerRings && eDist >= outerRings && sDist >= outerRings && wDist >= outerRings
+              // Check if we hit the top boundary with the next
+              && (Math.abs(corner1.getZ() - next.getZ()) == outerRings
+                    || (eDist == outerRings && sDist == outerRings && wDist == outerRings))
+              // Check if we're trying to go top/left to hit it
+              && (advancingDir == Direction.WEST || advancingDir == Direction.NORTH))
+        {
+            // Repeat the last ring until we're at the highest end
+            if (start.getY() < corner2.getY())
+            {
+                if (((start.getY() - corner1.getY()) + 1) % ringHeight != 0)
+                {
+                    // Ringheight specific stuff
+                    return new BlockPos(corner1.getX() + outerRings, Math.min(corner2.getY(), start.getY() + 1), corner1.getZ() + outerRings);
+                }
+                else
+                {
+                    return new BlockPos(corner1.getX(), Math.min(corner2.getY(), start.getY() + 1), corner1.getZ());
+                }
+            }
+
+            return start;
+        }
+        return next;
     }
 }

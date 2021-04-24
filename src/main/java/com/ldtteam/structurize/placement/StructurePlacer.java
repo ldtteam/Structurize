@@ -1,17 +1,18 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
-import com.ldtteam.structurize.util.*;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.ChangeStorage;
+import com.ldtteam.structurize.util.InventoryUtils;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -51,7 +52,7 @@ public class StructurePlacer
      */
     public StructurePlacer(final IStructureHandler handler)
     {
-        this.iterator = new BlueprintIterator(handler);
+        this.iterator = new BlueprintIteratorInwardCircleHeight(handler);
         this.handler = handler;
     }
 

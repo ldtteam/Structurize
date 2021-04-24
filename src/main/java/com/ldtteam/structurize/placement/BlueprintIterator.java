@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +25,7 @@ public class BlueprintIterator
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
-    private final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
+    protected final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
 
     /**
      * Max values we already visited.
@@ -40,7 +40,7 @@ public class BlueprintIterator
     /**
      * The size of the structure.
      */
-    private final BlockPos size;
+    protected final BlockPos size;
 
     /**
      * The structure handler.
