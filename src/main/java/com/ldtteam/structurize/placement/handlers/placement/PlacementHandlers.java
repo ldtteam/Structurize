@@ -718,6 +718,17 @@ public final class PlacementHandlers
                 return ActionProcessingResult.DENY;
             }
 
+            try
+            {
+                // Try detecting inventory content.
+                ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+            }
+            catch (final Exception ex)
+            {
+                // If we can't load the inventory content of the TE, return early, don't fill TE data.
+                return ActionProcessingResult.SUCCESS;
+            }
+
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
@@ -870,6 +881,14 @@ public final class PlacementHandlers
         {
             return Collections.emptyList();
         }
-        return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+        try
+        {
+            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+        }
+        catch (final Exception ex)
+        {
+            // We might not be able to query all inventories like this.
+            return Collections.emptyList();
+        }
     }
 }
