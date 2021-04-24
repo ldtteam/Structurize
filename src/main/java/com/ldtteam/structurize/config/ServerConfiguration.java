@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.config;
 
+import com.google.gson.JsonArray;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
@@ -44,6 +45,11 @@ public class ServerConfiguration extends AbstractConfiguration
     public final ForgeConfigSpec.IntValue schematicBlockLimit;
 
     /**
+     * Iteration version this structurize version is using.
+     */
+    public final ForgeConfigSpec.IntValue iterationVersion;
+
+    /**
      * Builds server configuration.
      *
      * @param builder config builder
@@ -59,6 +65,7 @@ public class ServerConfiguration extends AbstractConfiguration
         maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
+        iterationVersion = defineInteger(builder, "iterationVersion", 1, 1, 2);
 
         finishCategory(builder);
     }

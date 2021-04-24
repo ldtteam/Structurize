@@ -11,7 +11,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -439,7 +438,7 @@ public class StructurePlacer
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {
         iterator.setProgressPos(pos);
-        while (iterator.increment() == BlueprintIterator.Result.NEW_BLOCK)
+        while (iterator.iterate(true) == BlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
 
