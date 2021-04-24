@@ -88,7 +88,7 @@ public class BlueprintIterator
      */
     public Result iterate(final boolean up)
     {
-        if (ITERATION_VERSION < 1)
+        if (ITERATION_VERSION <= 1)
         {
             return up ? increment() : decrement();
         }
