@@ -75,7 +75,7 @@ dependencies {
     implementation "com.ldtteam:datagenerators:${project.datagenerators_version}"
 }
 
-version = project.minecraft_version + '-null'
+version = project.minecraft_version + System.getenv().containsKey("Version") ? System.getenv("Version") : 'null'
 group = project.base_group
 archivesBaseName = project.base_mod_id
 
