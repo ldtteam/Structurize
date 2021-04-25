@@ -56,7 +56,6 @@ public final class ItemStackUtils
         {
             return Collections.emptyList();
         }
-        tileEntity.setWorldAndPos(world, pos);
 
         final List<ItemStack> items = new ArrayList<>();
         for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
