@@ -348,10 +348,17 @@ public class WindowScan extends AbstractWindowSkeleton
                     {
                         if (tileEntity != null)
                         {
-                            final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world, here));
-                            for (final ItemStack stack : itemList)
+                            try
                             {
-                                addNeededResource(stack, 1);
+                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), world, here));
+                                for (final ItemStack stack : itemList)
+                                {
+                                    addNeededResource(stack, 1);
+                                }
+                            }
+                            catch (final Exception ex)
+                            {
+                                // noop - expected
                             }
                         }
 
