@@ -1,5 +1,6 @@
 {
   "credit": "Made by d3miurge.vallek@gmail.com",
+  "ambientocclusion": false,
   "textures": {
     "1": "structurize:blocks/shingle/clay_shingle_1",
     "2": "structurize:blocks/shingle/clay_shingle_2",
