@@ -179,6 +179,31 @@ public class PaneParams
     }
 
     /**
+     * Get the texture location from the name and load it, with some basic validation
+     * and shortcuts
+     * @param name the attribute name
+     * @param loader a method to act upon the resource if it is not blank or null
+     * @return the parsed resource location (or null if it couldn't be parsed)
+     */
+    @Nullable
+    public ResourceLocation getTexture(final String name, final Consumer<ResourceLocation> loader)
+    {
+        ResourceLocation rl = getProperty(name, Parsers.RESOURCE("textures/gui/", ".png"), new ResourceLocation(""));
+        if (!rl.getPath().isEmpty())
+        {
+            if (rl.getNamespace().equals(Parsers.SUBSTITUTE))
+            {
+                // TODO: replace with file namespace
+                rl = new ResourceLocation("structurize", rl.getPath());
+            }
+
+            loader.accept(rl);
+            return rl;
+        }
+        return null;
+    }
+
+    /**
      * Get the text content with potential newlines from the name.
      *
      * @param name the name
