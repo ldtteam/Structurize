@@ -789,6 +789,7 @@ public final class PlacementHandlers
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
+                blockState.getBlock().onBlockPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
             return ActionProcessingResult.SUCCESS;
