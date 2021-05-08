@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * This is the blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public class BlueprintIterator
+public abstract class BlueprintIterator
 {
     /**
      * The position we use as our uninitialized value.
@@ -26,16 +26,6 @@ public class BlueprintIterator
      * The Structure position we are at. Defaulted to NULL_POS.
      */
     protected final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
-
-    /**
-     * Max values we already visited.
-     */
-    private int max_x = -1;
-    private int max_z = -1;
-    private int min_x = -1;
-    private int min_z = -1;
-
-    private BlockPos checkpoint = new BlockPos(-1, 0, 0);
 
     /**
      * The size of the structure.
@@ -78,158 +68,6 @@ public class BlueprintIterator
     }
 
     /**
-     * Increment progressPos.
-     *
-     * @return false if the all the block have been incremented through.
-     */
-    public Result increment()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            this.progressPos.setPos(-1, 0, 0);
-            this.max_x = this.size.getX();
-            this.max_z = this.size.getZ();
-            this.min_x = 0;
-            this.min_z = 0;
-        }
-
-        if (this.progressPos.getZ() == min_z && this.progressPos.getX() == min_x && !checkpoint.equals(progressPos))
-        {
-            //todo, we can't check this always, when we're currently increasing x, we can't check min_x right
-            this.max_x -= 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() == min_z && !checkpoint.equals(progressPos))
-        {
-            this.max_z -= 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() == max_z && !checkpoint.equals(progressPos))
-        {
-            this.min_x += 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == min_x && this.progressPos.getZ() == max_z && !checkpoint.equals(progressPos))
-        {
-            this.min_z += 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-
-        if (this.progressPos.getX() < max_x && this.progressPos.getZ() == min_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() < max_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() + 1);
-        }
-        else if (this.progressPos.getZ() == max_z && this.progressPos.getX() >= min_x)
-        {
-            this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
-        }
-        else if (this.progressPos.getX() <= min_x && this.progressPos.getZ() >= min_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() - 1);
-        }
-        else
-        {
-            this.progressPos.setPos(-1, this.progressPos.getY() + 1, 0);
-            this.max_x = this.size.getX();
-            this.max_z = this.size.getZ();
-            this.min_x = 0;
-            this.min_z = 0;
-            checkpoint = new BlockPos(-1, 0, 0);
-            if (this.progressPos.getY() >= this.size.getY())
-            {
-                this.reset();
-                return Result.AT_END;
-            }
-            else
-            {
-                return this.increment();
-            }
-        }
-
-        return Result.NEW_BLOCK;
-    }
-
-    /**
-     * Decrement progressPos.
-     *
-     * @return false if progressPos can't be decremented any more.
-     */
-    public Result decrement()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            this.progressPos.setPos(-1, this.size.getY() - 1, 0);
-            this.max_x = this.size.getX();
-            this.max_z = this.size.getZ();
-            this.min_x = 0;
-            this.min_z = 0;
-        }
-
-        if (this.progressPos.getZ() == min_z && this.progressPos.getX() == min_x && !checkpoint.equals(progressPos))
-        {
-            //todo, we can't check this always, when we're currently increasing x, we can't check min_x right
-            this.max_x -= 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() == min_z && !checkpoint.equals(progressPos))
-        {
-            this.max_z -= 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() == max_z && !checkpoint.equals(progressPos))
-        {
-            this.min_x += 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-        else if (this.progressPos.getX() == min_x && this.progressPos.getZ() == max_z && !checkpoint.equals(progressPos))
-        {
-            this.min_z += 1;
-            checkpoint = new BlockPos(this.progressPos);
-        }
-
-        if (this.progressPos.getX() < max_x && this.progressPos.getZ() == min_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        }
-        else if (this.progressPos.getX() == max_x && this.progressPos.getZ() < max_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() + 1);
-        }
-        else if (this.progressPos.getZ() == max_z && this.progressPos.getX() >= min_x)
-        {
-            this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
-        }
-        else if (this.progressPos.getX() <= min_x && this.progressPos.getZ() >= min_z)
-        {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() - 1);
-        }
-        else
-        {
-            this.progressPos.setPos(-1, this.progressPos.getY() - 1, 0);
-            this.max_x = this.size.getX();
-            this.max_z = this.size.getZ();
-            this.min_x = 0;
-            this.min_z = 0;
-            checkpoint = new BlockPos(-1, 0, 0);
-            if (this.progressPos.getY() < 0)
-            {
-                this.reset();
-                return Result.AT_END;
-            }
-            else
-            {
-                return this.decrement();
-            }
-        }
-
-        return Result.NEW_BLOCK;
-    }
-
-    /**
      * Increment the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
      * @param skipCondition the skipCondition.
      * @return Result of increment.
@@ -238,6 +76,18 @@ public class BlueprintIterator
     {
         return iterateWithCondition(skipCondition, this::increment);
     }
+
+    /**
+     * Increment method, create in implementation.
+     * @return increment the structure position (y++).
+     */
+    public abstract Result increment();
+
+    /**
+     * Decrement method, create in implementation.
+     * @return decrement the structure position (y--).
+     */
+    public abstract Result decrement();
 
     /**
      * Decrement the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
