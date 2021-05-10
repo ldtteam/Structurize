@@ -49,7 +49,7 @@ public class Image extends Pane
     public Image(final PaneParams params)
     {
         super(params);
-        resourceLocation = params.getResource("source", this::loadMapDimensions);
+        resourceLocation = params.getTexture("source", this::loadMapDimensions);
 
         params.applyShorthand("imageoffset", Parsers.INT, 2, a -> {
             u = a.get(0);

@@ -215,16 +215,16 @@ public class ButtonImage extends Button
      * @param loc     ResourceLocation for the image.
      * @param offsetX image x offset.
      * @param offsetY image y offset.
-     * @param w       image width.
-     * @param h       image height.
+     * @param width       image width.
+     * @param height       image height.
      */
-    public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int w, final int h)
+    public void setImage(final ResourceLocation loc, final int offsetX, final int offsetY, final int width, final int height)
     {
         image = loc;
         imageOffsetX = offsetX;
         imageOffsetY = offsetY;
-        imageHeight = w;
-        imageWidth = h;
+        imageWidth = width;
+        imageHeight = height;
 
         loadImageDimensions(loc);
     }
@@ -277,8 +277,8 @@ public class ButtonImage extends Button
         imageHighlight = loc;
         highlightOffsetX = offsetX;
         highlightOffsetY = offsetY;
-        highlightHeight = w;
-        highlightWidth = h;
+        highlightWidth = w;
+        highlightHeight = h;
 
         loadImageHighlightDimensions(loc);
     }
@@ -341,8 +341,8 @@ public class ButtonImage extends Button
         imageDisabled = loc;
         disabledOffsetX = offsetX;
         disabledOffsetY = offsetY;
-        disabledHeight = w;
-        disabledWidth = h;
+        disabledWidth = w;
+        disabledHeight = h;
 
         loadImageDisabledDimensions(loc);
     }
