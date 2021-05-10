@@ -238,6 +238,20 @@ public class View extends Pane
         child.setParentView(this);
     }
 
+    /**
+     * Add child Pane to this view.
+     *
+     * @param index the index to insert the child at
+     * @param child pane to add.
+     */
+    public void addChild(int index, final Pane child)
+    {
+        child.setWindow(getWindow());
+        children.add(index, child);
+        adjustChild(child);
+        child.setParentView(this);
+    }
+
     protected void adjustChild(final Pane child)
     {
         int childX = child.getX();

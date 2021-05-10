@@ -54,6 +54,8 @@ public final class Loader
         register("gradient", Gradient::new);
         register("zoomdragview", ZoomDragView::new);
         register("treeview", TreeView::new);
+        register("tabset", TabSet::new);
+        register("tab", Tab::new);
     }
 
     /** A map to store the parsed documents. Retains data based on a priority */
@@ -136,7 +138,7 @@ public final class Loader
             parent.parseChildren(params);
             return parent;
         }
-        else if (parent instanceof View && params.getType().equals("window")) // layout
+        else if (parent != null && params.getType().equals("window")) // layout
         {
             parent.parseChildren(params);
             return parent;
