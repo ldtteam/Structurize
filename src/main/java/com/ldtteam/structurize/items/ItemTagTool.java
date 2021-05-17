@@ -11,7 +11,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -102,6 +104,19 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             return stack.getOrCreateTag().getString(TAG_CURRENT_TAG);
         }
         return "";
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
+    {
+        return new ActionResult<>(
+          onAirRightClick(
+            null,
+            null,
+            worldIn,
+            playerIn,
+            playerIn.getHeldItem(handIn)),
+          playerIn.getHeldItem(handIn));
     }
 
     @Override
