@@ -525,6 +525,9 @@ public class Pane extends AbstractGui
         if (parent != null)
         {
             parent.addChild(this);
+
+            // Allow views to expand zero-widths
+            setSize(width, height);
         }
     }
 
@@ -785,9 +788,6 @@ public class Pane extends AbstractGui
 
     /**
      * Handle onHover element, element must be visible.
-     *
-     * @param mx mouse x
-     * @param my mouse y
      */
     protected void handleHover()
     {
