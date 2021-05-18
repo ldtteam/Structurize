@@ -54,6 +54,8 @@
     "item.possetter.anchorpos": "Anchor pos set to x=%d y=%d z=%d",
     "item.possetter.firstpos": "First pos set to x=%d y=%d z=%d",
     "item.possetter.secondpos": "Second pos set to x=%d y=%d z=%d",
+    "item.possetter.missingpos1": "Missing first position",
+    "item.possetter.missingpos2": "Missing second position",
     "item.sceptersteel.badanchorpos": "The Scan Tool's anchor position is outside the scanned area! Please move it using shift + right-click!",
     "item.sceptersteel.point": "Point one saved: %d %d %d",
     "item.sceptersteel.point2": "Point two saved: %d %d %d.",
@@ -95,7 +97,7 @@
     "structurize.config.ignoreschematicsfromjar": "Ignore Schematics from Jar",
     "structurize.config.ignoreschematicsfromjar.comment": "Should the default schematics be ignored (from the jar)?",
     "structurize.config.maxblockschecked": "Max Blocks Checked",
-    "structurize.config.maxblockschecked.comment": "Ma, ModRecipeProvider.getDefaultCriterion(block)x amount of blocks checked by a possible worker",
+    "structurize.config.maxblockschecked.comment": "Max amount of blocks checked by a possible worker.",
     "structurize.config.maxcachedchanges": "Max Cached Changes",
     "structurize.config.maxcachedchanges.comment": "Max amount of undos saved. A higher number requires more memory.",
     "structurize.config.maxcachedschematics": "Max Cached Schematics",
@@ -106,5 +108,7 @@
     "structurize.config.windowcachecap.comment": "Sets the maximum number of parsed GUI window files to be stored for quick loading.",
     "structurize.gui.buildtool.creative_only": "Structurize does not support using the build tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
     "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!",
-    "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s"
+    "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s",
+    "structurize.gui.buildtool.paste": "Instantly places the structure into the world, keeping Placeholder Blocks.",
+    "structurize.gui.buildtool.pastenice": "Instantly places the structure into the world, as if constructed by a Builder."
 }

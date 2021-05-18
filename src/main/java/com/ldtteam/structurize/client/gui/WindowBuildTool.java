@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Log;
+import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -250,8 +252,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             if (Minecraft.getInstance().player.isCreative())
             {
-                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
-                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
+                final Button pasteButton = findPaneOfTypeByID(BUTTON_PASTE, Button.class);
+                pasteButton.setVisible(true);
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButton).append(new TranslationTextComponent("structurize.gui.buildtool.paste")).build();
+                final Button pasteButtonNice = findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class);
+                pasteButtonNice.setVisible(true);
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslationTextComponent("structurize.gui.buildtool.pastenice")).build();
             }
             else
             {
