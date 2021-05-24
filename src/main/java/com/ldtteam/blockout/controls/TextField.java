@@ -573,17 +573,9 @@ public class TextField extends Pane
     {
         InputHandler delegatedHandler = handler;
 
-        if (delegatedHandler == null)
+        if (delegatedHandler == null && getWindow() instanceof InputHandler)
         {
-            // If we do not have a designated handler, find the closest ancestor that is a Handler
-            for (Pane p = parent; p != null; p = p.getParent())
-            {
-                if (p instanceof InputHandler)
-                {
-                    delegatedHandler = (InputHandler) p;
-                    break;
-                }
-            }
+            delegatedHandler = (InputHandler) getWindow();
         }
 
         if (delegatedHandler != null)
