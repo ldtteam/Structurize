@@ -21,6 +21,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class TextField extends Pane
 {
+    protected InputHandler handler;
+
     /**
      * Texture resource location.
      */
@@ -563,6 +565,31 @@ public class TextField extends Pane
 
         text = resultBuffer.toString();
         moveCursorBy((insertAt - selectionEnd) + insertedLength);
+
+        triggerHandler();
+    }
+
+    private void triggerHandler()
+    {
+        InputHandler delegatedHandler = handler;
+
+        if (delegatedHandler == null)
+        {
+            // If we do not have a designated handler, find the closest ancestor that is a Handler
+            for (Pane p = parent; p != null; p = p.getParent())
+            {
+                if (p instanceof InputHandler)
+                {
+                    delegatedHandler = (InputHandler) p;
+                    break;
+                }
+            }
+        }
+
+        if (delegatedHandler != null)
+        {
+            delegatedHandler.onInput(this);
+        }
     }
 
     /**
@@ -583,6 +610,16 @@ public class TextField extends Pane
                 deleteFromCursor(this.getNthWordFromCursor(count) - this.cursorPosition);
             }
         }
+    }
+
+    /**
+     * Set the input handler for this textfield.
+     *
+     * @param h The new handler.
+     */
+    public void setHandler(final InputHandler h)
+    {
+        handler = h;
     }
 
     /**
@@ -626,6 +663,8 @@ public class TextField extends Pane
                 this.moveCursorBy(count);
             }
         }
+
+        triggerHandler();
     }
 
     /**
