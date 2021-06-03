@@ -10,6 +10,7 @@ import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,6 +19,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -55,6 +57,7 @@ public final class PlacementHandlers
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
         handlers.add(new ChestPlacementHandler());
+        handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
@@ -701,7 +704,62 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof ContainerBlock;
+            return blockState.getBlock() instanceof ChestBlock;
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+                @NotNull final World world,
+                @NotNull final BlockPos pos,
+                @NotNull final BlockState blockState,
+                @Nullable final CompoundNBT tileEntityData,
+                final boolean complete,
+                final BlockPos centerPos)
+        {
+            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            {
+                return ActionProcessingResult.DENY;
+            }
+
+            if (tileEntityData != null)
+            {
+                handleTileEntityPlacement(tileEntityData, world, pos);
+            }
+
+            return ActionProcessingResult.SUCCESS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+                @NotNull final World world,
+                @NotNull final BlockPos pos,
+                @NotNull final BlockState blockState,
+                @Nullable final CompoundNBT tileEntityData,
+                final boolean complete)
+        {
+            final List<ItemStack> itemList = new ArrayList<>();
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+
+            if (tileEntityData != null)
+            {
+                final NonNullList<ItemStack> contents = NonNullList.create();
+                ItemStackHelper.loadAllItems(tileEntityData, contents);
+                itemList.addAll(contents);
+            }
+
+            itemList.removeIf(ItemStackUtils::isEmpty);
+
+            return itemList;
+        }
+    }
+
+    public static class ContainerPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        {
+            return blockState.getBlock() instanceof ContainerBlock &&
+                    !(blockState.getBlock() instanceof ChestBlock);
         }
 
         @Override
@@ -716,6 +774,17 @@ public final class PlacementHandlers
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
+            }
+
+            try
+            {
+                // Try detecting inventory content.
+                ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+            }
+            catch (final Exception ex)
+            {
+                // If we can't load the inventory content of the TE, return early, don't fill TE data.
+                return ActionProcessingResult.SUCCESS;
             }
 
             if (tileEntityData != null)
