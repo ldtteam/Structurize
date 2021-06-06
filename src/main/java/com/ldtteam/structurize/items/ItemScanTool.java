@@ -161,22 +161,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     {
         if (anchorPos.isPresent())
         {
-            final double minX = Math.min(to.getX(), from.getX());
-            final double minY = Math.min(to.getY(), from.getY());
-            final double minZ = Math.min(to.getZ(), from.getZ());
-            final double maxX = Math.max(to.getX(), from.getX());
-            final double maxY = Math.max(to.getY(), from.getY());
-            final double maxZ = Math.max(to.getZ(), from.getZ());
-
-            final double anchorPosX = anchorPos.get().getX();
-            final double anchorPosY = anchorPos.get().getY();
-            final double anchorPosZ = anchorPos.get().getZ();
-
-            final boolean isWithinX = anchorPosX >= minX && anchorPosX <= maxX;
-            final boolean isWithinY = anchorPosY >= minY && anchorPosY <= maxY;
-            final boolean isWithinZ = anchorPosZ >= minZ && anchorPosZ <= maxZ;
-
-            if (!(isWithinX && isWithinY && isWithinZ))
+            if (!BlockPosUtil.isInbetween(anchorPos.get(), from, to))
             {
                 LanguageHandler.sendPlayerMessage(player, ANCHOR_POS_OUTSIDE_SCHEMATIC);
                 return;
