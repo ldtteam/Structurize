@@ -5,13 +5,16 @@ import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +25,7 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
@@ -41,6 +46,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
+
+    /**
+     * The scans name as shown in the gui
+     */
+    private static String scanName = "";
 
     /**
      * Creates default scan tool item.
@@ -65,8 +75,28 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     @Override
     public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
     {
-        Optional<BlockPos> anchorPos =
-          itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
+        Optional<BlockPos> anchorPos = Optional.empty();
+        if (itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS))
+        {
+            final BlockPos anchorBlockPos = NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS));
+
+            if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
+            {
+                anchorPos = Optional.of(anchorBlockPos);
+                if (worldIn.isRemote)
+                {
+                    Settings.instance.setAnchorPos(anchorPos);
+                }
+            }
+            else
+            {
+                if (worldIn.isRemote)
+                {
+                    playerIn.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUniqueID());
+                }
+            }
+        }
+
         if (!worldIn.isRemote)
         {
             if (playerIn.isSneaking())
@@ -176,17 +206,20 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             fileName = name;
         }
 
-        if (anchorPos.isPresent())
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), fileName, anchorPos);
+
+        if (!anchorPos.isPresent() && bp.getPrimaryBlockOffset().equals(new BlockPos(bp.getSizeX() / 2, 0, bp.getSizeZ() / 2)))
         {
-            final TileEntity te = world.getTileEntity(anchorPos.get());
-            if (te instanceof IBlueprintDataProvider)
+            final List<BlockInfo> list = bp.getBlockInfoAsList().stream()
+                                           .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock)
+                                           .collect(Collectors.toList());
+
+            if (list.size() > 1)
             {
-                ((IBlueprintDataProvider) te).setSchematicName(fileName);
-                ((IBlueprintDataProvider) te).setCorners(from.subtract(anchorPos.get()), to.subtract(anchorPos.get()));
+                player.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUniqueID());
             }
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name, anchorPos);
         Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
 
@@ -287,16 +320,55 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
-        TileEntity te = context.getWorld().getTileEntity(context.getPos());
-        if (te instanceof IBlueprintDataProvider)
+        final TileEntity te = context.getWorld().getTileEntity(pos);
+        if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
         {
-            Settings.instance.setStructureName(((IBlueprintDataProvider) te).getSchematicName());
-            Settings.instance.setBox(((IBlueprintDataProvider) te).getCornerPositions());
-            context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
-            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
+            setScanName(((IBlueprintDataProvider) te).getSchematicName());
+
+            if (context.getWorld().isRemote)
+            {
+                Settings.instance.setAnchorPos(Optional.of(pos));
+            }
+
+            final BlockPos start = ((IBlueprintDataProvider) te).getWorldCorners().getA();
+            final BlockPos end = ((IBlueprintDataProvider) te).getWorldCorners().getB();
+
+            if (!(start.equals(pos)) && !(end.equals(pos)))
+            {
+                if (context.getWorld().isRemote)
+                {
+                    Settings.instance.setBox(((IBlueprintDataProvider) te).getWorldCorners());
+                }
+                context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
+                context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));
+                if (context.getPlayer() instanceof ServerPlayerEntity)
+                {
+                    ((ServerPlayerEntity) context.getPlayer()).sendAllContents(context.getPlayer().container, context.getPlayer().inventory.mainInventory);
+                }
+            }
         }
 
         context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
+    }
+
+    /**
+     * Get the scan name
+     *
+     * @return
+     */
+    public static String getScanName()
+    {
+        return scanName;
+    }
+
+    /**
+     * Set the scan name
+     *
+     * @param name
+     */
+    public static void setScanName(final String name)
+    {
+        scanName = name;
     }
 }
