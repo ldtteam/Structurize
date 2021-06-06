@@ -61,7 +61,7 @@ public interface IBlueprintDataProvider extends IAnchorBlock
     /**
      * Gets world positions
      */
-    default Tuple<BlockPos, BlockPos> getWorldCorners()
+    default Tuple<BlockPos, BlockPos> getInWorldCorners()
     {
         Tuple<BlockPos, BlockPos> schematicCorners = getSchematicCorners();
         return new Tuple<>(getTilePos().add(schematicCorners.getA()), getTilePos().add(getSchematicCorners().getB()));

@@ -315,14 +315,14 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 Settings.instance.setAnchorPos(Optional.of(pos));
             }
 
-            final BlockPos start = ((IBlueprintDataProvider) te).getWorldCorners().getA();
-            final BlockPos end = ((IBlueprintDataProvider) te).getWorldCorners().getB();
+            final BlockPos start = ((IBlueprintDataProvider) te).getInWorldCorners().getA();
+            final BlockPos end = ((IBlueprintDataProvider) te).getInWorldCorners().getB();
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
                 if (context.getWorld().isRemote)
                 {
-                    Settings.instance.setBox(((IBlueprintDataProvider) te).getWorldCorners());
+                    Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
                 }
                 context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
                 context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));

@@ -325,6 +325,11 @@ public class WindowScan extends AbstractWindowSkeleton
         resources.clear();
         entities.clear();
 
+        if (findPaneByID(BUTTON_SHOW_RES).isVisible())
+        {
+            return;
+        }
+
         for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
         {
             for(int y = Math.min(pos1.getY(), pos2.getY()); y <= Math.max(pos1.getY(), pos2.getY()); y++)
