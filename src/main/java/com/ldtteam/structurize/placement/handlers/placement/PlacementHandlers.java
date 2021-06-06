@@ -10,7 +10,6 @@ import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,7 +18,6 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -56,7 +54,6 @@ public final class PlacementHandlers
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
-        handlers.add(new ChestPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
@@ -224,7 +221,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
@@ -517,7 +514,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
@@ -692,63 +689,9 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
-            return itemList;
-        }
-    }
-
-    public static class ChestPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
-        {
-            return blockState.getBlock() instanceof ChestBlock;
-        }
-
-        @Override
-        public ActionProcessingResult handle(
-                @NotNull final World world,
-                @NotNull final BlockPos pos,
-                @NotNull final BlockState blockState,
-                @Nullable final CompoundNBT tileEntityData,
-                final boolean complete,
-                final BlockPos centerPos)
-        {
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
-            {
-                return ActionProcessingResult.DENY;
-            }
-
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos);
-            }
-
-            return ActionProcessingResult.SUCCESS;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-                @NotNull final World world,
-                @NotNull final BlockPos pos,
-                @NotNull final BlockState blockState,
-                @Nullable final CompoundNBT tileEntityData,
-                final boolean complete)
-        {
-            final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-
-            if (tileEntityData != null)
-            {
-                final NonNullList<ItemStack> contents = NonNullList.create();
-                ItemStackHelper.loadAllItems(tileEntityData, contents);
-                itemList.addAll(contents);
-            }
-
-            itemList.removeIf(ItemStackUtils::isEmpty);
-
             return itemList;
         }
     }
@@ -758,8 +701,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof ContainerBlock &&
-                    !(blockState.getBlock() instanceof ChestBlock);
+            return blockState.getBlock() instanceof ContainerBlock;
         }
 
         @Override
@@ -779,7 +721,7 @@ public final class PlacementHandlers
             try
             {
                 // Try detecting inventory content.
-                ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+                ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, blockState);
             }
             catch (final Exception ex)
             {
@@ -805,7 +747,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, blockState));
 
             itemList.removeIf(ItemStackUtils::isEmpty);
 
@@ -861,7 +803,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
@@ -931,10 +873,10 @@ public final class PlacementHandlers
      * Gets the list of items from a possible tileEntity.
      *
      * @param tileEntityData the data.
-     * @param world          the world.
+     * @param blockState     the block.
      * @return the required list.
      */
-    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final World world, final BlockPos pos)
+    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final BlockState blockState)
     {
         if (tileEntityData == null)
         {
@@ -942,7 +884,7 @@ public final class PlacementHandlers
         }
         try
         {
-            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, blockState);
         }
         catch (final Exception ex)
         {
