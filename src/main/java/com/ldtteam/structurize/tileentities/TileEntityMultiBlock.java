@@ -395,6 +395,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
         this.read(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
     }
 
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket()
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        this.write(nbt);
+
+        return new SUpdateTileEntityPacket(this.getPos(), 0, nbt);
+    }
+
     @NotNull
     @Override
     public CompoundNBT getUpdateTag()
