@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Interface for TE's which hold schematic specific data. They need to write and read the data to nbt to save it!
  */
-public interface IBlueprintDataProvider extends IAnchorBlock
+public interface IBlueprintDataProvider
 {
     public final static String TAG_SCHEMATIC_NAME = "schematicName";
     public final static String TAG_CORNER_ONE     = "corner1";

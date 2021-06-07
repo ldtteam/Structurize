@@ -8,7 +8,6 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
 
 /**
  * Item used to scan structures.
@@ -196,7 +196,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         if (!anchorPos.isPresent() && bp.getPrimaryBlockOffset().equals(new BlockPos(bp.getSizeX() / 2, 0, bp.getSizeZ() / 2)))
         {
             final List<BlockInfo> list = bp.getBlockInfoAsList().stream()
-                                           .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock)
+                                           .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
                                            .collect(Collectors.toList());
 
             if (list.size() > 1)

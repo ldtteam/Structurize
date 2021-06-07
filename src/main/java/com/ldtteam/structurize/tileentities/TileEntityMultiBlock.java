@@ -2,7 +2,6 @@ package com.ldtteam.structurize.tileentities;
 
 import com.google.common.primitives.Ints;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -20,9 +19,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.*;
@@ -31,7 +28,7 @@ import static net.minecraft.util.Direction.*;
 /**
  * This Class is about the MultiBlock TileEntity which takes care of pushing others around (In a non mean way).
  */
-public class TileEntityMultiBlock extends TileEntity implements ITickableTileEntity, IBlueprintDataProvider
+public class TileEntityMultiBlock extends TileEntity implements ITickableTileEntity
 {
     /**
      * Max block range.
@@ -361,7 +358,6 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
             output = direction.getOpposite();
         }
         speed = compound.getInt(TAG_SPEED);
-        readSchematicDataFromNBT(compound);
     }
 
     @NotNull
@@ -379,7 +375,6 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
         }
         compound.putInt(TAG_SPEED, speed);
 
-        writeSchematicDataToNBT(compound);
         return compound;
     }
 
@@ -409,59 +404,5 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     public CompoundNBT getUpdateTag()
     {
         return write(new CompoundNBT());
-    }
-
-    String schematicName = "";
-
-    @Override
-    public String getSchematicName()
-    {
-        return schematicName;
-    }
-
-    @Override
-    public void setSchematicName(final String name)
-    {
-        this.schematicName = name;
-    }
-
-    Map<BlockPos, List<String>> tagMapData = new HashMap<>();
-
-    @Override
-    public Map<BlockPos, List<String>> getPositionedTags()
-    {
-        return tagMapData;
-    }
-
-    @Override
-    public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
-    {
-        tagMapData = positionedTags;
-    }
-
-    @Override
-    public Tuple<BlockPos, BlockPos> getSchematicCorners()
-    {
-        if (corner2 == null || corner1 == null)
-        {
-            return new Tuple<>(pos, pos);
-        }
-        return new Tuple<>(corner1, corner2);
-    }
-
-    BlockPos corner1;
-    BlockPos corner2;
-
-    @Override
-    public void setSchematicCorners(final BlockPos pos1, final BlockPos pos2)
-    {
-        corner1 = pos1;
-        corner2 = pos2;
-    }
-
-    @Override
-    public BlockPos getTilePos()
-    {
-        return pos;
     }
 }
