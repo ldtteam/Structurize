@@ -499,7 +499,7 @@ public class Blueprint
     {
         final List<BlockInfo> list = getBlockInfoAsList().stream()
                                        .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock
-                                                              || blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+                                                              || (blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
             .collect(Collectors.toList());
 
         if (list.size() != 1)
