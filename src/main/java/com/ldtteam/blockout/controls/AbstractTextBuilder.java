@@ -180,12 +180,12 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
             return resetStyle();
         }
 
-        color = style.getColor().getColor();
-        bold = style.getBold();
-        italic = style.getItalic();
-        underlined = style.getUnderlined();
-        strikeThrough = style.getStrikethrough();
-        obfuscated = style.getObfuscated();
+        color = style.getColor().getValue();
+        bold = style.isBold();
+        italic = style.isItalic();
+        underlined = style.isUnderlined();
+        strikeThrough = style.isStrikethrough();
+        obfuscated = style.isObfuscated();
         clickEvent = style.getClickEvent();
         insertionEvent = style.getInsertion();
         return thiz;
@@ -238,7 +238,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R colorVanillaCode(final char code)
     {
-        final TextFormatting tf = TextFormatting.fromFormattingCode(code);
+        final TextFormatting tf = TextFormatting.getByCode(code);
         return color(tf == null || tf.getColor() == null ? defaultColor : tf.getColor());
     }
 
@@ -250,7 +250,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R colorName(final String name)
     {
-        final TextFormatting tf = TextFormatting.getValueByName(name);
+        final TextFormatting tf = TextFormatting.getByName(name);
         return color(Color.getByName(name, tf.isColor() ? tf.getColor() : color));
     }
 

@@ -128,7 +128,7 @@ public class Window extends View
 
     private boolean isKeyDown(final int keyCode)
     {
-        return InputMappings.isKeyDown(mc.mainWindow.getHandle(), keyCode);
+        return InputMappings.isKeyDown(mc.window.getWindow(), keyCode);
     }
 
     private void updateDebugging()
@@ -170,7 +170,7 @@ public class Window extends View
      */
     public void open()
     {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mc.runImmediately(() -> mc.displayGuiScreen(screen)));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mc.executeBlocking(() -> mc.setScreen(screen)));
     }
 
     /**
@@ -241,8 +241,8 @@ public class Window extends View
      */
     public void close()
     {
-        screen.onClose();
-        this.mc.player.closeScreen();
+        screen.removed();
+        this.mc.player.closeContainer();
     }
 
     /**
@@ -269,13 +269,13 @@ public class Window extends View
         /**
          * upscaling according to minecraft gui scale settings, no downscaling, max gui resolution is 320*240 px, anything above might not be rendered
          */
-        VANILLA((mcWindow, window) -> Math.max(mcWindow.getGuiScaleFactor(), 1.0d)),
+        VANILLA((mcWindow, window) -> Math.max(mcWindow.getGuiScale(), 1.0d)),
         /**
          * scaling to size of framebuffer with no lower limit, max gui resolution is unlimited
          */
         FULLSCREEN((mcWindow, window) -> {
-            final double widthScale = ((double) mcWindow.getFramebufferWidth()) / window.getWidth();
-            final double heightScale = ((double) mcWindow.getFramebufferHeight()) / window.getHeight();
+            final double widthScale = ((double) mcWindow.getWidth()) / window.getWidth();
+            final double heightScale = ((double) mcWindow.getHeight()) / window.getHeight();
 
             return Math.min(widthScale, heightScale);
         }),
@@ -283,8 +283,8 @@ public class Window extends View
          * scaling to size of framebuffer with lower limit of 320*240 px, max gui resolution is unlimited
          */
         FULLSCREEN_VANILLA((mcWindow, window) -> {
-            final double widthScale = Math.max(mcWindow.getFramebufferWidth(), 320.0d) / window.getWidth();
-            final double heightScale = Math.max(mcWindow.getFramebufferHeight(), 240.0d) / window.getHeight();
+            final double widthScale = Math.max(mcWindow.getWidth(), 320.0d) / window.getWidth();
+            final double heightScale = Math.max(mcWindow.getHeight(), 240.0d) / window.getHeight();
 
             return Math.min(widthScale, heightScale);
         }),
@@ -301,7 +301,7 @@ public class Window extends View
          */
         OVERSIZED((mcWindow, window) -> {
             final double fs = FULLSCREEN.calcRenderScale(mcWindow, window);
-            final int userScale = Minecraft.getInstance().gameSettings.guiScale;
+            final int userScale = Minecraft.getInstance().options.guiScale;
             return fs < 1.0d ? fs : Math.min(Math.floor(fs), userScale == 0 ? Double.MAX_VALUE : userScale);
         }),
         /**
@@ -309,7 +309,7 @@ public class Window extends View
          */
         OVERSIZED_VANILLA((mcWindow, window) -> {
             final double fs_vanilla = FULLSCREEN_VANILLA.calcRenderScale(mcWindow, window);
-            final int userScale = Minecraft.getInstance().gameSettings.guiScale;
+            final int userScale = Minecraft.getInstance().options.guiScale;
             return fs_vanilla < 1.0d ? fs_vanilla : Math.min(Math.floor(fs_vanilla), userScale == 0 ? Double.MAX_VALUE : userScale);
         });
 

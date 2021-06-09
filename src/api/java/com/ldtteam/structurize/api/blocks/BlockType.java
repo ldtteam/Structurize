@@ -26,7 +26,7 @@ public enum BlockType
 {
     BLOCK("", Block::new, Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
     SLAB("slab", SlabBlock::new, BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
-    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::getDefaultState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
+    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::defaultBlockState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
     WALL("wall", WallBlock::new, BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
 
     // TODO wood tags
@@ -98,17 +98,17 @@ public enum BlockType
 
         for (String line : craftingPatterns)
         {
-            builder.patternLine(line);
+            builder.pattern(line);
         }
 
         if (this == BlockType.FENCE || this == BlockType.FENCE_GATE)
         {
-            builder.key('-', Tags.Items.RODS_WOODEN);
+            builder.define('-', Tags.Items.RODS_WOODEN);
         }
 
         return builder
-                 .key('#', material)
-                 .addCriterion("has_" + material.asItem().getRegistryName().getPath(), criterion);
+                 .define('#', material)
+                 .unlockedBy("has_" + material.asItem().getRegistryName().getPath(), criterion);
     }
 
     public static BlockType fromSuffix(String path)

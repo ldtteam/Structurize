@@ -48,17 +48,17 @@ public class LifecycleSubscriber
     @SubscribeEvent
     public static void onClientInit(final FMLClientSetupEvent event)
     {
-        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
-        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
-        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
-        ModBlocks.getPaperWalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getTranslucent()));
-        ModBlocks.getFloatingCarpets().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.getCutout()));
+        ModBlocks.getTimberFrames().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
+        ModBlocks.getShingles().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
+        ModBlocks.getShingleSlabs().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
+        ModBlocks.getPaperWalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.translucent()));
+        ModBlocks.getFloatingCarpets().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, RenderType.cutout()));
         OptifineCompat.getInstance().intialize();
 
         final IResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
         if (rm instanceof IReloadableResourceManager)
         {
-            ((IReloadableResourceManager) rm).addReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
+            ((IReloadableResourceManager) rm).registerReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
                 if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
                       || resourcePredicate.test(VanillaResourceType.SHADERS))
                 {

@@ -47,7 +47,7 @@ public class ModLanguageProvider extends LanguageProvider
         for (B block : blocks)
         {
             if (block.getRegistryName() == null || getLangValue.apply(block) == null) continue;
-            add(block.getTranslationKey(), getLangValue.apply(block));
+            add(block.getDescriptionId(), getLangValue.apply(block));
         }
     }
 
@@ -61,7 +61,7 @@ public class ModLanguageProvider extends LanguageProvider
         for (B block : blocks)
         {
             if (block.getRegistryName() == null) continue;
-            add(block.getTranslationKey(), format(block.getRegistryName().getPath()));
+            add(block.getDescriptionId(), format(block.getRegistryName().getPath()));
         }
     }
 
@@ -92,7 +92,7 @@ public class ModLanguageProvider extends LanguageProvider
 
     public void add(ItemGroup key, String name)
     {
-        add(key.getGroupName().getString(), name);
+        add(key.getDisplayName().getString(), name);
     }
 
     public void add(KeyPrefix prefix, String key, String name)

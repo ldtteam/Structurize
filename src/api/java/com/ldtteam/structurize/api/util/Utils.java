@@ -155,13 +155,13 @@ public final class Utils
     {
         int yHolder = 1;
         final BlockPos pos = new BlockPos(x, yHolder, z);
-        while (!world.canBlockSeeSky(pos))
+        while (!world.canSeeSkyFromBelowWater(pos))
         {
             yHolder++;
         }
 
         final BlockState state = world.getBlockState(pos);
-        while (!state.isOpaqueCube(world, pos) || state.getBlock() instanceof LeavesBlock || world.isAirBlock(pos))
+        while (!state.isSolidRender(world, pos) || state.getBlock() instanceof LeavesBlock || world.isEmptyBlock(pos))
         {
             yHolder--;
         }

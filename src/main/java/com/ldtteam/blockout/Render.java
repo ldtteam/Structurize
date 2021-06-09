@@ -42,8 +42,8 @@ public final class Render
         final int color,
         final float lineWidth)
     {
-        drawOutlineRect(ms.getLast()
-            .getMatrix(), x, y, w, h, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, (color >> 24) & 0xff, lineWidth);
+        drawOutlineRect(ms.last()
+            .pose(), x, y, w, h, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, (color >> 24) & 0xff, lineWidth);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class Render
             return;
         }
 
-        final BufferBuilder vertexBuffer = Tessellator.getInstance().getBuffer();
+        final BufferBuilder vertexBuffer = Tessellator.getInstance().getBuilder();
 
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
@@ -74,12 +74,12 @@ public final class Render
 
         GL11.glLineWidth(lineWidth);
         vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
-        vertexBuffer.pos(matrix, x, y, 0.0f).color(red, green, blue, alpha).endVertex();
-        vertexBuffer.pos(matrix, x + w, y, 0.0f).color(red, green, blue, alpha).endVertex();
-        vertexBuffer.pos(matrix, x + w, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
-        vertexBuffer.pos(matrix, x, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
-        vertexBuffer.finishDrawing();
-        WorldVertexBufferUploader.draw(vertexBuffer);
+        vertexBuffer.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.vertex(matrix, x + w, y, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.vertex(matrix, x + w, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.vertex(matrix, x, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.end();
+        WorldVertexBufferUploader.end(vertexBuffer);
 
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();

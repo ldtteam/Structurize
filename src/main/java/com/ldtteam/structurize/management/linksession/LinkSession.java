@@ -119,7 +119,7 @@ public class LinkSession
     protected static LinkSession createFromNBT(@NotNull final CompoundNBT in)
     {
         final LinkSession ls = new LinkSession();
-        for(String key : in.keySet())
+        for(String key : in.getAllKeys())
         {
             ls.addOrUpdateMember(UUID.fromString(key), in.getString(key));
         }

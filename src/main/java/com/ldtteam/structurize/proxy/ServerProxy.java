@@ -12,6 +12,6 @@ public class ServerProxy implements IProxy
     @Override
     public File getSchematicsFolder()
     {
-        return new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID);
+        return new File(ServerLifecycleHooks.getCurrentServer().getServerDirectory() + "/" + Constants.MOD_ID);
     }
 }

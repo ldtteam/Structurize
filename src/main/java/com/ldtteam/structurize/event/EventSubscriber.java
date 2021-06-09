@@ -93,7 +93,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
-        if (event.world.isRemote)
+        if (event.world.isClientSide)
         {
             return;
         }

@@ -43,6 +43,8 @@ import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraft.world.server.ChunkHolder.LocationType;
 import net.minecraft.world.server.ServerWorld;
 
+import net.minecraft.world.chunk.Chunk.CreateEntityType;
+
 /**
  * Blueprint simulated chunk.
  */
@@ -62,7 +64,7 @@ public class BlueprintChunk extends Chunk
      */
     public BlueprintChunk(final World worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new BiomeContainer(worldIn.func_241828_r().getRegistry(Registry.BIOME_KEY), new Biome[0]));
+        super(worldIn, new ChunkPos(x, z), new BiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 
@@ -74,16 +76,16 @@ public class BlueprintChunk extends Chunk
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(@NotNull final BlockPos pos, final CreateEntityType creationMode)
+    public TileEntity getBlockEntity(@NotNull final BlockPos pos, final CreateEntityType creationMode)
     {
-        return access.getTileEntity(pos);
+        return access.getBlockEntity(pos);
     }
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(@NotNull final BlockPos pos)
+    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
     {
-        return access.getTileEntity(pos);
+        return access.getBlockEntity(pos);
     }
 
     @Override
@@ -99,7 +101,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public World getWorld()
+    public World getLevel()
     {
         return access;
     }
@@ -111,44 +113,44 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void addTileEntity(TileEntity tileEntityIn)
+    public void addBlockEntity(TileEntity tileEntityIn)
     {
         // Noop
     }
 
     @Override
-    public void addTileEntity(CompoundNBT nbt)
+    public void setBlockEntityNbt(CompoundNBT nbt)
     {
         // Noop
     }
 
     @Override
-    public void addTileEntity(BlockPos pos, TileEntity tileEntityIn)
+    public void setBlockEntity(BlockPos pos, TileEntity tileEntityIn)
     {
         // Noop
     }
 
     @Override
-    public StructureStart<?> func_230342_a_(Structure<?> p_230342_1_)
+    public StructureStart<?> getStartForFeature(Structure<?> p_230342_1_)
     {
         // Noop
         return null;
     }
 
     @Override
-    public void func_230343_a_(Structure<?> p_230343_1_, long p_230343_2_)
+    public void addReferenceForFeature(Structure<?> p_230343_1_, long p_230343_2_)
     {
         // Noop
     }
 
     @Override
-    public void func_230344_a_(Structure<?> p_230344_1_, StructureStart<?> p_230344_2_)
+    public void setStartForFeature(Structure<?> p_230344_1_, StructureStart<?> p_230344_2_)
     {
         // Noop
     }
 
     @Override
-    public LongSet func_230346_b_(Structure<?> p_230346_1_)
+    public LongSet getReferencesForFeature(Structure<?> p_230346_1_)
     {
         // Noop
         return null;
@@ -162,21 +164,21 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public ITickList<Block> getBlocksToBeTicked()
+    public ITickList<Block> getBlockTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public CompoundNBT getDeferredTileEntity(BlockPos pos)
+    public CompoundNBT getBlockEntityNbt(BlockPos pos)
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> void getEntitiesOfTypeWithinAABB(Class<? extends T> entityClass,
+    public <T extends Entity> void getEntitiesOfClass(Class<? extends T> entityClass,
         AxisAlignedBB aabb,
         List<T> listToFill,
         Predicate<? super T> filter)
@@ -185,7 +187,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void getEntitiesWithinAABBForEntity(Entity entityIn,
+    public void getEntities(Entity entityIn,
         AxisAlignedBB aabb,
         List<Entity> listToFill,
         Predicate<? super Entity> filter)
@@ -194,7 +196,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public <T extends Entity> void getEntitiesWithinAABBForList(EntityType<?> entitytypeIn,
+    public <T extends Entity> void getEntities(EntityType<?> entitytypeIn,
         AxisAlignedBB aabb,
         List<? super T> list,
         Predicate<? super T> filter)
@@ -203,21 +205,21 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public ClassInheritanceMultiMap<Entity>[] getEntityLists()
+    public ClassInheritanceMultiMap<Entity>[] getEntitySections()
     {
         // Noop
         return null;
     }
 
     @Override
-    public ITickList<Fluid> getFluidsToBeTicked()
+    public ITickList<Fluid> getLiquidTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Heightmap getHeightmap(Type typeIn)
+    public Heightmap getOrCreateHeightmapUnprimed(Type typeIn)
     {
         // Noop
         return null;
@@ -238,21 +240,21 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public Stream<BlockPos> getLightSources()
+    public Stream<BlockPos> getLights()
     {
         // Noop
         return null;
     }
 
     @Override
-    public LocationType getLocationType()
+    public LocationType getFullStatus()
     {
         // Noop
         return null;
     }
 
     @Override
-    public ShortList[] getPackedPositions()
+    public ShortList[] getPostProcessing()
     {
         // Noop
         return null;
@@ -279,35 +281,35 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public Map<Structure<?>, LongSet> getStructureReferences()
+    public Map<Structure<?>, LongSet> getAllReferences()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Map<Structure<?>, StructureStart<?>> getStructureStarts()
+    public Map<Structure<?>, StructureStart<?>> getAllStarts()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Set<BlockPos> getTileEntitiesPos()
+    public Set<BlockPos> getBlockEntitiesPos()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Map<BlockPos, TileEntity> getTileEntityMap()
+    public Map<BlockPos, TileEntity> getBlockEntities()
     {
         // Noop
         return null;
     }
 
     @Override
-    public int getTopBlockY(Type heightmapType, int x, int z)
+    public int getHeight(Type heightmapType, int x, int z)
     {
         // Noop
         return 0;
@@ -327,14 +329,14 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public WorldLightManager getWorldLightManager()
+    public WorldLightManager getLightEngine()
     {
         // Noop
         return null;
     }
 
     @Override
-    public boolean hasLight()
+    public boolean isLightCorrect()
     {
         return true;
     }
@@ -346,31 +348,31 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public boolean isModified()
+    public boolean isUnsaved()
     {
         return false;
     }
 
     @Override
-    public void markDirty()
+    public void markUnsaved()
     {
         // Noop
     }
 
     @Override
-    public void postLoad()
+    public void runPostLoad()
     {
         // Noop
     }
 
     @Override
-    public void postProcess()
+    public void postProcessGeneration()
     {
         // Noop
     }
 
     @Override
-    public void read(BiomeContainer biomeContainerIn, PacketBuffer packetBufferIn, CompoundNBT nbtIn, int availableSections)
+    public void replaceWithPacketData(BiomeContainer biomeContainerIn, PacketBuffer packetBufferIn, CompoundNBT nbtIn, int availableSections)
     {
         // Noop
     }
@@ -382,25 +384,25 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void removeEntityAtIndex(Entity entityIn, int index)
+    public void removeEntity(Entity entityIn, int index)
     {
         // Noop
     }
 
     @Override
-    public void removeTileEntity(BlockPos pos)
+    public void removeBlockEntity(BlockPos pos)
     {
         // Noop
     }
 
     @Override
-    public void rescheduleTicks()
+    public void unpackTicks()
     {
         // Noop
     }
 
     @Override
-    public void saveScheduledTicks(ServerWorld serverWorldIn)
+    public void packTicks(ServerWorld serverWorldIn)
     {
         // Noop
     }
@@ -413,7 +415,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setHasEntities(boolean hasEntitiesIn)
+    public void setLastSaveHadEntities(boolean hasEntitiesIn)
     {
         // Noop
     }
@@ -437,7 +439,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setLight(boolean lightCorrectIn)
+    public void setLightCorrect(boolean lightCorrectIn)
     {
         // Noop
     }
@@ -449,25 +451,25 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setLocationType(Supplier<LocationType> locationTypeIn)
+    public void setFullStatus(Supplier<LocationType> locationTypeIn)
     {
         // Noop
     }
 
     @Override
-    public void setModified(boolean modified)
+    public void setUnsaved(boolean modified)
     {
         // Noop
     }
 
     @Override
-    public void setStructureReferences(Map<Structure<?>, LongSet> p_201606_1_)
+    public void setAllReferences(Map<Structure<?>, LongSet> p_201606_1_)
     {
         // Noop
     }
 
     @Override
-    public void setStructureStarts(Map<Structure<?>, StructureStart<?>> structureStartsIn)
+    public void setAllStarts(Map<Structure<?>, StructureStart<?>> structureStartsIn)
     {
         // Noop
     }
@@ -485,39 +487,39 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void addPackedPosition(short packedPosition, int index)
+    public void addPackedPostProcess(short packedPosition, int index)
     {
         // Noop
     }
 
     @Override
-    public ChunkSection getLastExtendedBlockStorage()
+    public ChunkSection getHighestSection()
     {
         // Noop
         return null;
     }
 
     @Override
-    public int getTopFilledSegment()
+    public int getHighestSectionPosition()
     {
         // Noop
         return 255;
     }
 
     @Override
-    public boolean isEmptyBetween(int startY, int endY)
+    public boolean isYSpaceEmpty(int startY, int endY)
     {
         return false;
     }
 
     @Override
-    public void markBlockForPostprocessing(BlockPos pos)
+    public void markPosForPostprocessing(BlockPos pos)
     {
         // Noop
     }
 
     @Override
-    public int getLightValue(BlockPos pos)
+    public int getLightEmission(BlockPos pos)
     {
         return 15;
     }

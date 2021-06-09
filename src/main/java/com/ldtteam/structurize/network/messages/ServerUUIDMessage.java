@@ -26,13 +26,13 @@ public class ServerUUIDMessage implements IMessage
 
     public ServerUUIDMessage(final PacketBuffer buf)
     {
-        this.serverUUID = buf.readUniqueId();
+        this.serverUUID = buf.readUUID();
     }
 
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeUniqueId(Manager.getServerUUID());
+        buf.writeUUID(Manager.getServerUUID());
     }
 
     @Nullable

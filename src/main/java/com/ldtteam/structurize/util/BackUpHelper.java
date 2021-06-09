@@ -103,7 +103,7 @@ public final class BackUpHelper
     @NotNull
     private static File getSaveDir()
     {
-        return ServerLifecycleHooks.getCurrentServer().func_240776_a_(new FolderName(FILENAME_STRUCTURIZE_PATH)).toFile();
+        return ServerLifecycleHooks.getCurrentServer().getWorldPath(new FolderName(FILENAME_STRUCTURIZE_PATH)).toFile();
     }
 
     /**

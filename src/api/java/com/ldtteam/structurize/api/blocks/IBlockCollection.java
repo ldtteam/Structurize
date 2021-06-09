@@ -69,8 +69,8 @@ public interface IBlockCollection extends IGenerated
     default AbstractBlock.Properties getProperties()
     {
         // A generic wood default
-        return AbstractBlock.Properties.create(Material.WOOD, MaterialColor.WOOD)
-                 .hardnessAndResistance(2.0F, 3.0F)
+        return AbstractBlock.Properties.of(Material.WOOD, MaterialColor.WOOD)
+                 .strength(2.0F, 3.0F)
                  .sound(SoundType.WOOD);
     }
 
@@ -110,7 +110,7 @@ public interface IBlockCollection extends IGenerated
                   @Override
                   public Item get()
                   {
-                      return new BlockItem(block.get(), new Item.Properties().group(group));
+                      return new BlockItem(block.get(), new Item.Properties().tab(group));
                   }
               });
 
@@ -218,7 +218,7 @@ public interface IBlockCollection extends IGenerated
             }
             BlockType.fromSuffix(ro.get())
               .formRecipe(ro.get(), getMainBlock(), ModRecipeProvider.getDefaultCriterion(getMainBlock()))
-              .build(consumer);
+              .save(consumer);
         }));
     }
 

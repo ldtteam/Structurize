@@ -49,7 +49,7 @@ public enum DataVersion
     v1_9(169, "1.9", v1_9_1),
     DEFAULT(0, null, v1_9);
 
-    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getVersion().getWorldVersion());
+    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getCurrentVersion().getWorldVersion());
     private final int dataVersion;
     private final String mcVersion;
     private final DataVersion successor;

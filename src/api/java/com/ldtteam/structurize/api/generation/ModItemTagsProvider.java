@@ -17,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.minecraft.data.TagsProvider.Builder;
+
 public class ModItemTagsProvider extends ItemTagsProvider
 {
     private static ModItemTagsProvider instance;
@@ -34,9 +36,9 @@ public class ModItemTagsProvider extends ItemTagsProvider
     }
 
     @Override
-    protected void registerTags()
+    protected void addTags()
     {
-        tagToBuilder.putAll(tags);
+        builders.putAll(tags);
 
         // Handle all block collections' types in one go
         for (BlockType type : BlockType.values())
@@ -50,21 +52,21 @@ public class ModItemTagsProvider extends ItemTagsProvider
     }
 
     @Override
-    public void act(@NotNull final DirectoryCache cache)
+    public void run(@NotNull final DirectoryCache cache)
     {
         // Store the singleton builds
-        tags = new LinkedHashMap<>(this.tagToBuilder);
-        super.act(cache);
+        tags = new LinkedHashMap<>(this.builders);
+        super.run(cache);
     }
 
     public Builder<Item> buildTag(ITag.INamedTag<Item> tag)
     {
-        return this.getOrCreateBuilder(tag);
+        return this.tag(tag);
     }
 
     public Builder<Item> buildTag(String name)
     {
-        return this.getOrCreateBuilder(ItemTags.makeWrapperTag(name));
+        return this.tag(ItemTags.bind(name));
     }
 
     @Override
@@ -75,7 +77,7 @@ public class ModItemTagsProvider extends ItemTagsProvider
 
     public void copy(ITag.INamedTag<Block> blockTag)
     {
-        copy(blockTag, ItemTags.makeWrapperTag(blockTag.getName().toString()));
+        copy(blockTag, ItemTags.bind(blockTag.getName().toString()));
     }
 
     public static ModItemTagsProvider getInstance()

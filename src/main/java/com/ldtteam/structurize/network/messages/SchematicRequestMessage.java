@@ -26,7 +26,7 @@ public class SchematicRequestMessage implements IMessage
      */
     public SchematicRequestMessage(final PacketBuffer buf)
     {
-        this.filename = buf.readString(32767);
+        this.filename = buf.readUtf(32767);
     }
 
     /**
@@ -43,7 +43,7 @@ public class SchematicRequestMessage implements IMessage
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeString(filename);
+        buf.writeUtf(filename);
     }
 
     @Nullable

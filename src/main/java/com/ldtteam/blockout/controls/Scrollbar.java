@@ -114,7 +114,7 @@ public class Scrollbar extends Pane
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        barClicked = barClicked && (mc.mouseHelper.isLeftDown() || BOScreen.isMouseLeftDown);
+        barClicked = barClicked && (mc.mouseHandler.isLeftPressed() || BOScreen.isMouseLeftDown);
         // TODO: catch from screen
         if (barClicked)
         {

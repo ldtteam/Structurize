@@ -37,7 +37,7 @@ public class InventoryUtils
 
             for (final ItemStack stack : listToDiscount)
             {
-                if (!stack.isEmpty() && stack.isItemEqual(content))
+                if (!stack.isEmpty() && stack.sameItem(content))
                 {
                     if (stack.getCount() < content.getCount())
                     {
@@ -97,7 +97,7 @@ public class InventoryUtils
         int count = tempStack.getCount();
         for (int i = 0; i < handler.getSlots(); i++)
         {
-            if (handler.getStackInSlot(i).isItemEqual(tempStack))
+            if (handler.getStackInSlot(i).sameItem(tempStack))
             {
                 final ItemStack result = handler.extractItem(i, count, false);
                 if (result.getCount() == count)

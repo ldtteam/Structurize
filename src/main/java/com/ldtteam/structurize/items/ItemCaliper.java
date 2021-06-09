@@ -7,6 +7,8 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraft.item.Item.Properties;
+
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
  */
@@ -24,7 +26,7 @@ public class ItemCaliper extends AbstractItemWithPosSelector
      */
     public ItemCaliper(final Properties properties)
     {
-        super(properties.maxStackSize(1));
+        super(properties.stacksTo(1));
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         final PlayerEntity playerIn,
         final ItemStack itemStack)
     {
-        if (!worldIn.isRemote)
+        if (!worldIn.isClientSide)
         {
             return ActionResultType.FAIL;
         }

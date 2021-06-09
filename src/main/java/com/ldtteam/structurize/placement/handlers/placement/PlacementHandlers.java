@@ -31,6 +31,8 @@ import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler.ActionProcessingResult;
+
 /**
  * Class containing all placement handler implementations.
  * <p>
@@ -135,7 +137,7 @@ public final class PlacementHandlers
             BlockState state = world.getBlockState(pos);
             // If there's no water there and there can be
             if (!(state.hasProperty(BlockStateProperties.WATERLOGGED)
-             && !state.get(BlockStateProperties.WATERLOGGED)
+             && !state.getValue(BlockStateProperties.WATERLOGGED)
              && BlockUtils.getFluidForDimension(world).getBlock() == Blocks.WATER))
             {
                 handleRemoval(handler, world, pos);
@@ -153,17 +155,17 @@ public final class PlacementHandlers
         {
             if (complete)
             {
-                world.setBlockState(pos, ModBlocks.blockFluidSubstitution.get().getDefaultState(), UPDATE_FLAG);
+                world.setBlock(pos, ModBlocks.blockFluidSubstitution.get().defaultBlockState(), UPDATE_FLAG);
                 return ActionProcessingResult.PASS;
             }
 
             if (world.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED))
             {
-                world.setBlockState(pos, world.getBlockState(pos).with(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
+                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
             }
             else
             {
-                world.setBlockState(pos, BlockUtils.getFluidForDimension(world), UPDATE_FLAG);
+                world.setBlock(pos, BlockUtils.getFluidForDimension(world), UPDATE_FLAG);
             }
 
             return ActionProcessingResult.PASS;
@@ -200,7 +202,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            world.setBlockState(pos, blockState, UPDATE_FLAG);
+            world.setBlock(pos, blockState, UPDATE_FLAG);
             return ActionProcessingResult.PASS;
         }
     }
@@ -224,7 +226,7 @@ public final class PlacementHandlers
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
-            if (!world.getBlockState(pos.down()).getMaterial().isSolid())
+            if (!world.getBlockState(pos.below()).getMaterial().isSolid())
             {
                 itemList.addAll(getRequiredItemsForState(world, pos, BlockUtils.getSubstitutionBlockAtWorld(world, pos), tileEntityData, complete));
             }
@@ -245,11 +247,11 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.getBlockState(pos.down()).getMaterial().isSolid())
+            if (!world.getBlockState(pos.below()).getMaterial().isSolid())
             {
-                world.setBlockState(pos.down(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
+                world.setBlock(pos.below(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
             }
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -268,7 +270,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.getBlock().isIn(Tags.Blocks.DIRT) && world.getBiome(pos).biomeGenerationSettings.getSurfaceBuilderConfig().getTop().getBlock() == blockState.getBlock());
+            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.getBlock().is(Tags.Blocks.DIRT) && world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() == blockState.getBlock());
         }
 
         @Override
@@ -280,7 +282,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -318,10 +320,10 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
+            if (blockState.getValue(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                world.setBlockState(pos, blockState.with(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
-                world.setBlockState(pos.up(), blockState.with(DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
+                world.setBlock(pos, blockState.setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
+                world.setBlock(pos.above(), blockState.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -336,7 +338,7 @@ public final class PlacementHandlers
           final boolean complete)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            if (blockState.get(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
+            if (blockState.getValue(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
                 itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             }
@@ -361,18 +363,18 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (blockState.get(BedBlock.PART) == BedPart.HEAD)
+            if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
-                final Direction facing = blockState.get(BedBlock.HORIZONTAL_FACING);
+                final Direction facing = blockState.getValue(BedBlock.FACING);
 
                 // pos.offset(facing) will get the other part of the bed
-                world.setBlockState(pos.offset(facing.getOpposite()), blockState.with(BedBlock.PART, BedPart.FOOT), UPDATE_FLAG);
-                world.setBlockState(pos, blockState.with(BedBlock.PART, BedPart.HEAD), UPDATE_FLAG);
+                world.setBlock(pos.relative(facing.getOpposite()), blockState.setValue(BedBlock.PART, BedPart.FOOT), UPDATE_FLAG);
+                world.setBlock(pos, blockState.setValue(BedBlock.PART, BedPart.HEAD), UPDATE_FLAG);
 
                 if (tileEntityData != null)
                 {
                     handleTileEntityPlacement(tileEntityData, world, pos);
-                    handleTileEntityPlacement(tileEntityData, world, pos.offset(facing.getOpposite()));
+                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()));
                 }
                 return ActionProcessingResult.SUCCESS;
             }
@@ -388,7 +390,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            if (blockState.get(BedBlock.PART) == BedPart.HEAD)
+            if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
                 final List<ItemStack> list = new ArrayList<>();
                 list.add(new ItemStack(blockState.getBlock(), 1));
@@ -415,10 +417,10 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (blockState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER))
+            if (blockState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                world.setBlockState(pos, blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
-                world.setBlockState(pos.up(), blockState.with(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
+                world.setBlock(pos, blockState.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
+                world.setBlock(pos.above(), blockState.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
                 return ActionProcessingResult.SUCCESS;
             }
             return ActionProcessingResult.PASS;
@@ -492,7 +494,7 @@ public final class PlacementHandlers
             {
                 return ActionProcessingResult.PASS;
             }
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -538,10 +540,10 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.isAirBlock(pos))
+            if (!world.isEmptyBlock(pos))
             {
                 final List<Entity> entityList =
-                  world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof LivingEntity || entity instanceof ItemEntity));
+                  world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(pos), entity -> !(entity instanceof LivingEntity || entity instanceof ItemEntity));
                 if (!entityList.isEmpty())
                 {
                     for (final Entity entity : entityList)
@@ -584,7 +586,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, Blocks.GRASS_PATH.getDefaultState(), UPDATE_FLAG))
+            if (!world.setBlock(pos, Blocks.GRASS_PATH.defaultBlockState(), UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -613,7 +615,7 @@ public final class PlacementHandlers
         {
             return blockState.getBlock() instanceof StairsBlock
                      && world.getBlockState(pos).getBlock() instanceof StairsBlock
-                     && world.getBlockState(pos).get(StairsBlock.FACING) == blockState.get(StairsBlock.FACING)
+                     && world.getBlockState(pos).getValue(StairsBlock.FACING) == blockState.getValue(StairsBlock.FACING)
                      && blockState.getBlock() == world.getBlockState(pos).getBlock();
         }
 
@@ -668,7 +670,7 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -713,7 +715,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -781,7 +783,7 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
+            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -789,7 +791,7 @@ public final class PlacementHandlers
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
-                blockState.getBlock().onBlockPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
+                blockState.getBlock().setPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -826,10 +828,10 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final TileEntity newTile = TileEntity.readTileEntity(world.getBlockState(pos), tileEntityData);
+            final TileEntity newTile = TileEntity.loadStatic(world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
-                world.setTileEntity(pos, newTile);
+                world.setBlockEntity(pos, newTile);
                 newTile.rotate(settings.rotation);
                 newTile.mirror(settings.mirror);
             }

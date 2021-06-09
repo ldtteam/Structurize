@@ -64,14 +64,14 @@ public class RenderUtils
         final double maxY = Math.max(posA.getY(), posB.getY()) + 1 + boxGrow;
         final double maxZ = Math.max(posA.getZ(), posB.getZ()) + 1 + boxGrow;
 
-        final Vector3d viewPosition = Minecraft.getInstance().getRenderManager().info.getProjectedView();
+        final Vector3d viewPosition = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
 
-        WorldRenderer.drawBoundingBox(matrixStack, buffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
+        WorldRenderer.renderLineBox(matrixStack, buffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     /**
@@ -89,9 +89,9 @@ public class RenderUtils
         final boolean forceWhite,
         final int mergeEveryXListElements)
     {
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
         renderDebugText(pos, text, matrixStack, forceWhite, mergeEveryXListElements, buffer);
-        buffer.finish();
+        buffer.endBatch();
     }
 
     /**
@@ -116,40 +116,40 @@ public class RenderUtils
             throw new IllegalArgumentException("mergeEveryXListElements is less than 1");
         }
 
-        final EntityRendererManager erm = Minecraft.getInstance().getRenderManager();
+        final EntityRendererManager erm = Minecraft.getInstance().getEntityRenderDispatcher();
         final int cap = text.size();
-        if (cap > 0 && erm.getDistanceToCamera(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
+        if (cap > 0 && erm.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
-            final Vector3d viewPosition = erm.info.getProjectedView();
-            final FontRenderer fontrenderer = erm.getFontRenderer();
+            final Vector3d viewPosition = erm.camera.getPosition();
+            final FontRenderer fontrenderer = erm.getFont();
 
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
             matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
-            matrixStack.rotate(erm.getCameraOrientation());
+            matrixStack.mulPose(erm.cameraOrientation());
             matrixStack.scale(-0.014f, -0.014f, 0.014f);
             matrixStack.translate(0.0d, 18.0d, 0.0d);
 
-            final float backgroundTextOpacity = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
+            final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
-            final Matrix4f rawPosMatrix = matrixStack.getLast().getMatrix();
+            final Matrix4f rawPosMatrix = matrixStack.last().pose();
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
                 final StringTextComponent renderText = new StringTextComponent(mergeEveryXListElements == 1 ? text.get(i)
                 : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
-                final float textCenterShift = (float) (-fontrenderer.getStringPropertyWidth(renderText) / 2);
+                final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 
-                fontrenderer.func_243247_a(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
+                fontrenderer.drawInBatch(renderText, textCenterShift, 0, forceWhite ? 0xffffffff : 0x20ffffff, false, rawPosMatrix, buffer, true, alphaMask, 0x00f000f0);
                 if (!forceWhite)
                 {
-                    fontrenderer.func_243247_a(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
+                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
                 }
                 matrixStack.translate(0.0d, 10.0d, 0.0d);
             }
 
-            matrixStack.pop();
+            matrixStack.popPose();
         }
     }
 
@@ -168,19 +168,19 @@ public class RenderUtils
             throw new IllegalStateException();
         }
 
-        private static final RenderType LINES_GLINT = makeType("structurize_lines_glint",
+        private static final RenderType LINES_GLINT = create("structurize_lines_glint",
             DefaultVertexFormats.POSITION_COLOR,
             1,
             256,
-            RenderType.State.getBuilder()
-                .line(new RenderState.LineState(OptionalDouble.empty()))
-                .layer(field_239235_M_)
-                .transparency(GLINT_TRANSPARENCY)
-                .target(field_241712_U_)
-                .writeMask(COLOR_WRITE)
-                .cull(CULL_DISABLED)
-                .depthTest(DEPTH_ALWAYS)
-                .fog(NO_FOG)
-                .build(false));
+            RenderType.State.builder()
+                .setLineState(new RenderState.LineState(OptionalDouble.empty()))
+                .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                .setTransparencyState(GLINT_TRANSPARENCY)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setWriteMaskState(COLOR_WRITE)
+                .setCullState(NO_CULL)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .setFogState(NO_FOG)
+                .createCompositeState(false));
     }
 }

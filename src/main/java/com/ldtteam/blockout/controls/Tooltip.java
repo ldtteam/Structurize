@@ -80,7 +80,7 @@ public class Tooltip extends AbstractTextElement
         // we have wrap enabled, so we want to create as small bouding box as possible
         if (autoWidth)
         {
-            textWidth = Math.min(text.stream().mapToInt(mc.fontRenderer::getStringPropertyWidth).max().orElse(Integer.MAX_VALUE), maxWidth - 8);
+            textWidth = Math.min(text.stream().mapToInt(mc.font::width).max().orElse(Integer.MAX_VALUE), maxWidth - 8);
         }
         if (autoHeight)
         {
@@ -139,11 +139,11 @@ public class Tooltip extends AbstractTextElement
             }
 
             // vanilla Screen#renderTooltip(MatrixStack, List<? extends IReorderingProcessor>, int, int, FontRenderer)
-            ms.push();
+            ms.pushPose();
             ms.translate(x, y, Z_OFFSET);
 
-            final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
-            final Matrix4f matrix4f = ms.getLast().getMatrix();
+            final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+            final Matrix4f matrix4f = ms.last().pose();
 
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
 
@@ -161,15 +161,15 @@ public class Tooltip extends AbstractTextElement
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.shadeModel(7425);
-            bufferbuilder.finishDrawing();
-            WorldVertexBufferUploader.draw(bufferbuilder);
+            bufferbuilder.end();
+            WorldVertexBufferUploader.end(bufferbuilder);
             RenderSystem.shadeModel(7424);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
 
             ms.translate(-x, -y, 0.0d);
             super.drawSelf(ms, mx, my);
-            ms.pop();
+            ms.popPose();
         }
     }
 

@@ -230,7 +230,7 @@ public interface IBlueprintDataProvider
 
         for (Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
         {
-            tagPosMap.put(entry.getKey().add(getTilePos()), entry.getValue());
+            tagPosMap.put(entry.getKey().offset(getTilePos()), entry.getValue());
         }
 
         return tagPosMap;
@@ -244,7 +244,7 @@ public interface IBlueprintDataProvider
      */
     default public BlockPos getRealWorldPos(final BlockPos relativePos)
     {
-        return relativePos.add(getTilePos());
+        return relativePos.offset(getTilePos());
     }
 
     /**

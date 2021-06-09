@@ -64,19 +64,19 @@ public enum BrickType implements IBlockCollection
     @Override
     public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
     {
-        ShapelessRecipeBuilder.shapelessRecipe(getMainBlock(), 4)
-          .addIngredient(getName().contains("stone") ? Blocks.STONE_BRICKS : Blocks.BRICKS, 2)
-          .addIngredient(ingredient, 2)
-          .addCriterion("has_" + getName(), obtainment)
-          .build(consumer);
+        ShapelessRecipeBuilder.shapeless(getMainBlock(), 4)
+          .requires(getName().contains("stone") ? Blocks.STONE_BRICKS : Blocks.BRICKS, 2)
+          .requires(ingredient, 2)
+          .unlockedBy("has_" + getName(), obtainment)
+          .save(consumer);
     }
 
     @Override
     public AbstractBlock.Properties getProperties()
     {
-        return AbstractBlock.Properties.create(Material.ROCK, MaterialColor.RED)
-                 .setRequiresTool()
-                 .hardnessAndResistance(2.0F, 6.0F);
+        return AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
+                 .requiresCorrectToolForDrops()
+                 .strength(2.0F, 6.0F);
     }
 
     @Override

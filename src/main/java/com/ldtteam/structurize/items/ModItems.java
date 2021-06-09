@@ -46,7 +46,7 @@ public final class ModItems
 
     static
     {
-        final Item.Properties properties = new Item.Properties().group(ModItemGroups.STRUCTURIZE);
+        final Item.Properties properties = new Item.Properties().tab(ModItemGroups.STRUCTURIZE);
 
         buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
         shapeTool = register("shapetool", () -> new ItemShapeTool(properties));

@@ -32,8 +32,8 @@ public class StructurizeStylesMessage implements IMessage
         final int count = buf.readInt();
         for (int i = 0; i < count; i++)
         {
-            final String filename = buf.readString(32767);
-            final String md5 = buf.readString(32767);
+            final String filename = buf.readUtf(32767);
+            final String md5 = buf.readUtf(32767);
             md5Map.put(filename, md5);
         }
     }
@@ -44,8 +44,8 @@ public class StructurizeStylesMessage implements IMessage
         buf.writeInt(md5Map.size());
         for (final Map.Entry<String, String> entry : md5Map.entrySet())
         {
-            buf.writeString(entry.getKey());
-            buf.writeString(entry.getValue());
+            buf.writeUtf(entry.getKey());
+            buf.writeUtf(entry.getValue());
         }
     }
 

@@ -41,7 +41,7 @@ public final class ClientStructureWrapper
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
 
-        final File file = new File(new File(Minecraft.getInstance().gameDir, Constants.MOD_ID), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
+        final File file = new File(new File(Minecraft.getInstance().gameDirectory, Constants.MOD_ID), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
         Utils.checkDirectory(file.getParentFile());
 
         try (final OutputStream outputstream = new FileOutputStream(file))

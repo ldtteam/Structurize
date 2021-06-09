@@ -45,7 +45,7 @@ public class ScanOnServerMessage implements IMessage
      */
     public ScanOnServerMessage(final PacketBuffer buf)
     {
-        this.name = buf.readString(32767);
+        this.name = buf.readUtf(32767);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.saveEntities = buf.readBoolean();
@@ -64,7 +64,7 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeString(name);
+        buf.writeUtf(name);
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
         buf.writeBoolean(saveEntities);
@@ -82,6 +82,6 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ItemScanTool.saveStructure(ctxIn.getSender().getEntityWorld(), from, to, ctxIn.getSender(), name, saveEntities, this.anchorPos);
+        ItemScanTool.saveStructure(ctxIn.getSender().getCommandSenderWorld(), from, to, ctxIn.getSender(), name, saveEntities, this.anchorPos);
     }
 }

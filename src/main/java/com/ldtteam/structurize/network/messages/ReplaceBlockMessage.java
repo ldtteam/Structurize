@@ -42,8 +42,8 @@ public class ReplaceBlockMessage implements IMessage
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.blockTo = buf.readItemStack();
-        this.blockFrom = buf.readItemStack();
+        this.blockTo = buf.readItem();
+        this.blockFrom = buf.readItem();
     }
 
     /**
@@ -66,8 +66,8 @@ public class ReplaceBlockMessage implements IMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeItemStack(blockTo);
-        buf.writeItemStack(blockFrom);
+        buf.writeItem(blockTo);
+        buf.writeItem(blockFrom);
     }
 
     @Nullable

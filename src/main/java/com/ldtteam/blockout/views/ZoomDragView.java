@@ -150,14 +150,14 @@ public class ZoomDragView extends View
     {
         scissorsStart(ms, contentWidth, contentHeight);
 
-        ms.push();
+        ms.pushPose();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, (float) scale);
         abstractDrawSelfPre(ms, mx, my);
         super.drawSelf(ms, calcRelativeX(mx), calcRelativeY(my));
         abstractDrawSelfPost(ms, mx, my);
-        ms.pop();
+        ms.popPose();
 
         scissorsEnd(ms);
     }
@@ -167,12 +167,12 @@ public class ZoomDragView extends View
     {
         scissorsStart(ms, contentWidth, contentHeight);
 
-        ms.push();
+        ms.pushPose();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
         ms.scale((float) scale, (float) scale, (float) scale);
         super.drawSelfLast(ms, calcRelativeX(mx), calcRelativeY(my));
-        ms.pop();
+        ms.popPose();
 
         scissorsEnd(ms);
     }

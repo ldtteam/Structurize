@@ -45,7 +45,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 
     // <centre, pair<tag group, map<wood, tag>>
     public static final Map<TimberFrameCentreType, Tuple<ITag.INamedTag<Block>, Map<WoodType, ITag.INamedTag<Block>>>> blockTags = new LinkedHashMap<>();
-    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.makeWrapperTag("structurize:timber_frames/timber_frames");
+    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.bind("structurize:timber_frames/timber_frames");
 
     TimberFrameType(final String name, final String langName, final boolean rotatable)
     {
@@ -118,11 +118,11 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     {
         states.getVariantBuilder(block)
           .forAllStates(state -> {
-              Direction dir = state.get(BlockStateProperties.FACING);
+              Direction dir = state.getValue(BlockStateProperties.FACING);
               return ConfiguredModel.builder()
                 .modelFile(model)
                 .rotationX(!isRotatable() ? 0 : dir == Direction.DOWN ? 180 : dir.getAxis().isHorizontal() ? 90 : 0)
-                .rotationY(!isRotatable() ? 0 : dir.getAxis().isVertical() ? 0 : ((int) dir.getHorizontalAngle()) % 360)
+                .rotationY(!isRotatable() ? 0 : dir.getAxis().isVertical() ? 0 : ((int) dir.toYRot()) % 360)
                 .build();
           });
     }
@@ -144,24 +144,24 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
             {
                 provider.add(
                   consumer -> new ShapedRecipeBuilder(block.get(), 4)
-                    .patternLine("F")
-                    .patternLine("C")
-                    .patternLine("S")
-                    .key('F', block.get().getFrameType().getMaterial())
-                    .key('C', block.get().getCentreType().getMaterial())
-                    .key('S', ModItems.buildTool.get())
-                    .addCriterion("has_" + block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
-                    .build(consumer, new ResourceLocation(Constants.MOD_ID, block.get().getRegistryName().getPath() + "_crafted")));
+                    .pattern("F")
+                    .pattern("C")
+                    .pattern("S")
+                    .define('F', block.get().getFrameType().getMaterial())
+                    .define('C', block.get().getCentreType().getMaterial())
+                    .define('S', ModItems.buildTool.get())
+                    .unlockedBy("has_" + block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
+                    .save(consumer, new ResourceLocation(Constants.MOD_ID, block.get().getRegistryName().getPath() + "_crafted")));
             }
 
             BlockTimberFrame previous = search(block.get());
 
             if (previous == null) return;
 
-            provider.add(consumer -> ShapelessRecipeBuilder.shapelessRecipe(block.get())
-                .addIngredient(previous)
-                .addCriterion("has_" + block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
-                .build(consumer));
+            provider.add(consumer -> ShapelessRecipeBuilder.shapeless(block.get())
+                .requires(previous)
+                .unlockedBy("has_" + block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
+                .save(consumer));
         });
 
     }
@@ -188,14 +188,14 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 
             if (!blockTags.containsKey(centre))
             {
-                ITag.INamedTag<Block> tag = blocks.createTag("timber_frames/" + centre.getString());
+                ITag.INamedTag<Block> tag = blocks.createTag("timber_frames/" + centre.getSerializedName());
                 blockTags.put(centre, new Tuple<>(tag, new LinkedHashMap<>()));
                 blocks.buildTag(BLOCK_TAG).addTag(tag);
             }
 
             blockTags.get(centre).getB().putIfAbsent(
               wood,
-              blocks.createTag("timber_frames/" + centre.getString() + "/" + wood.getString())
+              blocks.createTag("timber_frames/" + centre.getSerializedName() + "/" + wood.getSerializedName())
             );
 
             blocks.buildTag(blockTags.get(centre).getB().get(wood)).add(block.get());
@@ -220,8 +220,8 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     {
         lang.translate(getBlocks(), block ->
             block.getTimberFrameType().getLangName() + " " +
-              ModLanguageProvider.format(block.getFrameType().getString()) + " " +
-              (block.getCentreType().getString().equals(block.getFrameType().getString()) ? "" : block.getCentreType().getLangName() + " ") +
+              ModLanguageProvider.format(block.getFrameType().getSerializedName()) + " " +
+              (block.getCentreType().getSerializedName().equals(block.getFrameType().getSerializedName()) ? "" : block.getCentreType().getLangName() + " ") +
               "Timber Frame");
     }
 

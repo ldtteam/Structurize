@@ -32,8 +32,8 @@ public class BuildToolPasteMessage implements IMessage
      */
     public BuildToolPasteMessage(final PacketBuffer buf)
     {
-        this.structureName = buf.readString(32767);
-        this.workOrderName = buf.readString(32767);
+        this.structureName = buf.readUtf(32767);
+        this.workOrderName = buf.readUtf(32767);
         this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
         this.rotation = buf.readInt();
         this.isHut = buf.readBoolean();
@@ -75,8 +75,8 @@ public class BuildToolPasteMessage implements IMessage
     @Override
     public void toBytes(@NotNull final PacketBuffer buf)
     {
-        buf.writeString(structureName);
-        buf.writeString(workOrderName);
+        buf.writeUtf(structureName);
+        buf.writeUtf(workOrderName);
 
         buf.writeInt(pos.getX());
         buf.writeInt(pos.getY());
@@ -104,13 +104,13 @@ public class BuildToolPasteMessage implements IMessage
         final StructureName sn = new StructureName(structureName);
         if (!Structures.hasMD5(sn))
         {
-            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().getUniqueID());
+            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().getUUID());
             return;
         }
 
         if (ctxIn.getSender().isCreative())
         {
-            StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().world, structureName,
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().level, structureName,
               pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, !complete, ctxIn.getSender());
         }
     }

@@ -70,64 +70,64 @@ public class ScanCommand extends AbstractCommand
 
     private static int execute(final CommandSource source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
     {
-        @Nullable final World world = source.getWorld();
-        if (source.getEntity() instanceof PlayerEntity && !source.asPlayer().isCreative())
+        @Nullable final World world = source.getLevel();
+        if (source.getEntity() instanceof PlayerEntity && !source.getPlayerOrException().isCreative())
         {
-            source.sendErrorMessage(new StringTextComponent(NO_PERMISSION_MESSAGE));
+            source.sendFailure(new StringTextComponent(NO_PERMISSION_MESSAGE));
         }
 
         final PlayerEntity player;
         if (profile != null && world.getServer() != null)
         {
-            player = world.getServer().getPlayerList().getPlayerByUUID(profile.getId());
+            player = world.getServer().getPlayerList().getPlayer(profile.getId());
             if (player == null)
             {
-                source.sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
+                source.sendFailure(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
                 return 0;
             }
         } 
         else if (source.getEntity() instanceof PlayerEntity)
         {
-            player = source.asPlayer();
+            player = source.getPlayerOrException();
         } 
         else
         {
-            source.sendErrorMessage(new TranslationTextComponent(PLAYER_NOT_FOUND));
+            source.sendFailure(new TranslationTextComponent(PLAYER_NOT_FOUND));
             return 0;
         }
 
         ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name, true, anchorPos);
-        source.sendErrorMessage(new TranslationTextComponent(SCAN_SUCCESS_MESSAGE));
+        source.sendFailure(new TranslationTextComponent(SCAN_SUCCESS_MESSAGE));
         return 1;
     }
 
     private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
         return execute(context.getSource(), from, to, Optional.empty(), null, null);
     }
 
     private static int onExecuteWithAnchor(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
-        final BlockPos anchorPos = BlockPosArgument.getBlockPos(context, ANCHOR_POS);
+        final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getOrLoadBlockPos(context, ANCHOR_POS);
         return execute(context.getSource(), from, to, Optional.of(anchorPos), null, null);
     }
 
     private static int onExecuteWithPlayerName(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         return execute(context.getSource(), from, to, Optional.empty(), profile, null);
     }
 
     private static int onExecuteWithPlayerNameAndFileName(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         String name = StringArgumentType.getString(context, FILE_NAME);
         return execute(context.getSource(), from, to, Optional.empty(), profile, name);
@@ -135,9 +135,9 @@ public class ScanCommand extends AbstractCommand
 
     private static int onExecuteWithPlayerNameAndFileNameAndAnchorPos(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getBlockPos(context, POS2);
-        final BlockPos anchorPos = BlockPosArgument.getBlockPos(context, ANCHOR_POS);
+        final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
+        final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getOrLoadBlockPos(context, ANCHOR_POS);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         String name = StringArgumentType.getString(context, FILE_NAME);
         return execute(context.getSource(), from, to, Optional.of(anchorPos), profile, name);

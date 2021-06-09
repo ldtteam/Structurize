@@ -82,7 +82,7 @@ public abstract class Button extends AbstractTextElement
     @Override
     public boolean handleClick(final double mx, final double my)
     {
-        mc.getSoundHandler().play(SimpleSound.music(SoundEvents.UI_BUTTON_CLICK));
+        mc.getSoundManager().play(SimpleSound.forMusic(SoundEvents.UI_BUTTON_CLICK));
 
         ButtonHandler delegatedHandler = handler;
 

@@ -27,7 +27,7 @@ public final class BlueprintUtils
 {
     // private static final Set<String> blackListedTileEntityIds = new HashSet<>();
     // private static final Set<String> blackListedEntityIds = new HashSet<>();
-    private static final Function<BlockPos, BlockInfo> DEFAULT_FACTORY = pos -> new BlockInfo(pos, Blocks.AIR.getDefaultState(), null);
+    private static final Function<BlockPos, BlockInfo> DEFAULT_FACTORY = pos -> new BlockInfo(pos, Blocks.AIR.defaultBlockState(), null);
 
     private BlueprintUtils()
     {
@@ -113,11 +113,11 @@ public final class BlueprintUtils
             compound.putInt("y", info.getPos().getY());
             compound.putInt("z", info.getPos().getZ());
 
-            final TileEntity entity = TileEntity.readTileEntity(info.getState(), compound);
+            final TileEntity entity = TileEntity.loadStatic(info.getState(), compound);
 
             if (entity != null)
             {
-                entity.setWorldAndPos(blockAccess, info.getPos());
+                entity.setLevelAndPosition(blockAccess, info.getPos());
             }
             return entity;
         }
@@ -145,8 +145,8 @@ public final class BlueprintUtils
         try
         {
             final CompoundNBT compound = info.copy();
-            compound.putUniqueId("UUID", UUID.randomUUID());
-            final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+            compound.putUUID("UUID", UUID.randomUUID());
+            final Optional<EntityType<?>> type = EntityType.by(compound);
             if (type.isPresent())
             {    
                 final Entity entity = type.get().create(blockAccess);

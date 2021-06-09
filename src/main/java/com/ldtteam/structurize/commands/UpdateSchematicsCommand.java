@@ -91,7 +91,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             if (addStructureVoid)
             {
                 structureVoidID = (short) pallete.size();
-                pallete.add(NBTUtil.writeBlockState(Blocks.STRUCTURE_VOID.getDefaultState()));
+                pallete.add(NBTUtil.writeBlockState(Blocks.STRUCTURE_VOID.defaultBlockState()));
             }
 
             final Set<String> mods = new HashSet<>();
@@ -177,7 +177,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
     private static void updatePos(final Mutable pos, final CompoundNBT comp)
     {
         final ListNBT list = comp.getList("pos", NBT.TAG_INT);
-        pos.setPos(list.getInt(0), list.getInt(1), list.getInt(2));
+        pos.set(list.getInt(0), list.getInt(1), list.getInt(2));
     }
 
     /**

@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
+import net.minecraft.util.math.RayTraceResult.Type;
+
 /**
  * Utility methods for the inventories.
  */
@@ -62,7 +64,7 @@ public final class ItemStackUtils
             return items;
         }
 
-        final TileEntity tileEntity = TileEntity.readTileEntity(state, compound);
+        final TileEntity tileEntity = TileEntity.loadStatic(state, compound);
         if (tileEntity == null)
         {
             return Collections.emptyList();
@@ -146,7 +148,7 @@ public final class ItemStackUtils
             final List<ItemStack> request = new ArrayList<>();
             if (entity instanceof ItemFrameEntity)
             {
-                final ItemStack stack = ((ItemFrameEntity) entity).getDisplayedItem();
+                final ItemStack stack = ((ItemFrameEntity) entity).getItem();
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     stack.setCount(1);
@@ -156,7 +158,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStandEntity)
             {
-                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.copy(pos)) {
+                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.atLowerCornerOf(pos)) {
                     @NotNull
                     @Override
                     public Type getType()
@@ -164,8 +166,8 @@ public final class ItemStackUtils
                         return Type.ENTITY;
                     }
                 }));
-                entity.getArmorInventoryList().forEach(request::add);
-                entity.getHeldEquipment().forEach(request::add);
+                entity.getArmorSlots().forEach(request::add);
+                entity.getHandSlots().forEach(request::add);
             }
 
             return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());

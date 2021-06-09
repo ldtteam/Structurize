@@ -74,7 +74,7 @@ public class ButtonVanilla extends Button
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        mc.getTextureManager().bindTexture(TEXTURE);
+        mc.getTextureManager().bind(TEXTURE);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         final int u = 0;

@@ -50,7 +50,7 @@ public class SchematicSaveMessage implements IMessage
         this.data = StructureUtils.uncompress(compressedData);
         this.pieces = buf.readInt();
         this.piece = buf.readInt();
-        this.id = buf.readUniqueId();
+        this.id = buf.readUUID();
     }
 
     /**
@@ -85,7 +85,7 @@ public class SchematicSaveMessage implements IMessage
             buf.writeBytes(compressedData);
             buf.writeInt(pieces);
             buf.writeInt(piece);
-            buf.writeUniqueId(id);
+            buf.writeUUID(id);
         }
     }
 
@@ -102,7 +102,7 @@ public class SchematicSaveMessage implements IMessage
         if (isLogicalServer)
         {
             final PlayerEntity sender = ctxIn.getSender();
-            final UUID senderUuid = sender.getUniqueID();
+            final UUID senderUuid = sender.getUUID();
 
             if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
             {

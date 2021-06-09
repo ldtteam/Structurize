@@ -125,7 +125,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
                     {
                         if (entry != null)
                         {
-                            entry.screen.onClose();
+                            entry.screen.removed();
                         }
     
                         final WindowEntry window = new WindowEntry(now, thing, hook, HookWindow::new);
@@ -145,7 +145,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         activeWindows.values().removeIf(entry -> {
             if (entry.hook.trigger.canTick(ticks) && now - entry.lastTimeAccessed > entry.hook.expirationTime) // expired
             {
-                entry.screen.onClose();
+                entry.screen.removed();
                 return true;
             }
             else // tickable
@@ -159,12 +159,12 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
     protected void render(final MatrixStack ms, final float partialTicks)
     {
         activeWindows.values().forEach(entry -> {
-            ms.push();
+            ms.pushPose();
             translateToGuiBottomCenter(ms, entry.thing, partialTicks);
-            ms.rotate(Minecraft.getInstance().getRenderManager().getCameraOrientation());
+            ms.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
             ms.scale(-0.01F, -0.01F, 0.01F);
             entry.screen.render(ms);
-            ms.pop();
+            ms.popPose();
         });
     }
 

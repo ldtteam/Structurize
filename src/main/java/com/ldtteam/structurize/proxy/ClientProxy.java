@@ -31,7 +31,7 @@ public class ClientProxy implements IProxy
             return;
         }
 
-        if (Minecraft.getInstance().currentScreen instanceof Screen)
+        if (Minecraft.getInstance().screen instanceof Screen)
         {
             return;
         }
@@ -61,7 +61,7 @@ public class ClientProxy implements IProxy
         {
             if (Manager.getServerUUID() != null)
             {
-                return new File(Minecraft.getInstance().gameDir, Constants.MOD_ID + "/" + Manager.getServerUUID());
+                return new File(Minecraft.getInstance().gameDirectory, Constants.MOD_ID + "/" + Manager.getServerUUID());
             }
             else
             {
@@ -73,11 +73,11 @@ public class ClientProxy implements IProxy
         // if the world schematics folder exists we use it
         // otherwise we use the minecraft folder /structurize/schematics if on the physical client on the logical server
         final File worldSchematicFolder = new File(
-            ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
+            ServerLifecycleHooks.getCurrentServer().getServerDirectory() + "/" + Constants.MOD_ID + '/' + Structures.SCHEMATICS_PREFIX);
 
         if (!worldSchematicFolder.exists())
         {
-            return new File(Minecraft.getInstance().gameDir, Constants.MOD_ID);
+            return new File(Minecraft.getInstance().gameDirectory, Constants.MOD_ID);
         }
 
         return worldSchematicFolder.getParentFile();
@@ -86,6 +86,6 @@ public class ClientProxy implements IProxy
     @Override
     public BlockState getBlockStateFromWorld(final BlockPos pos)
     {
-        return Minecraft.getInstance().world.getBlockState(pos);
+        return Minecraft.getInstance().level.getBlockState(pos);
     }
 }

@@ -27,8 +27,8 @@ import java.util.List;
 
 public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
 {
-    public static final ITag.INamedTag<Block>               BLOCK_TAG = BlockTags.makeWrapperTag("structurize:floating_carpets");
-    public static final ITag.INamedTag<Item>                ITEM_TAG  = ItemTags.makeWrapperTag("structurize:floating_carpets");
+    public static final ITag.INamedTag<Block>               BLOCK_TAG = BlockTags.bind("structurize:floating_carpets");
+    public static final ITag.INamedTag<Item>                ITEM_TAG  = ItemTags.bind("structurize:floating_carpets");
     private final List<RegistryObject<BlockFloatingCarpet>> blocks    = new LinkedList<>();
 
     public FloatingCarpetList()
@@ -36,7 +36,7 @@ public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
         for (DyeColor color : DyeColor.values())
         {
             blocks.add(ModBlocks.register(
-              color.getTranslationKey() + "_floating_carpet",
+              color.getName() + "_floating_carpet",
               () -> new BlockFloatingCarpet(color),
               ModItemGroups.STRUCTURIZE
             ));
@@ -55,7 +55,7 @@ public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
         getBlocks().forEach(
           block -> states.getVariantBuilder(block)
             .partialState()
-            .setModels(new ConfiguredModel(new ModelFile.UncheckedModelFile("minecraft:block/" + block.getColor().getTranslationKey() + "_carpet")))
+            .setModels(new ConfiguredModel(new ModelFile.UncheckedModelFile("minecraft:block/" + block.getColor().getName() + "_carpet")))
         );
     }
 
@@ -65,7 +65,7 @@ public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
         getBlocks().forEach(
           block -> models.withExistingParent(
             block.getRegistryName().getPath(),
-            "minecraft:" + block.getColor().getTranslationKey() + "_carpet")
+            "minecraft:" + block.getColor().getName() + "_carpet")
         );
     }
 
@@ -74,23 +74,23 @@ public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
     {
         getBlocks().forEach(block -> {
             provider.add(consumer -> new ShapedRecipeBuilder(block, 1)
-                .patternLine("B")
-                .patternLine("C")
-                .patternLine("S")
-                .key('B', ModItems.buildTool.get())
-                .key('C', Registry.BLOCK.getOrDefault(new ResourceLocation(block.getColor().getTranslationKey() + "_carpet")))
-                .key('S', Tags.Items.STRING)
-                .addCriterion("has_"+block.getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block))
-                .build(consumer));
+                .pattern("B")
+                .pattern("C")
+                .pattern("S")
+                .define('B', ModItems.buildTool.get())
+                .define('C', Registry.BLOCK.get(new ResourceLocation(block.getColor().getName() + "_carpet")))
+                .define('S', Tags.Items.STRING)
+                .unlockedBy("has_"+block.getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block))
+                .save(consumer));
 
             provider.add(consumer -> {
                 ShapelessRecipeBuilder builder = new ShapelessRecipeBuilder(block, 8);
-                for (int i = 0; i < 8; i++) builder.addIngredient(ITEM_TAG);
+                for (int i = 0; i < 8; i++) builder.requires(ITEM_TAG);
 
                 builder
-                  .addIngredient(DyeItem.getItem(block.getColor()))
-                  .addCriterion("can_dye_"+block.getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block))
-                  .build(consumer, new ResourceLocation(Constants.MOD_ID, block.getRegistryName().getPath() + "_dye"));
+                  .requires(DyeItem.byColor(block.getColor()))
+                  .unlockedBy("can_dye_"+block.getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block))
+                  .save(consumer, new ResourceLocation(Constants.MOD_ID, block.getRegistryName().getPath() + "_dye"));
             });
         });
     }

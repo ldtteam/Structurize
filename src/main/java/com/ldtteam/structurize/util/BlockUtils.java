@@ -46,11 +46,11 @@ public final class BlockUtils
     public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
         (block, iBlockState) -> block.equals(Blocks.AIR),
         (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
-        (block, iBlockState) -> BlockUtils.isWater(block.getDefaultState()),
+        (block, iBlockState) -> BlockUtils.isWater(block.defaultBlockState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
         (block, iBlockState) -> block.equals(Blocks.GRASS),
-        (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.get(BooleanProperty.create("upper")));
+        (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.getValue(BooleanProperty.create("upper")));
 
     /**
      * Private constructor to hide the public one.
@@ -112,14 +112,14 @@ public final class BlockUtils
      */
     public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
     {
-        final BlockState filler = world.getBiome(location).biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
+        final BlockState filler = world.getBiome(location).generationSettings.getSurfaceBuilderConfig().getTopMaterial();
         if (filler.getBlock() == Blocks.SAND)
         {
-            return Blocks.SANDSTONE.getDefaultState();
+            return Blocks.SANDSTONE.defaultBlockState();
         }
         if (filler.getBlock() instanceof FallingBlock)
         {
-            return Blocks.DIRT.getDefaultState();
+            return Blocks.DIRT.defaultBlockState();
         }
         return filler;
     }
@@ -144,7 +144,7 @@ public final class BlockUtils
         }
         else if (block instanceof CropsBlock)
         {
-            final ItemStack stack = ((CropsBlock) block).getItem(null, null, blockState);
+            final ItemStack stack = ((CropsBlock) block).getCloneItemStack(null, null, blockState);
             if (stack != null)
             {
                 return stack.getItem();
@@ -215,7 +215,7 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == Blocks.DIRT && worldBlock.isIn(Tags.Blocks.DIRT))
+            if (structureBlock == Blocks.DIRT && worldBlock.is(Tags.Blocks.DIRT))
             {
                 return true;
             }
@@ -250,7 +250,7 @@ public final class BlockUtils
      */
     public static BlockState getBlockStateFromStack(final ItemStack stack)
     {
-        return getBlockStateFromStack(stack, Blocks.AIR.getDefaultState());
+        return getBlockStateFromStack(stack, Blocks.AIR.defaultBlockState());
     }
 
     /**
@@ -264,15 +264,15 @@ public final class BlockUtils
     {
         if (stack.getItem() == Items.AIR)
         {
-            return Blocks.AIR.getDefaultState();
+            return Blocks.AIR.defaultBlockState();
         }
         else if (stack.getItem() instanceof BucketItem)
         {
-            return ((BucketItem) stack.getItem()).getFluid().getDefaultState().getBlockState();
+            return ((BucketItem) stack.getItem()).getFluid().defaultFluidState().createLegacyBlock();
         }
         else if (stack.getItem() instanceof BlockItem)
         {
-            return ((BlockItem) stack.getItem()).getBlock().getDefaultState();
+            return ((BlockItem) stack.getItem()).getBlock().defaultBlockState();
         }
 
         return def;
@@ -288,7 +288,7 @@ public final class BlockUtils
     {
         if (blockState.getBlock() instanceof FlowingFluidBlock)
         {
-            return new ItemStack(((FlowingFluidBlock) blockState.getBlock()).getFluid().getFilledBucket(), 1);
+            return new ItemStack(((FlowingFluidBlock) blockState.getBlock()).getFluid().getBucket(), 1);
         }
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
@@ -326,14 +326,14 @@ public final class BlockUtils
         else if (item instanceof BlockItem)
         {
             final Block targetBlock = ((BlockItem) item).getBlock();
-            BlockState newState = copyFirstCommonBlockStateProperties(targetBlock.getDefaultState(), blockState);
+            BlockState newState = copyFirstCommonBlockStateProperties(targetBlock.defaultBlockState(), blockState);
 
             if (newState == null)
             {
-                fakePlayer.setHeldItem(Hand.MAIN_HAND, stackToPlace);
-                if (item.isIn(ItemTags.BEDS) && blockState.hasProperty(HorizontalBlock.HORIZONTAL_FACING))
+                fakePlayer.setItemInHand(Hand.MAIN_HAND, stackToPlace);
+                if (item.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalBlock.FACING))
                 {
-                    fakePlayer.rotationYaw = blockState.get(HorizontalBlock.HORIZONTAL_FACING).getHorizontalIndex() * 90;
+                    fakePlayer.yRot = blockState.getValue(HorizontalBlock.FACING).get2DDataValue() * 90;
                 }
 
                 newState = targetBlock.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer,
@@ -346,8 +346,8 @@ public final class BlockUtils
 
             // place
             world.removeBlock(here, false);
-            world.setBlockState(here, newState, Constants.UPDATE_FLAG);
-            targetBlock.onBlockPlacedBy(world, here, newState, fakePlayer, stackToPlace);
+            world.setBlock(here, newState, Constants.UPDATE_FLAG);
+            targetBlock.setPlacedBy(world, here, newState, fakePlayer, stackToPlace);
         }
         else if (item instanceof BucketItem)
         {
@@ -356,8 +356,8 @@ public final class BlockUtils
 
             // place
             world.removeBlock(here, false);
-            world.setBlockState(here, fluid.getDefaultState().getBlockState(), Constants.UPDATE_FLAG);
-            bucket.onLiquidPlaced(world, stackToPlace, here);
+            world.setBlock(here, fluid.defaultFluidState().createLegacyBlock(), Constants.UPDATE_FLAG);
+            bucket.checkExtraContent(world, stackToPlace, here);
         }
         else
         {
@@ -376,9 +376,9 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).pickupFluid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
+        if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).takeLiquid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
         {
-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
+            world.setBlock(pos, Blocks.AIR.defaultBlockState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
         }
     }
 
@@ -389,17 +389,17 @@ public final class BlockUtils
      */
     public static BlockState getFluidForDimension(World world)
     {
-        ResourceLocation res = world.func_241828_r().func_230520_a_().getKey(world.getDimensionType());
+        ResourceLocation res = world.registryAccess().dimensionTypes().getKey(world.dimensionType());
         if (res == null)
         {
-            return Blocks.WATER.getDefaultState();
+            return Blocks.WATER.defaultBlockState();
         }
 
-        RegistryKey<DimensionType> rk = RegistryKey.getOrCreateKey(Registry.DIMENSION_TYPE_KEY, res);
+        RegistryKey<DimensionType> rk = RegistryKey.create(Registry.DIMENSION_TYPE_REGISTRY, res);
 
-        return rk == DimensionType.THE_NETHER
-                ? Blocks.LAVA.getDefaultState()
-                : Blocks.WATER.getDefaultState();
+        return rk == DimensionType.NETHER_LOCATION
+                ? Blocks.LAVA.defaultBlockState()
+                : Blocks.WATER.defaultBlockState();
     }
 
     /**
@@ -416,7 +416,7 @@ public final class BlockUtils
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
-                                                      .withParameter(LootParameters.field_237457_g_, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
+                                                      .withParameter(LootParameters.ORIGIN, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
                                                       .withParameter(LootParameters.TOOL, stack));
     }
 
@@ -430,7 +430,7 @@ public final class BlockUtils
     public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
     {
         return target.getClass().equals(propertiesOrigin.getBlock().getClass())
-            ? unsafeCopyBlockStateProperties(target.getDefaultState(), propertiesOrigin, propertiesOrigin.getProperties())
+            ? unsafeCopyBlockStateProperties(target.defaultBlockState(), propertiesOrigin, propertiesOrigin.getProperties())
             : null;
     }
 
@@ -480,7 +480,7 @@ public final class BlockUtils
         BlockState blockState = target;
         for (final Property property : properties)
         {
-            blockState = blockState.with(property, propertiesOrigin.get(property));
+            blockState = blockState.setValue(property, propertiesOrigin.getValue(property));
         }
         return blockState;
     }

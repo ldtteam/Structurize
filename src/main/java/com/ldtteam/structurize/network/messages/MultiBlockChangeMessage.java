@@ -90,8 +90,8 @@ public class MultiBlockChangeMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        final World world = ctxIn.getSender().getServerWorld();
-        final TileEntity entity = world.getTileEntity(pos);
+        final World world = ctxIn.getSender().getLevel();
+        final TileEntity entity = world.getBlockEntity(pos);
         if (entity instanceof TileEntityMultiBlock)
         {
             ((TileEntityMultiBlock) entity).setDirection(direction);
@@ -99,7 +99,7 @@ public class MultiBlockChangeMessage implements IMessage
             ((TileEntityMultiBlock) entity).setRange(range);
             ((TileEntityMultiBlock) entity).setSpeed(speed);
             final BlockState state = world.getBlockState(pos);
-            world.notifyBlockUpdate(pos, state, state, 0x3);
+            world.sendBlockUpdated(pos, state, state, 0x3);
         }
     }
 }

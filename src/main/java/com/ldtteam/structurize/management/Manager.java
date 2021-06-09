@@ -165,8 +165,8 @@ public final class Manager
       final ItemStack inputFillBlock, final boolean hollow)
     {
         final Blueprint blueprint;
-        final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock, Blocks.GOLD_BLOCK.getDefaultState());
-        final BlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock, Blocks.GOLD_BLOCK.getDefaultState());
+        final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock, Blocks.GOLD_BLOCK.defaultBlockState());
+        final BlockState fillBlock = BlockUtils.getBlockStateFromStack(inputFillBlock, Blocks.GOLD_BLOCK.defaultBlockState());
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {
@@ -511,8 +511,8 @@ public final class Manager
      */
     private static UUID generateOrRetrieveUUID()
     {
-        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().func_241755_D_().getSavedData();
-        final UUIDStorage instance = storage.getOrCreate(UUIDStorage::new, UUIDStorage.DATA_NAME);
+        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
+        final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage.DATA_NAME);
         if (serverUUID == null)
         {
             Manager.setServerUUID(UUID.randomUUID());

@@ -34,6 +34,8 @@ import java.util.Optional;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 
+import net.minecraft.item.Item.Properties;
+
 /**
  * Item used to scan structures.
  */
@@ -49,7 +51,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      */
     public ItemScanTool(final ItemGroup itemGroup)
     {
-        this(new Item.Properties().maxDamage(0).setNoRepair().rarity(Rarity.UNCOMMON).group(itemGroup));
+        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
     }
 
     /**
@@ -67,16 +69,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     {
         Optional<BlockPos> anchorPos =
           itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
-        if (!worldIn.isRemote)
+        if (!worldIn.isClientSide)
         {
-            if (playerIn.isSneaking())
+            if (playerIn.isShiftKeyDown())
             {
                 saveStructure(worldIn, start, end, playerIn, null, true, anchorPos);
             }
         }
         else
         {
-            if (!playerIn.isSneaking())
+            if (!playerIn.isShiftKeyDown())
             {
                 final WindowScan window = new WindowScan(start, end, anchorPos);
                 window.open();
@@ -157,7 +159,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
           new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get());
@@ -178,7 +180,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         if (anchorPos.isPresent())
         {
-            final TileEntity te = world.getTileEntity(anchorPos.get());
+            final TileEntity te = world.getBlockEntity(anchorPos.get());
             if (te instanceof IBlueprintDataProvider)
             {
                 ((IBlueprintDataProvider) te).setSchematicName(fileName);
@@ -231,7 +233,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
           Math.max(from.getY(), to.getY()),
           Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             Log.getLogger().warn("Saving too large schematic for:" + name);
@@ -274,29 +276,29 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public ActionResultType useOn(final ItemUseContext context)
     {
-        if (context.getPlayer() != null && !context.getPlayer().isSneaking())
+        if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown())
         {
-            return super.onItemUse(context);
+            return super.useOn(context);
         }
 
-        final BlockPos pos = context.getPos();
-        if (context.getWorld().isRemote() && context.getPlayer() != null)
+        final BlockPos pos = context.getClickedPos();
+        if (context.getLevel().isClientSide() && context.getPlayer() != null)
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
-        TileEntity te = context.getWorld().getTileEntity(context.getPos());
+        TileEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
         if (te instanceof IBlueprintDataProvider)
         {
             Settings.instance.setStructureName(((IBlueprintDataProvider) te).getSchematicName());
             Settings.instance.setBox(((IBlueprintDataProvider) te).getCornerPositions());
-            context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
-            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
+            context.getItemInHand().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().offset(pos)));
+            context.getItemInHand().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().offset(pos)));
         }
 
-        context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
+        context.getItemInHand().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
     }
 }

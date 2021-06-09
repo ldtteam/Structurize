@@ -118,7 +118,7 @@ public final class ModBlocks
     public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
     {
         RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
-        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().group(group)));
+        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().tab(group)));
         return registered;
     }
 

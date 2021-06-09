@@ -81,7 +81,7 @@ public class ItemIcon extends Pane
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            ms.push();
+            ms.pushPose();
             final float itemScale = this.getWidth() / DEFAULT_ITEMSTACK_SIZE;
             ms.translate(x, y, 0.0f);
             ms.scale(itemScale, itemScale, itemScale);
@@ -89,18 +89,18 @@ public class ItemIcon extends Pane
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
             {
-                font = mc.fontRenderer;
+                font = mc.font;
             }
 
             RenderSystem.pushMatrix();
-            RenderSystem.multMatrix(ms.getLast().getMatrix());
-            RenderHelper.enableStandardItemLighting();
-            mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
-            mc.getItemRenderer().renderItemOverlays(font, itemStack, 0, 0);
-            RenderHelper.disableStandardItemLighting();
+            RenderSystem.multMatrix(ms.last().pose());
+            RenderHelper.turnBackOn();
+            mc.getItemRenderer().renderAndDecorateItem(itemStack, 0, 0);
+            mc.getItemRenderer().renderGuiItemDecorations(font, itemStack, 0, 0);
+            RenderHelper.turnOff();
             RenderSystem.popMatrix();
 
-            ms.pop();
+            ms.popPose();
         }
     }
 

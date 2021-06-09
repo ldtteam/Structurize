@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import static com.ldtteam.structurize.blocks.types.ShingleSlabShapeType.*;
 import static net.minecraft.util.Direction.*;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * Decorative block
  */
@@ -74,19 +76,19 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
      */
     public BlockShingleSlab(final ShingleFaceType faceType, final DyeColor color)
     {
-        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
         this.faceType = faceType;
         this.color = color;
-        setDefaultState(getDefaultState().with(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     // Deprecated here just means that you should not use this method when referencing a block, and instead it's blockstate <- Forge's Discord
     @Override
-    public BlockState updatePostPlacement(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
+    public BlockState updateShape(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
-        if (stateIn.get(WATERLOGGED))
+        if (stateIn.getValue(WATERLOGGED))
         {
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+            worldIn.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
         return getSlabShape(stateIn, worldIn, currentPos);
@@ -97,13 +99,13 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
         @NotNull
-        final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromAngle(context.getPlayer().rotationYaw);
+        final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromYRot(context.getPlayer().yRot);
         return getSlabShape(
-            this.getDefaultState()
-                .with(HORIZONTAL_FACING, facing)
-                .with(WATERLOGGED, context.getWorld().getFluidState(context.getPos()).getFluid() == Fluids.WATER),
-            context.getWorld(),
-            context.getPos());
+            this.defaultBlockState()
+                .setValue(FACING, facing)
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER),
+            context.getLevel(),
+            context.getClickedPos());
     }
 
     /**
@@ -115,7 +117,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
     @SuppressWarnings("deprecation")
     public FluidState getFluidState(final BlockState state)
     {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     /**
@@ -145,7 +147,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
     @Override
     public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
     {
-        return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.9D, 7.9D, 15.9D);
+        return Block.box(0.0D, 0.0D, 0.0D, 15.9D, 7.9D, 15.9D);
     }
 
     /**
@@ -177,90 +179,90 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
         BlockState shapeState;
         if (amount == ONE_CONNECTION)
         {
-            shapeState = state.with(SHAPE, ONE_WAY);
+            shapeState = state.setValue(SHAPE, ONE_WAY);
             if (north)
-                return shapeState.with(HORIZONTAL_FACING, NORTH);
+                return shapeState.setValue(FACING, NORTH);
             if (south)
-                return shapeState.with(HORIZONTAL_FACING, SOUTH);
+                return shapeState.setValue(FACING, SOUTH);
             if (east)
-                return shapeState.with(HORIZONTAL_FACING, EAST);
+                return shapeState.setValue(FACING, EAST);
             if (west)
-                return shapeState.with(HORIZONTAL_FACING, WEST);
+                return shapeState.setValue(FACING, WEST);
         }
 
         if (amount == TWO_CONNECTIONS)
         {
             if (north && east)
             {
-                shapeState = state.with(SHAPE, CURVED);
-                return shapeState.with(HORIZONTAL_FACING, WEST);
+                shapeState = state.setValue(SHAPE, CURVED);
+                return shapeState.setValue(FACING, WEST);
             }
             if (north && west)
             {
-                shapeState = state.with(SHAPE, CURVED);
-                return shapeState.with(HORIZONTAL_FACING, SOUTH);
+                shapeState = state.setValue(SHAPE, CURVED);
+                return shapeState.setValue(FACING, SOUTH);
             }
             if (south && east)
             {
-                shapeState = state.with(SHAPE, CURVED);
-                return shapeState.with(HORIZONTAL_FACING, NORTH);
+                shapeState = state.setValue(SHAPE, CURVED);
+                return shapeState.setValue(FACING, NORTH);
             }
             if (south && west)
             {
-                shapeState = state.with(SHAPE, CURVED);
-                return shapeState.with(HORIZONTAL_FACING, EAST);
+                shapeState = state.setValue(SHAPE, CURVED);
+                return shapeState.setValue(FACING, EAST);
             }
             if (north && south)
             {
-                shapeState = state.with(SHAPE, TWO_WAY);
-                return shapeState.with(HORIZONTAL_FACING, NORTH);
+                shapeState = state.setValue(SHAPE, TWO_WAY);
+                return shapeState.setValue(FACING, NORTH);
             }
             if (east && west)
             {
-                shapeState = state.with(SHAPE, TWO_WAY);
-                return shapeState.with(HORIZONTAL_FACING, EAST);
+                shapeState = state.setValue(SHAPE, TWO_WAY);
+                return shapeState.setValue(FACING, EAST);
             }
         }
 
         if (amount == THREE_CONNECTIONS)
         {
-            shapeState = state.with(SHAPE, THREE_WAY);
+            shapeState = state.setValue(SHAPE, THREE_WAY);
             if (north && east && west)
             {
-                return shapeState.with(HORIZONTAL_FACING, NORTH);
+                return shapeState.setValue(FACING, NORTH);
             }
             if (south && east && west)
             {
-                return shapeState.with(HORIZONTAL_FACING, SOUTH);
+                return shapeState.setValue(FACING, SOUTH);
             }
             if (east && north && south)
             {
-                return shapeState.with(HORIZONTAL_FACING, EAST);
+                return shapeState.setValue(FACING, EAST);
             }
             if (west && north && south)
             {
-                return shapeState.with(HORIZONTAL_FACING, WEST);
+                return shapeState.setValue(FACING, WEST);
             }
         }
 
         if (amount == FOUR_CONNECTIONS)
         {
-            shapeState = state.with(SHAPE, FOUR_WAY);
+            shapeState = state.setValue(SHAPE, FOUR_WAY);
             return shapeState;
         }
 
-        return state.with(SHAPE, TOP);
+        return state.setValue(SHAPE, TOP);
     }
 
     @Override
-    public boolean allowsMovement(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final PathType type)
+    public boolean isPathfindable(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final PathType type)
     {
-        return type == PathType.WATER && worldIn.getFluidState(pos).isTagged(FluidTags.WATER);
+        return type == PathType.WATER && worldIn.getFluidState(pos).is(FluidTags.WATER);
     }
 
     @Override
-    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder)
     {
-        builder.add(HORIZONTAL_FACING, SHAPE, WATERLOGGED);
+        builder.add(FACING, SHAPE, WATERLOGGED);
     }
 }

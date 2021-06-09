@@ -60,7 +60,7 @@ public final class BlueprintHandler
             Log.getLogger().warn("Trying to draw null blueprint!");
             return;
         }
-        Minecraft.getInstance().getProfiler().startSection("struct_render_cache");
+        Minecraft.getInstance().getProfiler().push("struct_render_cache");
 
         final int blueprintHash = blueprint.hashCode();
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
@@ -75,7 +75,7 @@ public final class BlueprintHandler
         renderer.draw(pos, stack, partialTicks);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
-        Minecraft.getInstance().getProfiler().endSection();
+        Minecraft.getInstance().getProfiler().pop();
     }
 
     /**
@@ -124,7 +124,7 @@ public final class BlueprintHandler
             return;
         }
 
-        Minecraft.getInstance().getProfiler().startSection("struct_render_multi");
+        Minecraft.getInstance().getProfiler().push("struct_render_multi");
 
         final int blueprintHash = blueprint.hashCode();
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
@@ -144,6 +144,6 @@ public final class BlueprintHandler
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
-        Minecraft.getInstance().getProfiler().endSection();
+        Minecraft.getInstance().getProfiler().pop();
     }
 }
