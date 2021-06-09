@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
  * @since 0.1.0 State: not completed
@@ -149,16 +151,25 @@ public class BlueprintUtil
             schem.setCachePrimaryOffset(relativeAnchorPos);
         }
 
+        // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
         final TileEntity tile = world.getTileEntity(pos.add(schem.getPrimaryBlockOffset()));
         if (tile instanceof IBlueprintDataProvider)
         {
+            final CompoundNBT blueprintData = (CompoundNBT) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
+
             if (name != null)
             {
-                ((IBlueprintDataProvider) tile).setSchematicName(new File(name).getName());
+                final String fileName = new File(name).getName();
+                blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
+                ((IBlueprintDataProvider) tile).setSchematicName(fileName);
             }
 
-            ((IBlueprintDataProvider) tile).setSchematicCorners(BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset()),
-              new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1).subtract(schem.getPrimaryBlockOffset()));
+            final BlockPos corner1 = BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset());
+            final BlockPos corner2 = new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1).subtract(schem.getPrimaryBlockOffset());
+            ((IBlueprintDataProvider) tile).setSchematicCorners(corner1, corner2);
+            BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_ONE, corner1);
+            BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_TWO, corner2);
+
             if (!world.isRemote)
             {
                 ((ServerWorld) world).getChunkProvider().markBlockChanged(pos);
@@ -205,10 +216,10 @@ public class BlueprintUtil
         // Adding Tile Entities
         final ListNBT finishedTes = new ListNBT();
         final CompoundNBT[] tes = Arrays.stream(schem.getTileEntities())
-            .flatMap(Arrays::stream)
-            .flatMap(Arrays::stream)
-            .filter(Objects::nonNull)
-            .toArray(CompoundNBT[]::new);
+                                    .flatMap(Arrays::stream)
+                                    .flatMap(Arrays::stream)
+                                    .filter(Objects::nonNull)
+                                    .toArray(CompoundNBT[]::new);
         finishedTes.addAll(Arrays.asList(tes));
         tag.put("tile_entities", finishedTes);
 
