@@ -14,6 +14,7 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.*;
@@ -274,29 +275,33 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        if (context.getPlayer() != null && !context.getPlayer().isSneaking())
+        if (!player.isSneaking())
         {
-            return super.onItemUse(context);
+            return super.canPlayerBreakBlockWhileHolding(state, worldIn, pos, player);
         }
 
-        final BlockPos pos = context.getPos();
-        if (context.getWorld().isRemote() && context.getPlayer() != null)
+        if (worldIn.isRemote())
         {
-            LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            LanguageHandler.sendMessageToPlayer(player, ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
-        TileEntity te = context.getWorld().getTileEntity(context.getPos());
+        TileEntity te = worldIn.getTileEntity(pos);
+        ItemStack itemstack = player.getHeldItemMainhand();
+        if (!itemstack.getItem().equals(getRegisteredItemInstance()))
+        {
+            itemstack = player.getHeldItemOffhand();
+        }
         if (te instanceof IBlueprintDataProvider)
         {
             Settings.instance.setStructureName(((IBlueprintDataProvider) te).getSchematicName());
             Settings.instance.setBox(((IBlueprintDataProvider) te).getCornerPositions());
-            context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
-            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
+            itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
+            itemstack.getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
         }
 
-        context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
-        return ActionResultType.SUCCESS;
+        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
+        return false;
     }
 }
