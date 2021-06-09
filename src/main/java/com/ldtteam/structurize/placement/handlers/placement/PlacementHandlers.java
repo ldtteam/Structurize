@@ -708,11 +708,21 @@ public final class PlacementHandlers
         public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          @NotNull final BlockState blockStateIn,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
         {
+            // mojang abusing lazyupdates, this modification always happens, but we need it now, not later
+            BlockState blockState = blockStateIn;
+            if (blockState.getBlock() instanceof HopperBlock)
+            {
+                boolean flag = !world.isBlockPowered(pos);
+                if (flag != blockState.get(HopperBlock.ENABLED))
+                {
+                    blockState = blockState.with(HopperBlock.ENABLED, Boolean.valueOf(flag));
+                }
+            }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
