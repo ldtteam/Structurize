@@ -116,7 +116,7 @@ public class ItemIcon extends Pane
     }
 
     // matrixstack version of mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0); with modified lighting to match the vanilla result as much as possible
-    // TODO: remove fixed upstream (vanilla)
+    // TODO: remove when fixed upstream (vanilla)
     private static final Vector3f DEF_LIGHT = Util.make(new Vector3f(0.55F, 0.3f, -0.8F), Vector3f::normalize);
     private static final Vector3f DIF_LIGHT = Util.make(new Vector3f(-0.8F, 0.3f, 0.55F), Vector3f::normalize);
     private void renderItemModelIntoGUI(ItemStack stack, MatrixStack matrixStack, IBakedModel bakedmodel)
