@@ -17,7 +17,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import org.lwjgl.opengl.GL11C;
 
 /**
  * Class of itemIcons in our GUIs.
@@ -111,7 +115,10 @@ public class ItemIcon extends Pane
         }
     }
 
-    // matrixstack version of mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
+    // matrixstack version of mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0); with modified lighting to match the vanilla result as much as possible
+    // TODO: remove fixed upstream (vanilla)
+    private static final Vector3f DEF_LIGHT = Util.make(new Vector3f(0.55F, 0.3f, -0.8F), Vector3f::normalize);
+    private static final Vector3f DIF_LIGHT = Util.make(new Vector3f(-0.8F, 0.3f, 0.55F), Vector3f::normalize);
     private void renderItemModelIntoGUI(ItemStack stack, MatrixStack matrixStack, IBakedModel bakedmodel)
     {
         matrixStack.push();
@@ -123,15 +130,17 @@ public class ItemIcon extends Pane
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        // matrixStack.translate(0.0F, 0.0F, 100.0F + Minecraft.getInstance().getItemRenderer().zLevel);
-        matrixStack.translate(8.0F, 8.0F, 0.0F);
+        matrixStack.translate(8.0F, 8.0F, 150.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
         IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        boolean flag = !bakedmodel.isSideLit();
-        if (flag)
+        if (!bakedmodel.isSideLit())
         {
-            RenderHelper.setupGuiFlatDiffuseLighting();
+            RenderSystem.setupGuiFlatDiffuseLighting(DEF_LIGHT, DIF_LIGHT);
+        }
+        else
+        {
+            RenderSystem.setupGui3DDiffuseLighting(DEF_LIGHT, DIF_LIGHT);
         }
 
         Minecraft.getInstance()
@@ -146,10 +155,7 @@ public class ItemIcon extends Pane
                 bakedmodel);
         irendertypebuffer$impl.finish();
         RenderSystem.enableDepthTest();
-        if (flag)
-        {
-            RenderHelper.setupGui3DDiffuseLighting();
-        }
+        RenderHelper.setupGui3DDiffuseLighting();
 
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
