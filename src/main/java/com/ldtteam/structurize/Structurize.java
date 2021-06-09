@@ -7,6 +7,7 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
+import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.items.ModItems;
@@ -51,6 +52,7 @@ public class Structurize
         ModTileEntities.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientLifecycleSubscriber.class));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
 
         if (DataFixerUtils.isVanillaDF)
