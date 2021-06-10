@@ -785,9 +785,6 @@ public class Pane extends AbstractGui
 
     /**
      * Handle onHover element, element must be visible.
-     *
-     * @param mx mouse x
-     * @param my mouse y
      */
     protected void handleHover()
     {

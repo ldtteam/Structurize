@@ -27,7 +27,7 @@ public class TabSet extends View
     protected int tabWidth;
     protected int tabHeight;
 
-    protected int selectedTab;
+    protected Tab selectedTab;
 
     /** The group of tab icons */
     protected int childPadding;
@@ -67,6 +67,7 @@ public class TabSet extends View
         });
 
         tabs = new View();
+        tabs.setID("tabs");
         addChild(0, tabs);
         if (vertical)
         {
@@ -84,10 +85,23 @@ public class TabSet extends View
 
     public void setSelectedTab(int index)
     {
-        selectedTab = index;
+        Pane tab = tabs.children.get(index);
+        if (!(tab instanceof ButtonTab)) return;
+        selectedTab = ((ButtonTab) tab).getTabToSelect();
+
         children.stream()
           .filter(child -> child instanceof Tab)
-          .forEach(child -> child.setVisible(tabs.children.indexOf(child) == selectedTab));
+          .forEach(child -> child.setVisible(child.equals(selectedTab)));
+    }
+
+    public void setSelectedTab(Tab tab)
+    {
+        children.stream()
+          .filter(child -> child instanceof Tab)
+          .forEach(child -> {
+              child.setVisible(child.equals(tab));
+              if (child.isVisible()) selectedTab = tab;
+          });
     }
 
     @Override
@@ -108,11 +122,21 @@ public class TabSet extends View
     protected boolean childIsVisible(final Pane child)
     {
         // Draw the tabs despite being potentially out of the tab set view
-        return children.indexOf(child) == 0 || super.childIsVisible(child);
+        return child.getID().equals("tabs") || super.childIsVisible(child);
+    }
+
+    @Override
+    public boolean isPointInPane(final double mx, final double my)
+    {
+        // Essentially resize the 'bounding box' for events
+        return isVisible() && vertical
+            ? mx >= x + overlap - tabWidth && mx < (x + width) && my >= y && my < (y + height)
+            : mx >= x && mx < (x + width) && my >= y + overlap - tabHeight && my < (y + height);
     }
 
     public class ButtonTab extends View
     {
+        protected Tab   toSelect;
         protected Image background = new Image();
         protected Image icon = new Image();
 
@@ -151,31 +175,38 @@ public class TabSet extends View
             int index = tabs.children.size();
 
             tabs.addChild(this);
+            toSelect = tab;
+
             this.setPosition(
               vertical ? 0 : index*(tabWidth + spacing),
               vertical ? index*(tabHeight + spacing) : 0
             );
         }
 
+        public Tab getTabToSelect()
+        {
+            return toSelect;
+        }
+
         @Override
         public void drawSelf(final MatrixStack ms, final double mx, final double my)
         {
-            if (selectedTab == parent.getChildren().indexOf(this)) return;
+            if (toSelect.equals(selectedTab)) return;
             super.drawSelf(ms, mx, my);
         }
 
         @Override
         public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
         {
-            if (selectedTab == parent.getChildren().indexOf(this)) super.drawSelf(ms, mx, my);
+            if (toSelect.equals(selectedTab)) super.drawSelf(ms, mx, my);
             super.drawSelfLast(ms, mx, my);
         }
 
         @Override
-        public boolean handleClick(final double mx, final double my)
+        public boolean click(final double mx, final double my)
         {
-            setSelectedTab(tabs.getChildren().indexOf(this));
-            return super.handleClick(mx, my);
+            setSelectedTab(toSelect);
+            return super.click(mx, my);
         }
     }
 }
