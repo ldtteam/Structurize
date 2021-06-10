@@ -54,6 +54,7 @@ public final class PlacementHandlers
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
+        handlers.add(new HopperClientLagPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
