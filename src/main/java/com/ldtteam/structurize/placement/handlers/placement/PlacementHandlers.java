@@ -769,20 +769,18 @@ public final class PlacementHandlers
         @Override
         public ActionProcessingResult handle(@NotNull final World world,
             @NotNull final BlockPos pos,
-            @NotNull final BlockState blockStateIn,
+            @NotNull final BlockState blockState,
             @Nullable final CompoundNBT tileEntityData,
             final boolean complete,
             final BlockPos centerPos)
         {
             final boolean flag = !world.isBlockPowered(pos);
-            if (flag != blockStateIn.get(HopperBlock.ENABLED))
-            {
-                return super.handle(world, pos, blockStateIn.with(HopperBlock.ENABLED, flag), tileEntityData, complete, centerPos);
-            }
-            else
-            {
-                return super.handle(world, pos, blockStateIn, tileEntityData, complete, centerPos);
-            }
+            return super.handle(world,
+                pos,
+                flag != blockState.get(HopperBlock.ENABLED) ? blockState.with(HopperBlock.ENABLED, flag) : blockState,
+                tileEntityData,
+                complete,
+                centerPos);
         }
     }
 
