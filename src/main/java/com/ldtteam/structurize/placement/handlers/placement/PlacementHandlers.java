@@ -708,21 +708,11 @@ public final class PlacementHandlers
         public ActionProcessingResult handle(
           @NotNull final World world,
           @NotNull final BlockPos pos,
-          @NotNull final BlockState blockStateIn,
+          @NotNull final BlockState blockState,
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
         {
-            // mojang abusing lazyupdates, this modification always happens, but we need it now, not later
-            BlockState blockState = blockStateIn;
-            if (blockState.getBlock() instanceof HopperBlock)
-            {
-                boolean flag = !world.isBlockPowered(pos);
-                if (flag != blockState.get(HopperBlock.ENABLED))
-                {
-                    blockState = blockState.with(HopperBlock.ENABLED, Boolean.valueOf(flag));
-                }
-            }
             if (!world.setBlockState(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
@@ -762,6 +752,37 @@ public final class PlacementHandlers
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
+        }
+    }
+
+    /**
+     * mojang abusing lazyupdates, this modification always happens, but we need it now, not later
+     */
+    public static class HopperClientLagPlacementHandler extends ContainerPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        {
+            return blockState.getBlock() instanceof HopperBlock;
+        }
+
+        @Override
+        public ActionProcessingResult handle(@NotNull final World world,
+            @NotNull final BlockPos pos,
+            @NotNull final BlockState blockStateIn,
+            @Nullable final CompoundNBT tileEntityData,
+            final boolean complete,
+            final BlockPos centerPos)
+        {
+            final boolean flag = !world.isBlockPowered(pos);
+            if (flag != blockStateIn.get(HopperBlock.ENABLED))
+            {
+                return super.handle(world, pos, blockStateIn.with(HopperBlock.ENABLED, flag), tileEntityData, complete, centerPos);
+            }
+            else
+            {
+                return super.handle(world, pos, blockStateIn, tileEntityData, complete, centerPos);
+            }
         }
     }
 
