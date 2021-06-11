@@ -12,7 +12,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.items.ItemScanTool;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.block.*;
@@ -114,7 +114,6 @@ public class WindowScan extends AbstractWindowSkeleton
      * Constructor for when the player wants to scan something.
      * @param pos1 the first pos.
      * @param pos2 the second pos.
-     * @param itemScanTool
      */
     public WindowScan(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
@@ -238,9 +237,13 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
-        if (anchorPos.isPresent() && !ItemScanTool.getScanName().isEmpty())
+        if (anchorPos.isPresent())
         {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(ItemScanTool.getScanName());
+            final TileEntity tile = Minecraft.getInstance().player.world.getTileEntity(anchorPos.get());
+            if (tile instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) tile).getSchematicName().isEmpty())
+            {
+                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
+            }
         }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
@@ -261,7 +264,6 @@ public class WindowScan extends AbstractWindowSkeleton
     private void confirmClicked()
     {
         final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
-        ItemScanTool.setScanName(name);
 
         final int x1 = Integer.parseInt(pos1x.getText());
         final int y1 = Integer.parseInt(pos1y.getText());

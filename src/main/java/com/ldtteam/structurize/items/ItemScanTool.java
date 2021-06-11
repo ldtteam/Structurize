@@ -48,11 +48,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
 
     /**
-     * The scans name as shown in the gui
-     */
-    private static String scanName = "";
-
-    /**
      * Creates default scan tool item.
      *
      * @param itemGroup creative tab
@@ -308,8 +303,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final TileEntity te = context.getWorld().getTileEntity(pos);
         if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
         {
-            setScanName(((IBlueprintDataProvider) te).getSchematicName());
-
             if (context.getWorld().isRemote)
             {
                 Settings.instance.setAnchorPos(Optional.of(pos));
@@ -335,25 +328,5 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
-    }
-
-    /**
-     * Get the scan name
-     *
-     * @return
-     */
-    public static String getScanName()
-    {
-        return scanName;
-    }
-
-    /**
-     * Set the scan name
-     *
-     * @param name
-     */
-    public static void setScanName(final String name)
-    {
-        scanName = name;
     }
 }
