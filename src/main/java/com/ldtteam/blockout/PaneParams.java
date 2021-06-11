@@ -193,7 +193,7 @@ public class PaneParams
         {
             if (rl.getNamespace().equals(Parsers.SUBSTITUTE))
             {
-                // TODO: replace with file namespace
+                // TODO: replace with file namespace matching xml file we're loading from
                 rl = new ResourceLocation("structurize", rl.getPath());
             }
 

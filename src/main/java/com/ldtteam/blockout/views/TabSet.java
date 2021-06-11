@@ -1,5 +1,6 @@
 package com.ldtteam.blockout.views;
 
+import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Image;
@@ -143,7 +144,16 @@ public class TabSet extends View
         public ButtonTab(Tab tab)
         {
             super();
+            int index = tabs.children.size();
+
+            tabs.addChild(this);
+            toSelect = tab;
+
             setSize(tabWidth, tabHeight);
+            setPosition(
+              vertical ? 0 : index*(tabWidth + spacing),
+              vertical ? index*(tabHeight + spacing) : 0
+            );
 
             if (tabIcons.length > 0)
             {
@@ -165,22 +175,16 @@ public class TabSet extends View
                     int scale = height / icon.getHeight();
                     icon.setSize(icon.getWidth() * scale, icon.getHeight() * scale);
                 }
-                icon.setPosition(
-                  (width - overlap - icon.getWidth()) / 2,
-                  (height - overlap - icon.getHeight()) / 2);
+                else
+                {
+                    icon.setSize(dim.getA(), dim.getB());
+                }
+
+                icon.setAlignment(Alignment.MIDDLE);
+                icon.setPosition(vertical ? -overlap/2 : 0, vertical ? 0 : -overlap/2);
                 icon.setImage(tab.icon);
                 addChild(icon);
             }
-
-            int index = tabs.children.size();
-
-            tabs.addChild(this);
-            toSelect = tab;
-
-            this.setPosition(
-              vertical ? 0 : index*(tabWidth + spacing),
-              vertical ? index*(tabHeight + spacing) : 0
-            );
         }
 
         public Tab getTabToSelect()
