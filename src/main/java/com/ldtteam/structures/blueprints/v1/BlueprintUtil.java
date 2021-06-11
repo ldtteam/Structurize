@@ -29,6 +29,8 @@ import java.util.function.Function;
 
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
  * @since 0.1.0 State: not completed
@@ -76,19 +78,16 @@ public class BlueprintUtil
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),
               z = (short) (mutablePos.getZ() - pos.getZ());
 
-            if (!modName.equals("minecraft"))
+            if (!modName.equals("minecraft") && !modName.equals(MOD_ID))
             {
-                if (!requiredMods.contains(modName))
-                {
-                    if (!ModList.get().getModContainerById(modName).isPresent())
-                    {
-                        requiredMods.add(modName);
-                    }
-                }
-                else if (!ModList.get().getModContainerById(modName).isPresent())
+                if (!ModList.get().getModContainerById(modName).isPresent())
                 {
                     structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.getDefaultState());
                     continue;
+                }
+                if (!requiredMods.contains(modName))
+                {
+                    requiredMods.add(modName);
                 }
             }
 
@@ -263,7 +262,7 @@ public class BlueprintUtil
 
         BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset());
 
-        optionalTag.put(Constants.MOD_ID, structurizeTag);
+        optionalTag.put(MOD_ID, structurizeTag);
         tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
 
         return tag;
@@ -307,7 +306,7 @@ public class BlueprintUtil
     {
         final String name = oldBlockState.getString("Name");
         oldBlockState.putString("Name", oldBlockState.getString("Name").toLowerCase(Locale.US));
-        if (name.contains(Constants.MOD_ID))
+        if (name.contains(MOD_ID))
         {
             if (name.contains("blockshingle_"))
             {
@@ -587,9 +586,9 @@ public class BlueprintUtil
             if (tag.keySet().contains(NBT_OPTIONAL_DATA_TAG))
             {
                 final CompoundNBT optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
-                if (optionalTag.keySet().contains(Constants.MOD_ID))
+                if (optionalTag.keySet().contains(MOD_ID))
                 {
-                    final CompoundNBT structurizeTag = optionalTag.getCompound(Constants.MOD_ID);
+                    final CompoundNBT structurizeTag = optionalTag.getCompound(MOD_ID);
                     BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
                     schem.setCachePrimaryOffset(offsetPos);
                 }
