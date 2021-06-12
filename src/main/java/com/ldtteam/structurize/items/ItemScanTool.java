@@ -16,6 +16,7 @@ import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.*;
@@ -287,17 +288,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        if (context.getPlayer() != null && !context.getPlayer().isSneaking())
+        if (!player.isSneaking())
         {
-            return super.onItemUse(context);
+            return super.canPlayerBreakBlockWhileHolding(state, worldIn, pos, player);
         }
 
-        final BlockPos pos = context.getPos();
-        if (context.getWorld().isRemote() && context.getPlayer() != null)
+        if (worldIn.isRemote())
         {
-            LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            LanguageHandler.sendMessageToPlayer(player, ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
         final TileEntity te = context.getWorld().getTileEntity(pos);
@@ -326,7 +326,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             }
         }
 
-        context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
-        return ActionResultType.SUCCESS;
+        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
+        return false;
     }
 }

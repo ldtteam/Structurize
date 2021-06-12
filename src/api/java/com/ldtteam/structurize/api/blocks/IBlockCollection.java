@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
+import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
+
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -10,6 +12,9 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
@@ -91,28 +96,26 @@ public interface IBlockCollection extends IGenerated
         {
             // J9+ has incompatibilities with J8-compiled default interfaces that use lambda generated suppliers.
             // Do not replace the anonymous suppliers below with a lambda.
-            RegistryObject<Block> block = registrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              new Supplier<Block>()
-              {
-                  @Override
-                  public Block get()
-                  {
-                      return type.constructor.apply(getProperties());
-                  }
-              });
+            RegistryObject<Block> block = registrar.register(type.withSuffix(getName(), getPluralName()), new Supplier<Block>()
+            {
+                @Override
+                public Block get()
+                {
+                    return type.constructor.apply(getProperties());
+                }
+            });
 
-            itemRegistrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              new Supplier<Item>()
-              {
+            itemRegistrar.register(type.withSuffix(getName(), getPluralName()), new Supplier<Item>()
+            {
+                @Override
+                public Item get()
+                {
+                    return new BlockItem(block.get(), new Item.Properties().group(group));
+                }
+            });
 
-                  @Override
-                  public Item get()
-                  {
-                      return new BlockItem(block.get(), new Item.Properties().group(group));
-                  }
-              });
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> ClientLifecycleSubscriber.DELAYED_RENDER_TYPE_SETUP.add(new Tuple<>(block, type.getRenderType())));
 
             results.add(block);
         }
