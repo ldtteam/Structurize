@@ -3,6 +3,7 @@ package com.ldtteam.structures.blueprints.v1;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -16,19 +17,23 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
- * @since 0.1.0
- *        State: not completed
+ * @since 0.1.0 State: not completed
  */
 public class BlueprintUtil
 {
@@ -47,14 +52,15 @@ public class BlueprintUtil
      * @param name  a Name for the Structure
      * @return the generated Blueprint
      */
-    public static Blueprint createBlueprint(World world,
-        BlockPos pos,
-        final boolean saveEntities,
-        short sizeX,
-        short sizeY,
-        short sizeZ,
-        String name,
-        Optional<BlockPos> anchorPos)
+    public static Blueprint createBlueprint(
+      World world,
+      BlockPos pos,
+      final boolean saveEntities,
+      short sizeX,
+      short sizeY,
+      short sizeZ,
+      String name,
+      Optional<BlockPos> anchorPos)
     {
         final List<BlockState> pallete = new ArrayList<>();
         // Allways add AIR to Pallete
@@ -70,7 +76,7 @@ public class BlueprintUtil
             String modName = state.getBlock().getRegistryName().getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),
-                z = (short) (mutablePos.getZ() - pos.getZ());
+              z = (short) (mutablePos.getZ() - pos.getZ());
 
             if (!modName.equals("minecraft") && !modName.equals(MOD_ID))
             {
@@ -109,7 +115,7 @@ public class BlueprintUtil
         if (saveEntities)
         {
             entities = world.getEntitiesWithinAABBExcludingEntity(null,
-                new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+              new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
         }
 
         for (final Entity entity : entities)
@@ -142,6 +148,31 @@ public class BlueprintUtil
             BlockPos relativeAnchorPos = new BlockPos(anchorPos.get().subtract(pos));
 
             schem.setCachePrimaryOffset(relativeAnchorPos);
+        }
+
+        // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
+        final TileEntity tile = world.getTileEntity(pos.add(schem.getPrimaryBlockOffset()));
+        if (tile instanceof IBlueprintDataProvider)
+        {
+            final CompoundNBT blueprintData = (CompoundNBT) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
+
+            if (name != null)
+            {
+                final String fileName = new File(name).getName();
+                blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
+                ((IBlueprintDataProvider) tile).setSchematicName(fileName);
+            }
+
+            final BlockPos corner1 = BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset());
+            final BlockPos corner2 = new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1).subtract(schem.getPrimaryBlockOffset());
+            ((IBlueprintDataProvider) tile).setSchematicCorners(corner1, corner2);
+            BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_ONE, corner1);
+            BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_TWO, corner2);
+
+            if (!world.isRemote)
+            {
+                ((ServerWorld) world).getChunkProvider().markBlockChanged(pos);
+            }
         }
 
         if (name != null)
@@ -184,10 +215,10 @@ public class BlueprintUtil
         // Adding Tile Entities
         final ListNBT finishedTes = new ListNBT();
         final CompoundNBT[] tes = Arrays.stream(schem.getTileEntities())
-            .flatMap(Arrays::stream)
-            .flatMap(Arrays::stream)
-            .filter(Objects::nonNull)
-            .toArray(CompoundNBT[]::new);
+                                    .flatMap(Arrays::stream)
+                                    .flatMap(Arrays::stream)
+                                    .filter(Objects::nonNull)
+                                    .toArray(CompoundNBT[]::new);
         finishedTes.addAll(Arrays.asList(tes));
         tag.put("tile_entities", finishedTes);
 
@@ -281,7 +312,7 @@ public class BlueprintUtil
             {
                 final String[] split = name.split(":")[1].split("_");
                 oldBlockState.putString("Name",
-                    "structurize:clay_" + (split.length > 2 ? split[1] + "_" + split[2] : split[1]) + "_shingle");
+                  "structurize:clay_" + (split.length > 2 ? split[1] + "_" + split[2] : split[1]) + "_shingle");
             }
             else if (name.contains("blockshingleslab"))
             {
@@ -291,7 +322,7 @@ public class BlueprintUtil
             {
                 final String[] split = name.split(":")[1].split("_");
                 String output = "structurize:" + (split.length > 3 ? split[3] : split[2]) + "_"
-                    + (split.length > 3 ? split[1] + "_" + split[2] : split[1]) + "_paper_timber_frame";
+                                  + (split.length > 3 ? split[1] + "_" + split[2] : split[1]) + "_paper_timber_frame";
                 output = output.replace("doublecrossed", "double_crossed");
                 output = output.replace("sideframed", "side_framed");
                 output = output.replace("upgated", "up_gated");
@@ -308,7 +339,7 @@ public class BlueprintUtil
             else if (name.contains("blockpaperwall") && !name.contains("_"))
             {
                 oldBlockState.putString("Name",
-                    "structurize:" + oldBlockState.getCompound("Properties").getString("variant") + "_blockpaperwall");
+                  "structurize:" + oldBlockState.getCompound("Properties").getString("variant") + "_blockpaperwall");
             }
         }
     }
@@ -340,8 +371,8 @@ public class BlueprintUtil
                 }
 
                 tileEntities[i] = id.startsWith("minecraft:")
-                    ? DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion)
-                    : nbt;
+                                    ? DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion)
+                                    : nbt;
             }
             catch (Exception e)
             {
@@ -417,11 +448,12 @@ public class BlueprintUtil
         return result;
     }
 
-    private static void teToBlockStateFix(final List<BlockState> palette,
-        final short[][][] blocks,
-        final CompoundNBT[] tileEntities,
-        final short paletteIndex,
-        final Function<CompoundNBT, CompoundNBT> dataFixer)
+    private static void teToBlockStateFix(
+      final List<BlockState> palette,
+      final short[][][] blocks,
+      final CompoundNBT[] tileEntities,
+      final short paletteIndex,
+      final Function<CompoundNBT, CompoundNBT> dataFixer)
     {
         final Map<Integer, BlockPos> teToReplace = searchForTEposInTEs(searchForBlockIdInBlocks(paletteIndex, blocks), tileEntities);
         final Map<BlockState, Short> newBlocksToBlockId = new HashMap<>();
@@ -450,10 +482,11 @@ public class BlueprintUtil
         }
     }
 
-    private static void fixCross1343(final List<BlockState> palette,
-        final short[][][] blocks,
-        final CompoundNBT[] tileEntities,
-        final CompoundNBT[] entities)
+    private static void fixCross1343(
+      final List<BlockState> palette,
+      final short[][][] blocks,
+      final CompoundNBT[] tileEntities,
+      final CompoundNBT[] entities)
     {
         final int oldSize = palette.size();
         for (short i = 0; i < oldSize; i++)
@@ -464,18 +497,18 @@ public class BlueprintUtil
                 teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
                     final String type = teCompound.getString("Item") + teCompound.getInt("Data");
                     return (CompoundNBT) ChunkPaletteFormat.FLOWER_POT_MAP
-                        .getOrDefault(type, ChunkPaletteFormat.FLOWER_POT_MAP.get("minecraft:air0"))
-                        .getValue();
+                                           .getOrDefault(type, ChunkPaletteFormat.FLOWER_POT_MAP.get("minecraft:air0"))
+                                           .getValue();
                 });
             }
             else if (bs.getBlock() == Blocks.NOTE_BLOCK) // note block fix
             {
                 teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
                     final String type = Boolean.toString(teCompound.getBoolean("powered"))
-                        + (byte) Math.min(Math.max(teCompound.getInt("note"), 0), 24);
+                                          + (byte) Math.min(Math.max(teCompound.getInt("note"), 0), 24);
                     return (CompoundNBT) ChunkPaletteFormat.NOTE_BLOCK_MAP
-                        .getOrDefault(type, ChunkPaletteFormat.NOTE_BLOCK_MAP.get("false0"))
-                        .getValue();
+                                           .getOrDefault(type, ChunkPaletteFormat.NOTE_BLOCK_MAP.get("false0"))
+                                           .getValue();
                 });
             }
         }
@@ -531,7 +564,7 @@ public class BlueprintUtil
             }
 
             final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods)
-                .setMissingMods(missingMods.toArray(new String[0]));
+                                      .setMissingMods(missingMods.toArray(new String[0]));
 
             schem.setEntities(entities);
 

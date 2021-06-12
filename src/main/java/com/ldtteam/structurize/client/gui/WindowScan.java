@@ -12,6 +12,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.block.*;
@@ -236,6 +237,14 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
+        if (anchorPos.isPresent())
+        {
+            final TileEntity tile = Minecraft.getInstance().player.world.getTileEntity(anchorPos.get());
+            if (tile instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) tile).getSchematicName().isEmpty())
+            {
+                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
+            }
+        }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
     }
 
@@ -264,9 +273,10 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, this.anchorPos));
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, Settings.instance.getAnchorPos()));
         Settings.instance.setAnchorPos(Optional.empty());
         Settings.instance.setBox(null);
+        Settings.instance.setStructureName(null);
         close();
     }
 

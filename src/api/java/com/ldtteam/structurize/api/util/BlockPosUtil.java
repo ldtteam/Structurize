@@ -72,8 +72,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * this checks that you are not in liquid. Will check for all liquids, even
-     * those from other mods before TP
+     * this checks that you are not in liquid. Will check for all liquids, even those from other mods before TP
      *
      * @param blockPos for the current block LOC
      * @param sender   uses the player to get the world
@@ -146,8 +145,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * Create a method for using a {@link BlockPos} when using {@link
-     * BlockPos.Mutable#setPos(int, int, int)}.
+     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#setPos(int, int, int)}.
      *
      * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
@@ -173,6 +171,7 @@ public final class BlockPosUtil
 
     /**
      * Get the rotation enum value from the amount of rotations.
+     *
      * @param rotations the amount of rotations.
      * @return the enum Rotation.
      */
@@ -189,5 +188,27 @@ public final class BlockPosUtil
             default:
                 return Rotation.NONE;
         }
+    }
+
+    /**
+     * Check if the given position is inside the given corners, corner order does not matter
+     *
+     * @param inside  inside position to check
+     * @param corner1 first corner
+     * @param corner2 second corner
+     * @return
+     */
+    public static boolean isInbetween(final BlockPos inside, final BlockPos corner1, final BlockPos corner2)
+    {
+        final int maxX = Math.max(corner1.getX(), corner2.getX());
+        final int minX = Math.min(corner1.getX(), corner2.getX());
+
+        final int maxY = Math.max(corner1.getY(), corner2.getY());
+        final int minY = Math.min(corner1.getY(), corner2.getY());
+
+        final int maxZ = Math.max(corner1.getZ(), corner2.getZ());
+        final int minZ = Math.min(corner1.getZ(), corner2.getZ());
+
+        return inside.getX() <= maxX && inside.getX() >= minX && inside.getY() <= maxY && inside.getY() >= minY && inside.getZ() <= maxZ && inside.getZ() >= minZ;
     }
 }

@@ -1,7 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import com.ldtteam.blockout.Log;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -15,7 +14,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,8 +27,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
@@ -498,7 +498,8 @@ public class Blueprint
     private BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list = getBlockInfoAsList().stream()
-            .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock)
+                                       .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock
+                                                              || (blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
             .collect(Collectors.toList());
 
         if (list.size() != 1)
