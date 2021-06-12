@@ -12,6 +12,7 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.Property;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -342,6 +343,11 @@ public final class BlockUtils
                         itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH,
                         here,
                         true))));
+
+                if (newState == null)
+                {
+                    return;
+                }
             }
 
             // place
@@ -351,13 +357,26 @@ public final class BlockUtils
         }
         else if (item instanceof BucketItem)
         {
+            final Block sourceBlock = blockState.getBlock();
             final BucketItem bucket = (BucketItem) item;
             final Fluid fluid = bucket.getFluid();
 
             // place
-            world.removeBlock(here, false);
-            world.setBlockState(here, fluid.getDefaultState().getBlockState(), Constants.UPDATE_FLAG);
-            bucket.onLiquidPlaced(world, stackToPlace, here);
+            if (sourceBlock instanceof ILiquidContainer)
+            {
+                final ILiquidContainer liquidContainer = (ILiquidContainer) sourceBlock;
+                if (liquidContainer.canContainFluid(world, here, blockState, fluid))
+                {
+                    liquidContainer.receiveFluid(world, here, blockState, fluid.getDefaultState());
+                    bucket.onLiquidPlaced(world, stackToPlace, here);
+                }
+            }
+            else
+            {
+                world.removeBlock(here, false);
+                world.setBlockState(here, fluid.getDefaultState().getBlockState(), Constants.UPDATE_FLAG);
+                bucket.onLiquidPlaced(world, stackToPlace, here);
+            }
         }
         else
         {
@@ -378,7 +397,7 @@ public final class BlockUtils
         final Block block = state.getBlock();
         if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).pickupFluid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
         {
-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG);
+            world.setBlockState(pos, Blocks.AIR.getDefaultState(), Constants.UPDATE_FLAG);
         }
     }
 

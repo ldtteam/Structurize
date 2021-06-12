@@ -109,6 +109,7 @@
     "structurize.gui.buildtool.creative_only": "Structurize does not support using the build tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
     "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!",
     "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s",
+    "structurize.gui.replaceblock.null_placement": "Replacement with target block \"%s\" may not work under certain conditions.",
     "structurize.gui.buildtool.paste": "Instantly places the structure into the world, keeping Placeholder Blocks.",
     "structurize.gui.buildtool.pastenice": "Instantly places the structure into the world, as if constructed by a Builder."
 }

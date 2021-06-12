@@ -54,6 +54,7 @@ public final class PlacementHandlers
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
+        handlers.add(new HopperClientLagPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
@@ -752,6 +753,35 @@ public final class PlacementHandlers
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
+        }
+    }
+
+    /**
+     * mojang abusing lazyupdates, this modification always happens, but we need it now, not later
+     */
+    public static class HopperClientLagPlacementHandler extends ContainerPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        {
+            return blockState.getBlock() instanceof HopperBlock;
+        }
+
+        @Override
+        public ActionProcessingResult handle(@NotNull final World world,
+            @NotNull final BlockPos pos,
+            @NotNull final BlockState blockState,
+            @Nullable final CompoundNBT tileEntityData,
+            final boolean complete,
+            final BlockPos centerPos)
+        {
+            final boolean flag = !world.isBlockPowered(pos);
+            return super.handle(world,
+                pos,
+                flag != blockState.get(HopperBlock.ENABLED) ? blockState.with(HopperBlock.ENABLED, flag) : blockState,
+                tileEntityData,
+                complete,
+                centerPos);
         }
     }
 
