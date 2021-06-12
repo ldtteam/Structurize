@@ -19,7 +19,10 @@ import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
@@ -300,10 +303,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             LanguageHandler.sendMessageToPlayer(player, ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
-        final TileEntity te = context.getWorld().getTileEntity(pos);
+        ItemStack itemstack = player.getHeldItemMainhand();
+        if (!itemstack.getItem().equals(getRegisteredItemInstance()))
+        {
+            itemstack = player.getHeldItemOffhand();
+        }
+
+        final TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
         {
-            if (context.getWorld().isRemote)
+            if (worldIn.isRemote)
             {
                 Settings.instance.setAnchorPos(Optional.of(pos));
             }
@@ -313,15 +322,15 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
-                if (context.getWorld().isRemote)
+                if (worldIn.isRemote)
                 {
                     Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
                 }
-                context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
-                context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));
-                if (context.getPlayer() instanceof ServerPlayerEntity)
+                itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
+                itemstack.getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));
+                if (player instanceof ServerPlayerEntity)
                 {
-                    ((ServerPlayerEntity) context.getPlayer()).sendAllContents(context.getPlayer().container, context.getPlayer().inventory.mainInventory);
+                    ((ServerPlayerEntity) player).sendAllContents(player.container, player.inventory.mainInventory);
                 }
             }
         }
