@@ -4,6 +4,7 @@ import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.controls.Image;
+import com.ldtteam.blockout.controls.Text;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -84,17 +85,26 @@ public class TabSet extends View
         spacing = params.getInteger("spacing", 2);
     }
 
+    /**
+     * Selects a tab from its index in the tab button list
+     * @param index the index to select
+     */
     public void setSelectedTab(int index)
     {
+        if (index >= tabs.children.size()) return;
         Pane tab = tabs.children.get(index);
         if (!(tab instanceof ButtonTab)) return;
-        selectedTab = ((ButtonTab) tab).getTabToSelect();
+        selectedTab = ((ButtonTab) tab).toSelect;
 
         children.stream()
           .filter(child -> child instanceof Tab)
           .forEach(child -> child.setVisible(child.equals(selectedTab)));
     }
 
+    /**
+     * Changes the selected tab view to the given one
+     * @param tab the tab to switch to
+     */
     public void setSelectedTab(Tab tab)
     {
         children.stream()
@@ -103,6 +113,29 @@ public class TabSet extends View
               child.setVisible(child.equals(tab));
               if (child.isVisible()) selectedTab = tab;
           });
+    }
+
+    /**
+     * Adds the given tab to this tab set
+     * @param tab the tab to add
+     */
+    public void addTab(Tab tab)
+    {
+        tab.padding = childPadding;
+        addChild(tab);
+        new ButtonTab(tab);
+    }
+
+    /**
+     * Adds the given tab to this tab set
+     * @param tab the tab to add
+     * @param button an existing ButtonTab to link to the given tab
+     */
+    public void addTab(Tab tab, ButtonTab button)
+    {
+        tab.padding = childPadding;
+        button.toSelect = tab;
+        addChild(tab);
     }
 
     @Override
@@ -135,6 +168,11 @@ public class TabSet extends View
             : mx >= x && mx < (x + width) && my >= y + overlap - tabHeight && my < (y + height);
     }
 
+    /**
+     * The pane for the physical representation of the tab itself,
+     * i.e. the button you click to change content.
+     * Has a background and a potential icon or text otherwise
+     */
     public class ButtonTab extends View
     {
         protected Tab   toSelect;
@@ -184,12 +222,26 @@ public class TabSet extends View
                 icon.setPosition(vertical ? -overlap/2 : 0, vertical ? 0 : -overlap/2);
                 icon.setImage(tab.icon);
                 addChild(icon);
-            }
-        }
 
-        public Tab getTabToSelect()
-        {
-            return toSelect;
+                tab.createTooltip(this);
+            }
+            else
+            {
+                Text text = tab.buildLabel();
+                text.setAlignment(Alignment.MIDDLE);
+                text.setTextAlignment(Alignment.MIDDLE);
+                if (vertical)
+                {
+                    text.setPosition(-overlap/2, 0);
+                    text.setSize(width - overlap, height);
+                }
+                else
+                {
+                    text.setPosition(0, -overlap/2);
+                    text.setSize(width, height-overlap);
+                }
+                addChild(text);
+            }
         }
 
         @Override
