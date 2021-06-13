@@ -50,14 +50,17 @@ public class TabSet extends View
         padding = 0;
 
         params.getTexture("tabimage", res -> {
-            Matcher m = Pattern.compile("\\*([0-9]{1,2})(?:\\.png)?$").matcher(res.getPath());
+            // Allow numbered images from 1 up to the total specified,
+            // so tab..2.png becomes tab1.png and tab2.png, to be options
+            // chosen between at random for the background image of this tab button
+            Matcher m = Pattern.compile("\\.\\.([0-9]{1,2})(?=\\.png)").matcher(res.getPath());
             if (m.find())
             {
                 int cap = Integer.parseInt(m.group(1));
                 tabIcons = new ResourceLocation[cap];
                 for (int i = 1 ; i <= cap; i++)
                 {
-                    tabIcons[i] = new ResourceLocation(
+                    tabIcons[i-1] = new ResourceLocation(
                       res.getNamespace(),
                       res.getPath().replace(m.group(0), String.valueOf(i)));
                 }
@@ -219,7 +222,7 @@ public class TabSet extends View
                 }
 
                 icon.setAlignment(Alignment.MIDDLE);
-                icon.setPosition(vertical ? -overlap/2 : 0, vertical ? 0 : -overlap/2);
+                icon.setPosition(vertical ? -overlap/4 : 0, vertical ? 0 : -overlap/4);
                 icon.setImage(tab.icon);
                 addChild(icon);
 
@@ -232,13 +235,13 @@ public class TabSet extends View
                 text.setTextAlignment(Alignment.MIDDLE);
                 if (vertical)
                 {
-                    text.setPosition(-overlap/2, 0);
-                    text.setSize(width - overlap, height);
+                    text.setPosition(-overlap/4, 0);
+                    text.setSize(width - overlap/2, height);
                 }
                 else
                 {
-                    text.setPosition(0, -overlap/2);
-                    text.setSize(width, height-overlap);
+                    text.setPosition(0, -overlap/4);
+                    text.setSize(width, height-overlap/2);
                 }
                 addChild(text);
             }
