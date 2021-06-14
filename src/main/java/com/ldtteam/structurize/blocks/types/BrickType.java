@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.api.blocks.BlockType;
-import com.ldtteam.structurize.api.blocks.IBlockCollection;
+import com.ldtteam.structurize.blocks.IStructurizeBlockCollection;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
@@ -20,7 +20,7 @@ import net.minecraftforge.fml.RegistryObject;
 import java.util.List;
 import java.util.function.Consumer;
 
-public enum BrickType implements IBlockCollection
+public enum BrickType implements IStructurizeBlockCollection
 {
     BROWN("brown", Items.TERRACOTTA),
     BEIGE("beige", Items.GRAVEL),

@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
-import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
@@ -12,14 +11,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -85,10 +82,15 @@ public interface IBlockCollection extends IGenerated
      * @param registrar the DeferredRegistry instance to apply the block to
      * @param itemRegistrar the DeferredRegistry instance to apply the item to
      * @param group the item group (or creative tab) to place this block in
+     * @param creationListener gets fired for each block being registered with specific block type, used for client rendering register
      * @param types a selection of each block type that is part of the collection
      * @return each registered block in the collection
      */
-    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
+    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar,
+        DeferredRegister<Item> itemRegistrar,
+        ItemGroup group,
+        BiConsumer<BlockType, RegistryObject<Block>> creationListener,
+        BlockType... types)
     {
         List<RegistryObject<Block>> results = new LinkedList<>();
 
@@ -114,8 +116,7 @@ public interface IBlockCollection extends IGenerated
                 }
             });
 
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> ClientLifecycleSubscriber.DELAYED_RENDER_TYPE_SETUP.add(new Tuple<>(block, type.getRenderType())));
+            creationListener.accept(type, block);
 
             results.add(block);
         }
