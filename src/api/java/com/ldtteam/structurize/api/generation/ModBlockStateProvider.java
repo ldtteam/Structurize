@@ -48,13 +48,13 @@ public class ModBlockStateProvider extends BlockStateProvider
     }
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void run(final DirectoryCache cache) throws IOException
     {
         blocks = new HashMap<>(models().generatedModels);
         items = new HashMap<>(itemModels().generatedModels);
         states = new LinkedHashMap<>(registeredBlocks);
 
-        super.act(cache);
+        super.run(cache);
     }
 
     /**
@@ -90,10 +90,10 @@ public class ModBlockStateProvider extends BlockStateProvider
     public void stairsBlockUnlockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter)
     {
         getVariantBuilder(block).forAllStatesExcept(state -> {
-            Direction facing = state.get(StairsBlock.FACING);
-            Half half = state.get(StairsBlock.HALF);
-            StairsShape shape = state.get(StairsBlock.SHAPE);
-            int yRot = (int) facing.rotateY().getHorizontalAngle(); // Stairs model is rotated 90 degrees clockwise for some reason
+            Direction facing = state.getValue(StairsBlock.FACING);
+            Half half = state.getValue(StairsBlock.HALF);
+            StairsShape shape = state.getValue(StairsBlock.SHAPE);
+            int yRot = (int) facing.getClockWise().toYRot(); // Stairs model is rotated 90 degrees clockwise for some reason
 
             if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT)
             {

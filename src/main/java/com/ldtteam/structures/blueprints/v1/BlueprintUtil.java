@@ -64,13 +64,13 @@ public class BlueprintUtil
     {
         final List<BlockState> pallete = new ArrayList<>();
         // Allways add AIR to Pallete
-        pallete.add(Blocks.AIR.getDefaultState());
+        pallete.add(Blocks.AIR.defaultBlockState());
         final short[][][] structure = new short[sizeY][sizeZ][sizeX];
         final List<CompoundNBT> tileEntities = new ArrayList<>();
 
         final List<String> requiredMods = new ArrayList<>();
 
-        for (final BlockPos mutablePos : BlockPos.getAllInBoxMutable(pos, pos.add(sizeX - 1, sizeY - 1, sizeZ - 1)))
+        for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.relative(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
             String modName = state.getBlock().getRegistryName().getNamespace();
@@ -82,7 +82,7 @@ public class BlueprintUtil
             {
                 if (!ModList.get().getModContainerById(modName).isPresent())
                 {
-                    structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.getDefaultState());
+                    structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.defaultBlockState());
                     continue;
                 }
                 if (!requiredMods.contains(modName))
@@ -91,7 +91,7 @@ public class BlueprintUtil
                 }
             }
 
-            final TileEntity te = world.getTileEntity(mutablePos);
+            final TileEntity te = world.getBlockEntity(mutablePos);
             if (te != null)
             {
                 CompoundNBT teTag = te.serializeNBT();
@@ -114,13 +114,13 @@ public class BlueprintUtil
         List<Entity> entities = new ArrayList<>();
         if (saveEntities)
         {
-            entities = world.getEntitiesWithinAABBExcludingEntity(null,
+            entities = world.getEntities(null,
               new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
         }
 
         for (final Entity entity : entities)
         {
-            final Vector3d oldPos = entity.getPositionVec();
+            final Vector3d oldPos = entity.position();
             final CompoundNBT entityTag = entity.serializeNBT();
 
             final ListNBT posList = new ListNBT();
@@ -128,10 +128,10 @@ public class BlueprintUtil
             posList.add(DoubleNBT.valueOf(oldPos.y - pos.getY()));
             posList.add(DoubleNBT.valueOf(oldPos.z - pos.getZ()));
 
-            BlockPos entityPos = entity.getPosition();
+            BlockPos entityPos = entity.blockPosition();
             if (entity instanceof HangingEntity)
             {
-                entityPos = ((HangingEntity) entity).getHangingPosition();
+                entityPos = ((HangingEntity) entity).getPos();
             }
             entityTag.put("Pos", posList);
             entityTag.put("TileX", IntNBT.valueOf(entityPos.getX() - pos.getX()));
@@ -151,7 +151,7 @@ public class BlueprintUtil
         }
 
         // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
-        final TileEntity tile = world.getTileEntity(pos.add(schem.getPrimaryBlockOffset()));
+        final TileEntity tile = world.getBlockEntity(pos.relative(schem.getPrimaryBlockOffset()));
         if (tile instanceof IBlueprintDataProvider)
         {
             final CompoundNBT blueprintData = (CompoundNBT) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
@@ -169,9 +169,9 @@ public class BlueprintUtil
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_ONE, corner1);
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_TWO, corner2);
 
-            if (!world.isRemote)
+            if (!world.isClientSide)
             {
-                ((ServerWorld) world).getChunkProvider().markBlockChanged(pos);
+                ((ServerWorld) world).getChunkSource().blockChanged(pos);
             }
         }
 
@@ -255,7 +255,7 @@ public class BlueprintUtil
             tag.put("architects", architectsTag);
         }
 
-        tag.put("mcversion", IntNBT.valueOf(SharedConstants.getVersion().getWorldVersion()));
+        tag.put("mcversion", IntNBT.valueOf(SharedConstants.getCurrentVersion().getWorldVersion()));
 
         final CompoundNBT optionalTag = new CompoundNBT();
         final CompoundNBT structurizeTag = new CompoundNBT();
@@ -294,7 +294,7 @@ public class BlueprintUtil
             }
             catch (final Exception e)
             {
-                palette.add(i, Blocks.AIR.getDefaultState());
+                palette.add(i, Blocks.AIR.defaultBlockState());
                 Log.getLogger().warn("Blueprint reader: something went wrong loading block at position: " + i, e);
             }
         }
@@ -535,7 +535,7 @@ public class BlueprintUtil
             short modListSize = (short) modsList.size();
             for (int i = 0; i < modListSize; i++)
             {
-                requiredMods.add((modsList.get(i)).getString());
+                requiredMods.add((modsList.get(i)).getAsString());
                 if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
                 {
                     LogManager.getLogger().warn("Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
@@ -568,11 +568,11 @@ public class BlueprintUtil
 
             schem.setEntities(entities);
 
-            if (tag.keySet().contains("name"))
+            if (tag.getAllKeys().contains("name"))
             {
                 schem.setName(tag.getString("name"));
             }
-            if (tag.keySet().contains("architects"))
+            if (tag.getAllKeys().contains("architects"))
             {
                 ListNBT architectsTag = (ListNBT) tag.get("architects");
                 String[] architects = new String[architectsTag.size()];
@@ -583,10 +583,10 @@ public class BlueprintUtil
                 schem.setArchitects(architects);
             }
 
-            if (tag.keySet().contains(NBT_OPTIONAL_DATA_TAG))
+            if (tag.getAllKeys().contains(NBT_OPTIONAL_DATA_TAG))
             {
                 final CompoundNBT optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
-                if (optionalTag.keySet().contains(MOD_ID))
+                if (optionalTag.getAllKeys().contains(MOD_ID))
                 {
                     final CompoundNBT structurizeTag = optionalTag.getCompound(MOD_ID);
                     BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");

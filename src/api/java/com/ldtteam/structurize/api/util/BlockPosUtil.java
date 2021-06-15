@@ -80,9 +80,9 @@ public final class BlockPosUtil
      */
     public static boolean isPositionSafe(@NotNull final CommandSource sender, final BlockPos blockPos)
     {
-        return sender.getWorld().getBlockState(blockPos).getBlock() != Blocks.AIR
-                 && !sender.getWorld().getBlockState(blockPos).getMaterial().isLiquid()
-                 && !sender.getWorld().getBlockState(blockPos.up()).getMaterial().isLiquid();
+        return sender.getLevel().getBlockState(blockPos).getBlock() != Blocks.AIR
+                 && !sender.getLevel().getBlockState(blockPos).getMaterial().isLiquid()
+                 && !sender.getLevel().getBlockState(blockPos.above()).getMaterial().isLiquid();
     }
 
     /**
@@ -141,7 +141,7 @@ public final class BlockPosUtil
      */
     public static boolean setBlock(@NotNull final World worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
     {
-        return worldIn.setBlockState(coords, state, flag);
+        return worldIn.setBlock(coords, state, flag);
     }
 
     /**
@@ -152,7 +152,7 @@ public final class BlockPosUtil
      */
     public static void set(@NotNull final BlockPos.Mutable pos, @NotNull final BlockPos newPos)
     {
-        pos.setPos(newPos.getX(), newPos.getY(), newPos.getZ());
+        pos.set(newPos.getX(), newPos.getY(), newPos.getZ());
     }
 
     /**

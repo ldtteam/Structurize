@@ -23,7 +23,7 @@ public class ModRecipeProvider extends RecipeProvider
     }
 
     @Override
-    protected void registerRecipes(@NotNull final Consumer<IFinishedRecipe> consumer)
+    protected void buildShapelessRecipes(@NotNull final Consumer<IFinishedRecipe> consumer)
     {
         recipes.forEach(builder -> builder.accept(consumer));
     }
@@ -35,12 +35,12 @@ public class ModRecipeProvider extends RecipeProvider
 
     public static ICriterionInstance getDefaultCriterion(IItemProvider has)
     {
-        return hasItem(has);
+        return has(has);
     }
 
     public ICriterionInstance getCriterion(IItemProvider has)
     {
-        return hasItem(has);
+        return has(has);
     }
 
     public static ModRecipeProvider getInstance()

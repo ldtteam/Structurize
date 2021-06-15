@@ -76,16 +76,16 @@ public class BlueprintIterator
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(-1, 0, 0);
+            this.progressPos.set(-1, 0, 0);
         }
 
-        this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
+        this.progressPos.set(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
         if (this.progressPos.getX() >= this.size.getX())
         {
-            this.progressPos.setPos(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
+            this.progressPos.set(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
             if (this.progressPos.getZ() >= this.size.getZ())
             {
-                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
+                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
                 if (this.progressPos.getY() >= this.size.getY())
                 {
                     this.reset();
@@ -106,16 +106,16 @@ public class BlueprintIterator
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(this.size.getX(), this.size.getY() - 1, this.size.getZ() - 1);
+            this.progressPos.set(this.size.getX(), this.size.getY() - 1, this.size.getZ() - 1);
         }
 
-        this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
+        this.progressPos.set(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
         if (this.progressPos.getX() <= -1)
         {
-            this.progressPos.setPos(this.size.getX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
+            this.progressPos.set(this.size.getX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
             if (this.progressPos.getZ() <= -1)
             {
-                this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY() - 1, this.size.getZ() - 1);
+                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() - 1, this.size.getZ() - 1);
                 if (this.progressPos.getY() <= -1)
                 {
                     this.reset();
@@ -190,11 +190,11 @@ public class BlueprintIterator
     {
         if (localPosition.equals(NULL_POS))
         {
-            this.progressPos.setPos(localPosition);
+            this.progressPos.set(localPosition);
         }
         else
         {
-            this.progressPos.setPos(localPosition.getX() % size.getX(),
+            this.progressPos.set(localPosition.getX() % size.getX(),
               localPosition.getY() % size.getY(),
               localPosition.getZ() % size.getZ());
         }

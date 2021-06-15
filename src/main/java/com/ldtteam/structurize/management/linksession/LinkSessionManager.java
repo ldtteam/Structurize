@@ -229,20 +229,20 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
         reset();
 
         final CompoundNBT channelz = in.getCompound(CHANNELS_TAG);
-        for (String key : channelz.keySet())
+        for (String key : channelz.getAllKeys())
         {
             final CompoundNBT playerTag = channelz.getCompound(key);
             final UUID playerUUID = UUID.fromString(key);
 
             channels.put(playerUUID, new HashMap<Integer, Boolean>());
-            for (String id : playerTag.keySet())
+            for (String id : playerTag.getAllKeys())
             {
                 channels.get(playerUUID).put(Integer.valueOf(id), playerTag.getBoolean(id));
             }
         }
         in.remove(CHANNELS_TAG);
 
-        for (String key : in.keySet())
+        for (String key : in.getAllKeys())
         {
             sessions.put(UUID.fromString(key), LinkSession.createFromNBT(in.getCompound(key)));
         }

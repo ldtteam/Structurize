@@ -41,7 +41,7 @@ public class RemoveEntityMessage implements IMessage
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.entityName = buf.readString(32767);
+        this.entityName = buf.readUtf(32767);
     }
 
     /**
@@ -62,7 +62,7 @@ public class RemoveEntityMessage implements IMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeString(entityName);
+        buf.writeUtf(entityName);
     }
 
     @Nullable
@@ -81,7 +81,7 @@ public class RemoveEntityMessage implements IMessage
             return;
         }
 
-        final World world = ctxIn.getSender().getServerWorld();
+        final World world = ctxIn.getSender().getLevel();
         final ChangeStorage storage = new ChangeStorage(ctxIn.getSender());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
@@ -90,7 +90,7 @@ public class RemoveEntityMessage implements IMessage
                 for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
-                    final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
+                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(here));
                     storage.addEntities(list);
 
                     for(final Entity entity: list)

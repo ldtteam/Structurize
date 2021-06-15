@@ -40,7 +40,7 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUniqueID());
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.createPlayerUUID());
     }
 
     public static IFormattableTextComponent buildChatComponent(final String key, final Object... message)
@@ -92,7 +92,7 @@ public final class LanguageHandler
             else if (object instanceof String)
             {
                 boolean isInArgs = false;
-                for (final Object obj : translation.getFormatArgs())
+                for (final Object obj : translation.getArgs())
                 {
                     if (obj.equals(object))
                     {
@@ -103,7 +103,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.appendString(" " + object);
+                    translation.append(" " + object);
                 }
             }
         }
@@ -151,13 +151,13 @@ public final class LanguageHandler
 
         for (final PlayerEntity player : players)
         {
-            player.sendMessage(textComponent, player.getUniqueID());
+            player.sendMessage(textComponent, player.createPlayerUUID());
         }
     }
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.getUniqueID());
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.createPlayerUUID());
     }
 
     /**
@@ -214,7 +214,7 @@ public final class LanguageHandler
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
             String locale =
-                DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+                DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().options.languageCode);
 
             if (locale == null)
             {
@@ -241,12 +241,12 @@ public final class LanguageHandler
         {
             if (isMCloaded)
             {
-                return LanguageMap.getInstance().func_230503_a_(key);
+                return LanguageMap.getInstance().getOrDefault(key);
             }
             else
             {
                 final String res = languageMap.get(key);
-                return res == null ? LanguageMap.getInstance().func_230503_a_(key) : res;
+                return res == null ? LanguageMap.getInstance().getOrDefault(key) : res;
             }
         }
     }

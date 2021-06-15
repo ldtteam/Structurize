@@ -11,6 +11,8 @@ import net.minecraft.state.properties.StairsShape;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * Class defining the general shingle.
  */
@@ -35,7 +37,7 @@ public class BlockShingle extends StairsBlock
 
     public BlockShingle(final Supplier<BlockState> modelState, final WoodType woodType, final ShingleFaceType faceType, final DyeColor color)
     {
-        super(modelState, Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
+        super(modelState, Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noOcclusion());
         this.woodType = woodType;
         this.faceType = faceType;
         this.color = color;
@@ -90,6 +92,6 @@ public class BlockShingle extends StairsBlock
 
     public String getTypeString()
     {
-        return (getColor() == null ? "" : getColor().getString() + "_") + getFaceType().getGroup();
+        return (getColor() == null ? "" : getColor().getSerializedName() + "_") + getFaceType().getGroup();
     }
 }

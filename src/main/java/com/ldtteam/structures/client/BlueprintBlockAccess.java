@@ -74,9 +74,9 @@ public class BlueprintBlockAccess extends World
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super((ISpawnWorldInfo) getWorld().getWorldInfo(),
-            getWorld().getDimensionKey(),
-            getWorld().getDimensionType(),
+        super((ISpawnWorldInfo) getWorld().getLevelData(),
+            getWorld().dimension(),
+            getWorld().dimensionType(),
             () -> getWorld().getProfiler(),
             true,
             true,
@@ -85,7 +85,7 @@ public class BlueprintBlockAccess extends World
     }
 
     public static World getWorld() {
-        return Minecraft.getInstance().world;
+        return Minecraft.getInstance().level;
     }
 
     public Blueprint getBlueprint()
@@ -100,7 +100,7 @@ public class BlueprintBlockAccess extends World
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(@NotNull final BlockPos pos)
+    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
     {
         return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
@@ -112,15 +112,15 @@ public class BlueprintBlockAccess extends World
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
         if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
-            return Blocks.DIRT.getDefaultState();
+            return Blocks.DIRT.defaultBlockState();
         }
         if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
         {
-            return Minecraft.getInstance().world != null
-                    ? BlockUtils.getFluidForDimension( Minecraft.getInstance().world)
-                    : Blocks.WATER.getDefaultState();
+            return Minecraft.getInstance().level != null
+                    ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
+                    : Blocks.WATER.defaultBlockState();
         }
-        return state.getBlock() == ModBlocks.blockSubstitution.get() ? Blocks.AIR.getDefaultState() : state;
+        return state.getBlock() == ModBlocks.blockSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
     }
 
     @Override
@@ -130,7 +130,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getLight(@NotNull final BlockPos pos)
+    public int getMaxLocalRawBrightness(@NotNull final BlockPos pos)
     {
         return 15;
     }
@@ -142,19 +142,19 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getLightFor(@NotNull final LightType lightType, @NotNull final BlockPos pos)
+    public int getBrightness(@NotNull final LightType lightType, @NotNull final BlockPos pos)
     {
         return 15;
     }
 
     @Override
-    public int getLightSubtracted(BlockPos blockPosIn, int amount)
+    public int getRawBrightness(BlockPos blockPosIn, int amount)
     {
         return 15;
     }
 
     @Override
-    public float func_230487_a_(Direction p_230487_1_, boolean p_230487_2_)
+    public float getShade(Direction p_230487_1_, boolean p_230487_2_)
     {
         return 0.9f;
     }
@@ -177,7 +177,7 @@ public class BlueprintBlockAccess extends World
     {
         if (isOutsideBuildHeight(pos))
         {
-            return Fluids.EMPTY.getDefaultState();
+            return Fluids.EMPTY.defaultFluidState();
         }
         else
         {
@@ -186,39 +186,39 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean isDirectionSolid(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
+    public boolean loadedAndEntityCanStandOnFace(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
     {
-        return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).isTopSolid(this, p_234929_1_, p_234929_2_, p_234929_3_);
+        return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).entityCanStandOnFace(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
-    public boolean isBlockPresent(BlockPos pos)
+    public boolean isLoaded(BlockPos pos)
     {
         // Noop
         return true;
     }
 
     @Override
-    public void addTileEntities(Collection<TileEntity> tileEntityCollection)
+    public void addAllPendingBlockEntities(Collection<TileEntity> tileEntityCollection)
     {
         // Noop
     }
 
     @Override
-    public boolean addTileEntity(TileEntity tile)
+    public boolean addBlockEntity(TileEntity tile)
     {
         // Noop
         return false;
     }
 
     @Override
-    public void calculateInitialSkylight()
+    public void updateSkyBrightness()
     {
         // Noop
     }
 
     @Override
-    protected void calculateInitialWeather()
+    protected void prepareWeather()
     {
         // Noop
     }
@@ -230,14 +230,14 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Explosion createExplosion(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, Mode modeIn)
+    public Explosion explode(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, Mode modeIn)
     {
         // Noop
         return null;
     }
 
     @Override
-    public Explosion createExplosion(Entity entityIn,
+    public Explosion explode(Entity entityIn,
         double xIn,
         double yIn,
         double zIn,
@@ -250,16 +250,16 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public CrashReportCategory fillCrashReport(CrashReport report)
+    public CrashReportCategory fillReportDetails(CrashReport report)
     {
-        CrashReportCategory crashreportcategory = report.makeCategory("Structurize rendering engine");
-        crashreportcategory.addDetail("Blueprint",
+        CrashReportCategory crashreportcategory = report.addCategory("Structurize rendering engine");
+        crashreportcategory.setDetail("Blueprint",
             () -> blueprint.getName() + " of size: " + blueprint.getSizeX() + "|" + blueprint.getSizeY() + "|" + blueprint.getSizeZ());
         return crashreportcategory;
     }
 
     @Override
-    public boolean setBlockState(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
+    public boolean setBlock(BlockPos p_241211_1_, BlockState p_241211_2_, int p_241211_3_, int p_241211_4_)
     {
         // Noop
         return false;
@@ -280,7 +280,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public float getCelestialAngleRadians(float partialTicks)
+    public float getSunAngle(float partialTicks)
     {
         // Noop
         return 0;
@@ -294,35 +294,35 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public DifficultyInstance getDifficultyForLocation(BlockPos pos)
+    public DifficultyInstance getCurrentDifficultyAt(BlockPos pos)
     {
         // Noop
         return null;
     }
 
     @Override
-    public List<Entity> getEntitiesInAABBexcluding(Entity entityIn, AxisAlignedBB boundingBox, Predicate<? super Entity> predicate)
+    public List<Entity> getEntities(Entity entityIn, AxisAlignedBB boundingBox, Predicate<? super Entity> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> List<T> getEntitiesWithinAABB(EntityType<T> type, AxisAlignedBB boundingBox, Predicate<? super T> predicate)
+    public <T extends Entity> List<T> getEntities(EntityType<T> type, AxisAlignedBB boundingBox, Predicate<? super T> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> List<T> getEntitiesWithinAABB(Class<? extends T> clazz, AxisAlignedBB aabb, Predicate<? super T> filter)
+    public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> clazz, AxisAlignedBB aabb, Predicate<? super T> filter)
     {
         // Noop
         return null;
     }
 
     @Override
-    public Entity getEntityByID(int id)
+    public Entity getEntity(int id)
     {
         // Noop
         return null;
@@ -350,14 +350,14 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public WorldLightManager getLightManager()
+    public WorldLightManager getLightEngine()
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> List<T> getLoadedEntitiesWithinAABB(Class<? extends T> p_225316_1_,
+    public <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> p_225316_1_,
         AxisAlignedBB p_225316_2_,
         Predicate<? super T> p_225316_3_)
     {
@@ -373,21 +373,21 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getNextMapId()
+    public int getFreeMapId()
     {
         // Noop
         return 0;
     }
 
     @Override
-    public String getProviderName()
+    public String gatherChunkSourceStats()
     {
         // Noop
         return null;
     }
 
     @Override
-    public float getRainStrength(float delta)
+    public float getRainLevel(float delta)
     {
         // Noop
         return 0;
@@ -401,20 +401,20 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public ITagCollectionSupplier getTags()
+    public ITagCollectionSupplier getTagManager()
     {
-        return getWorld().getTags();
+        return getWorld().getTagManager();
     }
 
     @Override
-    public int getSkylightSubtracted()
+    public int getSkyDarken()
     {
         // Noop
         return 0;
     }
 
     @Override
-    public float getThunderStrength(float delta)
+    public float getThunderLevel(float delta)
     {
         // Noop
         return 0;
@@ -428,7 +428,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public IWorldInfo getWorldInfo()
+    public IWorldInfo getLevelData()
     {
         // Noop
         return null;
@@ -441,28 +441,28 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean isBlockModifiable(PlayerEntity player, BlockPos pos)
+    public boolean mayInteract(PlayerEntity player, BlockPos pos)
     {
         // Noop
         return false;
     }
 
     @Override
-    public boolean isBlockinHighHumidity(BlockPos pos)
+    public boolean isHumidAt(BlockPos pos)
     {
         // Noop
         return false;
     }
 
     @Override
-    public boolean isDaytime()
+    public boolean isDay()
     {
         // Noop
         return true;
     }
 
     @Override
-    public boolean isNightTime()
+    public boolean isNight()
     {
         // Noop
         return false;
@@ -483,7 +483,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean isSaveDisabled()
+    public boolean noSave()
     {
         // Noop
         return true;
@@ -508,13 +508,13 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void markBlockRangeForRenderUpdate(BlockPos blockPosIn, BlockState oldState, BlockState newState)
+    public void setBlocksDirty(BlockPos blockPosIn, BlockState oldState, BlockState newState)
     {
         // Noop
     }
 
     @Override
-    public void markChunkDirty(BlockPos pos, TileEntity unusedTileEntity)
+    public void blockEntityChanged(BlockPos pos, TileEntity unusedTileEntity)
     {
         // Noop
     }
@@ -526,19 +526,19 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void notifyBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState, int flags)
+    public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
     {
         // Noop
     }
 
     @Override
-    public void notifyNeighborsOfStateChange(BlockPos pos, Block blockIn)
+    public void updateNeighborsAt(BlockPos pos, Block blockIn)
     {
         // Noop
     }
 
     @Override
-    public void notifyNeighborsOfStateExcept(BlockPos pos, Block blockType, Direction skipSide)
+    public void updateNeighborsAtExceptFromFacing(BlockPos pos, Block blockType, Direction skipSide)
     {
         // Noop
     }
@@ -550,7 +550,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void playMovingSound(PlayerEntity playerIn,
+    public void playSound(PlayerEntity playerIn,
         Entity entityIn,
         SoundEvent eventIn,
         SoundCategory categoryIn,
@@ -574,7 +574,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void registerMapData(MapData mapDataIn)
+    public void setMapData(MapData mapDataIn)
     {
         // Noop
     }
@@ -587,37 +587,37 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void removeTileEntity(BlockPos pos)
+    public void removeBlockEntity(BlockPos pos)
     {
         // Noop
     }
 
     @Override
-    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress)
+    public void destroyBlockProgress(int breakerId, BlockPos pos, int progress)
     {
         // Noop
     }
 
     @Override
-    public void setAllowedSpawnTypes(boolean hostile, boolean peaceful)
+    public void setSpawnSettings(boolean hostile, boolean peaceful)
     {
         // Noop
     }
 
     @Override
-    public void setRainStrength(float strength)
+    public void setRainLevel(float strength)
     {
         // Noop
     }
 
     @Override
-    public void setThunderStrength(float strength)
+    public void setThunderLevel(float strength)
     {
         // Noop
     }
 
     @Override
-    public void setTileEntity(BlockPos pos, TileEntity tileEntityIn)
+    public void setBlockEntity(BlockPos pos, TileEntity tileEntityIn)
     {
         // Noop
     }
@@ -629,41 +629,41 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void updateComparatorOutputLevel(BlockPos pos, Block blockIn)
+    public void updateNeighbourForOutputSignal(BlockPos pos, Block blockIn)
     {
         // Noop
     }
 
     @Override
-    public boolean checkNoEntityCollision(Entity entityIn, VoxelShape shape)
-    {
-        // Noop
-        return true;
-    }
-
-    @Override
-    public boolean chunkExists(int chunkX, int chunkZ)
+    public boolean isUnobstructed(Entity entityIn, VoxelShape shape)
     {
         // Noop
         return true;
     }
 
     @Override
-    public Stream<VoxelShape> func_230318_c_(Entity p_230318_1_, AxisAlignedBB p_230318_2_, Predicate<Entity> p_230318_3_)
+    public boolean hasChunk(int chunkX, int chunkZ)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public Stream<VoxelShape> getEntityCollisions(Entity p_230318_1_, AxisAlignedBB p_230318_2_, Predicate<Entity> p_230318_3_)
     {
         // Noop
         return null;
     }
 
     @Override
-    public int func_234938_ad_()
+    public int getMaxBuildHeight()
     {
         // Noop
         return 256;
     }
 
     @Override
-    public AbstractChunkProvider getChunkProvider()
+    public AbstractChunkProvider getChunkSource()
     {
         // Noop
         return null;
@@ -677,40 +677,40 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public BlockPos getHeight(Type heightmapType, BlockPos pos)
+    public BlockPos getHeightmapPos(Type heightmapType, BlockPos pos)
     {
         // Noop
         return null;
     }
 
     @Override
-    public DynamicRegistries func_241828_r()
+    public DynamicRegistries registryAccess()
     {
         return null;
     }
 
     @Override
-    public ITickList<Block> getPendingBlockTicks()
+    public ITickList<Block> getBlockTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public ITickList<Fluid> getPendingFluidTicks()
+    public ITickList<Fluid> getLiquidTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public void playEvent(PlayerEntity player, int type, BlockPos pos, int data)
+    public void levelEvent(PlayerEntity player, int type, BlockPos pos, int data)
     {
         // Noop
     }
 
     @Override
-    public <T extends LivingEntity> T getClosestEntity(List<? extends T> entities,
+    public <T extends LivingEntity> T getNearestEntity(List<? extends T> entities,
         EntityPredicate predicate,
         LivingEntity target,
         double x,
@@ -722,28 +722,28 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public PlayerEntity getClosestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
+    public PlayerEntity getNearestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public PlayerEntity getPlayerByUuid(UUID uniqueIdIn)
+    public PlayerEntity getPlayerByUUID(UUID uniqueIdIn)
     {
         // Noop
         return null;
     }
 
     @Override
-    public List<? extends PlayerEntity> getPlayers()
+    public List<? extends PlayerEntity> players()
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends LivingEntity> List<T> getTargettableEntitiesWithinAABB(Class<? extends T> p_217374_1_,
+    public <T extends LivingEntity> List<T> getNearbyEntities(Class<? extends T> p_217374_1_,
         EntityPredicate p_217374_2_,
         LivingEntity p_217374_3_,
         AxisAlignedBB p_217374_4_)
@@ -753,30 +753,30 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public List<PlayerEntity> getTargettablePlayersWithinAABB(EntityPredicate predicate, LivingEntity target, AxisAlignedBB box)
+    public List<PlayerEntity> getNearbyPlayers(EntityPredicate predicate, LivingEntity target, AxisAlignedBB box)
     {
         // Noop
         return null;
     }
 
     @Override
-    public boolean isPlayerWithin(double x, double y, double z, double distance)
+    public boolean hasNearbyAlivePlayer(double x, double y, double z, double distance)
     {
         // Noop
         return false;
     }
 
     @Override
-    public boolean canBlockSeeSky(BlockPos pos)
+    public boolean canSeeSkyFromBelowWater(BlockPos pos)
     {
         // Noop
         return true;
     }
 
     @Override
-    public int getBlockColor(BlockPos blockPosIn, ColorResolver colorResolverIn)
+    public int getBlockTint(BlockPos blockPosIn, ColorResolver colorResolverIn)
     {
-        return super.getBlockColor(blockPosIn, colorResolverIn);
+        return super.getBlockTint(blockPosIn, colorResolverIn);
     }
 
     @Override
@@ -787,14 +787,14 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Biome getNoiseBiomeRaw(int x, int y, int z)
+    public Biome getUncachedNoiseBiome(int x, int y, int z)
     {
         // Noop
         return null;
     }
 
     @Override
-    public boolean isAreaLoaded(int fromX, int fromY, int fromZ, int toX, int toY, int toZ)
+    public boolean hasChunksAt(int fromX, int fromY, int fromZ, int toX, int toY, int toZ)
     {
         // Noop
         return true;
@@ -808,7 +808,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean addEntity(Entity entityIn)
+    public boolean addFreshEntity(Entity entityIn)
     {
         // Noop
         return false;

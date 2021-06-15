@@ -130,7 +130,7 @@ public class ImageRepeatable extends Pane
     @Override
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
-        this.mc.getTextureManager().bindTexture(resourceLocation);
+        this.mc.getTextureManager().bind(resourceLocation);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);

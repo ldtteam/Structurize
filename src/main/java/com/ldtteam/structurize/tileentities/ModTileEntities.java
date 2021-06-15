@@ -25,6 +25,6 @@ public final class ModTileEntities
     static
     {
         getRegistry().register("multiblock",
-          () -> TileEntityType.Builder.create(TileEntityMultiBlock::new, ModBlocks.multiBlock.get()).build(null));
+          () -> TileEntityType.Builder.of(TileEntityMultiBlock::new, ModBlocks.multiBlock.get()).build(null));
     }
 }

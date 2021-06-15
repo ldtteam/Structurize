@@ -65,12 +65,12 @@ public class ChangeStorage
                 for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
                     final BlockPos place = new BlockPos(x, y, z);
-                    blocks.put(place, new PositionStorage(world.getBlockState(place), world.getTileEntity(place)));
+                    blocks.put(place, new PositionStorage(world.getBlockState(place), world.getBlockEntity(place)));
                 }
             }
         }
 
-        final List<Entity> tempEntities = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(from, to));
+        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(from, to));
         entities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
@@ -83,7 +83,7 @@ public class ChangeStorage
     {
         if (!blocks.containsKey(place))
         {
-            blocks.put(place, new PositionStorage(world.getBlockState(place), world.getTileEntity(place)));
+            blocks.put(place, new PositionStorage(world.getBlockState(place), world.getBlockEntity(place)));
         }
     }
 
@@ -115,10 +115,10 @@ public class ChangeStorage
         int count = 0;
         for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
         {
-            world.setBlockState(entry.getKey(), entry.getValue().getState());
+            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getState());
             if (entry.getValue().getEntity() != null)
             {
-                world.setTileEntity(entry.getKey(), entry.getValue().getEntity());
+                world.setBlockEntity(entry.getKey(), entry.getValue().getEntity());
             }
             blocks.remove(entry.getKey());
             count++;
@@ -131,14 +131,14 @@ public class ChangeStorage
 
         for (final CompoundNBT data : entities)
         {
-            final Optional<EntityType<?>> type = EntityType.readEntityType(data);
+            final Optional<EntityType<?>> type = EntityType.by(data);
             if (type.isPresent())
             {
                 final Entity entity = type.get().create(world);
                 if (entity != null)
                 {
                     entity.deserializeNBT(data);
-                    world.addEntity(entity);
+                    world.addFreshEntity(entity);
                 }
             }
         }
@@ -154,6 +154,6 @@ public class ChangeStorage
      */
     public boolean isOwner(final PlayerEntity player)
     {
-        return this.player.getUniqueID().equals(player.getUniqueID());
+        return this.player.createPlayerUUID().equals(player.createPlayerUUID());
     }
 }

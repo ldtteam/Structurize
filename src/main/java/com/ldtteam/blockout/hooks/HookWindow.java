@@ -3,6 +3,9 @@ package com.ldtteam.blockout.hooks;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.views.Window;
 
+import com.ldtteam.blockout.hooks.HookManager.WindowEntry;
+import com.ldtteam.blockout.views.Window.WindowRenderType;
+
 /**
  * Window wrapper
  */

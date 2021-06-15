@@ -15,6 +15,8 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * This Class is about the MultiBlock which takes care of pushing others around (In a non mean way).
  */
@@ -37,11 +39,11 @@ public class MultiBlock extends Block
      */
     public MultiBlock()
     {
-        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
     }
 
     @Override
-    public ActionResultType onBlockActivated(
+    public ActionResultType use(
       final BlockState state,
       final World worldIn,
       final BlockPos pos,
@@ -49,7 +51,7 @@ public class MultiBlock extends Block
       final Hand hand,
       final BlockRayTraceResult ray)
     {
-        if (worldIn.isRemote)
+        if (worldIn.isClientSide)
         {
             new WindowMultiBlock(pos).open();
         }
@@ -59,14 +61,14 @@ public class MultiBlock extends Block
     @Override
     public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
     {
-        if(worldIn.isRemote)
+        if(worldIn.isClientSide)
         {
             return;
         }
-        final TileEntity te = worldIn.getTileEntity(pos);
+        final TileEntity te = worldIn.getBlockEntity(pos);
         if(te instanceof TileEntityMultiBlock)
         {
-            ((TileEntityMultiBlock) te).handleRedstone(worldIn.isBlockPowered(pos));
+            ((TileEntityMultiBlock) te).handleRedstone(worldIn.hasNeighborSignal(pos));
         }
     }
 

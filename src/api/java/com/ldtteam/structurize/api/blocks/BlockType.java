@@ -25,17 +25,17 @@ import java.util.function.Function;
  */
 public enum BlockType
 {
-    BLOCK("", Block::new, RenderType.getSolid(), Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
-    SLAB("slab", SlabBlock::new, RenderType.getSolid(), BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
-    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::getDefaultState, props), RenderType.getSolid(), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
-    WALL("wall", WallBlock::new, RenderType.getSolid(), BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
+    BLOCK("", Block::new, RenderType.solid(), Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
+    SLAB("slab", SlabBlock::new, RenderType.solid(), BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
+    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::defaultBlockState, props), RenderType.solid(), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
+    WALL("wall", WallBlock::new, RenderType.solid(), BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
 
     // TODO wood tags
-    PLANKS("planks", Block::new, RenderType.getSolid(), BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
-    FENCE("fence", FenceBlock::new, RenderType.getSolid(), BlockTags.FENCES, ItemTags.FENCES, 3,  "#-#", "#-#"),
-    FENCE_GATE("fence_gate", FenceGateBlock::new, RenderType.getSolid(), BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
-    TRAPDOOR("trapdoor", TrapDoorBlock::new, RenderType.getCutout(), BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###"),
-    DOOR("door", DoorBlock::new, RenderType.getCutout(), BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##");
+    PLANKS("planks", Block::new, RenderType.solid(), BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
+    FENCE("fence", FenceBlock::new, RenderType.solid(), BlockTags.FENCES, ItemTags.FENCES, 3,  "#-#", "#-#"),
+    FENCE_GATE("fence_gate", FenceGateBlock::new, RenderType.solid(), BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
+    TRAPDOOR("trapdoor", TrapDoorBlock::new, RenderType.cutout(), BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###"),
+    DOOR("door", DoorBlock::new, RenderType.cutout(), BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##");
 
     public final  String                               suffix;
     public final Function<Properties, ? extends Block> constructor;
@@ -103,17 +103,17 @@ public enum BlockType
 
         for (String line : craftingPatterns)
         {
-            builder.patternLine(line);
+            builder.pattern(line);
         }
 
         if (this == BlockType.FENCE || this == BlockType.FENCE_GATE)
         {
-            builder.key('-', Tags.Items.RODS_WOODEN);
+            builder.define('-', Tags.Items.RODS_WOODEN);
         }
 
         return builder
-                 .key('#', material)
-                 .addCriterion("has_" + material.asItem().getRegistryName().getPath(), criterion);
+                 .define('#', material)
+                 .unlockedBy("has_" + material.asItem().getRegistryName().getPath(), criterion);
     }
 
     public RenderType getRenderType()

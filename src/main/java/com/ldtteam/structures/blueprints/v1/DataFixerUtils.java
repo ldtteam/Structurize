@@ -28,12 +28,12 @@ public class DataFixerUtils
 
     public static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final DataVersion startVersion)
     {
-        return runDataFixer(dataIn, dataType, startVersion.getDataVersion(), SharedConstants.getVersion().getWorldVersion());
+        return runDataFixer(dataIn, dataType, startVersion.getDataVersion(), SharedConstants.getCurrentVersion().getWorldVersion());
     }
 
     public static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final int startVersion)
     {
-        return runDataFixer(dataIn, dataType, startVersion, SharedConstants.getVersion().getWorldVersion());
+        return runDataFixer(dataIn, dataType, startVersion, SharedConstants.getCurrentVersion().getWorldVersion());
     }
 
     public static CompoundNBT runDataFixer(final CompoundNBT dataIn, final TypeReference dataType, final DataVersion startVersion, final DataVersion endVersion)

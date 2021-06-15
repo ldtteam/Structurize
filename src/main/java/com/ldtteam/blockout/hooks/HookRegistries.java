@@ -158,15 +158,15 @@ public final class HookRegistries
             switch (trigger.getType())
             {
                 case DISTANCE:
-                    targets = mc.world.getEntitiesWithinAABB((EntityType<Entity>) entityType,
-                        mc.player.getBoundingBox().grow(((TriggerMechanism<Double>) trigger).getConfig()),
+                    targets = mc.level.getEntities((EntityType<Entity>) entityType,
+                        mc.player.getBoundingBox().inflate(((TriggerMechanism<Double>) trigger).getConfig()),
                         Predicates.alwaysTrue());
                     break;
 
                 case RAY_TRACE:
-                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
+                    if (mc.hitResult != null && mc.hitResult.getType() == RayTraceResult.Type.ENTITY)
                     {
-                        final Entity entity = ((EntityRayTraceResult) mc.objectMouseOver).getEntity();
+                        final Entity entity = ((EntityRayTraceResult) mc.hitResult).getEntity();
                         targets = entity.getType() == entityType ? Arrays.asList(entity) : Collections.emptyList();
                     }
                     else
@@ -191,10 +191,10 @@ public final class HookRegistries
         @Override
         protected void translateToGuiBottomCenter(final MatrixStack ms, final Entity entity, final float partialTicks)
         {
-            final double x = MathHelper.lerp(partialTicks, entity.lastTickPosX, entity.getPosX());
-            final double y = MathHelper.lerp(partialTicks, entity.lastTickPosY, entity.getPosY());
-            final double z = MathHelper.lerp(partialTicks, entity.lastTickPosZ, entity.getPosZ());
-            ms.translate(x, y + entity.getHeight() + 0.3d, z);
+            final double x = MathHelper.lerp(partialTicks, entity.xOld, entity.getX());
+            final double y = MathHelper.lerp(partialTicks, entity.yOld, entity.getY());
+            final double z = MathHelper.lerp(partialTicks, entity.zOld, entity.getZ());
+            ms.translate(x, y + entity.getBbHeight() + 0.3d, z);
         }
     }
 
@@ -303,7 +303,7 @@ public final class HookRegistries
             switch (trigger.getType())
             {
                 case DISTANCE:
-                    final AxisAlignedBB aabb = mc.player.getBoundingBox().grow(((TriggerMechanism<Double>) trigger).getConfig());
+                    final AxisAlignedBB aabb = mc.player.getBoundingBox().inflate(((TriggerMechanism<Double>) trigger).getConfig());
                     final int xStart = MathHelper.floor(aabb.minX / 16.0D);
                     final int xEnd = MathHelper.ceil(aabb.maxX / 16.0D);
                     final int zStart = MathHelper.floor(aabb.minZ / 16.0D);
@@ -314,10 +314,10 @@ public final class HookRegistries
                     {
                         for (int chunkZ = zStart; chunkZ < zEnd; ++chunkZ)
                         {
-                            final Chunk chunk = mc.world.getChunkProvider().getChunk(chunkX, chunkZ, false);
+                            final Chunk chunk = mc.level.getChunkSource().getChunk(chunkX, chunkZ, false);
                             if (chunk != null)
                             {
-                                for (final Entry<BlockPos, TileEntity> entry : chunk.getTileEntityMap().entrySet())
+                                for (final Entry<BlockPos, TileEntity> entry : chunk.getBlockEntities().entrySet())
                                 {
                                     final BlockPos bp = entry.getKey();
                                     final TileEntity te = entry.getValue();
@@ -333,9 +333,9 @@ public final class HookRegistries
                     break;
 
                 case RAY_TRACE:
-                    if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK)
+                    if (mc.hitResult != null && mc.hitResult.getType() == RayTraceResult.Type.BLOCK)
                     {
-                        final TileEntity te = mc.world.getTileEntity(((BlockRayTraceResult) mc.objectMouseOver).getPos());
+                        final TileEntity te = mc.level.getBlockEntity(((BlockRayTraceResult) mc.hitResult).getBlockPos());
                         targets = te == null || te.getType() != teType ? Collections.emptyList() : Arrays.asList(te);
                     }
                     else
@@ -354,13 +354,13 @@ public final class HookRegistries
         @Override
         protected BlockPos keyMapper(final TileEntity thing)
         {
-            return thing.getPos();
+            return thing.getBlockPos();
         }
 
         @Override
         protected void translateToGuiBottomCenter(final MatrixStack ms, final TileEntity thing, final float partialTicks)
         {
-            ms.translate(thing.getPos().getX() + 0.5d, thing.getPos().getY() + 1.1d, thing.getPos().getZ() + 0.5d);
+            ms.translate(thing.getBlockPos().getX() + 0.5d, thing.getBlockPos().getY() + 1.1d, thing.getBlockPos().getZ() + 0.5d);
         }
     }
 }

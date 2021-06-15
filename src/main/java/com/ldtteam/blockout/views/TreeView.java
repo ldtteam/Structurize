@@ -221,24 +221,24 @@ public class TreeView extends ZoomDragView
         computeContentSize();
 
         // complete line buffer
-        bufferBuilder.finishDrawing();
-        lineBuffer = bufferBuilder.getNextBuffer();
+        bufferBuilder.end();
+        lineBuffer = bufferBuilder.popNextBuffer();
     }
 
     private void hLine(final BufferBuilder bufferBuilder, final int fromX, final int toX, final int y)
     {
-        bufferBuilder.pos(fromX, y - lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(fromX, y + lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(toX, y + lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(toX, y - lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(fromX, y - lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(fromX, y + lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(toX, y + lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(toX, y - lineSize / 2, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
     }
 
     private void vLine(final BufferBuilder bufferBuilder, final int x, final int fromY, final int toY)
     {
-        bufferBuilder.pos(x - lineSize / 2, fromY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(x + lineSize / 2, fromY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(x + lineSize / 2, toY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
-        bufferBuilder.pos(x - lineSize / 2, toY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(x - lineSize / 2, fromY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(x + lineSize / 2, fromY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(x + lineSize / 2, toY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
+        bufferBuilder.vertex(x - lineSize / 2, toY, 0.0F).color(color[0], color[1], color[2], color[3]).endVertex();
     }
 
     private void construct(final List<List<TreeViewNode>> layers, final int layer, final TreeViewNode root)
@@ -325,7 +325,7 @@ public class TreeView extends ZoomDragView
     @Override
     protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
     {
-        ms.push();
+        ms.pushPose();
         ms.translate(x, y, 0.0d);
 
         RenderSystem.enableBlend();
@@ -334,20 +334,20 @@ public class TreeView extends ZoomDragView
 
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
-        RenderSystem.multMatrix(ms.getLast().getMatrix());
+        RenderSystem.multMatrix(ms.last().pose());
         lineBuffer.getSecond().clear();
-        if (lineBuffer.getFirst().getVertexCount() > 0)
+        if (lineBuffer.getFirst().vertexCount() > 0)
         {
-            lineBuffer.getFirst().getFormat().setupBufferState(MemoryUtil.memAddress(lineBuffer.getSecond()));
-            GlStateManager.drawArrays(lineBuffer.getFirst().getDrawMode(), 0, lineBuffer.getFirst().getVertexCount());
-            lineBuffer.getFirst().getFormat().clearBufferState();
+            lineBuffer.getFirst().format().setupBufferState(MemoryUtil.memAddress(lineBuffer.getSecond()));
+            GlStateManager._drawArrays(lineBuffer.getFirst().mode(), 0, lineBuffer.getFirst().vertexCount());
+            lineBuffer.getFirst().format().clearBufferState();
         }
         RenderSystem.popMatrix();
 
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
 
-        ms.pop();
+        ms.popPose();
     }
 
     public static class TreeViewNode

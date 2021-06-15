@@ -57,8 +57,8 @@ public class ClientEventSubscriber
         final MatrixStack matrixStack = event.getMatrixStack();
         final float partialTicks = event.getPartialTicks();
 
-        final IRenderTypeBuffer.Impl renderBuffer = renderBuffers.getBufferSource();
-        final Supplier<IVertexBuilder> linesWithCullAndDepth = () -> renderBuffer.getBuffer(RenderType.getLines());
+        final IRenderTypeBuffer.Impl renderBuffer = renderBuffers.bufferSource();
+        final Supplier<IVertexBuilder> linesWithCullAndDepth = () -> renderBuffer.getBuffer(RenderType.lines());
         final Supplier<IVertexBuilder> linesWithoutCullAndDepth = () -> renderBuffer.getBuffer(RenderUtils.LINES_GLINT);
 
         final PlayerEntity player = Minecraft.getInstance().player;
@@ -66,7 +66,7 @@ public class ClientEventSubscriber
 
         if (blueprint != null)
         {
-            Minecraft.getInstance().getProfiler().startSection("struct_render");
+            Minecraft.getInstance().getProfiler().push("struct_render");
 
             final BlockPos pos = Settings.instance.getPosition();
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
@@ -74,18 +74,18 @@ public class ClientEventSubscriber
             StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
             renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
             RenderUtils.renderWhiteOutlineBox(posMinusOffset,
-                posMinusOffset.add(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
+                posMinusOffset.relative(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
                 matrixStack,
                 linesWithCullAndDepth.get());
-            renderBuffer.finish(RenderType.getLines());
-            renderBuffer.finish(RenderUtils.LINES_GLINT);
+            renderBuffer.endBatch(RenderType.lines());
+            renderBuffer.endBatch(RenderUtils.LINES_GLINT);
 
-            Minecraft.getInstance().getProfiler().endSection();
+            Minecraft.getInstance().getProfiler().pop();
         }
 
         if (Settings.instance.getBox() != null)
         {
-            Minecraft.getInstance().getProfiler().startSection("struct_box");
+            Minecraft.getInstance().getProfiler().push("struct_box");
 
             // Used to render a red box around a scan's Primary offset (primary block)
             Settings.instance.getAnchorPos().ifPresent(pos -> renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get()));
@@ -93,16 +93,16 @@ public class ClientEventSubscriber
                 Settings.instance.getBox().getB(),
                 matrixStack,
                 linesWithoutCullAndDepth.get());
-            renderBuffer.finish(RenderUtils.LINES_GLINT);
+            renderBuffer.endBatch(RenderUtils.LINES_GLINT);
 
-            Minecraft.getInstance().getProfiler().endSection();
+            Minecraft.getInstance().getProfiler().pop();
         }
 
-        final ItemStack itemStack = player.getHeldItem(Hand.MAIN_HAND);
+        final ItemStack itemStack = player.getLastHandItem(Hand.MAIN_HAND);
         if (itemStack.getItem() == ModItems.tagTool.get() && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
         {
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
-            final TileEntity te = Minecraft.getInstance().player.world.getTileEntity(tagAnchor);
+            final TileEntity te = Minecraft.getInstance().player.level.getBlockEntity(tagAnchor);
 
             renderAnchorPos(tagAnchor, matrixStack, linesWithoutCullAndDepth.get());
 
@@ -114,27 +114,27 @@ public class ClientEventSubscriber
                 {
                     RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
 
-                    IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+                    IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
                     RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), matrixStack, true, 3, buffer);
                     RenderSystem.disableDepthTest();
-                    buffer.finish();
+                    buffer.endBatch();
                     RenderSystem.enableDepthTest();
                 }
     
-                renderBuffer.finish(RenderUtils.LINES_GLINT);
+                renderBuffer.endBatch(RenderUtils.LINES_GLINT);
             }
         }
 
-        renderBuffer.finish();
+        renderBuffer.endBatch();
 
         OptifineCompat.getInstance().postBlueprintDraw();
         Settings.instance.endStructurizePass();
 
-        final Vector3d viewPosition = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-        matrixStack.push();
-        matrixStack.translate(-viewPosition.getX(), -viewPosition.getY(), -viewPosition.getZ());
+        final Vector3d viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrixStack.pushPose();
+        matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
         HookRegistries.render(matrixStack, partialTicks);
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     /**
@@ -161,22 +161,22 @@ public class ClientEventSubscriber
             return;
         }
 
-        Minecraft.getInstance().getProfiler().startSection("structurize");
+        Minecraft.getInstance().getProfiler().push("structurize");
 
-        if (Minecraft.getInstance().world != null && Minecraft.getInstance().world.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
         {
-            Minecraft.getInstance().getProfiler().startSection("blueprint_manager_tick");
+            Minecraft.getInstance().getProfiler().push("blueprint_manager_tick");
             BlueprintHandler.getInstance().cleanCache();
-            Minecraft.getInstance().getProfiler().endSection();
+            Minecraft.getInstance().getProfiler().pop();
         }
-        if (Minecraft.getInstance().world != null)
+        if (Minecraft.getInstance().level != null)
         {
-            Minecraft.getInstance().getProfiler().startSection("hook_manager_tick");
-            HookRegistries.tick(Minecraft.getInstance().world.getGameTime());
-            Minecraft.getInstance().getProfiler().endSection();
+            Minecraft.getInstance().getProfiler().push("hook_manager_tick");
+            HookRegistries.tick(Minecraft.getInstance().level.getGameTime());
+            Minecraft.getInstance().getProfiler().pop();
         }
 
-        Minecraft.getInstance().getProfiler().endSection();
+        Minecraft.getInstance().getProfiler().pop();
     }
 
     /**

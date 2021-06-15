@@ -107,7 +107,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         int row = tagList.getListElementIndexByPane(button);
         BlockPos toRemove = positionsList.get(row);
 
-        TileEntity te = world.getTileEntity(anchorPos);
+        TileEntity te = world.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
         {
             IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
@@ -142,7 +142,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         tagList.enable();
         tagList.show();
 
-        TileEntity te = world.getTileEntity(anchorPos);
+        TileEntity te = world.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
         {
             IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
@@ -174,7 +174,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                TileEntity te = world.getTileEntity(anchorPos);
+                TileEntity te = world.getBlockEntity(anchorPos);
                 if (te instanceof IBlueprintDataProvider)
                 {
                     IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;

@@ -70,7 +70,7 @@ public class View extends Pane
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
-        ms.push();
+        ms.pushPose();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
@@ -89,14 +89,14 @@ public class View extends Pane
             }
         }
 
-        ms.pop();
+        ms.popPose();
     }
 
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
-        ms.push();
+        ms.pushPose();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
@@ -115,7 +115,7 @@ public class View extends Pane
             }
         }
 
-        ms.pop();
+        ms.popPose();
     }
 
     @Override

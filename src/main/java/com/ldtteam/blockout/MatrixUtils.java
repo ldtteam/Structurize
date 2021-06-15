@@ -45,7 +45,7 @@ public class MatrixUtils
      */
     public static float getLastMatrixTranslateX(final MatrixStack matrixStack)
     {
-        return getMatrixTranslateX(matrixStack.getLast().getMatrix());
+        return getMatrixTranslateX(matrixStack.last().pose());
     }
 
     /**
@@ -53,7 +53,7 @@ public class MatrixUtils
      */
     public static float getLastMatrixTranslateY(final MatrixStack matrixStack)
     {
-        return getMatrixTranslateY(matrixStack.getLast().getMatrix());
+        return getMatrixTranslateY(matrixStack.last().pose());
     }
 
     /**
@@ -61,7 +61,7 @@ public class MatrixUtils
      */
     public static float getLastMatrixTranslateZ(final MatrixStack matrixStack)
     {
-        return getMatrixTranslateZ(matrixStack.getLast().getMatrix());
+        return getMatrixTranslateZ(matrixStack.last().pose());
     }
 
     /**

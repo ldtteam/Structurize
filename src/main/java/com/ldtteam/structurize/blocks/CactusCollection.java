@@ -58,10 +58,10 @@ public class CactusCollection implements IStructurizeBlockCollection
     @Override
     public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
     {
-        ShapelessRecipeBuilder.shapelessRecipe(getMainBlock(), 4)
-          .addIngredient(Blocks.CACTUS)
-          .addCriterion("has_cactus_planks", obtainment)
-          .build(consumer);
+        ShapelessRecipeBuilder.shapeless(getMainBlock(), 4)
+          .requires(Blocks.CACTUS)
+          .unlockedBy("has_cactus_planks", obtainment)
+          .save(consumer);
     }
 
     // TODO 1.17 use the default translation, as it will then work with the normal registry keys

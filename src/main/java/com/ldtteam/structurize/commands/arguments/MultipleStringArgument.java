@@ -66,12 +66,12 @@ public class MultipleStringArgument implements ArgumentType<String>
         if (context.getSource() instanceof ClientSuggestionProvider)
         {
             final CommandContext<ISuggestionProvider> ctx = (CommandContext<ISuggestionProvider>) context;
-            return ctx.getSource().getSuggestionsFromServer(ctx, builder);
+            return ctx.getSource().customSuggestion(ctx, builder);
         }
         try
         {
             final CommandContext<CommandSource> ctx = (CommandContext<CommandSource>) context;
-            return ISuggestionProvider.suggest(dataProvider.apply(ctx, ctx.getSource().asPlayer()), builder);
+            return ISuggestionProvider.suggest(dataProvider.apply(ctx, ctx.getSource().getPlayerOrException()), builder);
         }
         catch (final CommandSyntaxException | NullPointerException e)
         {
@@ -86,20 +86,20 @@ public class MultipleStringArgument implements ArgumentType<String>
     public static class Serializer implements IArgumentSerializer<MultipleStringArgument>
     {
         @Override
-        public void write(final MultipleStringArgument argument, final PacketBuffer buffer)
+        public void serializeToNetwork(final MultipleStringArgument argument, final PacketBuffer buffer)
         {
             // noop
         }
 
         @Override
-        public MultipleStringArgument read(final PacketBuffer buffer)
+        public MultipleStringArgument deserializeFromNetwork(final PacketBuffer buffer)
         {
             // noop
             return null;
         }
 
         @Override
-        public void write(final MultipleStringArgument argument, final JsonObject json)
+        public void serializeToJson(final MultipleStringArgument argument, final JsonObject json)
         {
             // noop
         }

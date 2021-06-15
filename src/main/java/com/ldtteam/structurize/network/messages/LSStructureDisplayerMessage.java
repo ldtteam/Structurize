@@ -33,7 +33,7 @@ public class LSStructureDisplayerMessage implements IMessage
     public LSStructureDisplayerMessage(final PacketBuffer buf)
     {
         this.show = buf.readBoolean();
-        this.settings = show ? buf.readCompoundTag() : null;
+        this.settings = show ? buf.readNbt() : null;
     }
 
     /**
@@ -54,7 +54,7 @@ public class LSStructureDisplayerMessage implements IMessage
         buf.writeBoolean(show);
         if (show)
         {
-            buf.writeCompoundTag(settings);
+            buf.writeNbt(settings);
         }
     }
 
@@ -71,16 +71,16 @@ public class LSStructureDisplayerMessage implements IMessage
         if (isLogicalServer)
         {
             final PlayerEntity player = ctxIn.getSender();
-            if (LinkSessionManager.INSTANCE.getMuteState(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER))
+            if (LinkSessionManager.INSTANCE.getMuteState(player.createPlayerUUID(), ChannelsEnum.STRUCTURE_DISPLAYER))
             {
                 return;
             }
 
-            final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUniqueID(), ChannelsEnum.STRUCTURE_DISPLAYER);
-            targets.remove(player.getUniqueID()); // remove this to ensure desync will not appear
+            final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.createPlayerUUID(), ChannelsEnum.STRUCTURE_DISPLAYER);
+            targets.remove(player.createPlayerUUID()); // remove this to ensure desync will not appear
             for (final UUID target : targets)
             {
-                final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayerByUUID(target);
+                final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayer(target);
                 if (playerEntity != null)
                 {
                     Network.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);

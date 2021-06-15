@@ -35,7 +35,7 @@ public class ShingleSlabList implements IBlockList<BlockShingleSlab>
                 DyeColor color = i < 0 ? null : type.getColors()[i];
 
                 typeList.add(ModBlocks.register(
-                  (color == null ? "" : color.getString() + "_") + type.getGroup() + "_shingle_slab",
+                  (color == null ? "" : color.getSerializedName() + "_") + type.getGroup() + "_shingle_slab",
                   () -> new BlockShingleSlab(type, color),
                   ModItemGroups.SHINGLES
                 ));
@@ -74,7 +74,7 @@ public class ShingleSlabList implements IBlockList<BlockShingleSlab>
 
             states.horizontalBlock(
               shingle,
-              state -> makeBlockModel(states.models(), shingle, state.get(BlockShingleSlab.SHAPE).getString()));
+              state -> makeBlockModel(states.models(), shingle, state.getValue(BlockShingleSlab.SHAPE).getSerializedName()));
         });
     }
 
@@ -95,20 +95,20 @@ public class ShingleSlabList implements IBlockList<BlockShingleSlab>
               if (slab.get().getColor() == null)
               {
                   new ShapedRecipeBuilder(slab.get(), 8)
-                    .patternLine("III")
-                    .patternLine("SSS")
-                    .key('I', slab.get().getFaceType().getMaterial())
-                    .key('S', Items.STICK)
-                    .addCriterion("has_" + slab.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(slab.get()))
-                    .build(consumer);
+                    .pattern("III")
+                    .pattern("SSS")
+                    .define('I', slab.get().getFaceType().getMaterial())
+                    .define('S', Items.STICK)
+                    .unlockedBy("has_" + slab.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(slab.get()))
+                    .save(consumer);
               }
               else
               {
                   new ShapelessRecipeBuilder(slab.get(), 8)
-                    .addIngredient(SLABS.get(slab.get().getFaceType()).get(0).get(), 8)
-                    .addIngredient(DyeItem.getItem(slab.get().getColor()))
-                    .addCriterion("has_" + slab.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(slab.get()))
-                    .build(consumer);
+                    .requires(SLABS.get(slab.get().getFaceType()).get(0).get(), 8)
+                    .requires(DyeItem.byColor(slab.get().getColor()))
+                    .unlockedBy("has_" + slab.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(slab.get()))
+                    .save(consumer);
               }
           }));
     }
