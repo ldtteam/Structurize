@@ -15,7 +15,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.resource.VanillaResourceType;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
