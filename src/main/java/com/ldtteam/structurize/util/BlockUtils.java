@@ -331,7 +331,7 @@ public final class BlockUtils
 
             if (newState == null)
             {
-                fakePlayer.setLastHandItem(Hand.MAIN_HAND, stackToPlace);
+                fakePlayer.setItemInHand(Hand.MAIN_HAND, stackToPlace);
                 if (item.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalBlock.FACING))
                 {
                     fakePlayer.yRot = blockState.getValue(HorizontalBlock.FACING).get2DDataValue() * 90;

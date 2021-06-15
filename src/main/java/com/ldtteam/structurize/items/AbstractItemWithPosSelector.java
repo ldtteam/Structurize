@@ -67,7 +67,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     @Override
     public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
     {
-        final ItemStack itemstack = playerIn.getLastHandItem(handIn);
+        final ItemStack itemstack = playerIn.getItemInHand(handIn);
         final CompoundNBT compound = itemstack.getOrCreateTag();
 
         if (!compound.contains(NBT_START_POS))

@@ -405,7 +405,7 @@ public class Blueprint
         }
 
         final CompoundNBT te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
-        final BlockPos tePos = structurePos.relative(worldPos);
+        final BlockPos tePos = structurePos.offset(worldPos);
         te.putInt("x", tePos.getX());
         te.putInt("y", tePos.getY());
         te.putInt("z", tePos.getZ());
@@ -563,7 +563,7 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).relative(minX, minY, minZ);
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).offset(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
@@ -621,7 +621,7 @@ public class Blueprint
 
         BlockPos newOffsetPos = Template.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
 
-        setCachePrimaryOffset(newOffsetPos.relative(minX, minY, minZ));
+        setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
 
         sizeX = newSizeX;
         sizeY = newSizeY;

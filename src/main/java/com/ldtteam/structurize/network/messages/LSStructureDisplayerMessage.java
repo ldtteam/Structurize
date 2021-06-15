@@ -71,13 +71,13 @@ public class LSStructureDisplayerMessage implements IMessage
         if (isLogicalServer)
         {
             final PlayerEntity player = ctxIn.getSender();
-            if (LinkSessionManager.INSTANCE.getMuteState(player.createPlayerUUID(), ChannelsEnum.STRUCTURE_DISPLAYER))
+            if (LinkSessionManager.INSTANCE.getMuteState(player.getUUID(), ChannelsEnum.STRUCTURE_DISPLAYER))
             {
                 return;
             }
 
-            final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.createPlayerUUID(), ChannelsEnum.STRUCTURE_DISPLAYER);
-            targets.remove(player.createPlayerUUID()); // remove this to ensure desync will not appear
+            final Set<UUID> targets = LinkSessionManager.INSTANCE.execute(player.getUUID(), ChannelsEnum.STRUCTURE_DISPLAYER);
+            targets.remove(player.getUUID()); // remove this to ensure desync will not appear
             for (final UUID target : targets)
             {
                 final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayer(target);

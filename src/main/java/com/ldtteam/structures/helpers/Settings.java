@@ -288,7 +288,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
         {
             return;
         }
-        this.pos = this.pos.relative(pos);
+        this.pos = this.pos.offset(pos);
     }
 
     /**

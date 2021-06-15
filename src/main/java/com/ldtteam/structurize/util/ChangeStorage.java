@@ -154,6 +154,6 @@ public class ChangeStorage
      */
     public boolean isOwner(final PlayerEntity player)
     {
-        return this.player.createPlayerUUID().equals(player.createPlayerUUID());
+        return this.player.getUUID().equals(player.getUUID());
     }
 }

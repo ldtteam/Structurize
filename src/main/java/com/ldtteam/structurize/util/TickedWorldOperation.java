@@ -230,7 +230,7 @@ public class TickedWorldOperation
      */
     private boolean run(final ServerWorld world)
     {
-        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.createPlayerUUID(), "placeStuffForMePl0x"));
+        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUUID(), "placeStuffForMePl0x"));
         int count = 0;
         for (int y = currentPos.getY(); y <= endPos.getY(); y++)
         {

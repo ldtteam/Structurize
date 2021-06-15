@@ -133,7 +133,7 @@ public class BlueprintRenderer implements AutoCloseable
                     matrixStack.pushPose();
                     matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                    if (state.getBlockSupportShape() != BlockRenderType.INVISIBLE && RenderTypeLookup.canRenderInLayer(state, renderType))
+                    if (state.getRenderShape() != BlockRenderType.INVISIBLE && RenderTypeLookup.canRenderInLayer(state, renderType))
                     {
                         blockRendererDispatcher
                             .renderModel(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
@@ -249,7 +249,7 @@ public class BlueprintRenderer implements AutoCloseable
 
             OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
 
-            TileEntityRendererDispatcher.instance.setupAndRender(tileEntity, partialTicks, matrixStack, renderBufferSource);
+            TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.popPose();
         });
         TileEntityRendererDispatcher.instance.camera = oldActiveRenderInfo;

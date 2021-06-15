@@ -237,7 +237,7 @@ public interface IStructureHandler
      */
     default BlockPos getProgressPosInWorld(final BlockPos localPos)
     {
-        return getWorldPos().subtract(getBluePrint().getPrimaryBlockOffset()).relative(localPos);
+        return getWorldPos().subtract(getBluePrint().getPrimaryBlockOffset()).offset(localPos);
     }
 
     /**

@@ -104,7 +104,7 @@ public class BuildToolPasteMessage implements IMessage
         final StructureName sn = new StructureName(structureName);
         if (!Structures.hasMD5(sn))
         {
-            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().createPlayerUUID());
+            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().getUUID());
             return;
         }
 

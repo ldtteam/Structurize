@@ -93,7 +93,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             {
                 if (worldIn.isClientSide)
                 {
-                    playerIn.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.createPlayerUUID());
+                    playerIn.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUUID());
                 }
             }
         }
@@ -173,7 +173,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
           new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).relative(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get());
@@ -202,7 +202,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
             if (list.size() > 1)
             {
-                player.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.createPlayerUUID());
+                player.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUUID());
             }
         }
 
@@ -250,7 +250,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
           Math.max(from.getY(), to.getY()),
           Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).relative(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             Log.getLogger().warn("Saving too large schematic for:" + name);

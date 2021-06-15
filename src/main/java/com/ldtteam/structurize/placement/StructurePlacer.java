@@ -443,7 +443,7 @@ public class StructurePlacer
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
 
-            final BlockPos worldPos = pos.relative(localPos);
+            final BlockPos worldPos = pos.offset(localPos);
 
             if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.below()).getMaterial().isSolid())
             {

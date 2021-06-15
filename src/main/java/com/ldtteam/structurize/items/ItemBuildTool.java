@@ -42,7 +42,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     @Override
     public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand handIn)
     {
-        final ItemStack stack = playerIn.getLastHandItem(handIn);
+        final ItemStack stack = playerIn.getItemInHand(handIn);
 
         if (worldIn.isClientSide)
         {

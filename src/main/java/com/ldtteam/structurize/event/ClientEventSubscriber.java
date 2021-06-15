@@ -74,7 +74,7 @@ public class ClientEventSubscriber
             StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
             renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
             RenderUtils.renderWhiteOutlineBox(posMinusOffset,
-                posMinusOffset.relative(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
+                posMinusOffset.offset(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
                 matrixStack,
                 linesWithCullAndDepth.get());
             renderBuffer.endBatch(RenderType.lines());
@@ -98,7 +98,7 @@ public class ClientEventSubscriber
             Minecraft.getInstance().getProfiler().pop();
         }
 
-        final ItemStack itemStack = player.getLastHandItem(Hand.MAIN_HAND);
+        final ItemStack itemStack = player.getItemInHand(Hand.MAIN_HAND);
         if (itemStack.getItem() == ModItems.tagTool.get() && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
         {
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);

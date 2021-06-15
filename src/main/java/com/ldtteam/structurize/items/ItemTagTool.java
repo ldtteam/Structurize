@@ -117,8 +117,8 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             null,
             worldIn,
             playerIn,
-            playerIn.getLastHandItem(handIn)),
-          playerIn.getLastHandItem(handIn));
+            playerIn.getItemInHand(handIn)),
+          playerIn.getItemInHand(handIn));
     }
 
     @Override

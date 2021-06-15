@@ -70,7 +70,7 @@ public class BlueprintUtil
 
         final List<String> requiredMods = new ArrayList<>();
 
-        for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.relative(sizeX - 1, sizeY - 1, sizeZ - 1)))
+        for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.offset(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
             String modName = state.getBlock().getRegistryName().getNamespace();
@@ -151,7 +151,7 @@ public class BlueprintUtil
         }
 
         // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
-        final TileEntity tile = world.getBlockEntity(pos.relative(schem.getPrimaryBlockOffset()));
+        final TileEntity tile = world.getBlockEntity(pos.offset(schem.getPrimaryBlockOffset()));
         if (tile instanceof IBlueprintDataProvider)
         {
             final CompoundNBT blueprintData = (CompoundNBT) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);

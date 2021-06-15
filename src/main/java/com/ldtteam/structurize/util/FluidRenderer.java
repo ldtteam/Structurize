@@ -303,7 +303,7 @@ public class FluidRenderer
 
         for (int j = 0; j < 4; ++j)
         {
-            BlockPos blockpos = pos.relative(-(j & 1), 0, -(j >> 1 & 1));
+            BlockPos blockpos = pos.offset(-(j & 1), 0, -(j >> 1 & 1));
             if (blockAccess.getFluidState(blockpos.above()).getType().isSame(fluid))
             {
                 return 1.0F;
@@ -312,7 +312,7 @@ public class FluidRenderer
             FluidState ifluidstate = blockAccess.getFluidState(blockpos);
             if (ifluidstate.getType().isSame(fluid))
             {
-                float f1 = ifluidstate.getOwnHeight(blockAccess, blockpos);
+                float f1 = ifluidstate.getHeight(blockAccess, blockpos);
                 if (f1 >= 0.8F)
                 {
                     totalHeight += f1 * 10.0F;

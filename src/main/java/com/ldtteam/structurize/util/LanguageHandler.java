@@ -40,7 +40,7 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.createPlayerUUID());
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUUID());
     }
 
     public static IFormattableTextComponent buildChatComponent(final String key, final Object... message)
@@ -151,13 +151,13 @@ public final class LanguageHandler
 
         for (final PlayerEntity player : players)
         {
-            player.sendMessage(textComponent, player.createPlayerUUID());
+            player.sendMessage(textComponent, player.getUUID());
         }
     }
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.createPlayerUUID());
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.getUUID());
     }
 
     /**
