@@ -24,8 +24,8 @@
     <list id="resources" size="200 120" pos="10 100">
         <box size="100% 30" linewidth="2">
             <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
-            <label id="resourceName" size="150 12" pos="20 1" color="white" wrap="true"/>
-            <label id="resourceQuantity" size="12 12" pos="170 1" color="white"/>
+            <label id="resourceName" size="144 12" pos="18 1" color="white" wrap="true"/>
+            <label id="resourceQuantity" size="30 12" pos="162 1" color="white" textalign="MIDDLE_RIGHT"/>
             <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeBlock" pos="20 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
             <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.replace)" id="replaceBlock" pos="105 13" size="86 17"
