@@ -263,7 +263,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getShulkerBoxType());
         renderBufferSource.finish(Atlases.getSignType());
         renderBufferSource.finish(Atlases.getChestType());
-        if(OptifineCompat.getInstance().isOptifineEnabled())
+        if (OptifineCompat.getInstance().isOptifineEnabled())
         {
             renderBufferSource.finish(Atlases.getBannerType());
         }
