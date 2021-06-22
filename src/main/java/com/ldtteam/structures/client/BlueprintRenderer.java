@@ -263,13 +263,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(Atlases.getShulkerBoxType());
         renderBufferSource.finish(Atlases.getSignType());
         renderBufferSource.finish(Atlases.getChestType());
-        if(OptifineCompat.getInstance().isOptifineEnabled())
-        {
-            renderBufferSource.finish(Atlases.getBannerType());
-        }
         ClientEventSubscriber.renderBuffers.getOutlineBufferSource().finish(); // not used now
-        OptifineCompat.getInstance().endBlockEntitiesBeginDebug();
-
         renderBufferSource.finish(Atlases.getTranslucentCullBlockType());
         renderBufferSource.finish(Atlases.getBannerType());
         renderBufferSource.finish(Atlases.getShieldType());
@@ -285,11 +279,13 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.finish(RenderType.getLines());
         renderBufferSource.finish();
 
+        OptifineCompat.getInstance().endBlockEntitiesPreWaterBeginWater();
+
         Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
-        OptifineCompat.getInstance().endDebugPreWaterBeginWater();
         renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
-        OptifineCompat.getInstance().endWater();
         renderBlockLayer(RenderType.getTripwire(), rawPosMatrix);
+
+        OptifineCompat.getInstance().endWater();
 
         matrixStack.pop();
         Minecraft.getInstance().getProfiler().endSection();
