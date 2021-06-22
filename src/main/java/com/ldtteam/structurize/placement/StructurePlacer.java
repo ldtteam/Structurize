@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -38,7 +39,7 @@ public class StructurePlacer
     /**
      * The structure iterator.
      */
-    protected final BlueprintIterator iterator;
+    protected final AbstractBlueprintIterator iterator;
 
     /**
      * The handler.
@@ -52,7 +53,18 @@ public class StructurePlacer
      */
     public StructurePlacer(final IStructureHandler handler)
     {
-        this.iterator = new BlueprintIteratorInwardCircleHeight(handler);
+        this.iterator = StructureIterators.getIterator(Structurize.getConfig().getServer().iteratorType.get().toString(), handler);
+        this.handler = handler;
+    }
+
+    /**
+     * Create a new structure placer.
+     * @param handler the structure handler.
+     * @param id the unique id of the handler.
+     */
+    public StructurePlacer(final IStructureHandler handler, final String id)
+    {
+        this.iterator = StructureIterators.getIterator(id, handler);
         this.handler = handler;
     }
 
@@ -71,7 +83,7 @@ public class StructurePlacer
       final ChangeStorage storage,
       final BlockPos inputPos,
       final Operation operation,
-      final Supplier<BlueprintIterator.Result> iterateFunction,
+      final Supplier<AbstractBlueprintIterator.Result> iterateFunction,
       final boolean includeEntities)
     {
         final List<ItemStack> requiredItems = new ArrayList<>();
@@ -83,11 +95,11 @@ public class StructurePlacer
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
-        BlueprintIterator.Result iterationResult = iterateFunction.get();;
+        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();;
         BlockPos lastPos = inputPos;
         int count = 0;
 
-        while (iterationResult == BlueprintIterator.Result.NEW_BLOCK)
+        while (iterationResult == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
             final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
@@ -155,7 +167,7 @@ public class StructurePlacer
             }
         }
 
-        if (iterationResult == BlueprintIterator.Result.AT_END)
+        if (iterationResult == AbstractBlueprintIterator.Result.AT_END)
         {
             iterator.reset();
             return new StructurePhasePlacementResult(iterator.getProgressPos(),
@@ -440,7 +452,7 @@ public class StructurePlacer
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {
         iterator.setProgressPos(pos);
-        while (iterator.increment() == BlueprintIterator.Result.NEW_BLOCK)
+        while (iterator.increment() == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
 
@@ -474,7 +486,7 @@ public class StructurePlacer
      * Get the iterator instance.
      * @return the BlueprintIterator.
      */
-    public BlueprintIterator getIterator()
+    public AbstractBlueprintIterator getIterator()
     {
         return iterator;
     }

@@ -1,0 +1,48 @@
+package com.ldtteam.structurize.placement;
+
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+/**
+ * Class to store and handle structure iterators.
+ */
+public class StructureIterators
+{
+    /**
+     * The list of producers.
+     */
+    private  static final Map<String, Function<IStructureHandler, AbstractBlueprintIterator>> iteratorProducers = new HashMap<>();
+
+    /*
+     * Pre-existing iterators.
+     */
+    static
+    {
+        iteratorProducers.put("default", BlueprintIteratorDefault::new);
+        iteratorProducers.put("inwardcircle", BlueprintIteratorInwardCircle::new);
+        iteratorProducers.put("inwardcircleheight", BlueprintIteratorInwardCircleHeight::new);
+    }
+    /**
+     * Register a new producer.
+     * @param id the id of the producer.
+     * @param producer the producer.
+     */
+    public static void registerIterator(final String id, final Function<IStructureHandler, AbstractBlueprintIterator> producer)
+    {
+        iteratorProducers.put(id, producer);
+    }
+
+    /**
+     * Get an iterator from id and with the applied structure handler.
+     * @param id the unique id.
+     * @param handler the handler.
+     * @return the instance of the iterator.
+     */
+    public static AbstractBlueprintIterator getIterator(final String id, final IStructureHandler handler)
+    {
+        return iteratorProducers.getOrDefault(id, BlueprintIteratorDefault::new).apply(handler);
+    }
+}

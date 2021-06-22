@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
+import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.

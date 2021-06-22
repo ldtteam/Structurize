@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Iterator which walks the structure from outside in , in a clockwise rotation
  */
-public class BlueprintIteratorInwardCircle extends BlueprintIterator
+public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
 {
     /**
      * Tracking current state.

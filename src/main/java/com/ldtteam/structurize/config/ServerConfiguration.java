@@ -43,6 +43,9 @@ public class ServerConfiguration extends AbstractConfiguration
      */
     public final ForgeConfigSpec.IntValue schematicBlockLimit;
 
+    public final ForgeConfigSpec.ConfigValue<String> iteratorType;
+
+
     /**
      * Builds server configuration.
      *
@@ -59,6 +62,7 @@ public class ServerConfiguration extends AbstractConfiguration
         maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
+        iteratorType = defineString(builder, "iteratorType", "default");
 
         finishCategory(builder);
     }

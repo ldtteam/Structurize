@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * This is the blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public abstract class BlueprintIterator
+public abstract class AbstractBlueprintIterator
 {
     /**
      * The position we use as our uninitialized value.
@@ -51,7 +51,7 @@ public abstract class BlueprintIterator
      * Initialize the blueprint iterator with the structure handler.
      * @param structureHandler the structure handler.
      */
-    public BlueprintIterator(final IStructureHandler structureHandler)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler)
     {
         this(structureHandler, new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ()));
     }
@@ -61,7 +61,7 @@ public abstract class BlueprintIterator
      * @param size the size.
      * @param structureHandler the structure handler.
      */
-    public BlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
     {
         this.structureHandler = structureHandler;
         this.size = size;
