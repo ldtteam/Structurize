@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
+
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -15,7 +16,9 @@ import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -75,25 +78,45 @@ public interface IBlockCollection extends IGenerated
 
     /**
      * Constructs and registers each block in the collection
+     * See interface comments for the preferred content.
      * @param registrar the DeferredRegistry instance to apply the block to
      * @param itemRegistrar the DeferredRegistry instance to apply the item to
      * @param group the item group (or creative tab) to place this block in
+     * @param creationListener gets fired for each block being registered with specific block type, used for client rendering register
      * @param types a selection of each block type that is part of the collection
      * @return each registered block in the collection
      */
-    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar, DeferredRegister<Item> itemRegistrar, ItemGroup group, BlockType... types)
+    default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar,
+        DeferredRegister<Item> itemRegistrar,
+        ItemGroup group,
+        BiConsumer<BlockType, RegistryObject<Block>> creationListener,
+        BlockType... types)
     {
         List<RegistryObject<Block>> results = new LinkedList<>();
 
         for (BlockType type : types)
         {
-            RegistryObject<Block> block = registrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              () -> type.constructor.apply(getProperties()));
+            // J9+ has incompatibilities with J8-compiled default interfaces that use lambda generated suppliers.
+            // Do not replace the anonymous suppliers below with a lambda.
+            RegistryObject<Block> block = registrar.register(type.withSuffix(getName(), getPluralName()), new Supplier<Block>()
+            {
+                @Override
+                public Block get()
+                {
+                    return type.constructor.apply(getProperties());
+                }
+            });
 
-            itemRegistrar.register(
-              type.withSuffix(getName(), getPluralName()),
-              () -> new BlockItem(block.get(), new Item.Properties().group(group)));
+            itemRegistrar.register(type.withSuffix(getName(), getPluralName()), new Supplier<Item>()
+            {
+                @Override
+                public Item get()
+                {
+                    return new BlockItem(block.get(), new Item.Properties().group(group));
+                }
+            });
+
+            creationListener.accept(type, block);
 
             results.add(block);
         }

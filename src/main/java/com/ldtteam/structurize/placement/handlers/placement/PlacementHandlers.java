@@ -54,7 +54,8 @@ public final class PlacementHandlers
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new StairBlockPlacementHandler());
-        handlers.add(new ChestPlacementHandler());
+        handlers.add(new HopperClientLagPlacementHandler());
+        handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
@@ -221,7 +222,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             if (!world.getBlockState(pos.down()).getMaterial().isSolid())
@@ -514,7 +515,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
@@ -689,14 +690,14 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }
     }
 
-    public static class ChestPlacementHandler implements IPlacementHandler
+    public static class ContainerPlacementHandler implements IPlacementHandler
     {
         @Override
         public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
@@ -718,6 +719,17 @@ public final class PlacementHandlers
                 return ActionProcessingResult.DENY;
             }
 
+            try
+            {
+                // Try detecting inventory content.
+                ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, blockState);
+            }
+            catch (final Exception ex)
+            {
+                // If we can't load the inventory content of the TE, return early, don't fill TE data.
+                return ActionProcessingResult.SUCCESS;
+            }
+
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
@@ -736,11 +748,40 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, world, pos));
+            itemList.addAll(getItemsFromTileEntity(tileEntityData, blockState));
 
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
+        }
+    }
+
+    /**
+     * mojang abusing lazyupdates, this modification always happens, but we need it now, not later
+     */
+    public static class HopperClientLagPlacementHandler extends ContainerPlacementHandler
+    {
+        @Override
+        public boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        {
+            return blockState.getBlock() instanceof HopperBlock;
+        }
+
+        @Override
+        public ActionProcessingResult handle(@NotNull final World world,
+            @NotNull final BlockPos pos,
+            @NotNull final BlockState blockState,
+            @Nullable final CompoundNBT tileEntityData,
+            final boolean complete,
+            final BlockPos centerPos)
+        {
+            final boolean flag = !world.isBlockPowered(pos);
+            return super.handle(world,
+                pos,
+                flag != blockState.get(HopperBlock.ENABLED) ? blockState.with(HopperBlock.ENABLED, flag) : blockState,
+                tileEntityData,
+                complete,
+                centerPos);
         }
     }
 
@@ -778,6 +819,7 @@ public final class PlacementHandlers
             if (tileEntityData != null)
             {
                 handleTileEntityPlacement(tileEntityData, world, pos);
+                blockState.getBlock().onBlockPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -791,7 +833,7 @@ public final class PlacementHandlers
           @Nullable final CompoundNBT tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, world, pos));
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
@@ -861,15 +903,23 @@ public final class PlacementHandlers
      * Gets the list of items from a possible tileEntity.
      *
      * @param tileEntityData the data.
-     * @param world          the world.
+     * @param blockState     the block.
      * @return the required list.
      */
-    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final World world, final BlockPos pos)
+    public static List<ItemStack> getItemsFromTileEntity(final CompoundNBT tileEntityData, final BlockState blockState)
     {
         if (tileEntityData == null)
         {
             return Collections.emptyList();
         }
-        return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, world, pos);
+        try
+        {
+            return ItemStackUtils.getItemStacksOfTileEntity(tileEntityData, blockState);
+        }
+        catch (final Exception ex)
+        {
+            // We might not be able to query all inventories like this.
+            return Collections.emptyList();
+        }
     }
 }

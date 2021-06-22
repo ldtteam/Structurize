@@ -251,7 +251,8 @@ public class TickedWorldOperation
                         count++;
 
                         storage.addPositionStorage(here, world);
-                        if (blockState.getBlock() instanceof IBucketPickupHandler || blockState.getBlock() instanceof FlowingFluidBlock)
+                        if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof IBucketPickupHandler
+                            || blockState.getBlock() instanceof FlowingFluidBlock))
                         {
                             BlockUtils.removeFluid(world, here);
                             if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))

@@ -17,6 +17,8 @@ import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -71,6 +73,7 @@ public final class ModBlocks
     public static final List<ShingleFaceType>           shingles        = Arrays.asList(ShingleFaceType.values());
     public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
 
+    public static final ITag.INamedTag<Block> NULL_PLACEMENT = BlockTags.makeWrapperTag("structurize:null_placement");
 
     public static List<BlockTimberFrame> getTimberFrames()
     {

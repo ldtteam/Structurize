@@ -192,6 +192,28 @@ public final class BlockPosUtil
     }
 
     /**
+     * Check if the given position is inside the given corners, corner order does not matter
+     *
+     * @param inside  inside position to check
+     * @param corner1 first corner
+     * @param corner2 second corner
+     * @return
+     */
+    public static boolean isInbetween(final BlockPos inside, final BlockPos corner1, final BlockPos corner2)
+    {
+        final int maxX = Math.max(corner1.getX(), corner2.getX());
+        final int minX = Math.min(corner1.getX(), corner2.getX());
+
+        final int maxY = Math.max(corner1.getY(), corner2.getY());
+        final int minY = Math.min(corner1.getY(), corner2.getY());
+
+        final int maxZ = Math.max(corner1.getZ(), corner2.getZ());
+        final int minZ = Math.min(corner1.getZ(), corner2.getZ());
+
+        return inside.getX() <= maxX && inside.getX() >= minX && inside.getY() <= maxY && inside.getY() >= minY && inside.getZ() <= maxZ && inside.getZ() >= minZ;
+    }
+
+    /**
      * Gets the next position to use in a circular-creeping inward snake manner. Its iterating the rectangle of corners in clockwise rotation
      *
      * @param start   current positions

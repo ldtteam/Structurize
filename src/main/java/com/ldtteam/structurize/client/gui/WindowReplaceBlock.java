@@ -9,6 +9,7 @@ import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
@@ -192,6 +193,12 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
                             missingProperties.stream()
                                 .map(prop -> getPropertyName(prop) + " - " + prop.getName())
                                 .collect(Collectors.joining(", ", "[", "]")));
+                    }
+                    if (toBS.getBlock().isIn(ModBlocks.NULL_PLACEMENT))
+                    {
+                        LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
+                            "structurize.gui.replaceblock.null_placement",
+                            LanguageHandler.translateKey(toBS.getBlock().getTranslationKey()));
                     }
                     Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }

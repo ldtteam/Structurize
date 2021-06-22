@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 /**
  * Generated collection of cactus plank blocks
  */
-public class CactusCollection implements IBlockCollection
+public class CactusCollection implements IStructurizeBlockCollection
 {
     protected final List<RegistryObject<Block>> blocks;
 
