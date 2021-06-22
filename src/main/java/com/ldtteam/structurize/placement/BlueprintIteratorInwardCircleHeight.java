@@ -10,11 +10,13 @@ import net.minecraft.util.math.BlockPos;
 public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterator
 {
     private final BlockPos topRightCorner;
+    private final int      height;
 
-    public BlueprintIteratorInwardCircleHeight(final IStructureHandler structureHandler)
+    public BlueprintIteratorInwardCircleHeight(final IStructureHandler structureHandler, final int height)
     {
         super(structureHandler);
         topRightCorner = size.add(-1, -1, -1);
+        this.height = height;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
             this.progressPos.setPos(0, 0, 0);
         }
 
-        final BlockPos next = BlockPosUtil.getNextPosInCircleFrom(progressPos, BlockPos.ZERO, topRightCorner, 4);
+        final BlockPos next = BlockPosUtil.getNextPosInCircleFrom(progressPos, BlockPos.ZERO, topRightCorner, height);
         if (next.equals(progressPos))
         {
             this.reset();

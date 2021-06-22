@@ -23,7 +23,10 @@ public class StructureIterators
     {
         iteratorProducers.put("default", BlueprintIteratorDefault::new);
         iteratorProducers.put("inwardcircle", BlueprintIteratorInwardCircle::new);
-        iteratorProducers.put("inwardcircleheight", BlueprintIteratorInwardCircleHeight::new);
+        iteratorProducers.put("inwardcircleheight1", handler -> new BlueprintIteratorInwardCircleHeight(handler, 1));
+        iteratorProducers.put("inwardcircleheight2", handler -> new BlueprintIteratorInwardCircleHeight(handler, 2));
+        iteratorProducers.put("inwardcircleheight3", handler -> new BlueprintIteratorInwardCircleHeight(handler, 3));
+        iteratorProducers.put("inwardcircleheight4", handler -> new BlueprintIteratorInwardCircleHeight(handler, 4));
     }
     /**
      * Register a new producer.

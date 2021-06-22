@@ -115,5 +115,5 @@
     "structurize.gui.buildtool.paste": "Instantly places the structure into the world, keeping Placeholder Blocks.",
     "structurize.gui.buildtool.pastenice": "Instantly places the structure into the world, as if constructed by a Builder.",
     "structurize.config.iteratortype": "The iteration order on structure placement",
-    "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle' and 'inwardcircleheight' "
+  "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle' and 'inwardcircleheight1' to 'inwardcircleheight4' "
 }
