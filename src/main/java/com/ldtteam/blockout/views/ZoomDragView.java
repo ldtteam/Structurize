@@ -153,7 +153,7 @@ public class ZoomDragView extends View
         ms.pushPose();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
-        ms.scale((float) scale, (float) scale, (float) scale);
+        ms.scale((float) scale, (float) scale, 1.0f);
         abstractDrawSelfPre(ms, mx, my);
         super.drawSelf(ms, calcRelativeX(mx), calcRelativeY(my));
         abstractDrawSelfPost(ms, mx, my);
@@ -170,7 +170,7 @@ public class ZoomDragView extends View
         ms.pushPose();
         ms.translate(-scrollX, -scrollY, 0.0d);
         ms.translate((1 - scale) * x, (1 - scale) * y, 0.0d);
-        ms.scale((float) scale, (float) scale, (float) scale);
+        ms.scale((float) scale, (float) scale, 1.0f);
         super.drawSelfLast(ms, calcRelativeX(mx), calcRelativeY(my));
         ms.popPose();
 

@@ -2,11 +2,10 @@ package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.api.blocks.BlockType;
 import com.ldtteam.structurize.api.blocks.IBlockCollection;
-import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
+import com.ldtteam.structurize.client.BlocksToRenderTypeHelper;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
@@ -23,8 +22,7 @@ public interface IStructurizeBlockCollection extends IBlockCollection
         return IBlockCollection.super.create(registrar,
             itemRegistrar,
             group,
-            (type, block) -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> ClientLifecycleSubscriber.DELAYED_RENDER_TYPE_SETUP.add(new Tuple<>(block, type.getRenderType()))),
+            (type, block) -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BlocksToRenderTypeHelper.registerBlockType(type, block)),
             types);
     }
 }

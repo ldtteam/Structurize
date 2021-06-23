@@ -3,7 +3,6 @@ package com.ldtteam.structurize.api.blocks;
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.block.AbstractBlock.Properties;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.block.*;
 import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.Item;
@@ -25,17 +24,17 @@ import java.util.function.Function;
  */
 public enum BlockType
 {
-    BLOCK("", Block::new, RenderType.solid(), Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
-    SLAB("slab", SlabBlock::new, RenderType.solid(), BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
-    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::defaultBlockState, props), RenderType.solid(), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
-    WALL("wall", WallBlock::new, RenderType.solid(), BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
+    BLOCK("", Block::new, Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
+    SLAB("slab", SlabBlock::new, BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
+    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::getDefaultState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
+    WALL("wall", WallBlock::new, BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
 
     // TODO wood tags
-    PLANKS("planks", Block::new, RenderType.solid(), BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
-    FENCE("fence", FenceBlock::new, RenderType.solid(), BlockTags.FENCES, ItemTags.FENCES, 3,  "#-#", "#-#"),
-    FENCE_GATE("fence_gate", FenceGateBlock::new, RenderType.solid(), BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
-    TRAPDOOR("trapdoor", TrapDoorBlock::new, RenderType.cutout(), BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###"),
-    DOOR("door", DoorBlock::new, RenderType.cutout(), BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##");
+    PLANKS("planks", Block::new, BlockTags.PLANKS, ItemTags.PLANKS, 4, "#"),
+    FENCE("fence", FenceBlock::new, BlockTags.FENCES, ItemTags.FENCES, 3,  "#-#", "#-#"),
+    FENCE_GATE("fence_gate", FenceGateBlock::new, BlockTags.FENCE_GATES, ItemTags.FENCES, 1, "-#-", "-#-"),
+    TRAPDOOR("trapdoor", TrapDoorBlock::new, BlockTags.TRAPDOORS, ItemTags.TRAPDOORS, 3,  "###", "###"),
+    DOOR("door", DoorBlock::new, BlockTags.DOORS, ItemTags.DOORS, 3, "##", "##", "##");
 
     public final  String                               suffix;
     public final Function<Properties, ? extends Block> constructor;
@@ -44,12 +43,10 @@ public enum BlockType
 
     private final int          recipeYield;
     private final List<String> craftingPatterns;
-    private final RenderType   renderType;
 
     BlockType(
       String suffix,
       Function<Properties, ? extends Block> constructor,
-      final RenderType renderType,
       final List<ITag.INamedTag<Block>> blockTag,
       final List<ITag.INamedTag<Item>> itemTag,
       int yield,
@@ -57,7 +54,6 @@ public enum BlockType
     {
         this.suffix = suffix;
         this.constructor = constructor;
-        this.renderType = renderType;
         this.blockTag = blockTag;
         this.itemTag = itemTag;
         this.recipeYield = yield;
@@ -67,13 +63,12 @@ public enum BlockType
     BlockType(
       String suffix,
       Function<Properties, ? extends Block> constructor,
-      final RenderType renderType,
       final ITag.INamedTag<Block> blockTag,
       final ITag.INamedTag<Item> itemTag,
       int yield,
       String... craftingPatterns)
     {
-        this(suffix, constructor, renderType, Lists.newArrayList(blockTag), Lists.newArrayList(itemTag), yield, craftingPatterns);
+        this(suffix, constructor, Lists.newArrayList(blockTag), Lists.newArrayList(itemTag), yield, craftingPatterns);
     }
 
     public String withSuffix(String name, String pluralName)
@@ -114,11 +109,6 @@ public enum BlockType
         return builder
                  .define('#', material)
                  .unlockedBy("has_" + material.asItem().getRegistryName().getPath(), criterion);
-    }
-
-    public RenderType getRenderType()
-    {
-        return renderType;
     }
 
     public static BlockType fromSuffix(String path)

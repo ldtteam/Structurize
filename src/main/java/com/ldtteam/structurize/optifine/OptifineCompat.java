@@ -28,6 +28,8 @@ public class OptifineCompat
     private Method beginBlockEntitiesMethod;
     private Method nextBlockEntityMethod;
     private Method endBlockEntitiesMethod;
+    private Method beginDebug;
+    private Method endDebug;
     private Method preWaterMethod;
     private Method beginWaterMethod;
     private Method endWaterMethod;
@@ -47,6 +49,11 @@ public class OptifineCompat
 
     private OptifineCompat()
     {
+    }
+
+    public boolean isOptifineEnabled()
+    {
+        return enableOptifine;
     }
 
     /**
@@ -136,6 +143,12 @@ public class OptifineCompat
 
         endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
         endBlockEntitiesMethod.setAccessible(true);
+
+        beginDebug = shaderRenderClass.getMethod("beginDebug");
+        beginDebug.setAccessible(true);
+
+        endDebug = shaderRenderClass.getMethod("endDebug");
+        endDebug.setAccessible(true);
 
         preWaterMethod = shadersClass.getMethod("preWater");
         preWaterMethod.setAccessible(true);
@@ -239,10 +252,18 @@ public class OptifineCompat
         });
     }
 
-    public void endBlockEntitiesPreWaterBeginWater()
+    public void endBlockEntitiesBeginDebug()
     {
         tryRunIfShadersEnabled(() -> {
             endBlockEntitiesMethod.invoke(null);
+            beginDebug.invoke(null);
+        });
+    }
+
+    public void endDebugPreWaterBeginWater()
+    {
+        tryRunIfShadersEnabled(() -> {
+            endDebug.invoke(null);
             preWaterMethod.invoke(null);
             beginWaterMethod.invoke(null);
         });

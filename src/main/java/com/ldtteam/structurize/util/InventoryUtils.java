@@ -95,6 +95,8 @@ public class InventoryUtils
     public static void consumeStack(final ItemStack tempStack, final IItemHandler handler)
     {
         int count = tempStack.getCount();
+        final ItemStack container = tempStack.getContainerItem();
+
         for (int i = 0; i < handler.getSlots(); i++)
         {
             if (handler.getStackInSlot(i).sameItem(tempStack))
@@ -102,6 +104,13 @@ public class InventoryUtils
                 final ItemStack result = handler.extractItem(i, count, false);
                 if (result.getCount() == count)
                 {
+                    if (!container.isEmpty())
+                    {
+                        for (int j = 0; j < tempStack.getCount(); j++)
+                        {
+                            transferIntoNextBestSlot(container, handler);
+                        }
+                    }
                     return;
                 }
                 count -= result.getCount();

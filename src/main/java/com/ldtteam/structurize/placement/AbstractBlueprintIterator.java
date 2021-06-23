@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * This is the blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public class BlueprintIterator
+public abstract class AbstractBlueprintIterator
 {
     /**
      * The position we use as our uninitialized value.
@@ -25,12 +25,12 @@ public class BlueprintIterator
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
-    private final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
+    protected final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
 
     /**
      * The size of the structure.
      */
-    private final BlockPos size;
+    protected final BlockPos size;
 
     /**
      * The structure handler.
@@ -51,7 +51,7 @@ public class BlueprintIterator
      * Initialize the blueprint iterator with the structure handler.
      * @param structureHandler the structure handler.
      */
-    public BlueprintIterator(final IStructureHandler structureHandler)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler)
     {
         this(structureHandler, new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ()));
     }
@@ -61,70 +61,10 @@ public class BlueprintIterator
      * @param size the size.
      * @param structureHandler the structure handler.
      */
-    public BlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
     {
         this.structureHandler = structureHandler;
         this.size = size;
-    }
-
-    /**
-     * Increment progressPos.
-     *
-     * @return false if the all the block have been incremented through.
-     */
-    public Result increment()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            this.progressPos.set(-1, 0, 0);
-        }
-
-        this.progressPos.set(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() >= this.size.getX())
-        {
-            this.progressPos.set(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
-            if (this.progressPos.getZ() >= this.size.getZ())
-            {
-                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
-                if (this.progressPos.getY() >= this.size.getY())
-                {
-                    this.reset();
-                    return Result.AT_END;
-                }
-            }
-        }
-
-        return Result.NEW_BLOCK;
-    }
-
-    /**
-     * Decrement progressPos.
-     *
-     * @return false if progressPos can't be decremented any more.
-     */
-    public Result decrement()
-    {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            this.progressPos.set(this.size.getX(), this.size.getY() - 1, this.size.getZ() - 1);
-        }
-
-        this.progressPos.set(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() <= -1)
-        {
-            this.progressPos.set(this.size.getX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
-            if (this.progressPos.getZ() <= -1)
-            {
-                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() - 1, this.size.getZ() - 1);
-                if (this.progressPos.getY() <= -1)
-                {
-                    this.reset();
-                    return Result.AT_END;
-                }
-            }
-        }
-
-        return Result.NEW_BLOCK;
     }
 
     /**
@@ -136,6 +76,18 @@ public class BlueprintIterator
     {
         return iterateWithCondition(skipCondition, this::increment);
     }
+
+    /**
+     * Increment method, create in implementation.
+     * @return increment the structure position (y++).
+     */
+    public abstract Result increment();
+
+    /**
+     * Decrement method, create in implementation.
+     * @return decrement the structure position (y--).
+     */
+    public abstract Result decrement();
 
     /**
      * Decrement the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
@@ -190,11 +142,11 @@ public class BlueprintIterator
     {
         if (localPosition.equals(NULL_POS))
         {
-            this.progressPos.set(localPosition);
+            this.progressPos.setPos(localPosition);
         }
         else
         {
-            this.progressPos.set(localPosition.getX() % size.getX(),
+            this.progressPos.setPos(localPosition.getX() % size.getX(),
               localPosition.getY() % size.getY(),
               localPosition.getZ() % size.getZ());
         }
