@@ -52,11 +52,7 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
-        .collect(Collectors.toMap((p_228934_0_) -> {
-            return p_228934_0_;
-        }, (p_228933_0_) -> {
-            return new VertexBuffer(DefaultVertexFormats.BLOCK);
-        }));
+        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(DefaultVertexFormats.BLOCK)));
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
@@ -255,44 +251,45 @@ public class BlueprintRenderer implements AutoCloseable
         TileEntityRendererDispatcher.instance.camera = oldActiveRenderInfo;
         TileEntityRendererDispatcher.instance.level = oldWorld;
 
-        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blockentities_finish");
-        renderBufferSource.finish(RenderType.getSolid());
-        renderBufferSource.finish(Atlases.getSolidBlockType());
-        renderBufferSource.finish(Atlases.getCutoutBlockType());
-        renderBufferSource.finish(Atlases.getBedType());
-        renderBufferSource.finish(Atlases.getShulkerBoxType());
-        renderBufferSource.finish(Atlases.getSignType());
-        renderBufferSource.finish(Atlases.getChestType());
+
+        Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities_finish");
+        renderBufferSource.endBatch(RenderType.solid());
+        renderBufferSource.endBatch(Atlases.solidBlockSheet());
+        renderBufferSource.endBatch(Atlases.cutoutBlockSheet());
+        renderBufferSource.endBatch(Atlases.bedSheet());
+        renderBufferSource.endBatch(Atlases.shulkerBoxSheet());
+        renderBufferSource.endBatch(Atlases.signSheet());
+        renderBufferSource.endBatch(Atlases.chestSheet());
         if (OptifineCompat.getInstance().isOptifineEnabled())
         {
-            renderBufferSource.finish(Atlases.getBannerType());
+            renderBufferSource.endBatch(Atlases.bannerSheet());
         }
-        ClientEventSubscriber.renderBuffers.getOutlineBufferSource().finish(); // not used now
+        ClientEventSubscriber.renderBuffers.outlineBufferSource().endOutlineBatch(); // not used now
         OptifineCompat.getInstance().endBlockEntitiesBeginDebug();
 
-        renderBufferSource.finish(Atlases.getTranslucentCullBlockType());
-        renderBufferSource.finish(Atlases.getBannerType());
-        renderBufferSource.finish(Atlases.getShieldType());
-        renderBufferSource.finish(RenderType.getArmorGlint());
-        renderBufferSource.finish(RenderType.getArmorEntityGlint());
-        renderBufferSource.finish(RenderType.getGlint());
-        renderBufferSource.finish(RenderType.getGlintDirect());
-        renderBufferSource.finish(RenderType.getGlintTranslucent());
-        renderBufferSource.finish(RenderType.getEntityGlint());
-        renderBufferSource.finish(RenderType.getEntityGlintDirect());
-        renderBufferSource.finish(RenderType.getWaterMask());
-        ClientEventSubscriber.renderBuffers.getCrumblingBufferSource().finish(); // not used now
-        renderBufferSource.finish(RenderType.getLines());
-        renderBufferSource.finish();
+        renderBufferSource.endBatch(Atlases.translucentCullBlockSheet());
+        renderBufferSource.endBatch(Atlases.bannerSheet());
+        renderBufferSource.endBatch(Atlases.shieldSheet());
+        renderBufferSource.endBatch(RenderType.armorGlint());
+        renderBufferSource.endBatch(RenderType.armorEntityGlint());
+        renderBufferSource.endBatch(RenderType.glint());
+        renderBufferSource.endBatch(RenderType.glintDirect());
+        renderBufferSource.endBatch(RenderType.glintTranslucent());
+        renderBufferSource.endBatch(RenderType.entityGlint());
+        renderBufferSource.endBatch(RenderType.entityGlintDirect());
+        renderBufferSource.endBatch(RenderType.waterMask());
+        ClientEventSubscriber.renderBuffers.crumblingBufferSource().endBatch(); // not used now
+        renderBufferSource.endBatch(RenderType.lines());
+        renderBufferSource.endBatch();
 
-        Minecraft.getInstance().getProfiler().endStartSection("struct_render_blocks_finish2");
+        Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish2");
         OptifineCompat.getInstance().endDebugPreWaterBeginWater();
-        renderBlockLayer(RenderType.getTranslucent(), rawPosMatrix);
+        renderBlockLayer(RenderType.translucent(), rawPosMatrix);
         OptifineCompat.getInstance().endWater();
-        renderBlockLayer(RenderType.getTripwire(), rawPosMatrix);
+        renderBlockLayer(RenderType.tripwire(), rawPosMatrix);
 
-        matrixStack.pop();
-        Minecraft.getInstance().getProfiler().endSection();
+        matrixStack.popPose();
+        Minecraft.getInstance().getProfiler().pop();
     }
 
     /**

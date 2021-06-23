@@ -146,7 +146,7 @@ public final class BlockPosUtil
     }
 
     /**
-     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#setPos(int, int, int)}.
+     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#set(int, int, int)}.
      *
      * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
@@ -236,23 +236,24 @@ public final class BlockPosUtil
         final int eDist = Math.abs(corner2.getX() - start.getX());
         final int sDist = Math.abs(corner2.getZ() - start.getZ());
 
+
         // Find the closest direction in clockwise rotation
         Direction closestDir = Direction.NORTH;
         int closest = nDist;
 
-        if (eDist < closest || eDist == closest && closestDir.rotateY() == Direction.EAST)
+        if (eDist < closest || eDist == closest && closestDir.getClockWise() == Direction.EAST)
         {
             closest = eDist;
             closestDir = Direction.EAST;
         }
 
-        if (sDist < closest || sDist == closest && closestDir.rotateY() == Direction.SOUTH)
+        if (sDist < closest || sDist == closest && closestDir.getClockWise() == Direction.SOUTH)
         {
             closest = sDist;
             closestDir = Direction.SOUTH;
         }
 
-        if (wDist < closest || wDist == closest && closestDir.rotateY() == Direction.WEST)
+        if (wDist < closest || wDist == closest && closestDir.getClockWise() == Direction.WEST)
         {
             closest = wDist;
             closestDir = Direction.WEST;
@@ -279,23 +280,23 @@ public final class BlockPosUtil
                 // Jump up to the same ring next Y level
                 if (start.getY() < corner2.getY())
                 {
-                    return start.offset(Direction.NORTH).add(0, 1, 0);
+                    return start.relative(Direction.NORTH).offset(0, 1, 0);
                 }
                 else
                 // We can't jump up, at boundary: jump down into next smaller circle
                 {
-                    return start.offset(Direction.EAST).add(0, -((traverseRow) - 1), 0);
+                    return start.relative(Direction.EAST).offset(0, -((traverseRow) - 1), 0);
                 }
             }
             else
             {
-                return start.offset(Direction.EAST).add(0, -(ringHeight - 1), 0);
+                return start.relative(Direction.EAST).offset(0, -(ringHeight - 1), 0);
             }
         }
 
         // Advance in clockwise rotations
-        final Direction advancingDir = closestDir.rotateY();
-        final BlockPos next = start.offset(advancingDir);
+        final Direction advancingDir = closestDir.getClockWise();
+        final BlockPos next = start.relative(advancingDir);
 
         /**
          * End conditions:

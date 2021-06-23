@@ -35,7 +35,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(-1, up ? 0 : this.size.getY() - 1, 0);
+            this.progressPos.set(-1, up ? 0 : this.size.getY() - 1, 0);
             this.max_x = this.size.getX()-1;
             this.max_z = this.size.getZ()-1;
             this.min_z = 0;
@@ -44,7 +44,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
 
         if (this.min_x > this.max_x && this.min_z > this.max_z)
         {
-            this.progressPos.setPos(-1, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
+            this.progressPos.set(-1, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
             this.max_x = this.size.getX()-1;
             this.max_z = this.size.getZ()-1;
             this.min_z = 0;
@@ -59,7 +59,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
 
         if (this.progressPos.getZ() == min_z && this.progressPos.getX() < max_x)
         {
-            this.progressPos.setPos(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
+            this.progressPos.set(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
             if (this.progressPos.getX() == max_x)
             {
                 this.min_z++;
@@ -67,7 +67,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
         }
         else if (this.progressPos.getX() == max_x && this.progressPos.getZ() < max_z)
         {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() + 1);
+            this.progressPos.set(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() + 1);
             if (this.progressPos.getZ() == max_z)
             {
                 this.max_x--;
@@ -75,7 +75,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
         }
         else if (this.progressPos.getX() == min_x && this.progressPos.getZ() > min_z)
         {
-            this.progressPos.setPos(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() - 1);
+            this.progressPos.set(this.progressPos.getX(), this.progressPos.getY(), this.progressPos.getZ() - 1);
             if (this.progressPos.getZ() == min_z)
             {
                 this.min_x++;
@@ -83,7 +83,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
         }
         else if (this.progressPos.getZ() == max_z && this.progressPos.getX() > min_x)
         {
-            this.progressPos.setPos(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
+            this.progressPos.set(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
             if (this.progressPos.getX() == min_x)
             {
                 this.max_z--;
@@ -91,7 +91,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
         }
         else
         {
-            this.progressPos.setPos(0, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
+            this.progressPos.set(0, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
             this.max_x = this.size.getX()-1;
             this.max_z = this.size.getZ()-1;
             this.min_z = 0;
@@ -133,14 +133,14 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
         }
         else if (!this.progressPos.equals(localPosition))
         {
-            this.progressPos.setPos(NULL_POS);
+            this.progressPos.set(NULL_POS);
 
             while (progressPos.getX() != localPosition.getX() || progressPos.getZ() != localPosition.getZ())
             {
                 iterate(true);
             }
 
-            this.progressPos.setPos(localPosition.getX() % size.getX(),
+            this.progressPos.set(localPosition.getX() % size.getX(),
               localPosition.getY() % size.getY(),
               localPosition.getZ() % size.getZ());
         }
