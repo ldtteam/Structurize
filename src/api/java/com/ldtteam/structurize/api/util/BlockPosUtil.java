@@ -218,7 +218,8 @@ public final class BlockPosUtil
      *
      * @param start   current positions
      * @param corner1 rectangle top left corner
-     * @param corner2 rectangle bottom left corner
+     * @param corner2 rectangle bottom right corner
+     * @param ringHeight the y height we iterate before advancing inwards
      * @return next position
      */
     public static BlockPos getNextPosInCircleFrom(final BlockPos start, final BlockPos corner1, final BlockPos corner2, final int ringHeight)
