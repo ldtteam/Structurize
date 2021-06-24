@@ -22,7 +22,9 @@ public interface IStructurizeBlockCollection extends IBlockCollection
         return IBlockCollection.super.create(registrar,
             itemRegistrar,
             group,
-            (type, block) -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BlocksToRenderTypeHelper.registerBlockType(type, block)),
+            (type, block) -> {
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BlocksToRenderTypeHelper.registerBlockType(type, block));
+            },
             types);
     }
 }
