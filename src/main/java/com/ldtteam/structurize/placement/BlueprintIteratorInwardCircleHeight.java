@@ -15,7 +15,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
     public BlueprintIteratorInwardCircleHeight(final IStructureHandler structureHandler, final int height)
     {
         super(structureHandler);
-        topRightCorner = size.add(-1, -1, -1);
+        topRightCorner = size.offset(-1, -1, -1);
         this.height = height;
     }
 
@@ -24,7 +24,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(0, 0, 0);
+            this.progressPos.set(0, 0, 0);
         }
 
         final BlockPos next = BlockPosUtil.getNextPosInCircleFrom(progressPos, BlockPos.ZERO, topRightCorner, height);
@@ -43,7 +43,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.setPos(0, topRightCorner.getY(), 0);
+            this.progressPos.set(0, topRightCorner.getY(), 0);
         }
 
         progressPos.setY(topRightCorner.getY() - progressPos.getY());
@@ -55,7 +55,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
             return Result.AT_END;
         }
 
-        progressPos.setPos(next.getX(), topRightCorner.getY() - next.getY(), next.getZ());
+        progressPos.set(next.getX(), topRightCorner.getY() - next.getY(), next.getZ());
         return Result.NEW_BLOCK;
     }
 }

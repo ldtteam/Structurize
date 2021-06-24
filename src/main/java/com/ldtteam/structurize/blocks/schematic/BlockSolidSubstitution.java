@@ -3,6 +3,8 @@ package com.ldtteam.structurize.blocks.schematic;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * This block is used as a substitution block for the Builder.
  * Every solid block can be substituted by this block in schematics.
@@ -26,6 +28,6 @@ public class BlockSolidSubstitution extends Block
      */
     public BlockSolidSubstitution()
     {
-        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
     }
 }

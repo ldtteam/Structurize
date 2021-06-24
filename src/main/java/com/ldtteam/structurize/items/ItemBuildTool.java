@@ -11,6 +11,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.item.Item.Properties;
+
 /**
  * Class handling the buildTool item.
  */
@@ -22,27 +24,27 @@ public class ItemBuildTool extends AbstractItemStructurize
      */
     public ItemBuildTool(final Properties properties)
     {
-        super("sceptergold", properties.maxStackSize(1));
+        super("sceptergold", properties.stacksTo(1));
     }
 
     @NotNull
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public ActionResultType useOn(final ItemUseContext context)
     {
-        if (context.getWorld().isRemote)
+        if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(context.getPos().offset(context.getPlacementHorizontalFacing()));
+            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
         }
         return ActionResultType.SUCCESS;
     }
 
     @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand handIn)
+    public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand handIn)
     {
-        final ItemStack stack = playerIn.getHeldItem(handIn);
+        final ItemStack stack = playerIn.getItemInHand(handIn);
 
-        if (worldIn.isRemote)
+        if (worldIn.isClientSide)
         {
             Structurize.proxy.openBuildToolWindow(null);
         }

@@ -14,7 +14,7 @@ public final class ModItemGroups
     public static final ItemGroup STRUCTURIZE = new ItemGroup(Constants.MOD_ID)
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(ModItems.buildTool.get());
         }
@@ -29,7 +29,7 @@ public final class ModItemGroups
     public static final ItemGroup CONSTRUCTION = new ItemGroup(Constants.MOD_ID + ".construction")
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(BrickType.BROWN.getMainRegisteredBlock().get());
         }
@@ -44,7 +44,7 @@ public final class ModItemGroups
     public static final ItemGroup SHINGLES = new ItemGroup(Constants.MOD_ID + ".shingles")
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(ModBlocks.getShingles().stream().findFirst().orElse(null));
         }
@@ -59,7 +59,7 @@ public final class ModItemGroups
     public static final ItemGroup TIMBER_FRAMES = new ItemGroup(Constants.MOD_ID + ".timber_frames")
     {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(ModBlocks.getTimberFrames().stream().findFirst().orElse(null));
         }

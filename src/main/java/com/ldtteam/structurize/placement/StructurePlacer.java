@@ -213,7 +213,7 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+                    final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
                     {
                         final Entity entity = type.get().create(world);
@@ -221,15 +221,15 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            entity.setUniqueId(UUID.randomUUID());
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
-                            entity.setPosition(posInWorld.x, posInWorld.y, posInWorld.z);
+                            entity.setUUID(UUID.randomUUID());
+                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            entity.setPos(posInWorld.x, posInWorld.y, posInWorld.z);
 
-                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(posInWorld))
+                                if (worldEntity.position().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
@@ -251,7 +251,7 @@ public class StructurePlacer
                                 }
                             }
 
-                            world.addEntity(entity);
+                            world.addFreshEntity(entity);
                             if (storage != null)
                             {
                                 storage.addToBeKilledEntity(entity);
@@ -311,7 +311,7 @@ public class StructurePlacer
                 {
                     if (!sameBlockInWorld
                           && worldState.getMaterial() != Material.AIR
-                          && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
+                          && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
                         placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                     }
@@ -381,7 +381,7 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+                    final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
                     {
                         final Entity entity = type.get().create(world);
@@ -389,12 +389,12 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
-                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(posInWorld))
+                                if (worldEntity.position().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
@@ -456,9 +456,9 @@ public class StructurePlacer
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
 
-            final BlockPos worldPos = pos.add(localPos);
+            final BlockPos worldPos = pos.offset(localPos);
 
-            if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.down()).getMaterial().isSolid())
+            if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.below()).getMaterial().isSolid())
             {
                 iterator.reset();
                 return false;

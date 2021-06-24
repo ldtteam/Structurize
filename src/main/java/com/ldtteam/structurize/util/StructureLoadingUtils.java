@@ -329,7 +329,7 @@ public final class StructureLoadingUtils
             {
                 if (Manager.getServerUUID() != null)
                 {
-                    cachedSchems.add(new File(Minecraft.getInstance().gameDir, origin + "/" + Manager.getServerUUID()));
+                    cachedSchems.add(new File(Minecraft.getInstance().gameDirectory, origin + "/" + Manager.getServerUUID()));
                 }
                 else
                 {
@@ -339,7 +339,7 @@ public final class StructureLoadingUtils
             }
             else
             {
-                cachedSchems.add(new File(ServerLifecycleHooks.getCurrentServer().getDataDirectory() + "/" + Constants.MOD_ID));
+                cachedSchems.add(new File(ServerLifecycleHooks.getCurrentServer().getServerDirectory() + "/" + Constants.MOD_ID));
             }
         }
         return cachedSchems;
@@ -355,7 +355,7 @@ public final class StructureLoadingUtils
         final List<File> clientSchems = new ArrayList<>();
         for (final String origin : originFolders)
         {
-            clientSchems.add(new File(Minecraft.getInstance().gameDir, origin));
+            clientSchems.add(new File(Minecraft.getInstance().gameDirectory, origin));
         }
         return clientSchems;
     }

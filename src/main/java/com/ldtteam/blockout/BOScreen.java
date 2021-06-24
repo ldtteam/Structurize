@@ -26,80 +26,80 @@ public class BOScreen extends Screen
 
     static
     {
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_A, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_C, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_V, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_X, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_ESCAPE, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_ENTER, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_TAB, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_BACKSPACE, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_INSERT, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_DELETE, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_DOWN, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_UP, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAGE_UP, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAGE_DOWN, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_HOME, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_END, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_CAPS_LOCK, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_SCROLL_LOCK, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_NUM_LOCK, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PRINT_SCREEN, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_PAUSE, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F1, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F2, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F3, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F4, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F5, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F6, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F7, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F8, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F9, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F10, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F11, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F12, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F13, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F14, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F15, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F16, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F17, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F18, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F19, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F20, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F21, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F22, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F23, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F24, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_F25, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_0, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_1, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_2, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_3, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_4, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_5, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_6, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_7, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_8, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_9, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_DECIMAL, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_DIVIDE, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_MULTIPLY, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_SUBTRACT, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_ADD, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_ENTER, 1);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_KP_EQUAL, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_SHIFT, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_CONTROL, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_ALT, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_LEFT_SUPER, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_SHIFT, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_CONTROL, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_ALT, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_RIGHT_SUPER, 0);
-        ACCEPTED_KEY_PRESSED_MAP.setAt(GLFW.GLFW_KEY_MENU, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_A, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_C, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_V, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_X, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_ESCAPE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_ENTER, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_TAB, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_BACKSPACE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_INSERT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_DELETE, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_RIGHT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_LEFT, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_DOWN, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_UP, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_PAGE_UP, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_PAGE_DOWN, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_HOME, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_END, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_CAPS_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_SCROLL_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_NUM_LOCK, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_PRINT_SCREEN, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_PAUSE, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F1, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F2, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F3, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F4, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F5, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F6, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F7, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F8, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F9, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F10, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F11, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F12, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F13, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F14, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F15, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F16, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F17, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F18, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F19, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F20, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F21, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F22, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F23, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F24, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_F25, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_0, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_1, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_2, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_3, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_4, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_5, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_6, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_7, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_8, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_9, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_DECIMAL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_DIVIDE, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_MULTIPLY, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_SUBTRACT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_ADD, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_ENTER, 1);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_KP_EQUAL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_LEFT_SHIFT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_LEFT_CONTROL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_LEFT_ALT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_LEFT_SUPER, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_RIGHT_SHIFT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_RIGHT_CONTROL, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_RIGHT_ALT, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_RIGHT_SUPER, 0);
+        ACCEPTED_KEY_PRESSED_MAP.set(GLFW.GLFW_KEY_MENU, 1);
     }
 
     /**
@@ -121,17 +121,17 @@ public class BOScreen extends Screen
             return;
         }
 
-        final double fbWidth = minecraft.mainWindow.getFramebufferWidth();
-        final double fbHeight = minecraft.mainWindow.getFramebufferHeight();
+        final double fbWidth = minecraft.window.getWidth();
+        final double fbHeight = minecraft.window.getHeight();
         final double guiWidth = Math.max(fbWidth, 320.0d);
         final double guiHeight = Math.max(fbHeight, 240.0d);
 
         final float renderZlevel = MatrixUtils.getLastMatrixTranslateZ(ms);
-        final float oldZ = minecraft.getItemRenderer().zLevel;
-        minecraft.getItemRenderer().zLevel = renderZlevel;
+        final float oldZ = minecraft.getItemRenderer().blitOffset;
+        minecraft.getItemRenderer().blitOffset = renderZlevel;
 
-        mcScale = minecraft.mainWindow.getGuiScaleFactor();
-        renderScale = window.getRenderType().calcRenderScale(minecraft.mainWindow, window);
+        mcScale = minecraft.window.getGuiScale();
+        renderScale = window.getRenderType().calcRenderScale(minecraft.window, window);
 
         if (window.hasLightbox())
         {
@@ -156,7 +156,7 @@ public class BOScreen extends Screen
         newMs.scale((float) renderScale, (float) renderScale, 1.0f);
         window.draw(newMs, calcRelativeX(mx), calcRelativeY(my));
         window.drawLast(newMs, calcRelativeX(mx), calcRelativeY(my));
-        newMs.pop();
+        newMs.popPose();
 
         // restore vanilla state
         RenderSystem.matrixMode(GL11.GL_PROJECTION);
@@ -164,7 +164,7 @@ public class BOScreen extends Screen
         RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
-        minecraft.getItemRenderer().zLevel = oldZ;
+        minecraft.getItemRenderer().blitOffset = oldZ;
     }
 
     @Override
@@ -173,7 +173,7 @@ public class BOScreen extends Screen
         // keys without printable representation
         if (key >= 0 && key <= GLFW.GLFW_KEY_LAST)
         {
-            return ACCEPTED_KEY_PRESSED_MAP.getAt(key) == 0 || window.onKeyTyped('\0', key);
+            return ACCEPTED_KEY_PRESSED_MAP.get(key) == 0 || window.onKeyTyped('\0', key);
         }
         return false;
     }
@@ -233,7 +233,7 @@ public class BOScreen extends Screen
     @Override
     public void init()
     {
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
         ForgeIngameGui.renderCrosshairs = false;
     }
 
@@ -253,18 +253,18 @@ public class BOScreen extends Screen
 
                 if (!minecraft.player.isAlive() || minecraft.player.dead)
                 {
-                    minecraft.player.closeScreen();
+                    minecraft.player.closeContainer();
                 }
             }
         }
     }
 
     @Override
-    public void onClose()
+    public void removed()
     {
         window.onClosed();
         Window.clearFocus();
-        minecraft.keyboardListener.enableRepeatEvents(false);
+        minecraft.keyboardHandler.setSendRepeatsToGui(false);
         ForgeIngameGui.renderCrosshairs = true;
     }
 

@@ -87,7 +87,7 @@ public enum TimberFrameCentreType implements IStringSerializable
 
     @NotNull
     @Override
-    public String getString()
+    public String getSerializedName()
     {
         // This gets used before the registry is properly populated
         // so ensure that RegistryObjects don't get called

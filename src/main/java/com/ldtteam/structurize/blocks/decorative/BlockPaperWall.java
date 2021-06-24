@@ -11,6 +11,8 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * The paperwall block class defining the paperwall.
  */
@@ -35,7 +37,7 @@ public class BlockPaperWall extends PaneBlock
 
     public BlockPaperWall(WoodType type)
     {
-        super(Properties.create(Material.GLASS).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(Properties.of(Material.GLASS).strength(BLOCK_HARDNESS, RESISTANCE));
         this.type = type;
     }
 
@@ -45,24 +47,24 @@ public class BlockPaperWall extends PaneBlock
         switch (direction)
         {
             case CLOCKWISE_180:
-                return state.with(NORTH, state.get(SOUTH))
-                         .with(EAST, state.get(WEST)).with(SOUTH, state.get(NORTH))
-                         .with(WEST, state.get(EAST));
+                return state.setValue(NORTH, state.getValue(SOUTH))
+                         .setValue(EAST, state.getValue(WEST)).setValue(SOUTH, state.getValue(NORTH))
+                         .setValue(WEST, state.getValue(EAST));
             case COUNTERCLOCKWISE_90:
-                return state.with(NORTH, state.get(EAST))
-                         .with(EAST, state.get(SOUTH)).with(SOUTH, state.get(WEST))
-                         .with(WEST, state.get(NORTH));
+                return state.setValue(NORTH, state.getValue(EAST))
+                         .setValue(EAST, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(WEST))
+                         .setValue(WEST, state.getValue(NORTH));
             case CLOCKWISE_90:
-                return state.with(NORTH, state.get(WEST))
-                         .with(EAST, state.get(NORTH)).with(SOUTH, state.get(EAST))
-                         .with(WEST, state.get(SOUTH));
+                return state.setValue(NORTH, state.getValue(WEST))
+                         .setValue(EAST, state.getValue(NORTH)).setValue(SOUTH, state.getValue(EAST))
+                         .setValue(WEST, state.getValue(SOUTH));
             default:
                 return state;
         }
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(NORTH, EAST, WEST, SOUTH, VARIANT, WATERLOGGED);
     }
 

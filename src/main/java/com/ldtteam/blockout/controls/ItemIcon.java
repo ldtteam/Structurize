@@ -21,8 +21,6 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import org.lwjgl.opengl.GL11C;
-
 /**
  * Class of itemIcons in our GUIs.
  */
@@ -92,14 +90,14 @@ public class ItemIcon extends Pane
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            ms.push();
+            ms.pushPose();
             ms.translate(x, y, 0.0f);
             ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1.0f);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
             {
-                font = mc.fontRenderer;
+                font = mc.font;
             }
 
             // RenderSystem.pushMatrix();
@@ -107,11 +105,11 @@ public class ItemIcon extends Pane
             // mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             renderItemModelIntoGUI(itemStack,
                 ms,
-                Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(itemStack, null, Minecraft.getInstance().player));
-            mc.getItemRenderer().renderItemOverlays(font, itemStack, 0, 0);
+                Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, Minecraft.getInstance().player));
+            mc.getItemRenderer().renderGuiItemDecorations(font, itemStack, 0, 0);
             // RenderSystem.popMatrix();
 
-            ms.pop();
+            ms.popPose();
         }
     }
 
@@ -121,9 +119,10 @@ public class ItemIcon extends Pane
     private static final Vector3f DIF_LIGHT = Util.make(new Vector3f(-0.8F, 0.3f, 0.55F), Vector3f::normalize);
     private void renderItemModelIntoGUI(ItemStack stack, MatrixStack matrixStack, IBakedModel bakedmodel)
     {
-        matrixStack.push();
-        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-        Minecraft.getInstance().getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
+
+        matrixStack.pushPose();
+        Minecraft.getInstance().getTextureManager().bind(AtlasTexture.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).setBlurMipmap(false, false);
         RenderSystem.enableRescaleNormal();
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
@@ -133,8 +132,8 @@ public class ItemIcon extends Pane
         matrixStack.translate(8.0F, 8.0F, 150.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        if (!bakedmodel.isSideLit())
+        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
+        if (!bakedmodel.usesBlockLight())
         {
             RenderSystem.setupGuiFlatDiffuseLighting(DEF_LIGHT, DIF_LIGHT);
         }
@@ -145,7 +144,7 @@ public class ItemIcon extends Pane
 
         Minecraft.getInstance()
             .getItemRenderer()
-            .renderItem(stack,
+            .render(stack,
                 ItemCameraTransforms.TransformType.GUI,
                 false,
                 matrixStack,
@@ -153,13 +152,13 @@ public class ItemIcon extends Pane
                 15728880,
                 OverlayTexture.NO_OVERLAY,
                 bakedmodel);
-        irendertypebuffer$impl.finish();
+        irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();
-        RenderHelper.setupGui3DDiffuseLighting();
+        RenderHelper.setupFor3DItems();
 
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     @Override

@@ -81,9 +81,9 @@ public final class BlockPosUtil
      */
     public static boolean isPositionSafe(@NotNull final CommandSource sender, final BlockPos blockPos)
     {
-        return sender.getWorld().getBlockState(blockPos).getBlock() != Blocks.AIR
-                 && !sender.getWorld().getBlockState(blockPos).getMaterial().isLiquid()
-                 && !sender.getWorld().getBlockState(blockPos.up()).getMaterial().isLiquid();
+        return sender.getLevel().getBlockState(blockPos).getBlock() != Blocks.AIR
+                 && !sender.getLevel().getBlockState(blockPos).getMaterial().isLiquid()
+                 && !sender.getLevel().getBlockState(blockPos.above()).getMaterial().isLiquid();
     }
 
     /**
@@ -142,18 +142,18 @@ public final class BlockPosUtil
      */
     public static boolean setBlock(@NotNull final World worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
     {
-        return worldIn.setBlockState(coords, state, flag);
+        return worldIn.setBlock(coords, state, flag);
     }
 
     /**
-     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#setPos(int, int, int)}.
+     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#set(int, int, int)}.
      *
      * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
      */
     public static void set(@NotNull final BlockPos.Mutable pos, @NotNull final BlockPos newPos)
     {
-        pos.setPos(newPos.getX(), newPos.getY(), newPos.getZ());
+        pos.set(newPos.getX(), newPos.getY(), newPos.getZ());
     }
 
     /**
@@ -236,23 +236,24 @@ public final class BlockPosUtil
         final int eDist = Math.abs(corner2.getX() - start.getX());
         final int sDist = Math.abs(corner2.getZ() - start.getZ());
 
+
         // Find the closest direction in clockwise rotation
         Direction closestDir = Direction.NORTH;
         int closest = nDist;
 
-        if (eDist < closest || eDist == closest && closestDir.rotateY() == Direction.EAST)
+        if (eDist < closest || eDist == closest && closestDir.getClockWise() == Direction.EAST)
         {
             closest = eDist;
             closestDir = Direction.EAST;
         }
 
-        if (sDist < closest || sDist == closest && closestDir.rotateY() == Direction.SOUTH)
+        if (sDist < closest || sDist == closest && closestDir.getClockWise() == Direction.SOUTH)
         {
             closest = sDist;
             closestDir = Direction.SOUTH;
         }
 
-        if (wDist < closest || wDist == closest && closestDir.rotateY() == Direction.WEST)
+        if (wDist < closest || wDist == closest && closestDir.getClockWise() == Direction.WEST)
         {
             closest = wDist;
             closestDir = Direction.WEST;
@@ -279,23 +280,23 @@ public final class BlockPosUtil
                 // Jump up to the same ring next Y level
                 if (start.getY() < corner2.getY())
                 {
-                    return start.offset(Direction.NORTH).add(0, 1, 0);
+                    return start.relative(Direction.NORTH).offset(0, 1, 0);
                 }
                 else
                 // We can't jump up, at boundary: jump down into next smaller circle
                 {
-                    return start.offset(Direction.EAST).add(0, -((traverseRow) - 1), 0);
+                    return start.relative(Direction.EAST).offset(0, -((traverseRow) - 1), 0);
                 }
             }
             else
             {
-                return start.offset(Direction.EAST).add(0, -(ringHeight - 1), 0);
+                return start.relative(Direction.EAST).offset(0, -(ringHeight - 1), 0);
             }
         }
 
         // Advance in clockwise rotations
-        final Direction advancingDir = closestDir.rotateY();
-        final BlockPos next = start.offset(advancingDir);
+        final Direction advancingDir = closestDir.getClockWise();
+        final BlockPos next = start.relative(advancingDir);
 
         /**
          * End conditions:

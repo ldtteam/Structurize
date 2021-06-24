@@ -37,7 +37,7 @@ public class ModItemModelProvider extends ItemModelProvider
     }
 
     @Override
-    public void act(DirectoryCache cache)
+    public void run(DirectoryCache cache)
     {
         registerModels();
         generateAll(cache);

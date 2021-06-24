@@ -42,7 +42,7 @@ public final class RenderUtil
                 break;
         }
 
-        stack.rotate(Vector3f.YP.rotationDegrees(angle));
+        stack.mulPose(Vector3f.YP.rotationDegrees(angle));
 
         //stack.scale(-0.5F, 0F, -0.5F);
     }

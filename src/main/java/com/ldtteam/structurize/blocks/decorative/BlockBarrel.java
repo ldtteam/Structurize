@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
+import net.minecraft.block.AbstractBlock;
+
 /**
  * Decorative barrel block
  */
@@ -30,18 +32,18 @@ public class BlockBarrel extends Block implements IWaterLoggable
     /**
      * This block's shape.
      */
-    protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public BlockBarrel()
     {
-        super(Block.Properties.from(Blocks.OAK_PLANKS).hardnessAndResistance(3f, 1f));
-        this.setDefaultState(this.getStateContainer().getBaseState().with(WATERLOGGED, false));
+        super(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS).strength(3f, 1f));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false));
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(BlockStateProperties.HORIZONTAL_FACING, WATERLOGGED);
     }
@@ -55,35 +57,35 @@ public class BlockBarrel extends Block implements IWaterLoggable
     @Override
     public BlockState rotate(BlockState state, Rotation rot)
     {
-        return state.with(HORIZONTAL_FACING, rot.rotate(state.get(HORIZONTAL_FACING)));
+        return state.setValue(HORIZONTAL_FACING, rot.rotate(state.getValue(HORIZONTAL_FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation(state.get(HORIZONTAL_FACING)));
+        return state.rotate(mirrorIn.getRotation(state.getValue(HORIZONTAL_FACING)));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
-        FluidState fluidstate = context.getWorld().getFluidState(context.getPos());
-        return super.getStateForPlacement(context).with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing()).with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
+        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
+        return super.getStateForPlacement(context).setValue(HORIZONTAL_FACING, context.getHorizontalDirection()).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
     }
 
     @Override
     public FluidState getFluidState(BlockState state)
     {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
     {
-        if (stateIn.get(WATERLOGGED))
+        if (stateIn.getValue(WATERLOGGED))
         {
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+            worldIn.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
         return stateIn;

@@ -107,6 +107,6 @@ public final class Color
 
     public static net.minecraft.util.text.Color toVanilla(final int color)
     {
-        return net.minecraft.util.text.Color.fromInt(color);
+        return net.minecraft.util.text.Color.fromRgb(color);
     }
 }

@@ -64,7 +64,7 @@ public interface IBlueprintDataProvider
     default Tuple<BlockPos, BlockPos> getInWorldCorners()
     {
         Tuple<BlockPos, BlockPos> schematicCorners = getSchematicCorners();
-        return new Tuple<>(getTilePos().add(schematicCorners.getA()), getTilePos().add(getSchematicCorners().getB()));
+        return new Tuple<>(getTilePos().offset(schematicCorners.getA()), getTilePos().offset(getSchematicCorners().getB()));
     }
 
     /**
@@ -239,7 +239,7 @@ public interface IBlueprintDataProvider
 
         for (final Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
         {
-            tagPosMap.put(entry.getKey().add(getTilePos()), entry.getValue());
+            tagPosMap.put(entry.getKey().offset(getTilePos()), entry.getValue());
         }
 
         return tagPosMap;
@@ -258,7 +258,7 @@ public interface IBlueprintDataProvider
         {
             for (final String tagName : entry.getValue())
             {
-                tagNamePosMap.computeIfAbsent(tagName, e -> new HashSet<>()).add(entry.getKey().add(getTilePos()));
+                tagNamePosMap.computeIfAbsent(tagName, e -> new HashSet<>()).add(entry.getKey().offset(getTilePos()));
             }
         }
 
@@ -273,7 +273,7 @@ public interface IBlueprintDataProvider
      */
     default public BlockPos getRealWorldPos(final BlockPos relativePos)
     {
-        return relativePos.add(getTilePos());
+        return relativePos.offset(getTilePos());
     }
 
     /**

@@ -35,7 +35,7 @@ public class ClientLifecycleSubscriber
         final IResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
         if (rm instanceof IReloadableResourceManager)
         {
-            ((IReloadableResourceManager) rm).addReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
+            ((IReloadableResourceManager) rm).registerReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
                 if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
                     || resourcePredicate.test(VanillaResourceType.SHADERS))
                 {
@@ -64,13 +64,13 @@ public class ClientLifecycleSubscriber
 
         // final RenderType cm = RenderType.getCutoutMipped();
 
-        final RenderType t = RenderType.getTranslucent();
+        final RenderType t = RenderType.translucent();
         ModBlocks.getPaperWalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, t));
 
         // ModBlocks.CACTI_BLOCKS
         // ModBlocks.BRICKS
         DELAYED_RENDER_TYPE_SETUP.forEach(tu -> {
-            if (!tu.getB().equals(RenderType.getSolid()))
+            if (!tu.getB().equals(RenderType.solid()))
             {
                 RenderTypeLookup.setRenderLayer(tu.getA().get(), tu.getB());
             }

@@ -753,7 +753,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveLeftClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateYCCW()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
     }
 
     /**
@@ -761,7 +761,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveRightClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateY()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
     }
 
     /**
@@ -769,7 +769,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveForwardClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
     }
 
     /**
@@ -777,7 +777,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveBackClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().getOpposite()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
     }
 
     /**
@@ -842,7 +842,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
-        final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().world, new BlockPos(0, 0, 0), structureName.toString(),
+        final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName.toString(),
             new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
 
         if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))

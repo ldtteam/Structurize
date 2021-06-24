@@ -86,7 +86,7 @@ public class HookScreen extends BOScreen
     }
 
     @Override
-    public void onClose()
+    public void removed()
     {
         window.onClosed();
         if (HookManager.getScrollListener() == this)

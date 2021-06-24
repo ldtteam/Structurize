@@ -288,7 +288,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
         {
             return;
         }
-        this.pos = this.pos.add(pos);
+        this.pos = this.pos.offset(pos);
     }
 
     /**
@@ -314,7 +314,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
         else
         {
             this.blueprint = blueprint;
-            this.blueprint.rotateWithMirror(BlockPosUtil.getRotationFromRotations(rotation), isMirrored ? Mirror.FRONT_BACK : Mirror.NONE, Minecraft.getInstance().world);
+            this.blueprint.rotateWithMirror(BlockPosUtil.getRotationFromRotations(rotation), isMirrored ? Mirror.FRONT_BACK : Mirror.NONE, Minecraft.getInstance().level);
         }
     }
 
@@ -394,7 +394,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
         this.rotation = rotation;
         if (blueprint != null)
         {
-            blueprint.rotateWithMirror(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, Mirror.NONE, Minecraft.getInstance().world);
+            blueprint.rotateWithMirror(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, Mirror.NONE, Minecraft.getInstance().level);
         }
         scheduleRefresh();
     }
@@ -410,7 +410,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
         }
 
         isMirrored = !isMirrored;
-        blueprint.rotateWithMirror(Rotation.NONE, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().world);
+        blueprint.rotateWithMirror(Rotation.NONE, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().level);
         scheduleRefresh();
     }
 
@@ -581,7 +581,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
 
         if (nbt.contains("stack"))
         {
-            stack = new Tuple<>(ItemStack.read(nbt.getCompound("stack")), ItemStack.read(nbt.getCompound("stack2")));
+            stack = new Tuple<>(ItemStack.of(nbt.getCompound("stack")), ItemStack.of(nbt.getCompound("stack2")));
         }
         else
         {

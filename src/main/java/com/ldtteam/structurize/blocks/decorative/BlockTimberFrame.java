@@ -12,6 +12,8 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * Decorative block
  */
@@ -39,7 +41,7 @@ public class BlockTimberFrame extends DirectionalBlock
      */
     public BlockTimberFrame(final TimberFrameType timberFrameType, final WoodType frameType, final TimberFrameCentreType centreType)
     {
-        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE).notSolid());
+        super(Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noOcclusion());
         this.timberFrameType = timberFrameType;
         this.frameType = frameType;
         this.centreType = centreType;
@@ -47,32 +49,32 @@ public class BlockTimberFrame extends DirectionalBlock
 
     public static String getName(final TimberFrameType timberFrameType, final WoodType frameType, final TimberFrameCentreType centreType)
     {
-        return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getString(), centreType.getString());
+        return String.format("%s_%s_%s_timber_frame", timberFrameType.getName(), frameType.getSerializedName(), centreType.getSerializedName());
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
     {
-        super.fillStateContainer(builder);
+        super.createBlockStateDefinition(builder);
         builder.add(FACING);
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rot)
     {
-        return state.with(FACING, rot.rotate(state.get(FACING)));
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation(state.get(FACING)));
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context)
     {
-        return this.getDefaultState().with(FACING, context.getNearestLookingDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
     }
 
     /**

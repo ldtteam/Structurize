@@ -16,16 +16,17 @@ public class BlocksToRenderTypeHelper
 
     static
     {
-        BLOCK_TYPES.put(BlockType.BLOCK, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.SLAB, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.STAIRS, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.WALL, RenderType.getSolid());
+        BLOCK_TYPES.put(BlockType.BLOCK, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.SLAB, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.STAIRS, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.WALL, RenderType.solid());
 
-        BLOCK_TYPES.put(BlockType.PLANKS, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.FENCE, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.FENCE_GATE, RenderType.getSolid());
-        BLOCK_TYPES.put(BlockType.TRAPDOOR, RenderType.getCutout());
-        BLOCK_TYPES.put(BlockType.DOOR, RenderType.getCutout());
+        BLOCK_TYPES.put(BlockType.PLANKS, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.FENCE, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.FENCE_GATE, RenderType.solid());
+        BLOCK_TYPES.put(BlockType.TRAPDOOR, RenderType.cutout());
+        BLOCK_TYPES.put(BlockType.DOOR, RenderType.cutout());
+
     }
 
     public static void registerBlockType(final BlockType type, final RegistryObject<Block> block)

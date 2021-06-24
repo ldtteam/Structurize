@@ -142,11 +142,11 @@ public abstract class AbstractBlueprintIterator
     {
         if (localPosition.equals(NULL_POS))
         {
-            this.progressPos.setPos(localPosition);
+            this.progressPos.set(localPosition);
         }
         else
         {
-            this.progressPos.setPos(localPosition.getX() % size.getX(),
+            this.progressPos.set(localPosition.getX() % size.getX(),
               localPosition.getY() % size.getY(),
               localPosition.getZ() % size.getZ());
         }

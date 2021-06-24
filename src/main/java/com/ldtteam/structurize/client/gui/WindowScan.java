@@ -191,7 +191,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final ItemStack stack = tempRes.get(row).getItemStack();
         Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
         final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
-        resources.remove(stack.getTranslationKey() + ":" + stack.getDamage() + "-" + hashCode);
+        resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         updateResourceList();
     }
 
@@ -239,7 +239,7 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         if (anchorPos.isPresent())
         {
-            final TileEntity tile = Minecraft.getInstance().player.world.getTileEntity(anchorPos.get());
+            final TileEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
             if (tile instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) tile).getSchematicName().isEmpty())
             {
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
@@ -299,7 +299,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
-        final BlockPos def = Minecraft.getInstance().player.getPosition();
+        final BlockPos def = Minecraft.getInstance().player.blockPosition();
         try
         {
             final int x1 = pos1x.getText().isEmpty() ? def.getX() : Integer.parseInt(pos1x.getText());
@@ -314,7 +314,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUniqueID());
+            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUUID());
             close();
             return;
         }
@@ -323,7 +323,7 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
-        final World world = Minecraft.getInstance().world;
+        final World world = Minecraft.getInstance().level;
         resources.clear();
         entities.clear();
 
@@ -340,8 +340,8 @@ public class WindowScan extends AbstractWindowSkeleton
                 {
                     final BlockPos here = new BlockPos(x, y, z);
                     final BlockState blockState = world.getBlockState(here);
-                    final TileEntity tileEntity = world.getTileEntity(here);
-                    final List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(here));
+                    final TileEntity tileEntity = world.getBlockEntity(here);
+                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(here));
 
                     for (final Entity entity : list)
                     {
@@ -360,7 +360,7 @@ public class WindowScan extends AbstractWindowSkeleton
                         {
                             try
                             {
-                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.write(new CompoundNBT()), blockState));
+                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.save(new CompoundNBT()), blockState));
                                 for (final ItemStack stack : itemList)
                                 {
                                     addNeededResource(stack, 1);
@@ -372,8 +372,8 @@ public class WindowScan extends AbstractWindowSkeleton
                             }
                         }
 
-                        if ((block instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD)
-                        || block instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
+                        if ((block instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD)
+                        || block instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
                         {
                             // noop
                         }
@@ -409,7 +409,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
-        ItemStorage resource = resources.get(res.getTranslationKey() + ":" + res.getDamage() + "-" + hashCode);
+        ItemStorage resource = resources.get(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode);
         if (resource == null)
         {
             resource = new ItemStorage(res);
@@ -421,10 +421,10 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         if (filter.isEmpty()
-                || res.getTranslationKey().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                || res.getDisplayName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
-            resources.put(res.getTranslationKey() + ":" + res.getDamage() + "-" + hashCode, resource);
+            resources.put(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode, resource);
         }
     }
 
@@ -494,7 +494,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
-                resourceLabel.setText((IFormattableTextComponent) resource.getItemStack().getDisplayName());
+                resourceLabel.setText((IFormattableTextComponent) resource.getItemStack().getHoverName());
                 quantityLabel.setText(Integer.toString(resource.getAmount()));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);

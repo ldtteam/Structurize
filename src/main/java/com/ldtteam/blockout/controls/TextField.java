@@ -180,12 +180,12 @@ public class TextField extends Pane
                 scrollOffset = text.length();
             }
 
-            final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), internalWidth);
+            final String visibleString = mc.font.plainSubstrByWidth(text.substring(scrollOffset), internalWidth);
             final int rightmostVisibleChar = visibleString.length() + scrollOffset;
 
             if (selectionEnd == scrollOffset)
             {
-                scrollOffset -= mc.fontRenderer.func_238413_a_(text, internalWidth, true).length();
+                scrollOffset -= mc.font.plainSubstrByWidth(text, internalWidth, true).length();
             }
 
             if (selectionEnd > rightmostVisibleChar)
@@ -340,7 +340,7 @@ public class TextField extends Pane
         final int drawY = y;
 
         // Determine the portion of the string that is visible on screen
-        final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), drawWidth);
+        final String visibleString = mc.font.plainSubstrByWidth(text.substring(scrollOffset), drawWidth);
 
         final int relativeCursorPosition = cursorPosition - scrollOffset;
         int relativeSelectionEnd = selectionEnd - scrollOffset;
@@ -359,7 +359,7 @@ public class TextField extends Pane
         {
             @NotNull
             final String s1 = cursorVisible ? visibleString.substring(0, relativeCursorPosition) : visibleString;
-            mc.getTextureManager().bindTexture(TEXTURE);
+            mc.getTextureManager().bind(TEXTURE);
             textX = drawString(ms, s1, textX, drawY, color, shadow);
         }
 
@@ -377,7 +377,7 @@ public class TextField extends Pane
         // Draw string after cursor
         if (visibleString.length() > 0 && cursorVisible && relativeCursorPosition < visibleString.length())
         {
-            mc.getTextureManager().bindTexture(TEXTURE);
+            mc.getTextureManager().bind(TEXTURE);
             drawString(ms, visibleString.substring(relativeCursorPosition), textX, drawY, color, shadow);
         }
 
@@ -386,11 +386,11 @@ public class TextField extends Pane
         {
             if (cursorBeforeEnd)
             {
-                fill(ms, cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.fontRenderer.FONT_HEIGHT, RECT_COLOR);
+                fill(ms, cursorX, drawY - 1, cursorX + 1, drawY + 1 + mc.font.lineHeight, RECT_COLOR);
             }
             else
             {
-                mc.getTextureManager().bindTexture(TEXTURE);
+                mc.getTextureManager().bind(TEXTURE);
                 drawString(ms, "_", cursorX, drawY, color, shadow);
             }
         }
@@ -398,7 +398,7 @@ public class TextField extends Pane
         // Draw selection
         if (relativeSelectionEnd != relativeCursorPosition)
         {
-            final int selectedDrawX = drawX + mc.fontRenderer.getStringWidth(visibleString.substring(0, relativeSelectionEnd));
+            final int selectedDrawX = drawX + mc.font.width(visibleString.substring(0, relativeSelectionEnd));
 
             int selectionStartX = Math.min(cursorX, selectedDrawX - 1);
             int selectionEndX = Math.max(cursorX, selectedDrawX - 1);
@@ -418,17 +418,17 @@ public class TextField extends Pane
             RenderSystem.disableTexture();
             RenderSystem.enableColorLogicOp();
             GL11.glLogicOp(GL11.GL_OR_REVERSE);
-            final BufferBuilder vertexBuffer = tessellator.getBuffer();
+            final BufferBuilder vertexBuffer = tessellator.getBuilder();
 
             // There are several to choose from, look at DefaultVertexFormats for more info
             vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
             // Since our points do not have any u,v this seems to be the correct code
-            vertexBuffer.pos((double) selectionStartX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionEndX, (double) drawY + 1 + mc.fontRenderer.FONT_HEIGHT, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionEndX, (double) drawY - 1, 0.0D).endVertex();
-            vertexBuffer.pos((double) selectionStartX, (double) drawY - 1, 0.0D).endVertex();
-            tessellator.draw();
+            vertexBuffer.vertex((double) selectionStartX, (double) drawY + 1 + mc.font.lineHeight, 0.0D).endVertex();
+            vertexBuffer.vertex((double) selectionEndX, (double) drawY + 1 + mc.font.lineHeight, 0.0D).endVertex();
+            vertexBuffer.vertex((double) selectionEndX, (double) drawY - 1, 0.0D).endVertex();
+            vertexBuffer.vertex((double) selectionStartX, (double) drawY - 1, 0.0D).endVertex();
+            tessellator.end();
             RenderSystem.disableColorLogicOp();
             RenderSystem.enableTexture();
         }
@@ -451,8 +451,8 @@ public class TextField extends Pane
             return false;
         }
 
-        final String visibleString = mc.fontRenderer.func_238412_a_(text.substring(scrollOffset), getInternalWidth());
-        final String trimmedString = mc.fontRenderer.func_238412_a_(visibleString, (int) mx);
+        final String visibleString = mc.font.plainSubstrByWidth(text.substring(scrollOffset), getInternalWidth());
+        final String trimmedString = mc.font.plainSubstrByWidth(visibleString, (int) mx);
 
         // Cache and restore scrollOffset when we change focus via click,
         // because onFocus() sets the cursor (and thus scroll offset) to the end.
@@ -468,12 +468,12 @@ public class TextField extends Pane
     {
         if (Screen.isCopy(key))
         {
-            mc.keyboardListener.setClipboardString(getSelectedText());
+            mc.keyboardHandler.setClipboard(getSelectedText());
             return true;
         }
         else if (Screen.isCut(key))
         {
-            mc.keyboardListener.setClipboardString(getSelectedText());
+            mc.keyboardHandler.setClipboard(getSelectedText());
             writeText("");
             return true;
         }
@@ -485,7 +485,7 @@ public class TextField extends Pane
         }
         else if (Screen.isPaste(key))
         {
-            writeText(mc.keyboardListener.getClipboardString());
+            writeText(mc.keyboardHandler.getClipboard());
             return true;
         }
         else
