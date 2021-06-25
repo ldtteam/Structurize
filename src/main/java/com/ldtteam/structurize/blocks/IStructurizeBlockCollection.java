@@ -11,6 +11,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public interface IStructurizeBlockCollection extends IBlockCollection
 {
@@ -20,11 +21,14 @@ public interface IStructurizeBlockCollection extends IBlockCollection
         BlockType... types)
     {
         return IBlockCollection.super.create(registrar,
-            itemRegistrar,
-            group,
-            (type, block) -> {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BlocksToRenderTypeHelper.registerBlockType(type, block));
-            },
-            types);
+          itemRegistrar,
+          group,
+          new BiConsumer<BlockType, RegistryObject<Block>>() {
+              @Override
+              public void accept(final BlockType blockType, final RegistryObject<Block> blockRegistryObject)
+              {
+                  DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BlocksToRenderTypeHelper.registerBlockType(blockType, blockRegistryObject));
+              }
+          }, types);
     }
 }
