@@ -196,8 +196,7 @@ public class ItemIcon extends Pane
             RenderSystem.setupGui3DDiffuseLighting(DEF_LIGHT, DIF_LIGHT);
         }
 
-        mc
-            .getItemRenderer()
+        mc.getItemRenderer()
             .render(stack,
                 ItemCameraTransforms.TransformType.GUI,
                 false,
