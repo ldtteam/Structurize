@@ -11,8 +11,6 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.Property;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -436,6 +434,7 @@ public final class BlockUtils
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
                                                       .withLuck(fortune)
                                                       .withParameter(LootParameters.ORIGIN, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
+                                                      .withOptionalParameter(LootParameters.BLOCK_ENTITY, world.getBlockEntity(coords))
                                                       .withParameter(LootParameters.TOOL, stack));
     }
 
