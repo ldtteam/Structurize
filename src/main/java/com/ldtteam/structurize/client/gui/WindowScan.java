@@ -498,7 +498,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 quantityLabel.setText(Integer.toString(resource.getAmount()));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);
-                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 1, resource.getItemStack().getTag()));
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 10, resource.getItemStack().getTag()));
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_BLOCK, Button.class).hide();
