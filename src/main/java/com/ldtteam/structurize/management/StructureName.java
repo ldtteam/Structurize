@@ -110,9 +110,9 @@ public class StructureName
             hut = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
             //This allows mods other than minecolonies to create hut buildings and use the buildtool with them.
-            for (final Map.Entry<String, ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
+            for (String origin : StructureLoadingUtils.getOriginMods().keySet())
             {
-                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin.getKey(), "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
                 {
                     section = hut;
                     break;
