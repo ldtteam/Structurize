@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Interface for TE's which hold schematic specific data. They need to write and read the data to nbt to save it!
@@ -258,7 +259,13 @@ public interface IBlueprintDataProvider
         {
             for (final String tagName : entry.getValue())
             {
-                tagNamePosMap.computeIfAbsent(tagName, e -> new HashSet<>()).add(entry.getKey().offset(getTilePos()));
+                tagNamePosMap.computeIfAbsent(tagName, new Function<String, Set<BlockPos>>() {
+                    @Override
+                    public Set<BlockPos> apply(final String s)
+                    {
+                        return new HashSet<>();
+                    }
+                }).add(entry.getKey().offset(getTilePos()));
             }
         }
 
