@@ -2,13 +2,16 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,13 +109,14 @@ public class StructureName
         {
             hut = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
-            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
-            {
-                section = hut;
-            }
-            else
-            {
-                hut = "";
+            //This allows mods other than minecolonies to create hut buildings and use the buildtool with them.
+            for (final Map.Entry<String, ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet()) {
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin.getKey(), "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut)) {
+                    section = hut;
+                    break;
+                } else {
+                    hut = "";
+                }
             }
         }
     }
