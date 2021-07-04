@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -22,6 +21,8 @@ import java.util.regex.Pattern;
  */
 public class StructureName
 {
+    public static List<String> HUTS = new ArrayList<>();
+
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
     /**
@@ -111,7 +112,7 @@ public class StructureName
             //This allows mods other than minecolonies to create hut buildings and use the buildtool with them.
             for (String origin : StructureLoadingUtils.getOriginMods().keySet())
             {
-                if (IAnchorBlock.class.isAssignableFrom(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + hut)).getClass()))
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
                 {
                     section = hut;
                     break;
