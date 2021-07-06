@@ -127,7 +127,7 @@
             <xs:element name="switch" type="switchType"/>
             <xs:element name="dropdown" type="dropdownType"/>
             <xs:element name="treeview" type="treeViewType"/>
-            <xs:element name="tabset" type="tabSetType"/>
+            <xs:element name="tabview" type="tabViewType"/>
             <xs:element name="tab" type="tabType"/>
         </xs:choice>
     </xs:group>
@@ -328,7 +328,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="tabSetType">
+    <xs:complexType name="tabViewType">
         <xs:complexContent>
             <xs:extension base="viewType">
                 <xs:attribute name="vertical" type="xs:boolean"/>

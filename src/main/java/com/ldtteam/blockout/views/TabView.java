@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * Similar to a switch view, the tab set renders the selected view,
  * allowing for tabs to be placed for user's selection
  */
-public class TabSet extends View
+public class TabView extends View
 {
     private static final Random RANDOM = new Random();
 
@@ -36,7 +36,7 @@ public class TabSet extends View
     protected final View         tabs;
     protected ResourceLocation[] tabIcons = new ResourceLocation[0];
 
-    public TabSet(PaneParams params)
+    public TabView(PaneParams params)
     {
         super(params);
         vertical = params.getBoolean("vertical", false);

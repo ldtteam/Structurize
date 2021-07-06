@@ -186,7 +186,7 @@ public class PaneParams
      * @return the parsed resource location (or null if it couldn't be parsed)
      */
     @Nullable
-    public ResourceLocation getTexture(final String name, final Consumer<ResourceLocation> loader)
+    public ResourceLocation getTexture(final String name, @Nullable final Consumer<ResourceLocation> loader)
     {
         ResourceLocation rl = getProperty(name, Parsers.RESOURCE("textures/gui/", ".png"), new ResourceLocation(""));
         if (!rl.getPath().isEmpty())
@@ -197,7 +197,10 @@ public class PaneParams
                 rl = new ResourceLocation("structurize", rl.getPath());
             }
 
-            loader.accept(rl);
+            if (loader != null)
+            {
+                loader.accept(rl);
+            }
             return rl;
         }
         return null;

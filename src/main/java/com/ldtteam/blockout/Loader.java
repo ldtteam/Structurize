@@ -54,7 +54,7 @@ public final class Loader
         register("gradient", Gradient::new);
         register("zoomdragview", ZoomDragView::new);
         register("treeview", TreeView::new);
-        register("tabset", TabSet::new);
+        register("tabview", TabView::new);
         register("tab", Tab::new);
     }
 

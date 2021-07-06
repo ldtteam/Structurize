@@ -11,8 +11,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 /**
- * A form of view to be used only in a {@link TabSet}
- * and typically associated with a {@link TabSet.ButtonTab} used to select it.
+ * A form of view to be used only in a {@link TabView}
+ * and typically associated with a {@link TabView.ButtonTab} used to select it.
  */
 public class Tab extends View
 {
@@ -24,16 +24,14 @@ public class Tab extends View
 
     /**
      * Constructs a new tab from the given information.
-     * NOTE: this will not add it to a tab set, for that use {@link TabSet#addTab(Tab)}
+     * NOTE: this will not add it to a tab set, for that use {@link TabView#addTab(Tab)}
      * @param title the label for the tooltip
      * @param icon a resource string to the icon relative to the gui textures folder
-     * @param content each element to be included in this view
      */
-    public Tab(String title, String icon, Pane... content)
+    public Tab(String title, String icon)
     {
         this.label = new StringTextComponent(title);
         this.icon = Parsers.RESOURCE("textures/gui/", "png").apply(icon);
-        for (Pane p : content) addChild(p);
     }
 
     public Tab(PaneParams params)
@@ -43,7 +41,7 @@ public class Tab extends View
         setPosition(0, 0);
         setSize(params.getParentWidth(), params.getParentHeight());
 
-        this.icon = params.getTexture("icon", $ -> {});
+        this.icon = params.getTexture("icon", null);
         this.label = params.getTextComponent("title", null);
     }
 
@@ -65,7 +63,7 @@ public class Tab extends View
      */
     public Text buildLabel()
     {
-        ITextComponent component = label == null ? new StringTextComponent("") : label;
+        ITextComponent component = label == null ? StringTextComponent.EMPTY : label;
         return PaneBuilders.textBuilder().append(component).build();
     }
 }
