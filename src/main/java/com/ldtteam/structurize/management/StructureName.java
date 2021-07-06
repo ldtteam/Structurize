@@ -117,6 +117,10 @@ public class StructureName
                 }
 
             }
+            if (!(section==hut))
+            {
+                hut="";
+            }
         }
     }
 
