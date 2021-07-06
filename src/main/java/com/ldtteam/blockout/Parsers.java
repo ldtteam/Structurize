@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,9 +22,13 @@ public final class Parsers
 {
     private Parsers() { /* prevent construction */ }
 
+    /** A string that validates in ResourceLocations but doesn't possibly represent a real one */
+    public static final String SUBSTITUTE = "__.s.u.b.__";
+
     public static final Pattern PERCENTAGE_PATTERN  = Pattern.compile("([-+]?\\d+)(%|px)?", Pattern.CASE_INSENSITIVE);
     public static final Pattern RGBA_PATTERN        = Pattern.compile("rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(?:,\\s*([01]\\.\\d+)\\s*)?\\)", Pattern.CASE_INSENSITIVE);
     public static final Pattern HEXADECIMAL_PATTERN = Pattern.compile("#([0-9A-F]{6,8})", Pattern.CASE_INSENSITIVE);
+    public static final Pattern RESOURCE_PATTERN    = Pattern.compile("^(?:(@|\\w+):)?([^:\\[]+)(?:\\[([0-9]{1,2})](?:\\.png)?)?$");
 
     // Primitives
     public static Function<String, Boolean> BOOLEAN = v -> v == null || !v.isEmpty() && !v.equals("disabled") && Boolean.parseBoolean(v);
@@ -32,10 +37,28 @@ public final class Parsers
     public static Function<String, Double>  DOUBLE = Double::parseDouble;
 
     /** Parses a resource location, include shorthand tricks */
-    public static Function<String, ResourceLocation> RESOURCE = ResourceLocation::new;
+    public static final Function<String, ResourceLocation> RESOURCE = ResourceLocation::new;
+
+    public static Function<String, ResourceLocation> RESOURCE(String prefix, String ext)
+    {
+        return v -> {
+            Matcher m = RESOURCE_PATTERN.matcher(v);
+
+            if (!m.find()) return null;
+            Log.getLogger().debug("Groups: " + m.group(1) + "," + m.group(2) + ", " + m.group(3));
+            String result = m.group(2);
+            if (m.group(3) != null) result += new Random().nextInt(Integer.parseInt(m.group(3)));
+            if (!result.endsWith(ext)) result += (ext);
+            if (!result.startsWith(prefix)) result = prefix + result;
+
+            return m.group(1) == null
+              ? new ResourceLocation(result)
+              : new ResourceLocation(m.group(1).replace("@", SUBSTITUTE), result);
+        };
+    }
 
     /** Parses a potentially translatable portion of text as a component */
-    private static Function<String, String> RAW_TEXT = v -> {
+    private static final Function<String, String> RAW_TEXT = v -> {
         String result = v == null ? "" : v;
         Matcher m = Pattern.compile("\\$[({](\\S+)[})]").matcher(result);
 
@@ -66,7 +89,7 @@ public final class Parsers
         .collect(Collectors.toList());
 
     /** Parses a color from hex, rgba, name, or pure value */
-    public static Function<String, Integer> COLOR = v -> {
+    public static final Function<String, Integer> COLOR = v -> {
         Matcher m = HEXADECIMAL_PATTERN.matcher(v);
         if (m.find()) return Integer.parseInt(m.group(), 16);
 
