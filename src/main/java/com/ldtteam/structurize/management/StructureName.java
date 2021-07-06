@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
  */
 public class StructureName
 {
-    public static List<String> HUTS = new ArrayList<>();
 
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
@@ -112,15 +111,11 @@ public class StructureName
             //This allows mods other than minecolonies to create hut buildings and use the buildtool with them.
             for (String origin : StructureLoadingUtils.getOriginMods().keySet())
             {
-                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + hut)) != Blocks.AIR)
                 {
                     section = hut;
-                    break;
                 }
-                else
-                {
-                    hut = "";
-                }
+
             }
         }
     }
