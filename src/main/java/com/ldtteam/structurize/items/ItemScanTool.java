@@ -5,6 +5,7 @@ import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
@@ -12,16 +13,22 @@ import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,9 +37,13 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
+import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
+
+import net.minecraft.item.Item.Properties;
 
 /**
  * Item used to scan structures.
@@ -49,7 +60,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      */
     public ItemScanTool(final ItemGroup itemGroup)
     {
-        this(new Item.Properties().maxDamage(0).setNoRepair().rarity(Rarity.UNCOMMON).group(itemGroup));
+        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
     }
 
     /**
@@ -65,18 +76,38 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     @Override
     public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
     {
-        Optional<BlockPos> anchorPos =
-          itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS) ? Optional.of(NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS))) : Optional.empty();
-        if (!worldIn.isRemote)
+        Optional<BlockPos> anchorPos = Optional.empty();
+        if (itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS))
         {
-            if (playerIn.isSneaking())
+            final BlockPos anchorBlockPos = NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS));
+
+            if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
+            {
+                anchorPos = Optional.of(anchorBlockPos);
+                if (worldIn.isClientSide)
+                {
+                    Settings.instance.setAnchorPos(anchorPos);
+                }
+            }
+            else
+            {
+                if (worldIn.isClientSide)
+                {
+                    playerIn.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUUID());
+                }
+            }
+        }
+
+        if (!worldIn.isClientSide)
+        {
+            if (playerIn.isShiftKeyDown())
             {
                 saveStructure(worldIn, start, end, playerIn, null, true, anchorPos);
             }
         }
         else
         {
-            if (!playerIn.isSneaking())
+            if (!playerIn.isShiftKeyDown())
             {
                 final WindowScan window = new WindowScan(start, end, anchorPos);
                 window.open();
@@ -131,22 +162,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     {
         if (anchorPos.isPresent())
         {
-            final double minX = Math.min(to.getX(), from.getX());
-            final double minY = Math.min(to.getY(), from.getY());
-            final double minZ = Math.min(to.getZ(), from.getZ());
-            final double maxX = Math.max(to.getX(), from.getX());
-            final double maxY = Math.max(to.getY(), from.getY());
-            final double maxZ = Math.max(to.getZ(), from.getZ());
-
-            final double anchorPosX = anchorPos.get().getX();
-            final double anchorPosY = anchorPos.get().getY();
-            final double anchorPosZ = anchorPos.get().getZ();
-
-            final boolean isWithinX = anchorPosX >= minX && anchorPosX <= maxX;
-            final boolean isWithinY = anchorPosY >= minY && anchorPosY <= maxY;
-            final boolean isWithinZ = anchorPosZ >= minZ && anchorPosZ <= maxZ;
-
-            if (!(isWithinX && isWithinY && isWithinZ))
+            if (!BlockPosUtil.isInbetween(anchorPos.get(), from, to))
             {
                 LanguageHandler.sendPlayerMessage(player, ANCHOR_POS_OUTSIDE_SCHEMATIC);
                 return;
@@ -157,7 +173,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
           new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
         final BlockPos blockpos1 =
           new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get());
@@ -176,17 +192,20 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             fileName = name;
         }
 
-        if (anchorPos.isPresent())
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), fileName, anchorPos);
+
+        if (!anchorPos.isPresent() && bp.getPrimaryBlockOffset().equals(new BlockPos(bp.getSizeX() / 2, 0, bp.getSizeZ() / 2)))
         {
-            final TileEntity te = world.getTileEntity(anchorPos.get());
-            if (te instanceof IBlueprintDataProvider)
+            final List<BlockInfo> list = bp.getBlockInfoAsList().stream()
+                                           .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+                                           .collect(Collectors.toList());
+
+            if (list.size() > 1)
             {
-                ((IBlueprintDataProvider) te).setSchematicName(fileName);
-                ((IBlueprintDataProvider) te).setCorners(from.subtract(anchorPos.get()), to.subtract(anchorPos.get()));
+                player.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUUID());
             }
         }
 
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name, anchorPos);
         Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
     }
 
@@ -231,7 +250,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
           Math.max(from.getY(), to.getY()),
           Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).add(1, 1, 1);
+        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
         if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
             Log.getLogger().warn("Saving too large schematic for:" + name);
@@ -274,29 +293,51 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        if (context.getPlayer() != null && !context.getPlayer().isSneaking())
+        if (!player.isShiftKeyDown())
         {
-            return super.onItemUse(context);
+            return super.canAttackBlock(state, worldIn, pos, player);
         }
 
-        final BlockPos pos = context.getPos();
-        if (context.getWorld().isRemote() && context.getPlayer() != null)
+        if (worldIn.isClientSide())
         {
-            LanguageHandler.sendMessageToPlayer(context.getPlayer(), ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            LanguageHandler.sendMessageToPlayer(player, ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
 
-        TileEntity te = context.getWorld().getTileEntity(context.getPos());
-        if (te instanceof IBlueprintDataProvider)
+        ItemStack itemstack = player.getMainHandItem();
+        if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
-            Settings.instance.setStructureName(((IBlueprintDataProvider) te).getSchematicName());
-            Settings.instance.setBox(((IBlueprintDataProvider) te).getCornerPositions());
-            context.getItem().getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getA().add(pos)));
-            context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(((IBlueprintDataProvider) te).getCornerPositions().getB().add(pos)));
+            itemstack = player.getOffhandItem();
         }
 
-        context.getItem().getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
-        return ActionResultType.SUCCESS;
+        final TileEntity te = worldIn.getBlockEntity(pos);
+        if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
+        {
+            if (worldIn.isClientSide)
+            {
+                Settings.instance.setAnchorPos(Optional.of(pos));
+            }
+
+            final BlockPos start = ((IBlueprintDataProvider) te).getInWorldCorners().getA();
+            final BlockPos end = ((IBlueprintDataProvider) te).getInWorldCorners().getB();
+
+            if (!(start.equals(pos)) && !(end.equals(pos)))
+            {
+                if (worldIn.isClientSide)
+                {
+                    Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
+                }
+                itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
+                itemstack.getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));
+                if (player instanceof ServerPlayerEntity)
+                {
+                    ((ServerPlayerEntity) player).refreshContainer(player.inventoryMenu, player.inventory.items);
+                }
+            }
+        }
+
+        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
+        return false;
     }
 }

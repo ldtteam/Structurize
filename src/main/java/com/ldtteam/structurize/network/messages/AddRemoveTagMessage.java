@@ -40,7 +40,7 @@ public class AddRemoveTagMessage implements IMessage
     public AddRemoveTagMessage(final PacketBuffer buf)
     {
         this.add = buf.readBoolean();
-        this.tag = buf.readString(32767);
+        this.tag = buf.readUtf(32767);
         this.anchorPos = buf.readBlockPos();
         this.tagPos = buf.readBlockPos();
     }
@@ -57,7 +57,7 @@ public class AddRemoveTagMessage implements IMessage
     public void toBytes(final PacketBuffer buf)
     {
         buf.writeBoolean(add);
-        buf.writeString(tag);
+        buf.writeUtf(tag);
         buf.writeBlockPos(anchorPos);
         buf.writeBlockPos(tagPos);
     }
@@ -77,7 +77,7 @@ public class AddRemoveTagMessage implements IMessage
             return;
         }
 
-        final TileEntity te = ctxIn.getSender().world.getTileEntity(anchorPos);
+        final TileEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
 
         {

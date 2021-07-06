@@ -10,12 +10,14 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 
+import net.minecraft.block.AbstractBlock;
+
 public class BlockFloatingCarpet extends Block
 {
     /**
      * This Blocks shape.
      */
-    protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
 
     /**
      * This Blocks color.
@@ -24,7 +26,7 @@ public class BlockFloatingCarpet extends Block
 
     public BlockFloatingCarpet(final DyeColor color)
     {
-        super(Block.Properties.create(Material.CARPET).hardnessAndResistance(0.1F).sound(SoundType.CLOTH));
+        super(AbstractBlock.Properties.of(Material.CLOTH_DECORATION).strength(0.1F).sound(SoundType.WOOL));
         this.color = color;
     }
 

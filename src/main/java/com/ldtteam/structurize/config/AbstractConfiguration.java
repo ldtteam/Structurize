@@ -60,6 +60,11 @@ public abstract class AbstractConfiguration
         return buildBase(builder, key).defineInRange(key, defaultValue, min, max);
     }
 
+    protected static ConfigValue<String> defineString(final Builder builder, final String key, final String defaultValue)
+    {
+        return buildBase(builder, key).define(key, defaultValue);
+    }
+
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue)
     {
         return defineLong(builder, key, defaultValue, Long.MIN_VALUE, Long.MAX_VALUE);

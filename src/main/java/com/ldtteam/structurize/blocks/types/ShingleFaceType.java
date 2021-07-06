@@ -56,14 +56,14 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
         for (int i = -1; i < colors.length; i++)
         {
             DyeColor color = i < 0 ? null : colors[i];
-            String prefix = (i < 0 ? "" : color.getString() + "_") + group;
+            String prefix = (i < 0 ? "" : color.getSerializedName() + "_") + group;
 
             for (WoodType wood : WoodType.values())
             {
                 this.blocks.putIfAbsent(wood, new LinkedList<>());
                 this.blocks.get(wood).add(ModBlocks.register(
-                  String.format("%s_%s_shingle", prefix, wood.getString()),
-                  () -> new BlockShingle(Blocks.OAK_PLANKS::getDefaultState, wood, this, color),
+                  String.format("%s_%s_shingle", prefix, wood.getSerializedName()),
+                  () -> new BlockShingle(Blocks.OAK_PLANKS::defaultBlockState, wood, this, color),
                   ModItemGroups.SHINGLES));
             }
         }
@@ -110,7 +110,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
         String location = shingle.getTypeString() + "_shingle";
 
         return models.withExistingParent(
-          String.format("block/shingle/%s/%s/%s", shape, shingle.getWoodType().getString(), location),
+          String.format("block/shingle/%s/%s/%s", shape, shingle.getWoodType().getSerializedName(), location),
           models.modLoc("block/shingle/shingle_" + shape))
                  .texture("1", "blocks/shingle/" + location + "_1")
                  .texture("2", "blocks/shingle/" + location + "_2")
@@ -140,7 +140,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
             .parent(new ModelFile.UncheckedModelFile(
               models.modLoc(String.format(
                 "block/shingle/straight/%s/%s_shingle",
-                block.getWoodType().getString(),
+                block.getWoodType().getSerializedName(),
                 block.getTypeString()))))
         );
     }
@@ -155,22 +155,22 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
             if (color == null)
             {
                 new ShapedRecipeBuilder(block.get(), 8)
-                  .patternLine("I  ")
-                  .patternLine("SI ")
-                  .patternLine("PSI")
-                  .key('I', block.get().getFaceType().getMaterial())
-                  .key('S', Items.STICK)
-                  .key('P', block.get().getWoodType().getMaterial())
-                  .addCriterion("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
-                  .build(consumer);
+                  .pattern("I  ")
+                  .pattern("SI ")
+                  .pattern("PSI")
+                  .define('I', block.get().getFaceType().getMaterial())
+                  .define('S', Items.STICK)
+                  .define('P', block.get().getWoodType().getMaterial())
+                  .unlockedBy("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
+                  .save(consumer);
             }
             else
             {
                 new ShapelessRecipeBuilder(block.get(), 8)
-                  .addIngredient(blocks.get(block.get().getWoodType()).get(0).get(), 8)
-                  .addIngredient(DyeItem.getItem(color))
-                  .addCriterion("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
-                  .build(consumer);
+                  .requires(blocks.get(block.get().getWoodType()).get(0).get(), 8)
+                  .requires(DyeItem.byColor(color))
+                  .unlockedBy("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
+                  .save(consumer);
             }
           }));
     }
@@ -181,7 +181,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
         getRegisteredBlocks().forEach(block -> {
             if (!blockTags.containsKey(block.get().getWoodType()))
             {
-                blockTags.put(block.get().getWoodType(), blocks.createTag("shingles/" + getGroup() + "/" + block.get().getWoodType().getString()));
+                blockTags.put(block.get().getWoodType(), blocks.createTag("shingles/" + getGroup() + "/" + block.get().getWoodType().getSerializedName()));
             }
 
             blocks.buildTag(blockTags.get(block.get().getWoodType())).add(block.get());

@@ -41,8 +41,8 @@ public enum TimberFrameCentreType implements IStringSerializable
     RED_TERRACOTTA(Blocks.RED_TERRACOTTA),
     BLACK_TERRACOTTA(Blocks.BLACK_TERRACOTTA),
     // Bricks
-    BRICK(Blocks.BRICKS, "Bricks"),
-    STONE_BRICK(Blocks.STONE_BRICKS, "Stone Bricks"),
+    BRICK(Blocks.BRICKS, "Brick"),
+    STONE_BRICK(Blocks.STONE_BRICKS, "Stone Brick"),
     CREAM_BRICK(BrickType.CREAM.getMainRegisteredBlock(), "Cream Brick", "structurize:blocks/bricks/cream_bricks"),
     BEIGE_BRICK(BrickType.BEIGE.getMainRegisteredBlock(), "Beige Brick", "structurize:blocks/bricks/beige_bricks"),
     BROWN_BRICK(BrickType.BROWN.getMainRegisteredBlock(), "Brown Brick", "structurize:blocks/bricks/brown_bricks"),
@@ -87,7 +87,7 @@ public enum TimberFrameCentreType implements IStringSerializable
 
     @NotNull
     @Override
-    public String getString()
+    public String getSerializedName()
     {
         // This gets used before the registry is properly populated
         // so ensure that RegistryObjects don't get called

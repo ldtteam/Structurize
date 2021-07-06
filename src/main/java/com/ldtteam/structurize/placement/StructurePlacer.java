@@ -1,17 +1,19 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
-import com.ldtteam.structurize.util.*;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.ChangeStorage;
+import com.ldtteam.structurize.util.InventoryUtils;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -37,7 +39,7 @@ public class StructurePlacer
     /**
      * The structure iterator.
      */
-    protected final BlueprintIterator iterator;
+    protected final AbstractBlueprintIterator iterator;
 
     /**
      * The handler.
@@ -51,7 +53,18 @@ public class StructurePlacer
      */
     public StructurePlacer(final IStructureHandler handler)
     {
-        this.iterator = new BlueprintIterator(handler);
+        this.iterator = StructureIterators.getIterator(Structurize.getConfig().getServer().iteratorType.get().toString(), handler);
+        this.handler = handler;
+    }
+
+    /**
+     * Create a new structure placer.
+     * @param handler the structure handler.
+     * @param id the unique id of the handler.
+     */
+    public StructurePlacer(final IStructureHandler handler, final String id)
+    {
+        this.iterator = StructureIterators.getIterator(id, handler);
         this.handler = handler;
     }
 
@@ -70,7 +83,7 @@ public class StructurePlacer
       final ChangeStorage storage,
       final BlockPos inputPos,
       final Operation operation,
-      final Supplier<BlueprintIterator.Result> iterateFunction,
+      final Supplier<AbstractBlueprintIterator.Result> iterateFunction,
       final boolean includeEntities)
     {
         final List<ItemStack> requiredItems = new ArrayList<>();
@@ -82,11 +95,11 @@ public class StructurePlacer
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
-        BlueprintIterator.Result iterationResult = iterateFunction.get();;
+        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();;
         BlockPos lastPos = inputPos;
         int count = 0;
 
-        while (iterationResult == BlueprintIterator.Result.NEW_BLOCK)
+        while (iterationResult == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
             final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
@@ -154,7 +167,7 @@ public class StructurePlacer
             }
         }
 
-        if (iterationResult == BlueprintIterator.Result.AT_END)
+        if (iterationResult == AbstractBlueprintIterator.Result.AT_END)
         {
             iterator.reset();
             return new StructurePhasePlacementResult(iterator.getProgressPos(),
@@ -200,7 +213,7 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+                    final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
                     {
                         final Entity entity = type.get().create(world);
@@ -208,15 +221,15 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            entity.setUniqueId(UUID.randomUUID());
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
-                            entity.setPosition(posInWorld.x, posInWorld.y, posInWorld.z);
+                            entity.setUUID(UUID.randomUUID());
+                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            entity.setPos(posInWorld.x, posInWorld.y, posInWorld.z);
 
-                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(posInWorld))
+                                if (worldEntity.position().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
@@ -238,7 +251,7 @@ public class StructurePlacer
                                 }
                             }
 
-                            world.addEntity(entity);
+                            world.addFreshEntity(entity);
                             if (storage != null)
                             {
                                 storage.addToBeKilledEntity(entity);
@@ -298,7 +311,7 @@ public class StructurePlacer
                 {
                     if (!sameBlockInWorld
                           && worldState.getMaterial() != Material.AIR
-                          && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.get(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
+                          && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
                         placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                     }
@@ -368,7 +381,7 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.readEntityType(compound);
+                    final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
                     {
                         final Entity entity = type.get().create(world);
@@ -376,12 +389,12 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            final Vector3d posInWorld = entity.getPositionVec().add(pos.getX(), pos.getY(), pos.getZ());
-                            final List<? extends Entity> list = world.getEntitiesWithinAABB(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
-                                if (worldEntity.getPositionVec().equals(posInWorld))
+                                if (worldEntity.position().equals(posInWorld))
                                 {
                                     foundEntity = true;
                                     break;
@@ -439,13 +452,13 @@ public class StructurePlacer
     public boolean checkForFreeSpace(@NotNull final BlockPos pos)
     {
         iterator.setProgressPos(pos);
-        while (iterator.increment() == BlueprintIterator.Result.NEW_BLOCK)
+        while (iterator.increment() == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
             @NotNull final BlockPos localPos = iterator.getProgressPos();
 
-            final BlockPos worldPos = pos.add(localPos);
+            final BlockPos worldPos = pos.offset(localPos);
 
-            if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.down()).getMaterial().isSolid())
+            if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.below()).getMaterial().isSolid())
             {
                 iterator.reset();
                 return false;
@@ -473,7 +486,7 @@ public class StructurePlacer
      * Get the iterator instance.
      * @return the BlueprintIterator.
      */
-    public BlueprintIterator getIterator()
+    public AbstractBlueprintIterator getIterator()
     {
         return iterator;
     }

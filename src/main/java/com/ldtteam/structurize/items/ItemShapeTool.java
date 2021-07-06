@@ -11,6 +11,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.item.Item.Properties;
+
 public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
@@ -19,16 +21,16 @@ public class ItemShapeTool extends AbstractItemStructurize
      */
     public ItemShapeTool(final Properties properties)
     {
-        super("shapetool", properties.maxStackSize(1));
+        super("shapetool", properties.stacksTo(1));
     }
 
     @NotNull
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public ActionResultType useOn(final ItemUseContext context)
     {
-        if (context.getWorld().isRemote)
+        if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openShapeToolWindow(context.getPos().offset(context.getPlacementHorizontalFacing()));
+            Structurize.proxy.openShapeToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
         }
 
         return ActionResultType.SUCCESS;
@@ -36,11 +38,11 @@ public class ItemShapeTool extends AbstractItemStructurize
 
     @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand hand)
+    public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand hand)
     {
-        final ItemStack stack = playerIn.getHeldItem(hand);
+        final ItemStack stack = playerIn.getItemInHand(hand);
 
-        if (worldIn.isRemote)
+        if (worldIn.isClientSide)
         {
             Structurize.proxy.openShapeToolWindow(null);
         }

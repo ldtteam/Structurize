@@ -30,32 +30,32 @@ public class ModBlockTagsProvider extends BlockTagsProvider
     }
 
     @Override
-    protected void registerTags()
+    protected void addTags()
     {
-        tagToBuilder.putAll(tags);
+        builders.putAll(tags);
     }
 
     @Override
-    public void act(@NotNull final DirectoryCache cache)
+    public void run(@NotNull final DirectoryCache cache)
     {
         // Store the singleton builds
-        tags = new LinkedHashMap<>(this.tagToBuilder);
-        super.act(cache);
+        tags = new LinkedHashMap<>(this.builders);
+        super.run(cache);
     }
 
     public TagsProvider.Builder<Block> buildTag(ITag.INamedTag<Block> tag)
     {
-        return this.getOrCreateBuilder(tag);
+        return this.tag(tag);
     }
 
     public TagsProvider.Builder<Block> buildTag(String name)
     {
-        return this.getOrCreateBuilder(BlockTags.makeWrapperTag(name));
+        return this.tag(BlockTags.bind(name));
     }
 
     public ITag.INamedTag<Block> createTag(String path)
     {
-        return BlockTags.makeWrapperTag(modId + ":" + path);
+        return BlockTags.bind(modId + ":" + path);
     }
 
     public static ModBlockTagsProvider getInstance()

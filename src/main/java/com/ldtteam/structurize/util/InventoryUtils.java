@@ -37,7 +37,7 @@ public class InventoryUtils
 
             for (final ItemStack stack : listToDiscount)
             {
-                if (!stack.isEmpty() && stack.isItemEqual(content))
+                if (!stack.isEmpty() && stack.sameItem(content))
                 {
                     if (stack.getCount() < content.getCount())
                     {
@@ -95,13 +95,22 @@ public class InventoryUtils
     public static void consumeStack(final ItemStack tempStack, final IItemHandler handler)
     {
         int count = tempStack.getCount();
+        final ItemStack container = tempStack.getContainerItem();
+
         for (int i = 0; i < handler.getSlots(); i++)
         {
-            if (handler.getStackInSlot(i).isItemEqual(tempStack))
+            if (handler.getStackInSlot(i).sameItem(tempStack))
             {
                 final ItemStack result = handler.extractItem(i, count, false);
                 if (result.getCount() == count)
                 {
+                    if (!container.isEmpty())
+                    {
+                        for (int j = 0; j < tempStack.getCount(); j++)
+                        {
+                            transferIntoNextBestSlot(container, handler);
+                        }
+                    }
                     return;
                 }
                 count -= result.getCount();

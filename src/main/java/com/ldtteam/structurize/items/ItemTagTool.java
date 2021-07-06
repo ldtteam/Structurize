@@ -11,13 +11,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Map;
+
+import net.minecraft.item.Item.Properties;
 
 /**
  * Item for tagging positions with tags
@@ -34,7 +38,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      */
     public ItemTagTool(final ItemGroup itemGroup)
     {
-        this(new Item.Properties().maxDamage(0).setNoRepair().rarity(Rarity.UNCOMMON).group(itemGroup));
+        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
     }
 
     /**
@@ -56,7 +60,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     @Override
     public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
     {
-        if (worldIn.isRemote)
+        if (worldIn.isClientSide)
         {
             final BlockPos anchorPos = getAnchorPos(itemStack);
             if (anchorPos == null)
@@ -105,25 +109,38 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn)
+    {
+        return new ActionResult<>(
+          onAirRightClick(
+            null,
+            null,
+            worldIn,
+            playerIn,
+            playerIn.getItemInHand(handIn)),
+          playerIn.getItemInHand(handIn));
+    }
+
+    @Override
+    public ActionResultType useOn(final ItemUseContext context)
     {
         if (context.getPlayer() == null)
         {
             return ActionResultType.SUCCESS;
         }
 
-        if (!context.getWorld().isRemote)
+        if (!context.getLevel().isClientSide)
         {
             return ActionResultType.FAIL;
         }
 
         // Set anchor
-        if (context.getPlayer().isSneaking())
+        if (context.getPlayer().isShiftKeyDown())
         {
-            TileEntity te = context.getWorld().getTileEntity(context.getPos());
+            TileEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
             if (te instanceof IBlueprintDataProvider)
             {
-                BlockPosUtil.writeToNBT(context.getItem().getOrCreateTag(), TAG_ANCHOR_POS, context.getPos());
+                BlockPosUtil.writeToNBT(context.getItemInHand().getOrCreateTag(), TAG_ANCHOR_POS, context.getClickedPos());
                 LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
                 return ActionResultType.SUCCESS;
             }
@@ -138,14 +155,14 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
+    public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        if (!worldIn.isRemote())
+        if (!worldIn.isClientSide())
         {
             return false;
         }
 
-        final ItemStack stack = player.getHeldItemMainhand();
+        final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() != ModItems.tagTool.get() || player == null || worldIn == null)
         {
             return false;
@@ -169,7 +186,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         // Apply tag to item
         BlockPos relativePos = pos.subtract(anchorPos);
 
-        final TileEntity te = worldIn.getTileEntity(anchorPos);
+        final TileEntity te = worldIn.getBlockEntity(anchorPos);
         if (!(te instanceof IBlueprintDataProvider))
         {
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
@@ -186,7 +203,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
+              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
         else if (!tagPosMap.get(relativePos).contains(currentTag))
         {
@@ -194,7 +211,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
+              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
         else
         {
@@ -202,7 +219,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, relativePos, anchorPos));
 
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
-              worldIn.getBlockState(pos).getBlock().getTranslationKey()));
+              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
 
         return false;

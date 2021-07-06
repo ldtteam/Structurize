@@ -17,6 +17,8 @@ import net.minecraft.world.World;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
 
+import net.minecraft.item.Item.Properties;
+
 /**
  * Abstract item mechanic for pos selecting
  */
@@ -63,27 +65,27 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
+    public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, final Hand handIn)
     {
-        final ItemStack itemstack = playerIn.getHeldItem(handIn);
+        final ItemStack itemstack = playerIn.getItemInHand(handIn);
         final CompoundNBT compound = itemstack.getOrCreateTag();
 
         if (!compound.contains(NBT_START_POS))
         {
-            if (worldIn.isRemote())
+            if (worldIn.isClientSide())
             {
                 LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "1");
             }
-            return ActionResult.resultFail(itemstack);
+            return ActionResult.fail(itemstack);
         }
 
         if (!compound.contains(NBT_END_POS))
         {
-            if (worldIn.isRemote())
+            if (worldIn.isClientSide())
             {
                 LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "2");
             }
-            return ActionResult.resultFail(itemstack);
+            return ActionResult.fail(itemstack);
         }
 
         return new ActionResult<>(
@@ -103,14 +105,14 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public ActionResultType onItemUse(final ItemUseContext context)
+    public ActionResultType useOn(final ItemUseContext context)
     {
-        final BlockPos pos = context.getPos();
-        if (context.getWorld().isRemote())
+        final BlockPos pos = context.getClickedPos();
+        if (context.getLevel().isClientSide())
         {
             LanguageHandler.sendMessageToPlayer(context.getPlayer(), END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }
-        context.getItem().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
+        context.getItemInHand().getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(pos));
         return ActionResultType.SUCCESS;
     }
 
@@ -121,15 +123,15 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public boolean canPlayerBreakBlockWhileHolding(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
+    public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        ItemStack itemstack = player.getHeldItemMainhand();
+        ItemStack itemstack = player.getMainHandItem();
         if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
-            itemstack = player.getHeldItemOffhand();
+            itemstack = player.getOffhandItem();
         }
         itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(pos));
-        if (player.getEntityWorld().isRemote())
+        if (player.getCommandSenderWorld().isClientSide())
         {
             LanguageHandler.sendMessageToPlayer(player, START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
         }

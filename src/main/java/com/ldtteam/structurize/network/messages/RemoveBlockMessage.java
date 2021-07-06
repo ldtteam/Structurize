@@ -37,7 +37,7 @@ public class RemoveBlockMessage implements IMessage
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.block = buf.readItemStack();
+        this.block = buf.readItem();
     }
 
     /**
@@ -58,7 +58,7 @@ public class RemoveBlockMessage implements IMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeItemStack(block);
+        buf.writeItem(block);
     }
 
     @Nullable

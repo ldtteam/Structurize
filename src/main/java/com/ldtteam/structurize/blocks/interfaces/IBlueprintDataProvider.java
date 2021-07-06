@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Interface for TE's which hold schematic specific data. They need to write and read the data to nbt to save it!
@@ -56,7 +57,16 @@ public interface IBlueprintDataProvider
     /**
      * Gets the schematics corner positions, default is anchor Pos
      */
-    public Tuple<BlockPos, BlockPos> getCornerPositions();
+    public Tuple<BlockPos, BlockPos> getSchematicCorners();
+
+    /**
+     * Gets world positions
+     */
+    default Tuple<BlockPos, BlockPos> getInWorldCorners()
+    {
+        Tuple<BlockPos, BlockPos> schematicCorners = getSchematicCorners();
+        return new Tuple<>(getTilePos().offset(schematicCorners.getA()), getTilePos().offset(getSchematicCorners().getB()));
+    }
 
     /**
      * Sets the schematics corner positions
@@ -64,7 +74,7 @@ public interface IBlueprintDataProvider
      * @param pos1 first pos
      * @param pos2 second pos
      */
-    public void setCorners(BlockPos pos1, BlockPos pos2);
+    public void setSchematicCorners(BlockPos pos1, BlockPos pos2);
 
     /**
      * Default write to nbt
@@ -73,8 +83,8 @@ public interface IBlueprintDataProvider
     {
         CompoundNBT compoundNBT = new CompoundNBT();
         compoundNBT.putString(TAG_SCHEMATIC_NAME, getSchematicName());
-        BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_ONE, getCornerPositions().getA());
-        BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_TWO, getCornerPositions().getB());
+        BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_ONE, getSchematicCorners().getA());
+        BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_TWO, getSchematicCorners().getB());
 
         writeMapToCompound(compoundNBT, getPositionedTags());
         originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
@@ -127,7 +137,7 @@ public interface IBlueprintDataProvider
         // Read corners
         final BlockPos corner1 = BlockPosUtil.readFromNBT(compoundNBT, TAG_CORNER_ONE);
         final BlockPos corner2 = BlockPosUtil.readFromNBT(compoundNBT, TAG_CORNER_TWO);
-        setCorners(corner1, corner2);
+        setSchematicCorners(corner1, corner2);
 
         // Read tagPosMap
         setPositionedTags(readTagPosMapFrom(compoundNBT));
@@ -226,14 +236,40 @@ public interface IBlueprintDataProvider
      */
     default public Map<BlockPos, List<String>> getWorldTagPosMap()
     {
-        Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+        final Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
 
-        for (Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
+        for (final Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
         {
-            tagPosMap.put(entry.getKey().add(getTilePos()), entry.getValue());
+            tagPosMap.put(entry.getKey().offset(getTilePos()), entry.getValue());
         }
 
         return tagPosMap;
+    }
+
+    /**
+     * Gets the tag name to positions map
+     *
+     * @return the tag pos map with current world coords
+     */
+    default public Map<String, Set<BlockPos>> getWorldTagNamePosMap()
+    {
+        final Map<String, Set<BlockPos>> tagNamePosMap = new HashMap<>();
+
+        for (final Map.Entry<BlockPos, List<String>> entry : getPositionedTags().entrySet())
+        {
+            for (final String tagName : entry.getValue())
+            {
+                tagNamePosMap.computeIfAbsent(tagName, new Function<String, Set<BlockPos>>() {
+                    @Override
+                    public Set<BlockPos> apply(final String s)
+                    {
+                        return new HashSet<>();
+                    }
+                }).add(entry.getKey().offset(getTilePos()));
+            }
+        }
+
+        return tagNamePosMap;
     }
 
     /**
@@ -244,7 +280,7 @@ public interface IBlueprintDataProvider
      */
     default public BlockPos getRealWorldPos(final BlockPos relativePos)
     {
-        return relativePos.add(getTilePos());
+        return relativePos.offset(getTilePos());
     }
 
     /**

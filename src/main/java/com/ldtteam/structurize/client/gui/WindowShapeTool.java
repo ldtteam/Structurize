@@ -498,7 +498,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void moveLeftClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateYCCW()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
     }
 
     /**
@@ -506,7 +506,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void moveRightClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateY()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
     }
 
     /**
@@ -514,7 +514,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void moveForwardClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
     }
 
     /**
@@ -522,7 +522,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void moveBackClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().getOpposite()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
     }
 
     /**

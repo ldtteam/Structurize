@@ -35,6 +35,13 @@ public class View extends Pane
     public View(final PaneParams params)
     {
         super(params);
+
+        if (params.getParentView() != null) // might be null if created dynamically
+        {
+            if (width == 0) width = params.getParentView().width - x;
+            if (height == 0) height = params.getParentView().height - y;
+        }
+
         padding = params.getInteger("padding", padding);
     }
 
@@ -63,7 +70,7 @@ public class View extends Pane
     public void drawSelf(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
-        ms.push();
+        ms.pushPose();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
@@ -82,14 +89,14 @@ public class View extends Pane
             }
         }
 
-        ms.pop();
+        ms.popPose();
     }
 
     @Override
     public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
-        ms.push();
+        ms.pushPose();
 
         final int paddedX = x + padding;
         final int paddedY = y + padding;
@@ -108,7 +115,7 @@ public class View extends Pane
             }
         }
 
-        ms.pop();
+        ms.popPose();
     }
 
     @Override
@@ -166,6 +173,33 @@ public class View extends Pane
         for (final Pane child : children)
         {
             child.setWindow(w);
+        }
+    }
+
+    @Override
+    public void setSize(final int w, final int h)
+    {
+        super.setSize(w, h);
+
+        // Allow elements to have their size expanded when zero
+        View p = parent;
+        if (p == null) return;
+
+        if (width == 0)
+        {
+            while (p.width == 0 && p.parent != null)
+            {
+                p = p.parent;
+            }
+            width = Math.max(0, p.width - x);
+        }
+        if (height == 0)
+        {
+            while (p.height == 0 && p.parent != null)
+            {
+                p = p.parent;
+            }
+            height = Math.max(0, p.height - y);
         }
     }
 

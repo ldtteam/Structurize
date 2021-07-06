@@ -1,12 +1,16 @@
 package com.ldtteam.structurize.api.util;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ContainerBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
@@ -20,6 +24,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+
+import net.minecraft.util.math.RayTraceResult.Type;
 
 /**
  * Utility methods for the inventories.
@@ -46,17 +52,23 @@ public final class ItemStackUtils
      * Get itemStack of tileEntityData. Retrieve the data from the tileEntity.
      *
      * @param compound the tileEntity stored in a compound.
-     * @param world the world.
+     * @param state the block.
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final World world, final BlockPos pos)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final BlockState state)
     {
-        final TileEntity tileEntity = TileEntity.readTileEntity(world.getBlockState(pos), compound);
+        if (state.getBlock() instanceof ContainerBlock && compound.contains("Items"))
+        {
+            final NonNullList<ItemStack> items = NonNullList.create();
+            ItemStackHelper.loadAllItems(compound, items);
+            return items;
+        }
+
+        final TileEntity tileEntity = TileEntity.loadStatic(state, compound);
         if (tileEntity == null)
         {
             return Collections.emptyList();
         }
-        tileEntity.setWorldAndPos(world, pos);
 
         final List<ItemStack> items = new ArrayList<>();
         for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
@@ -136,7 +148,7 @@ public final class ItemStackUtils
             final List<ItemStack> request = new ArrayList<>();
             if (entity instanceof ItemFrameEntity)
             {
-                final ItemStack stack = ((ItemFrameEntity) entity).getDisplayedItem();
+                final ItemStack stack = ((ItemFrameEntity) entity).getItem();
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     stack.setCount(1);
@@ -146,7 +158,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStandEntity)
             {
-                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.copy(pos)) {
+                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.atLowerCornerOf(pos)) {
                     @NotNull
                     @Override
                     public Type getType()
@@ -154,8 +166,8 @@ public final class ItemStackUtils
                         return Type.ENTITY;
                     }
                 }));
-                entity.getArmorInventoryList().forEach(request::add);
-                entity.getHeldEquipment().forEach(request::add);
+                entity.getArmorSlots().forEach(request::add);
+                entity.getHandSlots().forEach(request::add);
             }
 
             return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());

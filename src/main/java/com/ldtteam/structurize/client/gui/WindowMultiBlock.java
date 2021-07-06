@@ -101,7 +101,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        final TileEntity block = Minecraft.getInstance().world.getTileEntity(pos);
+        final TileEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
         if (block instanceof TileEntityMultiBlock)
         {
             inputRange.setText(Integer.toString(((TileEntityMultiBlock) block).getRange()));
@@ -248,7 +248,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
             Log.getLogger().warn("Unable to parse number for MultiBlock range or speed, considering default range/speed!", e);
         }
 
-        final TileEntity block = Minecraft.getInstance().world.getTileEntity(pos);
+        final TileEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
         if (block instanceof TileEntityMultiBlock)
         {
             ((TileEntityMultiBlock) block).setSpeed(speed);

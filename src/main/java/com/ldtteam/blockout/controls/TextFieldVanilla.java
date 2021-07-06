@@ -4,6 +4,8 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.SharedConstants;
 
+import com.ldtteam.blockout.controls.TextField.Filter;
+
 /**
  * Mimics Vanilla text fields.
  */
@@ -85,7 +87,7 @@ public class TextFieldVanilla extends TextField
             fill(ms, x - 1, y - 1, x + width + 1, y + height + 1, backgroundOuterColor);
             fill(ms, x, y, x + width, y + height, backgroundInnerColor);
 
-            ms.push();
+            ms.pushPose();
             ms.translate(BACKGROUND_X_TRANSLATE, (height - BACKGROUND_Y_TRANSLATE_OFFSET) / 2, 0);
         }
 
@@ -93,7 +95,7 @@ public class TextFieldVanilla extends TextField
 
         if (backgroundEnabled)
         {
-            ms.pop();
+            ms.popPose();
         }
     }
 
@@ -140,13 +142,13 @@ public class TextFieldVanilla extends TextField
         @Override
         public String filter(final String s)
         {
-            return SharedConstants.filterAllowedCharacters(s);
+            return SharedConstants.filterText(s);
         }
 
         @Override
         public boolean isAllowedCharacter(final char c)
         {
-            return SharedConstants.isAllowedCharacter(c);
+            return SharedConstants.isAllowedChatCharacter(c);
         }
     }
 }

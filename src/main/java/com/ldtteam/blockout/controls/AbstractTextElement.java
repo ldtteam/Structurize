@@ -195,24 +195,24 @@ public abstract class AbstractTextElement extends Pane
 
         final int maxWidth = (int) (textWidth / textScale);
         preparedText = text.stream()
-            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.func_241878_f())
-                : mc.fontRenderer.trimStringToWidth(textBlock, maxWidth).stream())
+            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.getVisualOrderText())
+                : mc.font.split(textBlock, maxWidth).stream())
             .collect(Collectors.toList());
         if (textWrap)
         {
             // + Math.ceil(textScale) / textScale is to negate last pixel of vanilla font rendering
             final int maxHeight = (int) (textHeight / textScale) + 1;
-            final int lineHeight = this.mc.fontRenderer.FONT_HEIGHT + textLinespace;
+            final int lineHeight = this.mc.font.lineHeight + textLinespace;
 
             preparedText = preparedText.subList(0, Math.min(preparedText.size(), maxHeight / lineHeight));
-            renderedTextWidth = (int) (preparedText.stream().mapToInt(mc.fontRenderer::func_243245_a).max().orElse(maxWidth) * textScale);
+            renderedTextWidth = (int) (preparedText.stream().mapToInt(mc.font::width).max().orElse(maxWidth) * textScale);
             renderedTextHeight = (int) ((Math.min(preparedText.size() * lineHeight, maxHeight) - 1 - textLinespace) * textScale);
         }
         else
         {
             preparedText = preparedText.subList(0, 1);
-            renderedTextWidth = (int) (mc.fontRenderer.func_243245_a(preparedText.get(0)) * textScale);
-            renderedTextHeight = (int) ((this.mc.fontRenderer.FONT_HEIGHT - 1) * textScale);
+            renderedTextWidth = (int) (mc.font.width(preparedText.get(0)) * textScale);
+            renderedTextHeight = (int) ((this.mc.font.lineHeight - 1) * textScale);
         }
     }
 
@@ -252,15 +252,15 @@ public abstract class AbstractTextElement extends Pane
             offsetY += (textHeight - renderedTextHeight) / 2;
         }
 
-        ms.push();
+        ms.pushPose();
         ms.translate(x + offsetX, y + offsetY, 0.0d);
 
-        final Matrix4f matrix4f = ms.getLast().getMatrix();
+        final Matrix4f matrix4f = ms.last().pose();
 
         final Vector4f temp = new Vector4f(1, 1, 0, 0);
         temp.transform(matrix4f);
-        final float oldScaleX = temp.getX();
-        final float oldScaleY = temp.getY();
+        final float oldScaleX = temp.x();
+        final float oldScaleY = temp.y();
         final float newScaleX = (float) Math.round(oldScaleX * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
         final float newScaleY = (float) Math.round(oldScaleY * textScale * FILTERING_ROUNDING) / FILTERING_ROUNDING;
 
@@ -277,7 +277,7 @@ public abstract class AbstractTextElement extends Pane
             ms.scale(newScaleX / oldScaleX, newScaleY / oldScaleY, 1.0f);
         }
 
-        final IRenderTypeBuffer.Impl drawBuffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+        final IRenderTypeBuffer.Impl drawBuffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
         int lineShift = 0;
         for (final IReorderingProcessor row : preparedText)
         {
@@ -285,25 +285,25 @@ public abstract class AbstractTextElement extends Pane
 
             if (textAlignment.isRightAligned())
             {
-                xOffset = (int) ((renderedTextWidth - mc.fontRenderer.func_243245_a(row) * textScale) / textScale);
+                xOffset = (int) ((renderedTextWidth - mc.font.width(row) * textScale) / textScale);
             }
             else if (textAlignment.isHorizontalCentered())
             {
-                xOffset = (int) ((renderedTextWidth - mc.fontRenderer.func_243245_a(row) * textScale) / 2 / textScale);
+                xOffset = (int) ((renderedTextWidth - mc.font.width(row) * textScale) / 2 / textScale);
             }
             else
             {
                 xOffset = 0;
             }
 
-            mc.fontRenderer.func_238416_a_(row, xOffset, lineShift, color, textShadow, matrix4f, drawBuffer, false, 0, 15728880);
-            lineShift += mc.fontRenderer.FONT_HEIGHT + textLinespace;
+            mc.font.drawInBatch(row, xOffset, lineShift, color, textShadow, matrix4f, drawBuffer, false, 0, 15728880);
+            lineShift += mc.font.lineHeight + textLinespace;
         }
-        drawBuffer.finish();
+        drawBuffer.endBatch();
 
         // TODO: forge disable filtering
 
-        ms.pop();
+        ms.popPose();
     }
 
     public Alignment getTextAlignment()

@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Log;
+import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -250,8 +252,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             if (Minecraft.getInstance().player.isCreative())
             {
-                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
-                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
+                final Button pasteButton = findPaneOfTypeByID(BUTTON_PASTE, Button.class);
+                pasteButton.setVisible(true);
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButton).append(new TranslationTextComponent("structurize.gui.buildtool.paste")).build();
+                final Button pasteButtonNice = findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class);
+                pasteButtonNice.setVisible(true);
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslationTextComponent("structurize.gui.buildtool.pastenice")).build();
             }
             else
             {
@@ -747,7 +753,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveLeftClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateYCCW()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
     }
 
     /**
@@ -755,7 +761,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveRightClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateY()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
     }
 
     /**
@@ -763,7 +769,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveForwardClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
     }
 
     /**
@@ -771,7 +777,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void moveBackClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().getOpposite()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
     }
 
     /**
@@ -836,7 +842,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
-        final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().world, new BlockPos(0, 0, 0), structureName.toString(),
+        final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName.toString(),
             new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
 
         if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))

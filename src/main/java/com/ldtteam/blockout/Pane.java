@@ -330,8 +330,8 @@ public class Pane extends AbstractGui
 
                 if (wasCursorInPane && !id.isEmpty())
                 {
-                    final int stringWidth = mc.fontRenderer.getStringWidth(id);
-                    mc.fontRenderer.drawString(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.fontRenderer.FONT_HEIGHT, color);
+                    final int stringWidth = mc.font.width(id);
+                    mc.font.draw(ms, id, x + getWidth() - stringWidth, y + getHeight() - mc.font.lineHeight, color);
                 }
             }
         }
@@ -525,6 +525,9 @@ public class Pane extends AbstractGui
         if (parent != null)
         {
             parent.addChild(this);
+
+            // Allow views to expand zero-widths
+            setSize(width, height);
         }
     }
 
@@ -639,19 +642,19 @@ public class Pane extends AbstractGui
 
     protected synchronized void scissorsStart(final MatrixStack ms, final int contentWidth, final int contentHeight)
     {
-        final int fbWidth = mc.mainWindow.getFramebufferWidth();
-        final int fbHeight = mc.mainWindow.getFramebufferHeight();
+        final int fbWidth = mc.window.getWidth();
+        final int fbHeight = mc.window.getHeight();
 
         final Vector4f start = new Vector4f(x, y, 0.0f, 1.0f);
         final Vector4f end = new Vector4f(x + width, y + height, 0.0f, 1.0f);
-        start.transform(ms.getLast().getMatrix());
-        end.transform(ms.getLast().getMatrix());
+        start.transform(ms.last().pose());
+        end.transform(ms.last().pose());
 
-        int scissorsXstart = MathHelper.clamp((int) Math.floor(start.getX()), 0, fbWidth);
-        int scissorsXend = MathHelper.clamp((int) Math.floor(end.getX()), 0, fbWidth);
+        int scissorsXstart = MathHelper.clamp((int) Math.floor(start.x()), 0, fbWidth);
+        int scissorsXend = MathHelper.clamp((int) Math.floor(end.x()), 0, fbWidth);
 
-        int scissorsYstart = MathHelper.clamp((int) Math.floor(start.getY()), 0, fbHeight);
-        int scissorsYend = MathHelper.clamp((int) Math.floor(end.getY()), 0, fbHeight);
+        int scissorsYstart = MathHelper.clamp((int) Math.floor(start.y()), 0, fbHeight);
+        int scissorsYend = MathHelper.clamp((int) Math.floor(end.y()), 0, fbHeight);
 
         // negate bottom top (opengl things)
         final int temp = scissorsYstart;
@@ -707,22 +710,22 @@ public class Pane extends AbstractGui
             final int w = popped.xEnd - popped.xStart;
             final int h = popped.yEnd - popped.yStart;
 
-            final int yStart = mc.mainWindow.getFramebufferHeight() - popped.yEnd;
+            final int yStart = mc.window.getHeight() - popped.yEnd;
 
-            ms.push();
-            ms.getLast().getMatrix().setIdentity();
+            ms.pushPose();
+            ms.last().pose().setIdentity();
             Render.drawOutlineRect(ms, popped.xStart, yStart, w, h, color, 2.0f);
 
             final String scId = "scissor_" + (id.isEmpty() ? this.toString() : id);
-            final int scale = (int) mc.mainWindow.getGuiScaleFactor();
-            final int stringWidth = mc.fontRenderer.getStringWidth(scId);
+            final int scale = (int) mc.window.getGuiScale();
+            final int stringWidth = mc.font.width(scId);
             ms.scale(scale, scale, 1.0f);
-            mc.fontRenderer.drawString(ms,
+            mc.font.draw(ms,
                 scId,
                 (popped.xStart + w) / scale - stringWidth,
-                (yStart + h) / scale - mc.fontRenderer.FONT_HEIGHT,
+                (yStart + h) / scale - mc.font.lineHeight,
                 color);
-            ms.pop();
+            ms.popPose();
         }
 
         window.getScreen().width = popped.oldGuiWidth;
@@ -848,11 +851,11 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
-            return mc.fontRenderer.drawStringWithShadow(ms, text, x, y, color);
+            return mc.font.drawShadow(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.drawString(ms, text, x, y, color);
+            return mc.font.draw(ms, text, x, y, color);
         }
     }
 
@@ -860,11 +863,11 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
-            return mc.fontRenderer.func_243246_a(ms, text, x, y, color);
+            return mc.font.drawShadow(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.func_243248_b(ms, text, x, y, color);
+            return mc.font.draw(ms, text, x, y, color);
         }
     }
 
@@ -872,11 +875,11 @@ public class Pane extends AbstractGui
     {
         if (shadow)
         {
-            return mc.fontRenderer.func_238407_a_(ms, text, x, y, color);
+            return mc.font.drawShadow(ms, text, x, y, color);
         }
         else
         {
-            return mc.fontRenderer.func_238422_b_(ms, text, x, y, color);
+            return mc.font.draw(ms, text, x, y, color);
         }
     }
 
@@ -932,8 +935,8 @@ public class Pane extends AbstractGui
         final int repeatCountX = Math.max(1, Math.max(0, width - (uWidth - repeatWidth)) / repeatWidth);
         final int repeatCountY = Math.max(1, Math.max(0, height - (vHeight - repeatHeight)) / repeatHeight);
 
-        final Matrix4f mat = ms.getLast().getMatrix();
-        final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        final Matrix4f mat = ms.last().pose();
+        final BufferBuilder buffer = Tessellator.getInstance().getBuilder();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         // main
@@ -953,10 +956,10 @@ public class Pane extends AbstractGui
                 final float minV = (float) (v + vAdjust) / textureHeight;
                 final float maxV = (float) (v + vAdjust + h) / textureHeight;
 
-                buffer.pos(mat, xStart, yStart + h, 0).tex(minU, maxV).endVertex();
-                buffer.pos(mat, xStart + w, yStart + h, 0).tex(maxU, maxV).endVertex();
-                buffer.pos(mat, xStart + w, yStart, 0).tex(maxU, minV).endVertex();
-                buffer.pos(mat, xStart, yStart, 0).tex(minU, minV).endVertex();
+                buffer.vertex(mat, xStart, yStart + h, 0).uv(minU, maxV).endVertex();
+                buffer.vertex(mat, xStart + w, yStart + h, 0).uv(maxU, maxV).endVertex();
+                buffer.vertex(mat, xStart + w, yStart, 0).uv(maxU, minV).endVertex();
+                buffer.vertex(mat, xStart, yStart, 0).uv(minU, minV).endVertex();
             }
         }
 
@@ -978,10 +981,10 @@ public class Pane extends AbstractGui
             final float minU = (float) (u + uAdjust) / textureWidth;
             final float maxU = (float) (u + uAdjust + w) / textureWidth;
 
-            buffer.pos(mat, xStart, yEnd + vLeft, 0).tex(minU, restMaxV).endVertex();
-            buffer.pos(mat, xStart + w, yEnd + vLeft, 0).tex(maxU, restMaxV).endVertex();
-            buffer.pos(mat, xStart + w, yEnd, 0).tex(maxU, restMinV).endVertex();
-            buffer.pos(mat, xStart, yEnd, 0).tex(minU, restMinV).endVertex();
+            buffer.vertex(mat, xStart, yEnd + vLeft, 0).uv(minU, restMaxV).endVertex();
+            buffer.vertex(mat, xStart + w, yEnd + vLeft, 0).uv(maxU, restMaxV).endVertex();
+            buffer.vertex(mat, xStart + w, yEnd, 0).uv(maxU, restMinV).endVertex();
+            buffer.vertex(mat, xStart, yEnd, 0).uv(minU, restMinV).endVertex();
         }
 
         // left border
@@ -993,20 +996,20 @@ public class Pane extends AbstractGui
             float minV = (float) (v + vAdjust) / textureHeight;
             float maxV = (float) (v + vAdjust + h) / textureHeight;
 
-            buffer.pos(mat, xEnd, yStart + h, 0).tex(restMinU, maxV).endVertex();
-            buffer.pos(mat, xEnd + uLeft, yStart + h, 0).tex(restMaxU, maxV).endVertex();
-            buffer.pos(mat, xEnd + uLeft, yStart, 0).tex(restMaxU, minV).endVertex();
-            buffer.pos(mat, xEnd, yStart, 0).tex(restMinU, minV).endVertex();
+            buffer.vertex(mat, xEnd, yStart + h, 0).uv(restMinU, maxV).endVertex();
+            buffer.vertex(mat, xEnd + uLeft, yStart + h, 0).uv(restMaxU, maxV).endVertex();
+            buffer.vertex(mat, xEnd + uLeft, yStart, 0).uv(restMaxU, minV).endVertex();
+            buffer.vertex(mat, xEnd, yStart, 0).uv(restMinU, minV).endVertex();
         }
 
         // bot left corner
-        buffer.pos(mat, xEnd, yEnd + vLeft, 0).tex(restMinU, restMaxV).endVertex();
-        buffer.pos(mat, xEnd + uLeft, yEnd + vLeft, 0).tex(restMaxU, restMaxV).endVertex();
-        buffer.pos(mat, xEnd + uLeft, yEnd, 0).tex(restMaxU, restMinV).endVertex();
-        buffer.pos(mat, xEnd, yEnd, 0).tex(restMinU, restMinV).endVertex();
+        buffer.vertex(mat, xEnd, yEnd + vLeft, 0).uv(restMinU, restMaxV).endVertex();
+        buffer.vertex(mat, xEnd + uLeft, yEnd + vLeft, 0).uv(restMaxU, restMaxV).endVertex();
+        buffer.vertex(mat, xEnd + uLeft, yEnd, 0).uv(restMaxU, restMinV).endVertex();
+        buffer.vertex(mat, xEnd, yEnd, 0).uv(restMinU, restMinV).endVertex();
 
-        buffer.finishDrawing();
+        buffer.end();
         RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.draw(buffer);
+        WorldVertexBufferUploader.end(buffer);
     }
 }

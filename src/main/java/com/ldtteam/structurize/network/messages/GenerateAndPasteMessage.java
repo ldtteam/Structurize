@@ -88,12 +88,12 @@ public class GenerateAndPasteMessage implements IMessage
         this.height = buf.readInt();
         this.frequency = buf.readInt();
         this.shape = Shape.values()[buf.readInt()];
-        this.block = buf.readItemStack();
-        this.block2 = buf.readItemStack();
+        this.block = buf.readItem();
+        this.block2 = buf.readItem();
         this.hollow = buf.readBoolean();
         this.rotation = buf.readInt();
         this.mirror = buf.readBoolean();
-        this.equation = buf.readString(32767);
+        this.equation = buf.readUtf(32767);
     }
 
     /**
@@ -157,12 +157,12 @@ public class GenerateAndPasteMessage implements IMessage
         buf.writeInt(height);
         buf.writeInt(frequency);
         buf.writeInt(shape.ordinal());
-        buf.writeItemStack(block);
-        buf.writeItemStack(block2);
+        buf.writeItem(block);
+        buf.writeItem(block2);
         buf.writeBoolean(hollow);
         buf.writeInt(rotation);
         buf.writeBoolean(mirror);
-        buf.writeString(equation);
+        buf.writeUtf(equation);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class GenerateAndPasteMessage implements IMessage
             return;
         }
 
-        Manager.pasteStructure(ctxIn.getSender().getServerWorld(),
+        Manager.pasteStructure(ctxIn.getSender().getLevel(),
           pos,
           width,
           length,

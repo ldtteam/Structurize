@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class PaperWallList implements IBlockList<BlockPaperWall>
 {
-    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.makeWrapperTag("structurize:paper_walls");
-    public static final ITag.INamedTag<Item>  ITEM_TAG  = ItemTags.makeWrapperTag("structurize:paper_walls");
+    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.bind("structurize:paper_walls");
+    public static final ITag.INamedTag<Item>  ITEM_TAG  = ItemTags.bind("structurize:paper_walls");
 
     public static final Map<RegistryObject<BlockPaperWall>, WoodType> blocks = new HashMap<>();
 
@@ -33,7 +33,7 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
         for (WoodType type : WoodType.values())
         {
             RegistryObject<BlockPaperWall> block = ModBlocks.register(
-              type.getString() + "_blockpaperwall",
+              type.getSerializedName() + "_blockpaperwall",
               () -> new BlockPaperWall(type),
               ModItemGroups.CONSTRUCTION
             );
@@ -54,8 +54,8 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
         getRegisteredBlocks().forEach(
           block -> states.paneBlock(
             block.get(),
-            new ResourceLocation(Constants.MOD_ID, "blocks/paperwall/" + blocks.get(block).getString() + "_pane"),
-            new ResourceLocation(Constants.MOD_ID, "blocks/paperwall/" + blocks.get(block).getString() + "_edge"))
+            new ResourceLocation(Constants.MOD_ID, "blocks/paperwall/" + blocks.get(block).getSerializedName() + "_pane"),
+            new ResourceLocation(Constants.MOD_ID, "blocks/paperwall/" + blocks.get(block).getSerializedName() + "_edge"))
         );
     }
 
@@ -64,21 +64,21 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
     {
         getRegisteredBlocks().forEach(
           block -> models.withExistingParent(block.get().getRegistryName().getPath(), "item/generated")
-            .texture("layer0", models.modLoc("blocks/paperwall/" + blocks.get(block).getString() + "_pane")));
+            .texture("layer0", models.modLoc("blocks/paperwall/" + blocks.get(block).getSerializedName() + "_pane")));
     }
 
     @Override
     public void generateRecipes(final ModRecipeProvider provider)
     {
         getRegisteredBlocks().forEach(block -> provider.add(
-          consumer -> ShapedRecipeBuilder.shapedRecipe(block.get(), 8)
-            .patternLine("###")
-            .patternLine("PPP")
-            .patternLine("###")
-            .key('#', blocks.get(block).getMaterial())
-            .key('P', Items.PAPER)
-            .addCriterion("has_"+block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
-            .build(consumer)));
+          consumer -> ShapedRecipeBuilder.shaped(block.get(), 8)
+            .pattern("###")
+            .pattern("PPP")
+            .pattern("###")
+            .define('#', blocks.get(block).getMaterial())
+            .define('P', Items.PAPER)
+            .unlockedBy("has_"+block.get().getRegistryName().getPath(), provider.getCriterion(block.get()))
+            .save(consumer)));
     }
 
     @Override
@@ -91,6 +91,6 @@ public class PaperWallList implements IBlockList<BlockPaperWall>
     @Override
     public void generateTranslations(final ModLanguageProvider lang)
     {
-        getBlocks().forEach(block -> lang.add(block, ModLanguageProvider.format(block.getType().getString() + " Paper Wall")));
+        getBlocks().forEach(block -> lang.add(block, ModLanguageProvider.format(block.getType().getSerializedName() + " Paper Wall")));
     }
 }

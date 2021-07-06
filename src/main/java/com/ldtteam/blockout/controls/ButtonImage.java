@@ -402,7 +402,7 @@ public class ButtonImage extends Button
             h = getHeight();
         }
 
-        mc.getTextureManager().bindTexture(bind);
+        mc.getTextureManager().bind(bind);
 
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);

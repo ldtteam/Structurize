@@ -9,6 +9,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 /**
  * This block is used as a substitution block for the Builder. Every solid block can be substituted by this block in schematics. This helps make schematics independent from
  * location and ground.
@@ -31,12 +33,12 @@ public class BlockSubstitution extends Block
      */
     public BlockSubstitution()
     {
-        super(Properties.create(Material.WOOD).hardnessAndResistance(BLOCK_HARDNESS, RESISTANCE));
+        super(Properties.of(Material.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
     }
 
     @Override
     public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
     {
-        return VoxelShapes.create(.125D, .125D, .125D, .875D, .875D, .875D);
+        return VoxelShapes.box(.125D, .125D, .125D, .875D, .875D, .875D);
     }
 }

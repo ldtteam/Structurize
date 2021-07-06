@@ -9,6 +9,7 @@ import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
@@ -136,9 +137,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     public void onOpened()
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getDisplayName());
+        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getHoverName());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getDisplayName());
+        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getHoverName());
         updateResources();
         updateResourceList();
     }
@@ -162,7 +163,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         {
             filter = filterNew;
             filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                .filter(stack -> stack.getTranslationKey().toLowerCase(Locale.US).contains(filter))
+                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter))
                 .collect(Collectors.toList());
         }
         return result;
@@ -187,11 +188,17 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
                     {
                         LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
                             "structurize.gui.replaceblock.ambiguous_properties",
-                            LanguageHandler.translateKey(fromBS.getBlock().getTranslationKey()),
-                            LanguageHandler.translateKey(toBS.getBlock().getTranslationKey()),
+                            LanguageHandler.translateKey(fromBS.getBlock().getDescriptionId()),
+                            LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()),
                             missingProperties.stream()
                                 .map(prop -> getPropertyName(prop) + " - " + prop.getName())
                                 .collect(Collectors.joining(", ", "[", "]")));
+                    }
+                    if (toBS.getBlock().is(ModBlocks.NULL_PLACEMENT))
+                    {
+                        LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
+                            "structurize.gui.replaceblock.null_placement",
+                            LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()));
                     }
                     Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
                 }
@@ -211,7 +218,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getDisplayName());
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getHoverName());
         }
     }
 
@@ -243,7 +250,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 final ItemStack resource = filteredItems.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
-                resourceLabel.setText((IFormattableTextComponent) resource.getDisplayName());
+                resourceLabel.setText((IFormattableTextComponent) resource.getHoverName());
                 resourceLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }

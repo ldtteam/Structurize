@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-import static com.ldtteam.structurize.placement.BlueprintIterator.NULL_POS;
+import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
@@ -159,7 +159,7 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerWorld world)
     {
-        if (player != null && player.world.getDimensionKey() != world.getDimensionKey())
+        if (player != null && player.level.dimension() != world.dimension())
         {
             return false;
         }
@@ -171,7 +171,7 @@ public class TickedWorldOperation
 
         if (operation == OperationType.PLACE_STRUCTURE)
         {
-            if (placer.getHandler().getWorld().getDimensionKey().getLocation().equals(world.getDimensionKey().getLocation()))
+            if (placer.getHandler().getWorld().dimension().location().equals(world.dimension().location()))
             {
                 StructurePhasePlacementResult result;
                 switch (structurePhase)
@@ -179,7 +179,7 @@ public class TickedWorldOperation
                     case 0:
                         //water
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
-                          () -> placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().isSolid()), false);
+                          () -> placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().canOcclude()), false);
 
                         currentPos = result.getIteratorPos();
                         break;
@@ -230,7 +230,7 @@ public class TickedWorldOperation
      */
     private boolean run(final ServerWorld world)
     {
-        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUniqueID(), "placeStuffForMePl0x"));
+        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUUID(), "placeStuffForMePl0x"));
         int count = 0;
         for (int y = currentPos.getY(); y <= endPos.getY(); y++)
         {
@@ -243,15 +243,16 @@ public class TickedWorldOperation
                     final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
                     if (correctBlockToRemoveOrReplace(stack, blockState, firstBlock))
                     {
-                        if ((blockState.getBlock() instanceof DoorBlock && blockState.get(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
-                              || (blockState.getBlock() instanceof BedBlock && blockState.get(BedBlock.PART) == BedPart.HEAD))
+                        if ((blockState.getBlock() instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
+                              || (blockState.getBlock() instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD))
                         {
                             continue;
                         }
                         count++;
 
                         storage.addPositionStorage(here, world);
-                        if (blockState.getBlock() instanceof IBucketPickupHandler || blockState.getBlock() instanceof FlowingFluidBlock)
+                        if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof IBucketPickupHandler
+                            || blockState.getBlock() instanceof FlowingFluidBlock))
                         {
                             BlockUtils.removeFluid(world, here);
                             if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
@@ -301,8 +302,8 @@ public class TickedWorldOperation
      */
     private static boolean correctBlockToRemoveOrReplace(final ItemStack replacementStack, final BlockState worldState, final ItemStack compareStack)
     {
-        return (replacementStack != null && replacementStack.isItemEqual(compareStack)
-                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getFluid())
+        return (replacementStack != null && replacementStack.sameItem(compareStack)
+                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getType())
                   || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof FlowingFluidBlock
                   && ((BucketItem)compareStack.getItem()).getFluid() == ((FlowingFluidBlock)worldState.getBlock()).getFluid())
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));

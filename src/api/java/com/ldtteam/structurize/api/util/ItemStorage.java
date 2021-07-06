@@ -152,7 +152,7 @@ public class ItemStorage
     public int hashCode()
     {
         return Objects.hash(stack.getItem())
-                + (this.shouldIgnoreDamageValue ? 0 : (this.stack.getDamage() * 31))
+                + (this.shouldIgnoreDamageValue ? 0 : (this.stack.getDamageValue() * 31))
                 + (this.shouldIgnoreNBTValue ? 0 : ((this.stack.serializeNBT() == null) ? 0 : this.stack.serializeNBT().hashCode()));
     }
 
@@ -171,7 +171,7 @@ public class ItemStorage
         final ItemStorage that = (ItemStorage) o;
 
 
-        return stack.isItemEqual(that.getItemStack())
+        return stack.sameItem(that.getItemStack())
                 && (this.shouldIgnoreDamageValue || that.getDamageValue() == this.getDamageValue())
                 && (this.shouldIgnoreNBTValue || that.getItemStack().serializeNBT() == this.getItemStack().serializeNBT());
     }
@@ -194,6 +194,6 @@ public class ItemStorage
      */
     public int getDamageValue()
     {
-        return stack.getDamage();
+        return stack.getDamageValue();
     }
 }

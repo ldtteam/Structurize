@@ -1,7 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
 import com.ldtteam.blockout.Log;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -15,7 +14,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,8 +27,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
@@ -167,7 +167,7 @@ public class Blueprint
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
-        this.palette.add(0, ModBlocks.blockSubstitution.get().getDefaultState());
+        this.palette.add(0, ModBlocks.blockSubstitution.get().defaultBlockState());
     }
 
     /**
@@ -405,7 +405,7 @@ public class Blueprint
         }
 
         final CompoundNBT te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
-        final BlockPos tePos = structurePos.add(worldPos);
+        final BlockPos tePos = structurePos.offset(worldPos);
         te.putInt("x", tePos.getX());
         te.putInt("y", tePos.getY());
         te.putInt("z", tePos.getZ());
@@ -498,7 +498,8 @@ public class Blueprint
     private BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list = getBlockInfoAsList().stream()
-            .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock)
+                                       .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock
+                                                              || (blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
             .collect(Collectors.toList());
 
         if (list.size() != 1)
@@ -562,7 +563,7 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).add(minX, minY, minZ);
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).offset(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
@@ -618,9 +619,9 @@ public class Blueprint
             }
         }
 
-        BlockPos newOffsetPos = Template.getTransformedPos(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
+        BlockPos newOffsetPos = Template.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
 
-        setCachePrimaryOffset(newOffsetPos.add(minX, minY, minZ));
+        setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
 
         sizeX = newSizeX;
         sizeY = newSizeY;
@@ -716,7 +717,7 @@ public class Blueprint
         final Rotation rotation,
         final Mirror mirror)
     {
-        final Optional<EntityType<?>> type = EntityType.readEntityType(entityInfo);
+        final Optional<EntityType<?>> type = EntityType.by(entityInfo);
         if (type.isPresent())
         {
             final Entity finalEntity = type.get().create(world);
@@ -727,26 +728,26 @@ public class Blueprint
                 {
                     finalEntity.deserializeNBT(entityInfo);
 
-                    final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.getPositionVec())
-                                                 .add(Vector3d.copy(pos));
-                    finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(mirror) - NINETY_DEGREES);
-                    final double rotationYaw = finalEntity.getMirroredYaw(mirror)
-                                                 + ((double) finalEntity.getMirroredYaw(mirror) - (double) finalEntity.getRotatedYaw(rotation));
+                    final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.position())
+                                                 .add(Vector3d.atLowerCornerOf(pos));
+                    finalEntity.yRotO = (float) (finalEntity.mirror(mirror) - NINETY_DEGREES);
+                    final double rotationYaw = finalEntity.mirror(mirror)
+                                                 + ((double) finalEntity.mirror(mirror) - (double) finalEntity.rotate(rotation));
 
                     if (finalEntity instanceof HangingEntity)
                     {
-                        finalEntity.setPosition(entityVec.x, entityVec.y, entityVec.z);
+                        finalEntity.setPos(entityVec.x, entityVec.y, entityVec.z);
                     }
                     else
                     {
-                        finalEntity.setLocationAndAngles(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.rotationPitch);
+                        finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.xRot);
                     }
 
                     return finalEntity.serializeNBT();
                 }
                 catch (final Exception ex)
                 {
-                    Log.getLogger().error("Entity: " + type.get().getTranslationKey() + " failed to load. ", ex);
+                    Log.getLogger().error("Entity: " + type.get().getDescriptionId() + " failed to load. ", ex);
                     return null;
                 }
             }

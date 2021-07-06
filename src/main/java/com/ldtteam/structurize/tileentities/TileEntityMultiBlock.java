@@ -48,12 +48,12 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     /**
      * Default gate and bridge range.
      */
-    public static final int DEFAULT_RANGE         = 3;
+    public static final int DEFAULT_RANGE = 3;
 
     /**
      * Default gate and bridge range.
      */
-    public static final int DEFAULT_SPEED        = 2;
+    public static final int DEFAULT_SPEED = 2;
 
     /**
      * The last redstone state which got in.
@@ -107,7 +107,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
      */
     public void handleRedstone(final boolean signal)
     {
-        if(speed == 0)
+        if (speed == 0)
         {
             speed = DEFAULT_SPEED;
         }
@@ -130,7 +130,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     @Override
     public void tick()
     {
-        if(world == null || world.isRemote)
+        if (level == null || level.isClientSide)
         {
             return;
         }
@@ -139,9 +139,9 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
             progress = range;
         }
 
-        if(progress < range)
+        if (progress < range)
         {
-            if (ticksPassed % ( TICKS_SECOND / speed) == 0)
+            if (ticksPassed % (TICKS_SECOND / speed) == 0)
             {
                 handleTick();
                 ticksPassed = 1;
@@ -157,15 +157,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     {
         final Direction currentOutPutDirection = currentDirection == direction ? output : direction;
 
-        if(progress < range)
+        if (progress < range)
         {
-            final BlockState blockToMove = world.getBlockState(pos.offset(currentDirection, 1));
+            final BlockState blockToMove = level.getBlockState(worldPosition.relative(currentDirection, 1));
             if (blockToMove.getBlock() == Blocks.AIR
-                    || blockToMove.getPushReaction() == PushReaction.IGNORE
-                    || blockToMove.getPushReaction() == PushReaction.DESTROY
-                    || blockToMove.getPushReaction() == PushReaction.BLOCK
-                    || blockToMove.getBlock().hasTileEntity(blockToMove)
-                    || blockToMove.getBlock() == Blocks.BEDROCK)
+                  || blockToMove.getPistonPushReaction() == PushReaction.IGNORE
+                  || blockToMove.getPistonPushReaction() == PushReaction.DESTROY
+                  || blockToMove.getPistonPushReaction() == PushReaction.BLOCK
+                  || blockToMove.getBlock().hasTileEntity(blockToMove)
+                  || blockToMove.getBlock() == Blocks.BEDROCK)
             {
                 progress++;
                 return;
@@ -176,57 +176,57 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
                 final int blockToGoTo = i - 1 - progress + (i - 1 - progress >= 0 ? 1 : 0);
                 final int blockToGoFrom = i + 1 - progress - (i + 1 - progress <= 0 ? 1 : 0);
 
-                final BlockPos posToGo = blockToGoTo > 0 ? pos.offset(currentDirection, blockToGoTo) : pos.offset(currentOutPutDirection, Math.abs(blockToGoTo));
-                final BlockPos posToGoFrom = blockToGoFrom > 0 ? pos.offset(currentDirection, blockToGoFrom) : pos.offset(currentOutPutDirection, Math.abs(blockToGoFrom));
-                if (world.isAirBlock(posToGo) || world.getBlockState(posToGo).getMaterial().isLiquid())
+                final BlockPos posToGo = blockToGoTo > 0 ? worldPosition.relative(currentDirection, blockToGoTo) : worldPosition.relative(currentOutPutDirection, Math.abs(blockToGoTo));
+                final BlockPos posToGoFrom = blockToGoFrom > 0 ? worldPosition.relative(currentDirection, blockToGoFrom) : worldPosition.relative(currentOutPutDirection, Math.abs(blockToGoFrom));
+                if (level.isEmptyBlock(posToGo) || level.getBlockState(posToGo).getMaterial().isLiquid())
                 {
-                    BlockState tempState = world.getBlockState(posToGoFrom);
-                    if (blockToMove.getBlock() == tempState.getBlock() && world.isBlockLoaded(posToGoFrom) && world.isBlockLoaded(posToGo))
+                    BlockState tempState = level.getBlockState(posToGoFrom);
+                    if (blockToMove.getBlock() == tempState.getBlock() && level.hasChunkAt(posToGoFrom) && level.hasChunkAt(posToGo))
                     {
-                        pushEntitiesIfNecessary(posToGo, pos);
+                        pushEntitiesIfNecessary(posToGo, worldPosition);
 
-                        tempState = Block.getValidBlockForPosition(tempState, this.world, posToGo);
-                        world.setBlockState(posToGo, tempState, 67);
+                        tempState = Block.updateFromNeighbourShapes(tempState, this.level, posToGo);
+                        level.setBlock(posToGo, tempState, 67);
                         if (tempState.getBlock() instanceof IBucketPickupHandler)
                         {
-                            ((IBucketPickupHandler) tempState.getBlock()).pickupFluid(world, posToGo, tempState);
+                            ((IBucketPickupHandler) tempState.getBlock()).takeLiquid(level, posToGo, tempState);
                         }
-                        this.world.neighborChanged(posToGo, tempState.getBlock(), posToGo);
+                        this.level.neighborChanged(posToGo, tempState.getBlock(), posToGo);
 
-                        world.removeBlock(posToGoFrom, false);
+                        level.removeBlock(posToGoFrom, false);
                     }
                 }
             }
-            world.playSound((PlayerEntity) null,
-                    pos,
-                    SoundEvents.BLOCK_PISTON_EXTEND,
-                    SoundCategory.BLOCKS,
-                    (float) VOLUME,
-                    (float) PITCH);
+            level.playSound((PlayerEntity) null,
+              worldPosition,
+              SoundEvents.PISTON_EXTEND,
+              SoundCategory.BLOCKS,
+              (float) VOLUME,
+              (float) PITCH);
             progress++;
         }
     }
 
     private void pushEntitiesIfNecessary(final BlockPos posToGo, final BlockPos pos)
     {
-        final List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(posToGo));
+        final List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AxisAlignedBB(posToGo));
         final BlockPos vector = posToGo.subtract(pos);
-        final BlockPos posTo = posToGo.offset(getFacingFromVector(vector.getX(), vector.getY(), vector.getZ()));
-        for(final Entity entity : entities)
+        final BlockPos posTo = posToGo.relative(getNearest(vector.getX(), vector.getY(), vector.getZ()));
+        for (final Entity entity : entities)
         {
-            entity.setPositionAndUpdate(posTo.getX() + HALF_BLOCK, posTo.getY() + HALF_BLOCK, posTo.getZ() + HALF_BLOCK);
+            entity.teleportTo(posTo.getX() + HALF_BLOCK, posTo.getY() + HALF_BLOCK, posTo.getZ() + HALF_BLOCK);
         }
     }
 
     @Override
     public void rotate(final Rotation rotationIn)
     {
-        if(output != UP && output != DOWN)
+        if (output != UP && output != DOWN)
         {
             output = rotationIn.rotate(output);
         }
 
-        if(direction != UP && direction != DOWN)
+        if (direction != UP && direction != DOWN)
         {
             direction = rotationIn.rotate(direction);
         }
@@ -236,12 +236,12 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     @Override
     public void mirror(final Mirror mirrorIn)
     {
-        if(output != UP && output != DOWN)
+        if (output != UP && output != DOWN)
         {
             output = mirrorIn.mirror(output);
         }
 
-        if(direction != UP && direction != DOWN)
+        if (direction != UP && direction != DOWN)
         {
             direction = mirrorIn.mirror(direction);
         }
@@ -322,6 +322,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     /**
      * Get the speed of the block.
+     *
      * @return the speed (min 1 max 3).
      */
     public int getSpeed()
@@ -331,6 +332,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     /**
      * Setter for speed.
+     *
      * @param speed the speed to set.
      */
     public void setSpeed(final int speed)
@@ -339,15 +341,15 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void read(final BlockState blockState, final CompoundNBT compound)
+    public void load(final BlockState blockState, final CompoundNBT compound)
     {
-        super.read(blockState, compound);
+        super.load(blockState, compound);
 
         range = compound.getInt(TAG_RANGE);
         this.progress = compound.getInt(TAG_PROGRESS);
         direction = values()[compound.getInt(TAG_DIRECTION)];
         on = compound.getBoolean(TAG_INPUT);
-        if(compound.keySet().contains(TAG_OUTPUT_DIRECTION))
+        if (compound.getAllKeys().contains(TAG_OUTPUT_DIRECTION))
         {
             output = values()[compound.getInt(TAG_OUTPUT_DIRECTION)];
         }
@@ -360,37 +362,47 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     @NotNull
     @Override
-    public CompoundNBT write(final CompoundNBT compound)
+    public CompoundNBT save(final CompoundNBT compound)
     {
-        super.write(compound);
+        super.save(compound);
         compound.putInt(TAG_RANGE, range);
         compound.putInt(TAG_PROGRESS, progress);
         compound.putInt(TAG_DIRECTION, direction.ordinal());
         compound.putBoolean(TAG_INPUT, on);
-        if(output != null)
+        if (output != null)
         {
             compound.putInt(TAG_OUTPUT_DIRECTION, output.ordinal());
         }
         compound.putInt(TAG_SPEED, speed);
+
         return compound;
     }
 
     @Override
     public void handleUpdateTag(final BlockState blockState, final CompoundNBT tag)
     {
-        this.read(blockState, tag);
+        this.load(blockState, tag);
     }
 
     @Override
     public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
     {
-        this.read(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getNbtCompound());
+        this.load(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getTag());
+    }
+
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket()
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        this.save(nbt);
+
+        return new SUpdateTileEntityPacket(this.getBlockPos(), 0, nbt);
     }
 
     @NotNull
     @Override
     public CompoundNBT getUpdateTag()
     {
-        return write(new CompoundNBT());
+        return save(new CompoundNBT());
     }
 }
