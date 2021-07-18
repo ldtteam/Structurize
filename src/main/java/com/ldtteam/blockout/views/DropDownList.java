@@ -317,6 +317,12 @@ public class DropDownList extends View implements ButtonHandler
         return button.click(mx, my);
     }
 
+    @Override
+    public boolean canHandleClick(final double mx, final double my)
+    {
+        return button.canHandleClick(mx, my);
+    }
+
     /**
      * Set the button handler for this button.
      *
