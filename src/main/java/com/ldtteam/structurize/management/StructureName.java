@@ -109,10 +109,12 @@ public class StructureName
             sectionID = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
             for (String origin : StructureLoadingUtils.getOriginMods().keySet())
-                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + sectionID)) instanceof ISectionDefinition) {
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + sectionID)) instanceof ISectionDefinition)
+                {
                     section = sectionID;
                 }
-            if (section != sectionID) {
+            if (section != sectionID)
+            {
                 sectionID = "";
 
             }
