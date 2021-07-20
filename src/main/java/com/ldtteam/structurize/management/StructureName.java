@@ -1,10 +1,13 @@
 package com.ldtteam.structurize.management;
 
+import com.ldtteam.structurize.api.blocks.ISectionDefinition;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,7 +21,6 @@ import java.util.regex.Pattern;
  */
 public class StructureName
 {
-    public static List<String> HUTS = new ArrayList<>();
 
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
@@ -29,13 +31,14 @@ public class StructureName
     private              String  prefix                    = "";
     private              String  style                     = "";
     private              String  schematic                 = "";
-    private              String  hut                       = "";
+    private              String  sectionID                       = "";
 
     /**
      * Create a StructureName object from a schematic name.
      *
      * @param structureName as huts/stone/Builder1 or decorations/Walls/Gate
      */
+
     public StructureName(@NotNull final String structureName)
     {
         init(structureName);
@@ -102,17 +105,16 @@ public class StructureName
 
         //The section is the prefix, except fot hut
         section = prefix;
-        if (prefix.equals(Structures.SCHEMATICS_PREFIX))
-        {
-            hut = schematic.split("\\d+")[0];
+        if (prefix.equals(Structures.SCHEMATICS_PREFIX)) {
+            sectionID = schematic.split("\\d+")[0];
             section = Structures.SCHEMATICS_PREFIX;
-            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
-            {
-                section = hut;
-            }
-            else
-            {
-                hut = "";
+            for (String origin : StructureLoadingUtils.getOriginMods().keySet())
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(origin, "blockhut" + sectionID)) instanceof ISectionDefinition) {
+                    section = sectionID;
+                }
+            if (section != sectionID) {
+                sectionID = "";
+
             }
         }
     }
@@ -122,10 +124,11 @@ public class StructureName
      * such as Builder, Citizen, ...
      *
      * @return the name of the hut.
+     * REVIEW: deprecate or change this method?
      */
     public String getHutName()
     {
-        return hut;
+        return sectionID;
     }
 
     /**
@@ -193,15 +196,16 @@ public class StructureName
     }
 
     /**
-     * Whether the schematic is a huit or not.
+     * Whether the schematic is a hut or not.
      * This is done using the naming convention only, should start by huts/
      * and a structurize block name should exist.
      *
-     * @return True is it is a hut otherwise False
+     * @return True if it is a hut otherwise False
+     * REVIEW: deprecate or change this method?
      */
     public boolean isHut()
     {
-        return !hut.isEmpty();
+        return !sectionID.isEmpty();
     }
 
     /**
