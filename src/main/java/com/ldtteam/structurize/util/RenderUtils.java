@@ -175,7 +175,7 @@ public class RenderUtils
             RenderType.State.builder()
                 .setLineState(new RenderState.LineState(OptionalDouble.empty()))
                 .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                .setTransparencyState(GLINT_TRANSPARENCY)
+                .setTransparencyState(NO_TRANSPARENCY)
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setWriteMaskState(COLOR_WRITE)
                 .setCullState(NO_CULL)
