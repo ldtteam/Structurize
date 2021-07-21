@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This is the default blueprint iterator.
- * It's a helper class used to track the progress of one iteration over the structure.
+ * Random blueprint iterator.
+ * Creates a seeded list of positions and iterates it.
  */
 public class BlueprintIteratorRandom extends AbstractBlueprintIterator
 {
