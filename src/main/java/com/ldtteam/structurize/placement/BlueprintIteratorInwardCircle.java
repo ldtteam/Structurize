@@ -42,7 +42,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
             this.min_x = 0;
         }
 
-        if (this.min_x > this.max_x && this.min_z > this.max_z)
+        if ((this.max_x < this.min_x && this.size.getX() % 2 != 0) || (this.max_z < this.min_z && this.size.getZ() % 2 != 0) || (this.max_z < this.min_z && this.max_x < this.min_x))
         {
             this.progressPos.set(-1, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
             this.max_x = this.size.getX()-1;
