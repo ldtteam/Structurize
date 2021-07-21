@@ -27,6 +27,7 @@ public class StructureIterators
         iteratorProducers.put("inwardcircleheight2", handler -> new BlueprintIteratorInwardCircleHeight(handler, 2));
         iteratorProducers.put("inwardcircleheight3", handler -> new BlueprintIteratorInwardCircleHeight(handler, 3));
         iteratorProducers.put("inwardcircleheight4", handler -> new BlueprintIteratorInwardCircleHeight(handler, 4));
+        iteratorProducers.put("random", handler -> new BlueprintIteratorRandom(handler));
     }
     /**
      * Register a new producer.
