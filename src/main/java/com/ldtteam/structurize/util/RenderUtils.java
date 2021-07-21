@@ -2,6 +2,8 @@ package com.ldtteam.structurize.util;
 
 import java.util.List;
 import java.util.OptionalDouble;
+
+import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -175,7 +177,7 @@ public class RenderUtils
             RenderType.State.builder()
                 .setLineState(new RenderState.LineState(OptionalDouble.empty()))
                 .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                .setTransparencyState(NO_TRANSPARENCY)
+                .setTransparencyState(OptifineCompat.getInstance().isOptifineEnabled() ? NO_TRANSPARENCY : GLINT_TRANSPARENCY)
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setWriteMaskState(COLOR_WRITE)
                 .setCullState(NO_CULL)
