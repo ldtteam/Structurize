@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/one_crossed_rl",
-  "textures": {
-    "frame": "structurize:blocks/cactus/blockcactusplank",
-    "centre": "minecraft:block/stone_bricks",
-    "particle": "minecraft:block/stone_bricks"
-  }
-}

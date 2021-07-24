@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/template_glass_pane_side",
-  "textures": {
-    "pane": "structurize:blocks/paperwall/warped_pane",
-    "edge": "structurize:blocks/paperwall/warped_edge"
-  }
-}

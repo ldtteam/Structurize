@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/plain",
-  "textures": {
-    "frame": "structurize:blocks/cactus/blockcactusplank",
-    "centre": "minecraft:block/blackstone",
-    "particle": "minecraft:block/blackstone"
-  }
-}

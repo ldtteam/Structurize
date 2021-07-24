@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/double_crossed",
-  "textures": {
-    "frame": "minecraft:block/acacia_planks",
-    "centre": "minecraft:block/cobblestone",
-    "particle": "minecraft:block/cobblestone"
-  }
-}

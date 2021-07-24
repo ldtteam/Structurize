@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/one_crossed_rl",
-  "textures": {
-    "frame": "minecraft:block/jungle_planks",
-    "centre": "minecraft:block/cyan_terracotta",
-    "particle": "minecraft:block/cyan_terracotta"
-  }
-}

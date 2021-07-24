@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"conditions":[{"condition":"minecraft:survives_explosion"}],"rolls":1,"entries":[{"type":"minecraft:item","name":"structurize:side_framed_horizontal_oak_magenta_terracotta_timber_frame"}]}]}

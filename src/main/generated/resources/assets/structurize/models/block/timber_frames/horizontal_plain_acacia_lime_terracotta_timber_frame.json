@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/horizontal_plain",
-  "textures": {
-    "frame": "minecraft:block/acacia_planks",
-    "centre": "minecraft:block/lime_terracotta",
-    "particle": "minecraft:block/lime_terracotta"
-  }
-}

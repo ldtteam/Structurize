@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/side_framed_horizontal",
-  "textures": {
-    "frame": "minecraft:block/acacia_planks",
-    "centre": "structurize:blocks/cactus/blockcactusplank",
-    "particle": "structurize:blocks/cactus/blockcactusplank"
-  }
-}

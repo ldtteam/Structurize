@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab_top",
-  "textures": {
-    "side": "structurize:blocks/cactus/blockcactusplank",
-    "bottom": "structurize:blocks/cactus/blockcactusplank",
-    "top": "structurize:blocks/cactus/blockcactusplank"
-  }
-}

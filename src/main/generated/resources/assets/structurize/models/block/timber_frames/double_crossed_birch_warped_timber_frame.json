@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/double_crossed",
-  "textures": {
-    "frame": "minecraft:block/birch_planks",
-    "centre": "minecraft:block/warped_planks",
-    "particle": "minecraft:block/warped_planks"
-  }
-}

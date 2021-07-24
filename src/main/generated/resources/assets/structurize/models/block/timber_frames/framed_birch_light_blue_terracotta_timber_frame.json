@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/framed",
-  "textures": {
-    "frame": "minecraft:block/birch_planks",
-    "centre": "minecraft:block/light_blue_terracotta",
-    "particle": "minecraft:block/light_blue_terracotta"
-  }
-}

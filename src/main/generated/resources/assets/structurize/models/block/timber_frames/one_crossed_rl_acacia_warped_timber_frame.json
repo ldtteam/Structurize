@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/one_crossed_rl",
-  "textures": {
-    "frame": "minecraft:block/acacia_planks",
-    "centre": "minecraft:block/warped_planks",
-    "particle": "minecraft:block/warped_planks"
-  }
-}

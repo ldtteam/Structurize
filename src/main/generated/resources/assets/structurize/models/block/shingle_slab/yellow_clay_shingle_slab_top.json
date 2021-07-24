@@ -1,9 +1,0 @@
-{
-  "parent": "structurize:block/shingle_slab/shingle_slab_top",
-  "textures": {
-    "1": "structurize:blocks/shingle/yellow_clay_shingle_1",
-    "2": "structurize:blocks/shingle/yellow_clay_shingle_2",
-    "3": "structurize:blocks/shingle/yellow_clay_shingle_3",
-    "particle": "structurize:blocks/shingle/yellow_clay_shingle_1"
-  }
-}

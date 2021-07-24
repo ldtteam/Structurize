@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/side_framed",
-  "textures": {
-    "frame": "structurize:blocks/cactus/blockcactusplank",
-    "centre": "structurize:blocks/bricks/brown_stone_bricks",
-    "particle": "structurize:blocks/bricks/brown_stone_bricks"
-  }
-}

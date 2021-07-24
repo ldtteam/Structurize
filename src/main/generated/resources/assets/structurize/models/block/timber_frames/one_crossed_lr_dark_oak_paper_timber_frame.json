@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/one_crossed_lr",
-  "textures": {
-    "frame": "minecraft:block/dark_oak_planks",
-    "centre": "structurize:blocks/timber_frame_paper",
-    "particle": "structurize:blocks/timber_frame_paper"
-  }
-}

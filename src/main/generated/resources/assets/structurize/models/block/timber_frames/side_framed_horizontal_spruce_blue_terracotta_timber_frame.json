@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/side_framed_horizontal",
-  "textures": {
-    "frame": "minecraft:block/spruce_planks",
-    "centre": "minecraft:block/blue_terracotta",
-    "particle": "minecraft:block/blue_terracotta"
-  }
-}

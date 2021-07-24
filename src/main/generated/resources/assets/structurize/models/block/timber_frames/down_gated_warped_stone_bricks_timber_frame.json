@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/down_gated",
-  "textures": {
-    "frame": "minecraft:block/warped_planks",
-    "centre": "minecraft:block/stone_bricks",
-    "particle": "minecraft:block/stone_bricks"
-  }
-}

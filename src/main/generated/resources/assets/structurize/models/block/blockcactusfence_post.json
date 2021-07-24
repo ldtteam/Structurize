@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/fence_post",
-  "textures": {
-    "texture": "structurize:blocks/cactus/blockcactusplank"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/plain",
-  "textures": {
-    "frame": "minecraft:block/spruce_planks",
-    "centre": "structurize:blocks/bricks/beige_bricks",
-    "particle": "structurize:blocks/bricks/beige_bricks"
-  }
-}

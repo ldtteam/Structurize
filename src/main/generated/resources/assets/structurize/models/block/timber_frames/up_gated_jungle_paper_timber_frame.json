@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/up_gated",
-  "textures": {
-    "frame": "minecraft:block/jungle_planks",
-    "centre": "structurize:blocks/timber_frame_paper",
-    "particle": "structurize:blocks/timber_frame_paper"
-  }
-}

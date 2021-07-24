@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "side": "structurize:blocks/bricks/cream_bricks",
-    "bottom": "structurize:blocks/bricks/cream_bricks",
-    "top": "structurize:blocks/bricks/cream_bricks"
-  }
-}

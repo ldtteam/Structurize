@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/up_gated",
-  "textures": {
-    "frame": "minecraft:block/spruce_planks",
-    "centre": "structurize:blocks/bricks/cream_stone_bricks",
-    "particle": "structurize:blocks/bricks/cream_stone_bricks"
-  }
-}

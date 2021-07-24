@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/horizontal_plain",
-  "textures": {
-    "frame": "minecraft:block/warped_planks",
-    "centre": "structurize:blocks/bricks/brown_stone_bricks",
-    "particle": "structurize:blocks/bricks/brown_stone_bricks"
-  }
-}

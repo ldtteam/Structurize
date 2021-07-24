@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/down_gated",
-  "textures": {
-    "frame": "minecraft:block/birch_planks",
-    "centre": "minecraft:block/birch_planks",
-    "particle": "minecraft:block/birch_planks"
-  }
-}

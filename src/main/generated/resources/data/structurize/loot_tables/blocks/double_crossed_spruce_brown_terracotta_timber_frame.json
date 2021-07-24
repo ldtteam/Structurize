@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"conditions":[{"condition":"minecraft:survives_explosion"}],"rolls":1,"entries":[{"type":"minecraft:item","name":"structurize:double_crossed_spruce_brown_terracotta_timber_frame"}]}]}

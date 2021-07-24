@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/up_gated",
-  "textures": {
-    "frame": "minecraft:block/warped_planks",
-    "centre": "minecraft:block/cyan_terracotta",
-    "particle": "minecraft:block/cyan_terracotta"
-  }
-}

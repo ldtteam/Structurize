@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/down_gated",
-  "textures": {
-    "frame": "minecraft:block/jungle_planks",
-    "centre": "structurize:blocks/bricks/brown_bricks",
-    "particle": "structurize:blocks/bricks/brown_bricks"
-  }
-}

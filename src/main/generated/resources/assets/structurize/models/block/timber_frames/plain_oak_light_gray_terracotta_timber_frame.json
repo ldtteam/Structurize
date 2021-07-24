@@ -1,8 +1,0 @@
-{
-  "parent": "structurize:block/timber_frames/plain",
-  "textures": {
-    "frame": "minecraft:block/oak_planks",
-    "centre": "minecraft:block/light_gray_terracotta",
-    "particle": "minecraft:block/light_gray_terracotta"
-  }
-}
