@@ -13,11 +13,11 @@ import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.HashCache;
 import net.minecraft.data.DataProvider;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.data.HashCache;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -45,24 +45,9 @@ public class DefaultBlockLootTableProvider implements DataProvider
     @Override
     public void run(@NotNull HashCache cache) throws IOException
     {
-        saveBlocks(ModBlocks.paperWalls.getRegisteredBlocks(), cache);
-        saveBlocks(ModBlocks.shingleSlabs.getRegisteredBlocks(), cache);
-        saveBlocks(ModBlocks.floatingCarpets.getRegisteredBlocks(), cache);
-
-        saveBlockCollection(ModBlocks.BRICKS, cache);
-        saveBlockCollection(ModBlocks.CACTI_BLOCKS, cache);
-
-        saveBlockList(ModBlocks.timberFrames, cache);
-        saveBlockList(ModBlocks.shingles, cache);
-
         saveBlock(ModBlocks.blockSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
         saveBlock(ModBlocks.blockFluidSubstitution, cache);
-
-        saveBlock(ModBlocks.blockDecoBarrel_onside, cache);
-        saveBlock(ModBlocks.blockDecoBarrel_standing, cache);
-
-        saveBlock(ModBlocks.multiBlock, cache);
     }
 
     private void saveBlockCollection(final List<IBlockCollection> blocks, final HashCache cache) throws  IOException

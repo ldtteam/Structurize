@@ -3,7 +3,6 @@ package com.ldtteam.structurize.api.blocks;
 import com.ldtteam.structurize.api.generation.*;
 
 import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.block.*;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -11,7 +10,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.LinkedList;

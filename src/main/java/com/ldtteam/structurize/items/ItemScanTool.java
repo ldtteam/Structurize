@@ -330,10 +330,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 }
                 itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
                 itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));
-                if (player instanceof ServerPlayer)
-                {
-                    ((ServerPlayer) player).refreshContainer(player.inventoryMenu, player.inventory.items);
-                }
             }
         }
 

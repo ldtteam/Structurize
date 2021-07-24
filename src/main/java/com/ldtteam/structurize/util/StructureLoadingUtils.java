@@ -12,6 +12,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.forgespi.language.IModFileInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,7 @@ public final class StructureLoadingUtils
     /**
      * The list of origin mods.
      */
-    private static final Map<String, ModFileInfo> originMods = new HashMap<>();
+    private static final Map<String, IModFileInfo> originMods = new HashMap<>();
     /**
      * Allows for faster lookup during jar discover or build tool listing.
      */
@@ -87,7 +88,7 @@ public final class StructureLoadingUtils
      * @param modId         lowercased modId
      * @param modDescriptor mod descriptor to link with given modId
      */
-    public static void addOriginMod(final String modId, final ModFileInfo modDescriptor)
+    public static void addOriginMod(final String modId, final IModFileInfo modDescriptor)
     {
         addOriginFolder(modId);
         if (modDescriptor != null)

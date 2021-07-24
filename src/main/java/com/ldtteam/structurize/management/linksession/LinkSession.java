@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.management.linksession;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Instance of one session
@@ -17,19 +18,16 @@ public class LinkSession
     /**
      * Members of session
      */
-    private final HashMap<UUID, String> members = new HashMap<UUID, String>();
+    private final HashMap<UUID, String> members = new HashMap<>();
 
     protected LinkSession()
     {
-        /**
-         * Intentionally left empty
-         */
     }
 
     /**
      * Adds or updates a member and it's display name in this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link Player#getUUID()}
      * @param displayName string used in commands for displaying player's name
      */
     protected void addOrUpdateMember(@NotNull final UUID memberUUID, @Nullable String displayName)
@@ -48,7 +46,7 @@ public class LinkSession
     /**
      * Removes a member from this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link Player#getUUID()}
      */
     protected void removeMember(@NotNull final UUID memberUUID)
     {
@@ -58,7 +56,7 @@ public class LinkSession
     /**
      * Checker whether a player is a member of this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link Player#getUUID()}
      * @return boolean: whether memberUUID is or not a member of this session
      */
     protected boolean isMember(@NotNull final UUID memberUUID)
@@ -69,7 +67,7 @@ public class LinkSession
     /**
      * Getter for player's name (nickname)
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link Player#getUUID()}
      * @return String: player's name in readable form (nickname)
      */
     @Nullable
@@ -85,7 +83,7 @@ public class LinkSession
      */
     protected List<UUID> getMembersUUID()
     {
-        return members.keySet().stream().collect(Collectors.toList());
+        return new ArrayList<>(members.keySet());
     }
 
     /**
@@ -95,7 +93,7 @@ public class LinkSession
      */
     protected List<String> getMembersDisplayNames()
     {
-        return members.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(members.values());
     }
 
     /**

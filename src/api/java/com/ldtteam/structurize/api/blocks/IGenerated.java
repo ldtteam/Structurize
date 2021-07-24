@@ -2,7 +2,7 @@ package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 /**
  * Defines a block or set of blocks that can be generated

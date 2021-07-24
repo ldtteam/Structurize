@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.network.messages;
 
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface for all network messages

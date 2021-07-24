@@ -3,7 +3,6 @@ package com.ldtteam.structurize.api.blocks;
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-import net.minecraft.block.*;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.tags.BlockTags;

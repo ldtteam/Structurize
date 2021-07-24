@@ -1,8 +1,6 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.types.BrickType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,51 +15,6 @@ public final class ModItemGroups
         public ItemStack makeIcon()
         {
             return new ItemStack(ModItems.buildTool.get());
-        }
-
-        @Override
-        public boolean hasSearchBar()
-        {
-            return true;
-        }
-    };
-
-    public static final CreativeModeTab CONSTRUCTION = new CreativeModeTab(Constants.MOD_ID + ".construction")
-    {
-        @Override
-        public ItemStack makeIcon()
-        {
-            return new ItemStack(BrickType.BROWN.getMainRegisteredBlock().get());
-        }
-
-        @Override
-        public boolean hasSearchBar()
-        {
-            return true;
-        }
-    };
-
-    public static final CreativeModeTab SHINGLES = new CreativeModeTab(Constants.MOD_ID + ".shingles")
-    {
-        @Override
-        public ItemStack makeIcon()
-        {
-            return new ItemStack(ModBlocks.getShingles().stream().findFirst().orElse(null));
-        }
-
-        @Override
-        public boolean hasSearchBar()
-        {
-            return true;
-        }
-    };
-
-    public static final CreativeModeTab TIMBER_FRAMES = new CreativeModeTab(Constants.MOD_ID + ".timber_frames")
-    {
-        @Override
-        public ItemStack makeIcon()
-        {
-            return new ItemStack(ModBlocks.getTimberFrames().stream().findFirst().orElse(null));
         }
 
         @Override

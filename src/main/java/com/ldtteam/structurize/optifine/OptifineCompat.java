@@ -64,6 +64,9 @@ public class OptifineCompat
      */
     public void intialize()
     {
+        if (true)
+            return;
+
         try
         {
             setupReflectedMethodReferences();

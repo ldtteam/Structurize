@@ -118,7 +118,7 @@ public class ChangeStorage
             world.setBlockAndUpdate(entry.getKey(), entry.getValue().getState());
             if (entry.getValue().getEntity() != null)
             {
-                world.setBlockEntity(entry.getKey(), entry.getValue().getEntity());
+                world.setBlockEntity(entry.getValue().getEntity());
             }
             blocks.remove(entry.getKey());
             count++;
@@ -142,7 +142,7 @@ public class ChangeStorage
                 }
             }
         }
-        entitiesToKill.forEach(Entity::remove);
+        entitiesToKill.forEach(entity -> entity.remove(false));
 
         return true;
     }

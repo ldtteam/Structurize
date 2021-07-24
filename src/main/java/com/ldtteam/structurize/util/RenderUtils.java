@@ -121,7 +121,7 @@ public class RenderUtils
         if (cap > 0 && erm.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
             final Vec3 viewPosition = erm.camera.getPosition();
-            final Font fontrenderer = erm.getFont();
+            final Font fontrenderer = Minecraft.getInstance().font;
 
             matrixStack.pushPose();
             matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
@@ -157,7 +157,7 @@ public class RenderUtils
     {
         public RenderTypes(final String nameIn,
             final VertexFormat formatIn,
-            final int drawModeIn,
+            final VertexFormat.Mode drawModeIn,
             final int bufferSizeIn,
             final boolean useDelegateIn,
             final boolean needsSortingIn,
@@ -170,8 +170,9 @@ public class RenderUtils
 
         private static final RenderType LINES_GLINT = create("structurize_lines_glint",
             DefaultVertexFormat.POSITION_COLOR,
-            1,
+            VertexFormat.Mode.LINES,
             256,
+          false, false,
             RenderType.CompositeState.builder()
                 .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
                 .setLayeringState(VIEW_OFFSET_Z_LAYERING)
@@ -180,7 +181,6 @@ public class RenderUtils
                 .setWriteMaskState(COLOR_WRITE)
                 .setCullState(NO_CULL)
                 .setDepthTestState(NO_DEPTH_TEST)
-                .setFogState(NO_FOG)
                 .createCompositeState(false));
     }
 }

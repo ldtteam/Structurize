@@ -5,6 +5,7 @@ import com.ldtteam.structurize.api.generation.ModLanguageProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 import java.util.List;
 import java.util.stream.Collectors;

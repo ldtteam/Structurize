@@ -6,21 +6,22 @@ import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.block.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,26 +31,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
-
-import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler.ActionProcessingResult;
-
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.BannerBlock;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.DragonEggBlock;
-import net.minecraft.world.level.block.EndPortalBlock;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.FlowerPotBlock;
-import net.minecraft.world.level.block.GrassPathBlock;
-import net.minecraft.world.level.block.HopperBlock;
-import net.minecraft.world.level.block.SpawnerBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Class containing all placement handler implementations.
@@ -289,7 +270,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.getBlock().is(Tags.Blocks.DIRT) && world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() == blockState.getBlock());
+            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.is(Tags.Blocks.DIRT) && world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() == blockState.getBlock());
         }
 
         @Override
@@ -567,7 +548,7 @@ public final class PlacementHandlers
                 {
                     for (final Entity entity : entityList)
                     {
-                        entity.remove();
+                        entity.remove(false);
                     }
                 }
 
@@ -593,7 +574,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
         {
-            return blockState.getBlock() instanceof GrassPathBlock;
+            return blockState.getBlock() instanceof DirtPathBlock;
         }
 
         @Override
@@ -605,7 +586,7 @@ public final class PlacementHandlers
           final boolean complete,
           final BlockPos centerPos)
         {
-            if (!world.setBlock(pos, Blocks.GRASS_PATH.defaultBlockState(), UPDATE_FLAG))
+            if (!world.setBlock(pos, Blocks.DIRT_PATH.defaultBlockState(), UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -876,12 +857,13 @@ public final class PlacementHandlers
     {
         if (tileEntityData != null)
         {
-            final BlockEntity newTile = BlockEntity.loadStatic(world.getBlockState(pos), tileEntityData);
+            final BlockEntity newTile = BlockEntity.loadStatic(pos, world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
-                world.setBlockEntity(pos, newTile);
-                newTile.rotate(settings.rotation);
-                newTile.mirror(settings.mirror);
+                world.setBlockEntity(newTile);
+
+                world.getBlockState(pos).rotate(world, pos, settings.rotation);
+                world.getBlockState(pos).mirror(settings.mirror);
             }
         }
     }

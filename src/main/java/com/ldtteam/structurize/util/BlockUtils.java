@@ -2,24 +2,25 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.item.*;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.GameData;
@@ -32,38 +33,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.AirItem;
-import net.minecraft.world.item.BedItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.FarmBlock;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.FlowerPotBlock;
-import net.minecraft.world.level.block.GrassPathBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Utility class for all Block type checking.
@@ -184,7 +153,7 @@ public final class BlockUtils
             return Items.WHEAT_SEEDS;
         }
         // oh no... 
-        else if (block instanceof FarmBlock || block instanceof GrassPathBlock)
+        else if (block instanceof FarmBlock || block instanceof DirtPathBlock)
         {
             return getItemFromBlock(Blocks.DIRT);
         }
@@ -246,7 +215,7 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == Blocks.DIRT && worldBlock.is(Tags.Blocks.DIRT))
+            if (structureBlock == Blocks.DIRT && worldState.is(Tags.Blocks.DIRT))
             {
                 return true;
             }
@@ -362,9 +331,9 @@ public final class BlockUtils
             if (newState == null)
             {
                 fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, stackToPlace);
-                if (item.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalDirectionalBlock.FACING))
+                if (stackToPlace.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalDirectionalBlock.FACING))
                 {
-                    fakePlayer.yRot = blockState.getValue(HorizontalDirectionalBlock.FACING).get2DDataValue() * 90;
+                    fakePlayer.setYRot(blockState.getValue(HorizontalDirectionalBlock.FACING).get2DDataValue() * 90);
                 }
 
                 newState = targetBlock.getStateForPlacement(new BlockPlaceContext(new UseOnContext(fakePlayer,
@@ -392,20 +361,19 @@ public final class BlockUtils
             final Fluid fluid = bucket.getFluid();
 
             // place
-            if (sourceBlock instanceof LiquidBlockContainer)
+            if (sourceBlock instanceof final LiquidBlockContainer liquidContainer)
             {
-                final LiquidBlockContainer liquidContainer = (LiquidBlockContainer) sourceBlock;
                 if (liquidContainer.canPlaceLiquid(world, here, blockState, fluid))
                 {
                     liquidContainer.placeLiquid(world, here, blockState, fluid.defaultFluidState());
-                    bucket.checkExtraContent(world, stackToPlace, here);
+                    bucket.checkExtraContent(null, world, stackToPlace, here);
                 }
             }
             else
             {
                 world.removeBlock(here, false);
                 world.setBlock(here, fluid.defaultFluidState().createLegacyBlock(), Constants.UPDATE_FLAG);
-                bucket.checkExtraContent(world, stackToPlace, here);
+                bucket.checkExtraContent(null, world, stackToPlace, here);
             }
         }
         else
@@ -425,7 +393,7 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof BucketPickup) || ((BucketPickup)block).takeLiquid(world, pos, state) == Fluids.EMPTY) && block instanceof LiquidBlock)
+        if((!(block instanceof BucketPickup) || ((BucketPickup)block).pickupBlock(world, pos, state).isEmpty()) && block instanceof LiquidBlock)
         {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.UPDATE_FLAG);
         }
@@ -438,15 +406,7 @@ public final class BlockUtils
      */
     public static BlockState getFluidForDimension(Level world)
     {
-        ResourceLocation res = world.registryAccess().dimensionTypes().getKey(world.dimensionType());
-        if (res == null)
-        {
-            return Blocks.WATER.defaultBlockState();
-        }
-
-        ResourceKey<DimensionType> rk = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, res);
-
-        return rk == DimensionType.NETHER_LOCATION
+        return world.dimensionType().ultraWarm()
                 ? Blocks.LAVA.defaultBlockState()
                 : Blocks.WATER.defaultBlockState();
     }

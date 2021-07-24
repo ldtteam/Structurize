@@ -22,20 +22,13 @@ public class UUIDStorage extends SavedData
      */
     public UUIDStorage()
     {
-        super(DATA_NAME);
     }
 
-    /**
-     * Required constructor.
-     *
-     * @param s name string.
-     */
-    public UUIDStorage(String s)
+    public UUIDStorage(CompoundTag s)
     {
-        super(s);
+        load(s);
     }
 
-    @Override
     public void load(@NotNull final CompoundTag compound)
     {
         if (compound.hasUUID(TAG_UUID))

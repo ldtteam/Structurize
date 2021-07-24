@@ -4,21 +4,21 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import com.ldtteam.structurize.placement.StructurePlacementUtils;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 
@@ -40,12 +40,12 @@ public final class Manager
     /**
      * List of the last changes to the world.
      */
-    private static LinkedList<ChangeStorage> changeQueue = new LinkedList<>();
+    private static final LinkedList<ChangeStorage> changeQueue = new LinkedList<>();
 
     /**
      * List of scanTool operations.
      */
-    private static LinkedList<TickedWorldOperation> scanToolOperationPool = new LinkedList<>();
+    private static final LinkedList<TickedWorldOperation> scanToolOperationPool = new LinkedList<>();
 
     /**
      * Pseudo unique id for the server
@@ -360,9 +360,10 @@ public final class Manager
                 for (int y = 0; y < height; y++)
                 {
                     int sum = x * x + z * z;
-                    if (sum < (width * width) / 4 && (!hollow || sum > (width * width) / 4 - width))
+                    final boolean shouldBeEmpty = sum > (width * width) / 4 - width;
+                    if (sum < (width * width) / 4 && (!hollow || shouldBeEmpty))
                     {
-                        final BlockState blockToUse = (sum > (width * width) / 4 - width) ? block : fillBlock;
+                        final BlockState blockToUse = shouldBeEmpty ? block : fillBlock;
                         addPosToList(new BlockPos(width + x, y, width + z), blockToUse, posList);
                         addPosToList(new BlockPos(width + x, y, width - z), blockToUse, posList);
                         addPosToList(new BlockPos(width - x, y, width + z), blockToUse, posList);
@@ -437,11 +438,11 @@ public final class Manager
         e.addArguments(argumentX, argumentY, argumentZ, argumentH, argumentW, argumentL);
 
         final Map<BlockPos, BlockState> posList = new HashMap<>();
-        for (double x = -length / 2.0; x <= length / 2; x++)
+        for (double x = -length / 2.0; x <= length / 2f; x++)
         {
-            for (double y = -height / 2.0; y <= height / 2; y++)
+            for (double y = -height / 2.0; y <= height / 2f; y++)
             {
-                for (double z = -width / 2.0; z <= width / 2; z++)
+                for (double z = -width / 2.0; z <= width / 2f; z++)
                 {
                     argumentX.setArgumentValue(x);
                     argumentY.setArgumentValue(y);
@@ -512,13 +513,13 @@ public final class Manager
     private static UUID generateOrRetrieveUUID()
     {
         final DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
-        final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage.DATA_NAME);
+        final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage::new, UUIDStorage.DATA_NAME);
         if (serverUUID == null)
         {
             Manager.setServerUUID(UUID.randomUUID());
             Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
         }
-        storage.set(instance);
+        storage.set(UUIDStorage.DATA_NAME, instance);
 
         return serverUUID;
     }

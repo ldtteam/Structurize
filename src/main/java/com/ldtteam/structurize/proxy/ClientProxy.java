@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.proxy;
 
-import java.io.File;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -8,14 +7,16 @@ import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
-import org.jetbrains.annotations.Nullable;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 /**
  * Client side proxy.
@@ -31,7 +32,7 @@ public class ClientProxy implements IProxy
             return;
         }
 
-        if (Minecraft.getInstance().screen instanceof Screen)
+        if (Minecraft.getInstance().screen != null)
         {
             return;
         }
