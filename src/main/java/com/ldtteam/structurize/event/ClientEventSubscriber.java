@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderBuffers;
@@ -71,12 +72,14 @@ public class ClientEventSubscriber
             final BlockPos pos = Settings.instance.getPosition();
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
+            RenderSystem.applyModelViewMatrix();
             StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
             renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
             RenderUtils.renderWhiteOutlineBox(posMinusOffset,
                 posMinusOffset.offset(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
                 matrixStack,
                 linesWithCullAndDepth.get());
+
             renderBuffer.endBatch(RenderType.lines());
             renderBuffer.endBatch(RenderUtils.LINES_GLINT);
 
@@ -93,6 +96,7 @@ public class ClientEventSubscriber
                 Settings.instance.getBox().getB(),
                 matrixStack,
                 linesWithoutCullAndDepth.get());
+
             renderBuffer.endBatch(RenderUtils.LINES_GLINT);
 
             Minecraft.getInstance().getProfiler().pop();

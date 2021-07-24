@@ -142,9 +142,9 @@ public final class StructureLoadingUtils
      * @param path resource path elements, without file system seperator
      * @return is if path was found, null otherwise
      */
-    private static InputStream getStreamFromMod(final ModFileInfo info, final String... path)
+    private static InputStream getStreamFromMod(final IModFileInfo info, final String... path)
     {
-        /*final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
+        final Path ret = info.getFile().findResource(path);
         if (Files.exists(ret))
         {
             try
@@ -156,7 +156,7 @@ public final class StructureLoadingUtils
                 Log.getLogger().warn("Error occured when trying to read resource from: " +
                     info.getFile().getFilePath().toAbsolutePath().toString(), e);
             }
-        }*/
+        }
         return null;
     }
 
@@ -171,11 +171,11 @@ public final class StructureLoadingUtils
         final String filePath = structureName + SCHEMATIC_EXTENSION_NEW;
 
         // try latest successful origin
-        /*InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
+        InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
         if (is == null)
         {
             // try every origin except the one tested earlier
-            for (final Map.Entry<String, ModFileInfo> origin : originMods.entrySet())
+            for (final Map.Entry<String, IModFileInfo> origin : originMods.entrySet())
             {
                 final String originName = origin.getKey();
                 if (!originName.equals(latestModOrigin))
@@ -193,9 +193,7 @@ public final class StructureLoadingUtils
                 Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
             }
         }
-        return is;*/
-
-        return null;
+        return is;
     }
 
     /**
@@ -207,6 +205,11 @@ public final class StructureLoadingUtils
     public static byte[] getByteArray(final String structureName)
     {
         final InputStream is = getStream(structureName);
+        return getByteArray(is);
+    }
+
+    public static byte[] getByteArray(final InputStream is)
+    {
         final byte[] result = getStreamAsByteArray(is);
         if (is != null)
         {

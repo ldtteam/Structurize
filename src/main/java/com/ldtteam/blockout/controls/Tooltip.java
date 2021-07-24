@@ -6,6 +6,7 @@ import com.ldtteam.blockout.PaneParams;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.GameRenderer;
 
 /**
  * Element used for rendering tooltips.
@@ -156,6 +157,9 @@ public class Tooltip extends AbstractTextElement
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
+
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
             bufferbuilder.end();
             BufferUploader.end(bufferbuilder);
             RenderSystem.disableBlend();

@@ -184,6 +184,10 @@ public class BlueprintRenderer implements AutoCloseable
         matrixStack.translate(x - viewPosition.x(), y - viewPosition.y(), z - viewPosition.z());
         final Matrix4f rawPosMatrix = matrixStack.last().pose();
 
+        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().mulPoseMatrix(rawPosMatrix);
+        RenderSystem.applyModelViewMatrix();
+
         // Render blocks
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish");
@@ -293,6 +297,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.tripwire(), rawPosMatrix);
 
         matrixStack.popPose();
+        RenderSystem.getModelViewStack().popPose();
         Minecraft.getInstance().getProfiler().pop();
     }
 
@@ -316,12 +321,12 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f rawPosMatrix)
     {
-        VertexFormat vertexformat = DefaultVertexFormat.BLOCK;
-        ShaderInstance shaderinstance = RenderSystem.getShader();
         BufferUploader.reset();
 
-        final Matrix4f projectionMatrix = new Matrix4f();
-        Minecraft.getInstance().gameRenderer.resetProjectionMatrix(projectionMatrix);
+        layerRenderType.setupRenderState();
+
+        VertexFormat vertexformat = DefaultVertexFormat.BLOCK;
+        ShaderInstance shaderinstance = RenderSystem.getShader();
 
         for(int k = 0; k < 12; ++k) {
             int i = RenderSystem.getShaderTexture(k);
@@ -333,7 +338,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         if (shaderinstance.PROJECTION_MATRIX != null) {
-            shaderinstance.PROJECTION_MATRIX.set(projectionMatrix);
+            shaderinstance.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
         }
 
         if (shaderinstance.COLOR_MODULATOR != null) {
@@ -365,12 +370,13 @@ public class BlueprintRenderer implements AutoCloseable
         Uniform uniform = shaderinstance.CHUNK_OFFSET;
 
         if (uniform != null) {
-            uniform.set(0,0,0);
+            uniform.set(0f,0f,0f);
             uniform.upload();
         }
 
         final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
 
+        RenderSystem.applyModelViewMatrix();
         buffer.drawChunkLayer();
 
         if (uniform != null) {

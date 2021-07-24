@@ -10,15 +10,16 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.forgespi.language.IModFileInfo;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static com.ldtteam.structurize.api.util.constant.Constants.SECONDS_A_MINUTE;
 import static com.ldtteam.structurize.api.util.constant.Suppression.EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS;
 
@@ -71,7 +72,7 @@ public final class Structures
      * - schematics/walls/stone/Gate => decorations -> walls/stone -> Gate , decorations/walls/stone/Gate
      * - scans/458764687564687654 => scans -> <none> -> 458764687564687654 , scan/458764687564687654
      */
-        private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new HashMap<>();
+    private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new HashMap<>();
 
     /**
      * md5 hash for the schematics.
@@ -81,12 +82,12 @@ public final class Structures
      * scans/test/buidling -> hash
      * cache/458764687564687654 => 458764687564687654
      */
-        private static final Map<String, String> md5Map = new HashMap<>();
+    private static final Map<String, String> md5Map = new HashMap<>();
 
     /**
      * file extension for the schematics
      */
-        private static final Map<String, String> fileMap = new HashMap<>();
+    private static final Map<String, String> fileMap = new HashMap<>();
 
     /**
      * Whether or not the schematics list have changed.
@@ -117,11 +118,11 @@ public final class Structures
     @SuppressWarnings(EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS)
     private static void loadStyleMaps()
     {
-        /*if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
+        if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
         {
-            for (final Map.Entry<String, ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
+            for (final Map.Entry<String, IModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
             {
-                final Path path = origin.getValue().getFile().getLocator().findPath(origin.getValue().getFile(), SCHEMATICS_ASSET_PATH, origin.getKey());
+                final Path path = origin.getValue().getFile().findResource(SCHEMATICS_ASSET_PATH, origin.getKey());
                 Log.getLogger().info("Trying jar discover: {}", path.toString());
                 loadSchematicsForPrefix(path, SCHEMATICS_PREFIX);
             }
@@ -135,7 +136,7 @@ public final class Structures
             loadSchematicsForPrefix(schematicsFolder.toPath(), SCHEMATICS_PREFIX);
         }
 
-        for (final File cachedSchems : StructureLoadingUtils.getCachedSchematicsFolders())
+        for (final File cachedSchems : Objects.requireNonNull(StructureLoadingUtils.getCachedSchematicsFolders()))
         {
             if (cachedSchems != null)
             {
@@ -149,7 +150,7 @@ public final class Structures
         if (md5Map.size() == 0)
         {
             Log.getLogger().warn("No file found during schematic discover. Things may break!");
-        }*/
+        }
     }
 
     /**
@@ -219,33 +220,7 @@ public final class Structures
                     {
                         relativePath = relativePath.substring(1);
                     }
-
-                    try
-                    {
-                        final StructureName structureName = new StructureName(relativePath);
-                        fileMap.put(structureName.toString(), SCHEMATIC_EXTENSION_NEW);
-                        final byte[] structureBytes = StructureLoadingUtils.getByteArray(relativePath);
-                        final String md5 = StructureUtils.calculateMD5(structureBytes);
-                        if (md5 == null)
-                        {
-                            fileMap.remove(structureName.toString());
-                            Log.getLogger().error("Structures: " + structureName + " with md5 null.");
-                        }
-                        else if (isSchematicSizeValid(structureBytes))
-                        {
-                            md5Map.put(structureName.toString(), md5);
-                            if (Structurize.proxy instanceof ClientProxy)
-                            {
-                                addSchematic(structureName);
-                            }
-                        }
-                    }
-                    catch (final ResourceLocationException e)
-                    {
-                        Log.getLogger()
-                            .warn("Structure failed Loading because of invalid resource name (probably capitalization issue)", e);
-                        Log.getLogger().warn(relativePath);
-                    }
+                    loadSchematicsFromPath(relativePath, StructureLoadingUtils.getStream(relativePath));
                 }
             }
         }
@@ -255,22 +230,34 @@ public final class Structures
         }
     }
 
-    /**
-     * check that a schematic is not too big to be sent.
-     *
-     * @param structureData data of the structure to check for.
-     * @return True when the schematic is not too big.
-     */
-    private static boolean isSchematicSizeValid(final byte[] structureData)
+    private static void loadSchematicsFromPath(final String relativePath, final InputStream inputStream)
     {
-        final byte[] compressed = StructureUtils.compress(structureData);
-
-        if (compressed == null)
+        try
         {
-            Log.getLogger().warn("Compressed structure returned null, please retry, this shouldn't happen, ever.");
-            return false;
+            final StructureName structureName = new StructureName(relativePath);
+            fileMap.put(structureName.toString(), SCHEMATIC_EXTENSION_NEW);
+            final byte[] structureBytes = StructureLoadingUtils.getByteArray(inputStream);
+            final String md5 = StructureUtils.calculateMD5(structureBytes);
+            if (md5 == null)
+            {
+                fileMap.remove(structureName.toString());
+                Log.getLogger().error("Structures: " + structureName + " with md5 null.");
+            }
+            else
+            {
+                md5Map.put(structureName.toString(), md5);
+                if (Structurize.proxy instanceof ClientProxy)
+                {
+                    addSchematic(structureName);
+                }
+            }
         }
-        return true;
+        catch (final ResourceLocationException e)
+        {
+            Log.getLogger()
+                .warn("Structure failed Loading because of invalid resource name (probably capitalization issue)", e);
+            Log.getLogger().warn(relativePath);
+        }
     }
 
     /**
