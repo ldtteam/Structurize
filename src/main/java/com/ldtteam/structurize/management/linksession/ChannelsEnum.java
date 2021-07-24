@@ -15,7 +15,7 @@ public enum ChannelsEnum
     private final int id;
     private final String commandName;
 
-    private ChannelsEnum(@NotNull final int id, @NotNull final String commandName)
+    private ChannelsEnum(final int id, final String commandName)
     {
         this.id = id;
         this.commandName = commandName;
@@ -45,7 +45,7 @@ public enum ChannelsEnum
      * <p>     null: if nothing match give commandName 
      */
     @Nullable
-    public static ChannelsEnum getEnumByCommandName(@NotNull final String commandName)
+    public static ChannelsEnum getEnumByCommandName(final String commandName)
     {
         for(ChannelsEnum e : ChannelsEnum.values())
         {

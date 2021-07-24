@@ -127,7 +127,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems)
+    public boolean hasRequiredItems(final List<ItemStack> requiredItems)
     {
         return true;
     }

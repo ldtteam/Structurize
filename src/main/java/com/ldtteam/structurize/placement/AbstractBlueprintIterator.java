@@ -138,7 +138,7 @@ public abstract class AbstractBlueprintIterator
      *
      * @param localPosition new progressPos.
      */
-    public void setProgressPos(@NotNull final BlockPos localPosition)
+    public void setProgressPos(final BlockPos localPosition)
     {
         if (localPosition.equals(NULL_POS))
         {
@@ -157,8 +157,7 @@ public abstract class AbstractBlueprintIterator
      * @param localPos the position.
      * @return the info object.
      */
-    @NotNull
-    public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
+        public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
     {
         return structureHandler.getBluePrint().getBluePrintPositionInfo(localPos, includeEntities);
     }

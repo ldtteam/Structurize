@@ -35,13 +35,13 @@ public class ClientLifecycleSubscriber
             {
 
                 @Override
-                protected @NotNull Object prepare(final @NotNull ResourceManager manager, final @NotNull ProfilerFiller profiler)
+                protected Object prepare(final ResourceManager manager, final ProfilerFiller profiler)
                 {
                     return new Object();
                 }
 
                 @Override
-                protected void apply(final @NotNull Object source, final @NotNull ResourceManager manager, final @NotNull ProfilerFiller profiler)
+                protected void apply(final Object source, final ResourceManager manager, final ProfilerFiller profiler)
                 {
                     Log.getLogger().debug("Clearing blueprint renderer cache.");
                     BlueprintHandler.getInstance().clearCache();

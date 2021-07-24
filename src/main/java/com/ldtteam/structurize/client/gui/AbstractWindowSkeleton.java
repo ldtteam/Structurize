@@ -14,8 +14,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractWindowSkeleton extends Window implements ButtonHandler
 {
-    @NotNull
-    private final HashMap<String, Consumer<Button>> buttons;
+        private final HashMap<String, Consumer<Button>> buttons;
 
     /**
      * Constructor for the skeleton class of the windows.
@@ -60,7 +59,7 @@ public abstract class AbstractWindowSkeleton extends Window implements ButtonHan
      * @param button the button that was clicked.
      */
     @Override
-    public void onButtonClicked(@NotNull final Button button)
+    public void onButtonClicked(final Button button)
     {
         if (buttons.containsKey(button.getID()))
         {

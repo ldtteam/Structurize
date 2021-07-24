@@ -6,12 +6,9 @@ import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
-import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
@@ -20,16 +17,19 @@ import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
+import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,26 +84,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * List of section.
      */
-    @NotNull
-    private final List<String> sections = new ArrayList<>();
+        private final List<String> sections = new ArrayList<>();
 
     /**
      * List of style for the section.
      */
-    @NotNull
-    private List<String> styles = new ArrayList<>();
+        private List<String> styles = new ArrayList<>();
 
     /**
      * List of decorations or level possible to make with the style.
      */
-    @NotNull
-    private List<String> schematics = new ArrayList<>();
+        private List<String> schematics = new ArrayList<>();
 
     /**
      * Current position the hut/decoration is rendered at.
      */
-    @NotNull
-    private BlockPos pos = new BlockPos(0, 0, 0);
+        private BlockPos pos = new BlockPos(0, 0, 0);
 
     /**
      * Current rotation of the hut/decoration.
@@ -240,7 +236,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         else
         {
             sections.clear();
-            final Inventory inventory = this.mc.player.inventory;
+            final Inventory inventory = this.mc.player.getInventory();
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
@@ -723,7 +719,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param hut       the hut.
      * @return true if so.
      */
-    public boolean hasMatchingBlock(@NotNull final Inventory inventory, final String hut)
+    public boolean hasMatchingBlock(final Inventory inventory, final String hut)
     {
         return true;
     }
@@ -878,7 +874,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param complete      if pasted, should it be complete.
      * @param structureName of the scan to be built.
      */
-    public void requestAndPlaceScannedSchematic(@NotNull final StructureName structureName, final boolean paste, final boolean complete)
+    public void requestAndPlaceScannedSchematic(final StructureName structureName, final boolean paste, final boolean complete)
     {
         if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
@@ -967,7 +963,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      *
      * @param structureName of the scan to be built.
      */
-    public static void requestScannedSchematic(@NotNull final StructureName structureName)
+    public static void requestScannedSchematic(final StructureName structureName)
     {
         if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
@@ -1163,7 +1159,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private void renameClicked()
     {
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        @NotNull final WindowStructureNameEntry window = new WindowStructureNameEntry(structureName);
+        final WindowStructureNameEntry window = new WindowStructureNameEntry(structureName);
         window.open();
     }
 

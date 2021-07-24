@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,14 +42,14 @@ public class LSStructureDisplayerMessage implements IMessage
      * @param compoundNBT structure settings
      * @param show if true create or update, if false destroy
      */
-    public LSStructureDisplayerMessage(@NotNull final CompoundTag compoundNBT, @NotNull final boolean show)
+    public LSStructureDisplayerMessage(final CompoundTag compoundNBT, final boolean show)
     {
         this.settings = compoundNBT;
         this.show = show;
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(show);
         if (show)

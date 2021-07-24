@@ -8,7 +8,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public class UpdateScanToolMessage implements IMessage
      * @param from the start pos.
      * @param to the end pos.
      */
-    public UpdateScanToolMessage(@NotNull final BlockPos from, @NotNull final BlockPos to)
+    public UpdateScanToolMessage(final BlockPos from, final BlockPos to)
     {
         final ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
@@ -58,7 +58,7 @@ public class UpdateScanToolMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);

@@ -132,10 +132,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param name   the name of it.
      */
     public static void saveStructure(
-      @NotNull final Level world,
-      @NotNull final BlockPos from,
-      @NotNull final BlockPos to,
-      @NotNull final Player player,
+      final Level world,
+      final BlockPos from,
+      final BlockPos to,
+      final Player player,
       final String name)
     {
         saveStructure(world, from, to, player, name, true, Optional.empty());
@@ -152,10 +152,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param saveEntities whether to scan in entities
      */
     public static void saveStructure(
-      @NotNull final Level world,
-      @NotNull final BlockPos from,
-      @NotNull final BlockPos to,
-      @NotNull final Player player,
+      final Level world,
+      final BlockPos from,
+      final BlockPos to,
+      final Player player,
       final String name,
       final boolean saveEntities,
       final Optional<BlockPos> anchorPos)
@@ -219,9 +219,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @return true if succesful.
      */
     public static boolean saveStructureOnServer(
-      @NotNull final Level world,
-      @NotNull final BlockPos from,
-      @NotNull final BlockPos to,
+      final Level world,
+      final BlockPos from,
+      final BlockPos to,
       final String name)
     {
         return saveStructureOnServer(world, from, to, name, true);
@@ -238,9 +238,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @return true if succesful.
      */
     public static boolean saveStructureOnServer(
-      @NotNull final Level world,
-      @NotNull final BlockPos from,
-      @NotNull final BlockPos to,
+      final Level world,
+      final BlockPos from,
+      final BlockPos to,
       final String name,
       final boolean saveEntities)
     {

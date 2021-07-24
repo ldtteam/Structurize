@@ -75,8 +75,7 @@ public class PaneParams
         return children;
     }
 
-    @NotNull
-    public String getText()
+        public String getText()
     {
         return node.getTextContent().trim();
     }

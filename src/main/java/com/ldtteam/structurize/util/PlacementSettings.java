@@ -35,7 +35,7 @@ public class PlacementSettings
      * @param mirror the mirror.
      * @param rotation the rotation.
      */
-    public PlacementSettings(@NotNull final Mirror mirror, @NotNull final Rotation rotation)
+    public PlacementSettings(final Mirror mirror, final Rotation rotation)
     {
         this.mirror = mirror;
         this.rotation = rotation;

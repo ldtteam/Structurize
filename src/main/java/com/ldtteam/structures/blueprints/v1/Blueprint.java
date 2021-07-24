@@ -397,7 +397,7 @@ public class Blueprint
      * @return the TE compound with real world coords.
      */
     @Nullable
-    public CompoundTag getTileEntityData(@NotNull final BlockPos worldPos, final BlockPos structurePos)
+    public CompoundTag getTileEntityData(final BlockPos worldPos, final BlockPos structurePos)
     {
         if (!getBlockInfoAsMap().containsKey(structurePos) || !getBlockInfoAsMap().get(structurePos).hasTileEntityData())
         {
@@ -740,7 +740,7 @@ public class Blueprint
                     }
                     else
                     {
-                        finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.xRot);
+                        finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.getXRot());
                     }
 
                     return finalEntity.serializeNBT();
@@ -863,7 +863,7 @@ public class Blueprint
      * @param pos        the pos to check.
      * @return true if so.
      */
-    private boolean isAtPos(@NotNull final CompoundTag entityData, final BlockPos pos)
+    private boolean isAtPos(final CompoundTag entityData, final BlockPos pos)
     {
         final ListTag list = entityData.getList(ENTITY_POS, 6);
         final int x = (int) list.getDouble(0);

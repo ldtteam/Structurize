@@ -42,7 +42,7 @@ public final class LanguageHandler
      * @param key     the key of the message.
      * @param message the message to send.
      */
-    public static void sendPlayerMessage(@NotNull final Player player, final String key, final Object... message)
+    public static void sendPlayerMessage(final Player player, final String key, final Object... message)
     {
         player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUUID());
     }

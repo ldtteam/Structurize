@@ -45,7 +45,6 @@ public class NetworkChannel
     public void registerCommonMessages()
     {
         int idx = 0;
-        registerMessage(++idx, MultiBlockChangeMessage.class, MultiBlockChangeMessage::new);
         registerMessage(++idx, BuildToolPasteMessage.class, BuildToolPasteMessage::new);
         registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
         registerMessage(++idx, LSStructureDisplayerMessage.class, LSStructureDisplayerMessage::new);

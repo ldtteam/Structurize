@@ -42,8 +42,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * List of section.
      */
-    @NotNull
-    private final List<String> sections = new ArrayList<>();
+        private final List<String> sections = new ArrayList<>();
 
     /**
      * Drop down list for section.
@@ -96,8 +95,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * Current position the hut/decoration is rendered at.
      */
-    @NotNull
-    private BlockPos pos = new BlockPos(0, 0, 0);
+        private BlockPos pos = new BlockPos(0, 0, 0);
 
     /**
      * Creates a window inputShape tool.

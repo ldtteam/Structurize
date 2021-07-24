@@ -36,7 +36,7 @@ public class StructureName
      *
      * @param structureName as huts/stone/Builder1 or decorations/Walls/Gate
      */
-    public StructureName(@NotNull final String structureName)
+    public StructureName(final String structureName)
     {
         init(structureName);
     }
@@ -48,7 +48,7 @@ public class StructureName
      * @param style     ex: wood, stone, walls/stone
      * @param schematic as in Builder1, Gate, without the nbt extension.
      */
-    public StructureName(@NotNull final String prefix, final String style, @NotNull final String schematic)
+    public StructureName(final String prefix, final String style, final String schematic)
     {
         final StringBuilder name = new StringBuilder(prefix);
         if (style != null && !style.isEmpty())
@@ -62,7 +62,7 @@ public class StructureName
     /**
      * fill the StructureName property by parsing the string.
      */
-    private void init(@NotNull final String structureName)
+    private void init(final String structureName)
     {
         if (structureName.isEmpty())
         {

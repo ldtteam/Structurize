@@ -172,7 +172,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
             @Override
-            public void updateElement(final int index, @NotNull final Pane rowPane)
+            public void updateElement(final int index, final Pane rowPane)
             {
                 BlockEntity te = world.getBlockEntity(anchorPos);
                 if (te instanceof IBlueprintDataProvider)

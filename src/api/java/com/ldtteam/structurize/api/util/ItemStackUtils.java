@@ -90,8 +90,7 @@ public final class ItemStackUtils
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
-    @NotNull
-    public static Set<IItemHandler> getItemHandlersFromProvider(@NotNull final ICapabilityProvider provider)
+        public static Set<IItemHandler> getItemHandlersFromProvider(final ICapabilityProvider provider)
     {
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
@@ -109,8 +108,7 @@ public final class ItemStackUtils
      * @param stack The stack to check.
      * @return True when the stack is empty, false when not.
      */
-    @NotNull
-    public static Boolean isEmpty(@Nullable final ItemStack stack)
+        public static Boolean isEmpty(@Nullable final ItemStack stack)
     {
         return stack == null || stack == EMPTY || stack.getCount() <= 0;
     }
@@ -157,8 +155,7 @@ public final class ItemStackUtils
             else if (entity instanceof ArmorStand)
             {
                 request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                    @NotNull
-                    @Override
+                                        @Override
                     public Type getType()
                     {
                         return Type.ENTITY;

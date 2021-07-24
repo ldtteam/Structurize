@@ -28,8 +28,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class Pane extends GuiComponent
 {
-    @NotNull
-    private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
+        private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
     protected static Pane lastClickedPane;
     protected static Pane focus;
     protected Pane onHover;
@@ -68,7 +67,7 @@ public class Pane extends GuiComponent
      *
      * @param params Params for the Pane.
      */
-    public Pane(@NotNull final PaneParams params)
+    public Pane(final PaneParams params)
     {
         super();
         id = params.getString("id", id);
@@ -416,7 +415,7 @@ public class Pane extends GuiComponent
      * @param <T>  The type of pane returned.
      * @return a Pane of the given ID, if it matches the specified type.
      */
-    public final <T extends Pane> T findPaneOfTypeByID(final String idIn, @NotNull final Class<T> type)
+    public final <T extends Pane> T findPaneOfTypeByID(final String idIn, final Class<T> type)
     {
         @Nullable
         final Pane p = findPaneByID(idIn);
@@ -437,7 +436,7 @@ public class Pane extends GuiComponent
      * @param <T>  The type of pane returned.
      * @return a Pane of the given type if found, null otherwise.
      */
-    public final <T extends Pane> T findFirstPaneByType(@NotNull final Class<T> type)
+    public final <T extends Pane> T findFirstPaneByType(final Class<T> type)
     {
         return findPaneByType(type);
     }
@@ -668,8 +667,7 @@ public class Pane extends GuiComponent
             scissorsYend = Math.max(scissorsYstart, Math.min(parentInfo.yEnd, scissorsYend));
         }
 
-        @NotNull
-        final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend, window.getScreen().width, window.getScreen().height);
+                final ScissorsInfo info = new ScissorsInfo(scissorsXstart, scissorsXend, scissorsYstart, scissorsYend, window.getScreen().width, window.getScreen().height);
         scissorsInfoStack.push(info);
         window.getScreen().width = contentWidth;
         window.getScreen().height = contentHeight;

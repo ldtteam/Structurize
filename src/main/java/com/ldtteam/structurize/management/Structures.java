@@ -11,7 +11,7 @@ import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.nio.file.Files;
@@ -71,8 +71,7 @@ public final class Structures
      * - schematics/walls/stone/Gate => decorations -> walls/stone -> Gate , decorations/walls/stone/Gate
      * - scans/458764687564687654 => scans -> <none> -> 458764687564687654 , scan/458764687564687654
      */
-    @NotNull
-    private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new HashMap<>();
+        private static final Map<String, Map<String, Map<String, String>>> schematicsMap = new HashMap<>();
 
     /**
      * md5 hash for the schematics.
@@ -82,14 +81,12 @@ public final class Structures
      * scans/test/buidling -> hash
      * cache/458764687564687654 => 458764687564687654
      */
-    @NotNull
-    private static final Map<String, String> md5Map = new HashMap<>();
+        private static final Map<String, String> md5Map = new HashMap<>();
 
     /**
      * file extension for the schematics
      */
-    @NotNull
-    private static final Map<String, String> fileMap = new HashMap<>();
+        private static final Map<String, String> fileMap = new HashMap<>();
 
     /**
      * Whether or not the schematics list have changed.
@@ -120,7 +117,7 @@ public final class Structures
     @SuppressWarnings(EXCEPTION_HANDLERS_SHOULD_PRESERVE_THE_ORIGINAL_EXCEPTIONS)
     private static void loadStyleMaps()
     {
-        if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
+        /*if (!Structurize.getConfig().getServer().ignoreSchematicsFromJar.get())
         {
             for (final Map.Entry<String, ModFileInfo> origin : StructureLoadingUtils.getOriginMods().entrySet())
             {
@@ -152,7 +149,7 @@ public final class Structures
         if (md5Map.size() == 0)
         {
             Log.getLogger().warn("No file found during schematic discover. Things may break!");
-        }
+        }*/
     }
 
     /**
@@ -180,7 +177,7 @@ public final class Structures
      *
      * @param directory to be created
      */
-    private static void checkDirectory(@NotNull final File directory)
+    private static void checkDirectory(final File directory)
     {
         if (!directory.exists() && !directory.mkdirs())
         {
@@ -196,7 +193,7 @@ public final class Structures
      * @param base     the base path.
      * @param prefix   either schematics, scans, cache
      */
-    private static void loadSchematicsForPrefix(@NotNull final Path base, @NotNull final String prefix)
+    private static void loadSchematicsForPrefix(final Path base, final String prefix)
     {
         final Path basePath = base.toAbsolutePath();
         if (!Files.exists(basePath.resolve(prefix)))
@@ -252,7 +249,7 @@ public final class Structures
                 }
             }
         }
-        catch (@NotNull final IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().warn("loadSchematicsForPrefix: Could not load schematics from " + basePath.resolve(prefix), e);
         }
@@ -264,7 +261,7 @@ public final class Structures
      * @param structureData data of the structure to check for.
      * @return True when the schematic is not too big.
      */
-    private static boolean isSchematicSizeValid(@NotNull final byte[] structureData)
+    private static boolean isSchematicSizeValid(final byte[] structureData)
     {
         final byte[] compressed = StructureUtils.compress(structureData);
 
@@ -282,7 +279,7 @@ public final class Structures
      * @param structureName the structure to add
      */
     @OnlyIn(Dist.CLIENT)
-    private static void addSchematic(@NotNull final StructureName structureName)
+    private static void addSchematic(final StructureName structureName)
     {
         if (structureName.getPrefix().equals(SCHEMATICS_CACHE))
         {
@@ -342,7 +339,7 @@ public final class Structures
      * @return the new structureName
      */
     @OnlyIn(Dist.CLIENT)
-    public static StructureName renameScannedStructure(@NotNull final StructureName structureName, @NotNull final String name)
+    public static StructureName renameScannedStructure(final StructureName structureName, final String name)
     {
         if (!SCHEMATICS_SCAN.equals(structureName.getPrefix()))
         {
@@ -398,7 +395,7 @@ public final class Structures
      * @param structureName name of the structure as 'hut/wooden/Builder1'
      * @return the md5 hash or and empty String if not found
      */
-    public static boolean hasMD5(@NotNull final StructureName structureName)
+    public static boolean hasMD5(final StructureName structureName)
     {
         return hasMD5(structureName.toString());
     }
@@ -409,7 +406,7 @@ public final class Structures
      * @param structureName name of the structure as 'hut/wooden/Builder1'
      * @return the md5 hash String or null if not found
      */
-    public static String getMD5(@NotNull final String structureName)
+    public static String getMD5(final String structureName)
     {
         if (!md5Map.containsKey(structureName))
         {
@@ -419,7 +416,7 @@ public final class Structures
         return md5Map.get(structureName);
     }
 
-    public static boolean hasMD5(@NotNull final String structureName)
+    public static boolean hasMD5(final String structureName)
     {
         return md5Map.containsKey(structureName);
     }
@@ -432,7 +429,7 @@ public final class Structures
      * @return True if the structure have been deleted, False otherwise
      */
     @OnlyIn(Dist.CLIENT)
-    public static boolean deleteScannedStructure(@NotNull final StructureName structureName)
+    public static boolean deleteScannedStructure(final StructureName structureName)
     {
         if (!SCHEMATICS_SCAN.equals(structureName.getPrefix()))
         {
@@ -469,8 +466,7 @@ public final class Structures
      *
      * @return list of sections.
      */
-    @NotNull
-    @OnlyIn(Dist.CLIENT)
+        @OnlyIn(Dist.CLIENT)
     public static List<String> getSections()
     {
         final ArrayList<String> list = new ArrayList<>(schematicsMap.keySet());
@@ -484,8 +480,7 @@ public final class Structures
      * @param section such as decorations, Builder ...
      * @return the list of style for that section.
      */
-    @NotNull
-    @OnlyIn(Dist.CLIENT)
+        @OnlyIn(Dist.CLIENT)
     public static List<String> getStylesFor(final String section)
     {
         if (schematicsMap.containsKey(section))
@@ -503,8 +498,7 @@ public final class Structures
      * @param style   limit the list for schematics to this style.
      * @return the list of schematics
      */
-    @NotNull
-    @OnlyIn(Dist.CLIENT)
+        @OnlyIn(Dist.CLIENT)
     public static List<String> getSchematicsFor(final String section, final String style)
     {
         if (schematicsMap.containsKey(section))
@@ -714,7 +708,7 @@ public final class Structures
                     fileMap.put(SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5, SCHEMATIC_EXTENSION_NEW);
                     return true;
                 }
-                catch (@NotNull final IOException e)
+                catch (final IOException e)
                 {
                     Log.getLogger().warn("Exception while trying to save a schematic.", e);
                 }
@@ -773,7 +767,7 @@ public final class Structures
      *
      * @param md5 hash of the structure
      */
-    public static void addMD5ToCache(@NotNull final String md5)
+    public static void addMD5ToCache(final String md5)
     {
         markDirty();
         md5Map.put(Structures.SCHEMATICS_CACHE + SCHEMATICS_SEPARATOR + md5, md5);
@@ -803,7 +797,7 @@ public final class Structures
      * @param structureName the structure to delete
      * @return True if the structure have been deleted, False otherwise
      */
-    private static boolean deleteCachedStructure(@NotNull final StructureName structureName)
+    private static boolean deleteCachedStructure(final StructureName structureName)
     {
         if (!SCHEMATICS_CACHE.equals(structureName.getPrefix()))
         {

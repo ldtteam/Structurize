@@ -24,8 +24,7 @@ public class BlueprintPositionInfo
     /**
      * List of entities at position.
      */
-    @NotNull
-    public final CompoundTag[] entities;
+        public final CompoundTag[] entities;
 
     /**
      * Constructor of a blueprint position info.

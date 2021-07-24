@@ -4,7 +4,7 @@ import com.ldtteam.structurize.items.ItemScanTool;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +52,7 @@ public class ScanOnServerMessage implements IMessage
         this.anchorPos = buf.readBoolean() ? Optional.of(buf.readBlockPos()) : Optional.empty();
     }
 
-    public ScanOnServerMessage(@NotNull final BlockPos from, @NotNull final BlockPos to, @NotNull final String name, final boolean saveEntities, final Optional<BlockPos> anchorPos)
+    public ScanOnServerMessage(final BlockPos from, final BlockPos to, final String name, final boolean saveEntities, final Optional<BlockPos> anchorPos)
     {
         this.from = from;
         this.to = to;
@@ -62,7 +62,7 @@ public class ScanOnServerMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(name);
         buf.writeBlockPos(from);

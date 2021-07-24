@@ -114,7 +114,7 @@ public class DropDownList extends View implements ButtonHandler
      *
      * @param buttonIn which have been clicked on.
      */
-    public void onButtonClicked(@NotNull final Button buttonIn)
+    public void onButtonClicked(final Button buttonIn)
     {
         if (buttonIn == button)
         {
@@ -158,7 +158,7 @@ public class DropDownList extends View implements ButtonHandler
      *
      * @param buttonIn which have been clicked on.
      */
-    private void onButtonClickedFromList(@NotNull final Button buttonIn)
+    private void onButtonClickedFromList(final Button buttonIn)
     {
         final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
         if (idLabel != null)
@@ -255,7 +255,7 @@ public class DropDownList extends View implements ButtonHandler
             }
 
             @Override
-            public void updateElement(final int index, @NotNull final Pane rowPane)
+            public void updateElement(final int index, final Pane rowPane)
             {
                 updateDropDownItem(rowPane, index, dataProvider.getLabelNew(index));
             }
@@ -271,7 +271,7 @@ public class DropDownList extends View implements ButtonHandler
      * @param index   of the item
      * @param label   use for this item
      */
-    private void updateDropDownItem(@NotNull final Pane rowPane, final int index, final MutableComponent label)
+    private void updateDropDownItem(final Pane rowPane, final int index, final MutableComponent label)
     {
         final Button choiceButton = rowPane.findPaneOfTypeByID("button", Button.class);
         if (choiceButton != null)

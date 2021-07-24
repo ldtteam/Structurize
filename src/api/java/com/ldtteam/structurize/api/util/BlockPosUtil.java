@@ -31,9 +31,9 @@ public final class BlockPosUtil
      * @param name     Name of the tag.
      * @param pos      Coordinates to write to NBT.
      */
-    public static void writeToNBT(@NotNull final CompoundTag compound, final String name, @NotNull final BlockPos pos)
+    public static void writeToNBT(final CompoundTag compound, final String name, final BlockPos pos)
     {
-        @NotNull final CompoundTag coordsCompound = new CompoundTag();
+        final CompoundTag coordsCompound = new CompoundTag();
         coordsCompound.putInt("x", pos.getX());
         coordsCompound.putInt("y", pos.getY());
         coordsCompound.putInt("z", pos.getZ());
@@ -47,8 +47,7 @@ public final class BlockPosUtil
      * @param name     Tag name to read data from.
      * @return Chunk coordinates read from the compound.
      */
-    @NotNull
-    public static BlockPos readFromNBT(@NotNull final CompoundTag compound, final String name)
+        public static BlockPos readFromNBT(final CompoundTag compound, final String name)
     {
         final CompoundTag coordsCompound = compound.getCompound(name);
         final int x = coordsCompound.getInt("x");
@@ -63,9 +62,9 @@ public final class BlockPosUtil
      * @param tagList Tag list to write compound with chunk coordinates to.
      * @param pos     Coordinate to write to the tag list.
      */
-    public static void writeToNBTTagList(@NotNull final ListTag tagList, @NotNull final BlockPos pos)
+    public static void writeToNBTTagList(final ListTag tagList, final BlockPos pos)
     {
-        @NotNull final CompoundTag coordsCompound = new CompoundTag();
+        final CompoundTag coordsCompound = new CompoundTag();
         coordsCompound.putInt("x", pos.getX());
         coordsCompound.putInt("y", pos.getY());
         coordsCompound.putInt("z", pos.getZ());
@@ -79,7 +78,7 @@ public final class BlockPosUtil
      * @param sender   uses the player to get the world
      * @return isSafe true=safe false=water or lava
      */
-    public static boolean isPositionSafe(@NotNull final CommandSourceStack sender, final BlockPos blockPos)
+    public static boolean isPositionSafe(final CommandSourceStack sender, final BlockPos blockPos)
     {
         return sender.getLevel().getBlockState(blockPos).getBlock() != Blocks.AIR
                  && !sender.getLevel().getBlockState(blockPos).getMaterial().isLiquid()
@@ -93,7 +92,7 @@ public final class BlockPosUtil
      * @param block2 position two.
      * @return squared distance.
      */
-    public static long getDistanceSquared(@NotNull final BlockPos block1, @NotNull final BlockPos block2)
+    public static long getDistanceSquared(final BlockPos block1, final BlockPos block2)
     {
         final long xDiff = (long) block1.getX() - block2.getX();
         final long yDiff = (long) block1.getY() - block2.getY();
@@ -114,7 +113,7 @@ public final class BlockPosUtil
      * @param coords Coordinates of the block.
      * @return Block at the given coordinates.
      */
-    public static Block getBlock(@NotNull final Level world, @NotNull final BlockPos coords)
+    public static Block getBlock(final Level world, final BlockPos coords)
     {
         return world.getBlockState(coords).getBlock();
     }
@@ -126,7 +125,7 @@ public final class BlockPosUtil
      * @param coords Coordinates of the block.
      * @return Metadata of the block at the given coordinates.
      */
-    public static BlockState getBlockState(@NotNull final Level world, @NotNull final BlockPos coords)
+    public static BlockState getBlockState(final Level world, final BlockPos coords)
     {
         return world.getBlockState(coords);
     }
@@ -140,7 +139,7 @@ public final class BlockPosUtil
      * @param flag    Flag to set.
      * @return True if block is placed, otherwise false.
      */
-    public static boolean setBlock(@NotNull final Level worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
+    public static boolean setBlock(final Level worldIn, final BlockPos coords, final BlockState state, final int flag)
     {
         return worldIn.setBlock(coords, state, flag);
     }
@@ -151,7 +150,7 @@ public final class BlockPosUtil
      * @param pos    {@link BlockPos.MutableBlockPos}.
      * @param newPos The new position to set.
      */
-    public static void set(@NotNull final BlockPos.MutableBlockPos pos, @NotNull final BlockPos newPos)
+    public static void set(final BlockPos.MutableBlockPos pos, final BlockPos newPos)
     {
         pos.set(newPos.getX(), newPos.getY(), newPos.getZ());
     }
@@ -165,7 +164,7 @@ public final class BlockPosUtil
      * @param z      z-coordinate        (point 2).
      * @return True when coordinates are equal, otherwise false.
      */
-    public static boolean isEqual(@NotNull final BlockPos coords, final int x, final int y, final int z)
+    public static boolean isEqual(final BlockPos coords, final int x, final int y, final int z)
     {
         return coords.getX() == x && coords.getY() == y && coords.getZ() == z;
     }

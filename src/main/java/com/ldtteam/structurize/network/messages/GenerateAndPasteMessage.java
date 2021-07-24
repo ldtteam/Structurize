@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,7 +113,7 @@ public class GenerateAndPasteMessage implements IMessage
      * @param mirror    its mirror.
      */
     public GenerateAndPasteMessage(
-      @NotNull final BlockPos pos,
+      final BlockPos pos,
       final int length,
       final int width,
       final int height,
@@ -148,7 +148,7 @@ public class GenerateAndPasteMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
 
         buf.writeBlockPos(pos);

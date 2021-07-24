@@ -102,7 +102,7 @@ public class StructurePlacer
 
         while (iterationResult == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
-            @NotNull final BlockPos localPos = iterator.getProgressPos();
+            final BlockPos localPos = iterator.getProgressPos();
             final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
 
             if (count >= handler.getStepsPerCall())
@@ -450,12 +450,12 @@ public class StructurePlacer
      * @param pos coordinates
      * @return true if there is free space.
      */
-    public boolean checkForFreeSpace(@NotNull final BlockPos pos)
+    public boolean checkForFreeSpace(final BlockPos pos)
     {
         iterator.setProgressPos(pos);
         while (iterator.increment() == AbstractBlueprintIterator.Result.NEW_BLOCK)
         {
-            @NotNull final BlockPos localPos = iterator.getProgressPos();
+            final BlockPos localPos = iterator.getProgressPos();
 
             final BlockPos worldPos = pos.offset(localPos);
 

@@ -8,7 +8,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +50,7 @@ public class RemoveEntityMessage implements IMessage
      * @param pos2 end coordinate.
      * @param entityName the entity to remove.
      */
-    public RemoveEntityMessage(@NotNull final BlockPos pos1, @NotNull final BlockPos pos2, @NotNull final String entityName)
+    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final String entityName)
     {
         this.from = pos1;
         this.to = pos2;
@@ -58,7 +58,7 @@ public class RemoveEntityMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -97,7 +97,7 @@ public class RemoveEntityMessage implements IMessage
                     {
                         if (entity.getName().getString().equals(entityName))
                         {
-                            entity.remove();
+                            entity.remove(false);
                         }
                     }
                 }

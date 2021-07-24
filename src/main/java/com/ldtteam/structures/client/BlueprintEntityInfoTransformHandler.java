@@ -32,7 +32,7 @@ public class BlueprintEntityInfoTransformHandler
      * @param transformPredicate The predicate to check if this transform function needs to be applied.
      * @param transformHandler The tranformer.
      */
-    public void AddTransformHandler(@NotNull final Predicate<CompoundTag> transformPredicate, @NotNull final Function<CompoundTag, CompoundTag> transformHandler)
+    public void AddTransformHandler(final Predicate<CompoundTag> transformPredicate, final Function<CompoundTag, CompoundTag> transformHandler)
     {
         entityInfoTransformHandler.put(transformPredicate, transformHandler);
     }
@@ -43,12 +43,12 @@ public class BlueprintEntityInfoTransformHandler
      * @param entityInfo The entity info to transform
      * @return The transformed entityinfo.
      */
-    public CompoundTag Transform(@NotNull final CompoundTag entityInfo)
+    public CompoundTag Transform(final CompoundTag entityInfo)
     {
         return getTransformHandler(entityInfo).apply(entityInfo);
     }
 
-    private Function<CompoundTag,CompoundTag> getTransformHandler(@NotNull final CompoundTag entityInfo)
+    private Function<CompoundTag,CompoundTag> getTransformHandler(final CompoundTag entityInfo)
     {
         return entityInfoTransformHandler.keySet().stream().filter(p -> p.test(entityInfo)).findFirst().map(p -> entityInfoTransformHandler.get(p)).orElse(Function.identity());
     }

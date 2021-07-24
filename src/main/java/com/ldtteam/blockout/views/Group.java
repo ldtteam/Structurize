@@ -27,14 +27,14 @@ public class Group extends View
      *
      * @param params Params for the Pane.
      */
-    public Group(@NotNull final PaneParams params)
+    public Group(final PaneParams params)
     {
         super(params);
         spacing = params.getInteger("spacing", spacing);
     }
 
     @Override
-    public void adjustChild(@NotNull final Pane child)
+    public void adjustChild(final Pane child)
     {
         int childX = child.getX();
         int childY = spacing;
@@ -55,8 +55,7 @@ public class Group extends View
             childX = ((getInteriorWidth() - childWidth) / 2) + childX;
         }
 
-        for (@NotNull
-        final Pane c : children)
+        for (        final Pane c : children)
         {
             if (c == child)
             {
@@ -70,15 +69,14 @@ public class Group extends View
     }
 
     @Override
-    public void removeChild(@NotNull final Pane child)
+    public void removeChild(final Pane child)
     {
         super.removeChild(child);
 
         final int formerChildY = child.getY();
         final int formerChildHeight = child.getHeight();
 
-        for (@NotNull
-        final Pane c : children)
+        for (        final Pane c : children)
         {
             if (c.getY() > formerChildY)
             {

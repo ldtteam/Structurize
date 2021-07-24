@@ -27,8 +27,7 @@ public class ItemBuildTool extends AbstractItemStructurize
         super("sceptergold", properties.stacksTo(1));
     }
 
-    @NotNull
-    @Override
+        @Override
     public InteractionResult useOn(final UseOnContext context)
     {
         if (context.getLevel().isClientSide)
@@ -38,9 +37,8 @@ public class ItemBuildTool extends AbstractItemStructurize
         return InteractionResult.SUCCESS;
     }
 
-    @NotNull
-    @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, @NotNull final InteractionHand handIn)
+        @Override
+    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         final ItemStack stack = playerIn.getItemInHand(handIn);
 

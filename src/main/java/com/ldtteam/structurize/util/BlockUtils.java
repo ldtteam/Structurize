@@ -42,8 +42,7 @@ public final class BlockUtils
     /**
      * Predicated to determine if a block is free to place.
      */
-    @NotNull
-    public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
+        public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
         (block, iBlockState) -> block.equals(Blocks.AIR),
         (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
         (block, iBlockState) -> BlockUtils.isWater(block.defaultBlockState()),
@@ -110,7 +109,7 @@ public final class BlockUtils
      * @param location the location it is at.
      * @return the IBlockState of the filler block.
      */
-    public static BlockState getSubstitutionBlockAtWorld(@NotNull final Level world, @NotNull final BlockPos location)
+    public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location)
     {
         final BlockState filler = world.getBiome(location).generationSettings.getSurfaceBuilderConfig().getTopMaterial();
         if (filler.getBlock() == Blocks.SAND)
@@ -135,7 +134,7 @@ public final class BlockUtils
         return iBlockState.getBlock() == Blocks.WATER;
     }
 
-    private static Item getItem(@NotNull final BlockState blockState)
+    private static Item getItem(final BlockState blockState)
     {
         final Block block = blockState.getBlock();
         if (block.equals(Blocks.LAVA))
@@ -284,7 +283,7 @@ public final class BlockUtils
      * @param blockState the block and state we are creating an ItemStack for.
      * @return ItemStack fromt the BlockState.
      */
-    public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
+    public static ItemStack getItemStackFromBlockState(final BlockState blockState)
     {
         if (blockState.getBlock() instanceof LiquidBlock)
         {
@@ -421,7 +420,7 @@ public final class BlockUtils
      * @param stack the tool.
      * @return List of {@link ItemStack} with possible drops.
      */
-    public static List<ItemStack> getBlockDrops(@NotNull final Level world, @NotNull final BlockPos coords, final int fortune, final ItemStack stack)
+    public static List<ItemStack> getBlockDrops(final Level world, final BlockPos coords, final int fortune, final ItemStack stack)
     {
         return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerLevel) world)
                                                       .withLuck(fortune)

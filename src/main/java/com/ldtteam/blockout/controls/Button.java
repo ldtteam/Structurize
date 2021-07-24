@@ -29,7 +29,7 @@ public abstract class Button extends AbstractTextElement
      *
      * @param params PaneParams from xml file.
      */
-    public Button(@NotNull final PaneParams params)
+    public Button(final PaneParams params)
     {
         super(params);
     }

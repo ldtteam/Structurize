@@ -228,7 +228,7 @@ public interface IStructureHandler
      * @param requiredItems the list of items.
      * @return true if so.
      */
-    boolean hasRequiredItems(@NotNull final List<ItemStack> requiredItems);
+    boolean hasRequiredItems(final List<ItemStack> requiredItems);
 
     /**
      * Get the position in the world translated from a local pos in the structure.

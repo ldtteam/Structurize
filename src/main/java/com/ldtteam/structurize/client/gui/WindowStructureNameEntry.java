@@ -43,7 +43,7 @@ public class WindowStructureNameEntry extends Window implements ButtonHandler
     }
 
     @Override
-    public void onButtonClicked(@NotNull final Button button)
+    public void onButtonClicked(final Button button)
     {
         if (button.getID().equals(BUTTON_DONE))
         {

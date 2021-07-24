@@ -104,7 +104,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param pos2 the end pos.
      * @param origin the origin view.
      */
-    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
+    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
@@ -122,7 +122,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param main main block or fill block.
      * @param origin the origin view.
      */
-    public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
+    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
@@ -170,7 +170,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     }
 
     @Override
-    public void onButtonClicked(@NotNull final Button button)
+    public void onButtonClicked(final Button button)
     {
         if (button.getID().equals(BUTTON_DONE))
         {
@@ -194,7 +194,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
                                 .map(prop -> getPropertyName(prop) + " - " + prop.getName())
                                 .collect(Collectors.joining(", ", "[", "]")));
                     }
-                    if (toBS.getBlock().is(ModBlocks.NULL_PLACEMENT))
+                    if (toBS.is(ModBlocks.NULL_PLACEMENT))
                     {
                         LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
                             "structurize.gui.replaceblock.null_placement",
@@ -246,7 +246,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
             @Override
-            public void updateElement(final int index, @NotNull final Pane rowPane)
+            public void updateElement(final int index, final Pane rowPane)
             {
                 final ItemStack resource = filteredItems.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);

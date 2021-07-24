@@ -469,8 +469,7 @@ public abstract class AbstractTextElement extends Pane
     /**
      * @return emptyString if empty, otherwise first line as string
      */
-    @NotNull
-    public String getTextAsString()
+        public String getTextAsString()
     {
         return isTextEmpty() ? "" : text.get(0).getString();
     }

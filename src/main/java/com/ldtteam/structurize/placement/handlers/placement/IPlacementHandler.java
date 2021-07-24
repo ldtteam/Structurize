@@ -27,7 +27,7 @@ public interface IPlacementHandler
      * @param blockState the blockState.
      * @return true if so.
      */
-    boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState);
+    boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState);
 
     /**
      * Method used to handle the processing of a Placement of a block.
@@ -41,9 +41,9 @@ public interface IPlacementHandler
      * @return ACCEPT, DENY or IGNORE.
      */
     default ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
-      @NotNull final BlockState blockState,
+      final Level world,
+      final BlockPos pos,
+      final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
       final boolean complete, final BlockPos centerPos)
     {
@@ -66,9 +66,9 @@ public interface IPlacementHandler
      * @return ACCEPT, DENY or IGNORE.
      */
     default ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
-      @NotNull final BlockState blockState,
+      final Level world,
+      final BlockPos pos,
+      final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
       final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
     {
@@ -84,10 +84,10 @@ public interface IPlacementHandler
      * @param tileEntityData any tile entity data in the blueprint
      */
     default void handleRemoval(
-      @NotNull final IStructureHandler handler,
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
-      @NotNull final CompoundTag tileEntityData)
+      final IStructureHandler handler,
+      final Level world,
+      final BlockPos pos,
+      final CompoundTag tileEntityData)
     {
         handleRemoval(handler, world, pos);
     }
@@ -100,9 +100,9 @@ public interface IPlacementHandler
      * @param pos the position of the block
      */
     default void handleRemoval(
-      @NotNull final IStructureHandler handler,
-      @NotNull final Level world,
-      @NotNull final BlockPos pos)
+      final IStructureHandler handler,
+      final Level world,
+      final BlockPos pos)
     {
         if (!handler.isCreative())
         {
@@ -130,9 +130,9 @@ public interface IPlacementHandler
      * @return the list of items.
      */
     List<ItemStack> getRequiredItems(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
-      @NotNull final BlockState blockState,
+      final Level world,
+      final BlockPos pos,
+      final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
       final boolean complete);
 

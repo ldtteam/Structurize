@@ -4,7 +4,6 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
-import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.tags.BlockTags;
@@ -21,9 +20,6 @@ import java.util.function.Supplier;
 
 /**
  * Class to register blocks to Structurize
- *
- * Don't forget to add them to the generators!
- * Minimum is a save call in {@link DefaultBlockLootTableProvider}.
  */
 public final class ModBlocks
 {

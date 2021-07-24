@@ -29,12 +29,12 @@ public class StructurePlacementUtils
      * @param rotation the rotation.
      * @param mirror   the mirror.
      */
-    public static void unloadStructure(@NotNull final Level world, @NotNull final BlockPos startPos, @NotNull final String name, final Rotation rotation, @NotNull final Mirror mirror)
+    public static void unloadStructure(final Level world, final BlockPos startPos, final String name, final Rotation rotation, final Mirror mirror)
     {
-        @NotNull final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, new PlacementSettings(mirror, rotation), false);
+        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, new PlacementSettings(mirror, rotation), false);
         structure.getBluePrint().rotateWithMirror(rotation, mirror, world);
 
-        @NotNull final StructurePlacer placer = new StructurePlacer(structure);
+        final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
           () ->  placer.getIterator().increment((info, pos, handler) -> handler.getWorld().getBlockState(pos).getBlock() instanceof AirBlock), true);
     }
@@ -52,18 +52,18 @@ public class StructurePlacementUtils
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
-      final Level worldObj, @NotNull final String name,
-      @NotNull final BlockPos pos, final Rotation rotation,
-      @NotNull final Mirror mirror,
+      final Level worldObj, final String name,
+      final BlockPos pos, final Rotation rotation,
+      final Mirror mirror,
       final boolean fancyPlacement,
       final ServerPlayer player)
     {
         try
         {
-            @NotNull final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, new PlacementSettings(mirror, rotation), fancyPlacement);
+            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, new PlacementSettings(mirror, rotation), fancyPlacement);
             structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
 
-            @NotNull final StructurePlacer instantPlacer = new StructurePlacer(structure);
+            final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
         }
         catch (final IllegalStateException e)
@@ -85,22 +85,22 @@ public class StructurePlacementUtils
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
-      final Level worldObj, @NotNull final Blueprint blueprint,
-      @NotNull final BlockPos pos, final Rotation rotation,
-      @NotNull final Mirror mirror,
+      final Level worldObj, final Blueprint blueprint,
+      final BlockPos pos, final Rotation rotation,
+      final Mirror mirror,
       final boolean fancyPlacement,
       final ServerPlayer player)
     {
         try
         {
-            @NotNull final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, new PlacementSettings(mirror, rotation), fancyPlacement);
+            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, new PlacementSettings(mirror, rotation), fancyPlacement);
             if (fancyPlacement)
             {
                 structure.fancyPlacement();
             }
             structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
 
-            @NotNull final StructurePlacer instantPlacer = new StructurePlacer(structure);
+            final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
         }
         catch (final IllegalStateException e)

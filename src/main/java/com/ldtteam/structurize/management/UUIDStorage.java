@@ -29,7 +29,7 @@ public class UUIDStorage extends SavedData
         load(s);
     }
 
-    public void load(@NotNull final CompoundTag compound)
+    public void load(final CompoundTag compound)
     {
         if (compound.hasUUID(TAG_UUID))
         {
@@ -37,9 +37,8 @@ public class UUIDStorage extends SavedData
         }
     }
 
-    @NotNull
-    @Override
-    public CompoundTag save(@NotNull final CompoundTag compound)
+        @Override
+    public CompoundTag save(final CompoundTag compound)
     {
         if (Manager.getServerUUID() != null)
         {

@@ -34,7 +34,7 @@ public class SwitchView extends View
     }
 
     @Override
-    public void parseChildren(@NotNull final PaneParams params)
+    public void parseChildren(final PaneParams params)
     {
         super.parseChildren(params);
 
@@ -54,8 +54,7 @@ public class SwitchView extends View
     public boolean setView(final String name)
     {
         // Immediate children only
-        for (@NotNull
-        final Pane child : children)
+        for (        final Pane child : children)
         {
             if (child.getID().equals(name))
             {
@@ -85,7 +84,7 @@ public class SwitchView extends View
     }
 
     @Override
-    public void addChild(@NotNull final Pane child)
+    public void addChild(final Pane child)
     {
         super.addChild(child);
         if (children.size() == 1)
@@ -100,7 +99,7 @@ public class SwitchView extends View
     }
 
     @Override
-    public void adjustChild(@NotNull final Pane child)
+    public void adjustChild(final Pane child)
     {
         if (child.getWidth() == 0 || child.getHeight() == 0)
         {

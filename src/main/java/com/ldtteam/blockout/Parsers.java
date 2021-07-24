@@ -53,8 +53,7 @@ public final class Parsers
     };
 
     /** Parses a potentially translatable portion of text as a component */
-    @NotNull
-    public static Function<String, MutableComponent> TEXT = v -> {
+        public static Function<String, MutableComponent> TEXT = v -> {
         String result = RAW_TEXT.apply(v);
         return result == null ? null : new TextComponent(result);
     };

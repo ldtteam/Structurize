@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,8 +46,7 @@ public final class StructureLoadingUtils
     /**
      * Allows for faster lookup during jar discover or build tool listing.
      */
-    @NotNull
-    private static String latestModOrigin = Constants.MOD_ID;
+        private static String latestModOrigin = Constants.MOD_ID;
 
     /**
      * Private constructor to hide public one.
@@ -145,7 +144,7 @@ public final class StructureLoadingUtils
      */
     private static InputStream getStreamFromMod(final ModFileInfo info, final String... path)
     {
-        final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
+        /*final Path ret = info.getFile().getLocator().findPath(info.getFile(), path);
         if (Files.exists(ret))
         {
             try
@@ -157,7 +156,7 @@ public final class StructureLoadingUtils
                 Log.getLogger().warn("Error occured when trying to read resource from: " +
                     info.getFile().getFilePath().toAbsolutePath().toString(), e);
             }
-        }
+        }*/
         return null;
     }
 
@@ -172,7 +171,7 @@ public final class StructureLoadingUtils
         final String filePath = structureName + SCHEMATIC_EXTENSION_NEW;
 
         // try latest successful origin
-        InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
+        /*InputStream is = getStreamFromMod(originMods.get(latestModOrigin), SCHEMATICS_ASSET_PATH, latestModOrigin, filePath);
         if (is == null)
         {
             // try every origin except the one tested earlier
@@ -194,7 +193,9 @@ public final class StructureLoadingUtils
                 Log.getLogger().warn("File jar resolve FAILED for: {}", filePath);
             }
         }
-        return is;
+        return is;*/
+
+        return null;
     }
 
     /**
@@ -246,7 +247,7 @@ public final class StructureLoadingUtils
             }
             return buffer.toByteArray();
         }
-        catch (@NotNull final IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().warn("", e);
         }
@@ -366,7 +367,7 @@ public final class StructureLoadingUtils
         return originFolders;
     }
 
-    public static Map<String, ModFileInfo> getOriginMods()
+    public static Map<String, IModFileInfo> getOriginMods()
     {
         return originMods;
     }

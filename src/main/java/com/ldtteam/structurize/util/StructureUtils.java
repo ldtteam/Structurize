@@ -51,7 +51,7 @@ public final class StructureUtils
             final MessageDigest md = MessageDigest.getInstance("MD5");
             return bytesToHex(md.digest(bytes));
         }
-        catch (@NotNull final NoSuchAlgorithmException e)
+        catch (final NoSuchAlgorithmException e)
         {
             Log.getLogger().trace(e);
         }
@@ -79,7 +79,7 @@ public final class StructureUtils
         {
             zipStream.write(data);
         }
-        catch (@NotNull final IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().error("Could not compress the data", e);
         }
@@ -100,7 +100,7 @@ public final class StructureUtils
                 out.write(buffer, 0, len);
             }
         }
-        catch (@NotNull final IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().warn("Could not uncompress data", e);
         }

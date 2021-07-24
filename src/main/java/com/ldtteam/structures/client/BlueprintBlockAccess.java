@@ -15,6 +15,8 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -106,16 +108,15 @@ public class BlueprintBlockAccess extends Level
 
     @Nullable
     @Override
-    public BlockEntity getBlockEntity(@NotNull final BlockPos pos)
+    public BlockEntity getBlockEntity(final BlockPos pos)
     {
         return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
 
-    @NotNull
-    @Override
-    public BlockState getBlockState(@NotNull final BlockPos pos)
+        @Override
+    public BlockState getBlockState(final BlockPos pos)
     {
-        final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState().getBlockState();
+        final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
         if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
             return Blocks.DIRT.defaultBlockState();
@@ -136,19 +137,19 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public int getMaxLocalRawBrightness(@NotNull final BlockPos pos)
+    public int getMaxLocalRawBrightness(final BlockPos pos)
     {
         return 15;
     }
 
     @Override
-    public float getBrightness(@NotNull final BlockPos pos)
+    public float getBrightness(final BlockPos pos)
     {
         return 15f;
     }
 
     @Override
-    public int getBrightness(@NotNull final LightLayer lightType, @NotNull final BlockPos pos)
+    public int getBrightness(final LightLayer lightType, final BlockPos pos)
     {
         return 15;
     }
@@ -177,9 +178,8 @@ public class BlueprintBlockAccess extends Level
         return SCOREBOARD;
     }
 
-    @NotNull
-    @Override
-    public FluidState getFluidState(@NotNull final BlockPos pos)
+        @Override
+    public FluidState getFluidState(final BlockPos pos)
     {
         if (isOutsideBuildHeight(pos))
         {
@@ -192,7 +192,7 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public boolean loadedAndEntityCanStandOnFace(BlockPos p_234929_1_, @NotNull Entity p_234929_2_, @NotNull Direction p_234929_3_)
+    public boolean loadedAndEntityCanStandOnFace(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
     {
         return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).entityCanStandOnFace(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
@@ -202,19 +202,6 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return true;
-    }
-
-    @Override
-    public void addAllPendingBlockEntities(Collection<BlockEntity> tileEntityCollection)
-    {
-        // Noop
-    }
-
-    @Override
-    public boolean addBlockEntity(BlockEntity tile)
-    {
-        // Noop
-        return false;
     }
 
     @Override
@@ -286,6 +273,12 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    protected LevelEntityGetter<Entity> getEntities()
+    {
+        return null;
+    }
+
+    @Override
     public float getSunAngle(float partialTicks)
     {
         // Noop
@@ -308,20 +301,6 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public List<Entity> getEntities(Entity entityIn, AABB boundingBox, Predicate<? super Entity> predicate)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public <T extends Entity> List<T> getEntities(EntityType<T> type, AABB boundingBox, Predicate<? super T> predicate)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> clazz, AABB aabb, Predicate<? super T> filter)
     {
         // Noop
         return null;
@@ -363,19 +342,16 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> p_225316_1_,
-        AABB p_225316_2_,
-        Predicate<? super T> p_225316_3_)
+    public MapItemSavedData getMapData(String mapName)
     {
         // Noop
         return null;
     }
 
     @Override
-    public MapItemSavedData getMapData(String mapName)
+    public void setMapData(final String p_151533_, final MapItemSavedData p_151534_)
     {
-        // Noop
-        return null;
+
     }
 
     @Override
@@ -438,12 +414,6 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return null;
-    }
-
-    @Override
-    public void guardEntityTick(Consumer<Entity> consumerEntity, Entity entityIn)
-    {
-        // Noop
     }
 
     @Override
@@ -520,12 +490,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void blockEntityChanged(BlockPos pos, BlockEntity unusedTileEntity)
-    {
-        // Noop
-    }
-
-    @Override
     public void neighborChanged(BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         // Noop
@@ -580,12 +544,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void setMapData(MapItemSavedData mapDataIn)
-    {
-        // Noop
-    }
-
-    @Override
     public boolean removeBlock(BlockPos pos, boolean isMoving)
     {
         // Noop
@@ -618,12 +576,6 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public void setThunderLevel(float strength)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setBlockEntity(BlockPos pos, BlockEntity tileEntityIn)
     {
         // Noop
     }
@@ -716,6 +668,12 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    public void gameEvent(@Nullable final Entity p_151549_, final GameEvent p_151550_, final BlockPos p_151551_)
+    {
+
+    }
+
+    @Override
     public <T extends LivingEntity> T getNearestEntity(List<? extends T> entities,
         TargetingConditions predicate,
         LivingEntity target,
@@ -743,16 +701,6 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public List<? extends Player> players()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public <T extends LivingEntity> List<T> getNearbyEntities(Class<? extends T> p_217374_1_,
-        TargetingConditions p_217374_2_,
-        LivingEntity p_217374_3_,
-        AABB p_217374_4_)
     {
         // Noop
         return null;

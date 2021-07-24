@@ -22,9 +22,9 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
+import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
+import net.minecraftforge.fmlserverevents.FMLServerStoppingEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -81,7 +81,7 @@ public class EventSubscriber
      * @param event {@link net.minecraftforge.event.entity.player.PlayerEvent}
      */
     @SubscribeEvent
-    public static void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
+    public static void onPlayerLogin(final PlayerEvent.PlayerLoggedInEvent event)
     {
         if (event.getPlayer() instanceof ServerPlayer)
         {
@@ -91,7 +91,7 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
+    public static void onWorldTick(final TickEvent.WorldTickEvent event)
     {
         if (event.world.isClientSide)
         {

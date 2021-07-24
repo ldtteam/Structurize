@@ -52,7 +52,7 @@ public class ZoomDragView extends View
     }
 
     @Override
-    protected boolean childIsVisible(@NotNull final Pane child)
+    protected boolean childIsVisible(final Pane child)
     {
         return calcInverseAbsoluteX(child.getX()) < getInteriorWidth() && calcInverseAbsoluteY(child.getY()) < getInteriorHeight()
             && calcInverseAbsoluteX(child.getX() + child.getWidth()) >= 0 && calcInverseAbsoluteY(child.getY() + child.getHeight()) >= 0;
@@ -112,8 +112,7 @@ public class ZoomDragView extends View
         contentHeight = 0;
         contentWidth = 0;
 
-        for (@NotNull
-        final Pane child : children)
+        for (        final Pane child : children)
         {
             if (child != null)
             {

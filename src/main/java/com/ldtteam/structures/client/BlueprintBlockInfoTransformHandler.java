@@ -32,7 +32,7 @@ public class BlueprintBlockInfoTransformHandler
      * @param transformPredicate The predicate to check if this transform function needs to be applied.
      * @param transformHandler The tranformer.
      */
-    public void AddTransformHandler(@NotNull final Predicate<BlockInfo> transformPredicate, @NotNull final Function<BlockInfo, BlockInfo> transformHandler)
+    public void AddTransformHandler(final Predicate<BlockInfo> transformPredicate, final Function<BlockInfo, BlockInfo> transformHandler)
     {
         blockInfoTransformHandler.put(transformPredicate, transformHandler);
     }
@@ -43,12 +43,12 @@ public class BlueprintBlockInfoTransformHandler
      * @param blockInfo The block info to transform
      * @return The transformed blockinfo.
      */
-    public BlockInfo Transform(@NotNull final BlockInfo blockInfo)
+    public BlockInfo Transform(final BlockInfo blockInfo)
     {
         return getTransformHandler(blockInfo).apply(blockInfo);
     }
 
-    private Function<BlockInfo, BlockInfo> getTransformHandler(@NotNull final BlockInfo blockInfo)
+    private Function<BlockInfo, BlockInfo> getTransformHandler(final BlockInfo blockInfo)
     {
         return blockInfoTransformHandler.keySet().stream().filter(p -> p.test(blockInfo)).findFirst().map(p -> blockInfoTransformHandler.get(p)).orElse(Function.identity());
     }

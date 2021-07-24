@@ -105,16 +105,16 @@ public final class PlacementHandlers
     public static class FluidSubstitutionPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull Level world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+        public boolean canHandle(Level world, BlockPos pos, BlockState blockState)
         {
             return blockState.getBlock() instanceof BlockFluidSubstitution;
         }
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull Level world,
-          @NotNull BlockPos pos,
-          @NotNull BlockState blockState,
+          Level world,
+          BlockPos pos,
+          BlockState blockState,
           @Nullable CompoundTag tileEntityData,
           boolean complete)
         {
@@ -129,10 +129,10 @@ public final class PlacementHandlers
 
         @Override
         public void handleRemoval(
-          @NotNull IStructureHandler handler,
-          @NotNull Level world,
-          @NotNull BlockPos pos,
-          @NotNull CompoundTag tileEntityData)
+          IStructureHandler handler,
+          Level world,
+          BlockPos pos,
+          CompoundTag tileEntityData)
         {
             BlockState state = world.getBlockState(pos);
             // If there's no water there and there can be
@@ -146,9 +146,9 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull Level world,
-          @NotNull BlockPos pos,
-          @NotNull BlockState blockState,
+          Level world,
+          BlockPos pos,
+          BlockState blockState,
           @Nullable CompoundTag tileEntityData,
           boolean complete,
           BlockPos centerPos)
@@ -175,16 +175,16 @@ public final class PlacementHandlers
     public static class FirePlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof FireBlock;
         }
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -195,9 +195,9 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -210,16 +210,16 @@ public final class PlacementHandlers
     public static class FallingBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof FallingBlock;
         }
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -235,9 +235,9 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -268,16 +268,16 @@ public final class PlacementHandlers
     public static class GrassPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.is(Tags.Blocks.DIRT) && world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() == blockState.getBlock());
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -291,9 +291,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -306,16 +306,16 @@ public final class PlacementHandlers
     public static class DoorPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof DoorBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -331,9 +331,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -349,16 +349,16 @@ public final class PlacementHandlers
     public static class BedPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof BedBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -384,9 +384,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -403,16 +403,16 @@ public final class PlacementHandlers
     public static class DoublePlantPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof DoublePlantBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -428,9 +428,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -443,7 +443,7 @@ public final class PlacementHandlers
     public static class SpecialBlockPlacementAttemptHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof EndPortalBlock || blockState.getBlock() instanceof SpawnerBlock ||
                      blockState.getBlock() instanceof DragonEggBlock;
@@ -451,9 +451,9 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -463,9 +463,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -476,16 +476,16 @@ public final class PlacementHandlers
     public static class FlowerPotPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof FlowerPotBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -508,9 +508,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -526,16 +526,16 @@ public final class PlacementHandlers
     public static class AirPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof AirBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -559,9 +559,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -572,16 +572,16 @@ public final class PlacementHandlers
     public static class BlockGrassPathPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof DirtPathBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -596,9 +596,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -611,7 +611,7 @@ public final class PlacementHandlers
     public static class StairBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof StairBlock
                      && world.getBlockState(pos).getBlock() instanceof StairBlock
@@ -621,9 +621,9 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -633,9 +633,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -646,16 +646,16 @@ public final class PlacementHandlers
     public static class GeneralBlockPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return true;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
@@ -685,9 +685,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -701,16 +701,16 @@ public final class PlacementHandlers
     public static class ContainerPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof BaseEntityBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -741,9 +741,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -763,15 +763,15 @@ public final class PlacementHandlers
     public static class HopperClientLagPlacementHandler extends ContainerPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof HopperBlock;
         }
 
         @Override
-        public ActionProcessingResult handle(@NotNull final Level world,
-            @NotNull final BlockPos pos,
-            @NotNull final BlockState blockState,
+        public ActionProcessingResult handle(final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
             @Nullable final CompoundTag tileEntityData,
             final boolean complete,
             final BlockPos centerPos)
@@ -789,16 +789,16 @@ public final class PlacementHandlers
     public static class BannerPlacementHandler implements IPlacementHandler
     {
         @Override
-        public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof BannerBlock;
         }
 
         @Override
         public ActionProcessingResult handle(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos)
@@ -828,9 +828,9 @@ public final class PlacementHandlers
 
         @Override
         public List<ItemStack> getRequiredItems(
-          @NotNull final Level world,
-          @NotNull final BlockPos pos,
-          @NotNull final BlockState blockState,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
@@ -852,7 +852,7 @@ public final class PlacementHandlers
     public static void handleTileEntityPlacement(
       final CompoundTag tileEntityData,
       final Level world,
-      @NotNull final BlockPos pos,
+      final BlockPos pos,
       final PlacementSettings settings)
     {
         if (tileEntityData != null)
@@ -896,7 +896,7 @@ public final class PlacementHandlers
      * @param world          the world.
      * @param pos            the position.
      */
-    public static void handleTileEntityPlacement(final CompoundTag tileEntityData, final Level world, @NotNull final BlockPos pos)
+    public static void handleTileEntityPlacement(final CompoundTag tileEntityData, final Level world, final BlockPos pos)
     {
         handleTileEntityPlacement(tileEntityData, world, pos, new PlacementSettings());
     }

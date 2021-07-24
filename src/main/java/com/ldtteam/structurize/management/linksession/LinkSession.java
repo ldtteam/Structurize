@@ -30,7 +30,7 @@ public class LinkSession
      * @param memberUUID {@link Player#getUUID()}
      * @param displayName string used in commands for displaying player's name
      */
-    protected void addOrUpdateMember(@NotNull final UUID memberUUID, @Nullable String displayName)
+    protected void addOrUpdateMember(final UUID memberUUID, @Nullable String displayName)
     {
         displayName = (displayName == null) ? "null" : displayName;
         if(!members.containsKey(memberUUID))
@@ -48,7 +48,7 @@ public class LinkSession
      * 
      * @param memberUUID {@link Player#getUUID()}
      */
-    protected void removeMember(@NotNull final UUID memberUUID)
+    protected void removeMember(final UUID memberUUID)
     {
         members.remove(memberUUID);
     }
@@ -59,7 +59,7 @@ public class LinkSession
      * @param memberUUID {@link Player#getUUID()}
      * @return boolean: whether memberUUID is or not a member of this session
      */
-    protected boolean isMember(@NotNull final UUID memberUUID)
+    protected boolean isMember(final UUID memberUUID)
     {
         return members.get(memberUUID) != null;
     }
@@ -71,7 +71,7 @@ public class LinkSession
      * @return String: player's name in readable form (nickname)
      */
     @Nullable
-    protected String getMemberDisplayName(@NotNull final UUID memberUUID)
+    protected String getMemberDisplayName(final UUID memberUUID)
     {
         return members.get(memberUUID);
     }
@@ -114,7 +114,7 @@ public class LinkSession
      * @param in CompoundNBT to deserialize
      * @return LinkSession: representing a new session
      */
-    protected static LinkSession createFromNBT(@NotNull final CompoundTag in)
+    protected static LinkSession createFromNBT(final CompoundTag in)
     {
         final LinkSession ls = new LinkSession();
         for(String key : in.getAllKeys())

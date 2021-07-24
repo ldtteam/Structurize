@@ -37,8 +37,8 @@ public final class Utils
      */
     @Nullable
     public static BlockPos scanForBlockNearPoint(
-                                                  @NotNull final Level world,
-                                                  @NotNull final BlockPos point,
+                                                  final Level world,
+                                                  final BlockPos point,
                                                   final int radiusX,
                                                   final int radiusY,
                                                   final int radiusZ,
@@ -56,7 +56,7 @@ public final class Utils
                 {
                     if (checkHeight(world, i, j, k, height, blocks))
                     {
-                        @NotNull final BlockPos tempCoords = new BlockPos(i, j, k);
+                        final BlockPos tempCoords = new BlockPos(i, j, k);
 
                         final double distance = BlockPosUtil.getDistanceSquared(tempCoords, point);
                         if (closestCoords == null || distance < minDistance)
@@ -83,7 +83,7 @@ public final class Utils
      * @param blocks the block types required.
      * @return true if all blocks are of that type.
      */
-    private static boolean checkHeight(@NotNull final Level world, final int x, final int y, final int z, final int height, @NotNull final Block... blocks)
+    private static boolean checkHeight(final Level world, final int x, final int y, final int z, final int height, final Block... blocks)
     {
         for (int dy = 0; dy < height; dy++)
         {
@@ -102,7 +102,7 @@ public final class Utils
      * @param key   Object to look for.
      * @return True if found, otherwise false.
      */
-    private static boolean arrayContains(@NotNull final Object[] array, final Object key)
+    private static boolean arrayContains(final Object[] array, final Object key)
     {
         for (final Object o : array)
         {
@@ -125,7 +125,7 @@ public final class Utils
      * @param range the range to check around the point.
      * @return true if he found the block.
      */
-    public static boolean isBlockInRange(@NotNull final Level world, final Block block, final int posX, final int posY, final int posZ, final int range)
+    public static boolean isBlockInRange(final Level world, final Block block, final int posX, final int posY, final int posZ, final int range)
     {
         for (int x = posX - range; x < posX + range; x++)
         {
@@ -151,7 +151,7 @@ public final class Utils
      * @param z     z coordinate.
      * @return yCoordinate.
      */
-    public static int findTopGround(@NotNull final Level world, final int x, final int z)
+    public static int findTopGround(final Level world, final int x, final int z)
     {
         int yHolder = 1;
         final BlockPos pos = new BlockPos(x, yHolder, z);
@@ -254,7 +254,7 @@ public final class Utils
      *
      * @param directory the directory to check.
      */
-    public static void checkDirectory(@NotNull final File directory)
+    public static void checkDirectory(final File directory)
     {
         if (!directory.exists() && !directory.mkdirs())
         {

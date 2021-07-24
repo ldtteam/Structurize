@@ -18,7 +18,7 @@ public final class RenderUtil
         throw new IllegalArgumentException("Utility Class");
     }
 
-    public static void applyRotationToYAxis(@NotNull final Rotation rotation, final PoseStack stack)
+    public static void applyRotationToYAxis(final Rotation rotation, final PoseStack stack)
     {
         //stack.scale(0.5F, 0F, 0.5F);
 
@@ -47,7 +47,7 @@ public final class RenderUtil
         //stack.scale(-0.5F, 0F, -0.5F);
     }
 
-    public static void applyMirror(@NotNull final Mirror mirror, @NotNull final BlockPos appliedPrimaryBlockOff, final PoseStack stack)
+    public static void applyMirror(final Mirror mirror, final BlockPos appliedPrimaryBlockOff, final PoseStack stack)
     {
         switch (mirror)
         {

@@ -27,7 +27,7 @@ public class Box extends View
      *
      * @param params xml parameters.
      */
-    public Box(@NotNull final PaneParams params)
+    public Box(final PaneParams params)
     {
         super(params);
         lineWidth = params.getFloat("linewidth", lineWidth);

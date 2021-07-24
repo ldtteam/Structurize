@@ -9,17 +9,18 @@ import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.ReportedException;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -43,7 +44,6 @@ import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 
@@ -56,7 +56,7 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
-        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(DefaultVertexFormat.BLOCK)));
+        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer()));
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
@@ -136,7 +136,7 @@ public class BlueprintRenderer implements AutoCloseable
                     if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
                     {
                         blockRendererDispatcher
-                            .renderModel(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
+                            .renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
                     }
 
                     if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, renderType))
@@ -219,7 +219,7 @@ public class BlueprintRenderer implements AutoCloseable
                     entity.getX(),
                     entity.getY(),
                     entity.getZ(),
-                    Mth.lerp(partialTicks, entity.yRotO, entity.yRot),
+                    Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()),
                     0,
                     matrixStack,
                     renderBufferSource,
@@ -227,21 +227,21 @@ public class BlueprintRenderer implements AutoCloseable
         });
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_entities_finish");
-        renderBufferSource.endBatch(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entitySmoothCutout(TextureAtlas.LOCATION_BLOCKS));
+        renderBufferSource.endBatch(RenderType.entitySolid(InventoryMenu.BLOCK_ATLAS));
+        renderBufferSource.endBatch(RenderType.entityCutout(InventoryMenu.BLOCK_ATLAS));
+        renderBufferSource.endBatch(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS));
+        renderBufferSource.endBatch(RenderType.entitySmoothCutout(InventoryMenu.BLOCK_ATLAS));
 
         OptifineCompat.getInstance().endEntitiesBeginBlockEntities();
 
         // Block entities
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities");
-        final Camera oldActiveRenderInfo = BlockEntityRenderDispatcher.instance.camera;
-        final Level oldWorld = BlockEntityRenderDispatcher.instance.level;
-        BlockEntityRenderDispatcher.instance.camera = new Camera();
-        BlockEntityRenderDispatcher.instance.camera.setPosition(viewPosition.subtract(x, y, z));
-        BlockEntityRenderDispatcher.instance.level = blockAccess;
+        final Camera oldActiveRenderInfo = Minecraft.getInstance().getBlockEntityRenderDispatcher().camera;
+        final Level oldWorld = Minecraft.getInstance().getBlockEntityRenderDispatcher().level;
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().camera = new Camera();
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().camera.setPosition(viewPosition.subtract(x, y, z));
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().level = blockAccess;
         tileEntities.forEach(tileEntity -> {
             final BlockPos tePos = tileEntity.getBlockPos();
             matrixStack.pushPose();
@@ -249,11 +249,11 @@ public class BlueprintRenderer implements AutoCloseable
 
             OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
 
-            BlockEntityRenderDispatcher.instance.render(tileEntity, partialTicks, matrixStack, renderBufferSource);
+            Minecraft.getInstance().getBlockEntityRenderDispatcher().render(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.popPose();
         });
-        BlockEntityRenderDispatcher.instance.camera = oldActiveRenderInfo;
-        BlockEntityRenderDispatcher.instance.level = oldWorld;
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().camera = oldActiveRenderInfo;
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().level = oldWorld;
 
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities_finish");
@@ -316,21 +316,72 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f rawPosMatrix)
     {
+        VertexFormat vertexformat = DefaultVertexFormat.BLOCK;
+        ShaderInstance shaderinstance = RenderSystem.getShader();
+        BufferUploader.reset();
+
+        final Matrix4f projectionMatrix = new Matrix4f();
+        Minecraft.getInstance().gameRenderer.resetProjectionMatrix(projectionMatrix);
+
+        for(int k = 0; k < 12; ++k) {
+            int i = RenderSystem.getShaderTexture(k);
+            shaderinstance.setSampler("Sampler" + k, i);
+        }
+
+        if (shaderinstance.MODEL_VIEW_MATRIX != null) {
+            shaderinstance.MODEL_VIEW_MATRIX.set(rawPosMatrix);
+        }
+
+        if (shaderinstance.PROJECTION_MATRIX != null) {
+            shaderinstance.PROJECTION_MATRIX.set(projectionMatrix);
+        }
+
+        if (shaderinstance.COLOR_MODULATOR != null) {
+            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
+        }
+
+        if (shaderinstance.FOG_START != null) {
+            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
+        }
+
+        if (shaderinstance.FOG_END != null) {
+            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
+        }
+
+        if (shaderinstance.FOG_COLOR != null) {
+            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
+        }
+
+        if (shaderinstance.TEXTURE_MATRIX != null) {
+            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
+        }
+
+        if (shaderinstance.GAME_TIME != null) {
+            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
+        }
+
+        RenderSystem.setupShaderLights(shaderinstance);
+        shaderinstance.apply();
+        Uniform uniform = shaderinstance.CHUNK_OFFSET;
+
+        if (uniform != null) {
+            uniform.set(0,0,0);
+            uniform.upload();
+        }
+
         final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
 
-        layerRenderType.setupRenderState();
-        OptifineCompat.getInstance().preLayerDraw(layerRenderType);
+        buffer.drawChunkLayer();
 
-        buffer.bind();
-        DefaultVertexFormat.BLOCK.setupBufferState(0);
-        OptifineCompat.getInstance().setupArrayPointers();
-        buffer.draw(rawPosMatrix, layerRenderType.mode());
+        if (uniform != null) {
+            uniform.set(Vector3f.ZERO);
+        }
+
+        shaderinstance.clear();
+        vertexformat.clearBufferState();
 
         VertexBuffer.unbind();
-        RenderSystem.clearCurrentColor();
-        DefaultVertexFormat.BLOCK.clearBufferState();
-
-        OptifineCompat.getInstance().postLayerDraw(layerRenderType);
+        VertexBuffer.unbindVertexArray();
         layerRenderType.clearRenderState();
     }
 }

@@ -49,7 +49,7 @@ public class ClientEventSubscriber
      * @param event the catched event.
      */
     @SubscribeEvent
-    public static void renderWorldLastEvent(@NotNull final RenderWorldLastEvent event)
+    public static void renderWorldLastEvent(final RenderWorldLastEvent event)
     {
         Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();

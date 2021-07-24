@@ -45,7 +45,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         return 1;
     }
 
-    private static void update(@NotNull final File input, @NotNull final File globalInputFolder, @NotNull final File globalOutputFolder)
+    private static void update(final File input, final File globalInputFolder, final File globalOutputFolder)
     {
         if (input.isDirectory())
         {

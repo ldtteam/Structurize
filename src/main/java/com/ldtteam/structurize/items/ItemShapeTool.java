@@ -24,8 +24,7 @@ public class ItemShapeTool extends AbstractItemStructurize
         super("shapetool", properties.stacksTo(1));
     }
 
-    @NotNull
-    @Override
+        @Override
     public InteractionResult useOn(final UseOnContext context)
     {
         if (context.getLevel().isClientSide)
@@ -36,9 +35,8 @@ public class ItemShapeTool extends AbstractItemStructurize
         return InteractionResult.SUCCESS;
     }
 
-    @NotNull
-    @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, @NotNull final InteractionHand hand)
+        @Override
+    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand hand)
     {
         final ItemStack stack = playerIn.getItemInHand(hand);
 

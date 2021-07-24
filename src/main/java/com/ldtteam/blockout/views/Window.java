@@ -103,7 +103,7 @@ public class Window extends View
      *
      * @param params xml parameters.
      */
-    public void loadParams(@NotNull final PaneParams params)
+    public void loadParams(final PaneParams params)
     {
         params.getResource("inherit", r -> Loader.createFromXMLFile(r, this));
 

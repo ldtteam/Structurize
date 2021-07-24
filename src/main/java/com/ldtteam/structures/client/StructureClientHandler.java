@@ -16,7 +16,7 @@ public final class StructureClientHandler
     }
 
     @Deprecated // INTERNAL USE ONLY
-    public static void renderStructure(@NotNull final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
+    public static void renderStructure(final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
     {
         BlueprintHandler.getInstance().draw(blueprint, pos, stack, partialTicks);
     }
@@ -27,7 +27,7 @@ public final class StructureClientHandler
      * @param blueprint what to render
      * @param pos       where to render
      */
-    public static void renderStructureAtPos(@NotNull final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
+    public static void renderStructureAtPos(final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();
         renderStructure(blueprint, partialTicks, pos, stack);
@@ -35,7 +35,7 @@ public final class StructureClientHandler
     }
 
     @Deprecated // INTERNAL USE ONLY
-    public static void renderStructure(@NotNull final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
+    public static void renderStructure(final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
     {
         BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, stack, partialTicks);
     }
@@ -47,7 +47,7 @@ public final class StructureClientHandler
      * @param points the list of points.
      * @param stack the matrix stack to render it in.
      */
-    public static void renderStructureAtPosList(@NotNull final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
+    public static void renderStructureAtPosList(final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();
         renderStructure(blueprint, partialTicks, points, stack);

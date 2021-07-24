@@ -45,8 +45,8 @@ public final class BackUpHelper
      */
     public static void saveLinkSessionManager()
     {
-        @NotNull final CompoundTag data = LinkSessionManager.INSTANCE.serializeNBT();
-        @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
+        final CompoundTag data = LinkSessionManager.INSTANCE.serializeNBT();
+        final File file = getSaveLocation(FILENAME_LINKSESSION);
 
         cycleNewBackup(FILENAME_LINKSESSION, 2); // TODO: make configurable
         saveNBTToPath(file, data);
@@ -57,8 +57,8 @@ public final class BackUpHelper
      */
     public static void loadLinkSessionManager()
     {
-        @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
-        @NotNull final CompoundTag data = loadNBTFromPath(file);
+        final File file = getSaveLocation(FILENAME_LINKSESSION);
+        final CompoundTag data = loadNBTFromPath(file);
 
         if (data != null)
         {
@@ -72,16 +72,16 @@ public final class BackUpHelper
      * @param additionalPath  additional path in the file name
      * @param cycleUpToNFiles how many backup files should be present at max
      */
-    private static void cycleNewBackup(@NotNull final String additionalPath, @NotNull final int cycleUpToNFiles)
+    private static void cycleNewBackup(final String additionalPath, final int cycleUpToNFiles)
     {
-        @NotNull final File current = getSaveLocation(additionalPath);
-        @NotNull final File newBackup = getBackupSaveLocation(additionalPath, LocalDateTime.now());
+        final File current = getSaveLocation(additionalPath);
+        final File newBackup = getBackupSaveLocation(additionalPath, LocalDateTime.now());
         if (!current.exists() || getSaveDir().list() == null)
         {
             return;
         }
         current.renameTo(newBackup);
-        @NotNull final Supplier<Stream<String>> allBackups = () -> Stream.of(getSaveDir().list())
+        final Supplier<Stream<String>> allBackups = () -> Stream.of(getSaveDir().list())
             .filter(fileName -> fileName.contains(FILENAME_EXT_OLD) && fileName.contains(FILENAME_STRUCTURIZE_PATH + additionalPath));
 
         if (allBackups.get().count() > cycleUpToNFiles)
@@ -101,8 +101,7 @@ public final class BackUpHelper
      * 
      * @return File: mod directory
      */
-    @NotNull
-    private static File getSaveDir()
+        private static File getSaveDir()
     {
         return ServerLifecycleHooks.getCurrentServer().getWorldPath(new LevelResource(FILENAME_STRUCTURIZE_PATH)).toFile();
     }
@@ -113,8 +112,7 @@ public final class BackUpHelper
      * @param additionalPath additional path in the file name
      * @return File: casual save file
      */
-    @NotNull
-    private static File getSaveLocation(@NotNull final String additionalPath)
+        private static File getSaveLocation(final String additionalPath)
     {
         return new File(getSaveDir(), FILENAME_STRUCTURIZE_PATH + additionalPath + FILENAME_EXT_DAT);
     }
@@ -125,8 +123,7 @@ public final class BackUpHelper
      * @param additionalPath additional path in the file name
      * @return File: backup save file
      */
-    @NotNull
-    private static File getBackupSaveLocation(@NotNull final String additionalPath, @NotNull final LocalDateTime date)
+        private static File getBackupSaveLocation(final String additionalPath, final LocalDateTime date)
     {
         return new File(getSaveDir(),
             String.format(FILENAME_STRUCTURIZE_PATH + additionalPath + "-%s" + FILENAME_EXT_DAT + FILENAME_EXT_OLD,
@@ -141,8 +138,7 @@ public final class BackUpHelper
      * @return LocalDateTime: interpretation of date time in the file name
      * @throws java.time.format.DateTimeParseException if the text cannot be parsed
      */
-    @NotNull
-    private static LocalDateTime getTimestampFromBackup(@NotNull final String additionalPath, @NotNull final String fileName)
+        private static LocalDateTime getTimestampFromBackup(final String additionalPath, final String fileName)
     {
         return LocalDateTime.parse(
             fileName.replace(FILENAME_STRUCTURIZE_PATH + additionalPath + "-", "").replace(FILENAME_EXT_DAT + FILENAME_EXT_OLD, ""),
@@ -156,7 +152,7 @@ public final class BackUpHelper
      * @param file     The destination file to write the data to.
      * @param compound The CompoundNBT to write to the file.
      */
-    public static void saveNBTToPath(@Nullable final File file, @NotNull final CompoundTag compound)
+    public static void saveNBTToPath(@Nullable final File file, final CompoundTag compound)
     {
         try
         {

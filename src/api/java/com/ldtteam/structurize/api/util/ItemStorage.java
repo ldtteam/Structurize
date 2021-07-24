@@ -40,7 +40,7 @@ public class ItemStorage
      * @param amount            the amount.
      * @param ignoreDamageValue should the damage value be ignored?
      */
-    public ItemStorage(@NotNull final ItemStack stack, final int amount, final boolean ignoreDamageValue)
+    public ItemStorage(final ItemStack stack, final int amount, final boolean ignoreDamageValue)
     {
         this.stack = stack;
         this.shouldIgnoreDamageValue = ignoreDamageValue;
@@ -55,7 +55,7 @@ public class ItemStorage
      * @param ignoreDamageValue    should the damage value be ignored?
      * @param shouldIgnoreNBTValue should the nbt value be ignored?
      */
-    public ItemStorage(@NotNull final ItemStack stack, final boolean ignoreDamageValue, final boolean shouldIgnoreNBTValue)
+    public ItemStorage(final ItemStack stack, final boolean ignoreDamageValue, final boolean shouldIgnoreNBTValue)
     {
         this.stack = stack;
         this.shouldIgnoreDamageValue = ignoreDamageValue;
@@ -68,7 +68,7 @@ public class ItemStorage
      * @param stack             the stack.
      * @param ignoreDamageValue should the damage value be ignored?
      */
-    public ItemStorage(@NotNull final ItemStack stack, final boolean ignoreDamageValue)
+    public ItemStorage(final ItemStack stack, final boolean ignoreDamageValue)
     {
         this.stack = stack;
         this.shouldIgnoreDamageValue = ignoreDamageValue;
@@ -81,7 +81,7 @@ public class ItemStorage
      *
      * @param stack the stack.
      */
-    public ItemStorage(@NotNull final ItemStack stack)
+    public ItemStorage(final ItemStack stack)
     {
         this.stack = stack;
         this.shouldIgnoreDamageValue = false;
@@ -181,8 +181,7 @@ public class ItemStorage
      *
      * @return the stack.
      */
-    @NotNull
-    public Item getItem()
+        public Item getItem()
     {
         return stack.getItem();
     }

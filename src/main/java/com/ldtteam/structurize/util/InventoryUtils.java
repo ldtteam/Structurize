@@ -69,7 +69,7 @@ public class InventoryUtils
      *
      * @param targetHandler The {@link IItemHandler} that works as Target.
      */
-    public static void transferIntoNextBestSlot(@NotNull final ItemStack stack, @NotNull final IItemHandler targetHandler)
+    public static void transferIntoNextBestSlot(final ItemStack stack, final IItemHandler targetHandler)
     {
         if(stack.isEmpty())
         {

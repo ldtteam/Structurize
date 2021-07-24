@@ -55,7 +55,7 @@ public class TextField extends Pane
      *
      * @param params the parameters for the textField.
      */
-    public TextField(@NotNull final PaneParams params)
+    public TextField(final PaneParams params)
     {
         super(params);
         maxTextLength = params.getInteger("maxlength", maxTextLength);
@@ -81,13 +81,13 @@ public class TextField extends Pane
         return text;
     }
 
-    public void setText(@NotNull final String s)
+    public void setText(final String s)
     {
         text = s.length() <= maxTextLength ? s : s.substring(0, maxTextLength);
         setCursorPosition(text.length());
     }
 
-    public void setTextIgnoreLength(@NotNull final String s)
+    public void setTextIgnoreLength(final String s)
     {
         text = s;
         setCursorPosition(text.length());
@@ -198,8 +198,7 @@ public class TextField extends Pane
         }
     }
 
-    @NotNull
-    public String getSelectedText()
+        public String getSelectedText()
     {
         final int start = Math.min(cursorPosition, selectionEnd);
         final int end = Math.max(cursorPosition, selectionEnd);
@@ -354,8 +353,7 @@ public class TextField extends Pane
         int textX = drawX;
         if (visibleString.length() > 0)
         {
-            @NotNull
-            final String s1 = cursorVisible ? visibleString.substring(0, relativeCursorPosition) : visibleString;
+                        final String s1 = cursorVisible ? visibleString.substring(0, relativeCursorPosition) : visibleString;
             mc.getTextureManager().bindForSetup(TEXTURE);
             textX = drawString(ms, s1, textX, drawY, color, shadow);
         }
@@ -536,8 +534,7 @@ public class TextField extends Pane
             return;
         }
 
-        @NotNull
-        final StringBuilder resultBuffer = new StringBuilder();
+                final StringBuilder resultBuffer = new StringBuilder();
         if (text.length() > 0 && insertAt > 0)
         {
             resultBuffer.append(text.substring(0, insertAt));
@@ -632,8 +629,7 @@ public class TextField extends Pane
             final boolean backwards = count < 0;
             final int start = backwards ? (this.cursorPosition + count) : this.cursorPosition;
             final int end = backwards ? this.cursorPosition : (this.cursorPosition + count);
-            @NotNull
-            String result = "";
+                        String result = "";
 
             if (start > 0)
             {

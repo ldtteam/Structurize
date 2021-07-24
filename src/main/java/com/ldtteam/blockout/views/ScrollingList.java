@@ -87,15 +87,14 @@ public class ScrollingList extends ScrollingView
         refreshElementPanes();
     }
 
-    @NotNull
-    @Override
+        @Override
     protected ScrollingContainer createScrollingContainer()
     {
         return new ScrollingListContainer(this);
     }
 
     @Override
-    public void parseChildren(@NotNull final PaneParams params)
+    public void parseChildren(final PaneParams params)
     {
         final List<PaneParams> childNodes = params.getChildren();
         if (childNodes.isEmpty())

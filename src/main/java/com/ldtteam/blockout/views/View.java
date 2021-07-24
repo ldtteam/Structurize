@@ -15,8 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class View extends Pane
 {
-    @NotNull
-    protected List<Pane> children = new ArrayList<>();
+        protected List<Pane> children = new ArrayList<>();
     protected int padding = 0;
 
     /**
@@ -45,8 +44,7 @@ public class View extends Pane
         padding = params.getInteger("padding", padding);
     }
 
-    @NotNull
-    public List<Pane> getChildren()
+        public List<Pane> getChildren()
     {
         return children;
     }

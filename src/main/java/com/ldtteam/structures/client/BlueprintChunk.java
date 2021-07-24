@@ -64,7 +64,7 @@ public class BlueprintChunk extends LevelChunk
      */
     public BlueprintChunk(final Level worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new ChunkBiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), new Biome[0]));
+        super(worldIn, new ChunkPos(x, z), new ChunkBiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), worldIn, new int[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 
@@ -76,14 +76,14 @@ public class BlueprintChunk extends LevelChunk
 
     @Nullable
     @Override
-    public BlockEntity getBlockEntity(@NotNull final BlockPos pos, final EntityCreationType creationMode)
+    public BlockEntity getBlockEntity(final BlockPos pos, final EntityCreationType creationMode)
     {
         return access.getBlockEntity(pos);
     }
 
     @Nullable
     @Override
-    public BlockEntity getBlockEntity(@NotNull final BlockPos pos)
+    public BlockEntity getBlockEntity(final BlockPos pos)
     {
         return access.getBlockEntity(pos);
     }
@@ -113,19 +113,7 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void addBlockEntity(BlockEntity tileEntityIn)
-    {
-        // Noop
-    }
-
-    @Override
     public void setBlockEntityNbt(CompoundTag nbt)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setBlockEntity(BlockPos pos, BlockEntity tileEntityIn)
     {
         // Noop
     }
@@ -172,40 +160,6 @@ public class BlueprintChunk extends LevelChunk
 
     @Override
     public CompoundTag getBlockEntityNbt(BlockPos pos)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public <T extends Entity> void getEntitiesOfClass(Class<? extends T> entityClass,
-        AABB aabb,
-        List<T> listToFill,
-        Predicate<? super T> filter)
-    {
-        // Noop
-    }
-
-    @Override
-    public void getEntities(Entity entityIn,
-        AABB aabb,
-        List<Entity> listToFill,
-        Predicate<? super Entity> filter)
-    {
-        // Noop
-    }
-
-    @Override
-    public <T extends Entity> void getEntities(EntityType<?> entitytypeIn,
-        AABB aabb,
-        List<? super T> list,
-        Predicate<? super T> filter)
-    {
-        // Noop
-    }
-
-    @Override
-    public ClassInstanceMultiMap<Entity>[] getEntitySections()
     {
         // Noop
         return null;
@@ -329,13 +283,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public LevelLightEngine getLightEngine()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public boolean isLightCorrect()
     {
         return true;
@@ -372,24 +319,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void replaceWithPacketData(ChunkBiomeContainer biomeContainerIn, FriendlyByteBuf packetBufferIn, CompoundTag nbtIn, int availableSections)
-    {
-        // Noop
-    }
-
-    @Override
-    public void removeEntity(Entity entityIn)
-    {
-        // Noop
-    }
-
-    @Override
-    public void removeEntity(Entity entityIn, int index)
-    {
-        // Noop
-    }
-
-    @Override
     public void removeBlockEntity(BlockPos pos)
     {
         // Noop
@@ -415,12 +344,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void setLastSaveHadEntities(boolean hasEntitiesIn)
-    {
-        // Noop
-    }
-
-    @Override
     public void setHeightmap(Types type, long[] data)
     {
         // Noop
@@ -428,12 +351,6 @@ public class BlueprintChunk extends LevelChunk
 
     @Override
     public void setInhabitedTime(long newInhabitedTime)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setLastSaveTime(long saveTime)
     {
         // Noop
     }

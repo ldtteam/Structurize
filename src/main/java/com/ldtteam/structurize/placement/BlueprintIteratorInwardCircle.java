@@ -125,7 +125,7 @@ public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
      * @param localPosition new progressPos.
      */
     @Override
-    public void setProgressPos(@NotNull final BlockPos localPosition)
+    public void setProgressPos(final BlockPos localPosition)
     {
         if (localPosition.equals(NULL_POS))
         {
