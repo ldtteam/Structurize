@@ -14,6 +14,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
@@ -95,18 +96,14 @@ public class ItemIcon extends Pane
             ms.translate(x, y, 0.0f);
             ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1.0f);
 
-            Font font = itemStack.getItem().getFontRenderer(itemStack);
-            if (font == null)
-            {
-                font = mc.font;
-            }
+            Font font = mc.font;
 
             // RenderSystem.pushMatrix();
             // RenderSystem.multMatrix(ms.getLast().getMatrix());
             // mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
             renderItemModelIntoGUI(itemStack,
                 ms,
-                mc.getItemRenderer().getModel(itemStack, null, mc.player));
+                mc.getItemRenderer().getModel(itemStack, null, mc.player, 0));
             renderGuiItemDecorations( ms, font, itemStack);
             // RenderSystem.popMatrix();
 
@@ -141,7 +138,6 @@ public class ItemIcon extends Pane
         {
             RenderSystem.disableDepthTest();
             RenderSystem.disableTexture();
-            RenderSystem.disableAlphaTest();
             RenderSystem.disableBlend();
             double health = stack.getItem().getDurabilityForDisplay(stack);
             int i = Math.round(13.0F - (float) health * 13.0F);
@@ -149,7 +145,6 @@ public class ItemIcon extends Pane
             fill(matrixstack, 2, 13, 13, 2, 0xff000000);
             fill(matrixstack, 2, 13, i, 1, 0xff000000 | j);
             RenderSystem.enableBlend();
-            RenderSystem.enableAlphaTest();
             RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
@@ -175,14 +170,11 @@ public class ItemIcon extends Pane
     {
 
         matrixStack.pushPose();
-        mc.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
-        mc.getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, false);
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
+        mc.getTextureManager().bindForSetup(InventoryMenu.BLOCK_ATLAS);
+        mc.getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, false);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         matrixStack.translate(8.0F, 8.0F, 150.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
@@ -208,9 +200,6 @@ public class ItemIcon extends Pane
         irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();
         Lighting.setupFor3DItems();
-
-        RenderSystem.disableAlphaTest();
-        RenderSystem.disableRescaleNormal();
         matrixStack.popPose();
     }
 

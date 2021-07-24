@@ -1,11 +1,7 @@
 package com.ldtteam.blockout;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.math.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -73,11 +69,12 @@ public final class Render
         RenderSystem.defaultBlendFunc();
 
         GL11.glLineWidth(lineWidth);
-        vertexBuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormat.POSITION_COLOR);
+        vertexBuffer.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
         vertexBuffer.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha).endVertex();
         vertexBuffer.vertex(matrix, x + w, y, 0.0f).color(red, green, blue, alpha).endVertex();
         vertexBuffer.vertex(matrix, x + w, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
         vertexBuffer.vertex(matrix, x, y + h, 0.0f).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.vertex(matrix, x, y, 0.0f).color(red, green, blue, alpha).endVertex();
         vertexBuffer.end();
         BufferUploader.end(vertexBuffer);
 

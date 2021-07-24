@@ -3,6 +3,8 @@ package com.ldtteam.blockout;
 import com.ldtteam.blockout.views.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.BitStorage;
 import net.minecraft.network.chat.TextComponent;
@@ -146,10 +148,8 @@ public class BOScreen extends Screen
         y = Math.floor((guiHeight - height * renderScale) / 2.0d);
 
         // replace vanilla projection
-        RenderSystem.matrixMode(GL11.GL_PROJECTION);
-        RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        Matrix4f ourOrtho = Matrix4f.orthographic(0.0F, (float)fbWidth, 0.0F, (float)fbHeight, 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(ourOrtho);
 
         final PoseStack newMs = new PoseStack();
         newMs.translate(x, y, renderZlevel);
@@ -159,10 +159,8 @@ public class BOScreen extends Screen
         newMs.popPose();
 
         // restore vanilla state
-        RenderSystem.matrixMode(GL11.GL_PROJECTION);
-        RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0D, fbWidth / mcScale, fbHeight / mcScale, 0.0D, 1000.0D, 3000.0D);
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        Matrix4f theirOrtho = Matrix4f.orthographic(0.0F, (float)((double)Minecraft.getInstance().window.getWidth() / Minecraft.getInstance().window.getGuiScale()), 0.0F, (float)((double)Minecraft.getInstance().window.getHeight() / Minecraft.getInstance().window.getGuiScale()), 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(theirOrtho);
 
         minecraft.getItemRenderer().blitOffset = oldZ;
     }
@@ -234,7 +232,7 @@ public class BOScreen extends Screen
     public void init()
     {
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        ForgeIngameGui.renderCrosshairs = false;
+        //TODO: Disable crosshair. Might not be possible anymore or might need an event
     }
 
     @Override
@@ -265,7 +263,7 @@ public class BOScreen extends Screen
         window.onClosed();
         Window.clearFocus();
         minecraft.keyboardHandler.setSendRepeatsToGui(false);
-        ForgeIngameGui.renderCrosshairs = true;
+        //TODO: See Above (init)
     }
 
     @Override

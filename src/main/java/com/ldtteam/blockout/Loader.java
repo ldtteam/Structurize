@@ -53,7 +53,6 @@ public final class Loader
         register("overlay", OverlayView::new);
         register("gradient", Gradient::new);
         register("zoomdragview", ZoomDragView::new);
-        register("treeview", TreeView::new);
     }
 
     /** A map to store the parsed documents. Retains data based on a priority */

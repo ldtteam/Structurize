@@ -192,7 +192,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     }
 
     /**
-     * Process given {@link TextFormatting}. If null calls {@link #resetStyle()}
+     * Process given {@link ChatFormatting}. If null calls {@link #resetStyle()}
      */
     public R style(final ChatFormatting textFormatting)
     {

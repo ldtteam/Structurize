@@ -74,8 +74,8 @@ public class ButtonVanilla extends Button
     @Override
     public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
-        mc.getTextureManager().bind(TEXTURE);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.getTextureManager().bindForSetup(TEXTURE);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         final int u = 0;
         final int v = enabled ? (wasCursorInPane ? HOVER_TEXTURE_V : ENABLED_TEXTURE_V) : DISABLED_TEXTURE_V;

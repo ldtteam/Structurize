@@ -146,9 +146,9 @@ public final class BlockPosUtil
     }
 
     /**
-     * Create a method for using a {@link BlockPos} when using {@link BlockPos.Mutable#set(int, int, int)}.
+     * Create a method for using a {@link BlockPos} when using {@link BlockPos.MutableBlockPos#set(int, int, int)}.
      *
-     * @param pos    {@link BlockPos.Mutable}.
+     * @param pos    {@link BlockPos.MutableBlockPos}.
      * @param newPos The new position to set.
      */
     public static void set(@NotNull final BlockPos.MutableBlockPos pos, @NotNull final BlockPos newPos)

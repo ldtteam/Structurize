@@ -3,12 +3,8 @@ package com.ldtteam.blockout.controls;
 import java.util.Collections;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.math.Matrix4f;
 
 /**
@@ -145,7 +141,7 @@ public class Tooltip extends AbstractTextElement
             final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
             final Matrix4f matrix4f = ms.last().pose();
 
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
             fillGradient(matrix4f, bufferbuilder, 1, 0, width - 1, height, 0, BACKGROUND_COLOR, BACKGROUND_COLOR);
             fillGradient(matrix4f, bufferbuilder, 0, 1, 1, height - 1, 0, BACKGROUND_COLOR, BACKGROUND_COLOR);
@@ -160,10 +156,8 @@ public class Tooltip extends AbstractTextElement
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.shadeModel(7425);
             bufferbuilder.end();
             BufferUploader.end(bufferbuilder);
-            RenderSystem.shadeModel(7424);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
 

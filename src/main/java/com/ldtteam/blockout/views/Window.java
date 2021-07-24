@@ -4,10 +4,9 @@ import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.platform.Window;
-import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -313,14 +312,14 @@ public class Window extends View
             return fs_vanilla < 1.0d ? fs_vanilla : Math.min(Math.floor(fs_vanilla), userScale == 0 ? Double.MAX_VALUE : userScale);
         });
 
-        private final ToDoubleBiFunction<Window, Window> renderScaleCalculator;
+        private final ToDoubleBiFunction<com.mojang.blaze3d.platform.Window, Window> renderScaleCalculator;
 
-        private WindowRenderType(final ToDoubleBiFunction<Window, Window> renderScaleCalculator)
+        private WindowRenderType(final ToDoubleBiFunction<com.mojang.blaze3d.platform.Window, Window> renderScaleCalculator)
         {
             this.renderScaleCalculator = renderScaleCalculator;
         }
 
-        public double calcRenderScale(final Window mcWindow, final Window window)
+        public double calcRenderScale(final com.mojang.blaze3d.platform.Window mcWindow, final Window window)
         {
             return renderScaleCalculator.applyAsDouble(mcWindow, window);
         }

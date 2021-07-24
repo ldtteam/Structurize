@@ -402,7 +402,7 @@ public class ButtonImage extends Button
             h = getHeight();
         }
 
-        mc.getTextureManager().bind(bind);
+        mc.getTextureManager().bindForSetup(bind);
 
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -411,12 +411,12 @@ public class ButtonImage extends Button
         // Draw
         if (enabled || imageDisabled != null)
         {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
         }
         else
         {
-            RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
+            RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
             blit(ms, x, y, u, v, w, h, mapWidth, mapHeight);
         }
 

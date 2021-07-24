@@ -3,14 +3,10 @@ package com.ldtteam.blockout;
 import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import com.mojang.math.Matrix4f;
@@ -937,7 +933,7 @@ public class Pane extends GuiComponent
 
         final Matrix4f mat = ms.last().pose();
         final BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
         // main
         for (int i = 0; i < repeatCountX; i++)
@@ -1009,7 +1005,6 @@ public class Pane extends GuiComponent
         buffer.vertex(mat, xEnd, yEnd, 0).uv(restMinU, restMinV).endVertex();
 
         buffer.end();
-        RenderSystem.enableAlphaTest();
         BufferUploader.end(buffer);
     }
 }

@@ -3,12 +3,9 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.views.View;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screens.Screen;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -359,7 +356,7 @@ public class TextField extends Pane
         {
             @NotNull
             final String s1 = cursorVisible ? visibleString.substring(0, relativeCursorPosition) : visibleString;
-            mc.getTextureManager().bind(TEXTURE);
+            mc.getTextureManager().bindForSetup(TEXTURE);
             textX = drawString(ms, s1, textX, drawY, color, shadow);
         }
 
@@ -377,7 +374,7 @@ public class TextField extends Pane
         // Draw string after cursor
         if (visibleString.length() > 0 && cursorVisible && relativeCursorPosition < visibleString.length())
         {
-            mc.getTextureManager().bind(TEXTURE);
+            mc.getTextureManager().bindForSetup(TEXTURE);
             drawString(ms, visibleString.substring(relativeCursorPosition), textX, drawY, color, shadow);
         }
 
@@ -390,7 +387,7 @@ public class TextField extends Pane
             }
             else
             {
-                mc.getTextureManager().bind(TEXTURE);
+                mc.getTextureManager().bindForSetup(TEXTURE);
                 drawString(ms, "_", cursorX, drawY, color, shadow);
             }
         }
@@ -414,14 +411,14 @@ public class TextField extends Pane
             }
 
             final Tesselator tessellator = Tesselator.getInstance();
-            RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+            RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
             RenderSystem.disableTexture();
             RenderSystem.enableColorLogicOp();
             GL11.glLogicOp(GL11.GL_OR_REVERSE);
             final BufferBuilder vertexBuffer = tessellator.getBuilder();
 
             // There are several to choose from, look at DefaultVertexFormats for more info
-            vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
+            vertexBuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
             // Since our points do not have any u,v this seems to be the correct code
             vertexBuffer.vertex((double) selectionStartX, (double) drawY + 1 + mc.font.lineHeight, 0.0D).endVertex();
