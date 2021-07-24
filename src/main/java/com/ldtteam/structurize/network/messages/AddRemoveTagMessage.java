@@ -2,9 +2,9 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.blockout.Log;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public class AddRemoveTagMessage implements IMessage
     /**
      * Empty constructor used when registering the
      */
-    public AddRemoveTagMessage(final PacketBuffer buf)
+    public AddRemoveTagMessage(final FriendlyByteBuf buf)
     {
         this.add = buf.readBoolean();
         this.tag = buf.readUtf(32767);
@@ -54,7 +54,7 @@ public class AddRemoveTagMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final PacketBuffer buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(add);
         buf.writeUtf(tag);
@@ -77,7 +77,7 @@ public class AddRemoveTagMessage implements IMessage
             return;
         }
 
-        final TileEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
+        final BlockEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
 
         {

@@ -2,12 +2,12 @@ package com.ldtteam.structures.client;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public final class BlueprintHandler
      * @param blueprint the wayPointBlueprint to draw.
      * @param pos       its position.
      */
-    public void draw(final Blueprint blueprint, final BlockPos pos, final MatrixStack stack, final float partialTicks)
+    public void draw(final Blueprint blueprint, final BlockPos pos, final PoseStack stack, final float partialTicks)
     {
         if (blueprint == null)
         {
@@ -116,7 +116,7 @@ public final class BlueprintHandler
      */
     public void drawAtListOfPositions(final Blueprint blueprint,
         final List<BlockPos> points,
-        final MatrixStack stack,
+        final PoseStack stack,
         final float partialTicks)
     {
         if (points.isEmpty() || blueprint == null)

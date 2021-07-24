@@ -3,10 +3,10 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import org.lwjgl.opengl.GL11;
 import javax.imageio.ImageIO;
@@ -200,7 +200,7 @@ public class Image extends Pane
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         this.mc.getTextureManager().bind(resourceLocation);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

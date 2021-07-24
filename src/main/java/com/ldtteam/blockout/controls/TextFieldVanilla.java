@@ -1,8 +1,8 @@
 package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.SharedConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.SharedConstants;
 
 import com.ldtteam.blockout.controls.TextField.Filter;
 
@@ -79,7 +79,7 @@ public class TextFieldVanilla extends TextField
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         if (backgroundEnabled)
         {

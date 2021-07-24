@@ -11,16 +11,16 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.MultiBlockChangeMessage;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 import static com.ldtteam.structurize.tileentities.TileEntityMultiBlock.DEFAULT_RANGE;
 import static com.ldtteam.structurize.tileentities.TileEntityMultiBlock.DEFAULT_SPEED;
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.core.Direction.*;
 
 /**
  * BuildTool window.
@@ -101,7 +101,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        final TileEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
+        final BlockEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
         if (block instanceof TileEntityMultiBlock)
         {
             inputRange.setText(Integer.toString(((TileEntityMultiBlock) block).getRange()));
@@ -248,7 +248,7 @@ public class WindowMultiBlock extends AbstractWindowSkeleton
             Log.getLogger().warn("Unable to parse number for MultiBlock range or speed, considering default range/speed!", e);
         }
 
-        final TileEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
+        final BlockEntity block = Minecraft.getInstance().level.getBlockEntity(pos);
         if (block instanceof TileEntityMultiBlock)
         {
             ((TileEntityMultiBlock) block).setSpeed(speed);

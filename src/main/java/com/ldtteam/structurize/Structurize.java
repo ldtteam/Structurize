@@ -15,7 +15,7 @@ import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.tileentities.ModTileEntities;
-import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.util.datafix.DataFixers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -57,7 +57,7 @@ public class Structurize
 
         if (DataFixerUtils.isVanillaDF)
         {
-            if ((DataFixesManager.getDataFixer().getSchema(Integer.MAX_VALUE - 1).getVersionKey()) >= DataVersion.UPCOMING.getDataVersion() * 10)
+            if ((DataFixers.getDataFixer().getSchema(Integer.MAX_VALUE - 1).getVersionKey()) >= DataVersion.UPCOMING.getDataVersion() * 10)
             {
                 throw new RuntimeException("You are trying to run old mod on much newer vanilla. Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
             }
@@ -70,7 +70,7 @@ public class Structurize
         {
             Log.getLogger().error("----------------------------------------------------------------- \n "
                                     + "Invalid DataFixer detected, schematics might not paste correctly! \n"
-                                    +  "The following DataFixer was added: " + DataFixesManager.getDataFixer().getClass() + "\n"
+                                    +  "The following DataFixer was added: " + DataFixers.getDataFixer().getClass() + "\n"
                                     + "-----------------------------------------------------------------");
         }
     }

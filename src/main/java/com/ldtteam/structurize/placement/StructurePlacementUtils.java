@@ -7,12 +7,12 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.block.AirBlock;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,7 +29,7 @@ public class StructurePlacementUtils
      * @param rotation the rotation.
      * @param mirror   the mirror.
      */
-    public static void unloadStructure(@NotNull final World world, @NotNull final BlockPos startPos, @NotNull final String name, final Rotation rotation, @NotNull final Mirror mirror)
+    public static void unloadStructure(@NotNull final Level world, @NotNull final BlockPos startPos, @NotNull final String name, final Rotation rotation, @NotNull final Mirror mirror)
     {
         @NotNull final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, new PlacementSettings(mirror, rotation), false);
         structure.getBluePrint().rotateWithMirror(rotation, mirror, world);
@@ -52,11 +52,11 @@ public class StructurePlacementUtils
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
-      final World worldObj, @NotNull final String name,
+      final Level worldObj, @NotNull final String name,
       @NotNull final BlockPos pos, final Rotation rotation,
       @NotNull final Mirror mirror,
       final boolean fancyPlacement,
-      final ServerPlayerEntity player)
+      final ServerPlayer player)
     {
         try
         {
@@ -85,11 +85,11 @@ public class StructurePlacementUtils
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
-      final World worldObj, @NotNull final Blueprint blueprint,
+      final Level worldObj, @NotNull final Blueprint blueprint,
       @NotNull final BlockPos pos, final Rotation rotation,
       @NotNull final Mirror mirror,
       final boolean fancyPlacement,
-      final ServerPlayerEntity player)
+      final ServerPlayer player)
     {
         try
         {

@@ -3,7 +3,7 @@ package com.ldtteam.structurize.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -17,6 +17,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * Helper class for localization and sending player messages.
@@ -38,19 +44,19 @@ public final class LanguageHandler
      * @param key     the key of the message.
      * @param message the message to send.
      */
-    public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
+    public static void sendPlayerMessage(@NotNull final Player player, final String key, final Object... message)
     {
         player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUUID());
     }
 
-    public static IFormattableTextComponent buildChatComponent(final String key, final Object... message)
+    public static MutableComponent buildChatComponent(final String key, final Object... message)
     {
-        TranslationTextComponent translation = null;
+        TranslatableComponent translation = null;
 
         int onlyArgsUntil = 0;
         for (final Object object : message)
         {
-            if (object instanceof ITextComponent)
+            if (object instanceof Component)
             {
                 if (onlyArgsUntil == 0)
                 {
@@ -66,28 +72,28 @@ public final class LanguageHandler
             final Object[] args = new Object[onlyArgsUntil];
             System.arraycopy(message, 0, args, 0, onlyArgsUntil);
 
-            translation = new TranslationTextComponent(key, args);
+            translation = new TranslatableComponent(key, args);
         }
 
         for (final Object object : message)
         {
             if (translation == null)
             {
-                if (object instanceof ITextComponent)
+                if (object instanceof Component)
                 {
-                    translation = new TranslationTextComponent(key);
+                    translation = new TranslatableComponent(key);
                 }
                 else
                 {
-                    translation = new TranslationTextComponent(key, object);
+                    translation = new TranslatableComponent(key, object);
                     continue;
                 }
             }
 
-            if (object instanceof ITextComponent)
+            if (object instanceof Component)
             {
-                translation.append(StringTextComponent.EMPTY);
-                translation.append((ITextComponent) object);
+                translation.append(TextComponent.EMPTY);
+                translation.append((Component) object);
             }
             else if (object instanceof String)
             {
@@ -124,11 +130,11 @@ public final class LanguageHandler
         final String result;
         if (args.length == 0)
         {
-            result = new TranslationTextComponent(key).getString();
+            result = new TranslatableComponent(key).getString();
         }
         else
         {
-            result = new TranslationTextComponent(key, args).getString();
+            result = new TranslatableComponent(key, args).getString();
         }
         return result.isEmpty() ? key : result;
     }
@@ -140,24 +146,24 @@ public final class LanguageHandler
      * @param key     key of the message.
      * @param message the message.
      */
-    public static void sendPlayersMessage(@Nullable final List<PlayerEntity> players, final String key, final Object... message)
+    public static void sendPlayersMessage(@Nullable final List<Player> players, final String key, final Object... message)
     {
         if (players == null || players.isEmpty())
         {
             return;
         }
 
-        final ITextComponent textComponent = buildChatComponent(key.toLowerCase(Locale.US), message);
+        final Component textComponent = buildChatComponent(key.toLowerCase(Locale.US), message);
 
-        for (final PlayerEntity player : players)
+        for (final Player player : players)
         {
             player.sendMessage(textComponent, player.getUUID());
         }
     }
 
-    public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
+    public static void sendMessageToPlayer(final Player player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), player.getUUID());
+        player.sendMessage(new TextComponent(translateKeyWithFormat(key, format)), player.getUUID());
     }
 
     /**
@@ -241,12 +247,12 @@ public final class LanguageHandler
         {
             if (isMCloaded)
             {
-                return LanguageMap.getInstance().getOrDefault(key);
+                return Language.getInstance().getOrDefault(key);
             }
             else
             {
                 final String res = languageMap.get(key);
-                return res == null ? LanguageMap.getInstance().getOrDefault(key) : res;
+                return res == null ? Language.getInstance().getOrDefault(key) : res;
             }
         }
     }

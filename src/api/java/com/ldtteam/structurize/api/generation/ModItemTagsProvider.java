@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.api.generation;
 
 import com.ldtteam.structurize.api.blocks.BlockType;
-import net.minecraft.block.Block;
-import net.minecraft.data.BlockTagsProvider;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,13 +17,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.minecraft.data.TagsProvider.Builder;
+import net.minecraft.data.tags.TagsProvider.TagAppender;
 
 public class ModItemTagsProvider extends ItemTagsProvider
 {
     private static ModItemTagsProvider instance;
 
-    private Map<ResourceLocation, ITag.Builder> tags;
+    private Map<ResourceLocation, Tag.Builder> tags;
 
     public ModItemTagsProvider(
       final DataGenerator dataGenerator,
@@ -52,30 +52,30 @@ public class ModItemTagsProvider extends ItemTagsProvider
     }
 
     @Override
-    public void run(@NotNull final DirectoryCache cache)
+    public void run(@NotNull final HashCache cache)
     {
         // Store the singleton builds
         tags = new LinkedHashMap<>(this.builders);
         super.run(cache);
     }
 
-    public Builder<Item> buildTag(ITag.INamedTag<Item> tag)
+    public TagAppender<Item> buildTag(Tag.Named<Item> tag)
     {
         return this.tag(tag);
     }
 
-    public Builder<Item> buildTag(String name)
+    public TagAppender<Item> buildTag(String name)
     {
         return this.tag(ItemTags.bind(name));
     }
 
     @Override
-    public void copy(@NotNull ITag.INamedTag<Block> blockTag, @NotNull ITag.INamedTag<Item> itemTag)
+    public void copy(@NotNull Tag.Named<Block> blockTag, @NotNull Tag.Named<Item> itemTag)
     {
         super.copy(blockTag, itemTag);
     }
 
-    public void copy(ITag.INamedTag<Block> blockTag)
+    public void copy(Tag.Named<Block> blockTag)
     {
         copy(blockTag, ItemTags.bind(blockTag.getName().toString()));
     }

@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.api.generation;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.minecraftforge.fml.RegistryObject;
 
@@ -82,15 +82,15 @@ public class ModLanguageProvider extends LanguageProvider
 
     public void add(RegistryObject<?> key)
     {
-        add((IItemProvider) key.get());
+        add((ItemLike) key.get());
     }
 
-    public void add(IItemProvider key)
+    public void add(ItemLike key)
     {
         add(key.asItem(), format(Objects.requireNonNull(key.asItem().getRegistryName()).getPath()));
     }
 
-    public void add(ItemGroup key, String name)
+    public void add(CreativeModeTab key, String name)
     {
         add(key.getDisplayName().getString(), name);
     }

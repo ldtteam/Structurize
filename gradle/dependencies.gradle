@@ -1,0 +1,7 @@
+dependencies {
+    implementation "org.mariuszgromada.math:MathParser.org-mXparser:${project.mathParserVersion}"
+
+    contained "org.mariuszgromada.math:MathParser.org-mXparser:${project.mathParserVersion}"
+
+    implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+}

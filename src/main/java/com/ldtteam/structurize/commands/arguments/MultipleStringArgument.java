@@ -12,11 +12,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.multiplayer.ClientSuggestionProvider;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * Command argument for selecting from string collection.
@@ -24,9 +24,9 @@ import net.minecraft.network.PacketBuffer;
  */
 public class MultipleStringArgument implements ArgumentType<String>
 {
-    private final BiFunction<CommandContext<CommandSource>, ServerPlayerEntity, Collection<String>> dataProvider;
+    private final BiFunction<CommandContext<CommandSourceStack>, ServerPlayer, Collection<String>> dataProvider;
 
-    public MultipleStringArgument(final BiFunction<CommandContext<CommandSource>, ServerPlayerEntity, Collection<String>> dataProvider)
+    public MultipleStringArgument(final BiFunction<CommandContext<CommandSourceStack>, ServerPlayer, Collection<String>> dataProvider)
     {
         this.dataProvider = dataProvider;
     }
@@ -37,7 +37,7 @@ public class MultipleStringArgument implements ArgumentType<String>
      * @param dataProvider choices provider, called server-side only
      * @return argument type
      */
-    public static MultipleStringArgument multipleString(final BiFunction<CommandContext<CommandSource>, ServerPlayerEntity, Collection<String>> dataProvider)
+    public static MultipleStringArgument multipleString(final BiFunction<CommandContext<CommandSourceStack>, ServerPlayer, Collection<String>> dataProvider)
     {
         return new MultipleStringArgument(dataProvider);
     }
@@ -49,7 +49,7 @@ public class MultipleStringArgument implements ArgumentType<String>
      * @param name    argument key
      * @return command argument as string
      */
-    public static String getResult(final CommandContext<CommandSource> context, final String name) throws CommandSyntaxException
+    public static String getResult(final CommandContext<CommandSourceStack> context, final String name) throws CommandSyntaxException
     {
         return context.getArgument(name, String.class);
     }
@@ -65,13 +65,13 @@ public class MultipleStringArgument implements ArgumentType<String>
     {
         if (context.getSource() instanceof ClientSuggestionProvider)
         {
-            final CommandContext<ISuggestionProvider> ctx = (CommandContext<ISuggestionProvider>) context;
+            final CommandContext<SharedSuggestionProvider> ctx = (CommandContext<SharedSuggestionProvider>) context;
             return ctx.getSource().customSuggestion(ctx, builder);
         }
         try
         {
-            final CommandContext<CommandSource> ctx = (CommandContext<CommandSource>) context;
-            return ISuggestionProvider.suggest(dataProvider.apply(ctx, ctx.getSource().getPlayerOrException()), builder);
+            final CommandContext<CommandSourceStack> ctx = (CommandContext<CommandSourceStack>) context;
+            return SharedSuggestionProvider.suggest(dataProvider.apply(ctx, ctx.getSource().getPlayerOrException()), builder);
         }
         catch (final CommandSyntaxException | NullPointerException e)
         {
@@ -83,16 +83,16 @@ public class MultipleStringArgument implements ArgumentType<String>
     /**
      * Noop serializer, we always go for server suggestions and it's impossible to create suggestions without command source
      */
-    public static class Serializer implements IArgumentSerializer<MultipleStringArgument>
+    public static class Serializer implements ArgumentSerializer<MultipleStringArgument>
     {
         @Override
-        public void serializeToNetwork(final MultipleStringArgument argument, final PacketBuffer buffer)
+        public void serializeToNetwork(final MultipleStringArgument argument, final FriendlyByteBuf buffer)
         {
             // noop
         }
 
         @Override
-        public MultipleStringArgument deserializeFromNetwork(final PacketBuffer buffer)
+        public MultipleStringArgument deserializeFromNetwork(final FriendlyByteBuf buffer)
         {
             // noop
             return null;

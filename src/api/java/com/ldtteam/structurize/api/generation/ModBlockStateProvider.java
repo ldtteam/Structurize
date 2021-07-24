@@ -1,14 +1,14 @@
 package com.ldtteam.structurize.api.generation;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.StairsBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.resources.ResourcePackType;
-import net.minecraft.state.properties.Half;
-import net.minecraft.state.properties.StairsShape;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -48,7 +48,7 @@ public class ModBlockStateProvider extends BlockStateProvider
     }
 
     @Override
-    public void run(final DirectoryCache cache) throws IOException
+    public void run(final HashCache cache) throws IOException
     {
         blocks = new HashMap<>(models().generatedModels);
         items = new HashMap<>(itemModels().generatedModels);
@@ -73,11 +73,11 @@ public class ModBlockStateProvider extends BlockStateProvider
             if (block.getRegistryName() == null) continue; // <- should never happen
             name = block.getRegistryName();
 
-            if (!model.isEmpty() && models().existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
+            if (!model.isEmpty() && models().existingFileHelper.exists(name, PackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath() + "_" + model);
             }
-            if (models().existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, (model.isEmpty() ? "" : "_" + model) + ".png", "textures/" + directory))
+            if (models().existingFileHelper.exists(name, PackType.CLIENT_RESOURCES, (model.isEmpty() ? "" : "_" + model) + ".png", "textures/" + directory))
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
             }
@@ -87,12 +87,12 @@ public class ModBlockStateProvider extends BlockStateProvider
         return new ResourceLocation(name.getNamespace(), directory + "/" + name.getPath());
     }
 
-    public void stairsBlockUnlockUV(StairsBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter)
+    public void stairsBlockUnlockUV(StairBlock block, ModelFile stairs, ModelFile stairsInner, ModelFile stairsOuter)
     {
         getVariantBuilder(block).forAllStatesExcept(state -> {
-            Direction facing = state.getValue(StairsBlock.FACING);
-            Half half = state.getValue(StairsBlock.HALF);
-            StairsShape shape = state.getValue(StairsBlock.SHAPE);
+            Direction facing = state.getValue(StairBlock.FACING);
+            Half half = state.getValue(StairBlock.HALF);
+            StairsShape shape = state.getValue(StairBlock.SHAPE);
             int yRot = (int) facing.getClockWise().toYRot(); // Stairs model is rotated 90 degrees clockwise for some reason
 
             if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT)
@@ -111,7 +111,7 @@ public class ModBlockStateProvider extends BlockStateProvider
               .rotationY(yRot)
               .uvLock(false)
               .build();
-        }, StairsBlock.WATERLOGGED);
+        }, StairBlock.WATERLOGGED);
     }
 
     public static ModBlockStateProvider getInstance()

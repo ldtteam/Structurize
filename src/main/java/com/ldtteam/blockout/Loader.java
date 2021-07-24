@@ -4,7 +4,7 @@ import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.*;
 import com.ldtteam.structurize.Structurize;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;

@@ -1,9 +1,9 @@
 package com.ldtteam.blockout.hooks;
 
 import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.*;
@@ -106,7 +106,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
      * @param thing        instance of registered type
      * @param partialTicks partialTicks, see world rendering
      */
-    protected abstract void translateToGuiBottomCenter(final MatrixStack ms, final T thing, final float partialTicks);
+    protected abstract void translateToGuiBottomCenter(final PoseStack ms, final T thing, final float partialTicks);
 
     protected void tick(final long ticks)
     {
@@ -156,7 +156,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
         });
     }
 
-    protected void render(final MatrixStack ms, final float partialTicks)
+    protected void render(final PoseStack ms, final float partialTicks)
     {
         activeWindows.values().forEach(entry -> {
             ms.pushPose();

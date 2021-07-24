@@ -13,12 +13,12 @@ import com.ldtteam.structurize.blocks.types.TimberFrameType;
 import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -73,7 +73,7 @@ public final class ModBlocks
     public static final List<ShingleFaceType>           shingles        = Arrays.asList(ShingleFaceType.values());
     public static final IBlockList<BlockShingleSlab> shingleSlabs = new ShingleSlabList();
 
-    public static final ITag.INamedTag<Block> NULL_PLACEMENT = BlockTags.bind("structurize:null_placement");
+    public static final Tag.Named<Block> NULL_PLACEMENT = BlockTags.bind("structurize:null_placement");
 
     public static List<BlockTimberFrame> getTimberFrames()
     {
@@ -118,7 +118,7 @@ public final class ModBlocks
      * @param <B> the block subclass for the factory response
      * @return the block entry saved to the registry
      */
-    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, ItemGroup group)
+    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, CreativeModeTab group)
     {
         RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
         ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().tab(group)));

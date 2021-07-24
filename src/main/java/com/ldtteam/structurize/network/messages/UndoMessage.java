@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -18,12 +18,12 @@ public class UndoMessage implements IMessage
     {
     }
 
-    public UndoMessage(final PacketBuffer buf)
+    public UndoMessage(final FriendlyByteBuf buf)
     {
     }
 
     @Override
-    public void toBytes(final PacketBuffer buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         /*
          * Nothing needed.

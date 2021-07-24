@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;

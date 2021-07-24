@@ -1,33 +1,33 @@
 package com.ldtteam.structurize.util;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.StainedGlassBlock;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.ModelBakery;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
 
 /**
  * Our own fluid renderer.
  */
 public class FluidRenderer
 {
-    public static boolean render(final IBlockDisplayReader blockAccess,
+    public static boolean render(final BlockAndTintGetter blockAccess,
         final BlockPos pos,
-        final IVertexBuilder iVertexBuilder,
+        final VertexConsumer iVertexBuilder,
         final FluidState fluidState)
     {
         boolean isLava = fluidState.is(FluidTags.LAVA);
@@ -65,7 +65,7 @@ public class FluidRenderer
                 fluidHeightS -= 0.001F;
                 fluidHeightSE -= 0.001F;
                 fluidHeightE -= 0.001F;
-                Vector3d vec3d = fluidState.getFlow(blockAccess, pos);
+                Vec3 vec3d = fluidState.getFlow(blockAccess, pos);
                 float f13;
                 float f14;
                 float f15;
@@ -89,9 +89,9 @@ public class FluidRenderer
                 else
                 {
                     TextureAtlasSprite textureatlassprite = atextureatlassprite[1];
-                    float f21 = (float) MathHelper.atan2(vec3d.z, vec3d.x) - ((float) Math.PI / 2F);
-                    float f22 = MathHelper.sin(f21) * 0.25F;
-                    float f23 = MathHelper.cos(f21) * 0.25F;
+                    float f21 = (float) Mth.atan2(vec3d.z, vec3d.x) - ((float) Math.PI / 2F);
+                    float f22 = Mth.sin(f21) * 0.25F;
+                    float f23 = Mth.cos(f21) * 0.25F;
                     f13 = textureatlassprite.getU((8.0F + (-f23 - f22) * 16.0F));
                     f17 = textureatlassprite.getV((8.0F + (-f23 + f22) * 16.0F));
                     f14 = textureatlassprite.getU((8.0F + (-f23 + f22) * 16.0F));
@@ -107,14 +107,14 @@ public class FluidRenderer
                 float f45 = (float) atextureatlassprite[0].getWidth() / (atextureatlassprite[0].getU1() - atextureatlassprite[0].getU0());
                 float f46 = (float) atextureatlassprite[0].getHeight() / (atextureatlassprite[0].getV1() - atextureatlassprite[0].getV0());
                 float f47 = 4.0F / Math.max(f46, f45);
-                f13 = MathHelper.lerp(f47, f13, f43);
-                f14 = MathHelper.lerp(f47, f14, f43);
-                f15 = MathHelper.lerp(f47, f15, f43);
-                f16 = MathHelper.lerp(f47, f16, f43);
-                f17 = MathHelper.lerp(f47, f17, f44);
-                f18 = MathHelper.lerp(f47, f18, f44);
-                f19 = MathHelper.lerp(f47, f19, f44);
-                f20 = MathHelper.lerp(f47, f20, f44);
+                f13 = Mth.lerp(f47, f13, f43);
+                f14 = Mth.lerp(f47, f14, f43);
+                f15 = Mth.lerp(f47, f15, f43);
+                f16 = Mth.lerp(f47, f16, f43);
+                f17 = Mth.lerp(f47, f17, f44);
+                f18 = Mth.lerp(f47, f18, f44);
+                f19 = Mth.lerp(f47, f19, f44);
+                f20 = Mth.lerp(f47, f20, f44);
                 int j = FluidRenderer.getLight(blockAccess, pos);
                 float f25 = 1.0F * red;
                 float f26 = 1.0F * green;
@@ -246,7 +246,7 @@ public class FluidRenderer
         }
     }
 
-    private static boolean isAdjacentFluidSameAs(IBlockReader blockAccess, BlockPos pos, Direction direction, FluidState fluid)
+    private static boolean isAdjacentFluidSameAs(BlockGetter blockAccess, BlockPos pos, Direction direction, FluidState fluid)
     {
         BlockPos blockpos = pos.relative(direction);
         FluidState ifluidstate = blockAccess.getFluidState(blockpos);
@@ -254,7 +254,7 @@ public class FluidRenderer
     }
 
     private static void vertex(
-        IVertexBuilder iVertexBuilder,
+        VertexConsumer iVertexBuilder,
         float x,
         float y,
         float z,
@@ -269,10 +269,10 @@ public class FluidRenderer
         iVertexBuilder.vertex(x, y, z).color(red, green, blue, alpha).uv(textX, textY).uv2(light).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    private static int getLight(IBlockDisplayReader p_228795_1_, BlockPos p_228795_2_)
+    private static int getLight(BlockAndTintGetter p_228795_1_, BlockPos p_228795_2_)
     {
-        int i = WorldRenderer.getLightColor(p_228795_1_, p_228795_2_);
-        int j = WorldRenderer.getLightColor(p_228795_1_, p_228795_2_.above());
+        int i = LevelRenderer.getLightColor(p_228795_1_, p_228795_2_);
+        int j = LevelRenderer.getLightColor(p_228795_1_, p_228795_2_.above());
         int k = i & 255;
         int l = j & 255;
         int i1 = i >> 16 & 255;
@@ -280,15 +280,15 @@ public class FluidRenderer
         return (Math.max(k, l)) | (Math.max(i1, j1)) << 16;
     }
 
-    private static boolean needsSideRendering(IBlockReader blockAccess, BlockPos pos, Direction direction, float fluidHeight)
+    private static boolean needsSideRendering(BlockGetter blockAccess, BlockPos pos, Direction direction, float fluidHeight)
     {
         BlockPos blockpos = pos.relative(direction);
         BlockState blockstate = blockAccess.getBlockState(blockpos);
         if (blockstate.canOcclude())
         {
-            VoxelShape voxelshape = VoxelShapes.box(0.0D, 0.0D, 0.0D, 1.0D, fluidHeight, 1.0D);
+            VoxelShape voxelshape = Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, fluidHeight, 1.0D);
             VoxelShape voxelshape1 = blockstate.getBlockSupportShape(blockAccess, blockpos);
-            return VoxelShapes.blockOccudes(voxelshape, voxelshape1, direction);
+            return Shapes.blockOccudes(voxelshape, voxelshape1, direction);
         }
         else
         {
@@ -296,7 +296,7 @@ public class FluidRenderer
         }
     }
 
-    private static float getFluidHeight(IBlockReader blockAccess, BlockPos pos, Fluid fluid)
+    private static float getFluidHeight(BlockGetter blockAccess, BlockPos pos, Fluid fluid)
     {
         int occurances = 0;
         float totalHeight = 0.0F;

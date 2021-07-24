@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
@@ -36,29 +36,29 @@ public class ItemCaliper extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onAirRightClick(final BlockPos start,
+    public InteractionResult onAirRightClick(final BlockPos start,
         final BlockPos end,
-        final World worldIn,
-        final PlayerEntity playerIn,
+        final Level worldIn,
+        final Player playerIn,
         final ItemStack itemStack)
     {
         if (!worldIn.isClientSide)
         {
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
 
         if (start.equals(end))
         {
             LanguageHandler.sendMessageToPlayer(playerIn, ITEM_CALIPER_MESSAGE_SAME);
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
 
         handlePlayerMessage(start, end, playerIn);
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    private void handlePlayerMessage(final BlockPos start, final BlockPos end, final PlayerEntity playerIn)
+    private void handlePlayerMessage(final BlockPos start, final BlockPos end, final Player playerIn)
     {
         int disX = Math.abs(end.getX() - start.getX());
         int disY = Math.abs(end.getY() - start.getY());

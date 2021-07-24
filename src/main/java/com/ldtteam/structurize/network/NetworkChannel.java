@@ -3,11 +3,11 @@ package com.ldtteam.structurize.network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -71,7 +71,7 @@ public class NetworkChannel
      * @param id       network id
      * @param msgClazz message class
      */
-    private <MSG extends IMessage> void registerMessage(final int id, final Class<MSG> msgClazz, final Function<PacketBuffer, MSG> initializer)
+    private <MSG extends IMessage> void registerMessage(final int id, final Class<MSG> msgClazz, final Function<FriendlyByteBuf, MSG> initializer)
     {
         rawChannel.registerMessage(id, msgClazz, IMessage::toBytes, initializer, (msg, ctxIn) -> {
             final Context ctx = ctxIn.get();
@@ -103,7 +103,7 @@ public class NetworkChannel
      * @param msg    message to send
      * @param player target player
      */
-    public void sendToPlayer(final IMessage msg, final ServerPlayerEntity player)
+    public void sendToPlayer(final IMessage msg, final ServerPlayer player)
     {
         rawChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);
     }
@@ -116,7 +116,7 @@ public class NetworkChannel
      */
     public void sendToOrigin(final IMessage msg, final Context ctx)
     {
-        final ServerPlayerEntity player = ctx.getSender();
+        final ServerPlayer player = ctx.getSender();
         if (player != null) // side check
         {
             sendToPlayer(msg, player);
@@ -203,7 +203,7 @@ public class NetworkChannel
      * @param msg   message to send
      * @param chunk target chunk to look at
      */
-    public void sendToTrackingChunk(final IMessage msg, final Chunk chunk)
+    public void sendToTrackingChunk(final IMessage msg, final LevelChunk chunk)
     {
         rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
     }

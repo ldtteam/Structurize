@@ -3,7 +3,7 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class SchematicRequestMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public SchematicRequestMessage(final PacketBuffer buf)
+    public SchematicRequestMessage(final FriendlyByteBuf buf)
     {
         this.filename = buf.readUtf(32767);
     }
@@ -41,7 +41,7 @@ public class SchematicRequestMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeUtf(filename);
     }

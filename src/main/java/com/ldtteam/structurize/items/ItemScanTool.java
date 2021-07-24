@@ -16,20 +16,20 @@ import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -43,7 +43,7 @@ import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANC
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 /**
  * Item used to scan structures.
@@ -58,7 +58,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      *
      * @param itemGroup creative tab
      */
-    public ItemScanTool(final ItemGroup itemGroup)
+    public ItemScanTool(final CreativeModeTab itemGroup)
     {
         this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
     }
@@ -74,12 +74,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
+    public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
     {
         Optional<BlockPos> anchorPos = Optional.empty();
         if (itemStack.getOrCreateTag().contains(NBT_ANCHOR_POS))
         {
-            final BlockPos anchorBlockPos = NBTUtil.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS));
+            final BlockPos anchorBlockPos = NbtUtils.readBlockPos(itemStack.getOrCreateTag().getCompound(NBT_ANCHOR_POS));
 
             if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
             {
@@ -93,7 +93,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             {
                 if (worldIn.isClientSide)
                 {
-                    playerIn.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUUID());
+                    playerIn.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUUID());
                 }
             }
         }
@@ -113,7 +113,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 window.open();
             }
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -132,10 +132,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param name   the name of it.
      */
     public static void saveStructure(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos from,
       @NotNull final BlockPos to,
-      @NotNull final PlayerEntity player,
+      @NotNull final Player player,
       final String name)
     {
         saveStructure(world, from, to, player, name, true, Optional.empty());
@@ -152,10 +152,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @param saveEntities whether to scan in entities
      */
     public static void saveStructure(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos from,
       @NotNull final BlockPos to,
-      @NotNull final PlayerEntity player,
+      @NotNull final Player player,
       final String name,
       final boolean saveEntities,
       final Optional<BlockPos> anchorPos)
@@ -202,11 +202,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
             if (list.size() > 1)
             {
-                player.sendMessage(new TranslationTextComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUUID());
+                player.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUUID());
             }
         }
 
-        Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayerEntity) player);
+        Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayer) player);
     }
 
     /**
@@ -219,7 +219,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @return true if succesful.
      */
     public static boolean saveStructureOnServer(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos from,
       @NotNull final BlockPos to,
       final String name)
@@ -238,7 +238,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
      * @return true if succesful.
      */
     public static boolean saveStructureOnServer(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos from,
       @NotNull final BlockPos to,
       final String name,
@@ -283,7 +283,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         try (OutputStream outputstream = new FileOutputStream(file))
         {
-            CompressedStreamTools.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
+            NbtIo.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
         }
         catch (final Exception e)
         {
@@ -293,7 +293,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
+    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
     {
         if (!player.isShiftKeyDown())
         {
@@ -311,7 +311,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             itemstack = player.getOffhandItem();
         }
 
-        final TileEntity te = worldIn.getBlockEntity(pos);
+        final BlockEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
         {
             if (worldIn.isClientSide)
@@ -328,16 +328,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 {
                     Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
                 }
-                itemstack.getOrCreateTag().put(NBT_START_POS, NBTUtil.writeBlockPos(start));
-                itemstack.getOrCreateTag().put(NBT_END_POS, NBTUtil.writeBlockPos(end));
-                if (player instanceof ServerPlayerEntity)
+                itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
+                itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));
+                if (player instanceof ServerPlayer)
                 {
-                    ((ServerPlayerEntity) player).refreshContainer(player.inventoryMenu, player.inventory.items);
+                    ((ServerPlayer) player).refreshContainer(player.inventoryMenu, player.inventory.items);
                 }
             }
         }
 
-        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NBTUtil.writeBlockPos(pos));
+        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(pos));
         return false;
     }
 }

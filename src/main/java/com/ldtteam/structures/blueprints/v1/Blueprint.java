@@ -9,22 +9,22 @@ import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-import net.minecraft.block.AirBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.HangingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,19 +87,19 @@ public class Blueprint
     /**
      * The tileentities.
      */
-    private CompoundNBT[][][] tileEntities;
+    private CompoundTag[][][] tileEntities;
 
     /**
      * The entities.
      */
-    private CompoundNBT[] entities = new CompoundNBT[0];
+    private CompoundTag[] entities = new CompoundTag[0];
 
     /**
      * Various caches for storing block data in prepared structures
      */
     private List<BlockInfo> cacheBlockInfo = null;
     private Map<BlockPos, BlockInfo> cacheBlockInfoMap = null;
-    private Map<BlockPos, CompoundNBT[]> cacheEntitiesMap = null;
+    private Map<BlockPos, CompoundTag[]> cacheEntitiesMap = null;
 
     /**
      * Cache for storing rotate/mirror anchor
@@ -129,7 +129,7 @@ public class Blueprint
         short palleteSize,
         List<BlockState> pallete,
         short[][][] structure,
-        CompoundNBT[] tileEntities,
+        CompoundTag[] tileEntities,
         List<String> requiredMods)
     {
         this.sizeX = sizeX;
@@ -138,9 +138,9 @@ public class Blueprint
         this.palleteSize = palleteSize;
         this.palette = pallete;
         this.structure = structure;
-        this.tileEntities = new CompoundNBT[sizeY][sizeZ][sizeX];
+        this.tileEntities = new CompoundTag[sizeY][sizeZ][sizeX];
 
-        for (final CompoundNBT te : tileEntities)
+        for (final CompoundTag te : tileEntities)
         {
             if (te != null)
             {
@@ -163,7 +163,7 @@ public class Blueprint
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
         this.structure = new short[sizeY][sizeZ][sizeX];
-        this.tileEntities = new CompoundNBT[sizeY][sizeZ][sizeX];
+        this.tileEntities = new CompoundTag[sizeY][sizeZ][sizeX];
 
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
@@ -250,7 +250,7 @@ public class Blueprint
     /**
      * @return an array of serialized TileEntities (posX, posY and posZ tags have been localized to coordinates within the structure)
      */
-    public CompoundNBT[][][] getTileEntities()
+    public CompoundTag[][][] getTileEntities()
     {
         return this.tileEntities;
     }
@@ -258,7 +258,7 @@ public class Blueprint
     /**
      * @return an array of serialized TileEntities (the Pos tag has been localized to coordinates within the structure)
      */
-    public CompoundNBT[] getEntities()
+    public CompoundTag[] getEntities()
     {
         return this.entities;
     }
@@ -266,7 +266,7 @@ public class Blueprint
     /**
      * @param entities an array of serialized TileEntities (the Pos tag need to be localized to coordinates within the structure)
      */
-    public void setEntities(CompoundNBT[] entities)
+    public void setEntities(CompoundTag[] entities)
     {
         this.entities = entities;
     }
@@ -342,7 +342,7 @@ public class Blueprint
      *
      * @return the list of CompoundNBTs.
      */
-    public final List<CompoundNBT> getEntitiesAsList()
+    public final List<CompoundTag> getEntitiesAsList()
     {
         return Arrays.stream(entities).collect(Collectors.toList());
     }
@@ -380,7 +380,7 @@ public class Blueprint
      *
      * @return the cached map of these.
      */
-    public final Map<BlockPos, CompoundNBT[]> getCachedEntitiesAsMap()
+    public final Map<BlockPos, CompoundTag[]> getCachedEntitiesAsMap()
     {
         if (cacheEntitiesMap == null)
         {
@@ -397,14 +397,14 @@ public class Blueprint
      * @return the TE compound with real world coords.
      */
     @Nullable
-    public CompoundNBT getTileEntityData(@NotNull final BlockPos worldPos, final BlockPos structurePos)
+    public CompoundTag getTileEntityData(@NotNull final BlockPos worldPos, final BlockPos structurePos)
     {
         if (!getBlockInfoAsMap().containsKey(structurePos) || !getBlockInfoAsMap().get(structurePos).hasTileEntityData())
         {
             return null;
         }
 
-        final CompoundNBT te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
+        final CompoundTag te = getBlockInfoAsMap().get(structurePos).getTileEntityData().copy();
         final BlockPos tePos = structurePos.offset(worldPos);
         te.putInt("x", tePos.getX());
         te.putInt("y", tePos.getY());
@@ -460,7 +460,7 @@ public class Blueprint
                     cacheEntitiesMap.put(tempPos,
                         Arrays.stream(this.getEntities())
                             .filter(data -> data != null && isAtPos(data, tempPos))
-                            .toArray(CompoundNBT[]::new));
+                            .toArray(CompoundTag[]::new));
                 }
             }
         }
@@ -532,7 +532,7 @@ public class Blueprint
      * @param mirror   the mirror.
      * @param world    the world.
      */
-    public void rotateWithMirror(final Rotation rotation, final Mirror mirror, final World world)
+    public void rotateWithMirror(final Rotation rotation, final Mirror mirror, final Level world)
     {
         final BlockPos primaryOffset = getPrimaryBlockOffset();
         final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
@@ -541,8 +541,8 @@ public class Blueprint
         final short newSizeZ = (short) resultSize.getZ();
 
         final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
-        final CompoundNBT[] newEntities = new CompoundNBT[entities.length];
-        final CompoundNBT[][][] newTileEntities = new CompoundNBT[newSizeY][newSizeZ][newSizeX];
+        final CompoundTag[] newEntities = new CompoundTag[entities.length];
+        final CompoundTag[][][] newTileEntities = new CompoundTag[newSizeY][newSizeZ][newSizeX];
 
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
@@ -572,7 +572,7 @@ public class Blueprint
                     }
                     newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
 
-                    final CompoundNBT compound = tileEntities[y][z][x];
+                    final CompoundTag compound = tileEntities[y][z][x];
                     if (compound != null)
                     {
                         compound.putInt("x", tempPos.getX());
@@ -581,7 +581,7 @@ public class Blueprint
 
                         if (compound.contains(TAG_BLUEPRINTDATA))
                         {
-                            CompoundNBT dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
+                            CompoundTag dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
 
                             // Rotate tag map
                             final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(dataCompound);
@@ -612,14 +612,14 @@ public class Blueprint
 
         for (int i = 0; i < entities.length; i++)
         {
-            final CompoundNBT entitiesCompound = entities[i];
+            final CompoundTag entitiesCompound = entities[i];
             if (entitiesCompound != null)
             {
                 newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotation, mirror);
             }
         }
 
-        BlockPos newOffsetPos = Template.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
+        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
 
         setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
 
@@ -711,8 +711,8 @@ public class Blueprint
      * @param mirror     the mirror.
      * @return the updated nbt.
      */
-    private CompoundNBT transformEntityInfoWithSettings(final CompoundNBT entityInfo,
-        final World world,
+    private CompoundTag transformEntityInfoWithSettings(final CompoundTag entityInfo,
+        final Level world,
         final BlockPos pos,
         final Rotation rotation,
         final Mirror mirror)
@@ -728,8 +728,8 @@ public class Blueprint
                 {
                     finalEntity.deserializeNBT(entityInfo);
 
-                    final Vector3d entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.position())
-                                                 .add(Vector3d.atLowerCornerOf(pos));
+                    final Vec3 entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.position())
+                                                 .add(Vec3.atLowerCornerOf(pos));
                     finalEntity.yRotO = (float) (finalEntity.mirror(mirror) - NINETY_DEGREES);
                     final double rotationYaw = finalEntity.mirror(mirror)
                                                  + ((double) finalEntity.mirror(mirror) - (double) finalEntity.rotate(rotation));
@@ -763,7 +763,7 @@ public class Blueprint
      * @param vec      the vec to transform.
      * @return the result.
      */
-    private static Vector3d transformedVector3d(final Rotation rotation, final Mirror mirror, final Vector3d vec)
+    private static Vec3 transformedVector3d(final Rotation rotation, final Mirror mirror, final Vec3 vec)
     {
         double xCoord = vec.x;
         double zCoord = vec.z;
@@ -786,16 +786,16 @@ public class Blueprint
         switch (rotation)
         {
             case COUNTERCLOCKWISE_90:
-                return new Vector3d(zCoord, vec.y, 1.0D - xCoord);
+                return new Vec3(zCoord, vec.y, 1.0D - xCoord);
 
             case CLOCKWISE_90:
-                return new Vector3d(1.0D - zCoord, vec.y, xCoord);
+                return new Vec3(1.0D - zCoord, vec.y, xCoord);
 
             case CLOCKWISE_180:
-                return new Vector3d(1.0D - xCoord, vec.y, 1.0D - zCoord);
+                return new Vec3(1.0D - xCoord, vec.y, 1.0D - zCoord);
 
             default:
-                return flag ? new Vector3d(xCoord, vec.y, zCoord) : vec;
+                return flag ? new Vec3(xCoord, vec.y, zCoord) : vec;
         }
     }
 
@@ -853,7 +853,7 @@ public class Blueprint
     {
         return new BlueprintPositionInfo(pos,
             getBlockInfoAsMap().get(pos),
-            includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundNBT[0]) : new CompoundNBT[0]);
+            includeEntities ? getCachedEntitiesAsMap().getOrDefault(pos, new CompoundTag[0]) : new CompoundTag[0]);
     }
 
     /**
@@ -863,9 +863,9 @@ public class Blueprint
      * @param pos        the pos to check.
      * @return true if so.
      */
-    private boolean isAtPos(@NotNull final CompoundNBT entityData, final BlockPos pos)
+    private boolean isAtPos(@NotNull final CompoundTag entityData, final BlockPos pos)
     {
-        final ListNBT list = entityData.getList(ENTITY_POS, 6);
+        final ListTag list = entityData.getList(ENTITY_POS, 6);
         final int x = (int) list.getDouble(0);
         final int y = (int) list.getDouble(1);
         final int z = (int) list.getDouble(2);

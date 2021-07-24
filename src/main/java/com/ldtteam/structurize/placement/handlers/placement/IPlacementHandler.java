@@ -4,11 +4,11 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public interface IPlacementHandler
      * @param blockState the blockState.
      * @return true if so.
      */
-    boolean canHandle(@NotNull final World world, @NotNull final BlockPos pos, @NotNull final BlockState blockState);
+    boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState);
 
     /**
      * Method used to handle the processing of a Placement of a block.
@@ -41,10 +41,10 @@ public interface IPlacementHandler
      * @return ACCEPT, DENY or IGNORE.
      */
     default ActionProcessingResult handle(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundNBT tileEntityData,
+      @Nullable final CompoundTag tileEntityData,
       final boolean complete, final BlockPos centerPos)
     {
         /*
@@ -66,10 +66,10 @@ public interface IPlacementHandler
      * @return ACCEPT, DENY or IGNORE.
      */
     default ActionProcessingResult handle(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundNBT tileEntityData,
+      @Nullable final CompoundTag tileEntityData,
       final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
     {
         return handle(world, pos, blockState, tileEntityData, complete, centerPos);
@@ -85,9 +85,9 @@ public interface IPlacementHandler
      */
     default void handleRemoval(
       @NotNull final IStructureHandler handler,
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos pos,
-      @NotNull final CompoundNBT tileEntityData)
+      @NotNull final CompoundTag tileEntityData)
     {
         handleRemoval(handler, world, pos);
     }
@@ -101,7 +101,7 @@ public interface IPlacementHandler
      */
     default void handleRemoval(
       @NotNull final IStructureHandler handler,
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos pos)
     {
         if (!handler.isCreative())
@@ -130,10 +130,10 @@ public interface IPlacementHandler
      * @return the list of items.
      */
     List<ItemStack> getRequiredItems(
-      @NotNull final World world,
+      @NotNull final Level world,
       @NotNull final BlockPos pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundNBT tileEntityData,
+      @Nullable final CompoundTag tileEntityData,
       final boolean complete);
 
     /**

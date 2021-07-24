@@ -1,0 +1,3 @@
+if (project.hasProperty("usesOptifine") && project.usesOptifine.toString().toLowerCase() == "true") {
+    //Optifine compat code here
+}

@@ -13,10 +13,10 @@ import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.api.blocks.IBlockList;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +29,7 @@ import java.util.List;
  * This class generates the default loot_table for blocks
  * (if a block is destroyed, it drops its item).
  */
-public class DefaultBlockLootTableProvider implements IDataProvider
+public class DefaultBlockLootTableProvider implements DataProvider
 {
     private static final String DATAPACK_DIR = "data/" + Constants.MOD_ID + "/";
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
@@ -43,7 +43,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
     }
 
     @Override
-    public void run(@NotNull DirectoryCache cache) throws IOException
+    public void run(@NotNull HashCache cache) throws IOException
     {
         saveBlocks(ModBlocks.paperWalls.getRegisteredBlocks(), cache);
         saveBlocks(ModBlocks.shingleSlabs.getRegisteredBlocks(), cache);
@@ -65,7 +65,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlock(ModBlocks.multiBlock, cache);
     }
 
-    private void saveBlockCollection(final List<IBlockCollection> blocks, final DirectoryCache cache) throws  IOException
+    private void saveBlockCollection(final List<IBlockCollection> blocks, final HashCache cache) throws  IOException
     {
         for (IBlockCollection collection : blocks)
         {
@@ -73,7 +73,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         }
     }
 
-    private void saveBlockCollection(final IBlockCollection blocks, final DirectoryCache cache) throws IOException
+    private void saveBlockCollection(final IBlockCollection blocks, final HashCache cache) throws IOException
     {
         for (RegistryObject<Block> block : blocks.getRegisteredBlocks())
         {
@@ -83,7 +83,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         }
     }
 
-    private <B extends Block, L extends IBlockList<B>> void saveBlockList(final List<L> blocks, final DirectoryCache cache) throws IOException
+    private <B extends Block, L extends IBlockList<B>> void saveBlockList(final List<L> blocks, final HashCache cache) throws IOException
     {
         for (L list : blocks)
         {
@@ -91,7 +91,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         }
     }
 
-    private <B extends Block> void saveBlockList(final IBlockList<B> blocks, final DirectoryCache cache) throws IOException
+    private <B extends Block> void saveBlockList(final IBlockList<B> blocks, final HashCache cache) throws IOException
     {
         for (RegistryObject<B> block : blocks.getRegisteredBlocks())
         {
@@ -99,7 +99,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         }
     }
 
-    private <T extends Block> void saveBlocks(final List<RegistryObject<T>> blocks, final DirectoryCache cache) throws IOException
+    private <T extends Block> void saveBlocks(final List<RegistryObject<T>> blocks, final HashCache cache) throws IOException
     {
         for (RegistryObject<T> block : blocks)
         {
@@ -107,7 +107,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         }
     }
 
-    private void saveBlock(final RegistryObject<? extends Block> block, final DirectoryCache cache) throws IOException
+    private void saveBlock(final RegistryObject<? extends Block> block, final HashCache cache) throws IOException
     {
         if (block.get().getRegistryName() != null)
         {
@@ -126,7 +126,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
             lootTableJson.setPools(Collections.singletonList(poolJson));
 
             final Path savePath = generator.getOutputFolder().resolve(LOOT_TABLES_DIR).resolve(block.get().getRegistryName().getPath() + ".json");
-            IDataProvider.save(GSON, cache, lootTableJson.serialize(), savePath);
+            DataProvider.save(GSON, cache, lootTableJson.serialize(), savePath);
         }
     }
 

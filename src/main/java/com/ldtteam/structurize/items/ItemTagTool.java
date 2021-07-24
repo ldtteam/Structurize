@@ -6,22 +6,28 @@ import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
+
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.context.UseOnContext;
 
 /**
  * Item for tagging positions with tags
@@ -36,7 +42,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      *
      * @param itemGroup creative tab
      */
-    public ItemTagTool(final ItemGroup itemGroup)
+    public ItemTagTool(final CreativeModeTab itemGroup)
     {
         this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
     }
@@ -58,7 +64,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType onAirRightClick(final BlockPos start, final BlockPos end, final World worldIn, final PlayerEntity playerIn, final ItemStack itemStack)
+    public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
     {
         if (worldIn.isClientSide)
         {
@@ -66,13 +72,13 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             if (anchorPos == null)
             {
                 LanguageHandler.sendPlayerMessage(playerIn, "com.ldtteam.structurize.gui.tagtool.noanchor");
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
             }
 
             final WindowTagTool window = new WindowTagTool(getCurrentTag(itemStack), anchorPos, worldIn, itemStack);
             window.open();
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     /**
@@ -83,7 +89,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      */
     private BlockPos getAnchorPos(final ItemStack stack)
     {
-        final CompoundNBT itemCompound = stack.getOrCreateTag();
+        final CompoundTag itemCompound = stack.getOrCreateTag();
 
         if (itemCompound.contains(TAG_ANCHOR_POS))
         {
@@ -109,9 +115,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn)
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
-        return new ActionResult<>(
+        return new InteractionResultHolder<>(
           onAirRightClick(
             null,
             null,
@@ -122,40 +128,40 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public ActionResultType useOn(final ItemUseContext context)
+    public InteractionResult useOn(final UseOnContext context)
     {
         if (context.getPlayer() == null)
         {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (!context.getLevel().isClientSide)
         {
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
 
         // Set anchor
         if (context.getPlayer().isShiftKeyDown())
         {
-            TileEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
+            BlockEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
             if (te instanceof IBlueprintDataProvider)
             {
                 BlockPosUtil.writeToNBT(context.getItemInHand().getOrCreateTag(), TAG_ANCHOR_POS, context.getClickedPos());
                 LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
             else
             {
                 LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
             }
         }
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
+    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
     {
         if (!worldIn.isClientSide())
         {
@@ -186,7 +192,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         // Apply tag to item
         BlockPos relativePos = pos.subtract(anchorPos);
 
-        final TileEntity te = worldIn.getBlockEntity(anchorPos);
+        final BlockEntity te = worldIn.getBlockEntity(anchorPos);
         if (!(te instanceof IBlueprintDataProvider))
         {
             LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
@@ -202,7 +208,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
         else if (!tagPosMap.get(relativePos).contains(currentTag))
@@ -210,7 +216,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
         else
@@ -218,7 +224,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProvider) te).removeTag(relativePos, currentTag);
             Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, relativePos, anchorPos));
 
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
+            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslatableComponent(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
         }
 

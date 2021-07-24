@@ -9,30 +9,30 @@ import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.crash.ReportedException;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.CompassItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.ReportedException;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.CompassItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +43,10 @@ import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+
 /**
  * The renderer for blueprint.
  * Holds all information required to render a blueprint.
@@ -52,11 +56,11 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
-        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(DefaultVertexFormats.BLOCK)));
+        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(DefaultVertexFormat.BLOCK)));
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
-    private List<TileEntity> tileEntities;
+    private List<BlockEntity> tileEntities;
     private Map<RenderType, VertexBuffer> vertexBuffers;
 
     /**
@@ -97,9 +101,9 @@ public class BlueprintRenderer implements AutoCloseable
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
 
-        final BlockRendererDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRenderer();
+        final BlockRenderDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRenderer();
         final Random random = new Random();
-        final MatrixStack matrixStack = new MatrixStack();
+        final PoseStack matrixStack = new PoseStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
         final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();
 
@@ -129,13 +133,13 @@ public class BlueprintRenderer implements AutoCloseable
                     matrixStack.pushPose();
                     matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                    if (state.getRenderShape() != BlockRenderType.INVISIBLE && RenderTypeLookup.canRenderInLayer(state, renderType))
+                    if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
                     {
                         blockRendererDispatcher
                             .renderModel(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
                     }
 
-                    if (!fluidState.isEmpty() && RenderTypeLookup.canRenderInLayer(fluidState, renderType))
+                    if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, renderType))
                     {
                         FluidRenderer.render(blockAccess, blockPos, buffer, fluidState);
                     }
@@ -157,7 +161,7 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Draws structure into world.
      */
-    public void draw(final BlockPos pos, final MatrixStack matrixStack, final float partialTicks)
+    public void draw(final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
     {
         Minecraft.getInstance().getProfiler().push("struct_render_init");
         if (Settings.instance.shouldRefresh())
@@ -167,7 +171,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks");
         final Minecraft mc = Minecraft.getInstance();
-        final Vector3d viewPosition = mc.gameRenderer.getMainCamera().getPosition();
+        final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
         final BlockPos primaryBlockOffset = blockAccess.getBlueprint().getPrimaryBlockOffset();
         final int x = pos.getX() - primaryBlockOffset.getX();
         final int y = pos.getY() - primaryBlockOffset.getY();
@@ -185,23 +189,23 @@ public class BlueprintRenderer implements AutoCloseable
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish");
         renderBlockLayer(RenderType.solid(), rawPosMatrix);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        mc.getModelManager().getAtlas(AtlasTexture.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
         renderBlockLayer(RenderType.cutoutMipped(), rawPosMatrix);
-        mc.getModelManager().getAtlas(AtlasTexture.LOCATION_BLOCKS).restoreLastBlurMipmap();
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), rawPosMatrix);
 
         OptifineCompat.getInstance().endTerrainBeginEntities();
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_entities");
-        final IRenderTypeBuffer.Impl renderBufferSource = ClientEventSubscriber.renderBuffers.bufferSource();
+        final MultiBufferSource.BufferSource renderBufferSource = ClientEventSubscriber.renderBuffers.bufferSource();
 
         // Entities
 
         // if clipping etc., see WorldRenderer for what's missing
         entities.forEach(entity -> {
-            if (entity instanceof ItemFrameEntity && ((ItemFrameEntity) entity).getItem().getItem() instanceof CompassItem)
+            if (entity instanceof ItemFrame && ((ItemFrame) entity).getItem().getItem() instanceof CompassItem)
             {
-                final ItemFrameEntity copy = EntityType.ITEM_FRAME.create(blockAccess);
+                final ItemFrame copy = EntityType.ITEM_FRAME.create(blockAccess);
                 copy.restoreFrom(entity);
                 copy.setItem(ItemStack.EMPTY);
                 entity = copy;
@@ -215,7 +219,7 @@ public class BlueprintRenderer implements AutoCloseable
                     entity.getX(),
                     entity.getY(),
                     entity.getZ(),
-                    MathHelper.lerp(partialTicks, entity.yRotO, entity.yRot),
+                    Mth.lerp(partialTicks, entity.yRotO, entity.yRot),
                     0,
                     matrixStack,
                     renderBufferSource,
@@ -223,21 +227,21 @@ public class BlueprintRenderer implements AutoCloseable
         });
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_entities_finish");
-        renderBufferSource.endBatch(RenderType.entitySolid(AtlasTexture.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entityCutout(AtlasTexture.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entityCutoutNoCull(AtlasTexture.LOCATION_BLOCKS));
-        renderBufferSource.endBatch(RenderType.entitySmoothCutout(AtlasTexture.LOCATION_BLOCKS));
+        renderBufferSource.endBatch(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        renderBufferSource.endBatch(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
+        renderBufferSource.endBatch(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        renderBufferSource.endBatch(RenderType.entitySmoothCutout(TextureAtlas.LOCATION_BLOCKS));
 
         OptifineCompat.getInstance().endEntitiesBeginBlockEntities();
 
         // Block entities
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities");
-        final ActiveRenderInfo oldActiveRenderInfo = TileEntityRendererDispatcher.instance.camera;
-        final World oldWorld = TileEntityRendererDispatcher.instance.level;
-        TileEntityRendererDispatcher.instance.camera = new ActiveRenderInfo();
-        TileEntityRendererDispatcher.instance.camera.setPosition(viewPosition.subtract(x, y, z));
-        TileEntityRendererDispatcher.instance.level = blockAccess;
+        final Camera oldActiveRenderInfo = BlockEntityRenderDispatcher.instance.camera;
+        final Level oldWorld = BlockEntityRenderDispatcher.instance.level;
+        BlockEntityRenderDispatcher.instance.camera = new Camera();
+        BlockEntityRenderDispatcher.instance.camera.setPosition(viewPosition.subtract(x, y, z));
+        BlockEntityRenderDispatcher.instance.level = blockAccess;
         tileEntities.forEach(tileEntity -> {
             final BlockPos tePos = tileEntity.getBlockPos();
             matrixStack.pushPose();
@@ -245,31 +249,31 @@ public class BlueprintRenderer implements AutoCloseable
 
             OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
 
-            TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, matrixStack, renderBufferSource);
+            BlockEntityRenderDispatcher.instance.render(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.popPose();
         });
-        TileEntityRendererDispatcher.instance.camera = oldActiveRenderInfo;
-        TileEntityRendererDispatcher.instance.level = oldWorld;
+        BlockEntityRenderDispatcher.instance.camera = oldActiveRenderInfo;
+        BlockEntityRenderDispatcher.instance.level = oldWorld;
 
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities_finish");
         renderBufferSource.endBatch(RenderType.solid());
-        renderBufferSource.endBatch(Atlases.solidBlockSheet());
-        renderBufferSource.endBatch(Atlases.cutoutBlockSheet());
-        renderBufferSource.endBatch(Atlases.bedSheet());
-        renderBufferSource.endBatch(Atlases.shulkerBoxSheet());
-        renderBufferSource.endBatch(Atlases.signSheet());
-        renderBufferSource.endBatch(Atlases.chestSheet());
+        renderBufferSource.endBatch(Sheets.solidBlockSheet());
+        renderBufferSource.endBatch(Sheets.cutoutBlockSheet());
+        renderBufferSource.endBatch(Sheets.bedSheet());
+        renderBufferSource.endBatch(Sheets.shulkerBoxSheet());
+        renderBufferSource.endBatch(Sheets.signSheet());
+        renderBufferSource.endBatch(Sheets.chestSheet());
         if (OptifineCompat.getInstance().isOptifineEnabled())
         {
-            renderBufferSource.endBatch(Atlases.bannerSheet());
+            renderBufferSource.endBatch(Sheets.bannerSheet());
         }
         ClientEventSubscriber.renderBuffers.outlineBufferSource().endOutlineBatch(); // not used now
         OptifineCompat.getInstance().endBlockEntitiesBeginDebug();
 
-        renderBufferSource.endBatch(Atlases.translucentCullBlockSheet());
-        renderBufferSource.endBatch(Atlases.bannerSheet());
-        renderBufferSource.endBatch(Atlases.shieldSheet());
+        renderBufferSource.endBatch(Sheets.translucentCullBlockSheet());
+        renderBufferSource.endBatch(Sheets.bannerSheet());
+        renderBufferSource.endBatch(Sheets.shieldSheet());
         renderBufferSource.endBatch(RenderType.armorGlint());
         renderBufferSource.endBatch(RenderType.armorEntityGlint());
         renderBufferSource.endBatch(RenderType.glint());
@@ -318,13 +322,13 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().preLayerDraw(layerRenderType);
 
         buffer.bind();
-        DefaultVertexFormats.BLOCK.setupBufferState(0);
+        DefaultVertexFormat.BLOCK.setupBufferState(0);
         OptifineCompat.getInstance().setupArrayPointers();
         buffer.draw(rawPosMatrix, layerRenderType.mode());
 
         VertexBuffer.unbind();
         RenderSystem.clearCurrentColor();
-        DefaultVertexFormats.BLOCK.clearBufferState();
+        DefaultVertexFormat.BLOCK.clearBufferState();
 
         OptifineCompat.getInstance().postLayerDraw(layerRenderType);
         layerRenderType.clearRenderState();

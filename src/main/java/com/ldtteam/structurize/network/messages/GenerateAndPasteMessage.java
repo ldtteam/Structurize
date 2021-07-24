@@ -2,11 +2,11 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.management.Manager;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +80,7 @@ public class GenerateAndPasteMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public GenerateAndPasteMessage(final PacketBuffer buf)
+    public GenerateAndPasteMessage(final FriendlyByteBuf buf)
     {
         this.pos = buf.readBlockPos();
         this.length = buf.readInt();
@@ -148,7 +148,7 @@ public class GenerateAndPasteMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
 
         buf.writeBlockPos(pos);

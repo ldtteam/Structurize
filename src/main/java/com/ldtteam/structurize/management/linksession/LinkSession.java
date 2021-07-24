@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.management.linksession;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,9 +103,9 @@ public class LinkSession
      * 
      * @return CompoundNBT: representing this session
      */
-    protected CompoundNBT writeToNBT()
+    protected CompoundTag writeToNBT()
     {
-        final CompoundNBT data = new CompoundNBT();
+        final CompoundTag data = new CompoundTag();
         members.forEach((uuid, name) -> data.putString(uuid.toString(), name));
         return data;
     }
@@ -116,7 +116,7 @@ public class LinkSession
      * @param in CompoundNBT to deserialize
      * @return LinkSession: representing a new session
      */
-    protected static LinkSession createFromNBT(@NotNull final CompoundNBT in)
+    protected static LinkSession createFromNBT(@NotNull final CompoundTag in)
     {
         final LinkSession ls = new LinkSession();
         for(String key : in.getAllKeys())

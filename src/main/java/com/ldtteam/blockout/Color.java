@@ -1,6 +1,6 @@
 package com.ldtteam.blockout;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -97,16 +97,16 @@ public final class Color
 
     public static int rgbaToInt(Matcher m)
     {
-        final int r = MathHelper.clamp(Integer.parseInt(m.group(1)), 0, 255);
-        final int g = MathHelper.clamp(Integer.parseInt(m.group(2)), 0, 255);
-        final int b = MathHelper.clamp(Integer.parseInt(m.group(3)), 0, 255);
-        final int a = MathHelper.clamp((int)Double.parseDouble(m.group(4))*255,0,255);
+        final int r = Mth.clamp(Integer.parseInt(m.group(1)), 0, 255);
+        final int g = Mth.clamp(Integer.parseInt(m.group(2)), 0, 255);
+        final int b = Mth.clamp(Integer.parseInt(m.group(3)), 0, 255);
+        final int a = Mth.clamp((int)Double.parseDouble(m.group(4))*255,0,255);
 
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
-    public static net.minecraft.util.text.Color toVanilla(final int color)
+    public static net.minecraft.network.chat.TextColor toVanilla(final int color)
     {
-        return net.minecraft.util.text.Color.fromRgb(color);
+        return net.minecraft.network.chat.TextColor.fromRgb(color);
     }
 }

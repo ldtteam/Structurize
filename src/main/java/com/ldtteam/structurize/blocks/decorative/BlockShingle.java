@@ -2,21 +2,21 @@ package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.WoodType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.DyeColor;
-import net.minecraft.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.state.properties.StairsShape;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 /**
  * Class defining the general shingle.
  */
-public class BlockShingle extends StairsBlock
+public class BlockShingle extends StairBlock
 {
     /**
      * The hardness this block has.

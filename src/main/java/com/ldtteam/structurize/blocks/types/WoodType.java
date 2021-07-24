@@ -1,16 +1,16 @@
 package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * The different wood types, a more detailed version that Minecraft's own (also adds cacti)
  */
-public enum WoodType implements IStringSerializable
+public enum WoodType implements StringRepresentable
 {
     OAK("oak", Blocks.OAK_PLANKS),
     SPRUCE("spruce", Blocks.SPRUCE_PLANKS),

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.util;
 
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.NotNull;
 
 /**

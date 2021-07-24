@@ -7,13 +7,13 @@ import com.ldtteam.structures.client.BlueprintEntityInfoTransformHandler;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.BlockInfo;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.entity.IAngerable;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
@@ -42,7 +42,7 @@ public final class BlueprintUtils
      * @param access    the world access to assign them to.
      * @return the tileEntity or null.
      */
-    public static TileEntity getTileEntityFromPos(final Blueprint blueprint, final BlockPos pos, final BlueprintBlockAccess access)
+    public static BlockEntity getTileEntityFromPos(final Blueprint blueprint, final BlockPos pos, final BlueprintBlockAccess access)
     {
         final BlockInfo blockInfo = getBlockInfoFromPos(blueprint, pos);
         if (blockInfo.getTileEntityData() != null)
@@ -66,7 +66,7 @@ public final class BlueprintUtils
      * @return A list of tileentities in the blueprint.
      */
     @NotNull
-    public static List<TileEntity> instantiateTileEntities(@NotNull final Blueprint blueprint, @NotNull final BlueprintBlockAccess blockAccess)
+    public static List<BlockEntity> instantiateTileEntities(@NotNull final Blueprint blueprint, @NotNull final BlueprintBlockAccess blockAccess)
     {
         return blueprint.getBlockInfoAsList()
             .stream()
@@ -96,7 +96,7 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static TileEntity constructTileEntity(@NotNull final BlockInfo info, @NotNull final BlueprintBlockAccess blockAccess)
+    private static BlockEntity constructTileEntity(@NotNull final BlockInfo info, @NotNull final BlueprintBlockAccess blockAccess)
     {
         if (info.getTileEntityData() == null) return null;
 
@@ -108,12 +108,12 @@ public final class BlueprintUtils
 
         try
         {
-            final CompoundNBT compound = info.getTileEntityData().copy();
+            final CompoundTag compound = info.getTileEntityData().copy();
             compound.putInt("x", info.getPos().getX());
             compound.putInt("y", info.getPos().getY());
             compound.putInt("z", info.getPos().getZ());
 
-            final TileEntity entity = TileEntity.loadStatic(info.getState(), compound);
+            final BlockEntity entity = BlockEntity.loadStatic(info.getState(), compound);
 
             if (entity != null)
             {
@@ -130,7 +130,7 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static Entity constructEntity(@Nullable final CompoundNBT info, @NotNull final BlueprintBlockAccess blockAccess)
+    private static Entity constructEntity(@Nullable final CompoundTag info, @NotNull final BlueprintBlockAccess blockAccess)
     {
         if (info == null) return null;
 
@@ -144,7 +144,7 @@ public final class BlueprintUtils
 
         try
         {
-            final CompoundNBT compound = info.copy();
+            final CompoundTag compound = info.copy();
             compound.putUUID("UUID", UUID.randomUUID());
             final Optional<EntityType<?>> type = EntityType.by(compound);
             if (type.isPresent())

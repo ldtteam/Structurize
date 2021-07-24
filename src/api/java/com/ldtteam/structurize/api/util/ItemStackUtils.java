@@ -1,19 +1,19 @@
 package com.ldtteam.structurize.api.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ContainerBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.IItemHandler;
@@ -25,7 +25,11 @@ import java.util.stream.Collectors;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.world.phys.HitResult.Type;
+
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Utility methods for the inventories.
@@ -55,16 +59,16 @@ public final class ItemStackUtils
      * @param state the block.
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundNBT compound, final BlockState state)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state)
     {
-        if (state.getBlock() instanceof ContainerBlock && compound.contains("Items"))
+        if (state.getBlock() instanceof BaseEntityBlock && compound.contains("Items"))
         {
             final NonNullList<ItemStack> items = NonNullList.create();
-            ItemStackHelper.loadAllItems(compound, items);
+            ContainerHelper.loadAllItems(compound, items);
             return items;
         }
 
-        final TileEntity tileEntity = TileEntity.loadStatic(state, compound);
+        final BlockEntity tileEntity = BlockEntity.loadStatic(state, compound);
         if (tileEntity == null)
         {
             return Collections.emptyList();
@@ -146,9 +150,9 @@ public final class ItemStackUtils
         if (entity != null)
         {
             final List<ItemStack> request = new ArrayList<>();
-            if (entity instanceof ItemFrameEntity)
+            if (entity instanceof ItemFrame)
             {
-                final ItemStack stack = ((ItemFrameEntity) entity).getItem();
+                final ItemStack stack = ((ItemFrame) entity).getItem();
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     stack.setCount(1);
@@ -156,9 +160,9 @@ public final class ItemStackUtils
                 }
                 request.add(new ItemStack(Items.ITEM_FRAME, 1));
             }
-            else if (entity instanceof ArmorStandEntity)
+            else if (entity instanceof ArmorStand)
             {
-                request.add(entity.getPickedResult(new RayTraceResult(Vector3d.atLowerCornerOf(pos)) {
+                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
                     @NotNull
                     @Override
                     public Type getType()

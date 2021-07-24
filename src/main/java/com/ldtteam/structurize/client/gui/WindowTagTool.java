@@ -9,10 +9,10 @@ import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     /**
      * The current world
      */
-    private World world;
+    private Level world;
 
     /**
      * The anchor pos
@@ -64,7 +64,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     /**
      * Constructor for the skeleton class of the windows.
      */
-    public WindowTagTool(String currentTag, BlockPos anchorPos, final World world, final ItemStack stack)
+    public WindowTagTool(String currentTag, BlockPos anchorPos, final Level world, final ItemStack stack)
     {
         super(Constants.MOD_ID + WINDOW_TAG_TOOL);
         this.world = world;
@@ -107,7 +107,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         int row = tagList.getListElementIndexByPane(button);
         BlockPos toRemove = positionsList.get(row);
 
-        TileEntity te = world.getBlockEntity(anchorPos);
+        BlockEntity te = world.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
         {
             IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
@@ -142,7 +142,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         tagList.enable();
         tagList.show();
 
-        TileEntity te = world.getBlockEntity(anchorPos);
+        BlockEntity te = world.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
         {
             IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
@@ -174,7 +174,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                TileEntity te = world.getBlockEntity(anchorPos);
+                BlockEntity te = world.getBlockEntity(anchorPos);
                 if (te instanceof IBlueprintDataProvider)
                 {
                     IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;

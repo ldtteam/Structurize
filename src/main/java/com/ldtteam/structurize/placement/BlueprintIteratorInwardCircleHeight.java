@@ -2,7 +2,7 @@ package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 /**
  * Iterator which walks the structure from outside in , in a clockwise rotation

@@ -5,11 +5,11 @@ import com.ldtteam.structurize.api.blocks.IBlockCollection;
 import com.ldtteam.structurize.api.generation.ModLanguageProvider;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.ShapelessRecipeBuilder;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class CactusCollection implements IStructurizeBlockCollection
     }
 
     @Override
-    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
+    public void provideMainRecipe(final Consumer<FinishedRecipe> consumer, CriterionTriggerInstance obtainment)
     {
         ShapelessRecipeBuilder.shapeless(getMainBlock(), 4)
           .requires(Blocks.CACTUS)

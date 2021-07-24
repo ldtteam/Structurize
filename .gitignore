@@ -30,3 +30,6 @@
 /src/main/generated/java
 
 /logs/
+
+gradle/local.gradle
+/repo/

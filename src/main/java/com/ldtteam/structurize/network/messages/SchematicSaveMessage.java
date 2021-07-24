@@ -4,9 +4,9 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,7 @@ public class SchematicSaveMessage implements IMessage
     /**
      * Public standard constructor.
      */
-    public SchematicSaveMessage(final PacketBuffer buf)
+    public SchematicSaveMessage(final FriendlyByteBuf buf)
     {
         final int length = buf.readInt();
         final byte[] compressedData = new byte[length];
@@ -75,7 +75,7 @@ public class SchematicSaveMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         final byte[] compressedData = StructureUtils.compress(data);
         if (compressedData != null)
@@ -101,13 +101,13 @@ public class SchematicSaveMessage implements IMessage
     {
         if (isLogicalServer)
         {
-            final PlayerEntity sender = ctxIn.getSender();
+            final Player sender = ctxIn.getSender();
             final UUID senderUuid = sender.getUUID();
 
             if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
             {
                 Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
-                sender.sendMessage(new StringTextComponent("The server does not allow custom schematic!"), senderUuid);
+                sender.sendMessage(new TextComponent("The server does not allow custom schematic!"), senderUuid);
                 return;
             }
 
@@ -115,7 +115,7 @@ public class SchematicSaveMessage implements IMessage
             {
                 Log.getLogger().error("Schematic has more than {} pieces, discarding.", MAX_AMOUNT_OF_PIECES);
                 sender
-                    .sendMessage(new StringTextComponent("Schematic has more than " + MAX_AMOUNT_OF_PIECES + " pieces, that's too big!"), senderUuid);
+                    .sendMessage(new TextComponent("Schematic has more than " + MAX_AMOUNT_OF_PIECES + " pieces, that's too big!"), senderUuid);
                 return;
             }
 
@@ -132,11 +132,11 @@ public class SchematicSaveMessage implements IMessage
 
             if (schematicSent)
             {
-                sender.sendMessage(new StringTextComponent("Schematic successfully sent!"), senderUuid);
+                sender.sendMessage(new TextComponent("Schematic successfully sent!"), senderUuid);
             }
             else
             {
-                sender.sendMessage(new StringTextComponent("Failed to send the Schematic!"), senderUuid);
+                sender.sendMessage(new TextComponent("Failed to send the Schematic!"), senderUuid);
             }
         }
         else

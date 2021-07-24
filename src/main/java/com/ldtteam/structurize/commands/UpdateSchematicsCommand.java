@@ -4,14 +4,14 @@ import com.ldtteam.structurize.Structurize;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.math.BlockPos.Mutable;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 import org.jetbrains.annotations.NotNull;
 import java.io.File;
@@ -26,12 +26,12 @@ public class UpdateSchematicsCommand extends AbstractCommand
 {
     private final static String NAME = "updateschematics";
 
-    protected static LiteralArgumentBuilder<CommandSource> build()
+    protected static LiteralArgumentBuilder<CommandSourceStack> build()
     {
         return newLiteral(NAME).executes(s -> onExecute(s));
     }
 
-    private static int onExecute(final CommandContext<CommandSource> command) throws CommandSyntaxException
+    private static int onExecute(final CommandContext<CommandSourceStack> command) throws CommandSyntaxException
     {
         final File updaterInput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/input");
         final File updaterOutput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/output");
@@ -66,7 +66,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             final File output = new File(globalOutputFolder, input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
             output.getParentFile().mkdirs();
 
-            CompoundNBT blueprint = CompressedStreamTools.readCompressed(Files.newInputStream(input.toPath()));
+            CompoundTag blueprint = NbtIo.readCompressed(Files.newInputStream(input.toPath()));
             if (blueprint == null || blueprint.isEmpty())
             {
                 return;
@@ -75,12 +75,12 @@ public class UpdateSchematicsCommand extends AbstractCommand
             // blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
             // TODO: this! (datafixer)
 
-            final ListNBT blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);
-            final ListNBT pallete = blueprint.getList("palette", NBT.TAG_COMPOUND);
+            final ListTag blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);
+            final ListTag pallete = blueprint.getList("palette", NBT.TAG_COMPOUND);
 
-            final CompoundNBT bluePrintCompound = new CompoundNBT();
+            final CompoundTag bluePrintCompound = new CompoundTag();
 
-            final ListNBT list = blueprint.getList("size", NBT.TAG_INT);
+            final ListTag list = blueprint.getList("size", NBT.TAG_INT);
             final int[] size = new int[] {list.getInt(0), list.getInt(1), list.getInt(2)};
             bluePrintCompound.putShort("size_x", (short) size[0]);
             bluePrintCompound.putShort("size_y", (short) size[1]);
@@ -91,28 +91,28 @@ public class UpdateSchematicsCommand extends AbstractCommand
             if (addStructureVoid)
             {
                 structureVoidID = (short) pallete.size();
-                pallete.add(NBTUtil.writeBlockState(Blocks.STRUCTURE_VOID.defaultBlockState()));
+                pallete.add(NbtUtils.writeBlockState(Blocks.STRUCTURE_VOID.defaultBlockState()));
             }
 
             final Set<String> mods = new HashSet<>();
 
             for (int i = 0; i < pallete.size(); i++)
             {
-                final CompoundNBT blockState = pallete.getCompound(i);
+                final CompoundTag blockState = pallete.getCompound(i);
                 final String modid = blockState.getString("Name").split(":")[0];
                 mods.add(modid);
             }
 
-            final ListNBT requiredMods = new ListNBT();
+            final ListTag requiredMods = new ListTag();
             for (final String str : mods)
             {
-                requiredMods.add(StringNBT.valueOf(str));
+                requiredMods.add(StringTag.valueOf(str));
             }
 
             bluePrintCompound.put("palette", pallete);
             bluePrintCompound.put("required_mods", requiredMods);
 
-            final Mutable pos = new Mutable();
+            final MutableBlockPos pos = new MutableBlockPos();
             final short[][][] dataArray = new short[size[1]][size[2]][size[0]];
 
             if (addStructureVoid)
@@ -129,15 +129,15 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 }
             }
 
-            final ListNBT tileEntities = new ListNBT();
+            final ListTag tileEntities = new ListTag();
             for (int i = 0; i < blocks.size(); i++)
             {
-                final CompoundNBT comp = blocks.getCompound(i);
+                final CompoundTag comp = blocks.getCompound(i);
                 updatePos(pos, comp);
                 dataArray[pos.getY()][pos.getZ()][pos.getX()] = (short) comp.getInt("state");
                 if (comp.contains("nbt"))
                 {
-                    final CompoundNBT te = comp.getCompound("nbt");
+                    final CompoundTag te = comp.getCompound("nbt");
                     te.putShort("x", (short) pos.getX());
                     te.putShort("y", (short) pos.getY());
                     te.putShort("z", (short) pos.getZ());
@@ -147,18 +147,18 @@ public class UpdateSchematicsCommand extends AbstractCommand
 
             bluePrintCompound.putIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
             bluePrintCompound.put("tile_entities", tileEntities);
-            bluePrintCompound.put("architects", new ListNBT());
-            bluePrintCompound.put("name", (StringNBT.valueOf(input.getName().replaceAll("\\.nbt", ""))));
+            bluePrintCompound.put("architects", new ListTag());
+            bluePrintCompound.put("name", (StringTag.valueOf(input.getName().replaceAll("\\.nbt", ""))));
             bluePrintCompound.putInt("version", 1);
 
-            final ListNBT newEntities = new ListNBT();
+            final ListTag newEntities = new ListTag();
             if (blueprint.contains("entities"))
             {
-                final ListNBT entities = blueprint.getList("entities", NBT.TAG_COMPOUND);
+                final ListTag entities = blueprint.getList("entities", NBT.TAG_COMPOUND);
                 for (int i = 0; i < entities.size(); i++)
                 {
-                    final CompoundNBT entityData = entities.getCompound(i);
-                    final CompoundNBT entity = entityData.getCompound("nbt");
+                    final CompoundTag entityData = entities.getCompound(i);
+                    final CompoundTag entity = entityData.getCompound("nbt");
                     entity.put("Pos", entityData.get("pos"));
                     newEntities.add(entity);
                 }
@@ -166,7 +166,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             bluePrintCompound.put("entities", newEntities);
 
             output.createNewFile();
-            CompressedStreamTools.writeCompressed(bluePrintCompound, Files.newOutputStream(output.toPath()));
+            NbtIo.writeCompressed(bluePrintCompound, Files.newOutputStream(output.toPath()));
         }
         catch (final IOException e)
         {
@@ -174,9 +174,9 @@ public class UpdateSchematicsCommand extends AbstractCommand
         }
     }
 
-    private static void updatePos(final Mutable pos, final CompoundNBT comp)
+    private static void updatePos(final MutableBlockPos pos, final CompoundTag comp)
     {
-        final ListNBT list = comp.getList("pos", NBT.TAG_INT);
+        final ListTag list = comp.getList("pos", NBT.TAG_INT);
         pos.set(list.getInt(0), list.getInt(1), list.getInt(2));
     }
 

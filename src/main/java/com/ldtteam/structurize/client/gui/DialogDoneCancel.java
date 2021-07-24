@@ -8,7 +8,7 @@ import com.ldtteam.blockout.views.OverlayView;
 import com.ldtteam.blockout.views.Window;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.function.ObjIntConsumer;
 
@@ -80,7 +80,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      *
      * @return title for the dialog
      */
-    public IFormattableTextComponent getTitleNew()
+    public MutableComponent getTitleNew()
     {
         return titleLabel.getText();
     }
@@ -96,7 +96,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      *
      * @param title for the dialog
      */
-    public void setTitle(final IFormattableTextComponent title)
+    public void setTitle(final MutableComponent title)
     {
         titleLabel.setText(title);
     }

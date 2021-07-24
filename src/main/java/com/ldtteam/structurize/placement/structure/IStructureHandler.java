@@ -7,12 +7,12 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +64,7 @@ public interface IStructureHandler
                 final byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
                 inputStream.close();
                 setMd5(StructureUtils.calculateMD5(data));
-                final CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(new ByteArrayInputStream(data));
+                final CompoundTag CompoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(data));
                 setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
             }
             catch (final IOException e)
@@ -122,7 +122,7 @@ public interface IStructureHandler
      * Get the world from the handler.
      * @return the world.
      */
-    World getWorld();
+    Level getWorld();
 
     /**
      * Get the world position this is placed at.

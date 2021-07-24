@@ -1,7 +1,7 @@
 package com.ldtteam.blockout.views;
 
 import com.ldtteam.blockout.*;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +67,7 @@ public class View extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.pushPose();
@@ -93,7 +93,7 @@ public class View extends Pane
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         // Translate the drawing origin to our x,y.
         ms.pushPose();

@@ -1,7 +1,7 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

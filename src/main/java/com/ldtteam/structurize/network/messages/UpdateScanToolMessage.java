@@ -2,11 +2,11 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class UpdateScanToolMessage implements IMessage
     /**
      * Empty public constructor.
      */
-    public UpdateScanToolMessage(final PacketBuffer buf)
+    public UpdateScanToolMessage(final FriendlyByteBuf buf)
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
@@ -49,16 +49,16 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundNBT compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NBTUtil.writeBlockPos(to));
+            final CompoundTag compound = stack.getOrCreateTag();
+            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
+            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
         }
         this.from = from;
         this.to = to;
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -77,9 +77,9 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = ctxIn.getSender().getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundNBT compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NBTUtil.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NBTUtil.writeBlockPos(to));
+            final CompoundTag compound = stack.getOrCreateTag();
+            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
+            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
         }
     }
 }

@@ -3,15 +3,15 @@ package com.ldtteam.structures.helpers;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * Class used to store.
  */
-public final class Settings implements INBTSerializable<CompoundNBT>
+public final class Settings implements INBTSerializable<CompoundTag>
 {
     /**
      * Single instance of this class.
@@ -518,7 +518,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
     }
 
     @Override
-    public void deserializeNBT(final CompoundNBT nbt)
+    public void deserializeNBT(final CompoundTag nbt)
     {
         isMirrored = nbt.getBoolean("mirror");
         staticSchematicMode = nbt.getBoolean("static");
@@ -543,7 +543,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
 
         if (nbt.contains("pos"))
         {
-            pos = NBTUtil.readBlockPos(nbt.getCompound("pos"));
+            pos = NbtUtils.readBlockPos(nbt.getCompound("pos"));
         }
         else
         {
@@ -552,7 +552,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
 
         if (nbt.contains("box"))
         {
-            box = new Tuple<>(NBTUtil.readBlockPos(nbt.getCompound("box")), NBTUtil.readBlockPos(nbt.getCompound("box2")));
+            box = new Tuple<>(NbtUtils.readBlockPos(nbt.getCompound("box")), NbtUtils.readBlockPos(nbt.getCompound("box2")));
         }
         else
         {
@@ -595,14 +595,14 @@ public final class Settings implements INBTSerializable<CompoundNBT>
 
         if (nbt.contains("anch_pos"))
         {
-            anchorPos = Optional.of(NBTUtil.readBlockPos(nbt.getCompound("anch_pos")));
+            anchorPos = Optional.of(NbtUtils.readBlockPos(nbt.getCompound("anch_pos")));
         }
     }
 
     @Override
-    public CompoundNBT serializeNBT()
+    public CompoundTag serializeNBT()
     {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
 
         nbt.putBoolean("mirror", isMirrored);
         nbt.putBoolean("static", staticSchematicMode);
@@ -623,13 +623,13 @@ public final class Settings implements INBTSerializable<CompoundNBT>
 
         if (pos != null)
         {
-            nbt.put("pos", NBTUtil.writeBlockPos(pos));
+            nbt.put("pos", NbtUtils.writeBlockPos(pos));
         }
 
         if (box != null)
         {
-            nbt.put("box", NBTUtil.writeBlockPos(box.getA()));
-            nbt.put("box2", NBTUtil.writeBlockPos(box.getB()));
+            nbt.put("box", NbtUtils.writeBlockPos(box.getA()));
+            nbt.put("box2", NbtUtils.writeBlockPos(box.getB()));
         }
 
         // strings
@@ -657,7 +657,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
             nbt.putString("equa", equation);
         }
 
-        anchorPos.ifPresent(anch_pos -> nbt.put("anch_pos", NBTUtil.writeBlockPos(anch_pos)));
+        anchorPos.ifPresent(anch_pos -> nbt.put("anch_pos", NbtUtils.writeBlockPos(anch_pos)));
 
         return nbt;
     }

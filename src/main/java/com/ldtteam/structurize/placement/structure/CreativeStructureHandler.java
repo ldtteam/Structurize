@@ -4,10 +4,10 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +32,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param settings the placement settings.
      * @param fancyPlacement if placement is fancy or complete.
      */
-    public CreativeStructureHandler(final World world, final BlockPos pos, final String structureName, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final String structureName, final PlacementSettings settings, final boolean fancyPlacement)
     {
         super(world, pos, structureName, settings);
         this.fancyPlacement = fancyPlacement;
@@ -47,7 +47,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param fancyPlacement if placement is fancy or complete.
 
      */
-    public CreativeStructureHandler(final World world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
     {
         super(world, pos, blueprint, settings);
         this.fancyPlacement = fancyPlacement;

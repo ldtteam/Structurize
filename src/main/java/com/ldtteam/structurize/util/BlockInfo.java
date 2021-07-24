@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,7 +25,7 @@ public class BlockInfo
      * The tileEntity information we need.
      */
     @Nullable
-    private final CompoundNBT tileEntityData;
+    private final CompoundTag tileEntityData;
 
     /**
      * Creator of the block info class.
@@ -34,7 +34,7 @@ public class BlockInfo
      * @param state          the state.
      * @param tileEntityData the tileEntity data.
      */
-    public BlockInfo(final BlockPos pos, @Nullable final BlockState state, @Nullable final CompoundNBT tileEntityData)
+    public BlockInfo(final BlockPos pos, @Nullable final BlockState state, @Nullable final CompoundTag tileEntityData)
     {
         this.pos = pos;
         this.state = state;
@@ -53,7 +53,7 @@ public class BlockInfo
     }
 
     @Nullable
-    public CompoundNBT getTileEntityData()
+    public CompoundTag getTileEntityData()
     {
         return tileEntityData;
     }

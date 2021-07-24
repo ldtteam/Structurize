@@ -7,15 +7,15 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockTimberFrame;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.data.ShapelessRecipeBuilder;
-import net.minecraft.data.TagsProvider;
-import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
@@ -44,8 +44,8 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
     private final List<RegistryObject<BlockTimberFrame>> blocks = new LinkedList<>();
 
     // <centre, pair<tag group, map<wood, tag>>
-    public static final Map<TimberFrameCentreType, Tuple<ITag.INamedTag<Block>, Map<WoodType, ITag.INamedTag<Block>>>> blockTags = new LinkedHashMap<>();
-    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.bind("structurize:timber_frames/timber_frames");
+    public static final Map<TimberFrameCentreType, Tuple<Tag.Named<Block>, Map<WoodType, Tag.Named<Block>>>> blockTags = new LinkedHashMap<>();
+    public static final Tag.Named<Block> BLOCK_TAG = BlockTags.bind("structurize:timber_frames/timber_frames");
 
     TimberFrameType(final String name, final String langName, final boolean rotatable)
     {
@@ -188,7 +188,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
 
             if (!blockTags.containsKey(centre))
             {
-                ITag.INamedTag<Block> tag = blocks.createTag("timber_frames/" + centre.getSerializedName());
+                Tag.Named<Block> tag = blocks.createTag("timber_frames/" + centre.getSerializedName());
                 blockTags.put(centre, new Tuple<>(tag, new LinkedHashMap<>()));
                 blocks.buildTag(BLOCK_TAG).addTag(tag);
             }
@@ -205,7 +205,7 @@ public enum TimberFrameType implements IBlockList<BlockTimberFrame>
         if (this.ordinal() < TimberFrameType.values().length - 1) return;
 
         blockTags.forEach((c, pair) -> {
-            TagsProvider.Builder<Block> builder = blocks.buildTag(pair.getA());
+            TagsProvider.TagAppender<Block> builder = blocks.buildTag(pair.getA());
             pair.getB().values().forEach(builder::addTag);
 
             items.copy(pair.getA());

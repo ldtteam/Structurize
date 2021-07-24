@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Structures;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class StructurizeStylesMessage implements IMessage
         this.md5Map = Structures.getMD5s();
     }
 
-    public StructurizeStylesMessage(final PacketBuffer buf)
+    public StructurizeStylesMessage(final FriendlyByteBuf buf)
     {
         this.md5Map = new HashMap<>();
 
@@ -39,7 +39,7 @@ public class StructurizeStylesMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeInt(md5Map.size());
         for (final Map.Entry<String, String> entry : md5Map.entrySet())

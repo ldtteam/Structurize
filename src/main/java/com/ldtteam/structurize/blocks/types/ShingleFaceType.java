@@ -5,15 +5,15 @@ import com.ldtteam.structurize.api.generation.*;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.decorative.BlockShingle;
 import com.ldtteam.structurize.items.ModItemGroups;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.data.ShapelessRecipeBuilder;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
@@ -39,14 +39,14 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
     GILDED_BLACKSTONE("gilded_blackstone", "Gilded Blackstone", Blocks.GILDED_BLACKSTONE);
 
     private final Map<WoodType, List<RegistryObject<BlockShingle>>> blocks    = new LinkedHashMap<>();
-    private final Map<WoodType, ITag.INamedTag<Block>> blockTags = new LinkedHashMap<>();
+    private final Map<WoodType, Tag.Named<Block>> blockTags = new LinkedHashMap<>();
 
     final String group;
     final String langName;
-    final IItemProvider ingredient;
+    final ItemLike ingredient;
     final DyeColor[] colors;
 
-    ShingleFaceType(final String group, final String langGroup, IItemProvider material, DyeColor... colors)
+    ShingleFaceType(final String group, final String langGroup, ItemLike material, DyeColor... colors)
     {
         this.group = group;
         this.langName = langGroup;
@@ -89,7 +89,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
         return this.langName;
     }
 
-    public IItemProvider getMaterial()
+    public ItemLike getMaterial()
     {
         return ingredient;
     }
@@ -187,7 +187,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
             blocks.buildTag(blockTags.get(block.get().getWoodType())).add(block.get());
         });
 
-        ITag.INamedTag<Block> groupTag = blocks.createTag("shingles/" + getGroup());
+        Tag.Named<Block> groupTag = blocks.createTag("shingles/" + getGroup());
         blockTags.values().forEach(blocks.buildTag(groupTag)::addTag);
         blockTags.values().forEach(items::copy);
 

@@ -4,7 +4,7 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.TriPredicate;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public abstract class AbstractBlueprintIterator
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
-    protected final BlockPos.Mutable progressPos = new BlockPos.Mutable(-1, -1, -1);
+    protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
 
     /**
      * The size of the structure.

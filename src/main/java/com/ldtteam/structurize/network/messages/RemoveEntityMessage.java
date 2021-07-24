@@ -2,11 +2,11 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.management.Manager;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ public class RemoveEntityMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public RemoveEntityMessage(final PacketBuffer buf)
+    public RemoveEntityMessage(final FriendlyByteBuf buf)
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
@@ -58,7 +58,7 @@ public class RemoveEntityMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -81,7 +81,7 @@ public class RemoveEntityMessage implements IMessage
             return;
         }
 
-        final World world = ctxIn.getSender().getLevel();
+        final Level world = ctxIn.getSender().getLevel();
         final ChangeStorage storage = new ChangeStorage(ctxIn.getSender());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
@@ -90,7 +90,7 @@ public class RemoveEntityMessage implements IMessage
                 for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
                     final BlockPos here = new BlockPos(x, y, z);
-                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(here));
+                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
                     storage.addEntities(list);
 
                     for(final Entity entity: list)

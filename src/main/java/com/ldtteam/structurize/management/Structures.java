@@ -6,7 +6,7 @@ import com.ldtteam.structurize.api.util.MathUtils;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
-import net.minecraft.util.ResourceLocationException;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

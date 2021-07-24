@@ -1,8 +1,8 @@
 package com.ldtteam.blockout;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
+import com.mojang.math.Matrix4f;
 
 /**
  * Helpful util methods when using Matrixes
@@ -19,31 +19,31 @@ public class MatrixUtils
     /**
      * @return last matrix X translate value
      */
-    public static int getLastMatrixTranslateXasInt(final MatrixStack matrixStack)
+    public static int getLastMatrixTranslateXasInt(final PoseStack matrixStack)
     {
-        return MathHelper.floor(getLastMatrixTranslateX(matrixStack));
+        return Mth.floor(getLastMatrixTranslateX(matrixStack));
     }
 
     /**
      * @return last matrix Y translate value
      */
-    public static int getLastMatrixTranslateYasInt(final MatrixStack matrixStack)
+    public static int getLastMatrixTranslateYasInt(final PoseStack matrixStack)
     {
-        return MathHelper.floor(getLastMatrixTranslateY(matrixStack));
+        return Mth.floor(getLastMatrixTranslateY(matrixStack));
     }
 
     /**
      * @return last matrix Z translate value
      */
-    public static int getLastMatrixTranslateZasInt(final MatrixStack matrixStack)
+    public static int getLastMatrixTranslateZasInt(final PoseStack matrixStack)
     {
-        return MathHelper.floor(getLastMatrixTranslateZ(matrixStack));
+        return Mth.floor(getLastMatrixTranslateZ(matrixStack));
     }
 
     /**
      * @return last matrix X translate value
      */
-    public static float getLastMatrixTranslateX(final MatrixStack matrixStack)
+    public static float getLastMatrixTranslateX(final PoseStack matrixStack)
     {
         return getMatrixTranslateX(matrixStack.last().pose());
     }
@@ -51,7 +51,7 @@ public class MatrixUtils
     /**
      * @return last matrix Y translate value
      */
-    public static float getLastMatrixTranslateY(final MatrixStack matrixStack)
+    public static float getLastMatrixTranslateY(final PoseStack matrixStack)
     {
         return getMatrixTranslateY(matrixStack.last().pose());
     }
@@ -59,7 +59,7 @@ public class MatrixUtils
     /**
      * @return last matrix Z translate value
      */
-    public static float getLastMatrixTranslateZ(final MatrixStack matrixStack)
+    public static float getLastMatrixTranslateZ(final PoseStack matrixStack)
     {
         return getMatrixTranslateZ(matrixStack.last().pose());
     }

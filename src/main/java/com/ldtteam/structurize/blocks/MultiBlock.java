@@ -2,20 +2,20 @@ package com.ldtteam.structurize.blocks;
 
 import com.ldtteam.structurize.client.gui.WindowMultiBlock;
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 /**
  * This Class is about the MultiBlock which takes care of pushing others around (In a non mean way).
@@ -43,29 +43,29 @@ public class MultiBlock extends Block
     }
 
     @Override
-    public ActionResultType use(
+    public InteractionResult use(
       final BlockState state,
-      final World worldIn,
+      final Level worldIn,
       final BlockPos pos,
-      final PlayerEntity player,
-      final Hand hand,
-      final BlockRayTraceResult ray)
+      final Player player,
+      final InteractionHand hand,
+      final BlockHitResult ray)
     {
         if (worldIn.isClientSide)
         {
             new WindowMultiBlock(pos).open();
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
+    public void neighborChanged(final BlockState state, final Level worldIn, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving)
     {
         if(worldIn.isClientSide)
         {
             return;
         }
-        final TileEntity te = worldIn.getBlockEntity(pos);
+        final BlockEntity te = worldIn.getBlockEntity(pos);
         if(te instanceof TileEntityMultiBlock)
         {
             ((TileEntityMultiBlock) te).handleRedstone(worldIn.hasNeighborSignal(pos));
@@ -80,7 +80,7 @@ public class MultiBlock extends Block
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(final BlockState state, final IBlockReader world)
+    public BlockEntity createTileEntity(final BlockState state, final BlockGetter world)
     {
         return new TileEntityMultiBlock();
     }

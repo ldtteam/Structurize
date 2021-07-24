@@ -5,13 +5,13 @@ import com.ldtteam.structurize.api.generation.*;
 import com.ldtteam.structurize.blocks.decorative.BlockShingleSlab;
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.items.ModItemGroups;
-import net.minecraft.block.Block;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.data.ShapelessRecipeBuilder;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.tags.Tag;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class ShingleSlabList implements IBlockList<BlockShingleSlab>
 {
     public static final Map<ShingleFaceType, List<RegistryObject<BlockShingleSlab>>> SLABS = new HashMap<>();
-    public static final Map<ShingleFaceType, ITag.INamedTag<Block>> blockTags = new HashMap<>();
+    public static final Map<ShingleFaceType, Tag.Named<Block>> blockTags = new HashMap<>();
 
     public ShingleSlabList()
     {

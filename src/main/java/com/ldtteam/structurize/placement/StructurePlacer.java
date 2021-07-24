@@ -11,17 +11,17 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.InventoryUtils;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,6 +29,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Structure placement class that will actually execute the placement of a structure.
@@ -79,7 +86,7 @@ public class StructurePlacer
      * @return the result.
      */
     public StructurePhasePlacementResult executeStructureStep(
-      final World world,
+      final Level world,
       final ChangeStorage storage,
       final BlockPos inputPos,
       final Operation operation,
@@ -138,7 +145,7 @@ public class StructurePlacer
                     break;
                 case WATER_REMOVAL:
                     final BlockState worldState = world.getBlockState(worldPos);
-                    if (worldState.getBlock() instanceof IBucketPickupHandler || worldState.getBlock() instanceof FlowingFluidBlock || !worldState.getFluidState().isEmpty())
+                    if (worldState.getBlock() instanceof BucketPickup || worldState.getBlock() instanceof LiquidBlock || !worldState.getFluidState().isEmpty())
                     {
                         BlockUtils.removeFluid(world, worldPos);
                     }
@@ -187,12 +194,12 @@ public class StructurePlacer
      * @param tileEntityData the tileEntity.
      */
     public BlockPlacementResult handleBlockPlacement(
-      final World world,
+      final Level world,
       final BlockPos worldPos,
       final BlockPos localPos,
       final ChangeStorage storage,
       BlockState localState,
-      final CompoundNBT tileEntityData)
+      final CompoundTag tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
         boolean sameBlockInWorld = worldState.getBlock() == localState.getBlock();
@@ -205,7 +212,7 @@ public class StructurePlacer
             }
         }
 
-        for (final CompoundNBT compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
+        for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
             {
@@ -222,10 +229,10 @@ public class StructurePlacer
                             entity.deserializeNBT(compound);
 
                             entity.setUUID(UUID.randomUUID());
-                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
                             entity.setPos(posInWorld.x, posInWorld.y, posInWorld.z);
 
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {
@@ -236,7 +243,7 @@ public class StructurePlacer
                                 }
                             }
 
-                            if (foundEntity || (entity instanceof MobEntity && !handler.isCreative()))
+                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
                             {
                                 continue;
                             }
@@ -359,11 +366,11 @@ public class StructurePlacer
      * @param tileEntityData the tileEntity.
      */
     public BlockPlacementResult getResourceRequirements(
-      final World world,
+      final Level world,
       final BlockPos worldPos,
       final BlockPos localPos,
       BlockState localState,
-      final CompoundNBT tileEntityData)
+      final CompoundTag tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
         boolean sameBlockInWorld = false;
@@ -373,7 +380,7 @@ public class StructurePlacer
         }
 
         final List<ItemStack> requiredItems = new ArrayList<>();
-        for (final CompoundNBT compound : iterator.getBluePrintPositionInfo(localPos).getEntities())
+        for (final CompoundTag compound : iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
             {
@@ -389,8 +396,8 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            final Vector3d posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AxisAlignedBB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
                             {

@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structurize.api.util.Log;
-import net.minecraft.client.renderer.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -138,7 +138,7 @@ public class OptifineCompat
         beginBlockEntitiesMethod = shadersClass.getMethod("beginBlockEntities");
         beginBlockEntitiesMethod.setAccessible(true);
 
-        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", TileEntity.class);
+        nextBlockEntityMethod = shadersClass.getMethod("nextBlockEntity", BlockEntity.class);
         nextBlockEntityMethod.setAccessible(true);
 
         endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
@@ -245,7 +245,7 @@ public class OptifineCompat
         });
     }
 
-    public void preRenderBlockEntity(final TileEntity blockEntity)
+    public void preRenderBlockEntity(final BlockEntity blockEntity)
     {
         tryRunIfShadersEnabled(() -> {
             nextBlockEntityMethod.invoke(null, blockEntity);

@@ -6,9 +6,9 @@ import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ButtonHandler;
 import com.ldtteam.blockout.controls.Text;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -271,7 +271,7 @@ public class DropDownList extends View implements ButtonHandler
      * @param index   of the item
      * @param label   use for this item
      */
-    private void updateDropDownItem(@NotNull final Pane rowPane, final int index, final IFormattableTextComponent label)
+    private void updateDropDownItem(@NotNull final Pane rowPane, final int index, final MutableComponent label)
     {
         final Button choiceButton = rowPane.findPaneOfTypeByID("button", Button.class);
         if (choiceButton != null)
@@ -280,7 +280,7 @@ public class DropDownList extends View implements ButtonHandler
             final Text idLabel = rowPane.findPaneOfTypeByID("id", Text.class);
             if (idLabel != null)
             {
-                idLabel.setText(new StringTextComponent(Integer.toString(index)));
+                idLabel.setText(new TextComponent(Integer.toString(index)));
             }
             choiceButton.setText(label);
             choiceButton.setHandler(this);
@@ -300,13 +300,13 @@ public class DropDownList extends View implements ButtonHandler
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         button.drawSelf(ms, mx, my);
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         button.drawSelfLast(ms, mx, my);
     }
@@ -343,9 +343,9 @@ public class DropDownList extends View implements ButtonHandler
         @Deprecated
         String getLabel(final int index);
 
-        default IFormattableTextComponent getLabelNew(final int index)
+        default MutableComponent getLabelNew(final int index)
         {
-            return new StringTextComponent(getLabel(index));
+            return new TextComponent(getLabel(index));
         }
     }
 

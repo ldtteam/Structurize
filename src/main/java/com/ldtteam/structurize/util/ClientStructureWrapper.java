@@ -7,8 +7,8 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +36,7 @@ public final class ClientStructureWrapper
      * @param CompoundNBT compound to store.
      * @param fileName       milli seconds for fileName.
      */
-    public static void handleSaveScanMessage(final CompoundNBT CompoundNBT, final String fileName)
+    public static void handleSaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
     {
         final StructureName structureName =
           new StructureName(Structures.SCHEMATICS_SCAN, "new", fileName);
@@ -46,7 +46,7 @@ public final class ClientStructureWrapper
 
         try (final OutputStream outputstream = new FileOutputStream(file))
         {
-            CompressedStreamTools.writeCompressed(CompoundNBT, outputstream);
+            NbtIo.writeCompressed(CompoundNBT, outputstream);
         }
         catch (final IOException e)
         {

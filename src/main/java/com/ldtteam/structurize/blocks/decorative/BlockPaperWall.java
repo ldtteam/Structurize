@@ -1,22 +1,22 @@
 package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.types.WoodType;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PaneBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
 
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 /**
  * The paperwall block class defining the paperwall.
  */
-public class BlockPaperWall extends PaneBlock
+public class BlockPaperWall extends IronBarsBlock
 {
     /**
      * The variants for the paperwall.
@@ -42,7 +42,7 @@ public class BlockPaperWall extends PaneBlock
     }
 
     @Override
-    public BlockState rotate(final BlockState state, final IWorld world, final BlockPos pos, final Rotation direction)
+    public BlockState rotate(final BlockState state, final LevelAccessor world, final BlockPos pos, final Rotation direction)
     {
         switch (direction)
         {
@@ -64,7 +64,7 @@ public class BlockPaperWall extends PaneBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(NORTH, EAST, WEST, SOUTH, VARIANT, WATERLOGGED);
     }
 

@@ -3,7 +3,7 @@ package com.ldtteam.blockout.hooks;
 import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
 import com.ldtteam.blockout.views.ScrollingList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 /**
  * Screen wrapper.
@@ -21,12 +21,12 @@ public class HookScreen extends BOScreen
 
     @Override
     @Deprecated
-    public void render(final MatrixStack ms, final int mx, final int my, final float f)
+    public void render(final PoseStack ms, final int mx, final int my, final float f)
     {
         render(ms);
     }
 
-    public void render(final MatrixStack ms)
+    public void render(final PoseStack ms)
     {
         if (minecraft == null || !isOpen) // should never happen though
         {

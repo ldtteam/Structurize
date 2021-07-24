@@ -3,11 +3,11 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -355,7 +355,7 @@ public class ButtonImage extends Button
      * @param my Mouse y (relative to parent)
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         ResourceLocation bind = image;
         int u = imageOffsetX;
@@ -447,8 +447,8 @@ public class ButtonImage extends Button
      */
     public void setTextOffset(final int textOffsetX, final int textOffsetY)
     {
-        this.textOffsetX = MathHelper.clamp(textOffsetX, 0, width);
-        this.textOffsetY = MathHelper.clamp(textOffsetY, 0, height);
+        this.textOffsetX = Mth.clamp(textOffsetX, 0, width);
+        this.textOffsetY = Mth.clamp(textOffsetY, 0, height);
     }
 
     /**
@@ -460,8 +460,8 @@ public class ButtonImage extends Button
      */
     public void setTextRenderBox(final int textWidth, final int textHeight)
     {
-        this.textWidth = MathHelper.clamp(textWidth, 0, width - textOffsetX);
-        this.textHeight = MathHelper.clamp(textHeight, 0, height - textOffsetY);
+        this.textWidth = Mth.clamp(textWidth, 0, width - textOffsetX);
+        this.textHeight = Mth.clamp(textHeight, 0, height - textOffsetY);
         recalcTextRendering();
     }
 }

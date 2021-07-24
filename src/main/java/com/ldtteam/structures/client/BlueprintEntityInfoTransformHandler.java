@@ -1,6 +1,6 @@
 package com.ldtteam.structures.client;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class BlueprintEntityInfoTransformHandler
         return ourInstance;
     }
 
-    private Map<Predicate<CompoundNBT>, Function<CompoundNBT, CompoundNBT>> entityInfoTransformHandler = new HashMap<>();
+    private Map<Predicate<CompoundTag>, Function<CompoundTag, CompoundTag>> entityInfoTransformHandler = new HashMap<>();
 
     private BlueprintEntityInfoTransformHandler()
     {
@@ -32,7 +32,7 @@ public class BlueprintEntityInfoTransformHandler
      * @param transformPredicate The predicate to check if this transform function needs to be applied.
      * @param transformHandler The tranformer.
      */
-    public void AddTransformHandler(@NotNull final Predicate<CompoundNBT> transformPredicate, @NotNull final Function<CompoundNBT, CompoundNBT> transformHandler)
+    public void AddTransformHandler(@NotNull final Predicate<CompoundTag> transformPredicate, @NotNull final Function<CompoundTag, CompoundTag> transformHandler)
     {
         entityInfoTransformHandler.put(transformPredicate, transformHandler);
     }
@@ -43,12 +43,12 @@ public class BlueprintEntityInfoTransformHandler
      * @param entityInfo The entity info to transform
      * @return The transformed entityinfo.
      */
-    public CompoundNBT Transform(@NotNull final CompoundNBT entityInfo)
+    public CompoundTag Transform(@NotNull final CompoundTag entityInfo)
     {
         return getTransformHandler(entityInfo).apply(entityInfo);
     }
 
-    private Function<CompoundNBT,CompoundNBT> getTransformHandler(@NotNull final CompoundNBT entityInfo)
+    private Function<CompoundTag,CompoundTag> getTransformHandler(@NotNull final CompoundTag entityInfo)
     {
         return entityInfoTransformHandler.keySet().stream().filter(p -> p.test(entityInfo)).findFirst().map(p -> entityInfoTransformHandler.get(p)).orElse(Function.identity());
     }

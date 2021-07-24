@@ -1,8 +1,8 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.View;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -184,7 +184,7 @@ public class PaneParams
      * @param name the name
      * @return the parsed and localized list
      */
-    public List<IFormattableTextComponent> getMultilineText(final String name)
+    public List<MutableComponent> getMultilineText(final String name)
     {
         return getMultilineText(name, Collections.emptyList());
     }
@@ -196,7 +196,7 @@ public class PaneParams
      * @param def the default value if none can be found
      * @return the parsed and localized list
      */
-    public List<IFormattableTextComponent> getMultilineText(final String name, List<IFormattableTextComponent> def)
+    public List<MutableComponent> getMultilineText(final String name, List<MutableComponent> def)
     {
         return getProperty(name, Parsers.MULTILINE, def);
     }
@@ -208,7 +208,7 @@ public class PaneParams
      * @param def the default value if none can be found
      * @return the localized text component.
      */
-    public IFormattableTextComponent getTextComponent(final String name, final IFormattableTextComponent def)
+    public MutableComponent getTextComponent(final String name, final MutableComponent def)
     {
         return getProperty(name, Parsers.TEXT, def);
     }

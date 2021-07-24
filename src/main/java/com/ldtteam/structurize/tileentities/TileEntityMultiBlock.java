@@ -2,33 +2,38 @@ package com.ldtteam.structurize.tileentities;
 
 import com.google.common.primitives.Ints;
 import com.ldtteam.structurize.Structurize;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IBucketPickupHandler;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.*;
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.core.Direction.*;
+
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 
 /**
  * This Class is about the MultiBlock TileEntity which takes care of pushing others around (In a non mean way).
  */
-public class TileEntityMultiBlock extends TileEntity implements ITickableTileEntity
+public class TileEntityMultiBlock extends BlockEntity implements TickableBlockEntity
 {
     /**
      * Max block range.
@@ -187,9 +192,9 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
                         tempState = Block.updateFromNeighbourShapes(tempState, this.level, posToGo);
                         level.setBlock(posToGo, tempState, 67);
-                        if (tempState.getBlock() instanceof IBucketPickupHandler)
+                        if (tempState.getBlock() instanceof BucketPickup)
                         {
-                            ((IBucketPickupHandler) tempState.getBlock()).takeLiquid(level, posToGo, tempState);
+                            ((BucketPickup) tempState.getBlock()).takeLiquid(level, posToGo, tempState);
                         }
                         this.level.neighborChanged(posToGo, tempState.getBlock(), posToGo);
 
@@ -197,10 +202,10 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
                     }
                 }
             }
-            level.playSound((PlayerEntity) null,
+            level.playSound((Player) null,
               worldPosition,
               SoundEvents.PISTON_EXTEND,
-              SoundCategory.BLOCKS,
+              SoundSource.BLOCKS,
               (float) VOLUME,
               (float) PITCH);
             progress++;
@@ -209,7 +214,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     private void pushEntitiesIfNecessary(final BlockPos posToGo, final BlockPos pos)
     {
-        final List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AxisAlignedBB(posToGo));
+        final List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(posToGo));
         final BlockPos vector = posToGo.subtract(pos);
         final BlockPos posTo = posToGo.relative(getNearest(vector.getX(), vector.getY(), vector.getZ()));
         for (final Entity entity : entities)
@@ -341,7 +346,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void load(final BlockState blockState, final CompoundNBT compound)
+    public void load(final BlockState blockState, final CompoundTag compound)
     {
         super.load(blockState, compound);
 
@@ -362,7 +367,7 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
 
     @NotNull
     @Override
-    public CompoundNBT save(final CompoundNBT compound)
+    public CompoundTag save(final CompoundTag compound)
     {
         super.save(compound);
         compound.putInt(TAG_RANGE, range);
@@ -379,30 +384,30 @@ public class TileEntityMultiBlock extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public void handleUpdateTag(final BlockState blockState, final CompoundNBT tag)
+    public void handleUpdateTag(final BlockState blockState, final CompoundTag tag)
     {
         this.load(blockState, tag);
     }
 
     @Override
-    public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt)
+    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket pkt)
     {
         this.load(Structurize.proxy.getBlockStateFromWorld(pkt.getPos()), pkt.getTag());
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket()
+    public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         this.save(nbt);
 
-        return new SUpdateTileEntityPacket(this.getBlockPos(), 0, nbt);
+        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, nbt);
     }
 
     @NotNull
     @Override
-    public CompoundNBT getUpdateTag()
+    public CompoundTag getUpdateTag()
     {
-        return save(new CompoundNBT());
+        return save(new CompoundTag());
     }
 }

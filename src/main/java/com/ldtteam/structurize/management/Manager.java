@@ -8,16 +8,16 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.DimensionSavedDataManager;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -62,7 +62,7 @@ public final class Manager
      *
      * @param world the world which is ticking.
      */
-    public static void onWorldTick(final ServerWorld world)
+    public static void onWorldTick(final ServerLevel world)
     {
         if (!scanToolOperationPool.isEmpty())
         {
@@ -121,7 +121,7 @@ public final class Manager
      * @param rotation       the rotation.
      */
     public static void pasteStructure(
-      final ServerWorld server,
+      final ServerLevel server,
       final BlockPos pos,
       final int width,
       final int length,
@@ -132,7 +132,7 @@ public final class Manager
       final ItemStack inputBlock,
       final ItemStack inputFillBlock,
       final boolean hollow,
-      final ServerPlayerEntity player,
+      final ServerPlayer player,
       final Mirror mirror,
       final Rotation rotation)
     {
@@ -478,7 +478,7 @@ public final class Manager
      *
      * @param player the player who made it.
      */
-    public static void undo(final PlayerEntity player)
+    public static void undo(final Player player)
     {
         final Iterable<ChangeStorage> iterable = () -> changeQueue.iterator();
         final Stream<ChangeStorage> storageStream = StreamSupport.stream(iterable.spliterator(), false);
@@ -511,7 +511,7 @@ public final class Manager
      */
     private static UUID generateOrRetrieveUUID()
     {
-        final DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
+        final DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
         final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage.DATA_NAME);
         if (serverUUID == null)
         {

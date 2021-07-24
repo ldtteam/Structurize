@@ -4,9 +4,9 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.ClientStructureWrapper;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -22,18 +22,18 @@ public class SaveScanMessage implements IMessage
     private static final String TAG_MILLIS    = "millies";
     public static final  String TAG_SCHEMATIC = "schematic";
 
-    private CompoundNBT compoundNBT;
+    private CompoundTag compoundNBT;
     private String      fileName;
 
     /**
      * Public standard constructor.
      */
-    public SaveScanMessage(final PacketBuffer buf)
+    public SaveScanMessage(final FriendlyByteBuf buf)
     {
-        final PacketBuffer buffer = new PacketBuffer(buf);
+        final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
-            final CompoundNBT wrapperCompound = CompressedStreamTools.readCompressed(stream);
+            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream);
             this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
             this.fileName = wrapperCompound.getString(TAG_MILLIS);
         }
@@ -53,23 +53,23 @@ public class SaveScanMessage implements IMessage
      * @param CompoundNBT the stream.
      * @param fileName  String with the name of the file.
      */
-    public SaveScanMessage(final CompoundNBT CompoundNBT, final String fileName)
+    public SaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
     {
         this.fileName = fileName;
         this.compoundNBT = CompoundNBT;
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
-        final CompoundNBT wrapperCompound = new CompoundNBT();
+        final CompoundTag wrapperCompound = new CompoundTag();
         wrapperCompound.putString(TAG_MILLIS, fileName);
         wrapperCompound.put(TAG_SCHEMATIC, compoundNBT);
 
-        final PacketBuffer buffer = new PacketBuffer(buf);
+        final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))
         {
-            CompressedStreamTools.writeCompressed(wrapperCompound, stream);
+            NbtIo.writeCompressed(wrapperCompound, stream);
         }
         catch (final IOException e)
         {

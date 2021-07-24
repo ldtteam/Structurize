@@ -4,20 +4,20 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.HangingEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.nbt.*;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.datafix.TypeReferences;
-import net.minecraft.util.datafix.fixes.ChunkPaletteFormat;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.SharedConstants;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
@@ -53,7 +53,7 @@ public class BlueprintUtil
      * @return the generated Blueprint
      */
     public static Blueprint createBlueprint(
-      World world,
+      Level world,
       BlockPos pos,
       final boolean saveEntities,
       short sizeX,
@@ -66,7 +66,7 @@ public class BlueprintUtil
         // Allways add AIR to Pallete
         pallete.add(Blocks.AIR.defaultBlockState());
         final short[][][] structure = new short[sizeY][sizeZ][sizeX];
-        final List<CompoundNBT> tileEntities = new ArrayList<>();
+        final List<CompoundTag> tileEntities = new ArrayList<>();
 
         final List<String> requiredMods = new ArrayList<>();
 
@@ -91,10 +91,10 @@ public class BlueprintUtil
                 }
             }
 
-            final TileEntity te = world.getBlockEntity(mutablePos);
+            final BlockEntity te = world.getBlockEntity(mutablePos);
             if (te != null)
             {
-                CompoundNBT teTag = te.serializeNBT();
+                CompoundTag teTag = te.serializeNBT();
                 teTag.putShort("x", x);
                 teTag.putShort("y", y);
                 teTag.putShort("z", z);
@@ -107,26 +107,26 @@ public class BlueprintUtil
             structure[y][z][x] = (short) pallete.indexOf(state);
         }
 
-        final CompoundNBT[] tes = tileEntities.toArray(new CompoundNBT[0]);
+        final CompoundTag[] tes = tileEntities.toArray(new CompoundTag[0]);
 
-        final List<CompoundNBT> entitiesTag = new ArrayList<>();
+        final List<CompoundTag> entitiesTag = new ArrayList<>();
 
         List<Entity> entities = new ArrayList<>();
         if (saveEntities)
         {
             entities = world.getEntities(null,
-              new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
+              new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
         }
 
         for (final Entity entity : entities)
         {
-            final Vector3d oldPos = entity.position();
-            final CompoundNBT entityTag = entity.serializeNBT();
+            final Vec3 oldPos = entity.position();
+            final CompoundTag entityTag = entity.serializeNBT();
 
-            final ListNBT posList = new ListNBT();
-            posList.add(DoubleNBT.valueOf(oldPos.x - pos.getX()));
-            posList.add(DoubleNBT.valueOf(oldPos.y - pos.getY()));
-            posList.add(DoubleNBT.valueOf(oldPos.z - pos.getZ()));
+            final ListTag posList = new ListTag();
+            posList.add(DoubleTag.valueOf(oldPos.x - pos.getX()));
+            posList.add(DoubleTag.valueOf(oldPos.y - pos.getY()));
+            posList.add(DoubleTag.valueOf(oldPos.z - pos.getZ()));
 
             BlockPos entityPos = entity.blockPosition();
             if (entity instanceof HangingEntity)
@@ -134,14 +134,14 @@ public class BlueprintUtil
                 entityPos = ((HangingEntity) entity).getPos();
             }
             entityTag.put("Pos", posList);
-            entityTag.put("TileX", IntNBT.valueOf(entityPos.getX() - pos.getX()));
-            entityTag.put("TileY", IntNBT.valueOf(entityPos.getY() - pos.getY()));
-            entityTag.put("TileZ", IntNBT.valueOf(entityPos.getZ() - pos.getZ()));
+            entityTag.put("TileX", IntTag.valueOf(entityPos.getX() - pos.getX()));
+            entityTag.put("TileY", IntTag.valueOf(entityPos.getY() - pos.getY()));
+            entityTag.put("TileZ", IntTag.valueOf(entityPos.getZ() - pos.getZ()));
             entitiesTag.add(entityTag);
         }
 
         final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods);
-        schem.setEntities(entitiesTag.toArray(new CompoundNBT[0]));
+        schem.setEntities(entitiesTag.toArray(new CompoundTag[0]));
 
         if (anchorPos.isPresent())
         {
@@ -151,10 +151,10 @@ public class BlueprintUtil
         }
 
         // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
-        final TileEntity tile = world.getBlockEntity(pos.offset(schem.getPrimaryBlockOffset()));
+        final BlockEntity tile = world.getBlockEntity(pos.offset(schem.getPrimaryBlockOffset()));
         if (tile instanceof IBlueprintDataProvider)
         {
-            final CompoundNBT blueprintData = (CompoundNBT) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
+            final CompoundTag blueprintData = (CompoundTag) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
 
             if (name != null)
             {
@@ -171,7 +171,7 @@ public class BlueprintUtil
 
             if (!world.isClientSide)
             {
-                ((ServerWorld) world).getChunkSource().blockChanged(pos);
+                ((ServerLevel) world).getChunkSource().blockChanged(pos);
             }
         }
 
@@ -189,9 +189,9 @@ public class BlueprintUtil
      * @param schem The Blueprint to serialize
      * @return An CompoundNBT containing the Blueprint Data
      */
-    public static CompoundNBT writeBlueprintToNBT(final Blueprint schem)
+    public static CompoundTag writeBlueprintToNBT(final Blueprint schem)
     {
-        final CompoundNBT tag = new CompoundNBT();
+        final CompoundTag tag = new CompoundTag();
         // Set Blueprint Version
         tag.putByte("version", (byte) 1);
         // Set Blueprint Size
@@ -201,10 +201,10 @@ public class BlueprintUtil
 
         // Create Pallete
         final BlockState[] palette = schem.getPalette();
-        final ListNBT paletteTag = new ListNBT();
+        final ListTag paletteTag = new ListTag();
         for (short i = 0; i < schem.getPalleteSize(); i++)
         {
-            paletteTag.add(NBTUtil.writeBlockState(palette[i]));
+            paletteTag.add(NbtUtils.writeBlockState(palette[i]));
         }
         tag.put("palette", paletteTag);
 
@@ -213,28 +213,28 @@ public class BlueprintUtil
         tag.putIntArray("blocks", blockInt);
 
         // Adding Tile Entities
-        final ListNBT finishedTes = new ListNBT();
-        final CompoundNBT[] tes = Arrays.stream(schem.getTileEntities())
+        final ListTag finishedTes = new ListTag();
+        final CompoundTag[] tes = Arrays.stream(schem.getTileEntities())
                                     .flatMap(Arrays::stream)
                                     .flatMap(Arrays::stream)
                                     .filter(Objects::nonNull)
-                                    .toArray(CompoundNBT[]::new);
+                                    .toArray(CompoundTag[]::new);
         finishedTes.addAll(Arrays.asList(tes));
         tag.put("tile_entities", finishedTes);
 
         // Adding Entities
-        final ListNBT finishedEntities = new ListNBT();
-        final CompoundNBT[] entities = schem.getEntities();
+        final ListTag finishedEntities = new ListTag();
+        final CompoundTag[] entities = schem.getEntities();
         finishedEntities.addAll(Arrays.asList(entities));
         tag.put("entities", finishedEntities);
 
         // Adding Required Mods
         final List<String> requiredMods = schem.getRequiredMods();
-        final ListNBT modsList = new ListNBT();
+        final ListTag modsList = new ListTag();
         for (String requiredMod : requiredMods)
         {
             // modsList.set(i,);
-            modsList.add(StringNBT.valueOf(requiredMod));
+            modsList.add(StringTag.valueOf(requiredMod));
         }
         tag.put("required_mods", modsList);
 
@@ -247,18 +247,18 @@ public class BlueprintUtil
         }
         if (architects != null)
         {
-            final ListNBT architectsTag = new ListNBT();
+            final ListTag architectsTag = new ListTag();
             for (final String architect : architects)
             {
-                architectsTag.add(StringNBT.valueOf(architect));
+                architectsTag.add(StringTag.valueOf(architect));
             }
             tag.put("architects", architectsTag);
         }
 
-        tag.put("mcversion", IntNBT.valueOf(SharedConstants.getCurrentVersion().getWorldVersion()));
+        tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getWorldVersion()));
 
-        final CompoundNBT optionalTag = new CompoundNBT();
-        final CompoundNBT structurizeTag = new CompoundNBT();
+        final CompoundTag optionalTag = new CompoundTag();
+        final CompoundTag structurizeTag = new CompoundTag();
 
         BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset());
 
@@ -268,17 +268,17 @@ public class BlueprintUtil
         return tag;
     }
 
-    private static List<BlockState> fixPalette(final int oldDataVersion, final ListNBT paletteTag)
+    private static List<BlockState> fixPalette(final int oldDataVersion, final ListTag paletteTag)
     {
         final short paletteSize = (short) paletteTag.size();
         final List<BlockState> palette = new ArrayList<>();
 
         for (short i = 0; i < paletteSize; i++)
         {
-            final CompoundNBT nbt = paletteTag.getCompound(i);
+            final CompoundTag nbt = paletteTag.getCompound(i);
             try
             {
-                final CompoundNBT fixedNbt = DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_STATE, oldDataVersion);
+                final CompoundTag fixedNbt = DataFixerUtils.runDataFixer(nbt, References.BLOCK_STATE, oldDataVersion);
 
                 switch (oldDataVersion)
                 {
@@ -289,7 +289,7 @@ public class BlueprintUtil
                         break;
                 }
 
-                final BlockState state = NBTUtil.readBlockState(fixedNbt);
+                final BlockState state = NbtUtils.readBlockState(fixedNbt);
                 palette.add(i, state);
             }
             catch (final Exception e)
@@ -302,7 +302,7 @@ public class BlueprintUtil
         return palette;
     }
 
-    private static void fixPalette1343(final CompoundNBT oldBlockState)
+    private static void fixPalette1343(final CompoundTag oldBlockState)
     {
         final String name = oldBlockState.getString("Name");
         oldBlockState.putString("Name", oldBlockState.getString("Name").toLowerCase(Locale.US));
@@ -344,13 +344,13 @@ public class BlueprintUtil
         }
     }
 
-    private static CompoundNBT[] fixTileEntities(final int oldDataVersion, final ListNBT tileEntitiesTag)
+    private static CompoundTag[] fixTileEntities(final int oldDataVersion, final ListTag tileEntitiesTag)
     {
-        final CompoundNBT[] tileEntities = new CompoundNBT[tileEntitiesTag.size()];
+        final CompoundTag[] tileEntities = new CompoundTag[tileEntitiesTag.size()];
 
         for (short i = 0; i < tileEntities.length; i++)
         {
-            final CompoundNBT nbt = tileEntitiesTag.getCompound(i);
+            final CompoundTag nbt = tileEntitiesTag.getCompound(i);
 
             try
             {
@@ -371,7 +371,7 @@ public class BlueprintUtil
                 }
 
                 tileEntities[i] = id.startsWith("minecraft:")
-                                    ? DataFixerUtils.runDataFixer(nbt, TypeReferences.BLOCK_ENTITY, oldDataVersion)
+                                    ? DataFixerUtils.runDataFixer(nbt, References.BLOCK_ENTITY, oldDataVersion)
                                     : nbt;
             }
             catch (Exception e)
@@ -384,19 +384,19 @@ public class BlueprintUtil
         return tileEntities;
     }
 
-    private static CompoundNBT[] fixEntities(final int oldDataVersion, final ListNBT entitiesTag)
+    private static CompoundTag[] fixEntities(final int oldDataVersion, final ListTag entitiesTag)
     {
-        final CompoundNBT[] entities = new CompoundNBT[entitiesTag.size()];
+        final CompoundTag[] entities = new CompoundTag[entitiesTag.size()];
 
         for (short i = 0; i < entities.length; i++)
         {
-            final CompoundNBT nbt = entitiesTag.getCompound(i);
+            final CompoundTag nbt = entitiesTag.getCompound(i);
 
             try
             {
                 final String id = nbt.getString("id");
 
-                entities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, TypeReferences.ENTITY, oldDataVersion) : nbt;
+                entities[i] = id.startsWith("minecraft:") ? DataFixerUtils.runDataFixer(nbt, References.ENTITY, oldDataVersion) : nbt;
             }
             catch (Exception e)
             {
@@ -430,12 +430,12 @@ public class BlueprintUtil
         return result;
     }
 
-    private static Map<Integer, BlockPos> searchForTEposInTEs(final List<BlockPos> blockPosToFind, final CompoundNBT[] tileEntities)
+    private static Map<Integer, BlockPos> searchForTEposInTEs(final List<BlockPos> blockPosToFind, final CompoundTag[] tileEntities)
     {
         final Map<Integer, BlockPos> result = new HashMap<>();
         for (int i = 0; i < tileEntities.length; i++)
         {
-            final CompoundNBT compound = tileEntities[i];
+            final CompoundTag compound = tileEntities[i];
             if (compound != null)
             {
                 final BlockPos bp = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
@@ -451,9 +451,9 @@ public class BlueprintUtil
     private static void teToBlockStateFix(
       final List<BlockState> palette,
       final short[][][] blocks,
-      final CompoundNBT[] tileEntities,
+      final CompoundTag[] tileEntities,
       final short paletteIndex,
-      final Function<CompoundNBT, CompoundNBT> dataFixer)
+      final Function<CompoundTag, CompoundTag> dataFixer)
     {
         final Map<Integer, BlockPos> teToReplace = searchForTEposInTEs(searchForBlockIdInBlocks(paletteIndex, blocks), tileEntities);
         final Map<BlockState, Short> newBlocksToBlockId = new HashMap<>();
@@ -462,10 +462,10 @@ public class BlueprintUtil
         palette.set(paletteIndex, null);
         for (final Map.Entry<Integer, BlockPos> e : teToReplace.entrySet())
         {
-            final CompoundNBT teCompound = tileEntities[e.getKey()];
+            final CompoundTag teCompound = tileEntities[e.getKey()];
             tileEntities[e.getKey()] = null;
-            final CompoundNBT newBScompound = dataFixer.apply(teCompound);
-            final BlockState newBlockState = NBTUtil.readBlockState(newBScompound);
+            final CompoundTag newBScompound = dataFixer.apply(teCompound);
+            final BlockState newBlockState = NbtUtils.readBlockState(newBScompound);
             final short newBlockId = paletteFull ? newBlocksToBlockId.getOrDefault(newBlockState, (short) palette.size()) : paletteIndex;
             if (newBlockId == palette.size())
             {
@@ -485,8 +485,8 @@ public class BlueprintUtil
     private static void fixCross1343(
       final List<BlockState> palette,
       final short[][][] blocks,
-      final CompoundNBT[] tileEntities,
-      final CompoundNBT[] entities)
+      final CompoundTag[] tileEntities,
+      final CompoundTag[] entities)
     {
         final int oldSize = palette.size();
         for (short i = 0; i < oldSize; i++)
@@ -496,8 +496,8 @@ public class BlueprintUtil
             {
                 teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
                     final String type = teCompound.getString("Item") + teCompound.getInt("Data");
-                    return (CompoundNBT) ChunkPaletteFormat.FLOWER_POT_MAP
-                                           .getOrDefault(type, ChunkPaletteFormat.FLOWER_POT_MAP.get("minecraft:air0"))
+                    return (CompoundTag) ChunkPalettedStorageFix.FLOWER_POT_MAP
+                                           .getOrDefault(type, ChunkPalettedStorageFix.FLOWER_POT_MAP.get("minecraft:air0"))
                                            .getValue();
                 });
             }
@@ -506,8 +506,8 @@ public class BlueprintUtil
                 teToBlockStateFix(palette, blocks, tileEntities, i, teCompound -> {
                     final String type = Boolean.toString(teCompound.getBoolean("powered"))
                                           + (byte) Math.min(Math.max(teCompound.getInt("note"), 0), 24);
-                    return (CompoundNBT) ChunkPaletteFormat.NOTE_BLOCK_MAP
-                                           .getOrDefault(type, ChunkPaletteFormat.NOTE_BLOCK_MAP.get("false0"))
+                    return (CompoundTag) ChunkPalettedStorageFix.NOTE_BLOCK_MAP
+                                           .getOrDefault(type, ChunkPalettedStorageFix.NOTE_BLOCK_MAP.get("false0"))
                                            .getValue();
                 });
             }
@@ -520,9 +520,9 @@ public class BlueprintUtil
      * @param nbtTag The CompoundNBT containing the Blueprint Data
      * @return A desserialized Blueprint
      */
-    public static Blueprint readBlueprintFromNBT(final CompoundNBT nbtTag)
+    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag)
     {
-        final CompoundNBT tag = nbtTag;
+        final CompoundTag tag = nbtTag;
         byte version = tag.getByte("version");
         if (version == 1)
         {
@@ -531,7 +531,7 @@ public class BlueprintUtil
             // Reading required Mods
             List<String> requiredMods = new ArrayList<>();
             List<String> missingMods = new ArrayList<>();
-            ListNBT modsList = (ListNBT) tag.get("required_mods");
+            ListTag modsList = (ListTag) tag.get("required_mods");
             short modListSize = (short) modsList.size();
             for (int i = 0; i < modListSize; i++)
             {
@@ -546,17 +546,17 @@ public class BlueprintUtil
             final int oldDataVersion = tag.contains("mcversion") ? tag.getInt("mcversion") : DEFAULT_FIXER_IF_NOT_FOUND;
 
             // Reading Pallete
-            ListNBT paletteTag = (ListNBT) tag.get("palette");
+            ListTag paletteTag = (ListTag) tag.get("palette");
             List<BlockState> palette = fixPalette(oldDataVersion, paletteTag);
 
             // Reading Blocks
             short[][][] blocks = convertSaveDataToBlocks(tag.getIntArray("blocks"), sizeX, sizeY, sizeZ);
 
             // Reading Tile Entities
-            CompoundNBT[] tileEntities = fixTileEntities(oldDataVersion, (ListNBT) tag.get("tile_entities"));
+            CompoundTag[] tileEntities = fixTileEntities(oldDataVersion, (ListTag) tag.get("tile_entities"));
 
             // Reading Entities
-            CompoundNBT[] entities = fixEntities(oldDataVersion, (ListNBT) tag.get("entities"));
+            CompoundTag[] entities = fixEntities(oldDataVersion, (ListTag) tag.get("entities"));
 
             if (oldDataVersion == DEFAULT_FIXER_IF_NOT_FOUND)
             {
@@ -574,7 +574,7 @@ public class BlueprintUtil
             }
             if (tag.getAllKeys().contains("architects"))
             {
-                ListNBT architectsTag = (ListNBT) tag.get("architects");
+                ListTag architectsTag = (ListTag) tag.get("architects");
                 String[] architects = new String[architectsTag.size()];
                 for (int i = 0; i < architectsTag.size(); i++)
                 {
@@ -585,10 +585,10 @@ public class BlueprintUtil
 
             if (tag.getAllKeys().contains(NBT_OPTIONAL_DATA_TAG))
             {
-                final CompoundNBT optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
+                final CompoundTag optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
                 if (optionalTag.getAllKeys().contains(MOD_ID))
                 {
-                    final CompoundNBT structurizeTag = optionalTag.getCompound(MOD_ID);
+                    final CompoundTag structurizeTag = optionalTag.getCompound(MOD_ID);
                     BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
                     schem.setCachePrimaryOffset(offsetPos);
                 }
@@ -609,7 +609,7 @@ public class BlueprintUtil
     {
         try
         {
-            CompressedStreamTools.writeCompressed(writeBlueprintToNBT(schem), os);
+            NbtIo.writeCompressed(writeBlueprintToNBT(schem), os);
         }
         catch (IOException e)
         {

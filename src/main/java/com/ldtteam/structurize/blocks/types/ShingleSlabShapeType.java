@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks.types;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  *
  *  -> gradle runData <-
  */
-public enum ShingleSlabShapeType implements IStringSerializable
+public enum ShingleSlabShapeType implements StringRepresentable
 {
     TOP("top"),
     ONE_WAY("one_way"),

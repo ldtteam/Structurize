@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.api.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,14 +18,14 @@ public class PositionStorage
      * The tileEntity at a position.
      */
     @Nullable
-    private final TileEntity entity;
+    private final BlockEntity entity;
 
     /**
      * Constructor for the storage.
      * @param state the state.
      * @param entity the entity.
      */
-    public PositionStorage(final BlockState state, @Nullable final TileEntity entity)
+    public PositionStorage(final BlockState state, @Nullable final BlockEntity entity)
     {
         this.state = state;
         this.entity = entity;
@@ -45,7 +45,7 @@ public class PositionStorage
      * @return the TileEntity.
      */
     @Nullable
-    public TileEntity getEntity()
+    public BlockEntity getEntity()
     {
         return entity;
     }

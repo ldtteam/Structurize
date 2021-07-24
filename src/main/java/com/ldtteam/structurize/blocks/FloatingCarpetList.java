@@ -6,17 +6,17 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.decorative.BlockFloatingCarpet;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.data.ShapelessRecipeBuilder;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.Tags;
@@ -27,8 +27,8 @@ import java.util.List;
 
 public class FloatingCarpetList implements IBlockList<BlockFloatingCarpet>
 {
-    public static final ITag.INamedTag<Block>               BLOCK_TAG = BlockTags.bind("structurize:floating_carpets");
-    public static final ITag.INamedTag<Item>                ITEM_TAG  = ItemTags.bind("structurize:floating_carpets");
+    public static final Tag.Named<Block>               BLOCK_TAG = BlockTags.bind("structurize:floating_carpets");
+    public static final Tag.Named<Item>                ITEM_TAG  = ItemTags.bind("structurize:floating_carpets");
     private final List<RegistryObject<BlockFloatingCarpet>> blocks    = new LinkedList<>();
 
     public FloatingCarpetList()

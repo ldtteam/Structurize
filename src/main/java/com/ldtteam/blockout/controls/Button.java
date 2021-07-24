@@ -3,8 +3,8 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -82,7 +82,7 @@ public abstract class Button extends AbstractTextElement
     @Override
     public boolean handleClick(final double mx, final double my)
     {
-        mc.getSoundManager().play(SimpleSound.forMusic(SoundEvents.UI_BUTTON_CLICK));
+        mc.getSoundManager().play(SimpleSoundInstance.forMusic(SoundEvents.UI_BUTTON_CLICK));
 
         ButtonHandler delegatedHandler = handler;
 

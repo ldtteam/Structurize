@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.tileentities.TileEntityMultiBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ public class MultiBlockChangeMessage implements IMessage
     /**
      * Empty public constructor.
      */
-    public MultiBlockChangeMessage(final PacketBuffer buf)
+    public MultiBlockChangeMessage(final FriendlyByteBuf buf)
     {
         this.pos = buf.readBlockPos();
         this.direction = Direction.values()[buf.readInt()];
@@ -71,7 +71,7 @@ public class MultiBlockChangeMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final PacketBuffer buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(pos);
         buf.writeInt(direction.ordinal());
@@ -90,8 +90,8 @@ public class MultiBlockChangeMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        final World world = ctxIn.getSender().getLevel();
-        final TileEntity entity = world.getBlockEntity(pos);
+        final Level world = ctxIn.getSender().getLevel();
+        final BlockEntity entity = world.getBlockEntity(pos);
         if (entity instanceof TileEntityMultiBlock)
         {
             ((TileEntityMultiBlock) entity).setDirection(direction);

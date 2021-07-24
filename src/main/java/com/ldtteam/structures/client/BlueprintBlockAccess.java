@@ -4,46 +4,46 @@ import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.*;
-import net.minecraft.world.Explosion.Mode;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.chunk.AbstractChunkProvider;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.Heightmap.Type;
+import net.minecraft.world.level.Explosion.BlockInteraction;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.lighting.WorldLightManager;
-import net.minecraft.world.storage.ISpawnWorldInfo;
-import net.minecraft.world.storage.IWorldInfo;
-import net.minecraft.world.storage.MapData;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,10 +55,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.TickList;
+
 /**
  * Our world/blockAccess dummy.
  */
-public class BlueprintBlockAccess extends World
+public class BlueprintBlockAccess extends Level
 {
     private static final Scoreboard SCOREBOARD = new Scoreboard();
 
@@ -74,7 +80,7 @@ public class BlueprintBlockAccess extends World
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super((ISpawnWorldInfo) getWorld().getLevelData(),
+        super((WritableLevelData) getWorld().getLevelData(),
             getWorld().dimension(),
             getWorld().dimensionType(),
             () -> getWorld().getProfiler(),
@@ -84,7 +90,7 @@ public class BlueprintBlockAccess extends World
         this.blueprint = blueprint;
     }
 
-    public static World getWorld() {
+    public static Level getWorld() {
         return Minecraft.getInstance().level;
     }
 
@@ -100,7 +106,7 @@ public class BlueprintBlockAccess extends World
 
     @Nullable
     @Override
-    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
+    public BlockEntity getBlockEntity(@NotNull final BlockPos pos)
     {
         return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
@@ -124,7 +130,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public IChunk getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull)
+    public ChunkAccess getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull)
     {
         return new BlueprintChunk(this, x, z);
     }
@@ -142,7 +148,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getBrightness(@NotNull final LightType lightType, @NotNull final BlockPos pos)
+    public int getBrightness(@NotNull final LightLayer lightType, @NotNull final BlockPos pos)
     {
         return 15;
     }
@@ -199,13 +205,13 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void addAllPendingBlockEntities(Collection<TileEntity> tileEntityCollection)
+    public void addAllPendingBlockEntities(Collection<BlockEntity> tileEntityCollection)
     {
         // Noop
     }
 
     @Override
-    public boolean addBlockEntity(TileEntity tile)
+    public boolean addBlockEntity(BlockEntity tile)
     {
         // Noop
         return false;
@@ -230,7 +236,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Explosion explode(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, Mode modeIn)
+    public Explosion explode(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, BlockInteraction modeIn)
     {
         // Noop
         return null;
@@ -243,7 +249,7 @@ public class BlueprintBlockAccess extends World
         double zIn,
         float explosionRadius,
         boolean causesFire,
-        Mode modeIn)
+        BlockInteraction modeIn)
     {
         // Noop
         return null;
@@ -301,21 +307,21 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public List<Entity> getEntities(Entity entityIn, AxisAlignedBB boundingBox, Predicate<? super Entity> predicate)
+    public List<Entity> getEntities(Entity entityIn, AABB boundingBox, Predicate<? super Entity> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> List<T> getEntities(EntityType<T> type, AxisAlignedBB boundingBox, Predicate<? super T> predicate)
+    public <T extends Entity> List<T> getEntities(EntityType<T> type, AABB boundingBox, Predicate<? super T> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> clazz, AxisAlignedBB aabb, Predicate<? super T> filter)
+    public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> clazz, AABB aabb, Predicate<? super T> filter)
     {
         // Noop
         return null;
@@ -343,14 +349,14 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public int getHeight(Type heightmapType, int x, int z)
+    public int getHeight(Types heightmapType, int x, int z)
     {
         // Noop
         return 0;
     }
 
     @Override
-    public WorldLightManager getLightEngine()
+    public LevelLightEngine getLightEngine()
     {
         // Noop
         return null;
@@ -358,7 +364,7 @@ public class BlueprintBlockAccess extends World
 
     @Override
     public <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> p_225316_1_,
-        AxisAlignedBB p_225316_2_,
+        AABB p_225316_2_,
         Predicate<? super T> p_225316_3_)
     {
         // Noop
@@ -366,7 +372,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public MapData getMapData(String mapName)
+    public MapItemSavedData getMapData(String mapName)
     {
         // Noop
         return null;
@@ -401,7 +407,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public ITagCollectionSupplier getTagManager()
+    public TagContainer getTagManager()
     {
         return getWorld().getTagManager();
     }
@@ -428,7 +434,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public IWorldInfo getLevelData()
+    public LevelData getLevelData()
     {
         // Noop
         return null;
@@ -441,7 +447,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public boolean mayInteract(PlayerEntity player, BlockPos pos)
+    public boolean mayInteract(Player player, BlockPos pos)
     {
         // Noop
         return false;
@@ -498,7 +504,7 @@ public class BlueprintBlockAccess extends World
 
     @Override
     public void markAndNotifyBlock(BlockPos p_241211_1_,
-        Chunk chunk,
+        LevelChunk chunk,
         BlockState blockstate,
         BlockState p_241211_2_,
         int p_241211_3_,
@@ -514,7 +520,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void blockEntityChanged(BlockPos pos, TileEntity unusedTileEntity)
+    public void blockEntityChanged(BlockPos pos, BlockEntity unusedTileEntity)
     {
         // Noop
     }
@@ -550,10 +556,10 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void playSound(PlayerEntity playerIn,
+    public void playSound(Player playerIn,
         Entity entityIn,
         SoundEvent eventIn,
-        SoundCategory categoryIn,
+        SoundSource categoryIn,
         float volume,
         float pitch)
     {
@@ -561,12 +567,12 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void playSound(PlayerEntity player,
+    public void playSound(Player player,
         double x,
         double y,
         double z,
         SoundEvent soundIn,
-        SoundCategory category,
+        SoundSource category,
         float volume,
         float pitch)
     {
@@ -574,7 +580,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void setMapData(MapData mapDataIn)
+    public void setMapData(MapItemSavedData mapDataIn)
     {
         // Noop
     }
@@ -617,7 +623,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public void setBlockEntity(BlockPos pos, TileEntity tileEntityIn)
+    public void setBlockEntity(BlockPos pos, BlockEntity tileEntityIn)
     {
         // Noop
     }
@@ -649,7 +655,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public Stream<VoxelShape> getEntityCollisions(Entity p_230318_1_, AxisAlignedBB p_230318_2_, Predicate<Entity> p_230318_3_)
+    public Stream<VoxelShape> getEntityCollisions(Entity p_230318_1_, AABB p_230318_2_, Predicate<Entity> p_230318_3_)
     {
         // Noop
         return null;
@@ -663,7 +669,7 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public AbstractChunkProvider getChunkSource()
+    public ChunkSource getChunkSource()
     {
         // Noop
         return null;
@@ -677,41 +683,41 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public BlockPos getHeightmapPos(Type heightmapType, BlockPos pos)
+    public BlockPos getHeightmapPos(Types heightmapType, BlockPos pos)
     {
         // Noop
         return null;
     }
 
     @Override
-    public DynamicRegistries registryAccess()
+    public RegistryAccess registryAccess()
     {
         return null;
     }
 
     @Override
-    public ITickList<Block> getBlockTicks()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public ITickList<Fluid> getLiquidTicks()
+    public TickList<Block> getBlockTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public void levelEvent(PlayerEntity player, int type, BlockPos pos, int data)
+    public TickList<Fluid> getLiquidTicks()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public void levelEvent(Player player, int type, BlockPos pos, int data)
     {
         // Noop
     }
 
     @Override
     public <T extends LivingEntity> T getNearestEntity(List<? extends T> entities,
-        EntityPredicate predicate,
+        TargetingConditions predicate,
         LivingEntity target,
         double x,
         double y,
@@ -722,21 +728,21 @@ public class BlueprintBlockAccess extends World
     }
 
     @Override
-    public PlayerEntity getNearestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
+    public Player getNearestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
     {
         // Noop
         return null;
     }
 
     @Override
-    public PlayerEntity getPlayerByUUID(UUID uniqueIdIn)
+    public Player getPlayerByUUID(UUID uniqueIdIn)
     {
         // Noop
         return null;
     }
 
     @Override
-    public List<? extends PlayerEntity> players()
+    public List<? extends Player> players()
     {
         // Noop
         return null;
@@ -744,16 +750,16 @@ public class BlueprintBlockAccess extends World
 
     @Override
     public <T extends LivingEntity> List<T> getNearbyEntities(Class<? extends T> p_217374_1_,
-        EntityPredicate p_217374_2_,
+        TargetingConditions p_217374_2_,
         LivingEntity p_217374_3_,
-        AxisAlignedBB p_217374_4_)
+        AABB p_217374_4_)
     {
         // Noop
         return null;
     }
 
     @Override
-    public List<PlayerEntity> getNearbyPlayers(EntityPredicate predicate, LivingEntity target, AxisAlignedBB box)
+    public List<Player> getNearbyPlayers(TargetingConditions predicate, LivingEntity target, AABB box)
     {
         // Noop
         return null;

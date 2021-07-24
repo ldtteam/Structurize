@@ -1,16 +1,16 @@
 package com.ldtteam.structurize.blocks.decorative;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
 
-import net.minecraft.block.AbstractBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class BlockFloatingCarpet extends Block
 {
@@ -26,7 +26,7 @@ public class BlockFloatingCarpet extends Block
 
     public BlockFloatingCarpet(final DyeColor color)
     {
-        super(AbstractBlock.Properties.of(Material.CLOTH_DECORATION).strength(0.1F).sound(SoundType.WOOL));
+        super(BlockBehaviour.Properties.of(Material.CLOTH_DECORATION).strength(0.1F).sound(SoundType.WOOL));
         this.color = color;
     }
 
@@ -36,7 +36,7 @@ public class BlockFloatingCarpet extends Block
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos position, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos position, CollisionContext context) {
         return SHAPE;
     }
 }

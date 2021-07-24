@@ -3,8 +3,8 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -137,16 +137,16 @@ public class ZoomDragView extends View
         return Math.max(0, (double) contentWidth * scale - getWidth());
     }
 
-    protected void abstractDrawSelfPre(final MatrixStack ms, final double mx, final double my)
+    protected void abstractDrawSelfPre(final PoseStack ms, final double mx, final double my)
     {
     }
 
-    protected void abstractDrawSelfPost(final MatrixStack ms, final double mx, final double my)
+    protected void abstractDrawSelfPost(final PoseStack ms, final double mx, final double my)
     {
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         scissorsStart(ms, contentWidth, contentHeight);
 
@@ -163,7 +163,7 @@ public class ZoomDragView extends View
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         scissorsStart(ms, contentWidth, contentHeight);
 
@@ -179,12 +179,12 @@ public class ZoomDragView extends View
 
     private void setScrollY(final double offset)
     {
-        scrollY = MathHelper.clamp(offset, 0, getMaxScrollY());
+        scrollY = Mth.clamp(offset, 0, getMaxScrollY());
     }
 
     private void setScrollX(final double offset)
     {
-        scrollX = MathHelper.clamp(offset, 0, getMaxScrollX());
+        scrollX = Mth.clamp(offset, 0, getMaxScrollX());
     }
 
     @Override
@@ -211,7 +211,7 @@ public class ZoomDragView extends View
             final double oldX = (childX + scrollX) / scale;
             final double oldY = (childY + scrollY) / scale;
             scale = wheel < 0 ? scale / zoomFactor : scale * zoomFactor;
-            scale = MathHelper.clamp(scale, minScale, maxScale);
+            scale = Mth.clamp(scale, minScale, maxScale);
             setScrollX(oldX * scale - childX);
             setScrollY(oldY * scale - childY);
             return true;

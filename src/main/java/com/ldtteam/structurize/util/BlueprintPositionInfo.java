@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.util;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class BlueprintPositionInfo
      * List of entities at position.
      */
     @NotNull
-    public final CompoundNBT[] entities;
+    public final CompoundTag[] entities;
 
     /**
      * Constructor of a blueprint position info.
@@ -34,7 +34,7 @@ public class BlueprintPositionInfo
      * @param info          the block info.
      * @param entities      the entity data.
      */
-    public BlueprintPositionInfo(final BlockPos pos, @Nullable final BlockInfo info, @Nullable final CompoundNBT[] entities)
+    public BlueprintPositionInfo(final BlockPos pos, @Nullable final BlockInfo info, @Nullable final CompoundTag[] entities)
     {
         this.pos = pos;
         this.info = info;
@@ -65,7 +65,7 @@ public class BlueprintPositionInfo
      * @return their RAW nbt data.
      */
     @Nullable
-    public CompoundNBT[] getEntities()
+    public CompoundTag[] getEntities()
     {
         return this.entities;
     }

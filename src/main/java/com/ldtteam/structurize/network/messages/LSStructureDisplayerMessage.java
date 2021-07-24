@@ -7,10 +7,10 @@ import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import io.netty.buffer.Unpooled;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -24,13 +24,13 @@ import java.util.UUID;
  */
 public class LSStructureDisplayerMessage implements IMessage
 {
-    private final CompoundNBT settings;
+    private final CompoundTag settings;
     private final boolean show;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public LSStructureDisplayerMessage(final PacketBuffer buf)
+    public LSStructureDisplayerMessage(final FriendlyByteBuf buf)
     {
         this.show = buf.readBoolean();
         this.settings = show ? buf.readNbt() : null;
@@ -42,14 +42,14 @@ public class LSStructureDisplayerMessage implements IMessage
      * @param compoundNBT structure settings
      * @param show if true create or update, if false destroy
      */
-    public LSStructureDisplayerMessage(@NotNull final CompoundNBT compoundNBT, @NotNull final boolean show)
+    public LSStructureDisplayerMessage(@NotNull final CompoundTag compoundNBT, @NotNull final boolean show)
     {
         this.settings = compoundNBT;
         this.show = show;
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBoolean(show);
         if (show)
@@ -70,7 +70,7 @@ public class LSStructureDisplayerMessage implements IMessage
     {
         if (isLogicalServer)
         {
-            final PlayerEntity player = ctxIn.getSender();
+            final Player player = ctxIn.getSender();
             if (LinkSessionManager.INSTANCE.getMuteState(player.getUUID(), ChannelsEnum.STRUCTURE_DISPLAYER))
             {
                 return;
@@ -80,7 +80,7 @@ public class LSStructureDisplayerMessage implements IMessage
             targets.remove(player.getUUID()); // remove this to ensure desync will not appear
             for (final UUID target : targets)
             {
-                final ServerPlayerEntity playerEntity = player.getServer().getPlayerList().getPlayer(target);
+                final ServerPlayer playerEntity = player.getServer().getPlayerList().getPlayer(target);
                 if (playerEntity != null)
                 {
                     Network.getNetwork().sendToPlayer(new LSStructureDisplayerMessage(settings, show), playerEntity);

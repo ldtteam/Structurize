@@ -17,24 +17,30 @@ import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.BedPart;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Window for finishing a scan.
@@ -239,7 +245,7 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         if (anchorPos.isPresent())
         {
-            final TileEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
+            final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
             if (tile instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) tile).getSchematicName().isEmpty())
             {
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
@@ -314,7 +320,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new StringTextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUUID());
+            Minecraft.getInstance().player.sendMessage(new TextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUUID());
             close();
             return;
         }
@@ -323,7 +329,7 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
-        final World world = Minecraft.getInstance().level;
+        final Level world = Minecraft.getInstance().level;
         resources.clear();
         entities.clear();
 
@@ -340,8 +346,8 @@ public class WindowScan extends AbstractWindowSkeleton
                 {
                     final BlockPos here = new BlockPos(x, y, z);
                     final BlockState blockState = world.getBlockState(here);
-                    final TileEntity tileEntity = world.getBlockEntity(here);
-                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(here));
+                    final BlockEntity tileEntity = world.getBlockEntity(here);
+                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
 
                     for (final Entity entity : list)
                     {
@@ -360,7 +366,7 @@ public class WindowScan extends AbstractWindowSkeleton
                         {
                             try
                             {
-                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.save(new CompoundNBT()), blockState));
+                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.save(new CompoundTag()), blockState));
                                 for (final ItemStack stack : itemList)
                                 {
                                     addNeededResource(stack, 1);
@@ -455,7 +461,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((IFormattableTextComponent) tempEntities.get(index).getName());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((MutableComponent) tempEntities.get(index).getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
@@ -494,7 +500,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
-                resourceLabel.setText((IFormattableTextComponent) resource.getItemStack().getHoverName());
+                resourceLabel.setText((MutableComponent) resource.getItemStack().getHoverName());
                 quantityLabel.setText(Integer.toString(resource.getAmount()));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);

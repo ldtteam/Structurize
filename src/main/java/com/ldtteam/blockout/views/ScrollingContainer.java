@@ -3,7 +3,7 @@ package com.ldtteam.blockout.views;
 import com.ldtteam.blockout.MouseEventCallback;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -66,7 +66,7 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         scissorsStart(ms, width, contentHeight);
 
@@ -80,7 +80,7 @@ public class ScrollingContainer extends View
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         // Translate the scroll
         ms.pushPose();

@@ -5,7 +5,7 @@ import com.ldtteam.blockout.PaneParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * Tabbed view.
@@ -176,7 +176,7 @@ public class SwitchView extends View
         }
 
         int newIndex = relative ? children.indexOf(currentView) + shift : shift;
-        newIndex = MathHelper.clamp(newIndex, 0, getChildrenSize() - 1);
+        newIndex = Mth.clamp(newIndex, 0, getChildrenSize() - 1);
 
         setCurrentView(children.get(newIndex));
 

@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.placement;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 
 /**

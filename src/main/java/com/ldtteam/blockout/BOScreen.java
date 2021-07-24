@@ -1,11 +1,11 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.BitArray;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.util.BitStorage;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
@@ -22,7 +22,7 @@ public class BOScreen extends Screen
     protected double y = 0;
     public static boolean isMouseLeftDown = false;
     protected boolean isOpen = false;
-    private static final BitArray ACCEPTED_KEY_PRESSED_MAP = new BitArray(1, GLFW.GLFW_KEY_LAST + 1);
+    private static final BitStorage ACCEPTED_KEY_PRESSED_MAP = new BitStorage(1, GLFW.GLFW_KEY_LAST + 1);
 
     static
     {
@@ -109,12 +109,12 @@ public class BOScreen extends Screen
      */
     public BOScreen(final Window w)
     {
-        super(new StringTextComponent("Blockout GUI"));
+        super(new TextComponent("Blockout GUI"));
         window = w;
     }
 
     @Override
-    public void render(final MatrixStack ms, final int mx, final int my, final float f)
+    public void render(final PoseStack ms, final int mx, final int my, final float f)
     {
         if (minecraft == null || !isOpen) // should never happen though
         {
@@ -151,7 +151,7 @@ public class BOScreen extends Screen
         RenderSystem.ortho(0.0D, fbWidth, fbHeight, 0.0D, 1000.0D, 3000.0D);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
 
-        final MatrixStack newMs = new MatrixStack();
+        final PoseStack newMs = new PoseStack();
         newMs.translate(x, y, renderZlevel);
         newMs.scale((float) renderScale, (float) renderScale, 1.0f);
         window.draw(newMs, calcRelativeX(mx), calcRelativeY(my));

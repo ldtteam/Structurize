@@ -2,22 +2,22 @@ package com.ldtteam.structurize.util;
 
 import java.util.List;
 import java.util.OptionalDouble;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.core.BlockPos;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.TextComponent;
 
 public class RenderUtils
 {
@@ -30,7 +30,7 @@ public class RenderUtils
      * @param posA The first Position
      * @param posB The second Position
      */
-    public static void renderWhiteOutlineBox(final BlockPos posA, final BlockPos posB, final MatrixStack ms, final IVertexBuilder buffer)
+    public static void renderWhiteOutlineBox(final BlockPos posA, final BlockPos posB, final PoseStack ms, final VertexConsumer buffer)
     {
         renderBox(posA, posB, 1, 1, 1, 1, 0, ms, buffer);
     }
@@ -53,8 +53,8 @@ public class RenderUtils
         final float blue,
         final float alpha,
         final double boxGrow,
-        final MatrixStack matrixStack,
-        final IVertexBuilder buffer)
+        final PoseStack matrixStack,
+        final VertexConsumer buffer)
     {
         final double minX = Math.min(posA.getX(), posB.getX()) - boxGrow;
         final double minY = Math.min(posA.getY(), posB.getY()) - boxGrow;
@@ -64,12 +64,12 @@ public class RenderUtils
         final double maxY = Math.max(posA.getY(), posB.getY()) + 1 + boxGrow;
         final double maxZ = Math.max(posA.getZ(), posB.getZ()) + 1 + boxGrow;
 
-        final Vector3d viewPosition = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
+        final Vec3 viewPosition = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
 
         matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
 
-        WorldRenderer.renderLineBox(matrixStack, buffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
+        LevelRenderer.renderLineBox(matrixStack, buffer, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
 
         matrixStack.popPose();
     }
@@ -85,11 +85,11 @@ public class RenderUtils
      */
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
-        final MatrixStack matrixStack,
+        final PoseStack matrixStack,
         final boolean forceWhite,
         final int mergeEveryXListElements)
     {
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         renderDebugText(pos, text, matrixStack, forceWhite, mergeEveryXListElements, buffer);
         buffer.endBatch();
     }
@@ -106,22 +106,22 @@ public class RenderUtils
      */
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
-        final MatrixStack matrixStack,
+        final PoseStack matrixStack,
         final boolean forceWhite,
         final int mergeEveryXListElements,
-        final IRenderTypeBuffer buffer)
+        final MultiBufferSource buffer)
     {
         if (mergeEveryXListElements < 1)
         {
             throw new IllegalArgumentException("mergeEveryXListElements is less than 1");
         }
 
-        final EntityRendererManager erm = Minecraft.getInstance().getEntityRenderDispatcher();
+        final EntityRenderDispatcher erm = Minecraft.getInstance().getEntityRenderDispatcher();
         final int cap = text.size();
         if (cap > 0 && erm.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
-            final Vector3d viewPosition = erm.camera.getPosition();
-            final FontRenderer fontrenderer = erm.getFont();
+            final Vec3 viewPosition = erm.camera.getPosition();
+            final Font fontrenderer = erm.getFont();
 
             matrixStack.pushPose();
             matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
@@ -137,7 +137,7 @@ public class RenderUtils
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
-                final StringTextComponent renderText = new StringTextComponent(mergeEveryXListElements == 1 ? text.get(i)
+                final TextComponent renderText = new TextComponent(mergeEveryXListElements == 1 ? text.get(i)
                 : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 
@@ -169,11 +169,11 @@ public class RenderUtils
         }
 
         private static final RenderType LINES_GLINT = create("structurize_lines_glint",
-            DefaultVertexFormats.POSITION_COLOR,
+            DefaultVertexFormat.POSITION_COLOR,
             1,
             256,
-            RenderType.State.builder()
-                .setLineState(new RenderState.LineState(OptionalDouble.empty()))
+            RenderType.CompositeState.builder()
+                .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
                 .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                 .setTransparencyState(NO_TRANSPARENCY)
                 .setOutputState(ITEM_ENTITY_TARGET)

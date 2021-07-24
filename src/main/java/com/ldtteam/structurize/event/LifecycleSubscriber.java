@@ -8,7 +8,7 @@ import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.generation.DefaultBlockLootTableProvider;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
-import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;

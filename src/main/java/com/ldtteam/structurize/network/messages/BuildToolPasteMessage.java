@@ -4,11 +4,11 @@ import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public class BuildToolPasteMessage implements IMessage
     /**
      * Empty constructor used when registering the 
      */
-    public BuildToolPasteMessage(final PacketBuffer buf)
+    public BuildToolPasteMessage(final FriendlyByteBuf buf)
     {
         this.structureName = buf.readUtf(32767);
         this.workOrderName = buf.readUtf(32767);
@@ -73,7 +73,7 @@ public class BuildToolPasteMessage implements IMessage
      * @param buf The buffer being written to.
      */
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeUtf(structureName);
         buf.writeUtf(workOrderName);
@@ -104,7 +104,7 @@ public class BuildToolPasteMessage implements IMessage
         final StructureName sn = new StructureName(structureName);
         if (!Structures.hasMD5(sn))
         {
-            ctxIn.getSender().sendMessage(new StringTextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().getUUID());
+            ctxIn.getSender().sendMessage(new TextComponent("Can not build " + workOrderName + ": schematic missing!"), ctxIn.getSender().getUUID());
             return;
         }
 

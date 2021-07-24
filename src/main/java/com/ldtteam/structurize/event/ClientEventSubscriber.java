@@ -13,20 +13,20 @@ import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.RenderUtils;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeBuffers;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.renderer.RenderBuffers;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 
 public class ClientEventSubscriber
 {
-    public static final RenderTypeBuffers renderBuffers = new RenderTypeBuffers();
+    public static final RenderBuffers renderBuffers = new RenderBuffers();
 
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
@@ -54,14 +54,14 @@ public class ClientEventSubscriber
         Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
-        final MatrixStack matrixStack = event.getMatrixStack();
+        final PoseStack matrixStack = event.getMatrixStack();
         final float partialTicks = event.getPartialTicks();
 
-        final IRenderTypeBuffer.Impl renderBuffer = renderBuffers.bufferSource();
-        final Supplier<IVertexBuilder> linesWithCullAndDepth = () -> renderBuffer.getBuffer(RenderType.lines());
-        final Supplier<IVertexBuilder> linesWithoutCullAndDepth = () -> renderBuffer.getBuffer(RenderUtils.LINES_GLINT);
+        final MultiBufferSource.BufferSource renderBuffer = renderBuffers.bufferSource();
+        final Supplier<VertexConsumer> linesWithCullAndDepth = () -> renderBuffer.getBuffer(RenderType.lines());
+        final Supplier<VertexConsumer> linesWithoutCullAndDepth = () -> renderBuffer.getBuffer(RenderUtils.LINES_GLINT);
 
-        final PlayerEntity player = Minecraft.getInstance().player;
+        final Player player = Minecraft.getInstance().player;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
 
         if (blueprint != null)
@@ -98,11 +98,11 @@ public class ClientEventSubscriber
             Minecraft.getInstance().getProfiler().pop();
         }
 
-        final ItemStack itemStack = player.getItemInHand(Hand.MAIN_HAND);
+        final ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (itemStack.getItem() == ModItems.tagTool.get() && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
         {
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
-            final TileEntity te = Minecraft.getInstance().player.level.getBlockEntity(tagAnchor);
+            final BlockEntity te = Minecraft.getInstance().player.level.getBlockEntity(tagAnchor);
 
             renderAnchorPos(tagAnchor, matrixStack, linesWithoutCullAndDepth.get());
 
@@ -114,7 +114,7 @@ public class ClientEventSubscriber
                 {
                     RenderUtils.renderWhiteOutlineBox(entry.getKey(), entry.getKey(), matrixStack, linesWithoutCullAndDepth.get());
 
-                    IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+                    MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                     RenderUtils.renderDebugText(entry.getKey(), entry.getValue(), matrixStack, true, 3, buffer);
                     RenderSystem.disableDepthTest();
                     buffer.endBatch();
@@ -130,7 +130,7 @@ public class ClientEventSubscriber
         OptifineCompat.getInstance().postBlueprintDraw();
         Settings.instance.endStructurizePass();
 
-        final Vector3d viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        final Vec3 viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
         HookRegistries.render(matrixStack, partialTicks);
@@ -142,7 +142,7 @@ public class ClientEventSubscriber
      *
      * @param anchorPos The anchorPos
      */
-    private static void renderAnchorPos(final BlockPos anchorPos, final MatrixStack ms, final IVertexBuilder buffer)
+    private static void renderAnchorPos(final BlockPos anchorPos, final PoseStack ms, final VertexConsumer buffer)
     {
         RenderUtils.renderBox(anchorPos, anchorPos, 1, 0, 0, 1, 0, ms, buffer);
     }

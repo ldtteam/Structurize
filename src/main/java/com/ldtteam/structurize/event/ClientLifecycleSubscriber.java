@@ -5,11 +5,11 @@ import com.ldtteam.structures.client.BlueprintHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -32,10 +32,10 @@ public class ClientLifecycleSubscriber
     {
         OptifineCompat.getInstance().intialize();
 
-        final IResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
-        if (rm instanceof IReloadableResourceManager)
+        final ResourceManager rm = event.getMinecraftSupplier().get().getResourceManager();
+        if (rm instanceof ReloadableResourceManager)
         {
-            ((IReloadableResourceManager) rm).registerReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
+            ((ReloadableResourceManager) rm).registerReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
                 if (resourcePredicate.test(VanillaResourceType.MODELS) || resourcePredicate.test(VanillaResourceType.TEXTURES)
                     || resourcePredicate.test(VanillaResourceType.SHADERS))
                 {
@@ -65,14 +65,14 @@ public class ClientLifecycleSubscriber
         // final RenderType cm = RenderType.getCutoutMipped();
 
         final RenderType t = RenderType.translucent();
-        ModBlocks.getPaperWalls().forEach(frame -> RenderTypeLookup.setRenderLayer(frame, t));
+        ModBlocks.getPaperWalls().forEach(frame -> ItemBlockRenderTypes.setRenderLayer(frame, t));
 
         // ModBlocks.CACTI_BLOCKS
         // ModBlocks.BRICKS
         DELAYED_RENDER_TYPE_SETUP.forEach(tu -> {
             if (!tu.getB().equals(RenderType.solid()))
             {
-                RenderTypeLookup.setRenderLayer(tu.getA().get(), tu.getB());
+                ItemBlockRenderTypes.setRenderLayer(tu.getA().get(), tu.getB());
             }
         });
         DELAYED_RENDER_TYPE_SETUP.clear();

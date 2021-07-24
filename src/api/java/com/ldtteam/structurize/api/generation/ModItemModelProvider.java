@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.api.generation;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.resources.ResourcePackType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelBuilder;
@@ -37,7 +37,7 @@ public class ModItemModelProvider extends ItemModelProvider
     }
 
     @Override
-    public void run(DirectoryCache cache)
+    public void run(HashCache cache)
     {
         registerModels();
         generateAll(cache);
@@ -57,11 +57,11 @@ public class ModItemModelProvider extends ItemModelProvider
             ResourceLocation name = block.getRegistryName();
             if (name == null) continue;
 
-            if (!model.isEmpty() && existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
+            if (!model.isEmpty() && existingFileHelper.exists(name, PackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + block.getRegistryName().getPath() + "_" + model);
             }
-            if (existingFileHelper.exists(name, ResourcePackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
+            if (existingFileHelper.exists(name, PackType.CLIENT_RESOURCES, "_" + model + ".png", "textures/" + directory))
             {
                 return new ResourceLocation(name.getNamespace(), directory + "/" + block.getRegistryName().getPath());
             }

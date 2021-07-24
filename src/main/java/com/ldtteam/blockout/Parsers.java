@@ -1,10 +1,10 @@
 package com.ldtteam.blockout;
 
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -54,15 +54,15 @@ public final class Parsers
 
     /** Parses a potentially translatable portion of text as a component */
     @NotNull
-    public static Function<String, IFormattableTextComponent> TEXT = v -> {
+    public static Function<String, MutableComponent> TEXT = v -> {
         String result = RAW_TEXT.apply(v);
-        return result == null ? null : new StringTextComponent(result);
+        return result == null ? null : new TextComponent(result);
     };
 
     /** Applies the TEXT parser across multiple lines */
-    public static Function<String, List<IFormattableTextComponent>> MULTILINE = v -> Arrays
+    public static Function<String, List<MutableComponent>> MULTILINE = v -> Arrays
         .stream(Parsers.RAW_TEXT.apply(v).split("(\\\\n|\\n)"))
-        .map(StringTextComponent::new)
+        .map(TextComponent::new)
         .collect(Collectors.toList());
 
     /** Parses a color from hex, rgba, name, or pure value */
@@ -96,7 +96,7 @@ public final class Parsers
 
                 int value = Integer.parseInt(m.group(1));
                 return m.group(2) != null && m.group(2).equals("%")
-                    ? total * MathHelper.clamp(value, 0, 100) / 100
+                    ? total * Mth.clamp(value, 0, 100) / 100
                     : value;
             }
             catch (final NumberFormatException | IndexOutOfBoundsException | IllegalStateException ex)

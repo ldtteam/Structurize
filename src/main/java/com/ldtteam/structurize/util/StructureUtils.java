@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.Log;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -131,7 +131,7 @@ public final class StructureUtils
      * @param vec      the vector.
      * @return the new vector.
      */
-    public static Vector3d transformedVector3d(final PlacementSettings settings, final Vector3d vec)
+    public static Vec3 transformedVector3d(final PlacementSettings settings, final Vec3 vec)
     {
         final Mirror mirrorIn = settings.getMirror();
         final Rotation rotationIn = settings.getRotation();
@@ -155,13 +155,13 @@ public final class StructureUtils
         switch (rotationIn)
         {
             case COUNTERCLOCKWISE_90:
-                return new Vector3d(zCoord, yCoord, 1.0D - xCoord);
+                return new Vec3(zCoord, yCoord, 1.0D - xCoord);
             case CLOCKWISE_90:
-                return new Vector3d(1.0D - zCoord, yCoord, xCoord);
+                return new Vec3(1.0D - zCoord, yCoord, xCoord);
             case CLOCKWISE_180:
-                return new Vector3d(1.0D - xCoord, yCoord, 1.0D - zCoord);
+                return new Vec3(1.0D - xCoord, yCoord, 1.0D - zCoord);
             default:
-                return flag ? new Vector3d(xCoord, yCoord, zCoord) : vec;
+                return flag ? new Vec3(xCoord, yCoord, zCoord) : vec;
         }
     }
 }

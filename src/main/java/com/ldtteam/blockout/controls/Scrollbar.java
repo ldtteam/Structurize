@@ -5,8 +5,8 @@ import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
 import com.ldtteam.blockout.views.ScrollingContainer;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
 
 /**
  * Class handling scrollbars in our GUIs.
@@ -107,12 +107,12 @@ public class Scrollbar extends Pane
 
         if (container.getScrollY() == 0 || container.getScrollY() == container.getMaxScrollY())
         {
-            barClickY = MathHelper.clamp(my - getScrollBarYPos(), 0, getBarHeight() - 1);
+            barClickY = Mth.clamp(my - getScrollBarYPos(), 0, getBarHeight() - 1);
         }
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         barClicked = barClicked && (mc.mouseHandler.isLeftPressed() || BOScreen.isMouseLeftDown);
         // TODO: catch from screen

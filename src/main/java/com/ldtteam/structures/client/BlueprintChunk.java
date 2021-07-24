@@ -9,46 +9,46 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.palette.UpgradeData;
-import net.minecraft.world.ITickList;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeContainer;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.Heightmap.Type;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.feature.structure.StructureStart;
-import net.minecraft.world.lighting.WorldLightManager;
-import net.minecraft.world.server.ChunkHolder.LocationType;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.TickList;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkBiomeContainer;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
+import net.minecraft.server.level.ServerLevel;
 
-import net.minecraft.world.chunk.Chunk.CreateEntityType;
+import net.minecraft.world.level.chunk.LevelChunk.EntityCreationType;
 
 /**
  * Blueprint simulated chunk.
  */
-public class BlueprintChunk extends Chunk
+public class BlueprintChunk extends LevelChunk
 {
     /**
      * The block access it gets.
@@ -62,9 +62,9 @@ public class BlueprintChunk extends Chunk
      * @param x       the chunk x.
      * @param z       the chunk z.
      */
-    public BlueprintChunk(final World worldIn, final int x, final int z)
+    public BlueprintChunk(final Level worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new BiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), new Biome[0]));
+        super(worldIn, new ChunkPos(x, z), new ChunkBiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 
@@ -76,14 +76,14 @@ public class BlueprintChunk extends Chunk
 
     @Nullable
     @Override
-    public TileEntity getBlockEntity(@NotNull final BlockPos pos, final CreateEntityType creationMode)
+    public BlockEntity getBlockEntity(@NotNull final BlockPos pos, final EntityCreationType creationMode)
     {
         return access.getBlockEntity(pos);
     }
 
     @Nullable
     @Override
-    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
+    public BlockEntity getBlockEntity(@NotNull final BlockPos pos)
     {
         return access.getBlockEntity(pos);
     }
@@ -101,7 +101,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public World getLevel()
+    public Level getLevel()
     {
         return access;
     }
@@ -113,65 +113,65 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void addBlockEntity(TileEntity tileEntityIn)
+    public void addBlockEntity(BlockEntity tileEntityIn)
     {
         // Noop
     }
 
     @Override
-    public void setBlockEntityNbt(CompoundNBT nbt)
+    public void setBlockEntityNbt(CompoundTag nbt)
     {
         // Noop
     }
 
     @Override
-    public void setBlockEntity(BlockPos pos, TileEntity tileEntityIn)
+    public void setBlockEntity(BlockPos pos, BlockEntity tileEntityIn)
     {
         // Noop
     }
 
     @Override
-    public StructureStart<?> getStartForFeature(Structure<?> p_230342_1_)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public void addReferenceForFeature(Structure<?> p_230343_1_, long p_230343_2_)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setStartForFeature(Structure<?> p_230344_1_, StructureStart<?> p_230344_2_)
-    {
-        // Noop
-    }
-
-    @Override
-    public LongSet getReferencesForFeature(Structure<?> p_230346_1_)
+    public StructureStart<?> getStartForFeature(StructureFeature<?> p_230342_1_)
     {
         // Noop
         return null;
     }
 
     @Override
-    public BiomeContainer getBiomes()
+    public void addReferenceForFeature(StructureFeature<?> p_230343_1_, long p_230343_2_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setStartForFeature(StructureFeature<?> p_230344_1_, StructureStart<?> p_230344_2_)
+    {
+        // Noop
+    }
+
+    @Override
+    public LongSet getReferencesForFeature(StructureFeature<?> p_230346_1_)
     {
         // Noop
         return null;
     }
 
     @Override
-    public ITickList<Block> getBlockTicks()
+    public ChunkBiomeContainer getBiomes()
     {
         // Noop
         return null;
     }
 
     @Override
-    public CompoundNBT getBlockEntityNbt(BlockPos pos)
+    public TickList<Block> getBlockTicks()
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public CompoundTag getBlockEntityNbt(BlockPos pos)
     {
         // Noop
         return null;
@@ -179,7 +179,7 @@ public class BlueprintChunk extends Chunk
 
     @Override
     public <T extends Entity> void getEntitiesOfClass(Class<? extends T> entityClass,
-        AxisAlignedBB aabb,
+        AABB aabb,
         List<T> listToFill,
         Predicate<? super T> filter)
     {
@@ -188,7 +188,7 @@ public class BlueprintChunk extends Chunk
 
     @Override
     public void getEntities(Entity entityIn,
-        AxisAlignedBB aabb,
+        AABB aabb,
         List<Entity> listToFill,
         Predicate<? super Entity> filter)
     {
@@ -197,7 +197,7 @@ public class BlueprintChunk extends Chunk
 
     @Override
     public <T extends Entity> void getEntities(EntityType<?> entitytypeIn,
-        AxisAlignedBB aabb,
+        AABB aabb,
         List<? super T> list,
         Predicate<? super T> filter)
     {
@@ -205,28 +205,28 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public ClassInheritanceMultiMap<Entity>[] getEntitySections()
+    public ClassInstanceMultiMap<Entity>[] getEntitySections()
     {
         // Noop
         return null;
     }
 
     @Override
-    public ITickList<Fluid> getLiquidTicks()
+    public TickList<Fluid> getLiquidTicks()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Heightmap getOrCreateHeightmapUnprimed(Type typeIn)
+    public Heightmap getOrCreateHeightmapUnprimed(Types typeIn)
     {
         // Noop
         return null;
     }
 
     @Override
-    public Collection<Entry<Type, Heightmap>> getHeightmaps()
+    public Collection<Entry<Types, Heightmap>> getHeightmaps()
     {
         // Noop
         return null;
@@ -247,7 +247,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public LocationType getFullStatus()
+    public FullChunkStatus getFullStatus()
     {
         // Noop
         return null;
@@ -268,7 +268,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public ChunkSection[] getSections()
+    public LevelChunkSection[] getSections()
     {
         // Noop
         return null;
@@ -281,14 +281,14 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public Map<Structure<?>, LongSet> getAllReferences()
+    public Map<StructureFeature<?>, LongSet> getAllReferences()
     {
         // Noop
         return null;
     }
 
     @Override
-    public Map<Structure<?>, StructureStart<?>> getAllStarts()
+    public Map<StructureFeature<?>, StructureStart<?>> getAllStarts()
     {
         // Noop
         return null;
@@ -302,14 +302,14 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public Map<BlockPos, TileEntity> getBlockEntities()
+    public Map<BlockPos, BlockEntity> getBlockEntities()
     {
         // Noop
         return null;
     }
 
     @Override
-    public int getHeight(Type heightmapType, int x, int z)
+    public int getHeight(Types heightmapType, int x, int z)
     {
         // Noop
         return 0;
@@ -323,13 +323,13 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public World getWorldForge()
+    public Level getWorldForge()
     {
         return access;
     }
 
     @Override
-    public WorldLightManager getLightEngine()
+    public LevelLightEngine getLightEngine()
     {
         // Noop
         return null;
@@ -372,7 +372,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void replaceWithPacketData(BiomeContainer biomeContainerIn, PacketBuffer packetBufferIn, CompoundNBT nbtIn, int availableSections)
+    public void replaceWithPacketData(ChunkBiomeContainer biomeContainerIn, FriendlyByteBuf packetBufferIn, CompoundTag nbtIn, int availableSections)
     {
         // Noop
     }
@@ -402,7 +402,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void packTicks(ServerWorld serverWorldIn)
+    public void packTicks(ServerLevel serverWorldIn)
     {
         // Noop
     }
@@ -421,7 +421,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setHeightmap(Type type, long[] data)
+    public void setHeightmap(Types type, long[] data)
     {
         // Noop
     }
@@ -451,7 +451,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setFullStatus(Supplier<LocationType> locationTypeIn)
+    public void setFullStatus(Supplier<FullChunkStatus> locationTypeIn)
     {
         // Noop
     }
@@ -463,13 +463,13 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public void setAllReferences(Map<Structure<?>, LongSet> p_201606_1_)
+    public void setAllReferences(Map<StructureFeature<?>, LongSet> p_201606_1_)
     {
         // Noop
     }
 
     @Override
-    public void setAllStarts(Map<Structure<?>, StructureStart<?>> structureStartsIn)
+    public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> structureStartsIn)
     {
         // Noop
     }
@@ -493,7 +493,7 @@ public class BlueprintChunk extends Chunk
     }
 
     @Override
-    public ChunkSection getHighestSection()
+    public LevelChunkSection getHighestSection()
     {
         // Noop
         return null;

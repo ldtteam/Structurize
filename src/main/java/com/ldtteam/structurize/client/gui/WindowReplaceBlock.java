@@ -13,21 +13,21 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.AirItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.AirItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -137,9 +137,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     public void onOpened()
     {
         findPaneOfTypeByID("resourceIconFrom", ItemIcon.class).setItem(from);
-        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((IFormattableTextComponent) from.getHoverName());
+        findPaneOfTypeByID("resourceNameFrom", Text.class).setText((MutableComponent) from.getHoverName());
         findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(new ItemStack(Blocks.AIR));
-        findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getHoverName());
+        findPaneOfTypeByID("resourceNameTo", Text.class).setText((MutableComponent) new ItemStack(Blocks.AIR).getHoverName());
         updateResources();
         updateResourceList();
     }
@@ -218,7 +218,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getHoverName());
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText((MutableComponent) to.getHoverName());
         }
     }
 
@@ -250,7 +250,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
             {
                 final ItemStack resource = filteredItems.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
-                resourceLabel.setText((IFormattableTextComponent) resource.getHoverName());
+                resourceLabel.setText((MutableComponent) resource.getHoverName());
                 resourceLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }

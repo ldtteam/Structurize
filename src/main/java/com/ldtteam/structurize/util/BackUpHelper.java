@@ -3,9 +3,9 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.world.storage.FolderName;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ public final class BackUpHelper
      */
     public static void saveLinkSessionManager()
     {
-        @NotNull final CompoundNBT data = LinkSessionManager.INSTANCE.serializeNBT();
+        @NotNull final CompoundTag data = LinkSessionManager.INSTANCE.serializeNBT();
         @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
 
         cycleNewBackup(FILENAME_LINKSESSION, 2); // TODO: make configurable
@@ -57,7 +57,7 @@ public final class BackUpHelper
     public static void loadLinkSessionManager()
     {
         @NotNull final File file = getSaveLocation(FILENAME_LINKSESSION);
-        @NotNull final CompoundNBT data = loadNBTFromPath(file);
+        @NotNull final CompoundTag data = loadNBTFromPath(file);
 
         if (data != null)
         {
@@ -103,7 +103,7 @@ public final class BackUpHelper
     @NotNull
     private static File getSaveDir()
     {
-        return ServerLifecycleHooks.getCurrentServer().getWorldPath(new FolderName(FILENAME_STRUCTURIZE_PATH)).toFile();
+        return ServerLifecycleHooks.getCurrentServer().getWorldPath(new LevelResource(FILENAME_STRUCTURIZE_PATH)).toFile();
     }
 
     /**
@@ -155,7 +155,7 @@ public final class BackUpHelper
      * @param file     The destination file to write the data to.
      * @param compound The CompoundNBT to write to the file.
      */
-    public static void saveNBTToPath(@Nullable final File file, @NotNull final CompoundNBT compound)
+    public static void saveNBTToPath(@Nullable final File file, @NotNull final CompoundTag compound)
     {
         try
         {
@@ -177,13 +177,13 @@ public final class BackUpHelper
      * @param file The path to the file.
      * @return the data from the file as an CompoundNBT, or null.
      */
-    public static CompoundNBT loadNBTFromPath(@Nullable final File file)
+    public static CompoundTag loadNBTFromPath(@Nullable final File file)
     {
         try
         {
             if (file != null && file.exists())
             {
-                return CompressedStreamTools.read(file);
+                return NbtIo.read(file);
             }
         }
         catch (final IOException exception)
@@ -193,7 +193,7 @@ public final class BackUpHelper
         return null;
     }
 
-    public static void safeWrite(final CompoundNBT compound, final File fileIn) throws IOException
+    public static void safeWrite(final CompoundTag compound, final File fileIn) throws IOException
     {
         final File file1 = new File(fileIn.getAbsolutePath() + "_tmp");
         if (file1.exists())
@@ -201,7 +201,7 @@ public final class BackUpHelper
             file1.delete();
         }
 
-        CompressedStreamTools.write(compound, file1);
+        NbtIo.write(compound, file1);
         if (fileIn.exists())
         {
             fileIn.delete();

@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands.EnvironmentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands.CommandSelection;
 
 import com.ldtteam.structurize.commands.AbstractCommand.CommandTree;
 
@@ -40,9 +40,9 @@ public class EntryPoint extends AbstractCommand
      *
      * @param dispatcher main server command dispatcher
      */
-    public static void register(final CommandDispatcher<CommandSource> dispatcher, final EnvironmentType environment)
+    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, final CommandSelection environment)
     {
-        final CommandTree linkSession = new CommandTree(EnvironmentType.ALL, "linksession")
+        final CommandTree linkSession = new CommandTree(CommandSelection.ALL, "linksession")
             .addNode(LinkSessionCommand.AboutMe::build, AbstractCommand::getEnvironmentType)
             .addNode(LinkSessionCommand.AcceptInvite::build, AbstractCommand::getEnvironmentType)
             .addNode(LinkSessionCommand.AddPlayer::build, AbstractCommand::getEnvironmentType)
@@ -54,7 +54,7 @@ public class EntryPoint extends AbstractCommand
             .addNode(LinkSessionCommand.SendMessage::build, AbstractCommand::getEnvironmentType);
         final CommandTree structurizeRoot = CommandTree.newRootNode()
             .addNode(linkSession)
-            .addNode(UpdateSchematicsCommand::build, () -> EnvironmentType.INTEGRATED)
+            .addNode(UpdateSchematicsCommand::build, () -> CommandSelection.INTEGRATED)
             .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType);
 
         structurizeRoot.register(dispatcher, environment);

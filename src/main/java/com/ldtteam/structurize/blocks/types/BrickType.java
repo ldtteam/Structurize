@@ -5,16 +5,16 @@ import com.ldtteam.structurize.blocks.IStructurizeBlockCollection;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.ShapelessRecipeBuilder;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.List;
@@ -62,7 +62,7 @@ public enum BrickType implements IStructurizeBlockCollection
     }
 
     @Override
-    public void provideMainRecipe(final Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment)
+    public void provideMainRecipe(final Consumer<FinishedRecipe> consumer, CriterionTriggerInstance obtainment)
     {
         ShapelessRecipeBuilder.shapeless(getMainBlock(), 4)
           .requires(getName().contains("stone") ? Blocks.STONE_BRICKS : Blocks.BRICKS, 2)
@@ -72,9 +72,9 @@ public enum BrickType implements IStructurizeBlockCollection
     }
 
     @Override
-    public AbstractBlock.Properties getProperties()
+    public BlockBehaviour.Properties getProperties()
     {
-        return AbstractBlock.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
+        return BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
                  .requiresCorrectToolForDrops()
                  .strength(2.0F, 6.0F);
     }

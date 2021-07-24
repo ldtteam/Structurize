@@ -4,11 +4,11 @@ import com.ldtteam.blockout.BOScreen;
 import com.ldtteam.blockout.Loader;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.MainWindow;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
@@ -119,7 +119,7 @@ public class Window extends View
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         updateDebugging();
 
@@ -128,7 +128,7 @@ public class Window extends View
 
     private boolean isKeyDown(final int keyCode)
     {
-        return InputMappings.isKeyDown(mc.window.getWindow(), keyCode);
+        return InputConstants.isKeyDown(mc.window.getWindow(), keyCode);
     }
 
     private void updateDebugging()
@@ -313,14 +313,14 @@ public class Window extends View
             return fs_vanilla < 1.0d ? fs_vanilla : Math.min(Math.floor(fs_vanilla), userScale == 0 ? Double.MAX_VALUE : userScale);
         });
 
-        private final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator;
+        private final ToDoubleBiFunction<Window, Window> renderScaleCalculator;
 
-        private WindowRenderType(final ToDoubleBiFunction<MainWindow, Window> renderScaleCalculator)
+        private WindowRenderType(final ToDoubleBiFunction<Window, Window> renderScaleCalculator)
         {
             this.renderScaleCalculator = renderScaleCalculator;
         }
 
-        public double calcRenderScale(final MainWindow mcWindow, final Window window)
+        public double calcRenderScale(final Window mcWindow, final Window window)
         {
             return renderScaleCalculator.applyAsDouble(mcWindow, window);
         }

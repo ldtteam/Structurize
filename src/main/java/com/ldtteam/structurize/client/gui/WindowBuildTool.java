@@ -24,11 +24,11 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -240,7 +240,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         else
         {
             sections.clear();
-            final PlayerInventory inventory = this.mc.player.inventory;
+            final Inventory inventory = this.mc.player.inventory;
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
@@ -254,10 +254,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             {
                 final Button pasteButton = findPaneOfTypeByID(BUTTON_PASTE, Button.class);
                 pasteButton.setVisible(true);
-                PaneBuilders.tooltipBuilder().hoverPane(pasteButton).append(new TranslationTextComponent("structurize.gui.buildtool.paste")).build();
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButton).append(new TranslatableComponent("structurize.gui.buildtool.paste")).build();
                 final Button pasteButtonNice = findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class);
                 pasteButtonNice.setVisible(true);
-                PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslationTextComponent("structurize.gui.buildtool.pastenice")).build();
+                PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslatableComponent("structurize.gui.buildtool.pastenice")).build();
             }
             else
             {
@@ -723,7 +723,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param hut       the hut.
      * @return true if so.
      */
-    public boolean hasMatchingBlock(@NotNull final PlayerInventory inventory, final String hut)
+    public boolean hasMatchingBlock(@NotNull final Inventory inventory, final String hut)
     {
         return true;
     }

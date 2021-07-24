@@ -1,22 +1,32 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.google.common.collect.Lists;
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.block.*;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.item.Item;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Item;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.Tags;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallBlock;
 
 /**
  * A utility closely related to a collection that defines the different block types' instantiation and generation. Allows the identification of block types from their conventional
@@ -26,7 +36,7 @@ public enum BlockType
 {
     BLOCK("", Block::new, Collections.EMPTY_LIST, Collections.EMPTY_LIST,  4, "##", "##"),
     SLAB("slab", SlabBlock::new, BlockTags.SLABS, ItemTags.SLABS, 6, "###"),
-    STAIRS("stairs", props -> new StairsBlock(Blocks.BRICKS::defaultBlockState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
+    STAIRS("stairs", props -> new StairBlock(Blocks.BRICKS::defaultBlockState, props), BlockTags.STAIRS, ItemTags.STAIRS, 4, "#  ", "## ", "###"),
     WALL("wall", WallBlock::new, BlockTags.WALLS, ItemTags.WALLS, 6, "###", "###"),
 
     // TODO wood tags
@@ -38,8 +48,8 @@ public enum BlockType
 
     public final  String                               suffix;
     public final Function<Properties, ? extends Block> constructor;
-    public final List<ITag.INamedTag<Block>>           blockTag;
-    public final List<ITag.INamedTag<Item>>            itemTag;
+    public final List<Tag.Named<Block>>           blockTag;
+    public final List<Tag.Named<Item>>            itemTag;
 
     private final int          recipeYield;
     private final List<String> craftingPatterns;
@@ -47,8 +57,8 @@ public enum BlockType
     BlockType(
       String suffix,
       Function<Properties, ? extends Block> constructor,
-      final List<ITag.INamedTag<Block>> blockTag,
-      final List<ITag.INamedTag<Item>> itemTag,
+      final List<Tag.Named<Block>> blockTag,
+      final List<Tag.Named<Item>> itemTag,
       int yield,
       String... craftingPatterns)
     {
@@ -63,8 +73,8 @@ public enum BlockType
     BlockType(
       String suffix,
       Function<Properties, ? extends Block> constructor,
-      final ITag.INamedTag<Block> blockTag,
-      final ITag.INamedTag<Item> itemTag,
+      final Tag.Named<Block> blockTag,
+      final Tag.Named<Item> itemTag,
       int yield,
       String... craftingPatterns)
     {
@@ -92,7 +102,7 @@ public enum BlockType
     }
 
     // TODO enable stone cutter recipes
-    public ShapedRecipeBuilder formRecipe(IItemProvider result, IItemProvider material, ICriterionInstance criterion)
+    public ShapedRecipeBuilder formRecipe(ItemLike result, ItemLike material, CriterionTriggerInstance criterion)
     {
         ShapedRecipeBuilder builder = new ShapedRecipeBuilder(result, recipeYield);
 

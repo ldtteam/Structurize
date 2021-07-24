@@ -2,15 +2,15 @@ package com.ldtteam.structurize.blocks.types;
 
 import com.ldtteam.structurize.api.generation.ModLanguageProvider;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Items;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
-public enum TimberFrameCentreType implements IStringSerializable
+public enum TimberFrameCentreType implements StringRepresentable
 {
     // Wood
     OAK(Blocks.OAK_PLANKS, "Oak"),
@@ -56,7 +56,7 @@ public enum TimberFrameCentreType implements IStringSerializable
     BLACKSTONE(Blocks.BLACKSTONE),
     STONE(Blocks.STONE);
 
-    private IItemProvider         block           = null;
+    private ItemLike         block           = null;
     private RegistryObject<Block> registeredBlock = null;
     final String langName;
     final String textureLocation;
@@ -71,7 +71,7 @@ public enum TimberFrameCentreType implements IStringSerializable
         this(block, langName, "minecraft:block/" + block.getRegistryName().getPath());
     }
 
-    TimberFrameCentreType(final IItemProvider block, final String langName, final String textureLocation)
+    TimberFrameCentreType(final ItemLike block, final String langName, final String textureLocation)
     {
         this.block = block;
         this.langName = langName;
@@ -121,7 +121,7 @@ public enum TimberFrameCentreType implements IStringSerializable
      *
      * @return recipeIngredient
      */
-    public IItemProvider getMaterial()
+    public ItemLike getMaterial()
     {
         return this.block == null && this.registeredBlock != null ? registeredBlock.get() : this.block;
     }

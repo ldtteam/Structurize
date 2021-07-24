@@ -2,7 +2,7 @@ package com.ldtteam.structurize.tileentities;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
@@ -12,19 +12,19 @@ public final class ModTileEntities
 {
     private ModTileEntities() { /* prevent construction */ }
 
-    private static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Constants.MOD_ID);
+    private static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Constants.MOD_ID);
 
-    public static DeferredRegister<TileEntityType<?>> getRegistry()
+    public static DeferredRegister<BlockEntityType<?>> getRegistry()
     {
         return TILE_ENTITIES;
     }
 
     @ObjectHolder("multiblock")
-    public static TileEntityType<TileEntityMultiBlock> MULTIBLOCK;
+    public static BlockEntityType<TileEntityMultiBlock> MULTIBLOCK;
 
     static
     {
         getRegistry().register("multiblock",
-          () -> TileEntityType.Builder.of(TileEntityMultiBlock::new, ModBlocks.multiBlock.get()).build(null));
+          () -> BlockEntityType.Builder.of(TileEntityMultiBlock::new, ModBlocks.multiBlock.get()).build(null));
     }
 }

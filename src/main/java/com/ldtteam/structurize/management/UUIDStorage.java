@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
@@ -10,7 +10,7 @@ import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.TAG_UUID
 /**
  * The UUID storage class.
  */
-public class UUIDStorage extends WorldSavedData
+public class UUIDStorage extends SavedData
 {
     /**
      * The data description.
@@ -36,7 +36,7 @@ public class UUIDStorage extends WorldSavedData
     }
 
     @Override
-    public void load(@NotNull final CompoundNBT compound)
+    public void load(@NotNull final CompoundTag compound)
     {
         if (compound.hasUUID(TAG_UUID))
         {
@@ -46,7 +46,7 @@ public class UUIDStorage extends WorldSavedData
 
     @NotNull
     @Override
-    public CompoundNBT save(@NotNull final CompoundNBT compound)
+    public CompoundTag save(@NotNull final CompoundTag compound)
     {
         if (Manager.getServerUUID() != null)
         {

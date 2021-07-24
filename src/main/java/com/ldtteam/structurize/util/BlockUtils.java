@@ -3,23 +3,23 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.block.*;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.item.*;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.Property;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.GameData;
@@ -32,6 +32,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.AirItem;
+import net.minecraft.world.item.BedItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.GrassPathBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Utility class for all Block type checking.
@@ -109,7 +141,7 @@ public final class BlockUtils
      * @param location the location it is at.
      * @return the IBlockState of the filler block.
      */
-    public static BlockState getSubstitutionBlockAtWorld(@NotNull final World world, @NotNull final BlockPos location)
+    public static BlockState getSubstitutionBlockAtWorld(@NotNull final Level world, @NotNull final BlockPos location)
     {
         final BlockState filler = world.getBiome(location).generationSettings.getSurfaceBuilderConfig().getTopMaterial();
         if (filler.getBlock() == Blocks.SAND)
@@ -141,9 +173,9 @@ public final class BlockUtils
         {
             return Items.LAVA_BUCKET;
         }
-        else if (block instanceof CropsBlock)
+        else if (block instanceof CropBlock)
         {
-            final ItemStack stack = ((CropsBlock) block).getCloneItemStack(null, null, blockState);
+            final ItemStack stack = ((CropBlock) block).getCloneItemStack(null, null, blockState);
             if (stack != null)
             {
                 return stack.getItem();
@@ -152,7 +184,7 @@ public final class BlockUtils
             return Items.WHEAT_SEEDS;
         }
         // oh no... 
-        else if (block instanceof FarmlandBlock || block instanceof GrassPathBlock)
+        else if (block instanceof FarmBlock || block instanceof GrassPathBlock)
         {
             return getItemFromBlock(Blocks.DIRT);
         }
@@ -285,9 +317,9 @@ public final class BlockUtils
      */
     public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
     {
-        if (blockState.getBlock() instanceof FlowingFluidBlock)
+        if (blockState.getBlock() instanceof LiquidBlock)
         {
-            return new ItemStack(((FlowingFluidBlock) blockState.getBlock()).getFluid().getBucket(), 1);
+            return new ItemStack(((LiquidBlock) blockState.getBlock()).getFluid().getBucket(), 1);
         }
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
@@ -308,7 +340,7 @@ public final class BlockUtils
      * @param here       the position.
      */
     public static void handleCorrectBlockPlacement(
-        final World world,
+        final Level world,
         final FakePlayer fakePlayer,
         final ItemStack itemStack,
         final BlockState blockState,
@@ -329,15 +361,15 @@ public final class BlockUtils
 
             if (newState == null)
             {
-                fakePlayer.setItemInHand(Hand.MAIN_HAND, stackToPlace);
-                if (item.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalBlock.FACING))
+                fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, stackToPlace);
+                if (item.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalDirectionalBlock.FACING))
                 {
-                    fakePlayer.yRot = blockState.getValue(HorizontalBlock.FACING).get2DDataValue() * 90;
+                    fakePlayer.yRot = blockState.getValue(HorizontalDirectionalBlock.FACING).get2DDataValue() * 90;
                 }
 
-                newState = targetBlock.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(fakePlayer,
-                    Hand.MAIN_HAND,
-                    new BlockRayTraceResult(new Vector3d(0, 0, 0),
+                newState = targetBlock.getStateForPlacement(new BlockPlaceContext(new UseOnContext(fakePlayer,
+                    InteractionHand.MAIN_HAND,
+                    new BlockHitResult(new Vec3(0, 0, 0),
                         itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH,
                         here,
                         true))));
@@ -360,9 +392,9 @@ public final class BlockUtils
             final Fluid fluid = bucket.getFluid();
 
             // place
-            if (sourceBlock instanceof ILiquidContainer)
+            if (sourceBlock instanceof LiquidBlockContainer)
             {
-                final ILiquidContainer liquidContainer = (ILiquidContainer) sourceBlock;
+                final LiquidBlockContainer liquidContainer = (LiquidBlockContainer) sourceBlock;
                 if (liquidContainer.canPlaceLiquid(world, here, blockState, fluid))
                 {
                     liquidContainer.placeLiquid(world, here, blockState, fluid.defaultFluidState());
@@ -389,11 +421,11 @@ public final class BlockUtils
      * @param world the world to remove the fluid from.
      * @param pos   the position where to remove the fluid.
      */
-    public static void removeFluid(World world, BlockPos pos)
+    public static void removeFluid(Level world, BlockPos pos)
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof IBucketPickupHandler) || ((IBucketPickupHandler)block).takeLiquid(world, pos, state) == Fluids.EMPTY) && block instanceof FlowingFluidBlock)
+        if((!(block instanceof BucketPickup) || ((BucketPickup)block).takeLiquid(world, pos, state) == Fluids.EMPTY) && block instanceof LiquidBlock)
         {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.UPDATE_FLAG);
         }
@@ -404,7 +436,7 @@ public final class BlockUtils
      * @param world the world of the dimension
      * @return the default blockstate for the default fluid
      */
-    public static BlockState getFluidForDimension(World world)
+    public static BlockState getFluidForDimension(Level world)
     {
         ResourceLocation res = world.registryAccess().dimensionTypes().getKey(world.dimensionType());
         if (res == null)
@@ -412,7 +444,7 @@ public final class BlockUtils
             return Blocks.WATER.defaultBlockState();
         }
 
-        RegistryKey<DimensionType> rk = RegistryKey.create(Registry.DIMENSION_TYPE_REGISTRY, res);
+        ResourceKey<DimensionType> rk = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, res);
 
         return rk == DimensionType.NETHER_LOCATION
                 ? Blocks.LAVA.defaultBlockState()
@@ -429,13 +461,13 @@ public final class BlockUtils
      * @param stack the tool.
      * @return List of {@link ItemStack} with possible drops.
      */
-    public static List<ItemStack> getBlockDrops(@NotNull final World world, @NotNull final BlockPos coords, final int fortune, final ItemStack stack)
+    public static List<ItemStack> getBlockDrops(@NotNull final Level world, @NotNull final BlockPos coords, final int fortune, final ItemStack stack)
     {
-        return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerWorld) world)
+        return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerLevel) world)
                                                       .withLuck(fortune)
-                                                      .withParameter(LootParameters.ORIGIN, new Vector3d(coords.getX(), coords.getY(), coords.getZ()))
-                                                      .withOptionalParameter(LootParameters.BLOCK_ENTITY, world.getBlockEntity(coords))
-                                                      .withParameter(LootParameters.TOOL, stack));
+                                                      .withParameter(LootContextParams.ORIGIN, new Vec3(coords.getX(), coords.getY(), coords.getZ()))
+                                                      .withOptionalParameter(LootContextParams.BLOCK_ENTITY, world.getBlockEntity(coords))
+                                                      .withParameter(LootContextParams.TOOL, stack));
     }
 
     /**

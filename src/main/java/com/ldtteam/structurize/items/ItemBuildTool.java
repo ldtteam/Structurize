@@ -2,16 +2,16 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 /**
  * Class handling the buildTool item.
@@ -29,18 +29,18 @@ public class ItemBuildTool extends AbstractItemStructurize
 
     @NotNull
     @Override
-    public ActionResultType useOn(final ItemUseContext context)
+    public InteractionResult useOn(final UseOnContext context)
     {
         if (context.getLevel().isClientSide)
         {
             Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @NotNull
     @Override
-    public ActionResult<ItemStack> use(final World worldIn, final PlayerEntity playerIn, @NotNull final Hand handIn)
+    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, @NotNull final InteractionHand handIn)
     {
         final ItemStack stack = playerIn.getItemInHand(handIn);
 
@@ -49,7 +49,7 @@ public class ItemBuildTool extends AbstractItemStructurize
             Structurize.proxy.openBuildToolWindow(null);
         }
 
-        return new ActionResult<>(ActionResultType.SUCCESS, stack);
+        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
     @Override

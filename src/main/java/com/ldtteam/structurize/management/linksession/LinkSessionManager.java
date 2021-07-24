@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management.linksession;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Storage and manager for all LinkSessions
  */
-public class LinkSessionManager implements INBTSerializable<CompoundNBT>
+public class LinkSessionManager implements INBTSerializable<CompoundTag>
 {
     private static final String CHANNELS_TAG = "channels";
 
@@ -203,14 +203,14 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @return CompoundNBT: representing storage of this manager
      */
-    public CompoundNBT serializeNBT()
+    public CompoundTag serializeNBT()
     {
-        final CompoundNBT out = new CompoundNBT();
-        final CompoundNBT channelz = new CompoundNBT();
+        final CompoundTag out = new CompoundTag();
+        final CompoundTag channelz = new CompoundTag();
 
         sessions.forEach((uuid, ls) -> out.put(uuid.toString(), ls.writeToNBT()));
         channels.forEach((uuid, ch) -> {
-            final CompoundNBT player = new CompoundNBT();
+            final CompoundTag player = new CompoundTag();
 
             ch.forEach((id, state) -> player.putBoolean(String.valueOf(id), state));
             channelz.put(uuid.toString(), player);
@@ -224,14 +224,14 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * 
      * @param in CompoundNBT to deserialize
      */
-    public void deserializeNBT(@NotNull final CompoundNBT in)
+    public void deserializeNBT(@NotNull final CompoundTag in)
     {
         reset();
 
-        final CompoundNBT channelz = in.getCompound(CHANNELS_TAG);
+        final CompoundTag channelz = in.getCompound(CHANNELS_TAG);
         for (String key : channelz.getAllKeys())
         {
-            final CompoundNBT playerTag = channelz.getCompound(key);
+            final CompoundTag playerTag = channelz.getCompound(key);
             final UUID playerUUID = UUID.fromString(key);
 
             channels.put(playerUUID, new HashMap<Integer, Boolean>());

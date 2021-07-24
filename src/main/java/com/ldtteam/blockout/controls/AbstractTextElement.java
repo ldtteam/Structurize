@@ -3,15 +3,15 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector4f;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.util.FormattedCharSequence;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,10 +84,10 @@ public abstract class AbstractTextElement extends Pane
     /**
      * The text holder.
      */
-    protected List<IFormattableTextComponent> text;
+    protected List<MutableComponent> text;
 
     // rendering
-    protected List<IReorderingProcessor> preparedText;
+    protected List<FormattedCharSequence> preparedText;
     protected int renderedTextWidth;
     protected int renderedTextHeight;
 
@@ -195,7 +195,7 @@ public abstract class AbstractTextElement extends Pane
 
         final int maxWidth = (int) (textWidth / textScale);
         preparedText = text.stream()
-            .flatMap(textBlock -> textBlock == StringTextComponent.EMPTY ? Stream.of(textBlock.getVisualOrderText())
+            .flatMap(textBlock -> textBlock == TextComponent.EMPTY ? Stream.of(textBlock.getVisualOrderText())
                 : mc.font.split(textBlock, maxWidth).stream())
             .collect(Collectors.toList());
         if (textWrap)
@@ -222,7 +222,7 @@ public abstract class AbstractTextElement extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         if (preparedText.isEmpty())
         {
@@ -277,9 +277,9 @@ public abstract class AbstractTextElement extends Pane
             ms.scale(newScaleX / oldScaleX, newScaleY / oldScaleY, 1.0f);
         }
 
-        final IRenderTypeBuffer.Impl drawBuffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+        final MultiBufferSource.BufferSource drawBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         int lineShift = 0;
-        for (final IReorderingProcessor row : preparedText)
+        for (final FormattedCharSequence row : preparedText)
         {
             final int xOffset;
 
@@ -413,7 +413,7 @@ public abstract class AbstractTextElement extends Pane
     }
 
     @Nullable
-    public List<IFormattableTextComponent> getTextAsList()
+    public List<MutableComponent> getTextAsList()
     {
         return text;
     }
@@ -422,29 +422,29 @@ public abstract class AbstractTextElement extends Pane
      * @return null if empty, first line otherwise
      */
     @Nullable
-    public IFormattableTextComponent getText()
+    public MutableComponent getText()
     {
         return isTextEmpty() ? null : text.get(0);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void setTextOld(final List<ITextComponent> text)
+    public void setTextOld(final List<Component> text)
     {
-        setText((List<IFormattableTextComponent>)((List) text));
+        setText((List<MutableComponent>)((List) text));
     }
 
-    public void setText(final List<IFormattableTextComponent> text)
+    public void setText(final List<MutableComponent> text)
     {
         this.text = text;
         recalcTextRendering();
     }
 
-    public void setText(final ITextComponent text)
+    public void setText(final Component text)
     {
-        setText((IFormattableTextComponent) text);
+        setText((MutableComponent) text);
     }
 
-    public void setText(final IFormattableTextComponent text)
+    public void setText(final MutableComponent text)
     {
         setText(Collections.singletonList(text));
     }
@@ -478,7 +478,7 @@ public abstract class AbstractTextElement extends Pane
     @Deprecated
     public void setText(final String text)
     {
-        setText(new StringTextComponent(text));
+        setText(new TextComponent(text));
     }
 
     /**
@@ -499,7 +499,7 @@ public abstract class AbstractTextElement extends Pane
         return renderedTextHeight;
     }
 
-    public List<IReorderingProcessor> getPreparedText()
+    public List<FormattedCharSequence> getPreparedText()
     {
         return preparedText;
     }

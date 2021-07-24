@@ -1,6 +1,6 @@
 package com.ldtteam.structures.blueprints.v1;
 
-import net.minecraft.util.SharedConstants;
+import net.minecraft.SharedConstants;
 
 /**
  * Enum for data

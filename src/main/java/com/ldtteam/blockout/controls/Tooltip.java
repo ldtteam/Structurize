@@ -3,13 +3,13 @@ package com.ldtteam.blockout.controls;
 import java.util.Collections;
 import com.ldtteam.blockout.Alignment;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.math.Matrix4f;
 
 /**
  * Element used for rendering tooltips.
@@ -115,13 +115,13 @@ public class Tooltip extends AbstractTextElement
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         // draw in last pass, not in main pass
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         if (!preparedText.isEmpty() && enabled)
         {
@@ -142,10 +142,10 @@ public class Tooltip extends AbstractTextElement
             ms.pushPose();
             ms.translate(x, y, Z_OFFSET);
 
-            final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+            final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
             final Matrix4f matrix4f = ms.last().pose();
 
-            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
 
             fillGradient(matrix4f, bufferbuilder, 1, 0, width - 1, height, 0, BACKGROUND_COLOR, BACKGROUND_COLOR);
             fillGradient(matrix4f, bufferbuilder, 0, 1, 1, height - 1, 0, BACKGROUND_COLOR, BACKGROUND_COLOR);
@@ -162,7 +162,7 @@ public class Tooltip extends AbstractTextElement
             RenderSystem.defaultBlendFunc();
             RenderSystem.shadeModel(7425);
             bufferbuilder.end();
-            WorldVertexBufferUploader.end(bufferbuilder);
+            BufferUploader.end(bufferbuilder);
             RenderSystem.shadeModel(7424);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 /**

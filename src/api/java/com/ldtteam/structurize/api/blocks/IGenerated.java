@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 /**

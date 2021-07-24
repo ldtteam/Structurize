@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.blocks.interfaces;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
@@ -79,9 +79,9 @@ public interface IBlueprintDataProvider
     /**
      * Default write to nbt
      */
-    default void writeSchematicDataToNBT(final CompoundNBT originalCompound)
+    default void writeSchematicDataToNBT(final CompoundTag originalCompound)
     {
-        CompoundNBT compoundNBT = new CompoundNBT();
+        CompoundTag compoundNBT = new CompoundTag();
         compoundNBT.putString(TAG_SCHEMATIC_NAME, getSchematicName());
         BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_ONE, getSchematicCorners().getA());
         BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_TWO, getSchematicCorners().getB());
@@ -96,18 +96,18 @@ public interface IBlueprintDataProvider
      * @param compoundNBT compound to write to
      * @param tagPosMap   map to write
      */
-    static void writeMapToCompound(final CompoundNBT compoundNBT, Map<BlockPos, List<String>> tagPosMap)
+    static void writeMapToCompound(final CompoundTag compoundNBT, Map<BlockPos, List<String>> tagPosMap)
     {
-        ListNBT tagPosList = new ListNBT();
+        ListTag tagPosList = new ListTag();
         for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
         {
-            CompoundNBT posTagCompound = new CompoundNBT();
+            CompoundTag posTagCompound = new CompoundTag();
             BlockPosUtil.writeToNBT(posTagCompound, TAG_TAG_POS, entry.getKey());
 
-            final ListNBT tagList = new ListNBT();
+            final ListTag tagList = new ListTag();
             for (final String tag : entry.getValue())
             {
-                CompoundNBT tagCompound = new CompoundNBT();
+                CompoundTag tagCompound = new CompoundTag();
                 tagCompound.putString(TAG_TAG_NAME, tag);
                 tagList.add(tagCompound);
             }
@@ -122,14 +122,14 @@ public interface IBlueprintDataProvider
     /**
      * Default read schematic data from nbt
      */
-    default void readSchematicDataFromNBT(final CompoundNBT originalCompound)
+    default void readSchematicDataFromNBT(final CompoundTag originalCompound)
     {
         if (!originalCompound.contains(TAG_BLUEPRINTDATA))
         {
             return;
         }
 
-        CompoundNBT compoundNBT = originalCompound.getCompound(TAG_BLUEPRINTDATA);
+        CompoundTag compoundNBT = originalCompound.getCompound(TAG_BLUEPRINTDATA);
 
         // Read schematic name
         setSchematicName(compoundNBT.getString(TAG_SCHEMATIC_NAME));
@@ -149,7 +149,7 @@ public interface IBlueprintDataProvider
      * @param compoundNBT compound to read from
      * @return map of positions and tags
      */
-    static Map<BlockPos, List<String>> readTagPosMapFrom(final CompoundNBT compoundNBT)
+    static Map<BlockPos, List<String>> readTagPosMapFrom(final CompoundTag compoundNBT)
     {
         final Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
         if (!compoundNBT.contains(TAG_POS_TAG_MAP))
@@ -157,29 +157,29 @@ public interface IBlueprintDataProvider
             return tagPosMap;
         }
 
-        final ListNBT tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Constants.NBT.TAG_COMPOUND);
+        final ListTag tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Constants.NBT.TAG_COMPOUND);
 
-        for (final INBT tagPosMapEntry : tagPosMapNBT)
+        for (final Tag tagPosMapEntry : tagPosMapNBT)
         {
-            if (!(tagPosMapEntry instanceof CompoundNBT))
+            if (!(tagPosMapEntry instanceof CompoundTag))
             {
                 continue;
             }
 
-            final CompoundNBT entry = ((CompoundNBT) tagPosMapEntry);
+            final CompoundTag entry = ((CompoundTag) tagPosMapEntry);
             final BlockPos tagPos = BlockPosUtil.readFromNBT(entry, TAG_TAG_POS);
 
             final Set<String> tagList = new HashSet<>();
-            final ListNBT tagListNbt = entry.getList(TAG_TAG_NAME_LIST, Constants.NBT.TAG_COMPOUND);
+            final ListTag tagListNbt = entry.getList(TAG_TAG_NAME_LIST, Constants.NBT.TAG_COMPOUND);
 
-            for (final INBT tagEntryNBT : tagListNbt)
+            for (final Tag tagEntryNBT : tagListNbt)
             {
-                if (!(tagEntryNBT instanceof CompoundNBT))
+                if (!(tagEntryNBT instanceof CompoundTag))
                 {
                     continue;
                 }
 
-                final CompoundNBT tagEntry = ((CompoundNBT) tagEntryNBT);
+                final CompoundTag tagEntry = ((CompoundTag) tagEntryNBT);
                 tagList.add(tagEntry.getString(TAG_TAG_NAME));
             }
 
@@ -295,5 +295,5 @@ public interface IBlueprintDataProvider
      *
      * @return client update packet
      */
-    public SUpdateTileEntityPacket getUpdatePacket();
+    public ClientboundBlockEntityDataPacket getUpdatePacket();
 }

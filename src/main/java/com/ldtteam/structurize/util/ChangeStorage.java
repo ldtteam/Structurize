@@ -2,13 +2,13 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.PositionStorage;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class ChangeStorage
     /**
      * List of entities in range.
      */
-    private final List<CompoundNBT> entities = new ArrayList<>();
+    private final List<CompoundTag> entities = new ArrayList<>();
 
     /**
      * List of entities to kill in range.
@@ -36,13 +36,13 @@ public class ChangeStorage
     /**
      * The responsible player.
      */
-    private final PlayerEntity player;
+    private final Player player;
 
     /**
      * Initiate an empty changeStorage to manually fill it.
      * @param player the player owner of it.
      */
-    public ChangeStorage(final PlayerEntity player)
+    public ChangeStorage(final Player player)
     {
         this.player = player;
     }
@@ -54,7 +54,7 @@ public class ChangeStorage
      * @param to the second position.
      * @param player the player assigned to it.
      */
-    public ChangeStorage(final World world, final BlockPos from, final BlockPos to, final PlayerEntity player)
+    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final Player player)
     {
         this.player = player;
 
@@ -70,7 +70,7 @@ public class ChangeStorage
             }
         }
 
-        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AxisAlignedBB(from, to));
+        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AABB(from, to));
         entities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
@@ -79,7 +79,7 @@ public class ChangeStorage
      * @param place the place.
      * @param world the world.
      */
-    public void addPositionStorage(final BlockPos place, final World world)
+    public void addPositionStorage(final BlockPos place, final Level world)
     {
         if (!blocks.containsKey(place))
         {
@@ -110,7 +110,7 @@ public class ChangeStorage
      * @param world the world to manipulate.
      * @return true if successful.
      */
-    public boolean undo(final World world)
+    public boolean undo(final Level world)
     {
         int count = 0;
         for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
@@ -129,7 +129,7 @@ public class ChangeStorage
             }
         }
 
-        for (final CompoundNBT data : entities)
+        for (final CompoundTag data : entities)
         {
             final Optional<EntityType<?>> type = EntityType.by(data);
             if (type.isPresent())
@@ -152,7 +152,7 @@ public class ChangeStorage
      * @param player the player to check.
      * @return true if so.
      */
-    public boolean isOwner(final PlayerEntity player)
+    public boolean isOwner(final Player player)
     {
         return this.player.getUUID().equals(player.getUUID());
     }

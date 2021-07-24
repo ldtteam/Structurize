@@ -6,20 +6,27 @@ import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.state.properties.BedPart;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
@@ -63,7 +70,7 @@ public class TickedWorldOperation
      * The creator of the operation.
      */
     @Nullable
-    private final PlayerEntity player;
+    private final Player player;
 
     /**
      * The changeStorage associated to this operation..
@@ -100,7 +107,7 @@ public class TickedWorldOperation
       final OperationType type,
       final BlockPos startPos,
       final BlockPos endPos,
-      @Nullable final PlayerEntity player,
+      @Nullable final Player player,
       final ItemStack firstBlock,
       final ItemStack secondBlock)
     {
@@ -120,7 +127,7 @@ public class TickedWorldOperation
      * @param storage the storage for the UNDO.
      * @param player the player.
      */
-    public TickedWorldOperation(final ChangeStorage storage, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final ChangeStorage storage, @Nullable final Player player)
     {
         this.operation = OperationType.UNDO;
         this.startPos = BlockPos.ZERO;
@@ -138,7 +145,7 @@ public class TickedWorldOperation
      * @param placer the structure for the placement..
      * @param player the player.
      */
-    public TickedWorldOperation(final StructurePlacer placer, @Nullable final PlayerEntity player)
+    public TickedWorldOperation(final StructurePlacer placer, @Nullable final Player player)
     {
         this.operation = OperationType.PLACE_STRUCTURE;
         this.startPos = BlockPos.ZERO;
@@ -157,7 +164,7 @@ public class TickedWorldOperation
      * @param world the world to apply them on.
      * @return true if finished.
      */
-    public boolean apply(final ServerWorld world)
+    public boolean apply(final ServerLevel world)
     {
         if (player != null && player.level.dimension() != world.dimension())
         {
@@ -228,7 +235,7 @@ public class TickedWorldOperation
      * @param world the world to run it in.
      * @return true if finished.
      */
-    private boolean run(final ServerWorld world)
+    private boolean run(final ServerLevel world)
     {
         final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUUID(), "placeStuffForMePl0x"));
         int count = 0;
@@ -251,11 +258,11 @@ public class TickedWorldOperation
                         count++;
 
                         storage.addPositionStorage(here, world);
-                        if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof IBucketPickupHandler
-                            || blockState.getBlock() instanceof FlowingFluidBlock))
+                        if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof BucketPickup
+                            || blockState.getBlock() instanceof LiquidBlock))
                         {
                             BlockUtils.removeFluid(world, here);
-                            if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof FlowingFluidBlock))
+                            if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof LiquidBlock))
                             {
                                 if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
                                 {
@@ -304,8 +311,8 @@ public class TickedWorldOperation
     {
         return (replacementStack != null && replacementStack.sameItem(compareStack)
                   || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getType())
-                  || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof FlowingFluidBlock
-                  && ((BucketItem)compareStack.getItem()).getFluid() == ((FlowingFluidBlock)worldState.getBlock()).getFluid())
+                  || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof LiquidBlock
+                  && ((BucketItem)compareStack.getItem()).getFluid() == ((LiquidBlock)worldState.getBlock()).getFluid())
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
     }
 

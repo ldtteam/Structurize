@@ -3,20 +3,20 @@ package com.ldtteam.blockout;
 import com.ldtteam.blockout.controls.AbstractTextBuilder.TooltipBuilder;
 import com.ldtteam.blockout.views.View;
 import com.ldtteam.blockout.views.Window;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector4f;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * A Pane is the root of all UI objects.
  */
-public class Pane extends AbstractGui
+public class Pane extends GuiComponent
 {
     @NotNull
     private static final Deque<ScissorsInfo> scissorsInfoStack = new ConcurrentLinkedDeque<>();
@@ -56,7 +56,7 @@ public class Pane extends AbstractGui
      * Should be only used during drawing methods. Outside drawing scope value may be outdated.
      */
     protected boolean wasCursorInPane = false;
-    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    private List<MutableComponent> toolTipLines = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -314,7 +314,7 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public void draw(final MatrixStack ms, final double mx, final double my)
+    public void draw(final PoseStack ms, final double mx, final double my)
     {
         wasCursorInPane = isPointInPane(mx, my);
         handleHover();
@@ -343,7 +343,7 @@ public class Pane extends AbstractGui
      * @param mx mouse x.
      * @param my mouse y.
      */
-    public void drawLast(final MatrixStack ms, final double mx, final double my)
+    public void drawLast(final PoseStack ms, final double mx, final double my)
     {
         if (visible)
         {
@@ -359,7 +359,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }
@@ -372,7 +372,7 @@ public class Pane extends AbstractGui
      * @param mx Mouse x (relative to parent).
      * @param my Mouse y (relative to parent).
      */
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         // Can be overloaded
     }
@@ -640,7 +640,7 @@ public class Pane extends AbstractGui
         // Can be overloaded
     }
 
-    protected synchronized void scissorsStart(final MatrixStack ms, final int contentWidth, final int contentHeight)
+    protected synchronized void scissorsStart(final PoseStack ms, final int contentWidth, final int contentHeight)
     {
         final int fbWidth = mc.window.getWidth();
         final int fbHeight = mc.window.getHeight();
@@ -650,11 +650,11 @@ public class Pane extends AbstractGui
         start.transform(ms.last().pose());
         end.transform(ms.last().pose());
 
-        int scissorsXstart = MathHelper.clamp((int) Math.floor(start.x()), 0, fbWidth);
-        int scissorsXend = MathHelper.clamp((int) Math.floor(end.x()), 0, fbWidth);
+        int scissorsXstart = Mth.clamp((int) Math.floor(start.x()), 0, fbWidth);
+        int scissorsXend = Mth.clamp((int) Math.floor(end.x()), 0, fbWidth);
 
-        int scissorsYstart = MathHelper.clamp((int) Math.floor(start.y()), 0, fbHeight);
-        int scissorsYend = MathHelper.clamp((int) Math.floor(end.y()), 0, fbHeight);
+        int scissorsYstart = Mth.clamp((int) Math.floor(start.y()), 0, fbHeight);
+        int scissorsYend = Mth.clamp((int) Math.floor(end.y()), 0, fbHeight);
 
         // negate bottom top (opengl things)
         final int temp = scissorsYstart;
@@ -701,7 +701,7 @@ public class Pane extends AbstractGui
         return y;
     }
 
-    protected synchronized void scissorsEnd(final MatrixStack ms)
+    protected synchronized void scissorsEnd(final PoseStack ms)
     {
         final ScissorsInfo popped = scissorsInfoStack.pop();
         if (debugging)
@@ -847,7 +847,7 @@ public class Pane extends AbstractGui
     }
 
     @Deprecated
-    protected int drawString(final MatrixStack ms, final String text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final PoseStack ms, final String text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
@@ -859,7 +859,7 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final ITextComponent text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final PoseStack ms, final Component text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
@@ -871,7 +871,7 @@ public class Pane extends AbstractGui
         }
     }
 
-    protected int drawString(final MatrixStack ms, final IReorderingProcessor text, final float x, final float y, final int color, final boolean shadow)
+    protected int drawString(final PoseStack ms, final FormattedCharSequence text, final float x, final float y, final int color, final boolean shadow)
     {
         if (shadow)
         {
@@ -917,7 +917,7 @@ public class Pane extends AbstractGui
      * @param repeatWidth   size of repeatable box in texture [texels], smaller than or equal uWidth - uRepeat
      * @param repeatHeight  size of repeatable box in texture [texels], smaller than or equal vHeight - vRepeat
      */
-    protected static void blitRepeatable(final MatrixStack ms,
+    protected static void blitRepeatable(final PoseStack ms,
         final int x, final int y,
         final int width, final int height,
         final int u, final int v,
@@ -936,8 +936,8 @@ public class Pane extends AbstractGui
         final int repeatCountY = Math.max(1, Math.max(0, height - (vHeight - repeatHeight)) / repeatHeight);
 
         final Matrix4f mat = ms.last().pose();
-        final BufferBuilder buffer = Tessellator.getInstance().getBuilder();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        final BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
 
         // main
         for (int i = 0; i < repeatCountX; i++)
@@ -1010,6 +1010,6 @@ public class Pane extends AbstractGui
 
         buffer.end();
         RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.end(buffer);
+        BufferUploader.end(buffer);
     }
 }

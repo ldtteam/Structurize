@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -15,7 +15,7 @@ public interface IMessage
      *
      * @param buf network data byte buffer
      */
-    void toBytes(final PacketBuffer buf);
+    void toBytes(final FriendlyByteBuf buf);
 
     /**
      * Which sides is message able to be executed at.

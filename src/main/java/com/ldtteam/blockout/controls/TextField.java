@@ -3,14 +3,14 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.views.View;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.screens.Screen;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -149,7 +149,7 @@ public class TextField extends Pane
 
     public void setCursorPosition(final int pos)
     {
-        cursorPosition = MathHelper.clamp(pos, 0, text.length());
+        cursorPosition = Mth.clamp(pos, 0, text.length());
         setSelectionEnd(cursorPosition);
     }
 
@@ -170,7 +170,7 @@ public class TextField extends Pane
 
     public void setSelectionEnd(final int pos)
     {
-        selectionEnd = MathHelper.clamp(pos, 0, text.length());
+        selectionEnd = Mth.clamp(pos, 0, text.length());
 
         final int internalWidth = getInternalWidth();
         if (internalWidth > 0)
@@ -197,7 +197,7 @@ public class TextField extends Pane
                 scrollOffset -= scrollOffset - selectionEnd;
             }
 
-            scrollOffset = MathHelper.clamp(scrollOffset, 0, text.length());
+            scrollOffset = Mth.clamp(scrollOffset, 0, text.length());
         }
     }
 
@@ -332,7 +332,7 @@ public class TextField extends Pane
      * Draw itself at positions mx and my.
      */
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         final int color = enabled ? textColor : textColorDisabled;
         final int drawWidth = getInternalWidth();
@@ -413,7 +413,7 @@ public class TextField extends Pane
                 selectionEndX = x + width;
             }
 
-            final Tessellator tessellator = Tessellator.getInstance();
+            final Tesselator tessellator = Tesselator.getInstance();
             RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
             RenderSystem.disableTexture();
             RenderSystem.enableColorLogicOp();
@@ -421,7 +421,7 @@ public class TextField extends Pane
             final BufferBuilder vertexBuffer = tessellator.getBuilder();
 
             // There are several to choose from, look at DefaultVertexFormats for more info
-            vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+            vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
 
             // Since our points do not have any u,v this seems to be the correct code
             vertexBuffer.vertex((double) selectionStartX, (double) drawY + 1 + mc.font.lineHeight, 0.0D).endVertex();

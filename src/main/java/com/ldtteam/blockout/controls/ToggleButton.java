@@ -2,9 +2,9 @@ package com.ldtteam.blockout.controls;
 
 import com.ldtteam.blockout.PaneParams;
 import com.ldtteam.blockout.Parsers;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ public class ToggleButton extends Button
     private static final Pattern SHORT_TRANSLATION = Pattern.compile("(\\$[({]\\S+)\\.\\S+([})])\\|(\\$\\.[^$|\\s]+)");
 
     protected List<String> rawStates;
-    protected List<IFormattableTextComponent> states;
+    protected List<MutableComponent> states;
     protected int active = 0;
 
     protected Button button;
@@ -88,10 +88,10 @@ public class ToggleButton extends Button
      */
     public List<String> getStateStrings(boolean raw)
     {
-        return raw ? rawStates : states.stream().map(IFormattableTextComponent::getString).collect(Collectors.toList());
+        return raw ? rawStates : states.stream().map(MutableComponent::getString).collect(Collectors.toList());
     }
 
-    public List<IFormattableTextComponent> getStates()
+    public List<MutableComponent> getStates()
     {
         return states;
     }
@@ -178,13 +178,13 @@ public class ToggleButton extends Button
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         button.drawSelf(ms, mx, my);
     }
 
     @Override
-    public void drawSelfLast(final MatrixStack ms, final double mx, final double my)
+    public void drawSelfLast(final PoseStack ms, final double mx, final double my)
     {
         button.drawSelfLast(ms, mx, my);
     }

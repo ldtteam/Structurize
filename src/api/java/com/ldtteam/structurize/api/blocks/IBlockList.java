@@ -2,7 +2,7 @@ package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.ModItemModelProvider;
 import com.ldtteam.structurize.api.generation.ModLanguageProvider;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.fml.RegistryObject;
 

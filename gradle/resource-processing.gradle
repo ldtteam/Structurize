@@ -1,0 +1,16 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+processResources {
+    doLast {
+        if (file('src/main/generated/resources/assets/structurize/lang/default.json').exists()) {
+            def slurper = new JsonSlurper()
+            def standard = slurper.parse(file('src/main/resources/assets/structurize/lang/en_us.json'))
+            def generated = slurper.parse(file('src/main/generated/resources/assets/structurize/lang/default.json'))
+
+            standard += generated
+
+            file('build/resources/main/assets/structurize/lang/en_us.json').write(JsonOutput.toJson(standard))
+        }
+    }
+}

@@ -6,14 +6,14 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.decorative.BlockPaperWall;
 import com.ldtteam.structurize.blocks.types.WoodType;
 import com.ldtteam.structurize.items.ModItemGroups;
-import net.minecraft.block.Block;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class PaperWallList implements IBlockList<BlockPaperWall>
 {
-    public static final ITag.INamedTag<Block> BLOCK_TAG = BlockTags.bind("structurize:paper_walls");
-    public static final ITag.INamedTag<Item>  ITEM_TAG  = ItemTags.bind("structurize:paper_walls");
+    public static final Tag.Named<Block> BLOCK_TAG = BlockTags.bind("structurize:paper_walls");
+    public static final Tag.Named<Item>  ITEM_TAG  = ItemTags.bind("structurize:paper_walls");
 
     public static final Map<RegistryObject<BlockPaperWall>, WoodType> blocks = new HashMap<>();
 

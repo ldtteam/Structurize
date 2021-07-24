@@ -2,40 +2,40 @@ package com.ldtteam.structurize.blocks.decorative;
 
 import com.ldtteam.structurize.blocks.types.ShingleFaceType;
 import com.ldtteam.structurize.blocks.types.ShingleSlabShapeType;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.block.material.Material;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.DyeColor;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
 import static com.ldtteam.structurize.blocks.types.ShingleSlabShapeType.*;
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.core.Direction.*;
 
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 /**
  * Decorative block
  */
-public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
+public class BlockShingleSlab extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock
 {
     /**
      * The SHAPEs of the shingle slab.
@@ -84,7 +84,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
 
     // Deprecated here just means that you should not use this method when referencing a block, and instead it's blockstate <- Forge's Discord
     @Override
-    public BlockState updateShape(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final IWorld worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
+    public BlockState updateShape(final BlockState stateIn, final Direction HORIZONTAL_FACING, final BlockState HORIZONTAL_FACINGState, final LevelAccessor worldIn, final BlockPos currentPos, final BlockPos HORIZONTAL_FACINGPos)
     {
         if (stateIn.getValue(WATERLOGGED))
         {
@@ -96,7 +96,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(final BlockItemUseContext context)
+    public BlockState getStateForPlacement(final BlockPlaceContext context)
     {
         @NotNull
         final Direction facing = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromYRot(context.getPlayer().yRot);
@@ -145,7 +145,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
      * @return The VoxelShape of the block.
      */
     @Override
-    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
     {
         return Block.box(0.0D, 0.0D, 0.0D, 15.9D, 7.9D, 15.9D);
     }
@@ -158,7 +158,7 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
      * @param position the position.Re
      * @return the blockState to use.
      */
-    private static BlockState getSlabShape(@NotNull final BlockState state, @NotNull final IWorld world, @NotNull final BlockPos position)
+    private static BlockState getSlabShape(@NotNull final BlockState state, @NotNull final LevelAccessor world, @NotNull final BlockPos position)
     {
         final boolean north = world.getBlockState(position.north()).getBlock() instanceof BlockShingleSlab;
         final boolean south = world.getBlockState(position.south()).getBlock() instanceof BlockShingleSlab;
@@ -255,13 +255,13 @@ public class BlockShingleSlab extends HorizontalBlock implements IWaterLoggable
     }
 
     @Override
-    public boolean isPathfindable(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final PathType type)
+    public boolean isPathfindable(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final PathComputationType type)
     {
-        return type == PathType.WATER && worldIn.getFluidState(pos).is(FluidTags.WATER);
+        return type == PathComputationType.WATER && worldIn.getFluidState(pos).is(FluidTags.WATER);
     }
 
     @Override
-    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder)
     {
         builder.add(FACING, SHAPE, WATERLOGGED);
     }

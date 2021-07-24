@@ -2,15 +2,15 @@ package com.ldtteam.structurize.api.blocks;
 
 import com.ldtteam.structurize.api.generation.*;
 
-import net.minecraft.advancements.ICriterionInstance;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
@@ -20,6 +20,17 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 /**
  * A block collection is any set of blocks with a common material but many forms,
@@ -68,10 +79,10 @@ public interface IBlockCollection extends IGenerated
      * Defines the properties that should be applied to each block in the collection
      * @return the properties to use for block construction
      */
-    default AbstractBlock.Properties getProperties()
+    default BlockBehaviour.Properties getProperties()
     {
         // A generic wood default
-        return AbstractBlock.Properties.of(Material.WOOD, MaterialColor.WOOD)
+        return BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD)
                  .strength(2.0F, 3.0F)
                  .sound(SoundType.WOOD);
     }
@@ -88,7 +99,7 @@ public interface IBlockCollection extends IGenerated
      */
     default List<RegistryObject<Block>> create(DeferredRegister<Block> registrar,
         DeferredRegister<Item> itemRegistrar,
-        ItemGroup group,
+        CreativeModeTab group,
         BiConsumer<BlockType, RegistryObject<Block>> creationListener,
         BlockType... types)
     {
@@ -130,7 +141,7 @@ public interface IBlockCollection extends IGenerated
      * @param consumer the generation method to save the recipe json
      * @param obtainment an unfortunately mandatory criterion - MUST be applied to the recipe
      */
-    void provideMainRecipe(Consumer<IFinishedRecipe> consumer, ICriterionInstance obtainment);
+    void provideMainRecipe(Consumer<FinishedRecipe> consumer, CriterionTriggerInstance obtainment);
 
     /**
      * Unlikely to need a non-default implementation - convenience method to find the model texture
@@ -164,7 +175,7 @@ public interface IBlockCollection extends IGenerated
 
             switch (BlockType.fromSuffix(block))
             {
-                case STAIRS: states.stairsBlock((StairsBlock) block, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
+                case STAIRS: states.stairsBlock((StairBlock) block, findTexture(block, "side"), findTexture(block, "bottom"), findTexture(block, "top")); break;
                 case WALL: states.wallBlock((WallBlock) block, findTexture(block)); break;
                 case FENCE: states.fenceBlock((FenceBlock) block, findTexture(block)); break;
                 case FENCE_GATE: states.fenceGateBlock((FenceGateBlock) block, findTexture(block)); break;

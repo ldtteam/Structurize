@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.google.common.collect.Lists;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

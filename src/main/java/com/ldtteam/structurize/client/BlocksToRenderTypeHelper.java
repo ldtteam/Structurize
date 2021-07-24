@@ -3,7 +3,7 @@ package com.ldtteam.structurize.client;
 import com.ldtteam.structurize.api.blocks.BlockType;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.RegistryObject;

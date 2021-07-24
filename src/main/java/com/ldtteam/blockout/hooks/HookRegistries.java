@@ -2,15 +2,15 @@ package com.ldtteam.blockout.hooks;
 
 import com.google.common.base.Predicates;
 import com.ldtteam.blockout.hooks.TriggerMechanism.Type;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.math.*;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -19,6 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiPredicate;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 /**
  * Class holding all hook registries.
@@ -45,7 +52,7 @@ public final class HookRegistries
         }
     }
 
-    public static void render(final MatrixStack matrixStack, final float partialTicks)
+    public static void render(final PoseStack matrixStack, final float partialTicks)
     {
         for (int i = 0; i < REGISTRIES.length; i++)
         {
@@ -164,9 +171,9 @@ public final class HookRegistries
                     break;
 
                 case RAY_TRACE:
-                    if (mc.hitResult != null && mc.hitResult.getType() == RayTraceResult.Type.ENTITY)
+                    if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.ENTITY)
                     {
-                        final Entity entity = ((EntityRayTraceResult) mc.hitResult).getEntity();
+                        final Entity entity = ((EntityHitResult) mc.hitResult).getEntity();
                         targets = entity.getType() == entityType ? Arrays.asList(entity) : Collections.emptyList();
                     }
                     else
@@ -189,16 +196,16 @@ public final class HookRegistries
         }
 
         @Override
-        protected void translateToGuiBottomCenter(final MatrixStack ms, final Entity entity, final float partialTicks)
+        protected void translateToGuiBottomCenter(final PoseStack ms, final Entity entity, final float partialTicks)
         {
-            final double x = MathHelper.lerp(partialTicks, entity.xOld, entity.getX());
-            final double y = MathHelper.lerp(partialTicks, entity.yOld, entity.getY());
-            final double z = MathHelper.lerp(partialTicks, entity.zOld, entity.getZ());
+            final double x = Mth.lerp(partialTicks, entity.xOld, entity.getX());
+            final double y = Mth.lerp(partialTicks, entity.yOld, entity.getY());
+            final double z = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
             ms.translate(x, y + entity.getBbHeight() + 0.3d, z);
         }
     }
 
-    public static class TileEntityReg extends HookManager<TileEntity, TileEntityType<?>, BlockPos>
+    public static class TileEntityReg extends HookManager<BlockEntity, BlockEntityType<?>, BlockPos>
     {
         private TileEntityReg()
         {
@@ -214,7 +221,7 @@ public final class HookRegistries
          * @param trigger     trigger condition
          * @see {@link IGuiHookable}
          */
-        public <T extends TileEntity & IGuiHookable> void register(final TileEntityType<T> targetThing,
+        public <T extends BlockEntity & IGuiHookable> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final TriggerMechanism<?> trigger)
         {
@@ -232,7 +239,7 @@ public final class HookRegistries
          * @param trigger        trigger condition
          * @see {@link IGuiHookable}
          */
-        public <T extends TileEntity & IGuiHookable> void register(final TileEntityType<T> targetThing,
+        public <T extends BlockEntity & IGuiHookable> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger)
@@ -256,7 +263,7 @@ public final class HookRegistries
          * @param onClose     gets fired when gui is closed
          * @see {@link IGuiHookable} for gui callbacks
          */
-        public <T extends TileEntity> void register(final TileEntityType<T> targetThing,
+        public <T extends BlockEntity> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final TriggerMechanism<?> trigger,
             @Nullable final BiPredicate<T, Type> shouldOpen,
@@ -283,7 +290,7 @@ public final class HookRegistries
          * @param onClose        gets fired when gui is closed
          * @see {@link IGuiHookable} for gui callbacks
          */
-        public <T extends TileEntity> void register(final TileEntityType<T> targetThing,
+        public <T extends BlockEntity> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
             final long expirationTime,
             final TriggerMechanism<?> trigger,
@@ -295,32 +302,32 @@ public final class HookRegistries
         }
 
         @Override
-        protected List<TileEntity> findTriggered(final TileEntityType<?> teType, final TriggerMechanism<?> trigger)
+        protected List<BlockEntity> findTriggered(final BlockEntityType<?> teType, final TriggerMechanism<?> trigger)
         {
             final Minecraft mc = Minecraft.getInstance();
-            final List<TileEntity> targets;
+            final List<BlockEntity> targets;
 
             switch (trigger.getType())
             {
                 case DISTANCE:
-                    final AxisAlignedBB aabb = mc.player.getBoundingBox().inflate(((TriggerMechanism<Double>) trigger).getConfig());
-                    final int xStart = MathHelper.floor(aabb.minX / 16.0D);
-                    final int xEnd = MathHelper.ceil(aabb.maxX / 16.0D);
-                    final int zStart = MathHelper.floor(aabb.minZ / 16.0D);
-                    final int zEnd = MathHelper.ceil(aabb.maxZ / 16.0D);
+                    final AABB aabb = mc.player.getBoundingBox().inflate(((TriggerMechanism<Double>) trigger).getConfig());
+                    final int xStart = Mth.floor(aabb.minX / 16.0D);
+                    final int xEnd = Mth.ceil(aabb.maxX / 16.0D);
+                    final int zStart = Mth.floor(aabb.minZ / 16.0D);
+                    final int zEnd = Mth.ceil(aabb.maxZ / 16.0D);
 
                     targets = new ArrayList<>();
                     for (int chunkX = xStart; chunkX < xEnd; ++chunkX)
                     {
                         for (int chunkZ = zStart; chunkZ < zEnd; ++chunkZ)
                         {
-                            final Chunk chunk = mc.level.getChunkSource().getChunk(chunkX, chunkZ, false);
+                            final LevelChunk chunk = mc.level.getChunkSource().getChunk(chunkX, chunkZ, false);
                             if (chunk != null)
                             {
-                                for (final Entry<BlockPos, TileEntity> entry : chunk.getBlockEntities().entrySet())
+                                for (final Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet())
                                 {
                                     final BlockPos bp = entry.getKey();
-                                    final TileEntity te = entry.getValue();
+                                    final BlockEntity te = entry.getValue();
                                     if (te.getType() == teType && bp.getX() > aabb.minX && bp.getX() < aabb.maxX
                                         && bp.getY() > aabb.minY && bp.getY() < aabb.maxY && bp.getZ() > aabb.minZ && bp.getZ() < aabb.maxZ)
                                     {
@@ -333,9 +340,9 @@ public final class HookRegistries
                     break;
 
                 case RAY_TRACE:
-                    if (mc.hitResult != null && mc.hitResult.getType() == RayTraceResult.Type.BLOCK)
+                    if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK)
                     {
-                        final TileEntity te = mc.level.getBlockEntity(((BlockRayTraceResult) mc.hitResult).getBlockPos());
+                        final BlockEntity te = mc.level.getBlockEntity(((BlockHitResult) mc.hitResult).getBlockPos());
                         targets = te == null || te.getType() != teType ? Collections.emptyList() : Arrays.asList(te);
                     }
                     else
@@ -352,13 +359,13 @@ public final class HookRegistries
         }
 
         @Override
-        protected BlockPos keyMapper(final TileEntity thing)
+        protected BlockPos keyMapper(final BlockEntity thing)
         {
             return thing.getBlockPos();
         }
 
         @Override
-        protected void translateToGuiBottomCenter(final MatrixStack ms, final TileEntity thing, final float partialTicks)
+        protected void translateToGuiBottomCenter(final PoseStack ms, final BlockEntity thing, final float partialTicks)
         {
             ms.translate(thing.getBlockPos().getX() + 0.5d, thing.getBlockPos().getY() + 1.1d, thing.getBlockPos().getZ() + 0.5d);
         }

@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
 
 /**
  * Reusable builder for multiline text elements.
@@ -29,8 +29,8 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     private ClickEvent clickEvent = null;
     private String insertionEvent = null;
 
-    private IFormattableTextComponent currentComponent;
-    private final List<IFormattableTextComponent> text = new ArrayList<>();
+    private MutableComponent currentComponent;
+    private final List<MutableComponent> text = new ArrayList<>();
     private int lastParagraphStart = 0;
 
     @SuppressWarnings("unchecked")
@@ -50,9 +50,9 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      *
      * @param text text to append
      */
-    public R appendNL(final ITextComponent text)
+    public R appendNL(final Component text)
     {
-        return appendNL((IFormattableTextComponent) text);
+        return appendNL((MutableComponent) text);
     }
 
     /**
@@ -60,7 +60,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      *
      * @param text text to append
      */
-    public R appendNL(final IFormattableTextComponent text)
+    public R appendNL(final MutableComponent text)
     {
         newLine();
         append(text);
@@ -73,9 +73,9 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      *
      * @param text text to append
      */
-    public R append(final ITextComponent text)
+    public R append(final Component text)
     {
-        return append((IFormattableTextComponent) text);
+        return append((MutableComponent) text);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      *
      * @param text text to append
      */
-    public R append(final IFormattableTextComponent text)
+    public R append(final MutableComponent text)
     {
         currentComponent = currentComponent == null ? text : currentComponent.append(text);
         return thiz;
@@ -113,7 +113,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         newLine();
         for (int i = 0; i < count; i++)
         {
-            text.add((IFormattableTextComponent) StringTextComponent.EMPTY);
+            text.add((MutableComponent) TextComponent.EMPTY);
         }
         return thiz;
     }
@@ -194,7 +194,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     /**
      * Process given {@link TextFormatting}. If null calls {@link #resetStyle()}
      */
-    public R style(final TextFormatting textFormatting)
+    public R style(final ChatFormatting textFormatting)
     {
         if (textFormatting == null)
         {
@@ -238,7 +238,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R colorVanillaCode(final char code)
     {
-        final TextFormatting tf = TextFormatting.getByCode(code);
+        final ChatFormatting tf = ChatFormatting.getByCode(code);
         return color(tf == null || tf.getColor() == null ? defaultColor : tf.getColor());
     }
 
@@ -250,7 +250,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R colorName(final String name)
     {
-        final TextFormatting tf = TextFormatting.getByName(name);
+        final ChatFormatting tf = ChatFormatting.getByName(name);
         return color(Color.getByName(name, tf.isColor() ? tf.getColor() : color));
     }
 
@@ -362,7 +362,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     /**
      * @return unique array list with current text
      */
-    public List<IFormattableTextComponent> getText()
+    public List<MutableComponent> getText()
     {
         return new ArrayList<>(text); // copy, so different elements are not backed by the same list
     }

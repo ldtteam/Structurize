@@ -12,11 +12,11 @@ import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.util.BackUpHelper;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
@@ -83,10 +83,10 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getPlayer() instanceof ServerPlayerEntity)
+        if (event.getPlayer() instanceof ServerPlayer)
         {
-            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayerEntity) event.getPlayer());
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayerEntity) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayer) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayer) event.getPlayer());
         }
     }
 
@@ -97,7 +97,7 @@ public class EventSubscriber
         {
             return;
         }
-        Manager.onWorldTick((ServerWorld) event.world);
+        Manager.onWorldTick((ServerLevel) event.world);
     }
 
 

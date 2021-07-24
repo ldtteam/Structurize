@@ -6,14 +6,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.BlockPosArgument;
-import net.minecraft.command.arguments.GameProfileArgument;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -68,47 +68,47 @@ public class ScanCommand extends AbstractCommand
      */
     private static final String ANCHOR_POS = "anchor_pos";
 
-    private static int execute(final CommandSource source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
+    private static int execute(final CommandSourceStack source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
     {
-        @Nullable final World world = source.getLevel();
-        if (source.getEntity() instanceof PlayerEntity && !source.getPlayerOrException().isCreative())
+        @Nullable final Level world = source.getLevel();
+        if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
         {
-            source.sendFailure(new StringTextComponent(NO_PERMISSION_MESSAGE));
+            source.sendFailure(new TextComponent(NO_PERMISSION_MESSAGE));
         }
 
-        final PlayerEntity player;
+        final Player player;
         if (profile != null && world.getServer() != null)
         {
             player = world.getServer().getPlayerList().getPlayer(profile.getId());
             if (player == null)
             {
-                source.sendFailure(new TranslationTextComponent(PLAYER_NOT_FOUND, profile.getName()));
+                source.sendFailure(new TranslatableComponent(PLAYER_NOT_FOUND, profile.getName()));
                 return 0;
             }
         } 
-        else if (source.getEntity() instanceof PlayerEntity)
+        else if (source.getEntity() instanceof Player)
         {
             player = source.getPlayerOrException();
         } 
         else
         {
-            source.sendFailure(new TranslationTextComponent(PLAYER_NOT_FOUND));
+            source.sendFailure(new TranslatableComponent(PLAYER_NOT_FOUND));
             return 0;
         }
 
         ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name, true, anchorPos);
-        source.sendFailure(new TranslationTextComponent(SCAN_SUCCESS_MESSAGE));
+        source.sendFailure(new TranslatableComponent(SCAN_SUCCESS_MESSAGE));
         return 1;
     }
 
-    private static int onExecute(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private static int onExecute(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
         final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
         return execute(context.getSource(), from, to, Optional.empty(), null, null);
     }
 
-    private static int onExecuteWithAnchor(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private static int onExecuteWithAnchor(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
         final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
@@ -116,7 +116,7 @@ public class ScanCommand extends AbstractCommand
         return execute(context.getSource(), from, to, Optional.of(anchorPos), null, null);
     }
 
-    private static int onExecuteWithPlayerName(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private static int onExecuteWithPlayerName(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
         final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
@@ -124,7 +124,7 @@ public class ScanCommand extends AbstractCommand
         return execute(context.getSource(), from, to, Optional.empty(), profile, null);
     }
 
-    private static int onExecuteWithPlayerNameAndFileName(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private static int onExecuteWithPlayerNameAndFileName(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
         final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
@@ -133,7 +133,7 @@ public class ScanCommand extends AbstractCommand
         return execute(context.getSource(), from, to, Optional.empty(), profile, name);
     }
 
-    private static int onExecuteWithPlayerNameAndFileNameAndAnchorPos(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private static int onExecuteWithPlayerNameAndFileNameAndAnchorPos(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         final BlockPos from = BlockPosArgument.getOrLoadBlockPos(context, POS1);
         final BlockPos to = BlockPosArgument.getOrLoadBlockPos(context, POS2);
@@ -143,7 +143,7 @@ public class ScanCommand extends AbstractCommand
         return execute(context.getSource(), from, to, Optional.of(anchorPos), profile, name);
     }
 
-    protected static LiteralArgumentBuilder<CommandSource> build()
+    protected static LiteralArgumentBuilder<CommandSourceStack> build()
     {
         return newLiteral(NAME)
                 .then(newArgument(POS1, BlockPosArgument.blockPos())

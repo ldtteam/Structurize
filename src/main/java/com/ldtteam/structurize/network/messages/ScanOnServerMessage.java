@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.items.ItemScanTool;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class ScanOnServerMessage implements IMessage
     /**
      * Empty public constructor.
      */
-    public ScanOnServerMessage(final PacketBuffer buf)
+    public ScanOnServerMessage(final FriendlyByteBuf buf)
     {
         this.name = buf.readUtf(32767);
         this.from = buf.readBlockPos();
@@ -62,7 +62,7 @@ public class ScanOnServerMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final PacketBuffer buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeUtf(name);
         buf.writeBlockPos(from);

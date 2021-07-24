@@ -3,23 +3,23 @@ package com.ldtteam.blockout.controls;
 import com.ldtteam.blockout.Pane;
 import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.PaneParams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import com.mojang.math.Vector3f;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -87,7 +87,7 @@ public class ItemIcon extends Pane
     }
 
     @Override
-    public void drawSelf(final MatrixStack ms, final double mx, final double my)
+    public void drawSelf(final PoseStack ms, final double mx, final double my)
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
@@ -95,7 +95,7 @@ public class ItemIcon extends Pane
             ms.translate(x, y, 0.0f);
             ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1.0f);
 
-            FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
+            Font font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
             {
                 font = mc.font;
@@ -115,15 +115,15 @@ public class ItemIcon extends Pane
     }
 
     private void renderGuiItemDecorations(
-      final MatrixStack matrixstack,
-      final FontRenderer fontRenderer,
+      final PoseStack matrixstack,
+      final Font fontRenderer,
       final ItemStack stack)
     {
         if (stack.getCount() != 1)
         {
             String s = String.valueOf(stack.getCount());
             matrixstack.translate(0.0D, 0.0D, 200.0D);
-            IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+            MultiBufferSource.BufferSource irendertypebuffer$impl = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             fontRenderer.drawInBatch(s,
               (float) (19 - 2 - fontRenderer.width(s)),
               (float) (6 + 3),
@@ -161,7 +161,7 @@ public class ItemIcon extends Pane
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            fill(matrixstack, 0, MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 0x7fffffff);
+            fill(matrixstack, 0, Mth.floor(16.0F * (1.0F - f3)), 16, Mth.ceil(16.0F * f3), 0x7fffffff);
             RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
@@ -171,12 +171,12 @@ public class ItemIcon extends Pane
     // TODO: remove when fixed upstream (vanilla)
     private static final Vector3f DEF_LIGHT = Util.make(new Vector3f(0.55F, 0.3f, -0.8F), Vector3f::normalize);
     private static final Vector3f DIF_LIGHT = Util.make(new Vector3f(-0.8F, 0.3f, 0.55F), Vector3f::normalize);
-    private void renderItemModelIntoGUI(ItemStack stack, MatrixStack matrixStack, IBakedModel bakedmodel)
+    private void renderItemModelIntoGUI(ItemStack stack, PoseStack matrixStack, BakedModel bakedmodel)
     {
 
         matrixStack.pushPose();
-        mc.getTextureManager().bind(AtlasTexture.LOCATION_BLOCKS);
-        mc.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).setBlurMipmap(false, false);
+        mc.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        mc.getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, false);
         RenderSystem.enableRescaleNormal();
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
@@ -186,7 +186,7 @@ public class ItemIcon extends Pane
         matrixStack.translate(8.0F, 8.0F, 150.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource irendertypebuffer$impl = mc.renderBuffers().bufferSource();
         if (!bakedmodel.usesBlockLight())
         {
             RenderSystem.setupGuiFlatDiffuseLighting(DEF_LIGHT, DIF_LIGHT);
@@ -198,7 +198,7 @@ public class ItemIcon extends Pane
 
         mc.getItemRenderer()
             .render(stack,
-                ItemCameraTransforms.TransformType.GUI,
+                ItemTransforms.TransformType.GUI,
                 false,
                 matrixStack,
                 irendertypebuffer$impl,
@@ -207,7 +207,7 @@ public class ItemIcon extends Pane
                 bakedmodel);
         irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();
-        RenderHelper.setupFor3DItems();
+        Lighting.setupFor3DItems();
 
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();

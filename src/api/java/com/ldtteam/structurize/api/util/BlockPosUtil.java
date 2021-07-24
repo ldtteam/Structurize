@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.api.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.command.CommandSource;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
@@ -31,9 +31,9 @@ public final class BlockPosUtil
      * @param name     Name of the tag.
      * @param pos      Coordinates to write to NBT.
      */
-    public static void writeToNBT(@NotNull final CompoundNBT compound, final String name, @NotNull final BlockPos pos)
+    public static void writeToNBT(@NotNull final CompoundTag compound, final String name, @NotNull final BlockPos pos)
     {
-        @NotNull final CompoundNBT coordsCompound = new CompoundNBT();
+        @NotNull final CompoundTag coordsCompound = new CompoundTag();
         coordsCompound.putInt("x", pos.getX());
         coordsCompound.putInt("y", pos.getY());
         coordsCompound.putInt("z", pos.getZ());
@@ -48,9 +48,9 @@ public final class BlockPosUtil
      * @return Chunk coordinates read from the compound.
      */
     @NotNull
-    public static BlockPos readFromNBT(@NotNull final CompoundNBT compound, final String name)
+    public static BlockPos readFromNBT(@NotNull final CompoundTag compound, final String name)
     {
-        final CompoundNBT coordsCompound = compound.getCompound(name);
+        final CompoundTag coordsCompound = compound.getCompound(name);
         final int x = coordsCompound.getInt("x");
         final int y = coordsCompound.getInt("y");
         final int z = coordsCompound.getInt("z");
@@ -63,9 +63,9 @@ public final class BlockPosUtil
      * @param tagList Tag list to write compound with chunk coordinates to.
      * @param pos     Coordinate to write to the tag list.
      */
-    public static void writeToNBTTagList(@NotNull final ListNBT tagList, @NotNull final BlockPos pos)
+    public static void writeToNBTTagList(@NotNull final ListTag tagList, @NotNull final BlockPos pos)
     {
-        @NotNull final CompoundNBT coordsCompound = new CompoundNBT();
+        @NotNull final CompoundTag coordsCompound = new CompoundTag();
         coordsCompound.putInt("x", pos.getX());
         coordsCompound.putInt("y", pos.getY());
         coordsCompound.putInt("z", pos.getZ());
@@ -79,7 +79,7 @@ public final class BlockPosUtil
      * @param sender   uses the player to get the world
      * @return isSafe true=safe false=water or lava
      */
-    public static boolean isPositionSafe(@NotNull final CommandSource sender, final BlockPos blockPos)
+    public static boolean isPositionSafe(@NotNull final CommandSourceStack sender, final BlockPos blockPos)
     {
         return sender.getLevel().getBlockState(blockPos).getBlock() != Blocks.AIR
                  && !sender.getLevel().getBlockState(blockPos).getMaterial().isLiquid()
@@ -114,7 +114,7 @@ public final class BlockPosUtil
      * @param coords Coordinates of the block.
      * @return Block at the given coordinates.
      */
-    public static Block getBlock(@NotNull final World world, @NotNull final BlockPos coords)
+    public static Block getBlock(@NotNull final Level world, @NotNull final BlockPos coords)
     {
         return world.getBlockState(coords).getBlock();
     }
@@ -126,7 +126,7 @@ public final class BlockPosUtil
      * @param coords Coordinates of the block.
      * @return Metadata of the block at the given coordinates.
      */
-    public static BlockState getBlockState(@NotNull final World world, @NotNull final BlockPos coords)
+    public static BlockState getBlockState(@NotNull final Level world, @NotNull final BlockPos coords)
     {
         return world.getBlockState(coords);
     }
@@ -140,7 +140,7 @@ public final class BlockPosUtil
      * @param flag    Flag to set.
      * @return True if block is placed, otherwise false.
      */
-    public static boolean setBlock(@NotNull final World worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
+    public static boolean setBlock(@NotNull final Level worldIn, @NotNull final BlockPos coords, final BlockState state, final int flag)
     {
         return worldIn.setBlock(coords, state, flag);
     }
@@ -151,7 +151,7 @@ public final class BlockPosUtil
      * @param pos    {@link BlockPos.Mutable}.
      * @param newPos The new position to set.
      */
-    public static void set(@NotNull final BlockPos.Mutable pos, @NotNull final BlockPos newPos)
+    public static void set(@NotNull final BlockPos.MutableBlockPos pos, @NotNull final BlockPos newPos)
     {
         pos.set(newPos.getX(), newPos.getY(), newPos.getZ());
     }

@@ -2,8 +2,8 @@ package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 /**
  * Abstract implementation of the handler holding information that is common for all handlers.
@@ -28,7 +28,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     /**
      * The minecraft world this struture is displayed in.
      */
-    private World world;
+    private Level world;
 
     /**
      * The anchor position this structure will be
@@ -43,7 +43,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * @param structureName the name of the structure.
      * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final World world, final BlockPos worldPos, final String structureName, final PlacementSettings settings)
+    public AbstractStructureHandler(final Level world, final BlockPos worldPos, final String structureName, final PlacementSettings settings)
     {
         this.world = world;
         this.worldPos = worldPos;
@@ -58,7 +58,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * @param blueprint the blueprint.
      * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final World world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings)
+    public AbstractStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings)
     {
         this.world = world;
         this.worldPos = pos;
@@ -91,7 +91,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     }
 
     @Override
-    public World getWorld()
+    public Level getWorld()
     {
         return this.world;
     }
