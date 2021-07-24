@@ -137,9 +137,9 @@ public class Window extends View
     }
 
     /**
-     * Return <tt>true</tt> if the 'lightbox' (default dark background) should be displayed.
+     * Return {@code true} if the 'lightbox' (default dark background) should be displayed.
      *
-     * @return <tt>true</tt> if the 'lightbox' should be displayed.
+     * @return {@code true} if the 'lightbox' should be displayed.
      */
     public boolean hasLightbox()
     {
@@ -147,9 +147,9 @@ public class Window extends View
     }
 
     /**
-     * Return <tt>true</tt> if the game should be paused when the Window is displayed.
+     * Return {@code true} if the game should be paused when the Window is displayed.
      *
-     * @return <tt>true</tt> if the game should be paused when the Window is displayed.
+     * @return {@code true} if the game should be paused when the Window is displayed.
      */
     public boolean doesWindowPauseGame()
     {
@@ -204,7 +204,7 @@ public class Window extends View
      *
      * @param ch  Character of key pressed.
      * @param key Keycode of key pressed.
-     * @return <tt>true</tt> if the key was handled by a Pane.
+     * @return {@code true} if the key was handled by a Pane.
      */
     @Override
     public boolean onKeyTyped(final char ch, final int key)

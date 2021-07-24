@@ -31,7 +31,6 @@ public interface IGuiHookable
      *
      * @param window      new window
      * @param triggerType type of trigger condition
-     * @see {@link #shouldOpen(Type)}
      */
     default void onOpen(final Window window, final Type triggerType)
     {

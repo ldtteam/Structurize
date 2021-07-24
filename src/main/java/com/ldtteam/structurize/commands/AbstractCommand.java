@@ -24,9 +24,6 @@ public abstract class AbstractCommand
 {
     /**
      * Get's command's server environment type.
-     * <li>{@link EnvironmentType#INTEGRATED} register only when on integrated server</li>
-     * <li>{@link EnvironmentType#DEDICATED} register only when on dedicated server</li>
-     * <li>{@link EnvironmentType#ALL} register always</li>
      *
      * @return in which command environment should be command registered
      */

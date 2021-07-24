@@ -72,7 +72,7 @@ public final class HookRegistries
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
          * @param trigger     trigger condition
-         * @see {@link IGuiHookable}
+         * @see IGuiHookable
          */
         public <T extends Entity & IGuiHookable> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -90,7 +90,7 @@ public final class HookRegistries
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
          * @param trigger        trigger condition
-         * @see {@link IGuiHookable}
+         * @see IGuiHookable
          */
         public <T extends Entity & IGuiHookable> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -114,7 +114,7 @@ public final class HookRegistries
          * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen      gets fired when gui is opened
          * @param onClose     gets fired when gui is closed
-         * @see {@link IGuiHookable} for gui callbacks
+         * @see IGuiHookable for gui callbacks
          */
         public <T extends Entity> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -141,7 +141,7 @@ public final class HookRegistries
          * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen         gets fired when gui is opened
          * @param onClose        gets fired when gui is closed
-         * @see {@link IGuiHookable} for gui callbacks
+         * @see IGuiHookable for gui callbacks
          */
         public <T extends Entity> void register(final EntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -217,7 +217,7 @@ public final class HookRegistries
          * @param targetThing registry object of thing on which gui should be displayed on
          * @param guiLoc      location of gui xml
          * @param trigger     trigger condition
-         * @see {@link IGuiHookable}
+         * @see IGuiHookable
          */
         public <T extends BlockEntity & IGuiHookable> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -235,7 +235,7 @@ public final class HookRegistries
          * @param guiLoc         location of gui xml
          * @param expirationTime how long should gui remain opened after the condition stops being satisfied [in millis]
          * @param trigger        trigger condition
-         * @see {@link IGuiHookable}
+         * @see IGuiHookable
          */
         public <T extends BlockEntity & IGuiHookable> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -259,7 +259,7 @@ public final class HookRegistries
          * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen      gets fired when gui is opened
          * @param onClose     gets fired when gui is closed
-         * @see {@link IGuiHookable} for gui callbacks
+         * @see IGuiHookable for gui callbacks
          */
         public <T extends BlockEntity> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,
@@ -286,7 +286,7 @@ public final class HookRegistries
          * @param shouldOpen  gets fired when gui is about to be opened, can deny opening
          * @param onOpen         gets fired when gui is opened
          * @param onClose        gets fired when gui is closed
-         * @see {@link IGuiHookable} for gui callbacks
+         * @see IGuiHookable for gui callbacks
          */
         public <T extends BlockEntity> void register(final BlockEntityType<T> targetThing,
             final ResourceLocation guiLoc,

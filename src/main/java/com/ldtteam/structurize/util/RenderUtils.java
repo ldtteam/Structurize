@@ -81,7 +81,7 @@ public class RenderUtils
      * @param text                    text list
      * @param matrixStack             stack to use
      * @param forceWhite              force white for no depth rendering
-     * @param mergeEveryXListElements merge every X elements of text list using {@link List#toString()}
+     * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
@@ -102,7 +102,7 @@ public class RenderUtils
      * @param matrixStack             stack to use
      * @param buffer                  render buffer
      * @param forceWhite              force white for no depth rendering
-     * @param mergeEveryXListElements merge every X elements of text list using {@link List#toString()}
+     * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,

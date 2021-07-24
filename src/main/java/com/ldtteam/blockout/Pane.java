@@ -274,9 +274,9 @@ public class Pane extends GuiComponent
     }
 
     /**
-     * Return <tt>true</tt> if this Pane is the current focus.
+     * Return {@code true} if this Pane is the current focus.
      *
-     * @return <tt>true</tt> if this Pane is the current focus.
+     * @return {@code true}  if this Pane is the current focus.
      */
     public final synchronized boolean isFocus()
     {

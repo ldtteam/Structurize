@@ -79,7 +79,7 @@ public class TriggerMechanism<T>
 
     /**
      * @return trigger mechanism type
-     * @see {@link Type}
+     * @see Type
      */
     public Type getType()
     {
