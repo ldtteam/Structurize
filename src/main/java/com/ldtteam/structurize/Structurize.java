@@ -1,7 +1,7 @@
 package com.ldtteam.structurize;
 
-import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
-import com.ldtteam.structures.blueprints.v1.DataVersion;
+import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
+import com.ldtteam.structurize.blueprints.v1.DataVersion;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement.structure;
 
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.PlacementSettings;

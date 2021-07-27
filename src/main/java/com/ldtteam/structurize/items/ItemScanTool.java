@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;

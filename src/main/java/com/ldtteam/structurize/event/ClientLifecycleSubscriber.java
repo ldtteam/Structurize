@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.blockout.Loader;
-import com.ldtteam.structures.client.BlueprintHandler;
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import net.minecraft.client.Minecraft;

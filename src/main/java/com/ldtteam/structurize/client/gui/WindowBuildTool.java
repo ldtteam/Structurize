@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.Log;
-import com.ldtteam.blockout.PaneBuilders;
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.views.DropDownList;
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
-import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.blockui.Log;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;

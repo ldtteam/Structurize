@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.proxy;
 
-import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.WindowBuildTool;

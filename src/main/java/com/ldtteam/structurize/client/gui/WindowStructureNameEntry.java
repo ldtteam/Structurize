@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.controls.ButtonHandler;
-import com.ldtteam.blockout.controls.TextField;
-import com.ldtteam.blockout.views.Window;
-import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.Window;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.StructureName;

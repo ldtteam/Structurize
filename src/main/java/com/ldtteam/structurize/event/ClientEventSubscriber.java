@@ -1,11 +1,11 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.blockout.hooks.HookManager;
-import com.ldtteam.blockout.hooks.HookRegistries;
-import com.ldtteam.structures.blueprints.v1.Blueprint;
-import com.ldtteam.structures.client.BlueprintHandler;
-import com.ldtteam.structures.client.StructureClientHandler;
-import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.blockui.hooks.HookManager;
+import com.ldtteam.blockui.hooks.HookRegistries;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.client.StructureClientHandler;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
@@ -34,7 +34,6 @@ import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;

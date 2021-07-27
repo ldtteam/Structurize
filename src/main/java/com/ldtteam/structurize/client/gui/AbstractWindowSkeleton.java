@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.controls.ButtonHandler;
-import com.ldtteam.blockout.views.Window;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.views.Window;
 import com.ldtteam.structurize.api.util.Log;
 import org.jetbrains.annotations.NotNull;
 
