@@ -1,6 +1,3 @@
 {
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "structurize:items/barreldeco_standing"
-  }
+  "parent": "structurize:block/barrel_dec/barreldeco_standing"
 }
