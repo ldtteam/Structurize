@@ -89,12 +89,4 @@ public class Structurize
     {
         return config;
     }
-
-//    @OnlyIn(Dist.CLIENT)
-//    @SubscribeEvent
-//    public static void doClientStuff(final FMLClientSetupEvent event)
-//    {
-//        RenderTypeLookup.setRenderLayer(ModBlocks.blockDecoBarrel_onside.get(), RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(ModBlocks.blockDecoBarrel_standing.get(), RenderType.cutout());
-//    }
 }
