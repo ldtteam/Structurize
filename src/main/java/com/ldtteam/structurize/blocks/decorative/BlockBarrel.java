@@ -32,13 +32,13 @@ public class BlockBarrel extends Block implements IWaterLoggable
     /**
      * This block's shape.
      */
-    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 15.0D, 15.0D, 15.0D);
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public BlockBarrel()
     {
-        super(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS).strength(3f, 1f));
+        super(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS).strength(3f, 1f).noOcclusion());
         this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false));
     }
 

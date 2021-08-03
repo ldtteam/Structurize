@@ -15,11 +15,16 @@ import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.tileentities.ModTileEntities;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -84,4 +89,12 @@ public class Structurize
     {
         return config;
     }
+
+//    @OnlyIn(Dist.CLIENT)
+//    @SubscribeEvent
+//    public static void doClientStuff(final FMLClientSetupEvent event)
+//    {
+//        RenderTypeLookup.setRenderLayer(ModBlocks.blockDecoBarrel_onside.get(), RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(ModBlocks.blockDecoBarrel_standing.get(), RenderType.cutout());
+//    }
 }
