@@ -3,20 +3,20 @@
 	"parent": "block/block",
 	"ambientocclusion": false,
 	"textures": {
-		"piston": "structurize:blocks/multi_piston",
-		"particle": "structurize:blocks/multi_piston"
+		"particle": "structurize:blocks/multi_piston",
+		"piston": "structurize:blocks/multi_piston"
 	},
 	"elements": [
 		{
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#piston"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#piston"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#piston"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#piston"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#piston"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#piston"}
+				"north": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#piston", "cullface": "down"}
 			}
 		}
 	]
