@@ -1,6 +1,6 @@
 {
-  "block.structurize.blockbarreldeco_onside":"Horizontal Barrel",
-  "block.structurize.blockbarreldeco_standing":"Vertical Barrel",
+  "block.structurize.blockbarreldeco_onside": "Horizontal Barrel",
+  "block.structurize.blockbarreldeco_standing": "Vertical Barrel",
   "block.structurize.blockfluidsubstitution": "Fluid Placeholder",
   "block.structurize.blocksolidsubstitution": "Solid Placeholder",
   "block.structurize.blocksubstitution": "Placeholder Block",
