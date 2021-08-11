@@ -1,9 +1,7 @@
 dependencies {
-    implementation "org.mariuszgromada.math:MathParser.org-mXparser:${project.mathParserVersion}"
     implementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
 
-    contained "org.mariuszgromada.math:MathParser.org-mXparser:${project.mathParserVersion}"
-    contained "com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.mathParserVersion}"
+    contained "com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}"
 
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 }
