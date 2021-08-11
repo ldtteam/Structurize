@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.blockui.views.Window;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -40,7 +40,7 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 /**
  * Window for the replace block GUI.
  */
-public class WindowReplaceBlock extends Window implements ButtonHandler
+public class WindowReplaceBlock extends BOWindow implements ButtonHandler
 {
     private static final String BUTTON_DONE          = "done";
     private static final String BUTTON_CANCEL        = "cancel";
@@ -95,7 +95,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     /**
      * The origin window.
      */
-    private final Window origin;
+    private final BOWindow origin;
 
     /**
      * Create the replacement GUI.
@@ -104,7 +104,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param pos2 the end pos.
      * @param origin the origin view.
      */
-    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
+    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final BOWindow origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;
@@ -122,7 +122,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * @param main main block or fill block.
      * @param origin the origin view.
      */
-    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
+    public WindowReplaceBlock(final ItemStack initialStack, final BlockPos pos, final boolean main, final BOWindow origin)
     {
         super(Constants.MOD_ID + WINDOW_REPLACE_BLOCK);
         this.from = initialStack;

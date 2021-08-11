@@ -548,7 +548,7 @@ public final class PlacementHandlers
                 {
                     for (final Entity entity : entityList)
                     {
-                        entity.remove(false);
+                        entity.remove(Entity.RemovalReason.KILLED);
                     }
                 }
 

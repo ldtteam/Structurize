@@ -3,18 +3,17 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.TextField;
-import com.ldtteam.blockui.views.Window;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Window for a town hall name entry.
  */
-public class WindowStructureNameEntry extends Window implements ButtonHandler
+public class WindowStructureNameEntry extends BOWindow implements ButtonHandler
 {
     private static final String BUTTON_DONE                    = "done";
     private static final String BUTTON_CANCEL                  = "cancel";

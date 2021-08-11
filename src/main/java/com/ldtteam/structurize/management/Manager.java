@@ -19,8 +19,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
-import org.mariuszgromada.math.mxparser.Argument;
-import org.mariuszgromada.math.mxparser.Expression;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -427,7 +425,7 @@ public final class Manager
      */
     public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block)
     {
-        Expression e = new Expression(equation);
+        /*Expression e = new Expression(equation);
         final Argument argumentX = new Argument("x = 0");
         final Argument argumentY = new Argument("y = 0");
         final Argument argumentZ = new Argument("z = 0");
@@ -456,7 +454,8 @@ public final class Manager
         }
         final Blueprint blueprint = new Blueprint((short) (length + 1), (short) (height + 1), (short) (width + 1));
         posList.forEach(blueprint::addBlockState);
-        return blueprint;
+        return blueprint;*/
+        return null;
     }
 
     /**

@@ -142,7 +142,7 @@ public class ChangeStorage
                 }
             }
         }
-        entitiesToKill.forEach(entity -> entity.remove(false));
+        entitiesToKill.forEach(entity -> entity.remove(Entity.RemovalReason.DISCARDED));
 
         return true;
     }

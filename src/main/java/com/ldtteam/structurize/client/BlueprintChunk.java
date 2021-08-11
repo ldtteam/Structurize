@@ -392,13 +392,13 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         // Noop
     }
 
     @Override
-    protected void reviveCaps()
+    public void reviveCaps()
     {
         // Noop
     }

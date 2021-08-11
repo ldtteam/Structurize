@@ -14,6 +14,6 @@ public enum Shape
     DIAMOND,
     PYRAMID,
     UPSIDE_DOWN_PYRAMID,
-    CYLINDER,
-    RANDOM
+    CYLINDER
+    //RANDOM
 }

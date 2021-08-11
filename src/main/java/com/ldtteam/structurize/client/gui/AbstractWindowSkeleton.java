@@ -2,9 +2,8 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
-import com.ldtteam.blockui.views.Window;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.api.util.Log;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -12,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * Manage windows and their events.
  */
-public abstract class AbstractWindowSkeleton extends Window implements ButtonHandler
+public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonHandler
 {
         private final HashMap<String, Consumer<Button>> buttons;
 

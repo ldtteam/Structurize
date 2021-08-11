@@ -235,7 +235,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         findPaneByID(RESOURCE_ICON_FILL).show();
 
 
-        if (shape == Shape.RANDOM)
+        /*if (shape == Shape.RANDOM)
         {
             inputShape.show();
             shapeLabel.show();
@@ -244,8 +244,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             findPaneByID(BUTTON_HOLLOW).hide();
             findPaneByID(BUTTON_PICK_FILL_BLOCK).hide();
             findPaneByID(RESOURCE_ICON_FILL).hide();
-        }
-        else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
+        }*/
+        if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
                    || shape == Shape.DIAMOND)
         {
             inputWidth.hide();

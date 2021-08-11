@@ -97,7 +97,7 @@ public class RemoveEntityMessage implements IMessage
                     {
                         if (entity.getName().getString().equals(entityName))
                         {
-                            entity.remove(false);
+                            entity.remove(Entity.RemovalReason.DISCARDED);
                         }
                     }
                 }
