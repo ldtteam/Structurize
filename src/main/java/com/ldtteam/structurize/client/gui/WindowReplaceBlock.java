@@ -156,7 +156,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
             if (!filterNew.trim().equals(filter))
             {
                 this.filter = filterNew;
-                this.tick = 20;
+                this.tick = 10;
             }
         });
 
