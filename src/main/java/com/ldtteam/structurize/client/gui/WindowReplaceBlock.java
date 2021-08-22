@@ -29,6 +29,7 @@ import net.minecraft.state.Property;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -40,7 +41,7 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 /**
  * Window for the replace block GUI.
  */
-public class WindowReplaceBlock extends Window implements ButtonHandler
+public class WindowReplaceBlock extends AbstractWindowSkeleton
 {
     private static final String BUTTON_DONE          = "done";
     private static final String BUTTON_CANCEL        = "cancel";
@@ -60,7 +61,7 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     /**
      * White color.
      */
-    private static final int WHITE     = Color.getByName("white", 0);
+    private static final int WHITE = Color.getByName("white", 0);
 
     /**
      * The end position.
@@ -98,11 +99,17 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private final Window origin;
 
     /**
+     * Current tick.
+     */
+    private int tick;
+
+    /**
      * Create the replacement GUI.
+     *
      * @param initialStack the initial stack.
-     * @param pos1 the start pos.
-     * @param pos2 the end pos.
-     * @param origin the origin view.
+     * @param pos1         the start pos.
+     * @param pos2         the end pos.
+     * @param origin       the origin view.
      */
     public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos1, final BlockPos pos2, final Window origin)
     {
@@ -117,10 +124,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
 
     /**
      * Create the replacement GUI.
+     *
      * @param initialStack the initial stack.
-     * @param pos the central pos.
-     * @param main main block or fill block.
-     * @param origin the origin view.
+     * @param pos          the central pos.
+     * @param main         main block or fill block.
+     * @param origin       the origin view.
      */
     public WindowReplaceBlock(@NotNull final ItemStack initialStack, final BlockPos pos, final boolean main, final Window origin)
     {
@@ -142,83 +150,95 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getHoverName());
         updateResources();
         updateResourceList();
+
+        findPaneOfTypeByID(INPUT_NAME, TextField.class).setHandler(input -> {
+            final String filterNew = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText().toLowerCase(Locale.US);
+            if (!filterNew.trim().equals(filter))
+            {
+                this.filter = filterNew;
+                this.tick = 10;
+            }
+        });
+
+
+        registerButton(BUTTON_DONE, this::doneClicked);
+
+        registerButton(BUTTON_CANCEL, button -> {
+            origin.open();
+        });
+
+        registerButton(BUTTON_SELECT, button -> {
+            final int row = resourceList.getListElementIndexByPane(button);
+            final ItemStack to = filteredItems.get(row);
+            findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getHoverName());
+        });
     }
 
     private void updateResources()
     {
         allItems.clear();
         allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
-            .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem && ((BucketItem) item).getFluid() != Fluids.EMPTY))
-            .map(ItemStack::new)
-            .collect(Collectors.toList())));
+                                               .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
+                                                                                                                          && ((BucketItem) item).getFluid() != Fluids.EMPTY))
+                                               .map(ItemStack::new)
+                                               .collect(Collectors.toList())));
         filteredItems = allItems;
     }
 
     @Override
-    public boolean onKeyTyped(final char ch, final int key)
+    public void onUpdate()
     {
-        final boolean result = super.onKeyTyped(ch, key);
-        final String filterNew = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText().toLowerCase(Locale.US);
-        if (!filterNew.trim().equals(filter))
+        super.onUpdate();
+        if (tick > 0 && --tick == 0)
         {
-            filter = filterNew;
             filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter))
-                .collect(Collectors.toList());
+                                                            .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                                                               || stack.getHoverName()
+                                                                                    .getString()
+                                                                                    .toLowerCase(Locale.US)
+                                                                                    .contains(filter.toLowerCase(Locale.US)))
+                                                            .collect(Collectors.toList());
+
+            filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
         }
-        return result;
     }
 
-    @Override
-    public void onButtonClicked(@NotNull final Button button)
+    public void doneClicked(final Button button)
     {
-        if (button.getID().equals(BUTTON_DONE))
+        final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
+        if (!ItemStackUtils.isEmpty(to) || to.getItem() instanceof AirItem)
         {
-            final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();
-            if (!ItemStackUtils.isEmpty(to) || to.getItem() instanceof AirItem)
+            if (origin instanceof WindowScan)
             {
-                if (origin instanceof WindowScan)
-                {
-                    final BlockState fromBS = BlockUtils.getBlockStateFromStack(from);
-                    final BlockState toBS = BlockUtils.getBlockStateFromStack(to);
+                final BlockState fromBS = BlockUtils.getBlockStateFromStack(from);
+                final BlockState toBS = BlockUtils.getBlockStateFromStack(to);
 
-                    final List<Property<?>> missingProperties = new ArrayList<>(toBS.getProperties());
-                    missingProperties.removeAll(fromBS.getProperties());
-                    if (!missingProperties.isEmpty())
-                    {
-                        LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
-                            "structurize.gui.replaceblock.ambiguous_properties",
-                            LanguageHandler.translateKey(fromBS.getBlock().getDescriptionId()),
-                            LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()),
-                            missingProperties.stream()
-                                .map(prop -> getPropertyName(prop) + " - " + prop.getName())
-                                .collect(Collectors.joining(", ", "[", "]")));
-                    }
-                    if (toBS.getBlock().is(ModBlocks.NULL_PLACEMENT))
-                    {
-                        LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
-                            "structurize.gui.replaceblock.null_placement",
-                            LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()));
-                    }
-                    Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
-                }
-                else if (origin instanceof WindowShapeTool)
+                final List<Property<?>> missingProperties = new ArrayList<>(toBS.getProperties());
+                missingProperties.removeAll(fromBS.getProperties());
+                if (!missingProperties.isEmpty())
                 {
-                    ((WindowShapeTool) origin).updateBlock(to, mainBlock);
+                    LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
+                      "structurize.gui.replaceblock.ambiguous_properties",
+                      LanguageHandler.translateKey(fromBS.getBlock().getDescriptionId()),
+                      LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()),
+                      missingProperties.stream()
+                        .map(prop -> getPropertyName(prop) + " - " + prop.getName())
+                        .collect(Collectors.joining(", ", "[", "]")));
                 }
-                origin.open();
+                if (toBS.getBlock().is(ModBlocks.NULL_PLACEMENT))
+                {
+                    LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
+                      "structurize.gui.replaceblock.null_placement",
+                      LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()));
+                }
+                Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
             }
-        }
-        else if (button.getID().equals(BUTTON_CANCEL))
-        {
+            else if (origin instanceof WindowShapeTool)
+            {
+                ((WindowShapeTool) origin).updateBlock(to, mainBlock);
+            }
             origin.open();
-        }
-        else if(button.getID().equals(BUTTON_SELECT))
-        {
-            final int row = resourceList.getListElementIndexByPane(button);
-            final ItemStack to = filteredItems.get(row);
-            findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getHoverName());
         }
     }
 
@@ -260,9 +280,9 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private String getPropertyName(final Property<?> clazz)
     {
         return clazz instanceof BooleanProperty ? "Boolean"
-            : clazz instanceof IntegerProperty ? "Integer"
-            : clazz instanceof EnumProperty ? "Enum"
-            : clazz instanceof DirectionProperty ? "Direction"
-            : clazz.getClass().getSimpleName();
+                 : clazz instanceof IntegerProperty ? "Integer"
+                     : clazz instanceof EnumProperty ? "Enum"
+                         : clazz instanceof DirectionProperty ? "Direction"
+                             : clazz.getClass().getSimpleName();
     }
 }

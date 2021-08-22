@@ -29,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -246,6 +247,16 @@ public class WindowScan extends AbstractWindowSkeleton
             }
         }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+
+        findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
+            final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
+            if (!name.isEmpty())
+            {
+                filter = name;
+            }
+
+            updateResources();
+        });
     }
 
     /**
@@ -278,20 +289,6 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(null);
         Settings.instance.setStructureName(null);
         close();
-    }
-
-    @Override
-    public boolean onKeyTyped(final char ch, final int key)
-    {
-        final boolean result = super.onKeyTyped(ch, key);
-        final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
-        if (!name.isEmpty())
-        {
-            filter = name;
-        }
-
-        updateResources();
-        return result;
     }
 
     /**
