@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.placement;
 
+import com.google.common.collect.ImmutableList;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,6 +18,7 @@ public class StructureIterators
      * The list of producers.
      */
     private static final Map<String, Function<IStructureHandler, AbstractBlueprintIterator>> iteratorProducers = new HashMap<>();
+
     /*
      * Pre-existing iterators.
      */
@@ -39,6 +42,15 @@ public class StructureIterators
     public static void registerIterator(final String id, final Function<IStructureHandler, AbstractBlueprintIterator> producer)
     {
         iteratorProducers.put(id, producer);
+    }
+
+    /**
+     * Get a list of all the possible settings.
+     * @return the list of settings.
+     */
+    public static List<String> getKeySet()
+    {
+        return ImmutableList.copyOf(iteratorProducers.keySet());
     }
 
     /**

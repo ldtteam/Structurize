@@ -29,6 +29,7 @@ import net.minecraft.state.Property;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -163,8 +164,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         {
             filter = filterNew;
             filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter))
+                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                   || stack.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
                 .collect(Collectors.toList());
+            
+            filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
         }
         return result;
     }
