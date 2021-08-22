@@ -89,6 +89,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     private String filter = "";
 
     /**
+     * The next filter to set.
+     */
+    private String filterNew = "";
+
+    /**
      * If this is to choose the main or the replace block.
      */
     private final boolean mainBlock;
@@ -97,6 +102,11 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
      * The origin window.
      */
     private final Window origin;
+
+    /**
+     * Current tick.
+     */
+    private int tick;
 
     /**
      * Create the replacement GUI.
@@ -143,6 +153,10 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
         findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) new ItemStack(Blocks.AIR).getHoverName());
         updateResources();
         updateResourceList();
+
+        findPaneOfTypeByID(INPUT_NAME, TextField.class).setHandler(input -> {
+            this.filterNew = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText().toLowerCase(Locale.US);
+        });
     }
 
     private void updateResources()
@@ -156,21 +170,26 @@ public class WindowReplaceBlock extends Window implements ButtonHandler
     }
 
     @Override
-    public boolean onKeyTyped(final char ch, final int key)
+    public void onUpdate()
     {
-        final boolean result = super.onKeyTyped(ch, key);
-        final String filterNew = findPaneOfTypeByID(INPUT_NAME, TextField.class).getText().toLowerCase(Locale.US);
-        if (!filterNew.trim().equals(filter))
+        super.onUpdate();
+        if (tick++ == 20)
         {
-            filter = filterNew;
-            filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                                   || stack.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
-                .collect(Collectors.toList());
-            
-            filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
+            tick = 0;
+            if (!filterNew.trim().equals(filter))
+            {
+                filter = filterNew;
+                filteredItems = filter.isEmpty() ? allItems : allItems.stream()
+                                                                .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                                                                   || stack.getHoverName()
+                                                                                        .getString()
+                                                                                        .toLowerCase(Locale.US)
+                                                                                        .contains(filter.toLowerCase(Locale.US)))
+                                                                .collect(Collectors.toList());
+
+                filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
+            }
         }
-        return result;
     }
 
     @Override
