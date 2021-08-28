@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
+import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
@@ -23,7 +24,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.Tags;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -864,6 +864,12 @@ public final class PlacementHandlers
 
                 world.getBlockState(pos).rotate(world, pos, settings.rotation);
                 world.getBlockState(pos).mirror(settings.mirror);
+
+                if (newTile instanceof IRotatableBlockEntity)
+                {
+                    ((IRotatableBlockEntity) newTile).rotate(settings.rotation);
+                    ((IRotatableBlockEntity) newTile).mirror(settings.mirror);
+                }
             }
         }
     }
