@@ -171,7 +171,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
             final int row = resourceList.getListElementIndexByPane(button);
             final ItemStack to = filteredItems.get(row);
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
-            findPaneOfTypeByID("resourceNameTo", Text.class).setText((IFormattableTextComponent) to.getHoverName());
+            findPaneOfTypeByID("resourceNameTo", Text.class).setText(to.getHoverName());
         });
     }
 
@@ -226,7 +226,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                         .map(prop -> getPropertyName(prop) + " - " + prop.getName())
                         .collect(Collectors.joining(", ", "[", "]")));
                 }
-                if (toBS.getBlock().is(ModBlocks.NULL_PLACEMENT))
+                if (toBS.is(ModBlocks.NULL_PLACEMENT))
                 {
                     LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
                       "structurize.gui.replaceblock.null_placement",

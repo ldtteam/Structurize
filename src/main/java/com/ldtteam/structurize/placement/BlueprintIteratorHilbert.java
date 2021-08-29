@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class BlueprintIteratorHilbert extends AbstractBlueprintIterator
     /**
      * Current index into the positions list.
      */
-    private int index;
+    private int                  index;
 
     public BlueprintIteratorHilbert(@NotNull final IStructureHandler structureHandler)
     {
