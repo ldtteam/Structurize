@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MAX_MESSAGE_SIZE;
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
@@ -46,6 +47,16 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
  */
 public class WindowBuildTool extends AbstractWindowSkeleton
 {
+    /**
+     * Pre resource string.
+     */
+    private static final String RES_STRING = "textures/gui/buildtool/%s.png";
+
+    /**
+     * Green String for selected state.
+     */
+    private static final String GREEN_POS = "_green";
+
     /**
      * All possible rotations.
      */
@@ -65,6 +76,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Rotation to rotateWithMirror left.
      */
     private static final int ROTATE_LEFT = 3;
+
+    /**
+     * Id of the rotation indicator.
+     */
+    private static final String IMAGE_ROTATION = "rotation";
 
     /**
      * Id of the paste button.
@@ -150,7 +166,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public WindowBuildTool(@Nullable final BlockPos pos, final String folder, final int rotation)
     {
-        super(Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
+        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
 
         if (!hasPermission())
         {
@@ -175,7 +191,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public WindowBuildTool(@Nullable final BlockPos pos)
     {
-        super(Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
+        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
 
         if (!hasPermission())
         {
@@ -209,7 +225,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, WindowBuildTool::mirror);
+        registerButton(BUTTON_MIRROR, this::mirror);
         registerButton(BUTTON_RIGHT, this::moveRightClicked);
         registerButton(BUTTON_BACKWARD, this::moveBackClicked);
         registerButton(BUTTON_FORWARD, this::moveForwardClicked);
@@ -273,6 +289,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         {
             findPaneByID(LABEL_WARNING).show();
         }
+
+        updateRotationState();
 
         init = false;
         changeSchematic();
@@ -430,9 +448,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Rotate the structure counter clockwise.
      */
-    private static void mirror()
+    private void mirror()
     {
         Settings.instance.mirror();
+        updateRotationState();
     }
 
     /**
@@ -783,6 +802,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_RIGHT) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
     /**
@@ -792,11 +812,41 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_LEFT) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
     /*
      * ---------------- Miscellaneous ----------------
      */
+
+    /**
+     * Indicate the current orientation state
+     */
+    private void updateRotationState()
+    {
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR +
+                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
+
+        String rotation;
+        switch (Settings.instance.getRotation())
+        {
+            case ROTATE_RIGHT:
+                rotation = "right_green";
+                break;
+            case ROTATE_180:
+                rotation = "down_green";
+                break;
+            case ROTATE_LEFT:
+                rotation = "left_green";
+                break;
+            default:
+                rotation = "up_green";
+                break;
+        }
+        findPaneOfTypeByID(IMAGE_ROTATION, Image.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)));
+    }
 
     /**
      * Changes the current structure.
