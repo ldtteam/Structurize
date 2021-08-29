@@ -250,6 +250,16 @@ public class WindowScan extends AbstractWindowSkeleton
             }
         }
         findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+
+        findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
+            final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
+            if (!name.isEmpty())
+            {
+                filter = name;
+            }
+
+            updateResources();
+        });
     }
 
     /**
@@ -282,20 +292,6 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setBox(null);
         Settings.instance.setStructureName(null);
         close();
-    }
-
-    @Override
-    public boolean onKeyTyped(final char ch, final int key)
-    {
-        final boolean result = super.onKeyTyped(ch, key);
-        final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
-        if (!name.isEmpty())
-        {
-            filter = name;
-        }
-
-        updateResources();
-        return result;
     }
 
     /**
