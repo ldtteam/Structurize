@@ -1225,8 +1225,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         confirmDeleteDialog = new DialogDoneCancel(getWindow());
         confirmDeleteDialog.setHandler(this::onDialogClosed);
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        confirmDeleteDialog.setTitle(LanguageHandler.format("com.ldtteam.gui.structure.delete.title"));
-        confirmDeleteDialog.setTextContent(LanguageHandler.format("com.ldtteam.gui.structure.delete.body", structureName.toString()));
+        confirmDeleteDialog.setTitle(new TranslatableComponent("com.ldtteam.gui.structure.delete.title"));
+        confirmDeleteDialog.setTextContent(new TranslatableComponent("com.ldtteam.gui.structure.delete.body", structureName.toString()).getString());
         confirmDeleteDialog.open();
     }
 

@@ -17,7 +17,7 @@
         <box size="100% 18" linewidth="2">
             <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
             <label id="resourceName" size="135 18" pos="20 0" color="white" wrap="true"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.select)" id="select" pos="160 1" size="86 17"
+            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.select)" id="select" pos="160 1" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>

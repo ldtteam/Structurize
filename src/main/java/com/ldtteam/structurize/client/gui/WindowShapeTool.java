@@ -15,6 +15,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
@@ -310,13 +311,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void replaceBlocksToggle()
     {
         final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
-        if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace")))
+        if (replaceButton.getTextAsString().equalsIgnoreCase(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.replace").getString()))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore"));
+            replaceButton.setText(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.ignore"));
         }
-        else if (replaceButton.getTextAsString().equalsIgnoreCase(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.ignore")))
+        else if (replaceButton.getTextAsString().equalsIgnoreCase(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.ignore").getString()))
         {
-            replaceButton.setText(LanguageHandler.format("com.ldtteam.structurize.gui.shapetool.replace"));
+            replaceButton.setText(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.replace"));
         }
     }
 

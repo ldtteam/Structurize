@@ -185,7 +185,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = LanguageHandler.format("item.sceptersteel.scanformat", "", currentMillisString);
+            fileName = new TranslatableComponent("item.sceptersteel.scanformat", "", currentMillisString).getString();
         }
         else
         {
@@ -260,7 +260,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = LanguageHandler.format("item.sceptersteel.scanformat");
+            fileName = new TranslatableComponent("item.sceptersteel.scanformat").getString();
         }
         else
         {

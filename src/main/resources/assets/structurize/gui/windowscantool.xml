@@ -1,23 +1,23 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
         size="420 240" pause="false" lightbox="false">
 
-    <label size="50 11" pos="60 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.from)"/>
+    <label size="50 11" pos="60 10" color="white" label="$(com.ldtteam.structurize.gui.scantool.from)"/>
     <input id="pos1x" size="36 18" pos="90 5" maxlength="10"/>
     <input id="pos1y" size="36 18" pos="130 5" maxlength="10"/>
     <input id="pos1z" size="36 18" pos="170 5" maxlength="10"/>
 
-    <label size="50 11" pos="220 10" color="white" label="$(com.ldtteam.structurize.gui.scanTool.to)"/>
+    <label size="50 11" pos="220 10" color="white" label="$(com.ldtteam.structurize.gui.scantool.to)"/>
     <input id="pos2x" size="36 18" pos="240 5" maxlength="10"/>
     <input id="pos2y" size="36 18" pos="280 5" maxlength="10"/>
     <input id="pos2z" size="36 18" pos="320 5" maxlength="10"/>
 
-    <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scanTool.name)"/>
+    <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.name)"/>
     <input id="name" size="178 18" pos="130 30" maxlength="40"/>
 
     <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="145 50"/>
     <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="235 50"/>
 
-    <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.showRes)" id="showRes" pos="140 80" size="129 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.showres)" id="showRes" pos="140 80" size="129 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black"/>
     <input id="filter" size="129 17" pos="140 80" maxlength="25" visible="false"/>
 
@@ -26,9 +26,9 @@
             <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
             <label id="resourceName" size="144 12" pos="18 1" color="white" wrap="true"/>
             <label id="resourceQuantity" size="30 12" pos="162 1" color="white" textalign="MIDDLE_RIGHT"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeBlock" pos="20 13" size="86 17"
+            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeBlock" pos="20 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.replace)" id="replaceBlock" pos="105 13" size="86 17"
+            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.replace)" id="replaceBlock" pos="105 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>
@@ -36,7 +36,7 @@
     <list id="entities" size="200 100" pos="220 100">
         <box size="100% 30" linewidth="2">
             <label id="resourceName" size="100% 12" pos="0 1" color="white" wrap="true"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeEntity" pos="0 13" size="86 17"
+            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeEntity" pos="0 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>
