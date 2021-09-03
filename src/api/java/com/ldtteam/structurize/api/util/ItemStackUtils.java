@@ -30,12 +30,6 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 public final class ItemStackUtils
 {
     /**
-     * Variable representing the empty itemstack in 1.10.
-     * Used for easy updating to 1.11
-     */
-    public static final ItemStack EMPTY = ItemStack.EMPTY;
-
-    /**
      * Private constructor to hide the implicit one.
      */
     private ItemStackUtils()
@@ -109,7 +103,7 @@ public final class ItemStackUtils
      */
         public static Boolean isEmpty(@Nullable final ItemStack stack)
     {
-        return stack == null || stack == EMPTY || stack.getCount() <= 0;
+        return stack == null || stack == ItemStack.EMPTY || stack.getCount() <= 0;
     }
 
     /**

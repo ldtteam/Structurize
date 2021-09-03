@@ -1,17 +1,11 @@
 package com.ldtteam.structurize.api.util;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.commands.CommandSourceStack;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Utility methods for BlockPos.
@@ -71,20 +65,6 @@ public final class BlockPosUtil
     }
 
     /**
-     * this checks that you are not in liquid. Will check for all liquids, even those from other mods before TP
-     *
-     * @param blockPos for the current block LOC
-     * @param sender   uses the player to get the world
-     * @return isSafe true=safe false=water or lava
-     */
-    public static boolean isPositionSafe(final CommandSourceStack sender, final BlockPos blockPos)
-    {
-        return sender.getLevel().getBlockState(blockPos).getBlock() != Blocks.AIR
-                 && !sender.getLevel().getBlockState(blockPos).getMaterial().isLiquid()
-                 && !sender.getLevel().getBlockState(blockPos.above()).getMaterial().isLiquid();
-    }
-
-    /**
      * Squared distance between two BlockPos.
      *
      * @param block1 position one.
@@ -106,69 +86,6 @@ public final class BlockPosUtil
     }
 
     /**
-     * Returns the block at a specific chunk coordinate.
-     *
-     * @param world  World the block is in.
-     * @param coords Coordinates of the block.
-     * @return Block at the given coordinates.
-     */
-    public static Block getBlock(final Level world, final BlockPos coords)
-    {
-        return world.getBlockState(coords).getBlock();
-    }
-
-    /**
-     * Returns the metadata of a block at a specific chunk coordinate.
-     *
-     * @param world  World the block is in.
-     * @param coords Coordinates of the block.
-     * @return Metadata of the block at the given coordinates.
-     */
-    public static BlockState getBlockState(final Level world, final BlockPos coords)
-    {
-        return world.getBlockState(coords);
-    }
-
-    /**
-     * Sets a block in the world, with specific metadata and flags.
-     *
-     * @param worldIn World the block needs to be set in.
-     * @param coords  Coordinate to place block.
-     * @param state   BlockState to be placed.
-     * @param flag    Flag to set.
-     * @return True if block is placed, otherwise false.
-     */
-    public static boolean setBlock(final Level worldIn, final BlockPos coords, final BlockState state, final int flag)
-    {
-        return worldIn.setBlock(coords, state, flag);
-    }
-
-    /**
-     * Create a method for using a {@link BlockPos} when using {@link BlockPos.MutableBlockPos#set(int, int, int)}.
-     *
-     * @param pos    {@link BlockPos.MutableBlockPos}.
-     * @param newPos The new position to set.
-     */
-    public static void set(final BlockPos.MutableBlockPos pos, final BlockPos newPos)
-    {
-        pos.set(newPos.getX(), newPos.getY(), newPos.getZ());
-    }
-
-    /**
-     * Returns whether a chunk coordinate is equals to (x, y, z).
-     *
-     * @param coords Chunk Coordinate    (point 1).
-     * @param x      x-coordinate        (point 2).
-     * @param y      y-coordinate        (point 2).
-     * @param z      z-coordinate        (point 2).
-     * @return True when coordinates are equal, otherwise false.
-     */
-    public static boolean isEqual(final BlockPos coords, final int x, final int y, final int z)
-    {
-        return coords.getX() == x && coords.getY() == y && coords.getZ() == z;
-    }
-
-    /**
      * Get the rotation enum value from the amount of rotations.
      *
      * @param rotations the amount of rotations.
@@ -178,11 +95,11 @@ public final class BlockPosUtil
     {
         switch (rotations)
         {
-            case ROTATE_ONCE:
+            case Constants.ROTATE_ONCE:
                 return Rotation.CLOCKWISE_90;
-            case ROTATE_TWICE:
+            case Constants.ROTATE_TWICE:
                 return Rotation.CLOCKWISE_180;
-            case ROTATE_THREE_TIMES:
+            case Constants.ROTATE_THREE_TIMES:
                 return Rotation.COUNTERCLOCKWISE_90;
             default:
                 return Rotation.NONE;

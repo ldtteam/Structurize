@@ -13,8 +13,8 @@ public class Configuration
     /**
      * Loaded clientside, not synced
      */
-    private final ModConfig client;
-    private final ClientConfiguration clientConfig;
+    // private final ModConfig client;
+    // private final ClientConfiguration clientConfig;
     /**
      * Loaded serverside, synced on connection
      */
@@ -28,20 +28,20 @@ public class Configuration
      */
     public Configuration(final ModContainer modContainer)
     {
-        final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
+        // final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
         final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::new);
-        client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
+        // client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
         server = new ModConfig(ModConfig.Type.SERVER, ser.getRight(), modContainer);
-        clientConfig = cli.getLeft();
+        // clientConfig = cli.getLeft();
         serverConfig = ser.getLeft();
-        modContainer.addConfig(client);
+        // modContainer.addConfig(client);
         modContainer.addConfig(server);
     }
 
-    public ClientConfiguration getClient()
-    {
-        return clientConfig;
-    }
+    // public ClientConfiguration getClient()
+    // {
+    //     return clientConfig;
+    // }
 
     public ServerConfiguration getServer()
     {

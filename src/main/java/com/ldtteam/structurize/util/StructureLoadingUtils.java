@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BUFFER_SIZE;
-import static com.ldtteam.structurize.api.util.constant.Suppression.RESOURCES_SHOULD_BE_CLOSED;
 import static com.ldtteam.structurize.management.Structures.SCHEMATICS_ASSET_PATH;
 import static com.ldtteam.structurize.management.Structures.SCHEMATIC_EXTENSION_NEW;
 
@@ -274,7 +273,6 @@ public final class StructureLoadingUtils
      * @param structureName name of the structure to load
      * @return the input stream or null
      */
-    @SuppressWarnings(RESOURCES_SHOULD_BE_CLOSED)
     @Nullable
     public static InputStream getStream(final String structureName)
     {

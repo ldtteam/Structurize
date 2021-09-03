@@ -53,7 +53,7 @@ public class ItemBuildTool extends AbstractItemStructurize
         //we want to return the build tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
-            return ItemStackUtils.EMPTY;
+            return ItemStack.EMPTY;
         }
         return itemStack.copy();
     }

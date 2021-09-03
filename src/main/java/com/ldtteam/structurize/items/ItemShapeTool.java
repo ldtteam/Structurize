@@ -52,7 +52,7 @@ public class ItemShapeTool extends AbstractItemStructurize
         //we want to return the shape tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
-            return ItemStackUtils.EMPTY;
+            return ItemStack.EMPTY;
         }
         return itemStack.copy();
     }
