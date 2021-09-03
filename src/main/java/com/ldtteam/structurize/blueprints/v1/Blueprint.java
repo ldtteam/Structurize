@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.blockui.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;

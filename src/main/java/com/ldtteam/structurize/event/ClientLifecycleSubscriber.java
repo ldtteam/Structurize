@@ -46,7 +46,6 @@ public class ClientLifecycleSubscriber
                     Log.getLogger().debug("Clearing blueprint renderer cache.");
                     BlueprintHandler.getInstance().clearCache();
                     Log.getLogger().debug("Clearing gui XML cache.");
-                    Loader.cleanParsedCache();
                 }
             });
         }

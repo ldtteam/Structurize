@@ -9,6 +9,7 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Window for a town hall name entry.
@@ -30,7 +31,7 @@ public class WindowStructureNameEntry extends BOWindow implements ButtonHandler
      */
     public WindowStructureNameEntry(final StructureName s)
     {
-        super(Constants.MOD_ID + STRUCTURE_NAME_RESOURCE_SUFFIX);
+        super(new ResourceLocation(Constants.MOD_ID + STRUCTURE_NAME_RESOURCE_SUFFIX));
         this.structureName = s;
         inputName = findPaneOfTypeByID(INPUT_NAME, TextField.class);
     }

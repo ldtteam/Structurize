@@ -1,17 +1,16 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockui.Log;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -34,7 +33,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -830,7 +828,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class)
                 .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR +
-                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
+                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
 
         String rotation;
         switch (Settings.instance.getRotation())
@@ -849,7 +847,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 break;
         }
         findPaneOfTypeByID(IMAGE_ROTATION, Image.class)
-                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)));
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
     }
 
     /**

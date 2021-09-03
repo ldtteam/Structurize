@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.blockui.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
