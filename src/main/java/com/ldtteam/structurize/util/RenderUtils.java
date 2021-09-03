@@ -121,8 +121,7 @@ public class RenderUtils
             final Font fontrenderer = Minecraft.getInstance().font;
 
             matrixStack.pushPose();
-            matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
-            matrixStack.translate(-viewPosition.x, -viewPosition.y, -viewPosition.z);
+            matrixStack.translate(pos.getX() + 0.5d - viewPosition.x, pos.getY() + 0.75d - viewPosition.y, pos.getZ() + 0.5d - viewPosition.z);
             matrixStack.mulPose(erm.cameraOrientation());
             matrixStack.scale(-0.014f, -0.014f, 0.014f);
             matrixStack.translate(0.0d, 18.0d, 0.0d);
@@ -143,7 +142,7 @@ public class RenderUtils
                 {
                     fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
                 }
-                matrixStack.translate(0.0d, 10.0d, 0.0d);
+                matrixStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
             }
 
             matrixStack.popPose();
@@ -165,13 +164,14 @@ public class RenderUtils
             throw new IllegalStateException();
         }
 
+        // TODO: once the all mighty event forge pr is pulled - move to outline phase, make proper glint
         private static final RenderType LINES_GLINT = create("structurize_lines_glint",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.LINES,
             256,
           false, false,
             RenderType.CompositeState.builder()
-                .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeGlintShader))
+                .setShaderState(RENDERTYPE_LINES_SHADER)
                 .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
                 .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                 .setTransparencyState(NO_TRANSPARENCY)

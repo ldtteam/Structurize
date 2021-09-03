@@ -62,6 +62,7 @@ import net.minecraft.world.level.TickList;
 
 /**
  * Our world/blockAccess dummy.
+ * TODO: client level
  */
 public class BlueprintBlockAccess extends Level
 {

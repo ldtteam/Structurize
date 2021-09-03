@@ -65,7 +65,6 @@ public class ClientEventSubscriber
             final BlockPos pos = Settings.instance.getPosition();
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-            RenderSystem.applyModelViewMatrix();
             StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
             renderAnchorPos(pos, matrixStack, linesWithoutCullAndDepth.get());
             RenderUtils.renderWhiteOutlineBox(posMinusOffset,

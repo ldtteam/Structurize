@@ -28,8 +28,6 @@ import net.minecraft.world.item.CompassItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import com.mojang.math.Matrix4f;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -104,6 +102,9 @@ public class BlueprintRenderer implements AutoCloseable
         final PoseStack matrixStack = new PoseStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
         final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();
+        final BlockState defaultFluidState = Minecraft.getInstance().level != null
+            ? BlockUtils.getFluidForDimension(Minecraft.getInstance().level)
+            : Blocks.WATER.defaultBlockState();
 
         for (final RenderType renderType : RenderType.chunkBufferLayers())
         {
@@ -120,9 +121,7 @@ public class BlueprintRenderer implements AutoCloseable
                     }
                     if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                     {
-                        state = Minecraft.getInstance().level != null
-                                ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
-                                : Blocks.WATER.defaultBlockState();
+                        state = defaultFluidState;
                     }
 
                     final BlockPos blockPos = blockInfo.getPos();
@@ -133,6 +132,7 @@ public class BlueprintRenderer implements AutoCloseable
 
                     if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
                     {
+                        // TODO: once the all mighty event forge pr is pulled - model data
                         blockRendererDispatcher
                             .renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
                     }
@@ -180,21 +180,20 @@ public class BlueprintRenderer implements AutoCloseable
 
         matrixStack.pushPose();
         matrixStack.translate(x - viewPosition.x(), y - viewPosition.y(), z - viewPosition.z());
-        final Matrix4f rawPosMatrix = matrixStack.last().pose();
 
         RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().mulPoseMatrix(rawPosMatrix);
+        RenderSystem.getModelViewStack().mulPoseMatrix(matrixStack.last().pose());
         RenderSystem.applyModelViewMatrix();
 
         // Render blocks
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish");
-        renderBlockLayer(RenderType.solid(), rawPosMatrix);
+        renderBlockLayer(RenderType.solid());
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
-        renderBlockLayer(RenderType.cutoutMipped(), rawPosMatrix);
+        renderBlockLayer(RenderType.cutoutMipped());
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
-        renderBlockLayer(RenderType.cutout(), rawPosMatrix);
+        renderBlockLayer(RenderType.cutout());
 
         OptifineCompat.getInstance().endTerrainBeginEntities();
 
@@ -221,11 +220,11 @@ public class BlueprintRenderer implements AutoCloseable
                     entity.getX(),
                     entity.getY(),
                     entity.getZ(),
-                    Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()),
-                    0,
+                    entity.getYRot(),
+                    partialTicks,
                     matrixStack,
                     renderBufferSource,
-                    200);
+                    LightTexture.pack(15, 15));
         });
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_entities_finish");
@@ -260,6 +259,8 @@ public class BlueprintRenderer implements AutoCloseable
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blockentities_finish");
         renderBufferSource.endBatch(RenderType.solid());
+        renderBufferSource.endBatch(RenderType.endPortal());
+        renderBufferSource.endBatch(RenderType.endGateway());
         renderBufferSource.endBatch(Sheets.solidBlockSheet());
         renderBufferSource.endBatch(Sheets.cutoutBlockSheet());
         renderBufferSource.endBatch(Sheets.bedSheet());
@@ -289,10 +290,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch();
 
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish2");
+        RenderSystem.applyModelViewMatrix();
         OptifineCompat.getInstance().endDebugPreWaterBeginWater();
-        renderBlockLayer(RenderType.translucent(), rawPosMatrix);
+        renderBlockLayer(RenderType.translucent());
         OptifineCompat.getInstance().endWater();
-        renderBlockLayer(RenderType.tripwire(), rawPosMatrix);
+        renderBlockLayer(RenderType.tripwire());
 
         matrixStack.popPose();
         RenderSystem.getModelViewStack().popPose();
@@ -317,49 +319,56 @@ public class BlueprintRenderer implements AutoCloseable
         clearVertexBuffers();
     }
 
-    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f rawPosMatrix)
+    private void renderBlockLayer(final RenderType layerRenderType)
     {
-        BufferUploader.reset();
-
         layerRenderType.setupRenderState();
 
-        VertexFormat vertexformat = DefaultVertexFormat.BLOCK;
+        VertexFormat vertexformat = layerRenderType.format();
         ShaderInstance shaderinstance = RenderSystem.getShader();
+        BufferUploader.reset();
 
-        for(int k = 0; k < 12; ++k) {
-            int i = RenderSystem.getShaderTexture(k);
-            shaderinstance.setSampler("Sampler" + k, i);
+        for (int k = 0; k < 12; ++k)
+        {
+            shaderinstance.setSampler("Sampler" + k, RenderSystem.getShaderTexture(k));
         }
 
-        if (shaderinstance.MODEL_VIEW_MATRIX != null) {
-            shaderinstance.MODEL_VIEW_MATRIX.set(rawPosMatrix);
+        if (shaderinstance.MODEL_VIEW_MATRIX != null)
+        {
+            shaderinstance.MODEL_VIEW_MATRIX.set(RenderSystem.getModelViewMatrix());
         }
 
-        if (shaderinstance.PROJECTION_MATRIX != null) {
+        if (shaderinstance.PROJECTION_MATRIX != null)
+        {
             shaderinstance.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
         }
 
-        if (shaderinstance.COLOR_MODULATOR != null) {
+        if (shaderinstance.COLOR_MODULATOR != null)
+        {
             shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
         }
 
-        if (shaderinstance.FOG_START != null) {
+        if (shaderinstance.FOG_START != null)
+        {
             shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
         }
 
-        if (shaderinstance.FOG_END != null) {
+        if (shaderinstance.FOG_END != null)
+        {
             shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
         }
 
-        if (shaderinstance.FOG_COLOR != null) {
+        if (shaderinstance.FOG_COLOR != null)
+        {
             shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
         }
 
-        if (shaderinstance.TEXTURE_MATRIX != null) {
+        if (shaderinstance.TEXTURE_MATRIX != null)
+        {
             shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
         }
 
-        if (shaderinstance.GAME_TIME != null) {
+        if (shaderinstance.GAME_TIME != null)
+        {
             shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
         }
 
@@ -367,17 +376,16 @@ public class BlueprintRenderer implements AutoCloseable
         shaderinstance.apply();
         Uniform uniform = shaderinstance.CHUNK_OFFSET;
 
-        if (uniform != null) {
-            uniform.set(0f,0f,0f);
+        if (uniform != null)
+        {
+            uniform.set(0f, 0f, 0f);
             uniform.upload();
         }
 
-        final VertexBuffer buffer = vertexBuffers.get(layerRenderType);
+        vertexBuffers.get(layerRenderType).drawChunkLayer();
 
-        RenderSystem.applyModelViewMatrix();
-        buffer.drawChunkLayer();
-
-        if (uniform != null) {
+        if (uniform != null)
+        {
             uniform.set(Vector3f.ZERO);
         }
 
