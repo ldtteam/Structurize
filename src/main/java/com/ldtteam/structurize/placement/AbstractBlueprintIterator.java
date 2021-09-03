@@ -6,7 +6,6 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.TriPredicate;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.function.Supplier;

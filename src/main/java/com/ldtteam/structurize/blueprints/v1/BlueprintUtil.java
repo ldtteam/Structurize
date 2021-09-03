@@ -2,7 +2,6 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;

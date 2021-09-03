@@ -5,7 +5,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import com.mojang.math.Vector3f;
-import org.jetbrains.annotations.NotNull;
 
 public final class RenderUtil
 {

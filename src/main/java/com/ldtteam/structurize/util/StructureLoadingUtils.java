@@ -13,7 +13,6 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import net.minecraftforge.forgespi.language.IModFileInfo;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;

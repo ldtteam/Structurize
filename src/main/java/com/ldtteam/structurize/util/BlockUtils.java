@@ -24,7 +24,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.GameData;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;

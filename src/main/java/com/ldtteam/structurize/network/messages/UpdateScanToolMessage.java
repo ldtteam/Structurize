@@ -9,7 +9,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;

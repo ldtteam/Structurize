@@ -8,7 +8,6 @@ import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;

@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -495,7 +494,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
                 resourceLabel.setText((MutableComponent) resource.getItemStack().getHoverName());
-                quantityLabel.setText(Integer.toString(resource.getAmount()));
+                quantityLabel.setText(new TextComponent(Integer.toString(resource.getAmount())));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 1, resource.getItemStack().getTag()));

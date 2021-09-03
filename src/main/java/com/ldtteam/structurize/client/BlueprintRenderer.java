@@ -13,14 +13,12 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.ReportedException;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -193,9 +191,9 @@ public class BlueprintRenderer implements AutoCloseable
         Minecraft.getInstance().getProfiler().popPush("struct_render_blocks_finish");
         renderBlockLayer(RenderType.solid(), rawPosMatrix);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
+        mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
         renderBlockLayer(RenderType.cutoutMipped(), rawPosMatrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
+        mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), rawPosMatrix);
 
         OptifineCompat.getInstance().endTerrainBeginEntities();

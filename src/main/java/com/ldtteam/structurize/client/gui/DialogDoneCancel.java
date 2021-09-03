@@ -123,7 +123,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      *
      * @param content to display in the dialog
      */
-    public void setTextContent(final String content)
+    public void setTextContent(final MutableComponent content)
     {
         contentText.setText(content);
     }

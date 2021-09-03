@@ -13,7 +13,6 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
-import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

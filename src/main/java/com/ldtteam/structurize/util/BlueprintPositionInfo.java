@@ -2,7 +2,6 @@ package com.ldtteam.structurize.util;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**

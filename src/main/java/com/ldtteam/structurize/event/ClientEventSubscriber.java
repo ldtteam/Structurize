@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.blockui.hooks.HookManager;
-import com.ldtteam.blockui.hooks.HookRegistries;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.StructureClientHandler;
@@ -17,7 +15,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderBuffers;
@@ -27,12 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
@@ -132,12 +126,6 @@ public class ClientEventSubscriber
 
         OptifineCompat.getInstance().postBlueprintDraw();
         Settings.instance.endStructurizePass();
-
-        final Vec3 viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        matrixStack.pushPose();
-        matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
-        HookRegistries.render(matrixStack, partialTicks);
-        matrixStack.popPose();
     }
 
     /**
@@ -172,25 +160,7 @@ public class ClientEventSubscriber
             BlueprintHandler.getInstance().cleanCache();
             Minecraft.getInstance().getProfiler().pop();
         }
-        if (Minecraft.getInstance().level != null)
-        {
-            Minecraft.getInstance().getProfiler().push("hook_manager_tick");
-            HookRegistries.tick(Minecraft.getInstance().level.getGameTime());
-            Minecraft.getInstance().getProfiler().pop();
-        }
 
         Minecraft.getInstance().getProfiler().pop();
-    }
-
-    /**
-     * Used to catch the scroll when no gui is open.
-     *
-     * @param event the catched event.
-     */
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onMouseScrollEvent(final MouseScrollEvent event)
-    {
-        // cancel in-game scrolling when raytraced gui has scrolling list
-        event.setCanceled(HookManager.onScroll(event.getScrollDelta()));
     }
 }

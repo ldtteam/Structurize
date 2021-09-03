@@ -12,14 +12,12 @@ import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -94,11 +92,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private int rotation = 0;
 
     /**
-     * Current position the hut/decoration is rendered at.
-     */
-        private BlockPos pos = new BlockPos(0, 0, 0);
-
-    /**
      * Creates a window inputShape tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
@@ -131,7 +124,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
         else if (pos != null)
         {
-            this.pos = pos;
             Settings.instance.setPosition(pos);
             Settings.instance.setRotation(0);
         }

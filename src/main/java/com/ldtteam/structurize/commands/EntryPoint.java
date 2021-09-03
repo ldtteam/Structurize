@@ -4,8 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands.CommandSelection;
 
-import com.ldtteam.structurize.commands.AbstractCommand.CommandTree;
-
 /**
  * Mod entry command
  */

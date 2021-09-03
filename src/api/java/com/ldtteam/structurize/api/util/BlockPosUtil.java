@@ -10,7 +10,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
