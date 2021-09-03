@@ -12,7 +12,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
@@ -23,8 +22,6 @@ import java.util.stream.Collectors;
  */
 public final class BlueprintUtils
 {
-    // private static final Set<String> blackListedTileEntityIds = new HashSet<>();
-    // private static final Set<String> blackListedEntityIds = new HashSet<>();
     private static final Function<BlockPos, BlockInfo> DEFAULT_FACTORY = pos -> new BlockInfo(pos, Blocks.AIR.defaultBlockState(), null);
 
     private BlueprintUtils()
@@ -98,10 +95,6 @@ public final class BlueprintUtils
 
         final String entityId = info.getTileEntityData().getString("id");
 
-        // We know that this is going to fail.
-        // Fail fast.
-        // if (blackListedTileEntityIds.contains(entityId)) return null;
-
         try
         {
             final CompoundTag compound = info.getTileEntityData().copy();
@@ -120,7 +113,6 @@ public final class BlueprintUtils
         catch (final Exception ex)
         {
             Log.getLogger().error("Could not create tile entity: " + entityId + " with nbt: " + info.toString(), ex);
-            // blackListedTileEntityIds.add(entityId);
             return null;
         }
     }
@@ -131,12 +123,6 @@ public final class BlueprintUtils
         if (info == null) return null;
 
         final String entityId = info.getString("id");
-
-        // We know that this is going to fail.
-        // Fail fast.
-        // Nightenom: completely wrong assumption...
-        // if (blackListedEntityIds.contains(entityId))
-        // return null;
 
         try
         {
@@ -158,7 +144,6 @@ public final class BlueprintUtils
         catch (final Exception ex)
         {
             Log.getLogger().error("Could not create entity: " + entityId + " with nbt: " + info.toString(), ex);
-            // blackListedEntityIds.add(entityId);
             return null;
         }
     }

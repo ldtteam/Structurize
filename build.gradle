@@ -17,5 +17,5 @@ buildscript {
 
 apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/mod.gradle'
 //apply from: 'D:\\Java\\Modding\\OperaPublicaCreator\\gradle\\mod.gradle'
-apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
+//apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 project.getLogger().lifecycle("Loaded remote build.gradle with version: " + project.modVersion)

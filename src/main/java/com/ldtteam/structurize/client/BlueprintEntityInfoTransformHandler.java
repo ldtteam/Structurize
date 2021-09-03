@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.client;
 
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;

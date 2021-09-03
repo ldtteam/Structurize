@@ -14,7 +14,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -63,6 +62,7 @@ import net.minecraft.world.level.TickList;
 
 /**
  * Our world/blockAccess dummy.
+ * TODO: client level
  */
 public class BlueprintBlockAccess extends Level
 {

@@ -3,8 +3,6 @@ package com.ldtteam.structurize.blocks.schematic;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Material;
 
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-
 /**
  * This block is used as a substitution block for the Builder.
  * Every solid block can be substituted by this block in schematics.

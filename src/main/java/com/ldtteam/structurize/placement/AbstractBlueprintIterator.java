@@ -1,12 +1,10 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.TriPredicate;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.function.Supplier;
@@ -183,7 +181,7 @@ public abstract class AbstractBlueprintIterator
      */
     public void reset()
     {
-        BlockPosUtil.set(this.progressPos, NULL_POS);
+        progressPos.set(NULL_POS);
         includeEntities = false;
         isRemoving = false;
     }
@@ -194,7 +192,7 @@ public abstract class AbstractBlueprintIterator
      */
     public BlockPos getProgressPos()
     {
-        return new BlockPos(progressPos);
+        return progressPos.immutable();
     }
 
     /**

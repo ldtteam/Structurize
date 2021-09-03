@@ -34,7 +34,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
             return Result.AT_END;
         }
 
-        BlockPosUtil.set(progressPos, next);
+        progressPos.set(next);
         return Result.NEW_BLOCK;
     }
 

@@ -14,7 +14,7 @@
 
 
     <list id="resources" size="250 120" pos="40 65">
-        <box size="100% 18" linewidth="2">
+        <box size="100% 18" linewidth="1">
             <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
             <label id="resourceName" size="135 18" pos="20 0" color="white" wrap="true"/>
             <buttonimage label="$(com.ldtteam.structurize.gui.scantool.select)" id="select" pos="160 1" size="86 17"
@@ -28,7 +28,7 @@
     <label id="taglistname" size="30 12" pos="300 50" color="white"/>
 
     <list id="nbttags" size="130 120" pos="300 65">
-        <box size="100% 17" linewidth="2">
+        <box size="100% 17" linewidth="1">
             <label id="tagname" size="80 12" pos="5 3" color="white"/>
             <buttonimage id="removeTag" pos="105 1" size="15 15" source="structurize:textures/gui/builderhut/button_x.png" textcolor="black"/>
         </box>

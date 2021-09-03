@@ -9,9 +9,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.world.item.Item.Properties;
 
 /**
  * Class handling the buildTool item.
@@ -56,7 +53,7 @@ public class ItemBuildTool extends AbstractItemStructurize
         //we want to return the build tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
-            return ItemStackUtils.EMPTY;
+            return ItemStack.EMPTY;
         }
         return itemStack.copy();
     }

@@ -2,7 +2,6 @@ package com.ldtteam.structurize.util;
 
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Placement settings for the blueprints.

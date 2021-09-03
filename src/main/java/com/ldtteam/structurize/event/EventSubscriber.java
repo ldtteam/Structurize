@@ -28,7 +28,6 @@ import net.minecraftforge.fmlserverevents.FMLServerStoppingEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;

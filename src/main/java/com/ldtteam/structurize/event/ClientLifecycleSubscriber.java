@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.blockui.Loader;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.optifine.OptifineCompat;
@@ -11,10 +10,6 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.util.function.Predicate;
 
 public class ClientLifecycleSubscriber
 {
@@ -45,7 +40,6 @@ public class ClientLifecycleSubscriber
                 {
                     Log.getLogger().debug("Clearing blueprint renderer cache.");
                     BlueprintHandler.getInstance().clearCache();
-                    Log.getLogger().debug("Clearing gui XML cache.");
                 }
             });
         }

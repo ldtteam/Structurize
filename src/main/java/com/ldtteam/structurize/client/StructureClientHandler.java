@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.NotNull;
 
 public final class StructureClientHandler
 {
