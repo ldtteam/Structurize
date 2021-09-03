@@ -64,7 +64,7 @@ public class BlueprintChunk extends Chunk
      */
     public BlueprintChunk(final World worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new BiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), new Biome[0]));
+        super(worldIn, new ChunkPos(x, z), new BiomeContainer(null, new Biome[0]));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 
