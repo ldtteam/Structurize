@@ -62,6 +62,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private static final String BUTTON_PASTE = "paste";
 
     /**
+     * Suffix of the minus buttons.
+     */
+    private static final String BUTTON_MINUS = "minus";
+
+    /**
+     * Suffix of the plus buttons.
+     */
+    private static final String BUTTON_PLUS = "plus";
+
+    /**
      * Id of the rotation indicator.
      */
     private static final String IMAGE_ROTATION = "rotation";
@@ -195,6 +205,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputFrequency.setText(Integer.toString(Settings.instance.getFrequency()));
         inputShape.setText(Settings.instance.getEquation());
 
+        registerButton(INPUT_WIDTH + BUTTON_MINUS, () -> adjust(inputWidth, Settings.instance.getWidth() - 1));
+        registerButton(INPUT_WIDTH + BUTTON_PLUS, () -> adjust(inputWidth, Settings.instance.getWidth() + 1));
+        registerButton(INPUT_LENGTH + BUTTON_MINUS, () -> adjust(inputLength, Settings.instance.getLength() - 1));
+        registerButton(INPUT_LENGTH + BUTTON_PLUS, () -> adjust(inputLength, Settings.instance.getLength() + 1));
+        registerButton(INPUT_HEIGHT + BUTTON_MINUS, () -> adjust(inputHeight, Settings.instance.getHeight() - 1));
+        registerButton(INPUT_HEIGHT + BUTTON_PLUS, () -> adjust(inputHeight, Settings.instance.getHeight() + 1));
+
         sections.clear();
         sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
 
@@ -312,6 +329,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void pickFillBlock()
     {
         new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false, this).open();
+    }
+
+    private void adjust(final TextField input, final int value)
+    {
+        input.setText(Integer.toString(Math.max(1, value)));
+
+        onKeyTyped('\0', 0);
     }
 
     /**
