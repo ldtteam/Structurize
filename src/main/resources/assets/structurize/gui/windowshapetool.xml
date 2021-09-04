@@ -51,6 +51,7 @@
         <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="0 96"/>
         <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
     </view>
+    <image id="rotation" size="16" pos="258 80"/>
 
     <button id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
 </window>

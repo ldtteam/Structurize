@@ -35,9 +35,24 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 public class WindowShapeTool extends AbstractWindowSkeleton
 {
     /**
+     * Pre resource string.
+     */
+    private static final String RES_STRING = "textures/gui/buildtool/%s.png";
+
+    /**
+     * Green String for selected state.
+     */
+    private static final String GREEN_POS = "_green";
+
+    /**
      * All possible rotations.
      */
     private static final int POSSIBLE_ROTATIONS = 4;
+
+    /**
+     * Id of the rotation indicator.
+     */
+    private static final String IMAGE_ROTATION = "rotation";
 
     /**
      * List of section.
@@ -141,7 +156,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_CONFIRM, this::paste);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, WindowShapeTool::mirror);
+        registerButton(BUTTON_MIRROR, this::mirror);
         registerButton(BUTTON_RIGHT, this::moveRightClicked);
         registerButton(BUTTON_BACKWARD, this::moveBackClicked);
         registerButton(BUTTON_FORWARD, this::moveForwardClicked);
@@ -181,6 +196,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         {
             genShape();
         }
+        updateRotationState();
 
         findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class)
           .setActiveState(Settings.instance.isHollow() ? "hollow" : "solid");
@@ -364,9 +380,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * Rotate the structure counter clockwise.
      */
-    private static void mirror()
+    private void mirror()
     {
         Settings.instance.mirror();
+        updateRotationState();
     }
 
     /**
@@ -532,6 +549,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_ONCE) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
     /**
@@ -541,6 +559,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_THREE_TIMES) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
 
@@ -582,6 +601,32 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
         Settings.instance.setRotation(rotation);
         settings.setMirror(Settings.instance.getMirror());
+    }
+
+    private void updateRotationState()
+    {
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR +
+                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
+
+        String rotation;
+        switch (Settings.instance.getRotation())
+        {
+            case ROTATE_ONCE:
+                rotation = "right_green";
+                break;
+            case ROTATE_TWICE:
+                rotation = "down_green";
+                break;
+            case ROTATE_THREE_TIMES:
+                rotation = "left_green";
+                break;
+            default:
+                rotation = "up_green";
+                break;
+        }
+        findPaneOfTypeByID(IMAGE_ROTATION, Image.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)));
     }
 
     /**
