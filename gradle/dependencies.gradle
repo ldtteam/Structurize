@@ -1,7 +1,15 @@
+repositories {
+    mavenLocal()
+}
+
 dependencies {
     implementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
 
     contained "com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}"
 
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+
+    apiCompileOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:api")
+    compileOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:api")
+    runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:universal")
 }

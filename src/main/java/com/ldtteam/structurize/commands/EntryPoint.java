@@ -53,7 +53,8 @@ public class EntryPoint extends AbstractCommand
         final CommandTree structurizeRoot = CommandTree.newRootNode()
             .addNode(linkSession)
             .addNode(UpdateSchematicsCommand::build, () -> CommandSelection.INTEGRATED)
-            .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType);
+            .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType)
+            .addNode(UpgradeCommand.ToDO::build, () -> CommandSelection.ALL);
 
         structurizeRoot.register(dispatcher, environment);
     }
