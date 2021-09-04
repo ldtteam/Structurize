@@ -309,7 +309,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
     {
         if (blueprint == null)
         {
-            reset();
+            resetBlueprint();
         }
         else
         {
@@ -323,11 +323,9 @@ public final class Settings implements INBTSerializable<CompoundNBT>
      */
     public void reset()
     {
-        blueprint = null;
+        resetBlueprint();
         rotation = 0;
         isMirrored = false;
-        staticSchematicMode = false;
-        staticSchematicName = null;
         hollow = false;
         structureName = null;
         pos = null;
@@ -340,13 +338,21 @@ public final class Settings implements INBTSerializable<CompoundNBT>
      */
     public void softReset()
     {
-        blueprint = null;
-        staticSchematicMode = false;
-        staticSchematicName = null;
+        resetBlueprint();
         hollow = false;
         pos = null;
         box = null;
         equation = "";
+    }
+
+    /**
+     * Resets the stored schematic without anything else.
+     */
+    public void resetBlueprint()
+    {
+        blueprint = null;
+        staticSchematicMode = false;
+        staticSchematicName = null;
     }
 
     /**

@@ -53,5 +53,6 @@
     </view>
     <image id="rotation" size="16" pos="258 80"/>
 
-    <button id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
+    <button id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="330 210" textcolor="Black" texthovercolor="White"/>
+    <button id="paste" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
 </window>

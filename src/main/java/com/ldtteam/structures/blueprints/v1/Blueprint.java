@@ -168,6 +168,7 @@ public class Blueprint
         this.requiredMods = new ArrayList<>();
         this.palette = new ArrayList<>();
         this.palette.add(0, ModBlocks.blockSubstitution.get().defaultBlockState());
+        this.palleteSize = 1;
     }
 
     /**
@@ -230,7 +231,7 @@ public class Blueprint
 
         if (index == -1)
         {
-            index = this.palleteSize + 1;
+            index = this.palleteSize;
             this.palleteSize++;
             this.palette.add(state);
         }

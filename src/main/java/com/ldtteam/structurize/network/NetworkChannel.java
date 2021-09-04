@@ -49,6 +49,7 @@ public class NetworkChannel
         registerMessage(++idx, MultiBlockChangeMessage.class, MultiBlockChangeMessage::new);
         registerMessage(++idx, BuildToolPasteMessage.class, BuildToolPasteMessage::new);
         registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
+        registerMessage(++idx, GenerateAndSaveMessage.class, GenerateAndSaveMessage::new);
         registerMessage(++idx, LSStructureDisplayerMessage.class, LSStructureDisplayerMessage::new);
         registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);

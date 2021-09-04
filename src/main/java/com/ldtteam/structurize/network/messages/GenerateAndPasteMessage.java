@@ -20,62 +20,62 @@ public class GenerateAndPasteMessage implements IMessage
     /**
      * If hollow or not.
      */
-    private final boolean hollow;
+    protected final boolean hollow;
 
     /**
      * The block to use for the schem.
      */
-    private final ItemStack block;
+    protected final ItemStack block;
 
     /**
      * The fill block to use for the schem.
      */
-    private final ItemStack block2;
+    protected final ItemStack block2;
 
     /**
      * The shape to get.
      */
-    private final Shape shape;
+    protected final Shape shape;
 
     /**
      * Position to scan from.
      */
-    private final BlockPos pos;
+    protected final BlockPos pos;
 
     /**
      * The length of the shape.
      */
-    private final int length;
+    protected final int length;
 
     /**
      * The width of the shape.
      */
-    private final int width;
+    protected final int width;
 
     /**
      * The height of the shape.
      */
-    private final int height;
+    protected final int height;
 
     /**
      * The frequency of a wave for example.
      */
-    private final int frequency;
+    protected final int frequency;
 
     /**
      * The equation of the random shape.
      */
-    private final String equation;
+    protected final String equation;
 
     /**
      * The rotation.
      */
-    private final int rotation;
+    protected final int rotation;
 
     /**
      * The mirror.
      */
-    private final boolean mirror;
+    protected final boolean mirror;
 
     /**
      * Empty constructor used when registering the message.
