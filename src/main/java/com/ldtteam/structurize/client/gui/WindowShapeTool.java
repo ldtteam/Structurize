@@ -219,7 +219,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
         sectionsDropDownList.setDataProvider(new SectionDropDownList());
         sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
+        registerButton("nextShape", sectionsDropDownList::selectNext);
+        registerButton("previousShape", sectionsDropDownList::selectPrevious);
         disableInputIfNecessary();
+
         if (structure == null || shouldUpdate)
         {
             genShape();
