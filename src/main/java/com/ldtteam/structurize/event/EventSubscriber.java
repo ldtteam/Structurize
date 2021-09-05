@@ -4,19 +4,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
+import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
+import com.ldtteam.structurize.update.UpdateMode;
 import com.ldtteam.structurize.util.BackUpHelper;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
@@ -29,6 +36,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -197,5 +205,37 @@ public class EventSubscriber
                 }
             }
         });
+    }
+
+    @SubscribeEvent
+    public static void onGatherServerLevelCapabilities(final AttachCapabilitiesEvent<Level> attachCapabilitiesEvent)
+    {
+        if (!(attachCapabilitiesEvent.getObject() instanceof final ServerLevel serverLevel))
+            return;
+
+        if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DISABLED)
+            return;
+
+            for (int chunkX = Structurize.getConfig().getServer().updateStartPos.get().get(0); chunkX < Structurize.getConfig().getServer().updateEndPos.get().get(0); chunkX++)
+            {
+                for (int chunkY = Structurize.getConfig().getServer().updateStartPos.get().get(1); chunkY < Structurize.getConfig().getServer().updateEndPos.get().get(1); chunkY++)
+                {
+                    CompoundTag chunkTag = null;
+                    try
+                    {
+                        chunkTag = serverLevel.getChunkSource().chunkMap.readChunk(new ChunkPos(chunkX,chunkY));
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    if (chunkTag != null)
+                    {
+                        if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DOMUM_ORNAMENTUM)
+                            DomumOrnamentumUpdateHandler.updateChunkTag(chunkTag, new ChunkPos(chunkX, chunkY));
+                    }
+                }
+            }
     }
 }
