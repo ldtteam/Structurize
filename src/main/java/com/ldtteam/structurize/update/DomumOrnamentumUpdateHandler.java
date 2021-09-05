@@ -178,6 +178,8 @@ public class DomumOrnamentumUpdateHandler
         final String coverName = blockEntryName.replace("_%s".formatted(woodName), "");
 
         final Block woodReplacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(woodName, Blocks.AIR);
+
+        return Optional.empty();
     }
 
     private static BlockState buildBlockState(final Block block, final CompoundTag propertiesTag) {

@@ -15,7 +15,9 @@ import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
 import com.ldtteam.structurize.util.BackUpHelper;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -36,11 +39,15 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Class with methods for receiving various forge events
@@ -207,6 +214,7 @@ public class EventSubscriber
         });
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @SubscribeEvent
     public static void onGatherServerLevelCapabilities(final AttachCapabilitiesEvent<Level> attachCapabilitiesEvent)
     {
@@ -216,26 +224,39 @@ public class EventSubscriber
         if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DISABLED)
             return;
 
-            for (int chunkX = Structurize.getConfig().getServer().updateStartPos.get().get(0); chunkX < Structurize.getConfig().getServer().updateEndPos.get().get(0); chunkX++)
+        final File regionDirectory = new File(serverLevel.getServer().storageSource.getDimensionPath(serverLevel.dimension()), "region");
+        regionDirectory.mkdirs();
+        final File[] regionFiles = regionDirectory.listFiles((file, s) -> s.endsWith(".mca"));
+        final List<ChunkPos> lowestRegionCorners = Arrays.stream(regionFiles != null ? regionFiles : new File[0])
+          .map(file -> file.getName().replace("r.", "").replace(".mca", ""))
+          .map(coordinate -> coordinate.split("\\."))
+          .map(coordinates -> new Tuple<>(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1])))
+          .map(regionCoordinate -> new ChunkPos(regionCoordinate.getA() << 5, regionCoordinate.getB() << 5))
+          .collect(Collectors.toList());
+
+        for (final ChunkPos lowestRegionCorner : lowestRegionCorners)
+        {
+            for (int x = 0; x < 32; x++)
             {
-                for (int chunkY = Structurize.getConfig().getServer().updateStartPos.get().get(1); chunkY < Structurize.getConfig().getServer().updateEndPos.get().get(1); chunkY++)
+                for (int z = 0; z < 32; z++)
                 {
-                    CompoundTag chunkTag = null;
+                    final ChunkPos chunkPos = new ChunkPos(lowestRegionCorner.x + x, lowestRegionCorner.z + z);
                     try
                     {
-                        chunkTag = serverLevel.getChunkSource().chunkMap.readChunk(new ChunkPos(chunkX,chunkY));
+                        final CompoundTag chunkTag = serverLevel.getChunkSource().chunkMap.readChunk(chunkPos);
+                        if (chunkTag != null) {
+                            if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DOMUM_ORNAMENTUM)
+                                DomumOrnamentumUpdateHandler.updateChunkTag(chunkTag, chunkPos);
+
+                            serverLevel.getChunkSource().chunkMap.write(chunkPos, chunkTag);
+                        }
                     }
                     catch (IOException e)
                     {
                         e.printStackTrace();
                     }
-
-                    if (chunkTag != null)
-                    {
-                        if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DOMUM_ORNAMENTUM)
-                            DomumOrnamentumUpdateHandler.updateChunkTag(chunkTag, new ChunkPos(chunkX, chunkY));
-                    }
                 }
             }
+        }
     }
 }
