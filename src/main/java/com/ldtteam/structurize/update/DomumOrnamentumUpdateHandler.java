@@ -210,7 +210,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_stairs", "").replace("stair", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -250,7 +254,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_wall", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -290,7 +298,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_slab", "").replace("slab", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -330,7 +342,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_fence", "").replace("fence", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -370,7 +386,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_fencegate", "").replace("fencegate", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -410,7 +430,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_door", "").replace("door", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -438,7 +462,7 @@ public class DomumOrnamentumUpdateHandler
 
         mtDoorBlockEntity.updateTextureDataWith(textureData);
 
-        propertiesTag.putString("type", "PORT_MANTEAU");
+        propertiesTag.putString("type", "port_manteau");
 
         return Optional.of(
           new Tuple<>(
@@ -452,7 +476,11 @@ public class DomumOrnamentumUpdateHandler
     {
         final String materialName = blockName.replace("structurize:", "").replace("_trapdoor", "").replace("trapdoor", "");
 
-        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
+        }
 
         if (replacementBlock == Blocks.AIR)
         {
@@ -480,7 +508,7 @@ public class DomumOrnamentumUpdateHandler
 
         mtTrapDoorBlockEntity.updateTextureDataWith(textureData);
 
-        propertiesTag.putString("type", "PORT_MANTEAU");
+        propertiesTag.putString("type", "port_manteau");
 
         return Optional.of(
           new Tuple<>(
@@ -498,12 +526,8 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            replacementBlock = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum", materialName + "_extra")));
-            if (replacementBlock == Blocks.AIR)
-            {
-                LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
-                return Optional.empty();
-            }
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
         }
 
         return Optional.of(
