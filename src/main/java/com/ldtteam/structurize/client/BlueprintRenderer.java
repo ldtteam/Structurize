@@ -259,7 +259,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Block entities
 
-        mc.getProfiler().popPush("struct_render_blockentities");
+        mc.getProfiler().popPush("struct_render_blockenSetities");
         final Camera oldActiveRenderInfo = mc.getBlockEntityRenderDispatcher().camera;
         final Level oldWorld = mc.getBlockEntityRenderDispatcher().level;
         mc.getBlockEntityRenderDispatcher().camera = new Camera();

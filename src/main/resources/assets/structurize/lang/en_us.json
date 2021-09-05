@@ -114,6 +114,7 @@
   "structurize.gui.replaceblock.null_placement": "Replacement with target block \"%s\" may not work under certain conditions.",
   "structurize.gui.buildtool.paste": "Instantly places the structure into the world, keeping Placeholder Blocks.",
   "structurize.gui.buildtool.pastenice": "Instantly places the structure into the world, as if constructed by a Builder.",
+  "structurize.gui.shapetool.creative_only": "Structurize does not support using the shape tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
   "structurize.config.iteratortype": "The iteration order on structure placement",
   "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle', 'hilbert', 'random' and 'inwardcircleheight1' to 'inwardcircleheight4' "
 }
