@@ -376,7 +376,7 @@ public class WindowScan extends AbstractWindowSkeleton
                         {
                             // noop
                         }
-                        else if (block == Blocks.AIR)
+                        else if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
                         {
                             addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
                         }

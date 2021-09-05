@@ -3,23 +3,32 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
+import com.ldtteam.structurize.management.StructureName;
+import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
+import com.ldtteam.structurize.network.messages.GenerateAndSaveMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.client.gui.WindowBuildTool.*;
 
 /**
  * BuildTool window.
@@ -34,9 +44,39 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 public class WindowShapeTool extends AbstractWindowSkeleton
 {
     /**
+     * Pre resource string.
+     */
+    private static final String RES_STRING = "textures/gui/buildtool/%s.png";
+
+    /**
+     * Green String for selected state.
+     */
+    private static final String GREEN_POS = "_green";
+
+    /**
      * All possible rotations.
      */
     private static final int POSSIBLE_ROTATIONS = 4;
+
+    /**
+     * Id of the paste button.
+     */
+    private static final String BUTTON_PASTE = "paste";
+
+    /**
+     * Suffix of the minus buttons.
+     */
+    private static final String BUTTON_MINUS = "minus";
+
+    /**
+     * Suffix of the plus buttons.
+     */
+    private static final String BUTTON_PLUS = "plus";
+
+    /**
+     * Id of the rotation indicator.
+     */
+    private static final String IMAGE_ROTATION = "rotation";
 
     /**
      * List of section.
@@ -102,14 +142,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     public WindowShapeTool(@Nullable final BlockPos pos)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
-        if (Minecraft.getInstance().player.isCreative())
-        {
-            this.init(pos, false);
-        }
+        this.init(pos, false);
     }
 
     private void init(final BlockPos pos, final boolean shouldUpdate)
     {
+        if (!hasPermission()) return;
+
         @Nullable final Blueprint structure = Settings.instance.getActiveStructure();
 
         if (structure != null)
@@ -129,10 +168,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
 
         //Register all necessary buttons with the window.
-        registerButton(BUTTON_CONFIRM, this::paste);
+        registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, WindowShapeTool::mirror);
+        registerButton(BUTTON_MIRROR, this::mirror);
         registerButton(BUTTON_RIGHT, this::moveRightClicked);
         registerButton(BUTTON_BACKWARD, this::moveBackClicked);
         registerButton(BUTTON_FORWARD, this::moveForwardClicked);
@@ -143,10 +182,10 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
         registerButton(BUTTON_PICK_FILL_BLOCK, this::pickFillBlock);
 
-        registerButton(BUTTON_REPLACE, this::replaceBlocksToggle);
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
 
         registerButton(UNDO_BUTTON, this::undoClicked);
+        registerButton(BUTTON_PASTE, this::pasteClicked);
 
         inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
         inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
@@ -160,6 +199,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputFrequency.setText(Integer.toString(Settings.instance.getFrequency()));
         inputShape.setText(Settings.instance.getEquation());
 
+        registerButton(INPUT_WIDTH + BUTTON_MINUS, () -> adjust(inputWidth, Settings.instance.getWidth() - 1));
+        registerButton(INPUT_WIDTH + BUTTON_PLUS, () -> adjust(inputWidth, Settings.instance.getWidth() + 1));
+        registerButton(INPUT_LENGTH + BUTTON_MINUS, () -> adjust(inputLength, Settings.instance.getLength() - 1));
+        registerButton(INPUT_LENGTH + BUTTON_PLUS, () -> adjust(inputLength, Settings.instance.getLength() + 1));
+        registerButton(INPUT_HEIGHT + BUTTON_MINUS, () -> adjust(inputHeight, Settings.instance.getHeight() - 1));
+        registerButton(INPUT_HEIGHT + BUTTON_PLUS, () -> adjust(inputHeight, Settings.instance.getHeight() + 1));
+
         sections.clear();
         sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
 
@@ -167,11 +213,15 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
         sectionsDropDownList.setDataProvider(new SectionDropDownList());
         sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
+        registerButton("nextShape", sectionsDropDownList::selectNext);
+        registerButton("previousShape", sectionsDropDownList::selectPrevious);
         disableInputIfNecessary();
+
         if (structure == null || shouldUpdate)
         {
             genShape();
         }
+        updateRotationState();
 
         findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class)
           .setActiveState(Settings.instance.isHollow() ? "hollow" : "solid");
@@ -278,6 +328,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false, this).open();
     }
 
+    private void adjust(final TextField input, final int value)
+    {
+        input.setText(Integer.toString(Math.max(1, value)));
+
+        onKeyTyped('\0', 0);
+    }
+
     /**
      * Drop down class for sections.
      */
@@ -296,7 +353,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
     }
 
-    // TODO: confirm whether this button actually exists. This function may be useless.
     /**
      * Ignore the blocks already in the world
      */
@@ -333,6 +389,73 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
+     * Confirm button clicked.
+     */
+    private void confirmClicked()
+    {
+        place();
+        clearAndClose();
+    }
+
+    /**
+     * Paste button clicked.
+     */
+    private void pasteClicked()
+    {
+        if (isCreative())
+        {
+            paste();
+        }
+
+        clearAndClose();
+    }
+
+    /**
+     * Override if place without paste is required.
+     */
+    protected void place()
+    {
+        if (isCreative())
+        {
+            paste();
+        }
+    }
+
+    /**
+     * Saves the current shape to the server.
+     * @return A name that can be used to place it.
+     */
+    protected StructureName save()
+    {
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        BlueprintUtil.writeToStream(stream, Settings.instance.getActiveStructure());
+
+        // cache it locally...
+        Structures.handleSaveSchematicMessage(stream.toByteArray(), true);
+
+        if (!Minecraft.getInstance().hasSingleplayerServer())
+        {
+            // and also on the server if needed
+            Network.getNetwork().sendToServer(new GenerateAndSaveMessage(Settings.instance.getPosition(),
+                    Settings.instance.getLength(),
+                    Settings.instance.getWidth(),
+                    Settings.instance.getHeight(),
+                    Settings.instance.getFrequency(),
+                    Settings.instance.getEquation(),
+                    Settings.instance.getShape(),
+                    Settings.instance.getBlock(true),
+                    Settings.instance.getBlock(false),
+                    Settings.instance.isHollow(),
+                    BlockUtils.getRotation(Settings.instance.getRotation()),
+                    Settings.instance.getMirror()));
+        }
+
+        // this assumes that the server will generate exactly the same blueprint data as the client did;
+        // hopefully that is true, since they should be using the same algorithm to do it...
+        return new StructureName(Structures.SCHEMATICS_CACHE + Structures.SCHEMATICS_SEPARATOR + StructureUtils.calculateMD5(stream.toByteArray()));
+    }
+
+    /**
      * Paste a schematic in the world.
      */
     private void paste()
@@ -349,15 +472,15 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.isHollow(),
           BlockUtils.getRotation(Settings.instance.getRotation()),
           Settings.instance.getMirror()));
-        close();
     }
 
     /**
      * Rotate the structure counter clockwise.
      */
-    private static void mirror()
+    private void mirror()
     {
         Settings.instance.mirror();
+        updateRotationState();
     }
 
     /**
@@ -367,14 +490,16 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        if (!Minecraft.getInstance().player.isCreative())
+        if (!hasPermission())
         {
+            LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player, "structurize.gui.shapetool.creative_only");
             close();
         }
         // updateRotation(rotation);
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
-        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
+        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(isCreative());
+        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 
     public void updateBlock(final ItemStack stack, final boolean mainBlock)
@@ -382,6 +507,26 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         Settings.instance.setBlock(stack, mainBlock);
         findPaneOfTypeByID(mainBlock ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
         genShape();
+    }
+
+    /**
+     * Defines if a player has access to the creative-only controls.
+     *
+     * @return true if so.
+     */
+    public boolean isCreative()
+    {
+        return Minecraft.getInstance().player.isCreative();
+    }
+
+    /**
+     * Defines if a player has permission to use this.
+     *
+     * @return true if so.
+     */
+    public boolean hasPermission()
+    {
+        return isCreative();
     }
 
     /*
@@ -523,6 +668,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_ONCE) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
     /**
@@ -532,6 +678,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     {
         rotation = (rotation + ROTATE_THREE_TIMES) % POSSIBLE_ROTATIONS;
         updateRotation(rotation);
+        updateRotationState();
     }
 
 
@@ -539,14 +686,19 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * ---------------- Miscellaneous ----------------
      */
 
+    private void clearAndClose()
+    {
+        Settings.instance.resetBlueprint();
+        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(null, false));
+        close();
+    }
+
     /**
      * Cancel the current structure.
      */
     private void cancelClicked()
     {
-        Settings.instance.reset();
-        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(null, false));
-        close();
+        clearAndClose();
     }
 
     /**
@@ -573,6 +725,32 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         }
         Settings.instance.setRotation(rotation);
         settings.setMirror(Settings.instance.getMirror());
+    }
+
+    private void updateRotationState()
+    {
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR +
+                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+
+        String rotation;
+        switch (Settings.instance.getRotation())
+        {
+            case ROTATE_ONCE:
+                rotation = "right_green";
+                break;
+            case ROTATE_TWICE:
+                rotation = "down_green";
+                break;
+            case ROTATE_THREE_TIMES:
+                rotation = "left_green";
+                break;
+            default:
+                rotation = "up_green";
+                break;
+        }
+        findPaneOfTypeByID(IMAGE_ROTATION, Image.class)
+                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
     }
 
     /**

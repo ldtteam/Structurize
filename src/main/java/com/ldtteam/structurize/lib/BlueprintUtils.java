@@ -9,6 +9,7 @@ import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
@@ -65,7 +66,7 @@ public final class BlueprintUtils
         return blueprint.getBlockInfoAsList()
             .stream()
             .map(blockInfo -> BlueprintBlockInfoTransformHandler.getInstance().Transform(blockInfo))
-            .filter(blockInfo -> blockInfo.getTileEntityData() != null)
+            .filter(BlockInfo::hasTileEntityData)
             .map(blockInfo -> constructTileEntity(blockInfo, blockAccess))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
@@ -136,6 +137,15 @@ public final class BlueprintUtils
                 if (entity != null)
                 {
                     entity.deserializeNBT(compound);
+
+                    // prevent ticking rotations
+                    entity.setOldPosAndRot();
+                    if (entity instanceof LivingEntity lentity)
+                    {
+                        lentity.yHeadRotO = lentity.yHeadRot;
+                        lentity.yBodyRotO = lentity.yBodyRot;
+                    }
+
                     return entity;
                 }
             }
