@@ -97,7 +97,7 @@ public class DomumOrnamentumUpdateHandler
             if (!name.startsWith("%s:".formatted(MOD_ID)))
                 continue;
 
-            final Optional<Tuple<BlockState, BlockEntity>> replacementData = createBlockReplacementData(paletteEntryTag);
+            final Optional<Tuple<BlockState, Optional<BlockEntity>>> replacementData = createBlockReplacementData(paletteEntryTag);
             if (replacementData.isEmpty())
                 continue;
 
@@ -107,24 +107,27 @@ public class DomumOrnamentumUpdateHandler
             paletteEntryTagKeys.forEach(paletteEntryTag::remove);
             blockStateTag.getAllKeys().forEach(key -> paletteEntryTag.put(key, Objects.requireNonNull(blockStateTag.get(key))));
 
-            final CompoundTag workingEntityNbt = replacementData.get().getB().serializeNBT();
-            paletteEntryToBitStoragePositionMap.get(i).forEach(bitStorageIndex -> {
-                final int inChunkX = bitStorageIndex & 15;
-                final int inChunkY = (bitStorageIndex >> 8) & 15;
-                final int inChunkZ = (bitStorageIndex >> 4) & 15;
+            if (replacementData.get().getB().isPresent())
+            {
+                final CompoundTag workingEntityNbt = replacementData.get().getB().get().serializeNBT();
+                paletteEntryToBitStoragePositionMap.get(i).forEach(bitStorageIndex -> {
+                    final int inChunkX = bitStorageIndex & 15;
+                    final int inChunkY = (bitStorageIndex >> 8) & 15;
+                    final int inChunkZ = (bitStorageIndex >> 4) & 15;
 
-                final BlockPos targetPos = chunkStart.offset(inChunkX, inChunkY, inChunkZ);
-                final CompoundTag targetTag = workingEntityNbt.copy();
-                targetTag.putInt("x", targetPos.getX());
-                targetTag.putInt("y", targetPos.getY());
-                targetTag.putInt("z", targetPos.getZ());
+                    final BlockPos targetPos = chunkStart.offset(inChunkX, inChunkY, inChunkZ);
+                    final CompoundTag targetTag = workingEntityNbt.copy();
+                    targetTag.putInt("x", targetPos.getX());
+                    targetTag.putInt("y", targetPos.getY());
+                    targetTag.putInt("z", targetPos.getZ());
 
-                blockEntityTags.add(targetTag);
-            });
+                    blockEntityTags.add(targetTag);
+                });
+            }
         }
     }
 
-    private static Optional<Tuple<BlockState, BlockEntity>> createBlockReplacementData(final CompoundTag paletteEntryTag)
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockReplacementData(final CompoundTag paletteEntryTag)
     {
         final String name = paletteEntryTag.getString("Name");
 
@@ -136,12 +139,34 @@ public class DomumOrnamentumUpdateHandler
         {
             return createBlockStairReplacementData(name, paletteEntryTag.getCompound("Properties"));
         }
-
-
-        return Optional.empty();
+        if (name.endsWith("_wall"))
+        {
+            return createBlockWallReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("slab"))
+        {
+            return createBlockSlabReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("fencegate"))
+        {
+            return createBlockFenceGateReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("fence"))
+        {
+            return createBlockFenceReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("trapdoor"))
+        {
+            return createBlockTrapDoorReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("door"))
+        {
+            return createBlockDoorReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        return createBlockDirectReplacementData(name, paletteEntryTag.getCompound("Properties"));
     }
 
-    private static Optional<Tuple<BlockState, BlockEntity>> createBlockpaperWallReplacementData(final String blockName, final CompoundTag propertiesTag) {
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockpaperWallReplacementData(final String blockName, final CompoundTag propertiesTag) {
         final String materialName = blockName.replace("structurize:", "").replace("_blockpaperwall", "");
 
         final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Blocks.AIR);
@@ -176,12 +201,12 @@ public class DomumOrnamentumUpdateHandler
         return Optional.of(
           new Tuple<>(
             buildBlockState(thinWallBlock, propertiesTag),
-            thinWallBlockEntity
+            Optional.of(thinWallBlockEntity)
           )
         );
     }
 
-    private static Optional<Tuple<BlockState, BlockEntity>> createBlockStairReplacementData(final String blockName, final CompoundTag propertiesTag)
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockStairReplacementData(final String blockName, final CompoundTag propertiesTag)
     {
         final String materialName = blockName.replace("structurize:", "").replace("_stairs", "").replace("stair", "");
 
@@ -194,13 +219,13 @@ public class DomumOrnamentumUpdateHandler
         }
 
         final Block stairBlock = IModBlocks.getInstance().getStair();
-        final IMateriallyTexturedBlock mtStairWallBlock = (IMateriallyTexturedBlock) stairBlock;
-        final EntityBlock ebStairWallBlock = (EntityBlock) stairBlock;
+        final IMateriallyTexturedBlock mtStairBlock = (IMateriallyTexturedBlock) stairBlock;
+        final EntityBlock ebStairBlock = (EntityBlock) stairBlock;
 
-        final BlockEntity stairBlockEntity = Objects.requireNonNull(ebStairWallBlock.newBlockEntity(BlockPos.ZERO, stairBlock.defaultBlockState()));
+        final BlockEntity stairBlockEntity = Objects.requireNonNull(ebStairBlock.newBlockEntity(BlockPos.ZERO, stairBlock.defaultBlockState()));
         final IMateriallyTexturedBlockEntity mtStairBlockEntity = (IMateriallyTexturedBlockEntity) stairBlockEntity;
 
-        final Collection<IMateriallyTexturedBlockComponent> components = mtStairWallBlock.getComponents();
+        final Collection<IMateriallyTexturedBlockComponent> components = mtStairBlock.getComponents();
         final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
 
         final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
@@ -216,7 +241,275 @@ public class DomumOrnamentumUpdateHandler
         return Optional.of(
           new Tuple<>(
             buildBlockState(stairBlock, propertiesTag),
-            stairBlockEntity
+            Optional.of(stairBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockWallReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_wall", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block wallBlock = IModBlocks.getInstance().getWall();
+        final IMateriallyTexturedBlock mtWallBlock = (IMateriallyTexturedBlock) wallBlock;
+        final EntityBlock ebWallBlock = (EntityBlock) wallBlock;
+
+        final BlockEntity wallBlockEntity = Objects.requireNonNull(ebWallBlock.newBlockEntity(BlockPos.ZERO, wallBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtWallBlockEntity = (IMateriallyTexturedBlockEntity) wallBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtWallBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtWallBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(wallBlock, propertiesTag),
+            Optional.of(wallBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockSlabReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_slab", "").replace("slab", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block slabBlock = IModBlocks.getInstance().getSlab();
+        final IMateriallyTexturedBlock mtSlabBlock = (IMateriallyTexturedBlock) slabBlock;
+        final EntityBlock ebSlabBlock = (EntityBlock) slabBlock;
+
+        final BlockEntity slabBlockEntity = Objects.requireNonNull(ebSlabBlock.newBlockEntity(BlockPos.ZERO, slabBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtSlabBlockEntity = (IMateriallyTexturedBlockEntity) slabBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtSlabBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtSlabBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(slabBlock, propertiesTag),
+            Optional.of(slabBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockFenceReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_fence", "").replace("fence", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block fenceBlock = IModBlocks.getInstance().getFence();
+        final IMateriallyTexturedBlock mtFenceBlock = (IMateriallyTexturedBlock) fenceBlock;
+        final EntityBlock ebFenceBlock = (EntityBlock) fenceBlock;
+
+        final BlockEntity fenceBlockEntity = Objects.requireNonNull(ebFenceBlock.newBlockEntity(BlockPos.ZERO, fenceBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtFenceBlockEntity = (IMateriallyTexturedBlockEntity) fenceBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtFenceBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtFenceBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(fenceBlock, propertiesTag),
+            Optional.of(fenceBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockFenceGateReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_fencegate", "").replace("fencegate", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block fenceGateBlock = IModBlocks.getInstance().getFenceGate();
+        final IMateriallyTexturedBlock mtFenceGateBlock = (IMateriallyTexturedBlock) fenceGateBlock;
+        final EntityBlock ebFenceGateBlock = (EntityBlock) fenceGateBlock;
+
+        final BlockEntity fenceGateBlockEntity = Objects.requireNonNull(ebFenceGateBlock.newBlockEntity(BlockPos.ZERO, fenceGateBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtFenceGateBlockEntity = (IMateriallyTexturedBlockEntity) fenceGateBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtFenceGateBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtFenceGateBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(fenceGateBlock, propertiesTag),
+            Optional.of(fenceGateBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockDoorReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_door", "").replace("door", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block doorBlock = IModBlocks.getInstance().getDoor();
+        final IMateriallyTexturedBlock mtDoorBlock = (IMateriallyTexturedBlock) doorBlock;
+        final EntityBlock ebDoorBlock = (EntityBlock) doorBlock;
+
+        final BlockEntity doorBlockEntity = Objects.requireNonNull(ebDoorBlock.newBlockEntity(BlockPos.ZERO, doorBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtDoorBlockEntity = (IMateriallyTexturedBlockEntity) doorBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtDoorBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtDoorBlockEntity.updateTextureDataWith(textureData);
+
+        propertiesTag.putString("type", "PORT_MANTEAU");
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(doorBlock, propertiesTag),
+            Optional.of(doorBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockTrapDoorReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_trapdoor", "").replace("trapdoor", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block trapDoorBlock = IModBlocks.getInstance().getTrapdoor();
+        final IMateriallyTexturedBlock mtTrapDoorBlock = (IMateriallyTexturedBlock) trapDoorBlock;
+        final EntityBlock ebTrapDoorBlock = (EntityBlock) trapDoorBlock;
+
+        final BlockEntity trapDoorBlockEntity = Objects.requireNonNull(ebTrapDoorBlock.newBlockEntity(BlockPos.ZERO, trapDoorBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtTrapDoorBlockEntity = (IMateriallyTexturedBlockEntity) trapDoorBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtTrapDoorBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtTrapDoorBlockEntity.updateTextureDataWith(textureData);
+
+        propertiesTag.putString("type", "PORT_MANTEAU");
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(trapDoorBlock, propertiesTag),
+            Optional.of(trapDoorBlockEntity)
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockDirectReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "");
+
+        Block replacementBlock = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum", materialName)));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            replacementBlock = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum", materialName + "_extra")));
+            if (replacementBlock == Blocks.AIR)
+            {
+                LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+                return Optional.empty();
+            }
+        }
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(replacementBlock, propertiesTag),
+            Optional.empty()
           )
         );
     }
