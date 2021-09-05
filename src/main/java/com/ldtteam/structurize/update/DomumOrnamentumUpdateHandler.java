@@ -9,6 +9,7 @@ import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
@@ -63,7 +64,7 @@ public class DomumOrnamentumUpdateHandler
         sectionsTag.forEach(sectionTag -> updateSectionTag(levelTag, (CompoundTag) sectionTag, chunkPos));
     }
 
-    private static void updateSectionTag(final CompoundTag levelTag, final CompoundTag sectionTag, final ChunkPos chunkPos) {
+    private static void updateSectionTag(final CompoundTag chunkTag, final CompoundTag sectionTag, final ChunkPos chunkPos) {
         if (!sectionTag.contains("Palette") || !sectionTag.contains("BlockStates"))
             return;
 
@@ -80,7 +81,11 @@ public class DomumOrnamentumUpdateHandler
             paletteEntryToBitStoragePositionMap.put(bitStorage.get(i), i);
         }
 
-        final BlockPos chunkStart = new BlockPos(chunkPos.getMinBlockX(), 0, chunkPos.getMinBlockZ());
+        int yOffset = sectionTag.getByte("Y");
+        final BlockPos chunkStart = new BlockPos(chunkPos.getMinBlockX(), yOffset, chunkPos.getMinBlockZ());
+
+        ListTag blockEntityTags = chunkTag.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
+
         for (int i = 0; i < paletteTag.size(); i++)
         {
             final CompoundTag paletteEntryTag = paletteTag.getCompound(i);
@@ -95,11 +100,27 @@ public class DomumOrnamentumUpdateHandler
             if (replacementData.isEmpty())
                 continue;
 
-            paletteEntryToBitStoragePositionMap.get(i).forEach(bitStorageIndex -> {
+            final BlockState blockState = replacementData.get().getA();
+            final CompoundTag blockStateTag = NbtUtils.writeBlockState(blockState);
+            final List<String> paletteEntryTagKeys = paletteEntryTag.getAllKeys().stream().toList();
+            paletteEntryTagKeys.forEach(paletteEntryTag::remove);
+            blockStateTag.getAllKeys().forEach(key -> paletteEntryTag.put(key, Objects.requireNonNull(blockStateTag.get(key))));
 
+            final CompoundTag workingEntityNbt = replacementData.get().getB().serializeNBT();
+            paletteEntryToBitStoragePositionMap.get(i).forEach(bitStorageIndex -> {
+                final int inChunkX = bitStorageIndex & 15;
+                final int inChunkY = (bitStorageIndex >> 8) & 15;
+                final int inChunkZ = (bitStorageIndex >> 4) & 15;
+
+                final BlockPos targetPos = chunkStart.offset(inChunkX, inChunkY, inChunkZ);
+                final CompoundTag targetTag = workingEntityNbt.copy();
+                targetTag.putInt("x", targetPos.getX());
+                targetTag.putInt("y", targetPos.getY());
+                targetTag.putInt("z", targetPos.getZ());
+
+                blockEntityTags.add(targetTag);
             });
         }
-
     }
 
     private static Optional<Tuple<BlockState, BlockEntity>> createBlockReplacementData(final CompoundTag paletteEntryTag) {
@@ -108,7 +129,7 @@ public class DomumOrnamentumUpdateHandler
         if (name.endsWith("_blockpaperwall"))
             return createBlockpaperWallReplacementData(name, paletteEntryTag.getCompound("Properties"));
 
-
+        return Optional.empty();
     }
 
     private static Optional<Tuple<BlockState, BlockEntity>> createBlockpaperWallReplacementData(final String blockName, final CompoundTag propertiesTag) {
