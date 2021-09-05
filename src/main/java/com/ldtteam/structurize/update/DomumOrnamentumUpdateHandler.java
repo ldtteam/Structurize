@@ -39,19 +39,20 @@ public class DomumOrnamentumUpdateHandler
     private static final Block CACTUS_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:cactus_extra")));
     private static final Block THIN_PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:white_paper_extra")));
 
-
     private static final Map<String, Block> MATERIAL_TO_BLOCK_MAP = ImmutableMap.<String, Block>builder()
-                                                                           .put("oak", Blocks.OAK_PLANKS)
-                                                                           .put("spruce", Blocks.SPRUCE_PLANKS)
-                                                                           .put("birch", Blocks.BIRCH_PLANKS)
-                                                                           .put("jungle", Blocks.JUNGLE_PLANKS)
-                                                                           .put("acacia", Blocks.ACACIA_PLANKS)
-                                                                           .put("dark_oak", Blocks.DARK_OAK_PLANKS)
-                                                                           .put("warped", Blocks.WARPED_PLANKS)
-                                                                           .put("crimson", Blocks.CRIMSON_PLANKS)
-                                                                           .put("cactus", CACTUS_BLOCK)
-                                                                           .put("thatched", Blocks.WHEAT)
-                                                                           .build();
+                                                                      .put("oak", Blocks.OAK_PLANKS)
+                                                                      .put("spruce", Blocks.SPRUCE_PLANKS)
+                                                                      .put("birch", Blocks.BIRCH_PLANKS)
+                                                                      .put("jungle", Blocks.JUNGLE_PLANKS)
+                                                                      .put("acacia", Blocks.ACACIA_PLANKS)
+                                                                      .put("dark_oak", Blocks.DARK_OAK_PLANKS)
+                                                                      .put("warped", Blocks.WARPED_PLANKS)
+                                                                      .put("crimson", Blocks.CRIMSON_PLANKS)
+                                                                      .put("cactus", CACTUS_BLOCK)
+                                                                      .put("thatched", Blocks.WHEAT)
+                                                                      .put("blockcactus", CACTUS_BLOCK)
+
+                                                                      .build();
 
     private DomumOrnamentumUpdateHandler()
     {
@@ -123,11 +124,19 @@ public class DomumOrnamentumUpdateHandler
         }
     }
 
-    private static Optional<Tuple<BlockState, BlockEntity>> createBlockReplacementData(final CompoundTag paletteEntryTag) {
+    private static Optional<Tuple<BlockState, BlockEntity>> createBlockReplacementData(final CompoundTag paletteEntryTag)
+    {
         final String name = paletteEntryTag.getString("Name");
 
         if (name.endsWith("_blockpaperwall"))
+        {
             return createBlockpaperWallReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+        if (name.endsWith("stair") || name.endsWith("stairs"))
+        {
+            return createBlockStairReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
+
 
         return Optional.empty();
     }
@@ -172,7 +181,48 @@ public class DomumOrnamentumUpdateHandler
         );
     }
 
-    private static Optional<Tuple<BlockState, BlockEntity>> createShingleReplacementData(final String blockName, final CompoundTag propertiesTag) {
+    private static Optional<Tuple<BlockState, BlockEntity>> createBlockStairReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
+        final String materialName = blockName.replace("structurize:", "").replace("_stairs", "").replace("stair", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
+
+        if (replacementBlock == Blocks.AIR)
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block stairBlock = IModBlocks.getInstance().getStair();
+        final IMateriallyTexturedBlock mtStairWallBlock = (IMateriallyTexturedBlock) stairBlock;
+        final EntityBlock ebStairWallBlock = (EntityBlock) stairBlock;
+
+        final BlockEntity stairBlockEntity = Objects.requireNonNull(ebStairWallBlock.newBlockEntity(BlockPos.ZERO, stairBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtStairBlockEntity = (IMateriallyTexturedBlockEntity) stairBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtStairWallBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(mainComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtStairBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(stairBlock, propertiesTag),
+            stairBlockEntity
+          )
+        );
+    }
+
+    private static Optional<Tuple<BlockState, BlockEntity>> createShingleReplacementData(final String blockName, final CompoundTag propertiesTag)
+    {
         final String blockEntryName = blockName.replace("structurize:", "").replace("_shingle", "");
         final String woodName = blockEntryName.substring(blockEntryName.lastIndexOf("_"));
         final String coverName = blockEntryName.replace("_%s".formatted(woodName), "");
