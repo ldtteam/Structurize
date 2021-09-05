@@ -147,7 +147,7 @@ public class SchematicSaveMessage implements IMessage
             }
             else
             {
-                Structures.handleSaveSchematicMessage(data);
+                Structures.handleSaveSchematicMessage(data, false);
             }
         }
     }
