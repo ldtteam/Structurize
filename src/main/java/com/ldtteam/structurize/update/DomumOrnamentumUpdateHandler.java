@@ -163,6 +163,10 @@ public class DomumOrnamentumUpdateHandler
         {
             return createBlockDoorReplacementData(name, paletteEntryTag.getCompound("Properties"));
         }
+        if (name.endsWith("carpet"))
+        {
+            return createBlockDirectReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
         return createBlockDirectReplacementData(name, paletteEntryTag.getCompound("Properties"));
     }
 
