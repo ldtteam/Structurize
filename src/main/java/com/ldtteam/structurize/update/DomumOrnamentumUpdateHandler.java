@@ -26,6 +26,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
@@ -38,6 +39,7 @@ public class DomumOrnamentumUpdateHandler
 
     private static final Block CACTUS_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:cactus_extra")));
     private static final Block THIN_PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:white_paper_extra")));
+    private static final Block PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:paper_extra")));
 
     private static final Map<String, Block> MATERIAL_TO_BLOCK_MAP = ImmutableMap.<String, Block>builder()
                                                                       .put("oak", Blocks.OAK_PLANKS)
@@ -51,7 +53,7 @@ public class DomumOrnamentumUpdateHandler
                                                                       .put("cactus", CACTUS_BLOCK)
                                                                       .put("thatched", Blocks.WHEAT)
                                                                       .put("blockcactus", CACTUS_BLOCK)
-
+                                                                      .put("paper", PAPER_BLOCK)
                                                                       .build();
 
     private DomumOrnamentumUpdateHandler()
@@ -167,7 +169,140 @@ public class DomumOrnamentumUpdateHandler
         {
             return createBlockDirectReplacementData(name, paletteEntryTag.getCompound("Properties"));
         }
+        if (name.endsWith("timber_frame"))
+        {
+            return createBlockTimberFrameReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
         return createBlockDirectReplacementData(name, paletteEntryTag.getCompound("Properties"));
+    }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockTimberFrameReplacementData(final String blockName, final CompoundTag propertiesTag) {
+        final String materialName = blockName.replace("structurize:", "").replace("_timber_frame", "");
+
+        final Block timberFrameBlock;
+
+        if (materialName.contains("double_crossed"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:double_crossed"));
+        }
+        else if (materialName.contains("down_gated"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:down_gated"));
+        }
+        else if (materialName.contains("horizontal_plain"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:horizontal_plain"));
+        }
+        else if (materialName.contains("one_crossed_lr"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:one_crossed_lr"));
+        }
+        else if (materialName.contains("one_crossed_rl"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:one_crossed_rl"));
+        }
+        else if (materialName.contains("plain"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:plain"));
+        }
+        else if (materialName.contains("side_framed_horizontal"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:side_framed_horizontal"));
+        }
+        else if (materialName.contains("up_gated"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:up_gated"));
+        }
+        else if (materialName.contains("side_framed"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:side_framed"));
+        }
+        else if (materialName.contains("framed"))
+        {
+            timberFrameBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:framed"));
+        }
+        else
+        {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        if (timberFrameBlock == Blocks.AIR) {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final String remainingName = materialName.replace(timberFrameBlock.getRegistryName().getPath() + "_", "");
+
+        final Block block1;
+        Block block2;
+
+        final String[] split = remainingName.split("_");
+        final String mat1;
+        int startIndex2 = 1;
+        if (remainingName.contains("dark_oak"))
+        {
+            startIndex2 = 2;
+            mat1 = "dark_oak";
+        }
+        else
+        {
+            mat1 = split[0];
+        }
+
+        block1 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat1.toLowerCase(Locale.ROOT), Blocks.AIR);
+        if (block1 == Blocks.AIR) {
+            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        String mat2 = "";
+        for (int i = startIndex2; i < split.length; i++)
+        {
+            mat2 += split[i] + "_";
+            //todo not 100%
+        }
+        mat2 = mat2.substring(0, mat2.length()-1);
+
+        //todo DO blocks.
+        block2 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat2.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft", mat2))));
+        if (block2 == Blocks.AIR) {
+
+            block2 = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum", mat2 + "s")));
+            if (block2 == Blocks.AIR)
+            {
+                LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+                return Optional.empty();
+            }
+        }
+
+        final IMateriallyTexturedBlock mtTFBlock = (IMateriallyTexturedBlock) timberFrameBlock;
+        final EntityBlock ebTFBlock = (EntityBlock) timberFrameBlock;
+
+        final BlockEntity tfBlockEntity = Objects.requireNonNull(ebTFBlock.newBlockEntity(BlockPos.ZERO, timberFrameBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtTFBlockEntity = (IMateriallyTexturedBlockEntity) tfBlockEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtTFBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent frameComponent = componentIterator.next();
+        final IMateriallyTexturedBlockComponent centerComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(frameComponent.getId(), block1)
+            .put(centerComponent.getId(), block2)
+            .build()
+        );
+
+        mtTFBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(timberFrameBlock, propertiesTag),
+            Optional.of(tfBlockEntity)
+          )
+        );
     }
 
     private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockpaperWallReplacementData(final String blockName, final CompoundTag propertiesTag) {
