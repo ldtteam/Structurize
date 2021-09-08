@@ -178,7 +178,7 @@ public class DomumOrnamentumUpdateHandler
         }
     }
 
-    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockReplacementData(final CompoundTag paletteEntryTag)
+    public static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockReplacementData(final CompoundTag paletteEntryTag)
     {
         final String name = paletteEntryTag.getString("Name");
 

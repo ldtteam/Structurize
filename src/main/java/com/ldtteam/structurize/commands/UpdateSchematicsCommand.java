@@ -1,10 +1,20 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
+import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
+import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -12,11 +22,18 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Constants.NBT;
-import java.io.File;
-import java.io.IOException;
+import net.minecraftforge.fml.ModList;
+import org.apache.logging.log4j.LogManager;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.blueprints.v1.BlueprintUtil.*;
 
 /**
  * Command to update all schematics in structurize/updater/input to the blueprint format to structurize/updater/output.
@@ -55,24 +72,29 @@ public class UpdateSchematicsCommand extends AbstractCommand
             return;
         }
 
-        if (input.getPath().endsWith(".blueprint"))
-        {
-            return;
-        }
-
         try
         {
+
             final File output = new File(globalOutputFolder, input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
             output.getParentFile().mkdirs();
+
+            if (input.getPath().endsWith(".blueprint"))
+            {
+                final Blueprint bluePrintCompound = fixBluePrints(input);
+
+                if (bluePrintCompound != null)
+                {
+                    output.createNewFile();
+                    NbtIo.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bluePrintCompound), Files.newOutputStream(output.toPath()));
+                }
+                return;
+            }
 
             CompoundTag blueprint = NbtIo.readCompressed(Files.newInputStream(input.toPath()));
             if (blueprint == null || blueprint.isEmpty())
             {
                 return;
             }
-
-            // blueprint = StructureUtils.getFixer().process(FixTypes.STRUCTURE, blueprint);
-            // TODO: this! (datafixer)
 
             final ListTag blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);
             final ListTag pallete = blueprint.getList("palette", NBT.TAG_COMPOUND);
@@ -170,6 +192,173 @@ public class UpdateSchematicsCommand extends AbstractCommand
         catch (final IOException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    private static Blueprint fixBluePrints(final File input)
+    {
+        try
+        {
+            FileInputStream inputStream = new FileInputStream(input);
+            byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
+            inputStream.close();
+            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(data));
+
+            return readBlueprintFromNBT(compoundNBT);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Could not read file:" + input.getName());
+        }
+        return null;
+    }
+
+    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag)
+    {
+        final CompoundTag tag = nbtTag;
+        byte version = tag.getByte("version");
+        if (version == 1)
+        {
+            short sizeX = tag.getShort("size_x"), sizeY = tag.getShort("size_y"), sizeZ = tag.getShort("size_z");
+
+            // Reading required Mods
+            List<String> requiredMods = new ArrayList<>();
+            List<String> missingMods = new ArrayList<>();
+            ListTag modsList = (ListTag) tag.get("required_mods");
+            short modListSize = (short) modsList.size();
+            for (int i = 0; i < modListSize; i++)
+            {
+                requiredMods.add((modsList.get(i)).getAsString());
+                if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
+                {
+                    LogManager.getLogger().warn("Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
+                    missingMods.add(requiredMods.get(i));
+                }
+            }
+
+            final int oldDataVersion = tag.contains("mcversion") ? tag.getInt("mcversion") : DEFAULT_FIXER_IF_NOT_FOUND;
+
+            // Reading Pallete
+            ListTag paletteTag = (ListTag) tag.get("palette");
+            List<BlockState> palette = new ArrayList<>();
+
+            // Reading Blocks
+            short[][][] blocks = convertSaveDataToBlocks(tag.getIntArray("blocks"), sizeX, sizeY, sizeZ);
+
+            // Reading Tile Entities
+            CompoundTag[] tes = fixTileEntities(oldDataVersion, (ListTag) tag.get("tile_entities"));
+
+            final List<CompoundTag> teList = new ArrayList<>();
+
+            UpdateSchematicsCommand.fixPalette(oldDataVersion, palette, teList, paletteTag, blocks, new BlockPos(sizeX, sizeY, sizeZ));
+
+            teList.addAll(Arrays.stream(tes).toList());
+
+            final CompoundTag[] tileEntities = teList.toArray(new CompoundTag[0]);
+
+
+            // Reading Entities
+            CompoundTag[] entities = fixEntities(oldDataVersion, (ListTag) tag.get("entities"));
+
+            if (oldDataVersion == DEFAULT_FIXER_IF_NOT_FOUND)
+            {
+                fixCross1343(palette, blocks, tileEntities, entities);
+            }
+
+            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods)
+                                      .setMissingMods(missingMods.toArray(new String[0]));
+
+            schem.setEntities(entities);
+
+            if (tag.getAllKeys().contains("name"))
+            {
+                schem.setName(tag.getString("name"));
+            }
+            if (tag.getAllKeys().contains("architects"))
+            {
+                ListTag architectsTag = (ListTag) tag.get("architects");
+                String[] architects = new String[architectsTag.size()];
+                for (int i = 0; i < architectsTag.size(); i++)
+                {
+                    architects[i] = architectsTag.getString(i);
+                }
+                schem.setArchitects(architects);
+            }
+
+            if (tag.getAllKeys().contains(NBT_OPTIONAL_DATA_TAG))
+            {
+                final CompoundTag optionalTag = tag.getCompound(NBT_OPTIONAL_DATA_TAG);
+                if (optionalTag.getAllKeys().contains(MOD_ID))
+                {
+                    final CompoundTag structurizeTag = optionalTag.getCompound(MOD_ID);
+                    BlockPos offsetPos = BlockPosUtil.readFromNBT(structurizeTag, "primary_offset");
+                    schem.setCachePrimaryOffset(offsetPos);
+                }
+            }
+
+            return schem;
+        }
+        return null;
+    }
+
+    public static void fixPalette(
+      final int oldDataVersion,
+      final List<BlockState> palette,
+      final List<CompoundTag> tileEntities,
+      final ListTag paletteTag, final short[][][] blocks, final BlockPos blockPos)
+    {
+        final short paletteSize = (short) paletteTag.size();
+
+        for (short i = 0; i < paletteSize; i++)
+        {
+            final CompoundTag nbt = paletteTag.getCompound(i);
+            try
+            {
+                final CompoundTag fixedNbt = DataFixerUtils.runDataFixer(nbt, References.BLOCK_STATE, oldDataVersion);
+                final String name = fixedNbt.getString("Name");
+                if (!name.startsWith("%s:".formatted(MOD_ID)))
+                {
+                    final BlockState state = NbtUtils.readBlockState(fixedNbt);
+                    palette.add(i, state);
+                    continue;
+                }
+
+                final Optional<Tuple<BlockState, Optional<BlockEntity>>> replacementData = DomumOrnamentumUpdateHandler.createBlockReplacementData(fixedNbt);
+                if (replacementData.isEmpty())
+                {
+                    final BlockState state = NbtUtils.readBlockState(fixedNbt);
+                    palette.add(i, state);
+                    continue;
+                }
+
+                palette.add(i, replacementData.get().getA());
+                if (replacementData.get().getB().isPresent())
+                {
+                    for (int y = 0; y < blockPos.getY(); y++)
+                    {
+                        for (int x = 0; x < blockPos.getX(); x++)
+                        {
+                            for (int z = 0; z < blockPos.getZ(); z++)
+                            {
+                                if (blocks[y][z][x] == i)
+                                {
+                                    final CompoundTag targetTag = replacementData.get().getB().get().serializeNBT().copy();
+                                    targetTag.putInt("x", x);
+                                    targetTag.putInt("y", y);
+                                    targetTag.putInt("z", z);
+
+                                    tileEntities.add(targetTag);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (final Exception e)
+            {
+                palette.add(i, Blocks.AIR.defaultBlockState());
+                Log.getLogger().warn("Blueprint reader: something went wrong loading block at position: " + i, e);
+            }
         }
     }
 

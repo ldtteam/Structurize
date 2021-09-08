@@ -122,14 +122,15 @@ public class Blueprint
      * @param tileEntities the tileEntities.
      * @param requiredMods the required mods.
      */
-    protected Blueprint(short sizeX,
-        short sizeY,
-        short sizeZ,
-        short palleteSize,
-        List<BlockState> pallete,
-        short[][][] structure,
-        CompoundTag[] tileEntities,
-        List<String> requiredMods)
+    public Blueprint(
+      short sizeX,
+      short sizeY,
+      short sizeZ,
+      short palleteSize,
+      List<BlockState> pallete,
+      short[][][] structure,
+      CompoundTag[] tileEntities,
+      List<String> requiredMods)
     {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
