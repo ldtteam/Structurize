@@ -198,6 +198,10 @@ public class DomumOrnamentumUpdateHandler
         {
             return createBlockShingeSlabReplacementData(name, paletteEntryTag.getCompound("Properties"));
         }
+        if (name.endsWith("shingle"))
+        {
+            return createBlockShingleReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
         if (name.endsWith("slab"))
         {
             return createBlockSlabReplacementData(name, paletteEntryTag.getCompound("Properties"));
@@ -355,6 +359,76 @@ public class DomumOrnamentumUpdateHandler
           )
         );
     }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockShingleReplacementData(final String blockName, final CompoundTag propertiesTag) {
+        final String materialName = blockName.replace("structurize:", "").replace("_shingle", "");
+
+        final Block block1;
+        Block block2;
+
+        final String[] split = materialName.split("_");
+        final String mat1;
+        int endIndex = split.length - 1;
+        if (materialName.contains("dark_oak"))
+        {
+            endIndex = split.length - 2;
+            mat1 = "dark_oak";
+        }
+        else
+        {
+            mat1 = split[endIndex];
+        }
+
+        block1 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat1.toLowerCase(Locale.ROOT), Blocks.AIR);
+        if (block1 == Blocks.AIR) {
+            LOGGER.error("Could not find replacement block for material: %s to create a new shingle. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        String mat2 = "";
+        for (int i = 0; i < endIndex; i++)
+        {
+            mat2 += split[i] + "_";
+        }
+        mat2 = mat2.substring(0, mat2.length()-1);
+
+        block2 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat2.toLowerCase(Locale.ROOT), Blocks.AIR);
+        if (block2 == Blocks.AIR) {
+
+            LOGGER.error("Could not find replacement block for material: %s to create a new shingle. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block shingleBlock = IModBlocks.getInstance().getShingle();
+        final IMateriallyTexturedBlock mtShingleBlock = (IMateriallyTexturedBlock) shingleBlock;
+        final EntityBlock ebShingleBlock = (EntityBlock) shingleBlock;
+
+        final BlockEntity shingleEntity = Objects.requireNonNull(ebShingleBlock.newBlockEntity(BlockPos.ZERO, shingleBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtShingleSlabBlockEntity = (IMateriallyTexturedBlockEntity) shingleEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtShingleBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent roofComponent = componentIterator.next();
+        final IMateriallyTexturedBlockComponent supportComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(roofComponent.getId(), block2)
+            .put(supportComponent.getId(), block1)
+            .build()
+        );
+
+        mtShingleSlabBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(shingleBlock, propertiesTag),
+            Optional.of(shingleEntity)
+          )
+        );
+    }
+
 
     private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockShingeSlabReplacementData(final String blockName, final CompoundTag propertiesTag) {
         final String materialName = blockName.replace("structurize:", "").replace("_shingle_slab", "");
