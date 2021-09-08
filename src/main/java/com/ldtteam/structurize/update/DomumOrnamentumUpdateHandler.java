@@ -14,6 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +28,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
@@ -41,6 +42,30 @@ public class DomumOrnamentumUpdateHandler
     private static final Block THIN_PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:white_paper_extra")));
     private static final Block PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:paper_extra")));
 
+    private static final Block BLACK_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:black_brick_extra")));
+    private static final Block BLUE_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:blue_brick_extra")));
+    private static final Block BLUE_SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:blue_cobblestone_extra")));
+    private static final Block BROWN_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:brown_brick_extra")));
+    private static final Block CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:brick_extra")));
+    private static final Block CYAN_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:cyan_brick_extra")));
+    private static final Block GRAY_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:gray_brick_extra")));
+    private static final Block GREEN_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:green_brick_extra")));
+    private static final Block GREEN_SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:green_cobblestone_extra")));
+    private static final Block LIGHT_BLUE_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:light_blue_brick_extra")));
+    private static final Block LIGHT_GRAY_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:light_gray_brick_extra")));
+    private static final Block LIME_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:lime_brick_extra")));
+    private static final Block MAGENTA_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:magenta_brick_extra")));
+    private static final Block ORANGE_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:orange_brick_extra")));
+    private static final Block PINK_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:pink_brick_extra")));
+    private static final Block PURPLE_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:purple_brick_extra")));
+    private static final Block PURPLE_SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:purple_cobblestone_extra")));
+    private static final Block RED_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:red_brick_extra")));
+    private static final Block SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:cobblestone_extra")));
+    private static final Block THATCHED = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:wheat_extra")));
+    private static final Block WHITE_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:white_brick_extra")));
+    private static final Block YELLOW_CLAY = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:yellow_brick_extra")));
+    private static final Block MOSS_SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:mossy_cobblestone_extra")));
+
     private static final Map<String, Block> MATERIAL_TO_BLOCK_MAP = ImmutableMap.<String, Block>builder()
                                                                       .put("oak", Blocks.OAK_PLANKS)
                                                                       .put("spruce", Blocks.SPRUCE_PLANKS)
@@ -51,9 +76,33 @@ public class DomumOrnamentumUpdateHandler
                                                                       .put("warped", Blocks.WARPED_PLANKS)
                                                                       .put("crimson", Blocks.CRIMSON_PLANKS)
                                                                       .put("cactus", CACTUS_BLOCK)
-                                                                      .put("thatched", Blocks.WHEAT)
                                                                       .put("blockcactus", CACTUS_BLOCK)
                                                                       .put("paper", PAPER_BLOCK)
+                                                                      .put("gilded_blackstone", Blocks.GILDED_BLACKSTONE)
+                                                                      .put("blackstone", Blocks.BLACKSTONE)
+                                                                      .put("black_clay", BLACK_CLAY)
+                                                                      .put("blue_clay", BLUE_CLAY)
+                                                                      .put("blue_slate", BLUE_SLATE)
+                                                                      .put("brown_clay", BROWN_CLAY)
+                                                                      .put("cyan_clay", CYAN_CLAY)
+                                                                      .put("gray_clay", GRAY_CLAY)
+                                                                      .put("green_clay", GREEN_CLAY)
+                                                                      .put("green_slate", GREEN_SLATE)
+                                                                      .put("light_blue_clay", LIGHT_BLUE_CLAY)
+                                                                      .put("light_gray_clay", LIGHT_GRAY_CLAY)
+                                                                      .put("lime_clay", LIME_CLAY)
+                                                                      .put("magenta_clay", MAGENTA_CLAY)
+                                                                      .put("orange_clay", ORANGE_CLAY)
+                                                                      .put("pink_clay", PINK_CLAY)
+                                                                      .put("purple_clay", PURPLE_CLAY)
+                                                                      .put("purple_slate", PURPLE_SLATE)
+                                                                      .put("red_clay", RED_CLAY)
+                                                                      .put("thatched", THATCHED)
+                                                                      .put("white_clay", WHITE_CLAY)
+                                                                      .put("yellow_clay", YELLOW_CLAY)
+                                                                      .put("slate", SLATE)
+                                                                      .put("clay", CLAY)
+                                                                      .put("moss_slate", MOSS_SLATE)
                                                                       .build();
 
     private DomumOrnamentumUpdateHandler()
@@ -145,6 +194,10 @@ public class DomumOrnamentumUpdateHandler
         {
             return createBlockWallReplacementData(name, paletteEntryTag.getCompound("Properties"));
         }
+        if (name.endsWith("shingle_slab"))
+        {
+            return createBlockShingeSlabReplacementData(name, paletteEntryTag.getCompound("Properties"));
+        }
         if (name.endsWith("slab"))
         {
             return createBlockSlabReplacementData(name, paletteEntryTag.getCompound("Properties"));
@@ -223,12 +276,12 @@ public class DomumOrnamentumUpdateHandler
         }
         else
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new timberframe. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
         if (timberFrameBlock == Blocks.AIR) {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new timberframe. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -252,7 +305,7 @@ public class DomumOrnamentumUpdateHandler
 
         block1 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat1.toLowerCase(Locale.ROOT), Blocks.AIR);
         if (block1 == Blocks.AIR) {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new timberframe. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -260,18 +313,16 @@ public class DomumOrnamentumUpdateHandler
         for (int i = startIndex2; i < split.length; i++)
         {
             mat2 += split[i] + "_";
-            //todo not 100%
         }
         mat2 = mat2.substring(0, mat2.length()-1);
 
-        //todo DO blocks.
         block2 = MATERIAL_TO_BLOCK_MAP.getOrDefault(mat2.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft", mat2))));
         if (block2 == Blocks.AIR) {
 
             block2 = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum", mat2 + "s")));
             if (block2 == Blocks.AIR)
             {
-                LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+                LOGGER.error("Could not find replacement block for material: %s to create a new timberframe. Conversion is skipped.".formatted(materialName));
                 return Optional.empty();
             }
         }
@@ -304,6 +355,49 @@ public class DomumOrnamentumUpdateHandler
           )
         );
     }
+
+    private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockShingeSlabReplacementData(final String blockName, final CompoundTag propertiesTag) {
+        final String materialName = blockName.replace("structurize:", "").replace("_shingle_slab", "");
+
+        final Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Blocks.AIR);
+
+        if (replacementBlock == Blocks.AIR) {
+            LOGGER.error("Could not find replacement block for material: %s to create a new shingle slab. Conversion is skipped.".formatted(materialName));
+            return Optional.empty();
+        }
+
+        final Block shingleSlabBlock = IModBlocks.getInstance().getShingleSlab();
+        final IMateriallyTexturedBlock mtShingleSlabBlock = (IMateriallyTexturedBlock) shingleSlabBlock;
+        final EntityBlock ebShingleSlablBlock = (EntityBlock) shingleSlabBlock;
+
+        final BlockEntity thinShingleSlabEntity = Objects.requireNonNull(ebShingleSlablBlock.newBlockEntity(BlockPos.ZERO, shingleSlabBlock.defaultBlockState()));
+        final IMateriallyTexturedBlockEntity mtShingleSlabBlockEntity = (IMateriallyTexturedBlockEntity) thinShingleSlabEntity;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = mtShingleSlabBlock.getComponents();
+        final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
+
+        final IMateriallyTexturedBlockComponent roofComponent = componentIterator.next();
+        final IMateriallyTexturedBlockComponent supportComponent = componentIterator.next();
+        final IMateriallyTexturedBlockComponent coverComponent = componentIterator.next();
+
+        final MaterialTextureData textureData = new MaterialTextureData(
+          ImmutableMap.<ResourceLocation, Block>builder()
+            .put(roofComponent.getId(), replacementBlock)
+            .put(supportComponent.getId(), Blocks.OAK_PLANKS)
+            .put(coverComponent.getId(), replacementBlock)
+            .build()
+        );
+
+        mtShingleSlabBlockEntity.updateTextureDataWith(textureData);
+
+        return Optional.of(
+          new Tuple<>(
+            buildBlockState(shingleSlabBlock, propertiesTag),
+            Optional.of(thinShingleSlabEntity)
+          )
+        );
+    }
+
 
     private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockpaperWallReplacementData(final String blockName, final CompoundTag propertiesTag) {
         final String materialName = blockName.replace("structurize:", "").replace("_blockpaperwall", "");
@@ -357,7 +451,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new stair. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -401,7 +495,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new wall. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -445,7 +539,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new slab. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -489,7 +583,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new fence. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -533,7 +627,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new gate. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -577,7 +671,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new door. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -623,7 +717,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new trapdoor. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
@@ -665,7 +759,7 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new paper wall. Conversion is skipped.".formatted(materialName));
+            LOGGER.error("Could not find replacement block for material: %s to create a new direct block. Conversion is skipped.".formatted(materialName));
             return Optional.empty();
         }
 
