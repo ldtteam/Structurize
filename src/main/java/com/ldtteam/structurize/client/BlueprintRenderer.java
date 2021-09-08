@@ -64,7 +64,7 @@ public class BlueprintRenderer implements AutoCloseable
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
-    private List<BlockEntity> tileEntities;
+    private Map<BlockPos, BlockEntity> tileEntities;
     private Map<RenderType, VertexBuffer> vertexBuffers;
     private long lastGameTime;
 
@@ -139,7 +139,13 @@ public class BlueprintRenderer implements AutoCloseable
                     matrixStack.pushPose();
                     matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                    if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
+                    final BlockEntity blockEntity = tileEntities.get(blockPos);
+                    if (blockEntity != null)
+                    {
+                        blockRendererDispatcher
+                          .renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random, blockEntity.getModelData());
+                    }
+                    else if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
                     {
                         // TODO: once the all mighty event forge pr is pulled - model data
                         blockRendererDispatcher
@@ -265,7 +271,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getBlockEntityRenderDispatcher().camera = new Camera();
         mc.getBlockEntityRenderDispatcher().camera.setPosition(viewPosition.subtract(worldPos.getX(), worldPos.getY(), worldPos.getZ()));
         mc.getBlockEntityRenderDispatcher().level = blockAccess;
-        for(final BlockEntity tileEntity : tileEntities)
+        for(final BlockEntity tileEntity : tileEntities.values())
         {
             final BlockPos tePos = tileEntity.getBlockPos();
 
