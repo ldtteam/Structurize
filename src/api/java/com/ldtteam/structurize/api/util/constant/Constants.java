@@ -21,6 +21,7 @@ public final class Constants
     public static final int    UPDATE_FLAG                      = BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.BLOCK_UPDATE;
     public static final double HALF_BLOCK                       = 0.5D;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
+    public static final String GROUNDLEVEL_TAG                  = "groundlevel";
 
     /**
      * Volume to play at.
