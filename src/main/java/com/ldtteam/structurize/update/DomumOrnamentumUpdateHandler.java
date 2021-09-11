@@ -68,6 +68,7 @@ public class DomumOrnamentumUpdateHandler
     private static final Block MOSS_SLATE = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:mossy_cobblestone_extra")));
 
     private static final Map<String, Block> MATERIAL_TO_BLOCK_MAP = ImmutableMap.<String, Block>builder()
+                                                                      .put("cobble_stone", Blocks.COBBLESTONE)
                                                                       .put("oak", Blocks.OAK_PLANKS)
                                                                       .put("spruce", Blocks.SPRUCE_PLANKS)
                                                                       .put("birch", Blocks.BIRCH_PLANKS)
@@ -77,6 +78,7 @@ public class DomumOrnamentumUpdateHandler
                                                                       .put("warped", Blocks.WARPED_PLANKS)
                                                                       .put("crimson", Blocks.CRIMSON_PLANKS)
                                                                       .put("cactus", CACTUS_BLOCK)
+                                                                      .put("blockcactusplank", CACTUS_BLOCK)
                                                                       .put("blockcactus", CACTUS_BLOCK)
                                                                       .put("paper", PAPER_BLOCK)
                                                                       .put("gilded_blackstone", Blocks.GILDED_BLACKSTONE)
@@ -822,8 +824,12 @@ public class DomumOrnamentumUpdateHandler
 
         if (replacementBlock == Blocks.AIR)
         {
-            LOGGER.error("Could not find replacement block for material: %s to create a new direct block. Conversion is skipped.".formatted(materialName));
-            return Optional.empty();
+            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Blocks.AIR);
+            if (replacementBlock == Blocks.AIR)
+            {
+                LOGGER.error("Could not find replacement block for material: %s to create a new direct block. Conversion is skipped.".formatted(materialName));
+                return Optional.empty();
+            }
         }
 
         return Optional.of(
@@ -832,17 +838,6 @@ public class DomumOrnamentumUpdateHandler
             Optional.empty()
           )
         );
-    }
-
-    private static Optional<Tuple<BlockState, BlockEntity>> createShingleReplacementData(final String blockName, final CompoundTag propertiesTag)
-    {
-        final String blockEntryName = blockName.replace("structurize:", "").replace("_shingle", "");
-        final String woodName = blockEntryName.substring(blockEntryName.lastIndexOf("_"));
-        final String coverName = blockEntryName.replace("_%s".formatted(woodName), "");
-
-        final Block woodReplacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(woodName, Blocks.AIR);
-
-        return Optional.empty();
     }
 
     private static BlockState buildBlockState(final Block block, final CompoundTag propertiesTag) {
