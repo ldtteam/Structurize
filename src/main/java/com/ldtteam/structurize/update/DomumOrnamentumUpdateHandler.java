@@ -38,6 +38,7 @@ public class DomumOrnamentumUpdateHandler
 
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private static final Block GREEN_CACTUS_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:green_cactus_extra")));
     private static final Block CACTUS_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:cactus_extra")));
     private static final Block THIN_PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:white_paper_extra")));
     private static final Block PAPER_BLOCK = Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum:paper_extra")));
@@ -735,21 +736,7 @@ public class DomumOrnamentumUpdateHandler
 
     private static Optional<Tuple<BlockState, Optional<BlockEntity>>> createBlockDoorReplacementData(final String blockName, final CompoundTag propertiesTag)
     {
-        final String materialName = blockName.replace("structurize:", "").replace("_door", "").replace("door", "");
-
-        Block replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName))));
-        if (replacementBlock == Blocks.AIR)
-        {
-            replacementBlock = MATERIAL_TO_BLOCK_MAP.getOrDefault(materialName.toLowerCase(Locale.ROOT), Objects.requireNonNull(ForgeRegistries.BLOCKS.getValue(new ResourceLocation("domum_ornamentum",materialName + "s"))));
-        }
-
-        if (replacementBlock == Blocks.AIR)
-        {
-            LOGGER.error("Could not find replacement block for material: %s to create a new door. Conversion is skipped.".formatted(materialName));
-            return Optional.empty();
-        }
-
-        final Block doorBlock = IModBlocks.getInstance().getDoor();
+        final Block doorBlock = IModBlocks.getInstance().getFancyDoor();
         final IMateriallyTexturedBlock mtDoorBlock = (IMateriallyTexturedBlock) doorBlock;
         final EntityBlock ebDoorBlock = (EntityBlock) doorBlock;
 
@@ -760,16 +747,18 @@ public class DomumOrnamentumUpdateHandler
         final Iterator<IMateriallyTexturedBlockComponent> componentIterator = components.iterator();
 
         final IMateriallyTexturedBlockComponent mainComponent = componentIterator.next();
+        final IMateriallyTexturedBlockComponent secondComponent = componentIterator.next();
 
         final MaterialTextureData textureData = new MaterialTextureData(
           ImmutableMap.<ResourceLocation, Block>builder()
-            .put(mainComponent.getId(), replacementBlock)
+            .put(mainComponent.getId(), CACTUS_BLOCK)
+            .put(secondComponent.getId(), GREEN_CACTUS_BLOCK)
             .build()
         );
 
         mtDoorBlockEntity.updateTextureDataWith(textureData);
 
-        propertiesTag.putString("type", "port_manteau");
+        propertiesTag.putString("type", "creeper");
 
         return Optional.of(
           new Tuple<>(
