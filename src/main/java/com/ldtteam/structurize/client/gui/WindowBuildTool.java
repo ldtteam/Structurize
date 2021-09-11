@@ -131,11 +131,6 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private int rotation = 0;
 
     /**
-     * Current ground offset applied.
-     */
-    private int groundOffset = 0;
-
-    /**
      * Drop down list for section.
      */
     private DropDownList sectionsDropDownList;
@@ -890,14 +885,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         adjustToGroundOffset();
     }
 
+    /**
+     * Detects the intended ground level via tag and offsets the blueprint accordingly
+     */
     private void adjustToGroundOffset()
     {
-        if (groundOffset != 0)
-        {
-            Settings.instance.setPosition(Settings.instance.getPosition().below(groundOffset));
-            groundOffset = 0;
-        }
-
+        int groundOffset = 0;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
         if (blueprint != null)
         {
@@ -905,9 +898,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             if (groundLevel != null)
             {
                 groundOffset = -groundLevel.getY();
-                Settings.instance.setPosition(Settings.instance.getPosition().above(groundOffset));
             }
         }
+        Settings.instance.setGroundOffset(groundOffset);
     }
 
     /**
