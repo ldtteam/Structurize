@@ -1,3 +1,14 @@
+configurations {
+    library
+    implementation.extendsFrom library
+}
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
+
 repositories {
     mavenLocal()
 }
@@ -7,7 +18,9 @@ dependencies {
     implementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
     runtimeOnly fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
 
+    apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    library "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 
     apiCompileOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:api")
     compileOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:api")
