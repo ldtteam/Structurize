@@ -56,6 +56,7 @@ public class DefaultBlockLootTableProvider implements IDataProvider
         saveBlockList(ModBlocks.shingles, cache);
 
         saveBlock(ModBlocks.blockSubstitution, cache);
+        saveBlock(ModBlocks.blockTagSubstitution, cache);
         saveBlock(ModBlocks.blockSolidSubstitution, cache);
         saveBlock(ModBlocks.blockFluidSubstitution, cache);
 

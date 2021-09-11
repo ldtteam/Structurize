@@ -22,9 +22,14 @@ public final class ModTileEntities
     @ObjectHolder("multiblock")
     public static TileEntityType<TileEntityMultiBlock> MULTIBLOCK;
 
+    @ObjectHolder("tagsubstitution")
+    public static TileEntityType<TileEntityTagSubstitution> TAG_SUBSTITUTION;
+
     static
     {
         getRegistry().register("multiblock",
           () -> TileEntityType.Builder.of(TileEntityMultiBlock::new, ModBlocks.multiBlock.get()).build(null));
+        getRegistry().register("tagsubstitution",
+                () -> TileEntityType.Builder.of(TileEntityTagSubstitution::new, ModBlocks.blockTagSubstitution.get()).build(null));
     }
 }
