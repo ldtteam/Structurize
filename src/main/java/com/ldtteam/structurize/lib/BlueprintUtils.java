@@ -61,7 +61,7 @@ public final class BlueprintUtils
      * @param blockAccess The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
-        public static List<BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess)
+        public static Map<BlockPos, BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess)
     {
         return blueprint.getBlockInfoAsList()
             .stream()
@@ -69,7 +69,7 @@ public final class BlueprintUtils
             .filter(BlockInfo::hasTileEntityData)
             .map(blockInfo -> constructTileEntity(blockInfo, blockAccess))
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toMap(BlockEntity::getBlockPos, e -> e));
     }
 
     /**

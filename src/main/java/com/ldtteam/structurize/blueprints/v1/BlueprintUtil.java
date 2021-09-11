@@ -36,9 +36,9 @@ import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
  */
 public class BlueprintUtil
 {
-    private static final int DEFAULT_FIXER_IF_NOT_FOUND = DataVersion.v1_12_2.getDataVersion();
+    public static final int DEFAULT_FIXER_IF_NOT_FOUND = DataVersion.v1_12_2.getDataVersion();
 
-    private static final String NBT_OPTIONAL_DATA_TAG = "optional_data";
+    public static final String NBT_OPTIONAL_DATA_TAG = "optional_data";
 
     /**
      * Generates a Blueprint objects from the world
@@ -267,7 +267,7 @@ public class BlueprintUtil
         return tag;
     }
 
-    private static List<BlockState> fixPalette(final int oldDataVersion, final ListTag paletteTag)
+    public static List<BlockState> fixPalette(final int oldDataVersion, final ListTag paletteTag)
     {
         final short paletteSize = (short) paletteTag.size();
         final List<BlockState> palette = new ArrayList<>();
@@ -343,7 +343,7 @@ public class BlueprintUtil
         }
     }
 
-    private static CompoundTag[] fixTileEntities(final int oldDataVersion, final ListTag tileEntitiesTag)
+    public static CompoundTag[] fixTileEntities(final int oldDataVersion, final ListTag tileEntitiesTag)
     {
         final CompoundTag[] tileEntities = new CompoundTag[tileEntitiesTag.size()];
 
@@ -383,7 +383,7 @@ public class BlueprintUtil
         return tileEntities;
     }
 
-    private static CompoundTag[] fixEntities(final int oldDataVersion, final ListTag entitiesTag)
+    public static CompoundTag[] fixEntities(final int oldDataVersion, final ListTag entitiesTag)
     {
         final CompoundTag[] entities = new CompoundTag[entitiesTag.size()];
 
@@ -481,7 +481,7 @@ public class BlueprintUtil
         }
     }
 
-    private static void fixCross1343(
+    public static void fixCross1343(
       final List<BlockState> palette,
       final short[][][] blocks,
       final CompoundTag[] tileEntities,
@@ -669,7 +669,7 @@ public class BlueprintUtil
      * @param sizeZ Sturcture size on the Z-Axis
      * @return An 3 Dimensional short array
      */
-    private static short[][][] convertSaveDataToBlocks(int[] ints, short sizeX, short sizeY, short sizeZ)
+    public static short[][][] convertSaveDataToBlocks(int[] ints, short sizeX, short sizeY, short sizeZ)
     {
         // Convert int array to short array
         short[] oneDimArray = new short[ints.length * 2];
