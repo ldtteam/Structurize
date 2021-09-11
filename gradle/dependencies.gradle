@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
     apiCompileOnly fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
     implementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
     runtimeOnly fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
