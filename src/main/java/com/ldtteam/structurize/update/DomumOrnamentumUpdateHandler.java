@@ -161,6 +161,8 @@ public class DomumOrnamentumUpdateHandler
             paletteEntryTagKeys.forEach(paletteEntryTag::remove);
             blockStateTag.getAllKeys().forEach(key -> paletteEntryTag.put(key, Objects.requireNonNull(blockStateTag.get(key))));
 
+            int y = sectionTag.getByte("Y");
+
             if (replacementData.get().getB().isPresent())
             {
                 final CompoundTag workingEntityNbt = replacementData.get().getB().get().serializeNBT();
@@ -169,7 +171,7 @@ public class DomumOrnamentumUpdateHandler
                     final int inChunkY = (bitStorageIndex >> 8) & 15;
                     final int inChunkZ = (bitStorageIndex >> 4) & 15;
 
-                    final BlockPos targetPos = chunkStart.offset(inChunkX, inChunkY, inChunkZ);
+                    final BlockPos targetPos = chunkStart.offset(inChunkX, y * 15 + inChunkY, inChunkZ);
                     final CompoundTag targetTag = workingEntityNbt.copy();
                     targetTag.putInt("x", targetPos.getX());
                     targetTag.putInt("y", targetPos.getY());
