@@ -4,11 +4,13 @@ import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,13 +106,20 @@ public class StructureName
         section = prefix;
         if (prefix.equals(Structures.SCHEMATICS_PREFIX))
         {
-            hut = schematic.split("\\d+")[0];
+            hut = schematic.split("\\d+")[0].toLowerCase(Locale.ROOT);
             section = Structures.SCHEMATICS_PREFIX;
-            if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
+            try
             {
-                section = hut;
+                if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) != Blocks.AIR || HUTS.contains(hut))
+                {
+                    section = hut;
+                }
+                else
+                {
+                    hut = "";
+                }
             }
-            else
+            catch (ResourceLocationException e)
             {
                 hut = "";
             }
