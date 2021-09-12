@@ -8,6 +8,7 @@ import com.ldtteam.blockout.controls.Image;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
+import com.ldtteam.structures.lib.BlueprintTagUtils;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
@@ -42,8 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MAX_MESSAGE_SIZE;
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
@@ -881,6 +881,26 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         {
             Settings.instance.setPosition(this.pos);
         }
+
+        adjustToGroundOffset();
+    }
+
+    /**
+     * Detects the intended ground level via tag and offsets the blueprint accordingly
+     */
+    private void adjustToGroundOffset()
+    {
+        int groundOffset = 0;
+        final Blueprint blueprint = Settings.instance.getActiveStructure();
+        if (blueprint != null)
+        {
+            final BlockPos groundLevel = BlueprintTagUtils.getFirstPosForTag(blueprint, GROUNDLEVEL_TAG);
+            if (groundLevel != null)
+            {
+                groundOffset = -groundLevel.getY();
+            }
+        }
+        Settings.instance.setGroundOffset(groundOffset);
     }
 
     /**
