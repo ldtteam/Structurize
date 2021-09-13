@@ -224,7 +224,7 @@ public final class BlockPosUtil
      */
     public static BlockPos getNextPosInCircleFrom(final BlockPos start, final BlockPos corner1, final BlockPos corner2, final int ringHeight)
     {
-        if (corner1.getX() > corner2.getX() || corner1.getZ() > corner2.getZ() || Math.abs(corner1.getX() - corner2.getX()) < 1 || Math.abs(corner1.getZ() - corner2.getZ()) < 1)
+        if (corner1.getX() > corner2.getX() || corner1.getZ() > corner2.getZ() || Math.abs(corner1.getX() - corner2.getX()) < 0 || Math.abs(corner1.getZ() - corner2.getZ()) < 0)
         {
             Log.getLogger().warn("Insufficient dimensions for:" + corner1 + corner2);
             return start;
