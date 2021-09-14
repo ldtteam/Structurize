@@ -24,7 +24,6 @@ import net.minecraft.ReportedException;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.item.CompassItem;
@@ -39,9 +38,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IModelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -102,9 +103,11 @@ public class BlueprintRenderer implements AutoCloseable
 
     private void init()
     {
+        final Map<BlockPos, IModelData> teModelData = new HashMap<>();
+
         clearVertexBuffers();
         entities = BlueprintUtils.instantiateEntities(blockAccess.getBlueprint(), blockAccess);
-        tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess);
+        tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess, teModelData);
 
         final BlockRenderDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRenderer();
         final Random random = new Random();
@@ -141,9 +144,14 @@ public class BlueprintRenderer implements AutoCloseable
 
                     if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
                     {
-                        // TODO: once the all mighty event forge pr is pulled - model data
-                        blockRendererDispatcher
-                            .renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random, EmptyModelData.INSTANCE);
+                        blockRendererDispatcher.renderBatched(state,
+                            blockPos,
+                            blockAccess,
+                            matrixStack,
+                            buffer,
+                            true,
+                            random,
+                            teModelData.getOrDefault(blockPos, EmptyModelData.INSTANCE));
                     }
 
                     if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, renderType))
@@ -259,7 +267,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Block entities
 
-        mc.getProfiler().popPush("struct_render_blockenSetities");
+        mc.getProfiler().popPush("struct_render_blockentities");
         final Camera oldActiveRenderInfo = mc.getBlockEntityRenderDispatcher().camera;
         final Level oldWorld = mc.getBlockEntityRenderDispatcher().level;
         mc.getBlockEntityRenderDispatcher().camera = new Camera();
