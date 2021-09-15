@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.tileentities;
+package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -8,23 +8,23 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
 
 @ObjectHolder(Constants.MOD_ID)
-public final class ModTileEntities
+public final class ModBlockEntities
 {
-    private ModTileEntities() { /* prevent construction */ }
+    private ModBlockEntities() { /* prevent construction */ }
 
-    private static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Constants.MOD_ID);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Constants.MOD_ID);
 
     public static DeferredRegister<BlockEntityType<?>> getRegistry()
     {
-        return TILE_ENTITIES;
+        return BLOCK_ENTITIES;
     }
 
     @ObjectHolder("tagsubstitution")
-    public static BlockEntityType<TileEntityTagSubstitution> TAG_SUBSTITUTION;
+    public static BlockEntityType<BlockEntityTagSubstitution> TAG_SUBSTITUTION;
 
     static
     {
         getRegistry().register("tagsubstitution",
-          () -> BlockEntityType.Builder.of(TileEntityTagSubstitution::new, ModBlocks.blockTagSubstitution.get()).build(null));
+          () -> BlockEntityType.Builder.of(BlockEntityTagSubstitution::new, ModBlocks.blockTagSubstitution.get()).build(null));
     }
 }

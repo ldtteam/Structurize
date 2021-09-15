@@ -1,8 +1,9 @@
-package com.ldtteam.structurize.tileentities;
+package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The tile entity for BlockTagSubstitution
+ * The block entity for BlockTagSubstitution
  */
-public class TileEntityTagSubstitution extends BlockEntity implements IBlueprintDataProvider
+public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProvider
 {
     /**
      * The schematic name of the block.
@@ -34,9 +35,9 @@ public class TileEntityTagSubstitution extends BlockEntity implements IBlueprint
      */
     private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
 
-    public TileEntityTagSubstitution(final BlockPos pos, final BlockState state)
+    public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
-        super( ModTileEntities.TAG_SUBSTITUTION, pos, state);
+        super( ModBlockEntities.TAG_SUBSTITUTION, pos, state);
     }
 
     @Override
@@ -118,8 +119,8 @@ public class TileEntityTagSubstitution extends BlockEntity implements IBlueprint
     }
 
     @Override
-    public void handleUpdateTag(final CompoundTag tag)
+    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
     {
-        this.load(tag);
+        this.load(packet.getTag());
     }
 }
