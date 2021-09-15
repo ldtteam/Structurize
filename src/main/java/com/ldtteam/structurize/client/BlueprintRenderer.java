@@ -124,7 +124,8 @@ public class BlueprintRenderer implements AutoCloseable
                 try
                 {
                     BlockState state = blockInfo.getState();
-                    if (state.getBlock() == ModBlocks.blockSubstitution.get())
+                    if (state.getBlock() == ModBlocks.blockSubstitution.get() ||
+                          state.getBlock() == ModBlocks.blockTagSubstitution.get())
                     {
                         state = Blocks.AIR.defaultBlockState();
                     }

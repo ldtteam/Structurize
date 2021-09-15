@@ -284,6 +284,10 @@ public class StructurePlacer
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
         }
+        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
+        {
+            localState = Blocks.AIR.defaultBlockState();
+        }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
         {
@@ -420,6 +424,10 @@ public class StructurePlacer
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution.get() && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos);
+        }
+        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
+        {
+            localState = Blocks.AIR.defaultBlockState();
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)

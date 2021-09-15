@@ -16,6 +16,7 @@ public final class Constants
     public static final int    SECONDS_A_MINUTE                 = 60;
     public static final int    UPDATE_FLAG                      = BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.BLOCK_UPDATE;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
+    public static final String GROUNDLEVEL_TAG                  = "groundlevel";
 
     /**
      * Maximum message size from client to server (Leaving some extra space).

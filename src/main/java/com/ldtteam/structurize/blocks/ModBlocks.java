@@ -4,6 +4,7 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
+import com.ldtteam.structurize.blocks.schematic.BlockTagSubstitution;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.tags.BlockTags;
@@ -37,6 +38,8 @@ public final class ModBlocks
     public static final RegistryObject<BlockSubstitution> blockSubstitution;
     public static final RegistryObject<BlockSolidSubstitution> blockSolidSubstitution;
     public static final RegistryObject<BlockFluidSubstitution> blockFluidSubstitution;
+    public static final RegistryObject<BlockTagSubstitution> blockTagSubstitution;
+
     /**
      * Utility shorthand to register blocks using the deferred registry
      * @param name the registry name of the block
@@ -61,5 +64,6 @@ public final class ModBlocks
         blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockTagSubstitution    = register("blockTagSubstitution", BlockTagSubstitution::new, ModItemGroups.STRUCTURIZE);
     }
 }
