@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blocks.schematic;
 
+import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
-import com.ldtteam.structurize.tileentities.TileEntityTagSubstitution;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,6 +20,6 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
     @Override
     public BlockEntity newBlockEntity(final @NotNull BlockPos blockPos, final @NotNull BlockState blockState)
     {
-        return new TileEntityTagSubstitution(blockPos, blockState);
+        return new BlockEntityTagSubstitution(blockPos, blockState);
     }
 }
