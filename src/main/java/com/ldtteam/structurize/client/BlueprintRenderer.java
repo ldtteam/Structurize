@@ -62,6 +62,8 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
         .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer()));
+    // TODO: remove when forge events
+    private static final RenderBuffers renderBuffers = new RenderBuffers();
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
@@ -190,9 +192,9 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_blocks");
         final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
         final BlockPos worldPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
-        final double renderX = worldPos.getX() - viewPosition.x();
-        final double renderY = worldPos.getY() - viewPosition.y();
-        final double renderZ = worldPos.getZ() - viewPosition.z();
+        final double renderX = worldPos.getX();
+        final double renderY = worldPos.getY();
+        final double renderZ = worldPos.getZ();
 
         // missing clipping helper? frustum?
         // missing chunk system and render distance!
@@ -215,7 +217,7 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().endTerrainBeginEntities();
 
         mc.getProfiler().popPush("struct_render_entities");
-        final MultiBufferSource.BufferSource renderBufferSource = ClientEventSubscriber.renderBuffers.bufferSource();
+        final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
 
         // Entities
 
@@ -333,7 +335,7 @@ public class BlueprintRenderer implements AutoCloseable
         {
             renderBufferSource.endBatch(Sheets.bannerSheet());
         }
-        ClientEventSubscriber.renderBuffers.outlineBufferSource().endOutlineBatch(); // not used now
+        renderBuffers.outlineBufferSource().endOutlineBatch(); // not used now
         OptifineCompat.getInstance().endBlockEntitiesBeginDebug();
 
         renderBufferSource.endBatch(Sheets.translucentCullBlockSheet());
@@ -347,7 +349,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch(RenderType.entityGlint());
         renderBufferSource.endBatch(RenderType.entityGlintDirect());
         renderBufferSource.endBatch(RenderType.waterMask());
-        ClientEventSubscriber.renderBuffers.crumblingBufferSource().endBatch(); // not used now
+        renderBuffers.crumblingBufferSource().endBatch(); // not used now
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
 
