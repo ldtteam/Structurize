@@ -620,7 +620,6 @@ public class WorldRenderMacros extends UiRenderMacros
             throw new IllegalStateException();
         }
 
-        // TODO: once the all mighty event forge pr is pulled - move to outline phase, make proper glint
         private static final RenderType LINES_GLINT = create("structurize_lines_glint",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
