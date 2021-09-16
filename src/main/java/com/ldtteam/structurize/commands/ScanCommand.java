@@ -103,31 +103,31 @@ public class ScanCommand extends AbstractCommand
 
     private static int onExecute(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getLoadedBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getLoadedBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getSpawnablePos(context, POS1);
+        final BlockPos to = BlockPosArgument.getSpawnablePos(context, POS2);
         return execute(context.getSource(), from, to, Optional.empty(), null, null);
     }
 
     private static int onExecuteWithAnchor(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getLoadedBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getLoadedBlockPos(context, POS2);
-        final BlockPos anchorPos = BlockPosArgument.getLoadedBlockPos(context, ANCHOR_POS);
+        final BlockPos from = BlockPosArgument.getSpawnablePos(context, POS1);
+        final BlockPos to = BlockPosArgument.getSpawnablePos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getSpawnablePos(context, ANCHOR_POS);
         return execute(context.getSource(), from, to, Optional.of(anchorPos), null, null);
     }
 
     private static int onExecuteWithPlayerName(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getLoadedBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getLoadedBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getSpawnablePos(context, POS1);
+        final BlockPos to = BlockPosArgument.getSpawnablePos(context, POS2);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         return execute(context.getSource(), from, to, Optional.empty(), profile, null);
     }
 
     private static int onExecuteWithPlayerNameAndFileName(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getLoadedBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getLoadedBlockPos(context, POS2);
+        final BlockPos from = BlockPosArgument.getSpawnablePos(context, POS1);
+        final BlockPos to = BlockPosArgument.getSpawnablePos(context, POS2);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         String name = StringArgumentType.getString(context, FILE_NAME);
         return execute(context.getSource(), from, to, Optional.empty(), profile, name);
@@ -135,9 +135,9 @@ public class ScanCommand extends AbstractCommand
 
     private static int onExecuteWithPlayerNameAndFileNameAndAnchorPos(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final BlockPos from = BlockPosArgument.getLoadedBlockPos(context, POS1);
-        final BlockPos to = BlockPosArgument.getLoadedBlockPos(context, POS2);
-        final BlockPos anchorPos = BlockPosArgument.getLoadedBlockPos(context, ANCHOR_POS);
+        final BlockPos from = BlockPosArgument.getSpawnablePos(context, POS1);
+        final BlockPos to = BlockPosArgument.getSpawnablePos(context, POS2);
+        final BlockPos anchorPos = BlockPosArgument.getSpawnablePos(context, ANCHOR_POS);
         GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
         String name = StringArgumentType.getString(context, FILE_NAME);
         return execute(context.getSource(), from, to, Optional.of(anchorPos), profile, name);

@@ -49,8 +49,8 @@ public class UpgradeCommand
 
         private static int onExecute(final CommandContext<CommandSourceStack> command) throws CommandSyntaxException
         {
-            final BlockPos start = BlockPosArgument.getLoadedBlockPos(command, START);
-            final BlockPos end = BlockPosArgument.getLoadedBlockPos(command, END);
+            final BlockPos start = BlockPosArgument.getSpawnablePos(command, START);
+            final BlockPos end = BlockPosArgument.getSpawnablePos(command, END);
             final ServerLevel level = DimensionArgument.getDimension(command, WORLD);
 
             final BlockPos iterationStart = new BlockPos(
