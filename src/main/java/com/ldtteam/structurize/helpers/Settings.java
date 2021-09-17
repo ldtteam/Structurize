@@ -38,6 +38,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     private int       rotation      = 0;
     private String    structureName = null;
     private Optional<BlockPos> anchorPos = Optional.empty();
+    private int       groundOffset  = 0;
 
     /**
      * The style index to use currently.
@@ -168,6 +169,12 @@ public final class Settings implements INBTSerializable<CompoundTag>
     }
 
     /**
+     * get the offset between the current position and the original position due to ground adjustment
+     * @return the offset
+     */
+    public int getGroundOffset() { return groundOffset; }
+
+    /**
      * Get a possibly existing box.
      *
      * @return a blockpos tuple.
@@ -195,6 +202,18 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void setPosition(final BlockPos position)
     {
         pos = position;
+    }
+
+    /**
+     * set the y offset between current and original position
+     * this also actually adjusts the position -- ensure that's set first
+     * @param offset the new offset
+     */
+    public void setGroundOffset(final int offset)
+    {
+        pos = pos.below(groundOffset);
+        groundOffset = offset;
+        pos = pos.above(groundOffset);
     }
 
     /**
@@ -329,6 +348,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         hollow = false;
         structureName = null;
         pos = null;
+        groundOffset = 0;
         box = null;
         equation = "";
     }
@@ -341,6 +361,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         resetBlueprint();
         hollow = false;
         pos = null;
+        groundOffset = 0;
         box = null;
         equation = "";
     }
@@ -530,6 +551,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         staticSchematicMode = nbt.getBoolean("static");
         hollow = nbt.getBoolean("hollow");
 
+        groundOffset = nbt.getInt("gnd");
         rotation = nbt.getInt("rot");
         width = nbt.getInt("w");
         height = nbt.getInt("h");
@@ -614,6 +636,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         nbt.putBoolean("static", staticSchematicMode);
         nbt.putBoolean("hollow", hollow);
 
+        nbt.putInt("gnd", groundOffset);
         nbt.putInt("rot", rotation);
         nbt.putInt("w", width);
         nbt.putInt("h", height);

@@ -125,7 +125,8 @@ public class BlueprintBlockAccess extends Level
                     ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
                     : Blocks.WATER.defaultBlockState();
         }
-        return state.getBlock() == ModBlocks.blockSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
+        return state.getBlock() == ModBlocks.blockSubstitution.get() ||
+                 state.getBlock() == ModBlocks.blockTagSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
     }
 
     @Override
