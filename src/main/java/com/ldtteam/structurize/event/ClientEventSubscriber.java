@@ -85,7 +85,7 @@ public class ClientEventSubscriber
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
             StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
-            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.01f);
+            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
             WorldRenderMacros.renderWhiteLineBox(bufferSource,
                 matrixStack,
                 posMinusOffset,
@@ -101,7 +101,7 @@ public class ClientEventSubscriber
             mc.getProfiler().push("struct_box");
 
             // Used to render a red box around a scan's Primary offset (primary block)
-            Settings.instance.getAnchorPos().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.01f));
+            Settings.instance.getAnchorPos().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
             WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, box.getA(), box.getB(), 0.02f);
 
             mc.getProfiler().pop();
@@ -115,7 +115,7 @@ public class ClientEventSubscriber
 
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
             final BlockEntity te = mc.player.level.getBlockEntity(tagAnchor);
-            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, tagAnchor, tagAnchor, 0.01f);
+            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, tagAnchor, tagAnchor, 0.02f);
 
             if (te instanceof IBlueprintDataProvider)
             {

@@ -66,6 +66,11 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
     public DialogDoneCancel(final BOWindow window)
     {
         super();
+        putInside(window);
+        setPosition(0, 0);
+        setSize(window.getInteriorWidth(), window.getInteriorHeight());
+        off();
+
         Loader.createFromXMLFile(new ResourceLocation(Constants.MOD_ID + DIALOG_OK_CANCEL_SUFFIX), this);
         titleLabel = findPaneOfTypeByID("title", Text.class);
         contentText = findPaneOfTypeByID("textcontent", Text.class);
@@ -73,7 +78,6 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
         cancelButton = findPaneOfTypeByID("cancel", Button.class);
         doneButton.setHandler(this);
         cancelButton.setHandler(this);
-        this.window = window;
     }
 
     /**
@@ -86,24 +90,12 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
         return titleLabel.getText();
     }
 
-    @Deprecated
-    public String getTitle()
-    {
-        return titleLabel.getTextAsString();
-    }
-
     /**
      * Set the title of the dialog.
      *
      * @param title for the dialog
      */
     public void setTitle(final MutableComponent title)
-    {
-        titleLabel.setText(title);
-    }
-
-    @Deprecated
-    public void setTitle(final String title)
     {
         titleLabel.setText(title);
     }
@@ -135,7 +127,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void onButtonClicked(final Button button)
     {
-        this.setVisible(false);
+        close();
         if (handler == null)
         {
             Log.getLogger().error("DialogDoneCancel does not have a handler.");
@@ -154,14 +146,11 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
     @Override
     public void setVisible(final boolean visible)
     {
-        if (visible)
-        {
-            setPosition(0, 0);
-            setSize(window.getInteriorWidth(), window.getInteriorHeight());
-            //Make sure we are on top
-            putInside(window);
-        }
         super.setVisible(visible);
+        if (!visible)
+        {
+            putInside(null);
+        }
     }
 
     /**
@@ -169,7 +158,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void open()
     {
-        setVisible(true);
+        on();
     }
 
     /**
@@ -177,7 +166,7 @@ public class DialogDoneCancel extends OverlayView implements ButtonHandler
      */
     public void close()
     {
-        setVisible(true);
+        off();
     }
 
     /**

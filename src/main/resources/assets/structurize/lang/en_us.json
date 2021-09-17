@@ -116,5 +116,7 @@
   "structurize.gui.buildtool.pastenice": "Instantly places the structure into the world, as if constructed by a Builder.",
   "structurize.gui.shapetool.creative_only": "Structurize does not support using the shape tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
   "structurize.config.iteratortype": "The iteration order on structure placement",
-  "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle', 'hilbert', 'random' and 'inwardcircleheight1' to 'inwardcircleheight4' "
+  "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle', 'hilbert', 'random' and 'inwardcircleheight1' to 'inwardcircleheight4'",
+  "structurize.gui.delete.title": "Delete Structure",
+  "structurize.gui.delete.body": "Do you want to delete %s?"
 }
