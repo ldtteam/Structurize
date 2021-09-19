@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.blockui.UiRenderMacros;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
@@ -15,12 +17,37 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import java.util.List;
+import java.util.Map;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
     private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 8 * 8 * 16;
     public static final RenderType GLINT_LINES = RenderTypes.LINES_GLINT;
     public static final RenderType NORMAL_LINES = RenderTypes.TRIANGLES_POS_COLOR;
+
+    private static final Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
+    private static MultiBufferSource.BufferSource bufferSource;
+
+    public static void putBuffer(final RenderType type)
+    {
+        buffers.put(type, new BufferBuilder(type.bufferSize()));
+    }
+
+    static
+    {
+        putBuffer(WorldRenderMacros.NORMAL_LINES);
+        putBuffer(WorldRenderMacros.GLINT_LINES);
+    }
+
+    public static MultiBufferSource.BufferSource getBufferSource()
+    {
+        if (bufferSource == null)
+        {
+            bufferSource = MultiBufferSource.immediateWithBuffers(buffers, Tesselator.getInstance().getBuilder());
+        }
+        return bufferSource;
+    }
 
     /**
      * Render a white box around two positions

@@ -11,13 +11,9 @@ import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.WorldRenderMacros;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionHand;
@@ -29,29 +25,11 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import java.util.List;
 import java.util.Map;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-
 public class ClientEventSubscriber
 {
-    private static final Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
-
-    public static void putBuffer(final RenderType type)
-    {
-        buffers.put(type, new BufferBuilder(type.bufferSize()));
-    }
-
-    static
-    {
-        putBuffer(WorldRenderMacros.NORMAL_LINES);
-        putBuffer(WorldRenderMacros.GLINT_LINES);
-    }
-
-    public static MultiBufferSource.BufferSource bufferSource;
-
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
      *
@@ -60,16 +38,12 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderWorldLastEvent event)
     {
-        if (bufferSource == null)
-        {
-            bufferSource = MultiBufferSource.immediateWithBuffers(buffers, Tesselator.getInstance().getBuilder());
-        }
-
         Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
         final PoseStack matrixStack = event.getMatrixStack();
         final float partialTicks = event.getPartialTicks();
+        final MultiBufferSource.BufferSource bufferSource = WorldRenderMacros.getBufferSource();
 
         final Minecraft mc = Minecraft.getInstance();
         final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
