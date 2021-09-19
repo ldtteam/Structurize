@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.helpers.Settings;
-import com.ldtteam.structurize.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.optifine.OptifineCompat;

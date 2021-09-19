@@ -1,6 +1,5 @@
-package com.ldtteam.structurize.lib;
+package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintBlockAccess;
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
