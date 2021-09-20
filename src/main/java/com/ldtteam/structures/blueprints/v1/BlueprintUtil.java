@@ -122,6 +122,7 @@ public class BlueprintUtil
         {
             final Vector3d oldPos = entity.position();
             final CompoundNBT entityTag = entity.serializeNBT();
+            if (!entityTag.contains("id")) continue;
 
             final ListNBT posList = new ListNBT();
             posList.add(DoubleNBT.valueOf(oldPos.x - pos.getX()));
