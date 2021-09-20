@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,41 +17,99 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
     private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 8 * 8 * 16;
-    public static final RenderType GLINT_LINES = RenderTypes.LINES_GLINT;
-    public static final RenderType NORMAL_LINES = RenderTypes.TRIANGLES_POS_COLOR;
+    public static final RenderType LINES = RenderTypes.LINES;
+    public static final RenderType LINES_WITH_WIDTH = RenderTypes.LINES_WITH_WIDTH;
+    public static final RenderType GLINT_LINES = RenderTypes.GLINT_LINES;
+    public static final RenderType GLINT_LINES_WITH_WIDTH = RenderTypes.GLINT_LINES_WITH_WIDTH;
 
-    private static final Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
+    private static final LinkedList<RenderType> buffers = new LinkedList<>();
+    /**
+     * Always use {@link #getBufferSource} when actually using the buffer source
+     */
     private static MultiBufferSource.BufferSource bufferSource;
 
-    public static void putBuffer(final RenderType type)
+    /**
+     * Put type at the first position.
+     *
+     * @param bufferType type to put in
+     */
+    public static void putBufferHead(final RenderType bufferType)
     {
-        buffers.put(type, new BufferBuilder(type.bufferSize()));
+        buffers.addFirst(bufferType);
+        bufferSource = null;
+    }
+
+    /**
+     * Put type at the last position.
+     *
+     * @param bufferType type to put in
+     */
+    public static void putBufferTail(final RenderType bufferType)
+    {
+        buffers.addLast(bufferType);
+        bufferSource = null;
+    }
+
+    /**
+     * Put type before the given buffer or if not found then at first position.
+     *
+     * @param bufferType type to put in
+     * @param putBefore  search for type to put before
+     */
+    public static void putBufferBefore(final RenderType bufferType, final RenderType putBefore)
+    {
+        buffers.add(Math.max(0, buffers.indexOf(putBefore)), bufferType);
+        bufferSource = null;
+    }
+
+    /**
+     * Put type after the given buffer or if not found then at last position.
+     *
+     * @param bufferType type to put in
+     * @param putAfter   search for type to put after
+     */
+    public static void putBufferAfter(final RenderType bufferType, final RenderType putAfter)
+    {
+        final int index = buffers.indexOf(putAfter);
+        if (index == -1)
+        {
+            buffers.add(bufferType);
+        }
+        else
+        {
+            buffers.add(index + 1, bufferType);
+        }
+        bufferSource = null;
     }
 
     static
     {
-        putBuffer(WorldRenderMacros.NORMAL_LINES);
-        putBuffer(WorldRenderMacros.GLINT_LINES);
+        putBufferTail(WorldRenderMacros.LINES);
+        putBufferTail(WorldRenderMacros.LINES_WITH_WIDTH);
+        putBufferTail(WorldRenderMacros.GLINT_LINES);
+        putBufferTail(WorldRenderMacros.GLINT_LINES_WITH_WIDTH);
     }
 
     public static MultiBufferSource.BufferSource getBufferSource()
     {
         if (bufferSource == null)
         {
-            bufferSource = MultiBufferSource.immediateWithBuffers(buffers, Tesselator.getInstance().getBuilder());
+            bufferSource = MultiBufferSource.immediateWithBuffers(Util.make(new Object2ObjectLinkedOpenHashMap<>(), map -> {
+                buffers.forEach(type -> map.put(type, new BufferBuilder(type.bufferSize())));
+            }), Tesselator.getInstance().getBuilder());
         }
         return bufferSource;
     }
 
     /**
-     * Render a white box around two positions
+     * Render a red glint box around two positions
      *
      * @param posA The first Position
      * @param posB The second Position
@@ -61,7 +120,7 @@ public class WorldRenderMacros extends UiRenderMacros
         final BlockPos posB,
         final float lineWidth)
     {
-        renderLineBox(buffer.getBuffer(GLINT_LINES), ps, posA, posB, 0xff, 0x0, 0x0, 0xff, lineWidth);
+        renderLineBox(buffer.getBuffer(GLINT_LINES_WITH_WIDTH), ps, posA, posB, 0xff, 0x0, 0x0, 0xff, lineWidth);
     }
 
     /**
@@ -76,7 +135,7 @@ public class WorldRenderMacros extends UiRenderMacros
         final BlockPos posB,
         final float lineWidth)
     {
-        renderLineBox(buffer.getBuffer(NORMAL_LINES), ps, posA, posB, 0xff, 0xff, 0xff, 0xff, lineWidth);
+        renderLineBox(buffer.getBuffer(LINES_WITH_WIDTH), ps, posA, posB, 0xff, 0xff, 0xff, 0xff, lineWidth);
     }
 
     /**
@@ -647,7 +706,23 @@ public class WorldRenderMacros extends UiRenderMacros
             throw new IllegalStateException();
         }
 
-        private static final RenderType LINES_GLINT = create("structurize_lines_glint",
+        private static final RenderType GLINT_LINES = create("structurize_glint_lines",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.DEBUG_LINES,
+            2048,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setLayeringState(NO_LAYERING)
+                .setTransparencyState(GLINT_TRANSPARENCY)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setWriteMaskState(COLOR_WRITE)
+                .setCullState(NO_CULL)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .createCompositeState(false));
+
+        private static final RenderType GLINT_LINES_WITH_WIDTH = create("structurize_glint_lines_with_width",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
             16384,
@@ -663,7 +738,23 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setDepthTestState(NO_DEPTH_TEST)
                 .createCompositeState(false));
 
-        private static final RenderType TRIANGLES_POS_COLOR = create("structurize_normal_lines",
+        private static final RenderType LINES = create("structurize_lines",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.DEBUG_LINES,
+            2048,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setLayeringState(NO_LAYERING)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setWriteMaskState(COLOR_WRITE)
+                .setCullState(CULL)
+                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .createCompositeState(false));
+
+        private static final RenderType LINES_WITH_WIDTH = create("structurize_lines_with_width",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
             16384,
