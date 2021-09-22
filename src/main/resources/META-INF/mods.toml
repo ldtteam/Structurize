@@ -1,15 +1,15 @@
-modLoader="javafml" #mandatory
-loaderVersion="[34,)" #mandatory (28 is current forge version)
+modLoader="javafml"
+loaderVersion="[37,)"
 license="GPL 3.0"
-issueTrackerURL="https://github.com/ldtteam/structurize/issues/new/choose" #optional
-[[mods]] #mandatory
-modId="structurize" #mandatory
-version="${file.jarVersion}" #mandatory
-displayName="Structurize" #mandatory
-displayURL="https://minecolonies.com/" #optional
-logoFile="structurize.png" #optional
-credits="Every coffee anyone ever drank!" #optional
-authors="LDT Team" #optional
+issueTrackerURL="https://github.com/ldtteam/structurize/issues/new/choose"
+[[mods]]
+modId="structurize"
+version="${file.jarVersion}"
+displayName="Structurize"
+displayURL="https://minecolonies.com/"
+logoFile="structurize.png"
+credits="Every coffee anyone ever drank!"
+authors="LDT Team"
 description='''
 An astonishing way to copy & paste structures!
 
@@ -19,15 +19,21 @@ Allows you to:
  - create various shapes using math formulas
  - and many other nice things a great builder would love to have!
 '''
-[[dependencies.structurize]] #optional
-    modId="forge" #mandatory
-    mandatory=true #mandatory
-    versionRange="[34.1.0,)" #mandatory
+[[dependencies.structurize]]
+    modId="forge"
+    mandatory=true
+    versionRange="[37.0.58,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3, )"
+    versionRange="[1.17.1,)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.structurize]]
+    modId="blockui"
+    mandatory=true
+    versionRange="[0.0.21-ALPHA,)"
+    ordering="NONE"
+    side="CLIENT"

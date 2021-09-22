@@ -4,7 +4,6 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
