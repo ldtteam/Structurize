@@ -28,6 +28,8 @@ public class WorldRenderMacros extends UiRenderMacros
     public static final RenderType LINES_WITH_WIDTH = RenderTypes.LINES_WITH_WIDTH;
     public static final RenderType GLINT_LINES = RenderTypes.GLINT_LINES;
     public static final RenderType GLINT_LINES_WITH_WIDTH = RenderTypes.GLINT_LINES_WITH_WIDTH;
+    public static final RenderType COLORED_TRIANGLES = RenderTypes.COLORED_TRIANGLES;
+    public static final RenderType COLORED_TRIANGLES_NC_ND = RenderTypes.COLORED_TRIANGLES_NC_ND;
 
     private static final LinkedList<RenderType> buffers = new LinkedList<>();
     /**
@@ -91,10 +93,12 @@ public class WorldRenderMacros extends UiRenderMacros
 
     static
     {
+        putBufferTail(WorldRenderMacros.COLORED_TRIANGLES);
         putBufferTail(WorldRenderMacros.LINES);
         putBufferTail(WorldRenderMacros.LINES_WITH_WIDTH);
         putBufferTail(WorldRenderMacros.GLINT_LINES);
         putBufferTail(WorldRenderMacros.GLINT_LINES_WITH_WIDTH);
+        putBufferTail(WorldRenderMacros.COLORED_TRIANGLES_NC_ND);
     }
 
     public static MultiBufferSource.BufferSource getBufferSource()
@@ -106,6 +110,21 @@ public class WorldRenderMacros extends UiRenderMacros
             }), Tesselator.getInstance().getBuilder());
         }
         return bufferSource;
+    }
+
+    /**
+     * Render a black box around two positions
+     *
+     * @param posA The first Position
+     * @param posB The second Position
+     */
+    public static void renderBlackLineBox(final BufferSource buffer,
+        final PoseStack ps,
+        final BlockPos posA,
+        final BlockPos posB,
+        final float lineWidth)
+    {
+        renderLineBox(buffer.getBuffer(LINES_WITH_WIDTH), ps, posA, posB, 0x00, 0x00, 0x00, 0xff, lineWidth);
     }
 
     /**
@@ -139,7 +158,29 @@ public class WorldRenderMacros extends UiRenderMacros
     }
 
     /**
-     * Render a white box around two positions
+     * Render a colored box around position
+     *
+     * @param pos The Position
+     */
+    public static void renderLineBox(final VertexConsumer buffer,
+        final PoseStack ps,
+        final BlockPos pos,
+        final int argbColor,
+        final float lineWidth)
+    {
+        renderLineBox(buffer,
+            ps,
+            pos,
+            pos,
+            (argbColor >> 16) & 0xff,
+            (argbColor >> 8) & 0xff,
+            argbColor & 0xff,
+            (argbColor >> 24) & 0xff,
+            lineWidth);
+    }
+
+    /**
+     * Render a colored box around two positions
      *
      * @param posA The first Position
      * @param posB The second Position
@@ -148,7 +189,8 @@ public class WorldRenderMacros extends UiRenderMacros
         final PoseStack ps,
         final BlockPos posA,
         final BlockPos posB,
-        final int argbColor)
+        final int argbColor,
+        final float lineWidth)
     {
         renderLineBox(buffer,
             ps,
@@ -158,7 +200,7 @@ public class WorldRenderMacros extends UiRenderMacros
             (argbColor >> 8) & 0xff,
             argbColor & 0xff,
             (argbColor >> 24) & 0xff,
-            0.01f);
+            lineWidth);
     }
 
     /**
@@ -177,6 +219,11 @@ public class WorldRenderMacros extends UiRenderMacros
         final int alpha,
         final float lineWidth)
     {
+        if (alpha == 0)
+        {
+            return;
+        }
+
         final float halfLine = lineWidth / 2.0f;
         final float minX = Math.min(posA.getX(), posB.getX()) - halfLine;
         final float minY = Math.min(posA.getY(), posB.getY()) - halfLine;
@@ -625,6 +672,164 @@ public class WorldRenderMacros extends UiRenderMacros
         buf.vertex(m, minX, maxY, maxZ).endVertex();
     }
 
+    public static void renderBox(final BufferSource buffer,
+        final PoseStack ps,
+        final BlockPos posA,
+        final BlockPos posB,
+        final int argbColor)
+    {
+        renderBox(buffer.getBuffer(COLORED_TRIANGLES),
+            ps,
+            posA,
+            posB,
+            (argbColor >> 16) & 0xff,
+            (argbColor >> 8) & 0xff,
+            argbColor & 0xff,
+            (argbColor >> 24) & 0xff);
+    }
+
+    public static void renderBox(final VertexConsumer buffer,
+        final PoseStack ps,
+        final BlockPos posA,
+        final BlockPos posB,
+        final int red,
+        final int green,
+        final int blue,
+        final int alpha)
+    {
+        if (alpha == 0)
+        {
+            return;
+        }
+
+        final float minX = Math.min(posA.getX(), posB.getX());
+        final float minY = Math.min(posA.getY(), posB.getY());
+        final float minZ = Math.min(posA.getZ(), posB.getZ());
+
+        final float maxX = Math.max(posA.getX(), posB.getX()) + 1;
+        final float maxY = Math.max(posA.getY(), posB.getY()) + 1;
+        final float maxZ = Math.max(posA.getZ(), posB.getZ()) + 1;
+
+        final Matrix4f m = ps.last().pose();
+        buffer.defaultColor(red, green, blue, alpha);
+
+        populateCuboid(minX, minY, minZ, maxX, maxY, maxZ, m, buffer);
+
+        buffer.unsetDefaultColor();
+    }
+
+    public static void populateCuboid(final float minX,
+        final float minY,
+        final float minZ,
+        final float maxX,
+        final float maxY,
+        final float maxZ,
+        final Matrix4f m,
+        final VertexConsumer buf)
+    {
+        // z plane
+
+        buf.vertex(m, minX, maxY, minZ).endVertex();
+        buf.vertex(m, maxX, minY, minZ).endVertex();
+        buf.vertex(m, minX, minY, minZ).endVertex();
+
+        buf.vertex(m, minX, maxY, minZ).endVertex();
+        buf.vertex(m, maxX, maxY, minZ).endVertex();
+        buf.vertex(m, maxX, minY, minZ).endVertex();
+
+        buf.vertex(m, minX, maxY, maxZ).endVertex();
+        buf.vertex(m, minX, minY, maxZ).endVertex();
+        buf.vertex(m, maxX, minY, maxZ).endVertex();
+
+        buf.vertex(m, minX, maxY, maxZ).endVertex();
+        buf.vertex(m, maxX, minY, maxZ).endVertex();
+        buf.vertex(m, maxX, maxY, maxZ).endVertex();
+
+        // y plane
+
+        buf.vertex(m, minX, minY, maxZ).endVertex();
+        buf.vertex(m, minX, minY, minZ).endVertex();
+        buf.vertex(m, maxX, minY, minZ).endVertex();
+
+        buf.vertex(m, minX, minY, maxZ).endVertex();
+        buf.vertex(m, maxX, minY, minZ).endVertex();
+        buf.vertex(m, maxX, minY, maxZ).endVertex();
+
+        buf.vertex(m, minX, maxY, maxZ).endVertex();
+        buf.vertex(m, maxX, maxY, minZ).endVertex();
+        buf.vertex(m, minX, maxY, minZ).endVertex();
+
+        buf.vertex(m, minX, maxY, maxZ).endVertex();
+        buf.vertex(m, maxX, maxY, maxZ).endVertex();
+        buf.vertex(m, maxX, maxY, minZ).endVertex();
+
+        // x plane
+
+        buf.vertex(m, minX, minY, maxZ).endVertex();
+        buf.vertex(m, minX, maxY, minZ).endVertex();
+        buf.vertex(m, minX, minY, minZ).endVertex();
+
+        buf.vertex(m, minX, minY, maxZ).endVertex();
+        buf.vertex(m, minX, maxY, maxZ).endVertex();
+        buf.vertex(m, minX, maxY, minZ).endVertex();
+
+        buf.vertex(m, maxX, minY, maxZ).endVertex();
+        buf.vertex(m, maxX, minY, minZ).endVertex();
+        buf.vertex(m, maxX, maxY, minZ).endVertex();
+
+        buf.vertex(m, maxX, minY, maxZ).endVertex();
+        buf.vertex(m, maxX, maxY, minZ).endVertex();
+        buf.vertex(m, maxX, maxY, maxZ).endVertex();
+    }
+
+    public static void renderFillRectangle(final BufferSource buffer,
+        final PoseStack ps,
+        final int x,
+        final int y,
+        final int z,
+        final int w,
+        final int h,
+        final int argbColor)
+    {
+        populateRectangle(x,
+            y,
+            z,
+            w,
+            h,
+            (argbColor >> 16) & 0xff,
+            (argbColor >> 8) & 0xff,
+            argbColor & 0xff,
+            (argbColor >> 24) & 0xff,
+            buffer.getBuffer(COLORED_TRIANGLES_NC_ND),
+            ps.last().pose());
+    }
+
+    public static void populateRectangle(final int x,
+        final int y,
+        final int z,
+        final int w,
+        final int h,
+        final int red,
+        final int green,
+        final int blue,
+        final int alpha,
+        final VertexConsumer buffer,
+        final Matrix4f m)
+    {
+        if (alpha == 0)
+        {
+            return;
+        }
+
+        buffer.vertex(m, x, y, z).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(m, x, y + h, z).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(m, x + w, y + h, z).color(red, green, blue, alpha).endVertex();
+        
+        buffer.vertex(m, x, y, z).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(m, x + w, y + h, z).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(m, x + w, y, z).color(red, green, blue, alpha).endVertex();
+    }
+
     /**
      * Renders the given list of strings, 3 elements a row.
      *
@@ -709,65 +914,121 @@ public class WorldRenderMacros extends UiRenderMacros
         private static final RenderType GLINT_LINES = create("structurize_glint_lines",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.DEBUG_LINES,
-            2048,
+            1 << 12,
             false,
             false,
             RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
-                .setLayeringState(NO_LAYERING)
                 .setTransparencyState(GLINT_TRANSPARENCY)
-                .setOutputState(ITEM_ENTITY_TARGET)
-                .setWriteMaskState(COLOR_WRITE)
-                .setCullState(NO_CULL)
                 .setDepthTestState(NO_DEPTH_TEST)
+                .setCullState(NO_CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
 
         private static final RenderType GLINT_LINES_WITH_WIDTH = create("structurize_glint_lines_with_width",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
-            16384,
+            1 << 13,
             false,
             false,
             RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
-                .setLayeringState(NO_LAYERING)
                 .setTransparencyState(GLINT_TRANSPARENCY)
-                .setOutputState(ITEM_ENTITY_TARGET)
-                .setWriteMaskState(COLOR_WRITE)
-                .setCullState(CULL)
                 .setDepthTestState(NO_DEPTH_TEST)
+                .setCullState(CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
 
         private static final RenderType LINES = create("structurize_lines",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.DEBUG_LINES,
-            2048,
+            1 << 14,
             false,
             false,
             RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
-                .setLayeringState(NO_LAYERING)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setOutputState(ITEM_ENTITY_TARGET)
-                .setWriteMaskState(COLOR_WRITE)
-                .setCullState(CULL)
                 .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setCullState(NO_CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
 
         private static final RenderType LINES_WITH_WIDTH = create("structurize_lines_with_width",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
-            16384,
+            1 << 13,
             false,
             false,
             RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
-                .setLayeringState(NO_LAYERING)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setOutputState(ITEM_ENTITY_TARGET)
-                .setWriteMaskState(COLOR_WRITE)
-                .setCullState(CULL)
                 .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setCullState(CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_DEPTH_WRITE)
+                .createCompositeState(false));
+
+        private static final RenderType COLORED_TRIANGLES = create("structurize_colored_triangles",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLES,
+            1 << 13,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setCullState(CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_DEPTH_WRITE)
+                .createCompositeState(false));
+
+        private static final RenderType COLORED_TRIANGLES_NC_ND = create("structurize_colored_triangles_nc_nd",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLES,
+            1 << 12,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .setCullState(NO_CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
     }
 }
