@@ -33,7 +33,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
+            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()));
         }
         return ActionResultType.SUCCESS;
     }
