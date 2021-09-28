@@ -890,7 +890,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void adjustToGroundOffset()
     {
-        int groundOffset = 0;
+        int groundOffset = 1;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
         if (blueprint != null)
         {
@@ -899,6 +899,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             {
                 groundOffset = -groundLevel.getY();
             }
+            --groundOffset;
         }
         Settings.instance.setGroundOffset(groundOffset);
     }
