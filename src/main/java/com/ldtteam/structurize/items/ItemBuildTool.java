@@ -11,7 +11,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.item.Item.Properties;
+import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
 
 /**
  * Class handling the buildTool item.
@@ -33,7 +33,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()));
+            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE);
         }
         return ActionResultType.SUCCESS;
     }
@@ -46,7 +46,7 @@ public class ItemBuildTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(null);
+            Structurize.proxy.openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
         }
 
         return new ActionResult<>(ActionResultType.SUCCESS, stack);

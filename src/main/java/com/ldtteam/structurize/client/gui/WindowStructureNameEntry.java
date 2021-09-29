@@ -11,6 +11,8 @@ import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import org.jetbrains.annotations.NotNull;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
+
 /**
  * Window for a town hall name entry.
  */
@@ -63,6 +65,6 @@ public class WindowStructureNameEntry extends Window implements ButtonHandler
         }
 
         close();
-        Structurize.proxy.openBuildToolWindow(null);
+        Structurize.proxy.openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
     }
 }

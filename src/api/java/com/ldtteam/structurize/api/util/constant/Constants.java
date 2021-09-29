@@ -22,6 +22,9 @@ public final class Constants
     public static final double HALF_BLOCK                       = 0.5D;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
     public static final String GROUNDLEVEL_TAG                  = "groundlevel";
+    public static final int    GROUNDSTYLE_RELATIVE             = 1; // relative to anchor
+    public static final int    GROUNDSTYLE_LEGACY_CAMP          = 2; // 1 block at bottom
+    public static final int    GROUNDSTYLE_LEGACY_SHIP          = 3; // 3 blocks at bottom
 
     /**
      * Volume to play at.

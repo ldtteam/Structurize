@@ -24,7 +24,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 public class ClientProxy implements IProxy
 {
     @Override
-    public void openBuildToolWindow(@Nullable final BlockPos pos)
+    public void openBuildToolWindow(@Nullable final BlockPos pos, final int groundstyle)
     {
         if (pos == null && Settings.instance.getActiveStructure() == null)
         {
@@ -37,7 +37,7 @@ public class ClientProxy implements IProxy
         }
 
         @Nullable
-        final WindowBuildTool window = new WindowBuildTool(pos);
+        final WindowBuildTool window = new WindowBuildTool(pos, groundstyle);
         window.open();
     }
 

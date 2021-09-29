@@ -15,7 +15,6 @@ import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -131,6 +130,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private int rotation = 0;
 
     /**
+     * Ground style of the caller.
+     */
+    private int groundstyle;
+
+    /**
      * Drop down list for section.
      */
     private DropDownList sectionsDropDownList;
@@ -171,8 +175,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * @param pos           the position.
      * @param folder the structure folder.
      * @param rotation      the rotation.
+     * @param groundstyle   one of the GROUNDSTYLE_ values.
      */
-    public WindowBuildTool(@Nullable final BlockPos pos, final String folder, final int rotation)
+    public WindowBuildTool(@Nullable final BlockPos pos, final String folder, final int rotation, final int groundstyle)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
 
@@ -186,7 +191,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             Settings.instance.setupStaticMode(folder);
             this.rotation = rotation;
         }
-        this.init(pos, rotation);
+        this.init(pos, rotation, groundstyle);
     }
 
     /**
@@ -196,8 +201,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Otherwise the given parameters are used.
      *
      * @param pos coordinate.
+     * @param groundstyle one of the GROUNDSTYLE_ values.
      */
-    public WindowBuildTool(@Nullable final BlockPos pos)
+    public WindowBuildTool(@Nullable final BlockPos pos, final int groundstyle)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
 
@@ -206,14 +212,15 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             return;
         }
 
-        this.init(pos, 0);
+        this.init(pos, 0, groundstyle);
     }
 
-    private void init(final BlockPos pos, final int rot)
+    private void init(final BlockPos pos, final int rot, final int groundstyle)
     {
         @Nullable
         final Blueprint structure = Settings.instance.getActiveStructure();
 
+        this.groundstyle = groundstyle;
         if (structure != null)
         {
             this.rotation = Settings.instance.getRotation();
@@ -890,18 +897,31 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void adjustToGroundOffset()
     {
-        int groundOffset = 1;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
         if (blueprint != null)
         {
-            final BlockPos groundLevel = BlueprintTagUtils.getFirstPosForTag(blueprint, GROUNDLEVEL_TAG);
-            if (groundLevel != null)
+            int groundOffset;
+            switch (groundstyle)
             {
-                groundOffset = -groundLevel.getY();
+                case GROUNDSTYLE_LEGACY_CAMP:
+                    groundOffset = BlueprintTagUtils.getGroundAnchorOffsetFromGroundLevels(blueprint,
+                            BlueprintTagUtils.getNumberOfGroundLevels(blueprint, 1));
+                    break;
+
+                case GROUNDSTYLE_LEGACY_SHIP:
+                    groundOffset = BlueprintTagUtils.getGroundAnchorOffsetFromGroundLevels(blueprint,
+                            BlueprintTagUtils.getNumberOfGroundLevels(blueprint, 3));
+                    break;
+
+                case GROUNDSTYLE_RELATIVE:
+                default:
+                    groundOffset = BlueprintTagUtils.getGroundAnchorOffset(blueprint, 1);
+                    break;
             }
-            --groundOffset;
+
+            --groundOffset;     // compensate for clicking the top face of the ground block
+            Settings.instance.setGroundOffset(groundOffset);
         }
-        Settings.instance.setGroundOffset(groundOffset);
     }
 
     /**

@@ -14,8 +14,9 @@ public interface IProxy
      * Opens a build tool window.
      *
      * @param pos coordinates.
+     * @param groundstyle one of the GROUNDSTYLE_ values.
      */
-    default void openBuildToolWindow(final BlockPos pos)
+    default void openBuildToolWindow(final BlockPos pos, final int groundstyle)
     {
     }
 
