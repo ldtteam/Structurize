@@ -26,29 +26,46 @@
     <buttonimage id="nextShape" size="14 15" pos="275 3" label="&gt;"
             source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
 
-    <label label="Height" id="heightLabel" size="40 20" pos="300 1"/>
-    <label label="Width" id="widthLabel" size="40 20" pos="300 26"/>
-    <label label="Length" id="lengthLabel" size="40 20" pos="300 51"/>
-    <label label="Frequency" id="frequencyLabel" size="40 20" pos="300 76"/>
-    <label label="Shape" id="shapeLabel" size="40 20" pos="120 30"/>
+    <view id="heightInput" size="105 20" pos="300 1">
+        <label label="Height" size="40 20" pos="0 0"/>
+        <input id="height" size="30 20" pos="60 0" maxlength="3"/>
+        <buttonimage id="heightminus" size="14 15" pos="46 2" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="heightplus" size="14 15" pos="91 2" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    </view>
 
-    <input id="height" size="30 20" pos="360 1" maxlength="3"/>
-    <input id="width" size="30 20" pos="360 26" maxlength="3"/>
-    <input id="length" size="30 20" pos="360 51" maxlength="3"/>
-    <input id="frequency" size="30 20" pos="360 76" maxlength="3"/>
-    <input id="shape" size="135 20" pos="165 30" maxlength="200"/>
-    <buttonimage id="heightminus" size="14 15" pos="346 3" label="-"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <buttonimage id="heightplus" size="14 15" pos="391 3" label="+"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <buttonimage id="widthminus" size="14 15" pos="346 28" label="-"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <buttonimage id="widthplus" size="14 15" pos="391 28" label="+"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <buttonimage id="lengthminus" size="14 15" pos="346 54" label="-"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
-    <buttonimage id="lengthplus" size="14 15" pos="391 54" label="+"
-                 source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    <view id="widthInput" size="105 20" pos="300 26">
+        <label label="Width" size="40 20" pos="0 0"/>
+        <input id="width" size="30 20" pos="60 0" maxlength="3"/>
+        <buttonimage id="widthminus" size="14 15" pos="46 2" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="widthplus" size="14 15" pos="91 2" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    </view>
+
+    <view id="lengthInput" size="105 20" pos="300 51">
+        <label label="Length" size="40 20" pos="0 0"/>
+        <input id="length" size="30 20" pos="60 0" maxlength="3"/>
+        <buttonimage id="lengthminus" size="14 15" pos="46 2" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="lengthplus" size="14 15" pos="91 2" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    </view>
+
+    <view id="frequencyInput" size="105 20" pos="300 76">
+        <label label="Frequency" size="40 20" pos="0 0"/>
+        <input id="frequency" size="30 20" pos="60 0" maxlength="3"/>
+        <buttonimage id="frequencyminus" size="14 15" pos="46 2" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="frequencyplus" size="14 15" pos="91 2" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    </view>
+
+    <view id="shapeInput" size="180 20" pos="120 30">
+        <label label="Shape" size="40 20" pos="0 0"/>
+        <input id="shape" size="135 20" pos="45 0" maxlength="200"/>
+    </view>
 
     <view size="96 128" pos="162 80">
         <buttonimage id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>

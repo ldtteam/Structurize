@@ -2,6 +2,7 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.DropDownList;
+import com.ldtteam.blockout.views.View;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structures.helpers.Settings;
@@ -15,14 +16,16 @@ import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.network.messages.GenerateAndSaveMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.UndoMessage;
-import com.ldtteam.structurize.util.*;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
-import static com.ldtteam.structurize.client.gui.WindowBuildTool.*;
 
 /**
  * BuildTool window.
@@ -211,6 +213,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(INPUT_LENGTH + BUTTON_PLUS, () -> adjust(inputLength, Settings.instance.getLength() + 1));
         registerButton(INPUT_HEIGHT + BUTTON_MINUS, () -> adjust(inputHeight, Settings.instance.getHeight() - 1));
         registerButton(INPUT_HEIGHT + BUTTON_PLUS, () -> adjust(inputHeight, Settings.instance.getHeight() + 1));
+        registerButton(INPUT_FREQUENCY + BUTTON_MINUS, () -> adjust(inputFrequency, Settings.instance.getFrequency() - 1));
+        registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, Settings.instance.getFrequency() + 1));
 
         sections.clear();
         sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
@@ -262,22 +266,17 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void disableInputIfNecessary()
     {
         final Shape shape = Settings.instance.getShape();
-        final Text heightLabel = findPaneOfTypeByID(HEIGHT_LABEL, Text.class);
-        final Text widthLabel = findPaneOfTypeByID(WIDTH_LABEL, Text.class);
-        final Text lengthLabel = findPaneOfTypeByID(LENGTH_LABEL, Text.class);
-        final Text frequencyLabel = findPaneOfTypeByID(FREQUENCY_LABEL, Text.class);
-        final Text shapeLabel = findPaneOfTypeByID(SHAPE_LABEL, Text.class);
+        final View height = findPaneOfTypeByID(HEIGHT_VIEW, View.class);
+        final View width = findPaneOfTypeByID(WIDTH_VIEW, View.class);
+        final View length = findPaneOfTypeByID(LENGTH_VIEW, View.class);
+        final View frequency = findPaneOfTypeByID(FREQUENCY_VIEW, View.class);
+        final View equation = findPaneOfTypeByID(SHAPE_VIEW, View.class);
 
-        inputHeight.show();
-        inputWidth.show();
-        inputLength.show();
-        inputFrequency.show();
-        inputShape.hide();
-        heightLabel.show();
-        widthLabel.show();
-        lengthLabel.show();
-        frequencyLabel.show();
-        shapeLabel.hide();
+        height.show();
+        width.show();
+        length.show();
+        frequency.show();
+        equation.hide();
 
         findPaneByID(BUTTON_HOLLOW).show();
         findPaneByID(BUTTON_PICK_FILL_BLOCK).show();
@@ -286,10 +285,8 @@ public class WindowShapeTool extends AbstractWindowSkeleton
 
         if (shape == Shape.RANDOM)
         {
-            inputShape.show();
-            shapeLabel.show();
-            inputFrequency.hide();
-            frequencyLabel.hide();
+            equation.show();
+            frequency.hide();
             findPaneByID(BUTTON_HOLLOW).hide();
             findPaneByID(BUTTON_PICK_FILL_BLOCK).hide();
             findPaneByID(RESOURCE_ICON_FILL).hide();
@@ -297,24 +294,18 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         else if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
                    || shape == Shape.DIAMOND)
         {
-            inputWidth.hide();
-            inputLength.hide();
-            inputFrequency.hide();
-            widthLabel.hide();
-            lengthLabel.hide();
-            frequencyLabel.hide();
+            width.hide();
+            length.hide();
+            frequency.hide();
         }
         else if (shape == Shape.CYLINDER)
         {
-            inputLength.hide();
-            lengthLabel.hide();
-            inputFrequency.hide();
-            frequencyLabel.hide();
+            length.hide();
+            frequency.hide();
         }
         else if (shape != Shape.WAVE && shape != Shape.WAVE_3D)
         {
-            inputFrequency.hide();
-            frequencyLabel.hide();
+            frequency.hide();
         }
     }
 
