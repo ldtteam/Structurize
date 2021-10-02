@@ -31,3 +31,9 @@ Allows you to:
     versionRange="[1.16.3, )"
     ordering="NONE"
     side="BOTH"
+[[dependencies.minecolonies]]
+    modId="domum_ornamentum"
+    mandatory=true
+    versionRange="[1.17.1-1.0.0-RELEASE]"
+    ordering="AFTER"
+    side="BOTH"

@@ -155,13 +155,13 @@ public final class WindowConstants
     public static final String INPUT_SHAPE     = "shape";
 
     /**
-     * The labels of the width, length, etc.
+     * The views of the width, length, etc.
      */
-    public static final String HEIGHT_LABEL    = "heightLabel";
-    public static final String WIDTH_LABEL     = "widthLabel";
-    public static final String LENGTH_LABEL    = "lengthLabel";
-    public static final String FREQUENCY_LABEL = "frequencyLabel";
-    public static final String SHAPE_LABEL     = "shapeLabel";
+    public static final String HEIGHT_VIEW    = "heightInput";
+    public static final String WIDTH_VIEW      = "widthInput";
+    public static final String LENGTH_VIEW     = "lengthInput";
+    public static final String FREQUENCY_VIEW  = "frequencyInput";
+    public static final String SHAPE_VIEW      = "shapeInput";
 
     /**
      * The shapeTool Replace Blocks toggle.
