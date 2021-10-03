@@ -37,3 +37,9 @@ Allows you to:
     versionRange="[0.0.21-ALPHA,)"
     ordering="NONE"
     side="CLIENT"
+[[dependencies.minecolonies]]
+    modId="domum_ornamentum"
+    mandatory=true
+    versionRange="[1.17.1-1.0.0-RELEASE,)"
+    ordering="AFTER"
+    side="BOTH"
