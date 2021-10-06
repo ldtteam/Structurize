@@ -119,7 +119,9 @@ public abstract class AbstractBlueprintIterator
             {
                 continue;
             }
-            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual) && info.getEntities().length == 0)
+            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
+              info.getBlockInfo().getTileEntityData(),
+              info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
             {
                 structureHandler.triggerSuccess(progressPos, Collections.emptyList(), false);
                 continue;
