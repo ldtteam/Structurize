@@ -168,6 +168,9 @@ public final class Structures
         {
             checkDirectory(clientSchems.toPath().resolve(SCHEMATICS_SCAN).toFile());
             loadSchematicsForPrefix(clientSchems.toPath(), SCHEMATICS_SCAN);
+
+            checkDirectory(clientSchems.toPath().resolve(SCHEMATICS_PREFIX).toFile());
+            loadSchematicsForPrefix(clientSchems.toPath(), SCHEMATICS_PREFIX);
         }
     }
 
