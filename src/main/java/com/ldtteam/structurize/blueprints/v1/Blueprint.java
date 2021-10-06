@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.NINETY_DEGREES;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
 
 /**
@@ -590,9 +589,7 @@ public class Blueprint
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
                             {
-                                BlockPos newPos = transformedBlockPos(entry.getKey()
-                                    .getX(), entry.getKey().getY(), entry.getKey().getZ(), mirror, rotation);
-                                newTagPosMap.put(newPos, entry.getValue());
+                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirror, rotation), entry.getValue());
                             }
 
                             IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
@@ -600,8 +597,8 @@ public class Blueprint
                             // Rotate corners
                             BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
                             BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
-                            corner1 = transformedBlockPos(corner1.getX(), corner1.getY(), corner1.getZ(), mirror, rotation);
-                            corner2 = transformedBlockPos(corner2.getX(), corner2.getY(), corner2.getZ(), mirror, rotation);
+                            corner1 = transformedBlockPos(corner1, mirror, rotation);
+                            corner2 = transformedBlockPos(corner2, mirror, rotation);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
                         }
@@ -653,6 +650,12 @@ public class Blueprint
             default:
                 return pos;
         }
+    }
+
+    
+    public static BlockPos transformedBlockPos(final BlockPos pos, final Mirror mirror, final Rotation rotation)
+    {
+        return transformedBlockPos(pos.getX(), pos.getY(), pos.getZ(), mirror, rotation);
     }
 
     /**
@@ -729,20 +732,14 @@ public class Blueprint
                 {
                     finalEntity.deserializeNBT(entityInfo);
 
-                    final Vec3 entityVec = Blueprint.transformedVector3d(rotation, mirror, finalEntity.position())
-                                                 .add(Vec3.atLowerCornerOf(pos));
-                    finalEntity.yRotO = (float) (finalEntity.mirror(mirror) - NINETY_DEGREES);
-                    final double rotationYaw = finalEntity.mirror(mirror)
-                                                 + ((double) finalEntity.mirror(mirror) - (double) finalEntity.rotate(rotation));
-
-                    if (finalEntity instanceof HangingEntity)
-                    {
-                        finalEntity.setPos(entityVec.x, entityVec.y, entityVec.z);
-                    }
-                    else
-                    {
-                        finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, (float) rotationYaw, finalEntity.getXRot());
-                    }
+                    final Vec3 entityVec = Blueprint
+                        .transformedVector3d(rotation,
+                            mirror,
+                            finalEntity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : finalEntity.position())
+                        .add(Vec3.atLowerCornerOf(pos));
+                    finalEntity.setYRot(finalEntity.mirror(mirror));
+                    finalEntity.setYRot(finalEntity.rotate(rotation));
+                    finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, finalEntity.getYRot(), finalEntity.getXRot());
 
                     return finalEntity.serializeNBT();
                 }

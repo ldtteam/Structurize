@@ -1,6 +1,5 @@
-package com.ldtteam.structurize.lib;
+package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintBlockAccess;
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
@@ -12,11 +11,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Utility functions for blueprints.
@@ -61,15 +64,23 @@ public final class BlueprintUtils
      * @param blockAccess The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
-        public static Map<BlockPos, BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess)
+    public static List<BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess, final Map<BlockPos, IModelData> teModelData)
     {
         return blueprint.getBlockInfoAsList()
             .stream()
             .map(blockInfo -> BlueprintBlockInfoTransformHandler.getInstance().Transform(blockInfo))
             .filter(BlockInfo::hasTileEntityData)
-            .map(blockInfo -> constructTileEntity(blockInfo, blockAccess))
+            .map(blockInfo -> {
+                @Nullable
+                final BlockEntity be = constructTileEntity(blockInfo, blockAccess);
+                if (be != null)
+                {
+                    teModelData.put(blockInfo.getPos(), be.getModelData());
+                }
+                return be;
+            })
             .filter(Objects::nonNull)
-            .collect(Collectors.toMap(BlockEntity::getBlockPos, e -> e));
+            .toList();
     }
 
     /**
@@ -86,7 +97,7 @@ public final class BlueprintUtils
             .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
             .map(entityInfo -> constructEntity(entityInfo, blockAccess))
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Nullable

@@ -1,3 +1,9 @@
-if (project.hasProperty("usesOptifine") && project.usesOptifine.toString().toLowerCase() == "true") {
-    //Optifine compat code here
+if (project.hasProperty("optifineMcJarPath") && project.optifineMcJarPath.toString().length() > 0) {
+    minecraft {
+        runs {
+            client {
+                property 'ofdev.mcjar', project.optifineMcJarPath
+            }
+        }
+    }
 }

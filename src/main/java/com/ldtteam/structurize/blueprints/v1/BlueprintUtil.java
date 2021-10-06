@@ -119,6 +119,11 @@ public class BlueprintUtil
 
         for (final Entity entity : entities)
         {
+            if (!entity.getType().canSerialize())
+            {
+                continue;
+            }
+
             final Vec3 oldPos = entity.position();
             final CompoundTag entityTag = entity.serializeNBT();
 

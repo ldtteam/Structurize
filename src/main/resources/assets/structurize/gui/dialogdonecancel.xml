@@ -1,9 +1,9 @@
-<overlay size="100% 100%" pos="0 0" vidible="false">
-    <view size="256 180" pos="82 30">
-        <image source="structurize:textures/gui/dialog.png" pos="0 0" size="256px 180px"/>
-        <label id="title" size="100% 11" pos="0 20" textalign="TOP_MIDDLE" color="black" label="$(com.ldtteam.structurize.gui.structure.delete.title)"/>
-        <text id="textcontent" size="150 30" pos="53 70" textalign="TOP_MIDDLE" color="black"/>
-        <button id="done" size="200 20" pos="28 110" label="$(gui.done)"/>
-        <button id="cancel" size="200 20" pos="28 134" label="$(gui.cancel)"/>
+<overlay size="100% 100%" pos="0 0">
+    <view size="248 166" pos="82 30">
+        <image source="minecraft:textures/gui/demo_background.png" imagesize="248 166" pos="0 0" size="248 166"/>
+        <text id="title" size="200 18" pos="24 19" textalign="TOP_MIDDLE" color="black" wrap="false"/>
+        <text id="textcontent" size="200 22" pos="24 53" textalign="TOP_MIDDLE" color="black"/>
+        <button id="done" size="200 20" pos="24 91" label="$(gui.done)"/>
+        <button id="cancel" size="200 20" pos="24 127" label="$(gui.cancel)"/>
     </view>
 </overlay>

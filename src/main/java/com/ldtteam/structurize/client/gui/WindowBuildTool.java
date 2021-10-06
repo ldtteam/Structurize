@@ -5,9 +5,9 @@ import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.DropDownList;
-import com.ldtteam.structures.lib.BlueprintTagUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
@@ -1243,8 +1243,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         confirmDeleteDialog = new DialogDoneCancel(getWindow());
         confirmDeleteDialog.setHandler(this::onDialogClosed);
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        confirmDeleteDialog.setTitle(new TranslatableComponent("com.ldtteam.gui.structure.delete.title"));
-        confirmDeleteDialog.setTextContent(new TranslatableComponent("com.ldtteam.gui.structure.delete.body", structureName.toString()));
+        confirmDeleteDialog.setTitle(new TranslatableComponent("structurize.gui.delete.title"));
+        confirmDeleteDialog.setTextContent(new TranslatableComponent("structurize.gui.delete.body", structureName.toString()));
         confirmDeleteDialog.open();
     }
 

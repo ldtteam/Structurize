@@ -18,11 +18,14 @@ import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.GlowItemFrame;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
@@ -454,7 +457,22 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((MutableComponent) tempEntities.get(index).getName());
+                final Entity entity = tempEntities.get(index);
+                ItemStack entityIcon = entity.getPickResult();
+                if (entity instanceof GlowItemFrame)
+                {
+                    entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
+                }
+                else if (entity instanceof ItemFrame)
+                {
+                    entityIcon = new ItemStack(Items.ITEM_FRAME);
+                }
+                else if (entity instanceof AbstractMinecart)
+                {
+                    entityIcon = new ItemStack(Items.MINECART);
+                }
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
@@ -493,7 +511,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
-                resourceLabel.setText((MutableComponent) resource.getItemStack().getHoverName());
+                resourceLabel.setText(resource.getItemStack().getHoverName());
                 quantityLabel.setText(new TextComponent(Integer.toString(resource.getAmount())));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);

@@ -6,7 +6,7 @@
 
     <label id="taglistname" size="230 12" pos="135 65" color="white"/>
 
-    <list id="tagposlist" size="230 120" pos="135 80">
+    <list id="tagposlist" size="230 120" pos="135 80" childspacing="-1">
         <box size="100% 17" linewidth="1">
             <itemicon id="posblock" size="17 17" pos="0 1"/>
             <text id="tagnames" size="190 25" pos="30 5" textalign="TOP_LEFT" color="white"/>
