@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -184,9 +187,17 @@ public final class BlockUtils
      * @param worldState the second blockState.
      * @param shallReplace the not solid condition.
      * @param fancy if fancy paste.
+     * @param tileEntityData
+     * @param worldEntity
      * @return true if nothing has to be done.
      */
-    public static boolean areBlockStatesEqual(final BlockState structureState, final BlockState worldState, final Predicate<BlockState> shallReplace, final boolean fancy, final BiPredicate<BlockState, BlockState> specialEqualRule)
+    public static boolean areBlockStatesEqual(
+      final BlockState structureState,
+      final BlockState worldState,
+      final Predicate<BlockState> shallReplace,
+      final boolean fancy,
+      final BiPredicate<BlockState, BlockState> specialEqualRule,
+      final CompoundTag tileEntityData, final BlockEntity worldEntity)
     {
         if (structureState == null || worldState == null)
         {
@@ -198,6 +209,22 @@ public final class BlockUtils
 
         if (worldState.equals(structureState))
         {
+            if (tileEntityData == null)
+            {
+                return true;
+            }
+            else if (worldEntity == null)
+            {
+                return false;
+            }
+            else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+            {
+                CompoundTag tag = tileEntityData.copy();
+                tag.putInt("x", worldEntity.getBlockPos().getX());
+                tag.putInt("y", worldEntity.getBlockPos().getX());
+                tag.putInt("z", worldEntity.getBlockPos().getX());
+                return worldEntity.save(new CompoundTag()).equals(tag);
+            }
             return true;
         }
 

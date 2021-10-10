@@ -19,6 +19,7 @@ import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.Material;
@@ -223,7 +224,7 @@ public class StructurePlacer
                             entity.deserializeNBT(compound);
 
                             entity.setUUID(UUID.randomUUID());
-                            final Vec3 posInWorld = (entity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : entity.position()).add(pos.getX(), pos.getY(), pos.getZ());
+                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
                             entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z, entity.getYRot(), entity.getXRot());
 
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
@@ -276,7 +277,13 @@ public class StructurePlacer
             }
         }
 
-        if (BlockUtils.areBlockStatesEqual(localState, worldState, handler::replaceWithSolidBlock, handler.fancyPlacement(), handler::shouldBlocksBeConsideredEqual))
+        BlockEntity worldEntity = null;
+        if (tileEntityData != null)
+        {
+            worldEntity = world.getBlockEntity(worldPos);
+        }
+
+        if (BlockUtils.areBlockStatesEqual(localState, worldState, handler::replaceWithSolidBlock, handler.fancyPlacement(), handler::shouldBlocksBeConsideredEqual, tileEntityData, worldEntity))
         {
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
         }

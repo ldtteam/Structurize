@@ -614,6 +614,7 @@ public final class PlacementHandlers
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
             return blockState.getBlock() instanceof StairBlock
+                     && !(blockState.getBlock() instanceof EntityBlock)
                      && world.getBlockState(pos).getBlock() instanceof StairBlock
                      && world.getBlockState(pos).getValue(StairBlock.FACING) == blockState.getValue(StairBlock.FACING)
                      && blockState.getBlock() == world.getBlockState(pos).getBlock();
@@ -663,6 +664,8 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
+                world.removeBlock(pos, false);
+                world.setBlock(pos, blockState, UPDATE_FLAG);
                 if (tileEntityData != null)
                 {
                     handleTileEntityPlacement(tileEntityData, world, pos, settings);
@@ -860,8 +863,16 @@ public final class PlacementHandlers
             final BlockEntity newTile = BlockEntity.loadStatic(pos, world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
-                world.setBlockEntity(newTile);
-
+                final BlockEntity worldBlockEntity = world.getBlockEntity(pos);
+                if (worldBlockEntity != null)
+                {
+                    worldBlockEntity.load(newTile.save(new CompoundTag()));
+                    worldBlockEntity.setChanged();
+                }
+                else
+                {
+                    world.setBlockEntity(newTile);
+                }
                 world.getBlockState(pos).rotate(world, pos, settings.rotation);
                 world.getBlockState(pos).mirror(settings.mirror);
 
