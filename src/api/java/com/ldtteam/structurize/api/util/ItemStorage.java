@@ -168,11 +168,7 @@ public class ItemStorage
         }
 
         final ItemStorage that = (ItemStorage) o;
-
-
-        return stack.sameItem(that.getItemStack())
-                && (this.shouldIgnoreDamageValue || that.getDamageValue() == this.getDamageValue())
-                && (this.shouldIgnoreNBTValue || that.getItemStack().serializeNBT() == this.getItemStack().serializeNBT());
+        return ItemStackUtils.compareItemStacksIgnoreStackSize(that.getItemStack(), this.getItemStack(), !(this.shouldIgnoreDamageValue || that.shouldIgnoreDamageValue), !(this.shouldIgnoreNBTValue || that.shouldIgnoreNBTValue));
     }
 
     /**
