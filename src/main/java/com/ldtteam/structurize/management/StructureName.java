@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
@@ -9,6 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class StructureName
 {
-    public static List<String> HUTS = new ArrayList<>();
+    public static List<String> HUTS = Collections.synchronizedList(new ArrayList<>());
 
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
