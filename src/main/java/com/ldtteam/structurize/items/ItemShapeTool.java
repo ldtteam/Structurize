@@ -26,7 +26,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openShapeToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
+            Structurize.proxy.openShapeToolWindow(context.getClickedPos().relative(context.getClickedFace()));
         }
 
         return InteractionResult.SUCCESS;

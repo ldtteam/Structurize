@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
 /**
  * Class handling the buildTool item.
  */
@@ -29,7 +30,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getHorizontalDirection()));
+            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE);
         }
         return InteractionResult.SUCCESS;
     }
@@ -41,7 +42,7 @@ public class ItemBuildTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(null);
+            Structurize.proxy.openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
