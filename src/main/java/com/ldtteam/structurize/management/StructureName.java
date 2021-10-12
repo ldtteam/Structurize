@@ -109,10 +109,28 @@ public class StructureName
         {
             hut = schematic.split("\\d+")[0].toLowerCase(Locale.ROOT);
             section = Structures.SCHEMATICS_PREFIX;
-            if (HUTS.contains(hut)) {
+            if (HUTS.contains(hut))
+            {
                 section = hut;
-            } else {
-                hut = "";
+            }
+            else
+            {
+                try
+                {
+                    // This is for legacy minecolonies support
+                    if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) == Blocks.AIR)
+                    {
+                        hut = "";
+                    }
+                    else
+                    {
+                        section = hut;
+                    }
+                }
+                catch (ResourceLocationException e)
+                {
+                    hut = "";
+                }
             }
         }
     }
