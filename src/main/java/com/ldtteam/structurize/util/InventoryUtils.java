@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import net.minecraft.item.ItemStack;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,7 @@ public class InventoryUtils
 
             for (final ItemStack stack : listToDiscount)
             {
-                if (!stack.isEmpty() && stack.sameItem(content))
+                if (!stack.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(stack, content))
                 {
                     if (stack.getCount() < content.getCount())
                     {
@@ -99,7 +100,7 @@ public class InventoryUtils
 
         for (int i = 0; i < handler.getSlots(); i++)
         {
-            if (handler.getStackInSlot(i).sameItem(tempStack))
+            if (ItemStackUtils.compareItemStacksIgnoreStackSize(handler.getStackInSlot(i), tempStack))
             {
                 final ItemStack result = handler.extractItem(i, count, false);
                 if (result.getCount() == count)

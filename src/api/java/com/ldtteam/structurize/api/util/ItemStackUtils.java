@@ -14,7 +14,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -173,5 +172,101 @@ public final class ItemStackUtils
             return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Method to compare to stacks, ignoring their stacksize.
+     *
+     * @param itemStack1 The left stack to compare.
+     * @param itemStack2 The right stack to compare.
+     * @return True when they are equal except the stacksize, false when not.
+     */
+    @NotNull
+    public static Boolean compareItemStacksIgnoreStackSize(final ItemStack itemStack1, final ItemStack itemStack2)
+    {
+        return compareItemStacksIgnoreStackSize(itemStack1, itemStack2, true, true);
+    }
+
+    /**
+     * Method to compare to stacks, ignoring their stacksize.
+     *
+     * @param itemStack1  The left stack to compare.
+     * @param itemStack2  The right stack to compare.
+     * @param matchDamage Set to true to match damage data.
+     * @param matchNBT    Set to true to match nbt
+     * @return True when they are equal except the stacksize, false when not.
+     */
+    public static boolean compareItemStacksIgnoreStackSize(final ItemStack itemStack1, final ItemStack itemStack2, final boolean matchDamage, final boolean matchNBT)
+    {
+        return compareItemStacksIgnoreStackSize(itemStack1, itemStack2, matchDamage, matchNBT, false);
+    }
+
+    /**
+     * Method to compare to stacks, ignoring their stacksize.
+     *
+     * @param itemStack1  The left stack to compare.
+     * @param itemStack2  The right stack to compare.
+     * @param matchDamage Set to true to match damage data.
+     * @param matchNBT    Set to true to match nbt
+     * @param min         if the count of stack2 has to be at least the same as stack1.
+     * @return True when they are equal except the stacksize, false when not.
+     */
+    public static boolean compareItemStacksIgnoreStackSize(
+      final ItemStack itemStack1,
+      final ItemStack itemStack2,
+      final boolean matchDamage,
+      final boolean matchNBT,
+      final boolean min)
+    {
+        if (isEmpty(itemStack1) && isEmpty(itemStack2))
+        {
+            return true;
+        }
+
+        if (isEmpty(itemStack1) != isEmpty(itemStack2))
+        {
+            return false;
+        }
+
+        if (itemStack1.getItem() == itemStack2.getItem() && (!matchDamage || itemStack1.getDamageValue() == itemStack2.getDamageValue()))
+        {
+            if (!matchNBT)
+            {
+                // Not comparing nbt
+                return true;
+            }
+
+            if (min && itemStack1.getCount() > itemStack2.getCount())
+            {
+                return false;
+            }
+
+            // Then sort on NBT
+            if (itemStack1.hasTag() && itemStack2.hasTag())
+            {
+                CompoundNBT nbt1 = itemStack1.getTag();
+                CompoundNBT nbt2 = itemStack2.getTag();
+
+                for(String key :nbt1.getAllKeys())
+                {
+                    if(!matchDamage && key.equals("Damage"))
+                    {
+                        continue;
+                    }
+                    if(!nbt2.contains(key) || !nbt1.get(key).equals(nbt2.get(key)))
+                    {
+                        return false;
+                    }
+                }
+
+                return nbt1.getAllKeys().size() == nbt2.getAllKeys().size();
+            }
+            else
+            {
+                return (!itemStack1.hasTag() || itemStack1.getTag().isEmpty())
+                         && (!itemStack2.hasTag() || itemStack2.getTag().isEmpty());
+            }
+        }
+        return false;
     }
 }
