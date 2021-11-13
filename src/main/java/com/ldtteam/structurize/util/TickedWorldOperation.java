@@ -1,9 +1,12 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -12,12 +15,14 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
@@ -241,8 +246,22 @@ public class TickedWorldOperation
                 {
                     final BlockPos here = new BlockPos(x, y, z);
                     final BlockState blockState = world.getBlockState(here);
-                    final ItemStack stack = BlockUtils.getItemStackFromBlockState(blockState);
-                    if (correctBlockToRemoveOrReplace(stack, blockState, firstBlock))
+                    final BlockEntity tileEntity = world.getBlockEntity(here);
+                    boolean isMatch = false;
+                    for (final IPlacementHandler handler : PlacementHandlers.handlers)
+                    {
+                        if (handler.canHandle(world, here, blockState))
+                        {
+                            final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.serializeNBT(), true);
+                            if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
+                            {
+                                isMatch = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    if (isMatch)
                     {
                         if ((blockState.getBlock() instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
                               || (blockState.getBlock() instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD))

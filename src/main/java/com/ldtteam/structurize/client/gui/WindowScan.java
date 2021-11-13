@@ -14,6 +14,8 @@ import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -356,36 +358,24 @@ public class WindowScan extends AbstractWindowSkeleton
                     }
 
                     @Nullable final Block block = blockState.getBlock();
-                    if (block != null)
+                    if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
                     {
-                        if (tileEntity != null)
+                        addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
+                    }
+                    else
+                    {
+                        for (final IPlacementHandler handler : PlacementHandlers.handlers)
                         {
-                            try
+                            if (handler.canHandle(world, here, blockState))
                             {
-                                final List<ItemStack> itemList = new ArrayList<>(ItemStackUtils.getItemStacksOfTileEntity(tileEntity.save(new CompoundTag()), blockState));
+
+                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.serializeNBT(), true);
                                 for (final ItemStack stack : itemList)
                                 {
                                     addNeededResource(stack, 1);
                                 }
+                                break;
                             }
-                            catch (final Exception ex)
-                            {
-                                // noop - expected
-                            }
-                        }
-
-                        if ((block instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD)
-                        || block instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
-                        {
-                            // noop
-                        }
-                        else if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
-                        {
-                            addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
-                        }
-                        else
-                        {
-                            addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
                         }
                     }
                 }
@@ -515,7 +505,10 @@ public class WindowScan extends AbstractWindowSkeleton
                 quantityLabel.setText(new TextComponent(Integer.toString(resource.getAmount())));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);
-                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(new ItemStack(resource.getItem(), 1, resource.getItemStack().getTag()));
+
+                final ItemStack copy = resource.getItemStack().copy();
+                copy.setCount(1);
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(copy);
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_BLOCK, Button.class).hide();
