@@ -8,6 +8,7 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
@@ -70,12 +71,12 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
     /**
      * List of all item stacks in the game.
      */
-    private final List<ItemStack> allItems = new ArrayList<>();
+    private final List<ItemStorage> allItems = new ArrayList<>();
 
     /**
      * List of all item stacks in the game.
      */
-    private List<ItemStack> filteredItems = new ArrayList<>();
+    private List<ItemStorage> filteredItems = new ArrayList<>();
 
     /**
      * Resource scrolling list.
@@ -168,7 +169,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
 
         registerButton(BUTTON_SELECT, button -> {
             final int row = resourceList.getListElementIndexByPane(button);
-            final ItemStack to = filteredItems.get(row);
+            final ItemStack to = filteredItems.get(row).getItemStack();
             findPaneOfTypeByID("resourceIconTo", ItemIcon.class).setItem(to);
             findPaneOfTypeByID("resourceNameTo", Text.class).setText(to.getHoverName());
         });
@@ -180,8 +181,18 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
                                                .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
                                                                                                                           && ((BucketItem) item).getFluid() != Fluids.EMPTY))
-                                               .map(ItemStack::new)
+                                               .map(s -> new ItemStorage(new ItemStack(s)))
                                                .collect(Collectors.toList())));
+
+        for (final ItemStack stack : Minecraft.getInstance().player.getInventory().items)
+        {
+            if (!allItems.contains(new ItemStorage(stack)))
+            {
+                final ItemStack copy = stack.copy();
+                copy.setCount(1);
+                allItems.add(new ItemStorage(copy));
+            }
+        }
         filteredItems = allItems;
     }
 
@@ -192,14 +203,14 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         if (tick > 0 && --tick == 0)
         {
             filteredItems = filter.isEmpty() ? allItems : allItems.stream()
-                                                            .filter(stack -> stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                                                                               || stack.getHoverName()
+                                                            .filter(stack -> stack.getItemStack().getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                                                               || stack.getItemStack().getHoverName()
                                                                                     .getString()
                                                                                     .toLowerCase(Locale.US)
                                                                                     .contains(filter.toLowerCase(Locale.US)))
                                                             .collect(Collectors.toList());
 
-            filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
+            filteredItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getItemStack().getHoverName().getString(), filter)));
         }
     }
 
@@ -267,7 +278,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final ItemStack resource = filteredItems.get(index);
+                final ItemStack resource = filteredItems.get(index).getItemStack();
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 resourceLabel.setText((MutableComponent) resource.getHoverName());
                 resourceLabel.setColors(WHITE);

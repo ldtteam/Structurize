@@ -60,6 +60,8 @@ public class NetworkChannel
         registerMessage(++idx, StructurizeStylesMessage.class, StructurizeStylesMessage::new);
         registerMessage(++idx, UndoMessage.class, UndoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
+        registerMessage(++idx, UpdateClientRender.class, UpdateClientRender::new);
+
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
     }
 
