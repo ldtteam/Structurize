@@ -4,7 +4,7 @@ license="GPL 3.0"
 issueTrackerURL="https://github.com/ldtteam/structurize/issues/new/choose"
 [[mods]]
 modId="structurize"
-version="${file.jarVersion}"
+version="${version}"
 displayName="Structurize"
 displayURL="https://minecolonies.com/"
 logoFile="structurize.png"
