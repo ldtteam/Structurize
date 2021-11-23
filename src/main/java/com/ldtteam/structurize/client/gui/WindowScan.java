@@ -367,7 +367,7 @@ public class WindowScan extends AbstractWindowSkeleton
                         boolean handled = false;
                         for (final IPlacementHandler handler : PlacementHandlers.handlers)
                         {
-                            if (handler.canHandle(world, here, blockState))
+                            if (handler.canHandle(world, BlockPos.ZERO, blockState))
                             {
                                 final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.serializeNBT(), true);
                                 for (final ItemStack stack : itemList)
