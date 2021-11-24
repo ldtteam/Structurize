@@ -251,16 +251,31 @@ public class TickedWorldOperation
                     final BlockState blockState = world.getBlockState(here);
                     final BlockEntity tileEntity = world.getBlockEntity(here);
                     boolean isMatch = false;
-                    for (final IPlacementHandler handler : PlacementHandlers.handlers)
+                    boolean handled = false;
+
+                    if (firstBlock.getItem() == Items.AIR && blockState.isAir())
                     {
-                        if (handler.canHandle(world, here, blockState))
+                        isMatch = true;
+                    }
+                    else
+                    {
+                        for (final IPlacementHandler handler : PlacementHandlers.handlers)
                         {
-                            final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.serializeNBT(), true);
-                            if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
+                            if (handler.canHandle(world, BlockPos.ZERO, blockState))
                             {
-                                isMatch = true;
+                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.serializeNBT(), true);
+                                if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
+                                {
+                                    isMatch = true;
+                                }
+                                handled = true;
+                                break;
                             }
-                            break;
+                        }
+
+                        if (!handled && ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), firstBlock))
+                        {
+                            isMatch = true;
                         }
                     }
 
