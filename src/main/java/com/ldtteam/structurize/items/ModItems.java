@@ -2,9 +2,9 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -28,8 +28,8 @@ public final class ModItems
 
     public static final RegistryObject<ItemBuildTool> buildTool;
     public static final RegistryObject<ItemShapeTool> shapeTool;
-    public static final RegistryObject<ItemScanTool> scanTool;
-    public static final RegistryObject<ItemTagTool>  tagTool;
+    public static final RegistryObject<ItemScanTool>  scanTool;
+    public static final RegistryObject<ItemTagTool>   tagTool;
     public static final RegistryObject<ItemCaliper>  caliper;
 
     /**

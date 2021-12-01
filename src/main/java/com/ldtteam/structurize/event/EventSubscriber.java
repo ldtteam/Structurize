@@ -29,10 +29,10 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
-import net.minecraftforge.fmlserverevents.FMLServerStoppingEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -72,14 +72,14 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onServerStarted(final FMLServerStartedEvent event)
+    public static void onServerStarted(final ServerStartedEvent event)
     {
         Structures.init();
         BackUpHelper.loadLinkSessionManager();
     }
 
     @SubscribeEvent
-    public static void onServerStopping(final FMLServerStoppingEvent event)
+    public static void onServerStopping(final ServerStoppingEvent event)
     {
         BackUpHelper.saveLinkSessionManager();
     }
@@ -220,7 +220,7 @@ public class EventSubscriber
         if (Structurize.getConfig().getServer().updateMode.get() == UpdateMode.DISABLED)
             return;
 
-        final File regionDirectory = new File(serverLevel.getServer().storageSource.getDimensionPath(serverLevel.dimension()), "region");
+        final File regionDirectory = new File(serverLevel.getServer().storageSource.getDimensionPath(serverLevel.dimension()).toFile(), "region");
         regionDirectory.mkdirs();
         final File[] regionFiles = regionDirectory.listFiles((file, s) -> s.endsWith(".mca"));
         final List<ChunkPos> lowestRegionCorners = Arrays.stream(regionFiles != null ? regionFiles : new File[0])

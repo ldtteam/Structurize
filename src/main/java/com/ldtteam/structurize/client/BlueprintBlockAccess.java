@@ -46,9 +46,11 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.ticks.LevelTickAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -58,7 +60,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.TickList;
 
 /**
  * Our world/blockAccess dummy.
@@ -606,10 +607,9 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public Stream<VoxelShape> getEntityCollisions(Entity p_230318_1_, AABB p_230318_2_, Predicate<Entity> p_230318_3_)
+    public List<VoxelShape> getEntityCollisions(@Nullable final Entity p_186447_, final AABB p_186448_)
     {
-        // Noop
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -647,16 +647,14 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public TickList<Block> getBlockTicks()
+    public LevelTickAccess<Block> getBlockTicks()
     {
-        // Noop
         return null;
     }
 
     @Override
-    public TickList<Fluid> getLiquidTicks()
+    public LevelTickAccess<Fluid> getFluidTicks()
     {
-        // Noop
         return null;
     }
 

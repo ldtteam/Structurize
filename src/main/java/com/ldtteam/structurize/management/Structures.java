@@ -10,8 +10,8 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.io.*;
 import java.nio.file.Files;

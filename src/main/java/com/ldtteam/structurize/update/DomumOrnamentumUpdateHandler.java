@@ -10,9 +10,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
+import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
@@ -24,7 +26,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -115,7 +116,7 @@ public class DomumOrnamentumUpdateHandler
 
     public static void updateChunkTag(final CompoundTag chunkTag, final ChunkPos chunkPos) {
         final CompoundTag levelTag = chunkTag.getCompound("Level");
-        final ListTag sectionsTag = levelTag.getList("Sections", Constants.NBT.TAG_COMPOUND);
+        final ListTag sectionsTag = levelTag.getList("Sections", Tag.TAG_COMPOUND);
         sectionsTag.forEach(sectionTag -> updateSectionTag(levelTag, (CompoundTag) sectionTag, chunkPos));
     }
 
@@ -123,12 +124,12 @@ public class DomumOrnamentumUpdateHandler
         if (!sectionTag.contains("Palette") || !sectionTag.contains("BlockStates"))
             return;
 
-        final ListTag paletteTag = sectionTag.getList("Palette", Constants.NBT.TAG_COMPOUND);
+        final ListTag paletteTag = sectionTag.getList("Palette", Tag.TAG_COMPOUND);
         final long[] blockStateIds = sectionTag.getLongArray("BlockStates");
 
         final int bitCount = Math.max(4, Mth.ceillog2(paletteTag.size()));
 
-        final BitStorage bitStorage = new BitStorage(bitCount, 4096, blockStateIds);
+        final BitStorage bitStorage = new SimpleBitStorage(bitCount, 4096, blockStateIds);
         final Multimap<Integer, Integer> paletteEntryToBitStoragePositionMap = HashMultimap.create();
 
         for (int i = 0; i < 4096; i++)
@@ -139,7 +140,7 @@ public class DomumOrnamentumUpdateHandler
         int yOffset = sectionTag.getByte("Y");
         final BlockPos chunkStart = new BlockPos(chunkPos.getMinBlockX(), yOffset, chunkPos.getMinBlockZ());
 
-        ListTag blockEntityTags = chunkTag.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
+        ListTag blockEntityTags = chunkTag.getList("TileEntities", Tag.TAG_COMPOUND);
 
         for (int i = 0; i < paletteTag.size(); i++)
         {

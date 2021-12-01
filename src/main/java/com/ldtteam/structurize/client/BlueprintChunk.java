@@ -8,11 +8,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -24,6 +22,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
+import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -55,7 +54,7 @@ public class BlueprintChunk extends LevelChunk
      */
     public BlueprintChunk(final Level worldIn, final int x, final int z)
     {
-        super(worldIn, new ChunkPos(x, z), new ChunkBiomeContainer(worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), worldIn, new int[0]));
+        super(worldIn, new ChunkPos(x, z));
         this.access = (BlueprintBlockAccess) worldIn;
     }
 
@@ -136,20 +135,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public ChunkBiomeContainer getBiomes()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public TickList<Block> getBlockTicks()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public CompoundTag getBlockEntityNbt(BlockPos pos)
     {
         // Noop
@@ -157,10 +142,9 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public TickList<Fluid> getLiquidTicks()
+    public TickContainerAccess<Fluid> getFluidTicks()
     {
-        // Noop
-        return null;
+        return super.getFluidTicks();
     }
 
     @Override
@@ -292,12 +276,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void markUnsaved()
-    {
-        // Noop
-    }
-
-    @Override
     public void runPostLoad()
     {
         // Noop
@@ -316,13 +294,7 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void unpackTicks()
-    {
-        // Noop
-    }
-
-    @Override
-    public void packTicks(ServerLevel serverWorldIn)
+    public void unpackTicks(final long p_187986_)
     {
         // Noop
     }

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[37,)"
+loaderVersion="[38,)"
 license="GPL 3.0"
 issueTrackerURL="https://github.com/ldtteam/structurize/issues/new/choose"
 [[mods]]
@@ -22,24 +22,24 @@ Allows you to:
 [[dependencies.structurize]]
     modId="forge"
     mandatory=true
-    versionRange="[37.0.58,)"
+    versionRange="[38,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.17.1,)"
+    versionRange="[1.18,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="blockui"
     mandatory=true
-    versionRange="[0.0.21-ALPHA,)"
+    versionRange="[0.0.33-ALPHA,)"
     ordering="NONE"
     side="CLIENT"
 [[dependencies.minecolonies]]
     modId="domum_ornamentum"
     mandatory=true
-    versionRange="[1.17.1-1.0.0-RELEASE,)"
+    versionRange="[1.18-1.0.0-RELEASE,)"
     ordering="AFTER"
     side="BOTH"

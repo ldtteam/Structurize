@@ -95,27 +95,26 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         IBlueprintDataProvider.super.readSchematicDataFromNBT(compound);
     }
 
-    @NotNull
     @Override
-    public CompoundTag save(@NotNull final CompoundTag compound)
+    public void saveAdditional(@NotNull final CompoundTag compound)
     {
-        super.save(compound);
+        super.saveAdditional(compound);
         writeSchematicDataToNBT(compound);
-        return compound;
     }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        final CompoundTag compound = new CompoundTag();
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, this.save(compound));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @NotNull
     @Override
     public CompoundTag getUpdateTag()
     {
-        return this.save(new CompoundTag());
+        final CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag);
+        return tag;
     }
 
     @Override

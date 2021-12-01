@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.api.util.constant;
 
-import net.minecraftforge.common.util.Constants.BlockFlags;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Some constants needed for the whole mod.
@@ -14,7 +14,7 @@ public final class Constants
     public static final int    ROTATE_THREE_TIMES               = 3;
     public static final int    TICKS_SECOND                     = 20;
     public static final int    SECONDS_A_MINUTE                 = 60;
-    public static final int    UPDATE_FLAG                      = BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.BLOCK_UPDATE;
+    public static final int    UPDATE_FLAG                      = Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS;
     public static final String MINECOLONIES_MOD_ID              = "minecolonies";
     public static final String GROUNDLEVEL_TAG                  = "groundlevel";
     public static final int    GROUNDSTYLE_RELATIVE             = 1; // relative to anchor

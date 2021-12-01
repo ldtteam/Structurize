@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.proxy;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.io.File;
 

@@ -13,18 +13,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.*;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
@@ -96,12 +91,12 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 return;
             }
 
-            final ListTag blocks = blueprint.getList("blocks", NBT.TAG_COMPOUND);
-            final ListTag pallete = blueprint.getList("palette", NBT.TAG_COMPOUND);
+            final ListTag blocks = blueprint.getList("blocks", Tag.TAG_COMPOUND);
+            final ListTag pallete = blueprint.getList("palette", Tag.TAG_COMPOUND);
 
             final CompoundTag bluePrintCompound = new CompoundTag();
 
-            final ListTag list = blueprint.getList("size", NBT.TAG_INT);
+            final ListTag list = blueprint.getList("size", Tag.TAG_INT);
             final int[] size = new int[] {list.getInt(0), list.getInt(1), list.getInt(2)};
             bluePrintCompound.putShort("size_x", (short) size[0]);
             bluePrintCompound.putShort("size_y", (short) size[1]);
@@ -175,7 +170,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             final ListTag newEntities = new ListTag();
             if (blueprint.contains("entities"))
             {
-                final ListTag entities = blueprint.getList("entities", NBT.TAG_COMPOUND);
+                final ListTag entities = blueprint.getList("entities", Tag.TAG_COMPOUND);
                 for (int i = 0; i < entities.size(); i++)
                 {
                     final CompoundTag entityData = entities.getCompound(i);
@@ -364,7 +359,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
 
     private static void updatePos(final MutableBlockPos pos, final CompoundTag comp)
     {
-        final ListTag list = comp.getList("pos", NBT.TAG_INT);
+        final ListTag list = comp.getList("pos", Tag.TAG_INT);
         pos.set(list.getInt(0), list.getInt(1), list.getInt(2));
     }
 

@@ -6,6 +6,8 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -113,7 +116,7 @@ public final class BlockUtils
      */
     public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location)
     {
-        final BlockState filler = world.getBiome(location).generationSettings.getSurfaceBuilderConfig().getTopMaterial();
+        final BlockState filler = Blocks.DIRT.defaultBlockState(); //todo make it a suiteable block. world.getBiome(location).generationSettings.getSurfaceBuilderConfig().getTopMaterial();
         if (filler.getBlock() == Blocks.SAND)
         {
             return Blocks.SANDSTONE.defaultBlockState();

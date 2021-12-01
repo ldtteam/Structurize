@@ -13,9 +13,9 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -35,7 +35,7 @@ public final class ModBlocks
 
     public static final Tag.Named<Block> NULL_PLACEMENT = BlockTags.bind("structurize:null_placement");
 
-    public static final RegistryObject<BlockSubstitution> blockSubstitution;
+    public static final RegistryObject<BlockSubstitution>      blockSubstitution;
     public static final RegistryObject<BlockSolidSubstitution> blockSolidSubstitution;
     public static final RegistryObject<BlockFluidSubstitution> blockFluidSubstitution;
     public static final RegistryObject<BlockTagSubstitution> blockTagSubstitution;

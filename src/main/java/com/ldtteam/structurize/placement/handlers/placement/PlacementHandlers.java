@@ -270,7 +270,8 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.is(Tags.Blocks.DIRT) && world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() == blockState.getBlock());
+            //todo: world.getBiome(pos).generationSettings.getSurfaceBuilderConfig().getTopMaterial().getBlock() find a suitable block
+            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.is(Tags.Blocks.DIRT) && Blocks.DIRT == blockState.getBlock());
         }
 
         @Override

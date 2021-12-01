@@ -7,7 +7,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
 import java.util.function.Function;
@@ -157,7 +156,7 @@ public interface IBlueprintDataProvider
             return tagPosMap;
         }
 
-        final ListTag tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Constants.NBT.TAG_COMPOUND);
+        final ListTag tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Tag.TAG_COMPOUND);
 
         for (final Tag tagPosMapEntry : tagPosMapNBT)
         {
@@ -170,7 +169,7 @@ public interface IBlueprintDataProvider
             final BlockPos tagPos = BlockPosUtil.readFromNBT(entry, TAG_TAG_POS);
 
             final Set<String> tagList = new HashSet<>();
-            final ListTag tagListNbt = entry.getList(TAG_TAG_NAME_LIST, Constants.NBT.TAG_COMPOUND);
+            final ListTag tagListNbt = entry.getList(TAG_TAG_NAME_LIST, Tag.TAG_COMPOUND);
 
             for (final Tag tagEntryNBT : tagListNbt)
             {
