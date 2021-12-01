@@ -40,6 +40,6 @@ Allows you to:
 [[dependencies.minecolonies]]
     modId="domum_ornamentum"
     mandatory=true
-    versionRange="[1.18-1.0.23-ALPHA,)"
+    versionRange="[1.18-1.0.25-ALPHA,)"
     ordering="AFTER"
     side="BOTH"
