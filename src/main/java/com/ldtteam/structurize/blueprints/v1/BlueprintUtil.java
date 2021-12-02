@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
@@ -93,7 +94,7 @@ public class BlueprintUtil
             final BlockEntity te = world.getBlockEntity(mutablePos);
             if (te != null)
             {
-                CompoundTag teTag = te.serializeNBT();
+                CompoundTag teTag = te.saveWithFullMetadata();
                 teTag.putShort("x", x);
                 teTag.putShort("y", y);
                 teTag.putShort("z", z);

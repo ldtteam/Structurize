@@ -166,7 +166,7 @@ public class DomumOrnamentumUpdateHandler
 
             if (replacementData.get().getB().isPresent())
             {
-                final CompoundTag workingEntityNbt = replacementData.get().getB().get().serializeNBT();
+                final CompoundTag workingEntityNbt = replacementData.get().getB().get().saveWithFullMetadata();
                 paletteEntryToBitStoragePositionMap.get(i).forEach(bitStorageIndex -> {
                     final int inChunkX = bitStorageIndex & 15;
                     final int inChunkY = (bitStorageIndex >> 8) & 15;

@@ -337,7 +337,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                             {
                                 if (blocks[y][z][x] == i)
                                 {
-                                    final CompoundTag targetTag = replacementData.get().getB().get().serializeNBT().copy();
+                                    final CompoundTag targetTag = replacementData.get().getB().get().saveWithFullMetadata().copy();
                                     targetTag.putInt("x", x);
                                     targetTag.putInt("y", y);
                                     targetTag.putInt("z", z);

@@ -867,7 +867,7 @@ public final class PlacementHandlers
                 final BlockEntity worldBlockEntity = world.getBlockEntity(pos);
                 if (worldBlockEntity != null)
                 {
-                    worldBlockEntity.load(newTile.save(new CompoundTag()));
+                    worldBlockEntity.load(newTile.saveWithFullMetadata());
                     worldBlockEntity.setChanged();
                 }
                 else

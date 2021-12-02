@@ -226,7 +226,7 @@ public final class BlockUtils
                 tag.putInt("x", worldEntity.getBlockPos().getX());
                 tag.putInt("y", worldEntity.getBlockPos().getX());
                 tag.putInt("z", worldEntity.getBlockPos().getX());
-                return worldEntity.save(new CompoundTag()).equals(tag);
+                return worldEntity.saveWithFullMetadata().equals(tag);
             }
             return true;
         }
