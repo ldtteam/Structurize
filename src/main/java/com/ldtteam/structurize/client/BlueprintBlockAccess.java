@@ -47,6 +47,7 @@ import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.ticks.LevelTickAccess;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -640,10 +641,11 @@ public class BlueprintBlockAccess extends Level
         return null;
     }
 
+    @NotNull
     @Override
     public RegistryAccess registryAccess()
     {
-        return null;
+        return Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.registryAccess();
     }
 
     @Override
