@@ -62,6 +62,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
     {
         tagPosMap = positionedTags;
+        setChanged();
     }
 
     @Override
