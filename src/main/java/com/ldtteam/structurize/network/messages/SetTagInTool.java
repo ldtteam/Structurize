@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.items.ItemTagTool;
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.network.FriendlyByteBuf;;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +60,10 @@ public class SetTagInTool implements IMessage
             return;
         }
 
-        ctxIn.getSender().getInventory().getItem(slot).getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, tag);
+        final ItemStack stack = ctxIn.getSender().getInventory().getItem(slot);
+        if (stack.getItem() == ModItems.tagTool.get())
+        {
+            stack.getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, tag);
+        }
     }
 }
