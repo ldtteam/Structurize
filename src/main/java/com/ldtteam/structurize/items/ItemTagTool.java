@@ -131,11 +131,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             return InteractionResult.SUCCESS;
         }
 
-        if (!context.getLevel().isClientSide)
-        {
-            return InteractionResult.FAIL;
-        }
-
         // Set anchor
         if (context.getPlayer().isShiftKeyDown())
         {
@@ -143,12 +138,18 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             if (te instanceof IBlueprintDataProvider)
             {
                 BlockPosUtil.writeToNBT(context.getItemInHand().getOrCreateTag(), TAG_ANCHOR_POS, context.getClickedPos());
-                LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
+                if (context.getLevel().isClientSide())
+                {
+                    LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
+                }
                 return InteractionResult.SUCCESS;
             }
             else
             {
-                LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
+                if (context.getLevel().isClientSide())
+                {
+                    LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
+                }
                 return InteractionResult.FAIL;
             }
         }
@@ -159,11 +160,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     @Override
     public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
     {
-        if (!worldIn.isClientSide())
-        {
-            return false;
-        }
-
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() != ModItems.tagTool.get())
         {
@@ -199,29 +195,23 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         // add/remove tags
         Map<BlockPos, List<String>> tagPosMap = ((IBlueprintDataProvider) te).getPositionedTags();
 
-        if (!tagPosMap.containsKey(relativePos))
+        if (!tagPosMap.containsKey(relativePos) || !tagPosMap.get(relativePos).contains(currentTag))
         {
             ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
-              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
-        }
-        else if (!tagPosMap.get(relativePos).contains(currentTag))
-        {
-            ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
-              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            if (worldIn.isClientSide())
+            {
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
+                  worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            }
         }
         else
         {
             ((IBlueprintDataProvider) te).removeTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslatableComponent(
+            if (worldIn.isClientSide())
+            {
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslatableComponent(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            }
         }
 
         return false;
