@@ -63,6 +63,7 @@ public class TileEntityTagSubstitution extends TileEntity implements IBlueprintD
     public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
     {
         tagPosMap = positionedTags;
+        setChanged();
     }
 
     @Override

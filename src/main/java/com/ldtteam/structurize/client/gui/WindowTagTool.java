@@ -8,7 +8,9 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
+import com.ldtteam.structurize.network.messages.SetTagInTool;
 import com.ldtteam.structurize.util.BlockUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -89,12 +91,12 @@ public class WindowTagTool extends AbstractWindowSkeleton
     }
 
     @Override
-    public boolean onKeyTyped(final char ch, final int key)
+    public void close()
     {
-        final boolean result = super.onKeyTyped(ch, key);
+        super.close();
         currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
         stack.getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, currentTag);
-        return result;
+        Network.getNetwork().sendToServer(new SetTagInTool(currentTag, Minecraft.getInstance().player.inventory.findSlotMatchingItem(stack)));
     }
 
     /**

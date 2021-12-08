@@ -79,7 +79,6 @@ public class AddRemoveTagMessage implements IMessage
 
         final TileEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProvider)
-
         {
             final IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
             if (add)

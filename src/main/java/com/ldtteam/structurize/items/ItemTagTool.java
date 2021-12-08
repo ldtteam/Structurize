@@ -1,10 +1,8 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
-import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,8 +18,6 @@ import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.item.Item.Properties;
 
 /**
  * Item for tagging positions with tags
@@ -129,11 +125,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             return ActionResultType.SUCCESS;
         }
 
-        if (!context.getLevel().isClientSide)
-        {
-            return ActionResultType.FAIL;
-        }
-
         // Set anchor
         if (context.getPlayer().isShiftKeyDown())
         {
@@ -141,12 +132,18 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             if (te instanceof IBlueprintDataProvider)
             {
                 BlockPosUtil.writeToNBT(context.getItemInHand().getOrCreateTag(), TAG_ANCHOR_POS, context.getClickedPos());
-                LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
+                if (context.getLevel().isClientSide())
+                {
+                    LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchorsaved");
+                }
                 return ActionResultType.SUCCESS;
             }
             else
             {
-                LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
+                if (context.getLevel().isClientSide())
+                {
+                    LanguageHandler.sendPlayerMessage(context.getPlayer(), "com.ldtteam.structurize.gui.tagtool.anchor.notvalid");
+                }
                 return ActionResultType.FAIL;
             }
         }
@@ -157,11 +154,6 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     @Override
     public boolean canAttackBlock(final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player)
     {
-        if (!worldIn.isClientSide())
-        {
-            return false;
-        }
-
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() != ModItems.tagTool.get() || player == null || worldIn == null)
         {
@@ -197,29 +189,23 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         // add/remove tags
         Map<BlockPos, List<String>> tagPosMap = ((IBlueprintDataProvider) te).getPositionedTags();
 
-        if (!tagPosMap.containsKey(relativePos))
+        if (!tagPosMap.containsKey(relativePos) || !tagPosMap.get(relativePos).contains(currentTag))
         {
             ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
-        }
-        else if (!tagPosMap.get(relativePos).contains(currentTag))
-        {
-            ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(true, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
-              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            if (worldIn.isClientSide())
+            {
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslationTextComponent(
+                  worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            }
         }
         else
         {
             ((IBlueprintDataProvider) te).removeTag(relativePos, currentTag);
-            Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, currentTag, relativePos, anchorPos));
-
-            LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
+            if (worldIn.isClientSide())
+            {
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslationTextComponent(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+            }
         }
 
         return false;

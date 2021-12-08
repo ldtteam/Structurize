@@ -63,6 +63,7 @@ public class NetworkChannel
         registerMessage(++idx, UndoMessage.class, UndoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
+        registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
     }
 
     /**

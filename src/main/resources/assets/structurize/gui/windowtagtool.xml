@@ -2,7 +2,7 @@
         pause="false" lightbox="true">
     <label size="100% 9" pos="0 25" textalign="MIDDLE" color="white"
            label="$(com.ldtteam.structurize.gui.tagtool.currenttag)"/>
-    <input id="currentTag" size="150 18" pos="135 40" maxlength="25"/>
+    <input id="currentTag" size="150 18" pos="135 40" maxlength="30"/>
 
     <label id="taglistname" size="230 12" pos="135 65" color="white"/>
 
