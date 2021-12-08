@@ -5,7 +5,7 @@ import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.network.FriendlyByteBuf;;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
