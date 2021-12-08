@@ -15,5 +15,6 @@ public enum Shape
     PYRAMID,
     UPSIDE_DOWN_PYRAMID,
     CYLINDER,
+    CONE,
     RANDOM
 }

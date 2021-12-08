@@ -36,6 +36,11 @@ public class ReplaceBlockMessage implements IMessage
     private final ItemStack blockTo;
 
     /**
+     * Pct of blocks to replace.
+     */
+    private final int pct;
+
+    /**
      * Empty constructor used when registering the message.
      */
     public ReplaceBlockMessage(final PacketBuffer buf)
@@ -44,6 +49,7 @@ public class ReplaceBlockMessage implements IMessage
         this.to = buf.readBlockPos();
         this.blockTo = buf.readItem();
         this.blockFrom = buf.readItem();
+        this.pct = buf.readInt();
     }
 
     /**
@@ -53,12 +59,13 @@ public class ReplaceBlockMessage implements IMessage
      * @param blockFrom the block to replace.
      * @param blockTo the block to replace it with.
      */
-    public ReplaceBlockMessage(@NotNull final BlockPos pos1, @NotNull final BlockPos pos2, @NotNull final ItemStack blockFrom, @NotNull final ItemStack blockTo)
+    public ReplaceBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack blockFrom, final ItemStack blockTo, final int pct)
     {
         this.from = pos1;
         this.to = pos2;
         this.blockFrom = blockFrom;
         this.blockTo = blockTo;
+        this.pct = pct;
     }
 
     @Override
@@ -68,6 +75,7 @@ public class ReplaceBlockMessage implements IMessage
         buf.writeBlockPos(to);
         buf.writeItem(blockTo);
         buf.writeItem(blockFrom);
+        buf.writeInt(pct);
     }
 
     @Nullable
@@ -85,6 +93,6 @@ public class ReplaceBlockMessage implements IMessage
             return;
         }
 
-        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REPLACE_BLOCK, from, to, ctxIn.getSender(), blockFrom, blockTo));
+        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REPLACE_BLOCK, from, to, ctxIn.getSender(), blockFrom, blockTo, pct));
     }
 }

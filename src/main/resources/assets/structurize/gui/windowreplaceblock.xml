@@ -7,10 +7,13 @@
     <itemicon id="resourceIconFrom" size="17 17" pos="0 1"/>
     <label id="resourceNameFrom" size="140 12" pos="30 4" color="white"/>
 
-    <label id="to" label="->" size="140 12" pos="170 4" color="white"/>
+    <label id="to" label="->" size="120 12" pos="150 4" color="white"/>
 
-    <itemicon id="resourceIconTo" size="17 17" pos="210 1"/>
-    <label id="resourceNameTo" size="140 12" pos="240 4" color="white"/>
+    <itemicon id="resourceIconTo" size="17 17" pos="170 1"/>
+    <label id="resourceNameTo" size="140 12" pos="200 4" color="white"/>
+
+    <label id="pctlabel" size="105 12" pos="300 4" color="white" label="$(com.ldtteam.structurize.gui.scan.replace.pct)"/>
+    <input id="pct" size="30 18" pos="405 2" maxlength="3" label=""/>
 
 
     <list id="resources" size="250 120" pos="40 65">
