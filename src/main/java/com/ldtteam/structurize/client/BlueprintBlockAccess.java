@@ -640,10 +640,11 @@ public class BlueprintBlockAccess extends Level
         return null;
     }
 
+    @NotNull
     @Override
     public RegistryAccess registryAccess()
     {
-        return null;
+        return Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.registryAccess();
     }
 
     @Override
