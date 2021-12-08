@@ -14,6 +14,7 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -255,6 +256,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                 catch (NumberFormatException ex)
                 {
                     pctNum = 100;
+                    Minecraft.getInstance().player.sendMessage(new TranslatableComponent("structurize.gui.replaceblock.badpct"), Minecraft.getInstance().player.getUUID());
                 }
 
                 Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to, pctNum));

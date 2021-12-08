@@ -262,7 +262,7 @@ public final class Manager
             {
                 for (int y = 0; y < height; y++)
                 {
-                    final int consideredWidth = width - y;
+                    final int consideredWidth = (int) (width - y);
                     int sum = x * x + z * z;
                     final boolean shouldBeEmpty = sum > (consideredWidth * consideredWidth) / 4 - consideredWidth;
                     if (sum < (consideredWidth * consideredWidth) / 4 && (!hollow || shouldBeEmpty) && consideredWidth > 0)
