@@ -290,7 +290,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             length.hide();
             frequency.hide();
         }
-        else if (shape == Shape.CYLINDER)
+        else if (shape == Shape.CYLINDER || shape == Shape.CONE)
         {
             length.hide();
             frequency.hide();
