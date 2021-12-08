@@ -120,6 +120,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         this.mainBlock = false;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         this.origin = origin;
+        findPaneOfTypeByID("pct", TextField.class).setText("100");
     }
 
     /**
@@ -139,6 +140,8 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         this.mainBlock = main;
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         this.origin = origin;
+        findPaneOfTypeByID("pct", TextField.class).hide();
+        findPaneOfTypeByID("pctlabel", Text.class).hide();
     }
 
     @Override
@@ -242,7 +245,19 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                       "structurize.gui.replaceblock.null_placement",
                       LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()));
                 }
-                Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to));
+
+                final String pct = findPaneOfTypeByID("pct", TextField.class).getText();
+                int pctNum;
+                try
+                {
+                     pctNum = Integer.parseInt(pct);
+                }
+                catch (NumberFormatException ex)
+                {
+                    pctNum = 100;
+                }
+
+                Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to, pctNum));
             }
             else if (origin instanceof WindowShapeTool)
             {

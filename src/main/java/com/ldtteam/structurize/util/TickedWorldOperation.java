@@ -4,7 +4,6 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
-import com.ldtteam.structurize.network.messages.UpdateScanToolMessage;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
@@ -93,7 +92,16 @@ public class TickedWorldOperation
      * The structure wrapper if structure place.
      */
     private final StructurePlacer placer;
+
+    /**
+     * The phase the placmeent is in.
+     */
     private int structurePhase = 0;
+
+    /**
+     * Operation percentage.
+     */
+    private int pct;
 
     /**
      * Create a ScanToolOperation.
@@ -104,6 +112,7 @@ public class TickedWorldOperation
      * @param player      the player who triggered the event.
      * @param firstBlock  the block being altered.
      * @param secondBlock the block it will be replaced with.
+     * @param pct         the percentage of positions to execute the operation on.
      */
     public TickedWorldOperation(
       final OperationType type,
@@ -111,7 +120,8 @@ public class TickedWorldOperation
       final BlockPos endPos,
       @Nullable final Player player,
       final ItemStack firstBlock,
-      final ItemStack secondBlock)
+      final ItemStack secondBlock,
+      final int pct)
     {
         this.operation = type;
         this.startPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
@@ -122,6 +132,7 @@ public class TickedWorldOperation
         this.secondBlock = secondBlock;
         this.storage = new ChangeStorage(player);
         this.placer = null;
+        this.pct = pct;
     }
 
     /**
@@ -281,6 +292,11 @@ public class TickedWorldOperation
 
                     if (isMatch)
                     {
+                        if (pct < 100 && fakePlayer.getRandom().nextInt(100) > pct)
+                        {
+                            continue;
+                        }
+
                         if ((blockState.getBlock() instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
                               || (blockState.getBlock() instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD))
                         {
