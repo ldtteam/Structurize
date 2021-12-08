@@ -190,6 +190,10 @@ public final class Manager
         {
             blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape);
         }
+        else if (shape == Shape.CONE)
+        {
+            blueprint = generateCone(height, width, mainBlock, fillBlock, hollow, shape);
+        }
         else
         {
             blueprint = generateRandomShape(height, width, length, equation, mainBlock);
@@ -238,6 +242,42 @@ public final class Manager
         }
 
         final Blueprint blueprint = new Blueprint((short) height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short) height);
+        posList.forEach(blueprint::addBlockState);
+        return blueprint;
+    }
+
+    private static Blueprint generateCone(
+      final int inputHeight,
+      final int width,
+      final BlockState block,
+      final BlockState fillBlock,
+      final boolean hollow,
+      final Shape shape)
+    {
+        final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
+        final Map<BlockPos, BlockState> posList = new HashMap<>();
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < width; z++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    final int consideredWidth = (int) (width - y);
+                    int sum = x * x + z * z;
+                    final boolean shouldBeEmpty = sum > (consideredWidth * consideredWidth) / 4 - consideredWidth;
+                    if (sum < (consideredWidth * consideredWidth) / 4 && (!hollow || shouldBeEmpty) && consideredWidth > 0)
+                    {
+                        final BlockState blockToUse = shouldBeEmpty ? block : fillBlock;
+                        addPosToList(new BlockPos(width + x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width + x, y, width - z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width + z), blockToUse, posList);
+                        addPosToList(new BlockPos(width - x, y, width - z), blockToUse, posList);
+                    }
+                }
+            }
+        }
+
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }

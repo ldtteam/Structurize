@@ -118,5 +118,7 @@
   "structurize.config.iteratortype": "The iteration order on structure placement",
   "structurize.config.iteratortype.comment": "Currently supports 'default', 'inwardcircle', 'hilbert', 'random' and 'inwardcircleheight1' to 'inwardcircleheight4'",
   "structurize.gui.delete.title": "Delete Structure",
-  "structurize.gui.delete.body": "Do you want to delete %s?"
+  "structurize.gui.delete.body": "Do you want to delete %s?",
+  "com.ldtteam.structurize.gui.scan.replace.pct": "Random Percentage:",
+  "structurize.gui.replaceblock.badpct": "Bad percentage selected, assuming 100."
 }
