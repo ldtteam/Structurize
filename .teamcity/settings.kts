@@ -39,6 +39,8 @@ project {
         param("Upsource.Project.Id", "structurize")
         param("env.Version.Suffix", "")
         param("env.Version.Major", "0")
+        param("env.GRADLE_VERSION", "5.0")
+        param("env.JDK_VERSION", "jdk8")
         text("env.Version", "%env.Version.Major%.%env.Version.Minor%.%env.Version.Patch%%env.Version.Suffix%", label = "Version", description = "The version of the project.", display = ParameterDisplay.HIDDEN, allowEmpty = true)
     }
 
