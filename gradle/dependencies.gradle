@@ -19,14 +19,14 @@ repositories {
 }
 
 dependencies {
-    apiImplementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
-    implementation fg.deobf("com.ldtteam:blockui:${project.exactMinecraftVersion}-${project.blockUiVersion}")
+    apiImplementation fg.deobf("com.ldtteam:blockui:${project.minecraftVersion}-${project.blockUiVersion}")
+    implementation fg.deobf("com.ldtteam:blockui:${project.minecraftVersion}-${project.blockUiVersion}")
 
     apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     library "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 
-    apiImplementation fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:universal")
-    implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:universal")
-    runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.exactMinecraftVersion}-${project.domumOrnamentumVersion}:universal")
+    apiImplementation fg.deobf("com.ldtteam:domum_ornamentum:${project.minecraftVersion}-${project.domumOrnamentumVersion}:universal")
+    implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.minecraftVersion}-${project.domumOrnamentumVersion}:universal")
+    runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.minecraftVersion}-${project.domumOrnamentumVersion}:universal")
 }

@@ -34,7 +34,7 @@ Allows you to:
 [[dependencies.structurize]]
     modId="blockui"
     mandatory=true
-    versionRange="[0.0.33-ALPHA,)"
+    versionRange="[0.0.34-ALPHA,)"
     ordering="NONE"
     side="CLIENT"
 [[dependencies.minecolonies]]
