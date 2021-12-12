@@ -2,7 +2,6 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.GradleBuildStep
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.projectFeatures.githubIssues
-import jetbrains.buildServer.configs.kotlin.v2019_2.vcs.GitVcsRoot
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -30,8 +29,6 @@ version = "2021.2"
 
 project {
     description = "Structure based world modification using creative wants."
-
-    vcsRoot(HttpsGithubComLdtteamStructurizeRefsHeadsVersionLatest)
 
     params {
         param("env.JDK_VERSION", "jdk8")
@@ -68,17 +65,6 @@ project {
     subProject(PullRequests2)
     subProject(Branches)
 }
-
-object HttpsGithubComLdtteamStructurizeRefsHeadsVersionLatest : GitVcsRoot({
-    name = "https://github.com/ldtteam/Structurize#refs/heads/version/latest"
-    url = "https://github.com/ldtteam/Structurize"
-    branch = "refs/heads/version/latest"
-    branchSpec = "refs/heads/*"
-    authMethod = password {
-        userName = "OrionDevelopment"
-        password = "credentialsJSON:23cd3823-3e9f-4c80-a1c4-6ad9c876842a"
-    }
-})
 
 
 object Beta : Project({
