@@ -274,7 +274,7 @@ public class TickedWorldOperation
                         {
                             if (handler.canHandle(world, BlockPos.ZERO, blockState))
                             {
-                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithId(), true);
+                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
                                 if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
                                 {
                                     isMatch = true;
