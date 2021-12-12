@@ -46,10 +46,10 @@ project {
     features {
         githubIssues {
             id = "PROJECT_EXT_26"
-            displayName = "ldtteam/structurize"
-            repositoryURL = "https://github.com/ldtteam/structurize"
+            displayName = "ldtteam/Structurize"
+            repositoryURL = "https://github.com/ldtteam/Structurize"
             authType = accessToken {
-                accessToken = "credentialsJSON:47381468-aceb-4992-93c9-1ccd4d7aa67f"
+                accessToken = "credentialsJSON:9bfbcd4b-c8e6-4c5d-a6c5-08d996fe9d5d"
             }
         }
     }
