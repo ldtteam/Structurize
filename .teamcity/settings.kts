@@ -32,7 +32,6 @@ project {
 
     params {
         param("env.JDK_VERSION", "jdk8")
-        param("env.crowdinKey", "credentialsJSON:444bd785-791b-42ae-9fae-10ee93a2fbd3")
         param("Current Minecraft Version", "1.16.5")
         text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for structurize.", readOnly = true, allowEmpty = true)
         param("env.Version.Minor", "13")
