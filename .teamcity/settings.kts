@@ -53,7 +53,7 @@ project {
             }
         }
     }
-    subProjectsOrder = arrayListOf(RelativeId("Release"), RelativeId("UpgradeBetaRelease"), RelativeId("Beta"), RelativeId("UpgradeAlphaBeta"), RelativeId("OfficialPublications"), RelativeId("Branches"), RelativeId("PullRequests2"))
+    subProjectsOrder = arrayListOf(RelativeId("Release"), RelativeId("UpgradeBetaRelease"), RelativeId("Beta"), RelativeId("UpgradeAlphaBeta"), RelativeId("Structurize_Alpha"), RelativeId("OfficialPublications"), RelativeId("Branches"), RelativeId("PullRequests2"))
 
     subProject(UpgradeAlphaBeta)
     subProject(OfficialPublications)
