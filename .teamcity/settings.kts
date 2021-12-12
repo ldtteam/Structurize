@@ -70,6 +70,7 @@ project {
 object Alpha : Project({
     name = "Alpha"
     description = "Alpha version builds of structurize"
+    id("Structurize_Alpha")
 
     buildType(Alpha_Release)
 
