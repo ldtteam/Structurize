@@ -33,7 +33,7 @@ project {
     params {
         param("env.crowdinKey", "credentialsJSON:444bd785-791b-42ae-9fae-10ee93a2fbd3")
         param("Current Minecraft Version", "1.18")
-        text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for minecolonies.", readOnly = true, allowEmpty = true)
+        text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for structurize.", readOnly = true, allowEmpty = true)
         param("env.Version.Minor", "13")
         param("env.Version.Patch", "0")
         param("Upsource.Project.Id", "structurize")
@@ -47,8 +47,8 @@ project {
     features {
         githubIssues {
             id = "PROJECT_EXT_26"
-            displayName = "ldtteam/minecolonies"
-            repositoryURL = "https://github.com/ldtteam/minecolonies"
+            displayName = "ldtteam/structurize"
+            repositoryURL = "https://github.com/ldtteam/structurize"
             authType = accessToken {
                 accessToken = "credentialsJSON:47381468-aceb-4992-93c9-1ccd4d7aa67f"
             }
@@ -69,7 +69,7 @@ project {
 
 object Alpha : Project({
     name = "Alpha"
-    description = "Alpha version builds of minecolonies"
+    description = "Alpha version builds of structurize"
 
     buildType(Alpha_Release)
 
@@ -102,7 +102,7 @@ object Alpha_Release : BuildType({
 
 object Beta : Project({
     name = "Beta"
-    description = "Beta version builds of minecolonies"
+    description = "Beta version builds of structurize"
 
     buildType(Beta_Release)
 
@@ -195,7 +195,7 @@ object OfficialPublications : Project({
 object OfficialPublications_CommonB : BuildType({
     templates(AbsoluteId("LetSDevTogether_CommonBuildCounter"))
     name = "Common Build Counter"
-    description = "Represents the version counter within Minecolonies for official releases."
+    description = "Represents the version counter within structurize for official releases."
 })
 
 
@@ -288,7 +288,7 @@ object PullRequests2_CommonBuildCounter : BuildType({
 
 object Release : Project({
     name = "Release"
-    description = "Beta version builds of minecolonies"
+    description = "Beta version builds of structurize"
 
     buildType(Release_Release)
 
