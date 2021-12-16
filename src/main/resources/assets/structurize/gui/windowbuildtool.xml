@@ -51,4 +51,5 @@
 
     <button id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
     <button id="pastenice" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
+    <buttonimage id="undoredo" source="structurize:textures/gui/buildtool/undoredo.png" visible="true" size="32 32" pos="395 210" textcolor="Black" texthovercolor="White"/>
 </window>

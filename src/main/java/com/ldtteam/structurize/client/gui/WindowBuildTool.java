@@ -8,13 +8,10 @@ import com.ldtteam.blockout.controls.Image;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structures.blueprints.v1.DataFixerUtils;
-import com.ldtteam.structures.lib.BlueprintTagUtils;
-import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structures.helpers.Settings;
+import com.ldtteam.structures.lib.BlueprintTagUtils;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -22,7 +19,10 @@ import com.ldtteam.structurize.network.messages.BuildToolPasteMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
 import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
+import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.Minecraft;
@@ -253,6 +253,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
+        registerButton(BUTTON_UNDOREDO, b -> {
+            close();
+            new WindowUndoRedo().open();
+        });
 
         renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
         deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
@@ -285,10 +289,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                 final Button pasteButtonNice = findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class);
                 pasteButtonNice.setVisible(true);
                 PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslationTextComponent("structurize.gui.buildtool.pastenice")).build();
+                PaneBuilders.tooltipBuilder().hoverPane(findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class)).append(new TranslationTextComponent("structurize.gui.undoredo")).build();
             }
             else
             {
                 findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(false);
+                findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(false);
                 findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(false);
             }
 

@@ -1,0 +1,26 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" type="VANILLA" pause="false" lightbox="false">
+
+    <text id="textcontent" size="150 30" pos="120 40" textalign="TOP_MIDDLE" color="white" wrap="true" text="$(structurize.gui.undoredo.desc)"/>
+    <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="270 40"/>
+
+    <list id="operations" size="250 120" pos="90 70" visible="true">
+        <box size="100% 15" linewidth="6" visible="true">
+            <label id="operationname" size="160 16" textalign="MIDDLE_LEFT" pos="5 1" color="white" wrap="true"/>
+            <buttonimage id="undo"
+                         source="structurize:textures/gui/buildtool/rotateleftsmall.png"
+                         visible="true"
+                         size="32 16"
+                         pos="170 1"
+                         textcolor="Black"
+                         texthovercolor="White"/>
+            <buttonimage id="redo"
+                         source="structurize:textures/gui/buildtool/rotaterightsmall.png"
+                         visible="true"
+                         size="32 16"
+                         pos="205 1"
+                         textcolor="Black"
+                         texthovercolor="White"/>
+        </box>
+    </list>
+</window>

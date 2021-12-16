@@ -188,6 +188,7 @@ public final class WindowConstants
      * The builders gui file.
      */
     public static final String LIST_RESOURCES            = "resources";
+    public static final String LIST_OPERATIONS           = "operations";
     public static final String LIST_TAGS                 = "nbttags";
     public static final String LIST_ENTITIES             = "entities";
     public static final String RESOURCE_NAME             = "resourceName";
@@ -202,9 +203,19 @@ public final class WindowConstants
     public static final String INPUT_RANGE_NAME = "range";
 
     /**
-     * Name of the input range field.
+     * Undo button
      */
-    public static final String UNDO_BUTTON = "undo";
+    public static final String BUTTON_UNDO = "undo";
+
+    /**
+     * Redo button
+     */
+    public static final String BUTTON_REDO = "redo";
+
+    /**
+     * undoredo button
+     */
+    public static final String BUTTON_UNDOREDO = "undoredo";
 
     /**
      * Id of the speed input field.

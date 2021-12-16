@@ -1,7 +1,8 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.management.Manager;
+import com.ldtteam.structurize.util.ChangeStorage;
+import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -82,7 +83,7 @@ public class RemoveEntityMessage implements IMessage
         }
 
         final World world = ctxIn.getSender().getLevel();
-        final ChangeStorage storage = new ChangeStorage(ctxIn.getSender());
+        final ChangeStorage storage = new ChangeStorage(TickedWorldOperation.OperationType.REMOVE_ENTITY.toString(), ctxIn.getSender().getUUID());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
             for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
@@ -103,6 +104,6 @@ public class RemoveEntityMessage implements IMessage
                 }
             }
         }
-        Manager.addToUndoCache(storage);
+        Manager.addToUndoRedoCache(storage);
     }
 }

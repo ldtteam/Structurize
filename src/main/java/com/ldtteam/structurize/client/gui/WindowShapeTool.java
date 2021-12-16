@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.blockout.views.View;
@@ -15,7 +16,6 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.network.messages.GenerateAndSaveMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
-import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -26,6 +26,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -189,10 +190,13 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
         registerButton(BUTTON_PICK_FILL_BLOCK, this::pickFillBlock);
+        registerButton(BUTTON_UNDOREDO, b -> {
+            close();
+            new WindowUndoRedo().open();
+        });
+        PaneBuilders.tooltipBuilder().hoverPane(findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class)).append(new TranslationTextComponent("structurize.gui.undoredo")).build();
 
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
-
-        registerButton(UNDO_BUTTON, this::undoClicked);
         registerButton(BUTTON_PASTE, this::pasteClicked);
 
         inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
@@ -362,14 +366,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Undo the last change.
-     */
-    private void undoClicked()
-    {
-        Network.getNetwork().sendToServer(new UndoMessage());
-    }
-
-    /**
      * Confirm button clicked.
      */
     private void confirmClicked()
@@ -479,7 +475,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         // updateRotation(rotation);
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
-        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(isCreative());
+        findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
         findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 

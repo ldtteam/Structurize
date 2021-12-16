@@ -60,10 +60,11 @@ public class NetworkChannel
         registerMessage(++idx, SchematicSaveMessage.class, SchematicSaveMessage::new);
         registerMessage(++idx, ServerUUIDMessage.class, ServerUUIDMessage::new);
         registerMessage(++idx, StructurizeStylesMessage.class, StructurizeStylesMessage::new);
-        registerMessage(++idx, UndoMessage.class, UndoMessage::new);
+        registerMessage(++idx, UndoRedoMessage.class, UndoRedoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
+        registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
     }
 
     /**

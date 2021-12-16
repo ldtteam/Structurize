@@ -43,8 +43,6 @@ import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANC
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
 
-import net.minecraft.item.Item.Properties;
-
 /**
  * Item used to scan structures.
  */
@@ -197,8 +195,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         if (!anchorPos.isPresent() && bp.getPrimaryBlockOffset().equals(new BlockPos(bp.getSizeX() / 2, 0, bp.getSizeZ() / 2)))
         {
             final List<BlockInfo> list = bp.getBlockInfoAsList().stream()
-                                           .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-                                           .collect(Collectors.toList());
+              .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+              .collect(Collectors.toList());
 
             if (list.size() > 1)
             {
