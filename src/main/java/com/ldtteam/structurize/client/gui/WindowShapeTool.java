@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.DropDownList;
 import com.ldtteam.blockout.views.View;
@@ -26,7 +25,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -194,7 +192,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
             close();
             new WindowUndoRedo().open();
         });
-        PaneBuilders.tooltipBuilder().hoverPane(findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class)).append(new TranslationTextComponent("structurize.gui.undoredo")).build();
 
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
         registerButton(BUTTON_PASTE, this::pasteClicked);

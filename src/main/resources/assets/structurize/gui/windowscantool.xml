@@ -42,5 +42,12 @@
         </box>
     </list>
 
-    <buttonimage id="undoredo" source="structurize:textures/gui/buildtool/undoredo.png" visible="true" size="32 32" pos="395 210" textcolor="Black" texthovercolor="White"/>
+    <buttonimage id="undoredo"
+                 tooltip="$(structurize.gui.undoredo)"
+                 source="structurize:textures/gui/buildtool/undoredo.png"
+                 visible="true"
+                 size="32 32"
+                 pos="395 210"
+                 textcolor="Black"
+                 texthovercolor="White"/>
 </window>

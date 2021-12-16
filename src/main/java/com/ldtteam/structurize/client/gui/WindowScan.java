@@ -2,7 +2,6 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.PaneBuilders;
 import com.ldtteam.blockout.controls.Button;
 import com.ldtteam.blockout.controls.ItemIcon;
 import com.ldtteam.blockout.controls.Text;
@@ -32,7 +31,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -136,7 +134,6 @@ public class WindowScan extends AbstractWindowSkeleton
             close();
             new WindowUndoRedo().open();
         });
-        PaneBuilders.tooltipBuilder().hoverPane(findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class)).append(new TranslationTextComponent("structurize.gui.undoredo")).build();
 
         pos1x = findPaneOfTypeByID(POS1X_LABEL, TextField.class);
         pos1y = findPaneOfTypeByID(POS1Y_LABEL, TextField.class);
