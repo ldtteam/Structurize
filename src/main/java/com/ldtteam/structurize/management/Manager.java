@@ -97,7 +97,6 @@ public final class Manager
         final List<ChangeStorage> storages = changeQueue.computeIfAbsent(storage.getPlayerID(), key -> new ArrayList<>());
         if (!storages.contains(storage))
         {
-            Log.getLogger().info("Added Operation:" + storage.getOperation() + " to cache");
             storages.add(0, storage);
             if (storages.size() >= Structurize.getConfig().getServer().maxCachedChanges.get())
             {
