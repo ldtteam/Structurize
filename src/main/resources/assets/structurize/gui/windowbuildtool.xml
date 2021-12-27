@@ -49,6 +49,21 @@
     </view>
     <image id="rotation" size="16" pos="258 80"/>
 
-    <button id="pastecomplete" source="structurize:textures/gui/buildtool/copy.png" visible="false" size="32 32" pos="320 210" textcolor="Black" texthovercolor="White"/>
-    <button id="pastenice" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
+    <button id="pastecomplete"
+            tooltip="$(structurize.gui.buildtool.paste)"
+            source="structurize:textures/gui/buildtool/copy.png"
+            visible="false"
+            size="32 32"
+            pos="320 210"
+            textcolor="Black"
+            texthovercolor="White"/>
+    <button id="pastenice" tooltip="$(structurize.gui.buildtool.pastenice)" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
+    <buttonimage id="undoredo"
+                 tooltip="$(structurize.gui.undoredo)"
+                 source="structurize:textures/gui/buildtool/undoredo.png"
+                 visible="true"
+                 size="32 32"
+                 pos="395 210"
+                 textcolor="Black"
+                 texthovercolor="White"/>
 </window>

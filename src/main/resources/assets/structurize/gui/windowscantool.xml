@@ -33,6 +33,7 @@
         </box>
     </list>
 
+
     <list id="entities" size="200 100" pos="220 100">
         <box size="100% 30" linewidth="2">
             <label id="resourceName" size="100% 12" pos="0 1" color="white" wrap="true"/>
@@ -41,5 +42,12 @@
         </box>
     </list>
 
-    <buttonimage id="undo" source="structurize:textures/gui/buildtool/rotateleft.png" visible="false" size="32 32" pos="350 208" textcolor="Black" texthovercolor="White"/>
+    <buttonimage id="undoredo"
+                 tooltip="$(structurize.gui.undoredo)"
+                 source="structurize:textures/gui/buildtool/undoredo.png"
+                 visible="true"
+                 size="32 32"
+                 pos="395 210"
+                 textcolor="Black"
+                 texthovercolor="White"/>
 </window>
