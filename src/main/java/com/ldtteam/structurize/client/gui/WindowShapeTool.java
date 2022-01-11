@@ -15,7 +15,6 @@ import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.network.messages.GenerateAndSaveMessage;
 import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
-import com.ldtteam.structurize.network.messages.UndoMessage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -181,10 +180,12 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
         registerButton(BUTTON_PICK_FILL_BLOCK, this::pickFillBlock);
+        registerButton(BUTTON_UNDOREDO, b -> {
+            close();
+            new WindowUndoRedo().open();
+        });
 
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
-
-        registerButton(UNDO_BUTTON, this::undoClicked);
         registerButton(BUTTON_PASTE, this::pasteClicked);
 
         inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
@@ -370,14 +371,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Undo the last change.
-     */
-    private void undoClicked()
-    {
-        Network.getNetwork().sendToServer(new UndoMessage());
-    }
-
-    /**
      * Confirm button clicked.
      */
     private void confirmClicked()
@@ -487,7 +480,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         // updateRotation(rotation);
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
-        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(isCreative());
+        findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
         findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 

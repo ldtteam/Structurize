@@ -9,6 +9,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -21,8 +22,6 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Singleton class that links colonies to minecraft.
@@ -38,7 +37,7 @@ public final class Manager
     /**
      * List of the last changes to the world.
      */
-    private static final LinkedList<ChangeStorage> changeQueue = new LinkedList<>();
+    private static Map<UUID, List<ChangeStorage>> changeQueue = new HashMap<>();
 
     /**
      * List of scanTool operations.
@@ -68,9 +67,9 @@ public final class Manager
             if (operation != null && operation.apply(world))
             {
                 scanToolOperationPool.pop();
-                if (!operation.isUndo())
+                if (!operation.isUndoRedo())
                 {
-                    addToUndoCache(operation.getChangeStorage());
+                    addToUndoRedoCache(operation.getChangeStorage());
                 }
             }
         }
@@ -91,13 +90,28 @@ public final class Manager
      *
      * @param storage the storage to add.
      */
-    public static void addToUndoCache(final ChangeStorage storage)
+    public static void addToUndoRedoCache(final ChangeStorage storage)
     {
-        if (changeQueue.size() >= Structurize.getConfig().getServer().maxCachedChanges.get())
+        final List<ChangeStorage> storages = changeQueue.computeIfAbsent(storage.getPlayerID(), key -> new ArrayList<>());
+        if (!storages.contains(storage))
         {
-            changeQueue.pop();
+            storages.add(0, storage);
+            if (storages.size() >= Structurize.getConfig().getServer().maxCachedChanges.get())
+            {
+                storages.remove(storages.size() - 1);
+            }
         }
-        changeQueue.push(storage);
+    }
+
+    /**
+     * Returns a list of the recently cached operations for this player
+     *
+     * @param player
+     * @return
+     */
+    public static List<ChangeStorage> getChangeStoragesForPlayer(final UUID player)
+    {
+        return changeQueue.getOrDefault(player, new ArrayList<>());
     }
 
     /**
@@ -516,18 +530,74 @@ public final class Manager
     /**
      * Undo a change to the world made by a player.
      *
-     * @param player the player who made it.
+     * @param player      the player who made it.
+     * @param operationID
      */
-    public static void undo(final Player player)
+    public static void undo(final Player player, final int operationID)
     {
-        final Iterable<ChangeStorage> iterable = () -> changeQueue.iterator();
-        final Stream<ChangeStorage> storageStream = StreamSupport.stream(iterable.spliterator(), false);
-        final Optional<ChangeStorage> theStorage = storageStream.filter(storage -> storage.isOwner(player)).findFirst();
-        if (theStorage.isPresent())
+        final List<ChangeStorage> list = changeQueue.get(player.getUUID());
+        if (list == null || list.isEmpty())
         {
-            addToQueue(new TickedWorldOperation(theStorage.get(), player));
-            changeQueue.remove(theStorage.get());
+            player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.notfound"), player.getUUID());
+            return;
         }
+
+        for (final Iterator<ChangeStorage> iterator = list.iterator(); iterator.hasNext(); )
+        {
+            final ChangeStorage storage = iterator.next();
+            if (storage.getID() == operationID)
+            {
+                if (!storage.isDone())
+                {
+                    player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.inprogress", storage.getOperation()), player.getUUID());
+                    return;
+                }
+
+                player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.add", storage.getOperation()), player.getUUID());
+                addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.UNDO));
+                if (storage.getOperation().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
+                {
+                    iterator.remove();
+                }
+                return;
+            }
+        }
+
+        player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.notfound"), player.getUUID());
+    }
+
+    /**
+     * Undo a change to the world made by a player.
+     *
+     * @param player      the player who made it.
+     * @param operationID
+     */
+    public static void redo(final Player player, final int operationID)
+    {
+        final List<ChangeStorage> list = changeQueue.get(player.getUUID());
+        if (list == null || list.isEmpty())
+        {
+            player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.notfound"), player.getUUID());
+            return;
+        }
+
+        for (final ChangeStorage storage : list)
+        {
+            if (storage.getID() == operationID)
+            {
+                if (!storage.isDone())
+                {
+                    player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.inprogress", storage.getOperation()), player.getUUID());
+                    return;
+                }
+
+                player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.add", storage.getOperation()), player.getUUID());
+                addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.REDO));
+                return;
+            }
+        }
+
+        player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.notfound"), player.getUUID());
     }
 
     /**

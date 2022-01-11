@@ -12,7 +12,6 @@ import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -249,6 +248,10 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
+        registerButton(BUTTON_UNDOREDO, b -> {
+            close();
+            new WindowUndoRedo().open();
+        });
 
         renameButton = findPaneOfTypeByID(BUTTON_RENAME, Button.class);
         deleteButton = findPaneOfTypeByID(BUTTON_DELETE, Button.class);
@@ -285,6 +288,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             else
             {
                 findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(false);
+                findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(false);
                 findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(false);
             }
 

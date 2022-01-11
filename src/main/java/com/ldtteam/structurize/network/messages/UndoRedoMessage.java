@@ -9,25 +9,31 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Message class which handles undoing a change to the world.
  */
-public class UndoMessage implements IMessage
+public class UndoRedoMessage implements IMessage
 {
+    private final int     id;
+    private final boolean undo;
+
     /**
      * Empty public constructor.
      */
-    public UndoMessage()
+    public UndoRedoMessage(final int id, final boolean undo)
     {
+        this.undo = undo;
+        this.id = id;
     }
 
-    public UndoMessage(final FriendlyByteBuf buf)
+    public UndoRedoMessage(final FriendlyByteBuf buf)
     {
+        this.id = buf.readInt();
+        this.undo = buf.readBoolean();
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        /*
-         * Nothing needed.
-         */
+        buf.writeInt(id);
+        buf.writeBoolean(undo);
     }
 
     @Nullable
@@ -45,6 +51,13 @@ public class UndoMessage implements IMessage
             return;
         }
 
-        Manager.undo(ctxIn.getSender());
+        if (undo)
+        {
+            Manager.undo(ctxIn.getSender(), id);
+        }
+        else
+        {
+            Manager.redo(ctxIn.getSender(), id);
+        }
     }
 }

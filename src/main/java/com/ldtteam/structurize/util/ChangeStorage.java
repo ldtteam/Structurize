@@ -1,14 +1,14 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.PositionStorage;
+import com.ldtteam.structurize.management.Manager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,45 +19,66 @@ import java.util.stream.Collectors;
 public class ChangeStorage
 {
     /**
+     * Simple int ID creator
+     */
+    private static int storageIDs = 0;
+
+    /**
+     * This storages unique ID
+     */
+    private final int id;
+
+    /**
      * List of blocks with position.
      */
-    private final Map<BlockPos, PositionStorage> blocks = new HashMap<>();
+    private final Map<BlockPos, BlockChangeData> blocks = new HashMap<>();
 
     /**
      * List of entities in range.
      */
-    private final List<CompoundTag> entities = new ArrayList<>();
+    private final List<CompoundTag> removedEntities = new ArrayList<>();
 
     /**
      * List of entities to kill in range.
      */
-    private final List<Entity> entitiesToKill = new ArrayList<>();
+    private final List<Entity> addedEntities = new ArrayList<>();
 
     /**
-     * The responsible player.
+     * The operation which was done
      */
-    private final Player player;
+    private final String operation;
+
+    /**
+     * Current operation iteration
+     */
+    private Iterator<Map.Entry<BlockPos, BlockChangeData>> iterator = null;
+
+    private final UUID player;
 
     /**
      * Initiate an empty changeStorage to manually fill it.
+     *
      * @param player the player owner of it.
      */
-    public ChangeStorage(final Player player)
+    public ChangeStorage(final String operation, final UUID player)
     {
         this.player = player;
+        this.id = storageIDs++;
+        this.operation = operation;
     }
 
     /**
      * Inititate the change storage with the world to calc the positions.
+     *
      * @param world the world.
-     * @param from the first position.
-     * @param to the second position.
-     * @param player the player assigned to it.
+     * @param from  the first position.
+     * @param to    the second position.
      */
-    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final Player player)
+    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final String operation)
     {
-        this.player = player;
-
+        player = UUID.randomUUID();
+        this.id = storageIDs++;
+        this.operation = operation;
         for (int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
             for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
@@ -65,62 +86,97 @@ public class ChangeStorage
                 for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
                 {
                     final BlockPos place = new BlockPos(x, y, z);
-                    blocks.put(place, new PositionStorage(world.getBlockState(place), world.getBlockEntity(place)));
+                    blocks.put(place, new BlockChangeData().withPreState(world.getBlockState(place)).withPreTE(world.getBlockEntity(place)));
                 }
             }
         }
 
         final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AABB(from, to));
-        entities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
+        removedEntities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
     /**
      * Add a position storage to the list.
+     *
      * @param place the place.
      * @param world the world.
      */
-    public void addPositionStorage(final BlockPos place, final Level world)
+    public void addPreviousDataFor(final BlockPos place, final Level world)
     {
-        if (!blocks.containsKey(place))
-        {
-            blocks.put(place, new PositionStorage(world.getBlockState(place), world.getBlockEntity(place)));
-        }
+        blocks.computeIfAbsent(place, p -> new BlockChangeData()).withPreState(world.getBlockState(place)).withPreTE(world.getBlockEntity(place));
+    }
+
+    /**
+     * Add a position storage to the list.
+     *
+     * @param place the place.
+     * @param world the world.
+     */
+    public void addPostDataFor(final BlockPos place, final Level world)
+    {
+        blocks.computeIfAbsent(place, p -> new BlockChangeData()).withPostState(world.getBlockState(place)).withPostTE(world.getBlockEntity(place));
     }
 
     /**
      * Add entities to list to be readded.
+     *
      * @param list the list of entities.
      */
     public void addEntities(final List<Entity> list)
     {
-        entities.addAll(list.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
+        removedEntities.addAll(list.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
     /**
      * Add a entity to be killed to the list.
+     *
      * @param entity the place.
      */
     public void addToBeKilledEntity(final Entity entity)
     {
-        entitiesToKill.add(entity);
+        addedEntities.add(entity);
     }
 
     /**
      * Reload the previous state of the positions.
-     * @param world the world to manipulate.
+     *
+     * @param world       the world to manipulate.
+     * @param undoStorage
      * @return true if successful.
      */
-    public boolean undo(final Level world)
+    public boolean undo(final Level world, @Nullable final ChangeStorage undoStorage)
     {
-        int count = 0;
-        for (final Map.Entry<BlockPos, PositionStorage> entry : new ArrayList<>(blocks.entrySet()))
+        if (iterator == null)
         {
-            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getState());
-            if (entry.getValue().getEntity() != null)
+            iterator = blocks.entrySet().iterator();
+        }
+
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            final Map.Entry<BlockPos, BlockChangeData> entry = iterator.next();
+            // Only revert block changes which this operation caused
+            if (world.getBlockState(entry.getKey()) != entry.getValue().getPostState())
             {
-                world.setBlockEntity(entry.getValue().getEntity());
+                continue;
             }
-            blocks.remove(entry.getKey());
+
+            if (undoStorage != null)
+            {
+                undoStorage.addPreviousDataFor(entry.getKey(), world);
+            }
+            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getPreState());
+
+            if (entry.getValue().getPreTE() != null)
+            {
+                world.setBlockEntity(entry.getValue().getPreTE());
+            }
+
+            if (undoStorage != null)
+            {
+                undoStorage.addPostDataFor(entry.getKey(), world);
+            }
+
             count++;
 
             if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
@@ -129,7 +185,7 @@ public class ChangeStorage
             }
         }
 
-        for (final CompoundTag data : entities)
+        for (final CompoundTag data : removedEntities)
         {
             final Optional<EntityType<?>> type = EntityType.by(data);
             if (type.isPresent())
@@ -139,21 +195,106 @@ public class ChangeStorage
                 {
                     entity.deserializeNBT(data);
                     world.addFreshEntity(entity);
+                    if (undoStorage != null)
+                    {
+                        undoStorage.addedEntities.add(entity);
+                    }
                 }
             }
         }
-        entitiesToKill.forEach(entity -> entity.remove(Entity.RemovalReason.DISCARDED));
+        addedEntities.forEach(e -> e.remove(Entity.RemovalReason.DISCARDED));
+
+        if (undoStorage != null)
+        {
+            Manager.addToUndoRedoCache(undoStorage);
+        }
+        return true;
+    }
+
+    /**
+     * Reload the previous state of the positions.
+     *
+     * @param world the world to manipulate.
+     * @return true if successful.
+     */
+    public boolean redo(final Level world)
+    {
+        int count = 0;
+
+        if (iterator == null)
+        {
+            iterator = blocks.entrySet().iterator();
+        }
+
+        while (iterator.hasNext())
+        {
+            final Map.Entry<BlockPos, BlockChangeData> entry = iterator.next();
+            if (world.getBlockState(entry.getKey()) != entry.getValue().getPreState())
+            {
+                continue;
+            }
+
+            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getPostState());
+            if (entry.getValue().getPostTE() != null)
+            {
+                world.setBlockEntity(entry.getValue().getPostTE());
+            }
+            count++;
+
+            if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
+            {
+                return false;
+            }
+        }
 
         return true;
     }
 
     /**
-     * Check if a certain player is owner of this change.
-     * @param player the player to check.
-     * @return true if so.
+     * Get the operation of this changestorage
+     *
+     * @return
      */
-    public boolean isOwner(final Player player)
+    public String getOperation()
     {
-        return this.player.getUUID().equals(player.getUUID());
+        return operation;
+    }
+
+    /**
+     * Resets the iteration
+     */
+    public void resetUnRedo()
+    {
+        iterator = null;
+    }
+
+    /**
+     * Check whether the current operation on this is done
+     *
+     * @return
+     */
+    public boolean isDone()
+    {
+        return iterator == null || !iterator.hasNext();
+    }
+
+    /**
+     * Get this change storages unique ID
+     *
+     * @return
+     */
+    public int getID()
+    {
+        return id;
+    }
+
+    /**
+     * Get the players ID
+     *
+     * @return
+     */
+    public UUID getPlayerID()
+    {
+        return player;
     }
 }

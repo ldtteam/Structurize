@@ -121,7 +121,7 @@ public class StructurePlacer
 
             if (storage != null)
             {
-                storage.addPositionStorage(worldPos, world);
+                storage.addPreviousDataFor(worldPos, world);
             }
 
             final BlockPlacementResult result;
@@ -155,7 +155,14 @@ public class StructurePlacer
             }
             count++;
 
-            if (operation != Operation.GET_RES_REQUIREMENTS && (result.getResult() == BlockPlacementResult.Result.MISSING_ITEMS || result.getResult() == BlockPlacementResult.Result.FAIL || result.getResult() == BlockPlacementResult.Result.BREAK_BLOCK))
+            if (storage != null)
+            {
+                storage.addPostDataFor(worldPos, world);
+            }
+
+            if (operation != Operation.GET_RES_REQUIREMENTS && (result.getResult() == BlockPlacementResult.Result.MISSING_ITEMS
+                                                                  || result.getResult() == BlockPlacementResult.Result.FAIL
+                                                                  || result.getResult() == BlockPlacementResult.Result.BREAK_BLOCK))
             {
                 return new StructurePhasePlacementResult(lastPos, result);
             }

@@ -72,7 +72,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * White color.
      */
-    private static final int WHITE     = Color.getByName("white", 0);
+    public static final int WHITE = Color.getByName("white", 0);
 
     /**
      * The first pos.
@@ -135,6 +135,10 @@ public class WindowScan extends AbstractWindowSkeleton
         registerButton(BUTTON_REMOVE_ENTITY, this::removeEntity);
         registerButton(BUTTON_REMOVE_BLOCK, this::removeBlock);
         registerButton(BUTTON_REPLACE_BLOCK, this::replaceBlock);
+        registerButton(BUTTON_UNDOREDO, b -> {
+            close();
+            new WindowUndoRedo().open();
+        });
 
         pos1x = findPaneOfTypeByID(POS1X_LABEL, TextField.class);
         pos1y = findPaneOfTypeByID(POS1Y_LABEL, TextField.class);
@@ -146,15 +150,6 @@ public class WindowScan extends AbstractWindowSkeleton
 
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         entityList = findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class);
-        registerButton(UNDO_BUTTON, this::undoClicked);
-    }
-
-    /**
-     * Undo the last change.
-     */
-    private void undoClicked()
-    {
-        Network.getNetwork().sendToServer(new UndoMessage());
     }
 
     /**
@@ -253,7 +248,6 @@ public class WindowScan extends AbstractWindowSkeleton
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
             }
         }
-        findPaneOfTypeByID(UNDO_BUTTON, Button.class).setVisible(true);
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
             final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();

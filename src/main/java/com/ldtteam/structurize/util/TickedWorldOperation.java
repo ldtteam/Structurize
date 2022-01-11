@@ -44,7 +44,8 @@ public class TickedWorldOperation
         REMOVE_ENTITY,
         SCAN,
         PLACE_STRUCTURE,
-        UNDO
+        UNDO,
+        REDO
     }
 
     /**
@@ -71,12 +72,17 @@ public class TickedWorldOperation
      * The creator of the operation.
      */
     @Nullable
-    private final Player player;
+    private Player player = null;
 
     /**
      * The changeStorage associated to this operation..
      */
     private final ChangeStorage storage;
+
+    /**
+     * The undostorage for undo's
+     */
+    private ChangeStorage undoStorage;
 
     /**
      * The block to remove or to replace.
@@ -130,19 +136,20 @@ public class TickedWorldOperation
         this.player = player;
         this.firstBlock = firstBlock;
         this.secondBlock = secondBlock;
-        this.storage = new ChangeStorage(player);
+        this.storage = new ChangeStorage(type.toString(), player != null ? player.getUUID() : UUID.randomUUID());
         this.placer = null;
         this.pct = pct;
     }
 
     /**
      * Create a ScanToolOperation for an UNDO.
+     *
      * @param storage the storage for the UNDO.
-     * @param player the player.
+     * @param player  the player.
      */
-    public TickedWorldOperation(final ChangeStorage storage, @Nullable final Player player)
+    public TickedWorldOperation(final ChangeStorage storage, @Nullable final Player player, final OperationType operation)
     {
-        this.operation = OperationType.UNDO;
+        this.operation = operation;
         this.startPos = BlockPos.ZERO;
         this.currentPos = BlockPos.ZERO;
         this.endPos = BlockPos.ZERO;
@@ -150,11 +157,17 @@ public class TickedWorldOperation
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
         this.storage = storage;
+        storage.resetUnRedo();
+        if (operation == OperationType.UNDO && storage.getOperation().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) != 0)
+        {
+            undoStorage = new ChangeStorage(operation.toString() + ":" + storage.getOperation(), player != null ? player.getUUID() : UUID.randomUUID());
+        }
         this.placer = null;
     }
 
     /**
      * Create a ScanToolOperation for an structure placement.
+     *
      * @param placer the structure for the placement..
      * @param player the player.
      */
@@ -167,7 +180,7 @@ public class TickedWorldOperation
         this.player = player;
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
-        this.storage = new ChangeStorage(player);
+        this.storage = new ChangeStorage(operation + ":" + placer.getHandler().getBluePrint().getName(), player != null ? player.getUUID() : UUID.randomUUID());
         this.placer = placer;
     }
 
@@ -186,7 +199,12 @@ public class TickedWorldOperation
 
         if (operation == OperationType.UNDO)
         {
-            return storage.undo(world);
+            return storage.undo(world, undoStorage);
+        }
+
+        if (operation == OperationType.REDO)
+        {
+            return storage.redo(world);
         }
 
         if (operation == OperationType.PLACE_STRUCTURE)
@@ -250,7 +268,7 @@ public class TickedWorldOperation
      */
     private boolean run(final ServerLevel world)
     {
-        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUUID(), "placeStuffForMePl0x"));
+        final FakePlayer fakePlayer = new FakePlayer(world, new GameProfile(player == null ? UUID.randomUUID() : player.getUUID(), "structurizefakeplayer"));
         int count = 0;
         for (int y = currentPos.getY(); y <= endPos.getY(); y++)
         {
@@ -304,9 +322,9 @@ public class TickedWorldOperation
                         }
                         count++;
 
-                        storage.addPositionStorage(here, world);
+                        storage.addPreviousDataFor(here, world);
                         if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof BucketPickup
-                            || blockState.getBlock() instanceof LiquidBlock))
+                                                                           || blockState.getBlock() instanceof LiquidBlock))
                         {
                             BlockUtils.removeFluid(world, here);
                             if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof LiquidBlock))
@@ -332,6 +350,8 @@ public class TickedWorldOperation
                             world.removeBlock(here, false);
                         }
 
+                        storage.addPostDataFor(here, world);
+
                         if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
                         {
                             currentPos = new BlockPos(x, y, z);
@@ -351,17 +371,17 @@ public class TickedWorldOperation
     /**
      * Is this the correct block to remove it or replace it.
      *
-     * @param replacementStack   the world stack to check.
-     * @param worldState         the world state to check.
-     * @param compareStack       the comparison stack.
+     * @param replacementStack the world stack to check.
+     * @param worldState       the world state to check.
+     * @param compareStack     the comparison stack.
      * @return true if so.
      */
     private static boolean correctBlockToRemoveOrReplace(final ItemStack replacementStack, final BlockState worldState, final ItemStack compareStack)
     {
         return (replacementStack != null && replacementStack.sameItem(compareStack)
-                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem)compareStack.getItem()).getFluid() == worldState.getFluidState().getType())
+                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem) compareStack.getItem()).getFluid() == worldState.getFluidState().getType())
                   || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof LiquidBlock
-                  && ((BucketItem)compareStack.getItem()).getFluid() == ((LiquidBlock)worldState.getBlock()).getFluid())
+                        && ((BucketItem) compareStack.getItem()).getFluid() == ((LiquidBlock) worldState.getBlock()).getFluid())
                   || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
     }
 
@@ -377,10 +397,11 @@ public class TickedWorldOperation
 
     /**
      * Check if operation is an undo already.
+     *
      * @return true if so.
      */
-    public boolean isUndo()
+    public boolean isUndoRedo()
     {
-        return operation == OperationType.UNDO;
+        return operation == OperationType.UNDO || operation == OperationType.REDO;
     }
 }
