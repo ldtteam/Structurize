@@ -3,6 +3,7 @@ package com.ldtteam.structurize.client;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -127,7 +128,7 @@ public class BlueprintBlockAccess extends Level
                     ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
                     : Blocks.WATER.defaultBlockState();
         }
-        return state.getBlock() == ModBlocks.blockSubstitution.get() ||
+        return (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.showInvis()) ||
                  state.getBlock() == ModBlocks.blockTagSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
     }
 

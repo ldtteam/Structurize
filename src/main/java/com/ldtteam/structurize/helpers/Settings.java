@@ -97,6 +97,11 @@ public final class Settings implements INBTSerializable<CompoundTag>
     private boolean isStructurizePass = false;
 
     /**
+     * Render invisible blocks like light placeholders.
+     */
+    private boolean showInvis;
+
+    /**
      * Private constructor to hide implicit one.
      */
     private Settings()
@@ -760,5 +765,23 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void setReceivedInfo()
     {
         this.receivedInfo = true;
+    }
+
+    /**
+     * Enable/Disable rendering invisible blocks.
+     */
+    public void toggleInvis()
+    {
+        this.showInvis = !this.showInvis;
+        scheduleRefresh();
+    }
+
+    /**
+     * Check if invisible blocks should be shown.
+     * @return true if so.
+     */
+    public boolean showInvis()
+    {
+        return showInvis;
     }
 }
