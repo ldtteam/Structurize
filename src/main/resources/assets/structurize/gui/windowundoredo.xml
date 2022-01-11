@@ -5,7 +5,7 @@
     <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="270 40"/>
 
     <list id="operations" size="250 120" pos="90 70" visible="true">
-        <box size="100% 15" linewidth="6" visible="true">
+        <box size="100% 15" linewidth="1" visible="true">
             <label id="operationname" size="160 16" textalign="MIDDLE_LEFT" pos="5 1" color="white" wrap="true"/>
             <buttonimage id="undo"
                          source="structurize:textures/gui/buildtool/rotateleftsmall.png"
