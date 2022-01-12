@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

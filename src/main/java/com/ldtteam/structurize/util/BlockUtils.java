@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
@@ -248,7 +249,7 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == Blocks.DIRT && worldState.is(Tags.Blocks.DIRT))
+            if (structureBlock == Blocks.DIRT && worldState.is(BlockTags.DIRT))
             {
                 return true;
             }
