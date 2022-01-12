@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
@@ -315,7 +314,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
     private void showInvis()
     {
-        Settings.instance.toggleInvis();
+        Settings.instance.toggleLightPlaceholderRendering();
     }
 
     public void pasteNice()

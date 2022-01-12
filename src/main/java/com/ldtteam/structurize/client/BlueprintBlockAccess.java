@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
@@ -128,7 +127,7 @@ public class BlueprintBlockAccess extends Level
                     ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
                     : Blocks.WATER.defaultBlockState();
         }
-        return (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.showInvis()) ||
+        return (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders()) ||
                  state.getBlock() == ModBlocks.blockTagSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
     }
 
