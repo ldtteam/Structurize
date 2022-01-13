@@ -67,5 +67,5 @@
                  textcolor="Black"
                  texthovercolor="White"/>
 
-    <button id="showinvis" tooltip="$(structurize.gui.buildtool.show)" source="minecraft:textures/item/structure_void.png" size="26 26" pos="25 210"/>
+    <button id="showinvis" tooltip="$(structurize.gui.buildtool.show)" source="structurize:textures/blocks/blocksubstitution.png" size="26 26" pos="25 210"/>
 </window>
