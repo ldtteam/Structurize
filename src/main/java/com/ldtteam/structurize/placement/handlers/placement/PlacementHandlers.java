@@ -119,9 +119,19 @@ public final class PlacementHandlers
           boolean complete)
         {
             List<ItemStack> items = new ArrayList<>();
-            if (BlockUtils.getFluidForDimension(world).getBlock() == Blocks.LAVA)
+
+            if (complete)
             {
-                items.add(new ItemStack(Items.LAVA_BUCKET));
+                // for scan tool, show the actual placeholder block
+                items.add(new ItemStack(blockState.getBlock()));
+            }
+            else
+            {
+                // for build tool, water is free but lava needs a bucket
+                if (BlockUtils.getFluidForDimension(world).getBlock() == Blocks.LAVA)
+                {
+                    items.add(new ItemStack(Items.LAVA_BUCKET));
+                }
             }
 
             return items;
