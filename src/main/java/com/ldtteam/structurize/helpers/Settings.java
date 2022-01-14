@@ -97,6 +97,11 @@ public final class Settings implements INBTSerializable<CompoundTag>
     private boolean isStructurizePass = false;
 
     /**
+     * Render invisible blocks like light placeholders.
+     */
+    private boolean renderLightPlaceholders;
+
+    /**
      * Private constructor to hide implicit one.
      */
     private Settings()
@@ -550,6 +555,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         isMirrored = nbt.getBoolean("mirror");
         staticSchematicMode = nbt.getBoolean("static");
         hollow = nbt.getBoolean("hollow");
+        renderLightPlaceholders = nbt.getBoolean("renderLight");
 
         groundOffset = nbt.getInt("gnd");
         rotation = nbt.getInt("rot");
@@ -635,6 +641,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         nbt.putBoolean("mirror", isMirrored);
         nbt.putBoolean("static", staticSchematicMode);
         nbt.putBoolean("hollow", hollow);
+        nbt.putBoolean("renderLight", renderLightPlaceholders);
 
         nbt.putInt("gnd", groundOffset);
         nbt.putInt("rot", rotation);
@@ -642,7 +649,6 @@ public final class Settings implements INBTSerializable<CompoundTag>
         nbt.putInt("h", height);
         nbt.putInt("len", length);
         nbt.putInt("freq", frequency);
-
         // enums
 
         if (shape != null)
@@ -760,5 +766,23 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void setReceivedInfo()
     {
         this.receivedInfo = true;
+    }
+
+    /**
+     * Enable/Disable rendering light placeholder blocks.
+     */
+    public void toggleLightPlaceholderRendering()
+    {
+        this.renderLightPlaceholders = !this.renderLightPlaceholders;
+        scheduleRefresh();
+    }
+
+    /**
+     * Check if invisible blocks should be shown.
+     * @return true if so.
+     */
+    public boolean renderLightPlaceholders()
+    {
+        return renderLightPlaceholders;
     }
 }

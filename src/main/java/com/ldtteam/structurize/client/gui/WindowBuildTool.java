@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
@@ -93,6 +92,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Id of the paste nice button.
      */
     private static final String BUTTON_PASTE_NICE = "pastenice";
+
+    /**
+     * Id of the button to show invisible blocks.
+     */
+    private static final String BUTTON_SHOW_INVIS = "showinvis";
 
     /**
      * Id of the datafixer warning label.
@@ -245,6 +249,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PASTE, this::pasteComplete);
         registerButton(BUTTON_PASTE_NICE, this::pasteNice);
+        registerButton(BUTTON_SHOW_INVIS, this::showInvis);
 
         registerButton(BUTTON_RENAME, this::renameClicked);
         registerButton(BUTTON_DELETE, this::deleteClicked);
@@ -278,12 +283,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
             if (Minecraft.getInstance().player.isCreative())
             {
-                final Button pasteButton = findPaneOfTypeByID(BUTTON_PASTE, Button.class);
-                pasteButton.setVisible(true);
-                PaneBuilders.tooltipBuilder().hoverPane(pasteButton).append(new TranslatableComponent("structurize.gui.buildtool.paste")).build();
-                final Button pasteButtonNice = findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class);
-                pasteButtonNice.setVisible(true);
-                PaneBuilders.tooltipBuilder().hoverPane(pasteButtonNice).append(new TranslatableComponent("structurize.gui.buildtool.pastenice")).build();
+                findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(true);
+                findPaneOfTypeByID(BUTTON_PASTE_NICE, Button.class).setVisible(true);
             }
             else
             {
@@ -309,6 +310,11 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
         init = false;
         changeSchematic();
+    }
+
+    private void showInvis()
+    {
+        Settings.instance.toggleLightPlaceholderRendering();
     }
 
     public void pasteNice()

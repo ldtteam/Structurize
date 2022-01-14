@@ -1,31 +1,20 @@
 {
-  "parent": "block/block",
+  "credit": "Made with Blockbench",
   "textures": {
-    "particle": "structurize:blocks/blocksubstitution",
-    "bottom": "structurize:blocks/blocksubstitution",
-    "top": "structurize:blocks/blocksubstitution",
-    "side": "structurize:blocks/blocksubstitution"
+    "1": "structurize:blocks/blocksubstitution",
+    "particle": "structurize:blocks/blocksubstitution"
   },
   "elements": [
-    {   "from": [ 0, 0, 0 ],
-      "to": [ 16, 16, 16 ],
+    {
+      "from": [5, 5, 5],
+      "to": [11, 11, 11],
       "faces": {
-        "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },
-        "up":   { "uv": [ 0, 0, 16, 16 ], "texture": "#top", "cullface": "up" }
-      }
-    },
-    {   "from": [ 0, 0, 0 ],
-      "to": [ 16, 16, 16 ],
-      "faces": {
-        "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
-        "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" }
-      }
-    },
-    {   "from": [ 0, 0, 0 ],
-      "to": [ 16, 16, 16 ],
-      "faces": {
-        "west": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
-        "east": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" }
+        "north": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#1"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#1"}
       }
     }
   ]
