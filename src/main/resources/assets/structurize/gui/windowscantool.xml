@@ -33,12 +33,11 @@
         </box>
     </list>
 
-
-    <list id="entities" size="200 100" pos="220 100">
-        <box size="100% 30" linewidth="2">
+    <list id="entities" size="200 100" pos="220 100" childspacing="-1">
+        <box size="100% 30" linewidth="1">
             <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
-            <label id="resourceName" size="100% 12" pos="0 1" color="white" wrap="true"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeEntity" pos="0 13" size="86 17"
+            <label id="resourceName" size="172 12" pos="19 1" color="white" wrap="true"/>
+            <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeEntity" pos="19 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>
