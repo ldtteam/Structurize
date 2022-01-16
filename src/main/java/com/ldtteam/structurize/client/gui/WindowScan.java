@@ -21,6 +21,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BedPart;
@@ -338,7 +339,10 @@ public class WindowScan extends AbstractWindowSkeleton
 
                     for (final Entity entity : list)
                     {
+                        // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
+                        // and drops a lead, so we should alert builders that it exists in the scan
                         if (!entities.containsKey(entity.getName().getString())
+                                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
                                 && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                     || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
                         {
