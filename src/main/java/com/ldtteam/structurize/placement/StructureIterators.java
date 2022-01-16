@@ -65,7 +65,6 @@ public class StructureIterators
         final Function<IStructureHandler, AbstractBlueprintIterator> iterator = iteratorProducers.get(id);
         if (iterator == null)
         {
-            Log.getLogger().warn("Could not find iterator for value:" + id + " using default instead!");
             return new BlueprintIteratorDefault(handler);
         }
 
