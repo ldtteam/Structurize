@@ -23,6 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.GlowItemFrame;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
@@ -343,8 +344,10 @@ public class WindowScan extends AbstractWindowSkeleton
 
                     for (final Entity entity : list)
                     {
+                        // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
+                        // and drops a lead, so we should alert builders that it exists in the scan
                         if (!entities.containsKey(entity.getName().getString())
-                                && entity.getType().canSerialize()
+                                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
                                 && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                     || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
                         {
