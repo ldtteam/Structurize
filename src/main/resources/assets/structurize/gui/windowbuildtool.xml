@@ -57,13 +57,15 @@
             pos="320 210"
             textcolor="Black"
             texthovercolor="White"/>
-    <button id="pastenice" tooltip="$(structurize.gui.buildtool.pastenice)" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="360 210"/>
+    <button id="pastenice" tooltip="$(structurize.gui.buildtool.pastenice)" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="355 210"/>
     <buttonimage id="undoredo"
                  tooltip="$(structurize.gui.undoredo)"
                  source="structurize:textures/gui/buildtool/undoredo.png"
                  visible="true"
                  size="32 32"
-                 pos="395 210"
+                 pos="390 210"
                  textcolor="Black"
                  texthovercolor="White"/>
+
+    <button id="showinvis" tooltip="$(structurize.gui.buildtool.show)" source="structurize:textures/blocks/blocksubstitution.png" size="26 26" pos="25 210"/>
 </window>

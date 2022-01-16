@@ -1,6 +1,7 @@
 package com.ldtteam.structures.client;
 
 import com.ldtteam.structures.blueprints.v1.Blueprint;
+import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structures.lib.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -120,7 +121,7 @@ public class BlueprintBlockAccess extends World
                     ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
                     : Blocks.WATER.defaultBlockState();
         }
-        return state.getBlock() == ModBlocks.blockSubstitution.get() ||
+        return (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders()) ||
                state.getBlock() == ModBlocks.blockTagSubstitution.get()
                 ? Blocks.AIR.defaultBlockState() : state;
     }

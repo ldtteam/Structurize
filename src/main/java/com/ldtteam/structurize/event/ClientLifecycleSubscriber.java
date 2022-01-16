@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
@@ -77,5 +79,12 @@ public class ClientLifecycleSubscriber
         });
         DELAYED_RENDER_TYPE_SETUP.clear();
         DELAYED_RENDER_TYPE_SETUP.trimToSize();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void doClientStuff(final FMLClientSetupEvent event)
+    {
+        RenderTypeLookup.setRenderLayer(ModBlocks.blockSubstitution.get(), RenderType.translucent());
     }
 }
