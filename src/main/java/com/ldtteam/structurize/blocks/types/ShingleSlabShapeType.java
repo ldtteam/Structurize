@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * IF YOU CHANGE THIS FILE, OR ADD ENTRIES, RUN THE DATA GENERATORS.
  *
- *  -> gradle runData <-
+ *  - gradle runData -
  */
 public enum ShingleSlabShapeType implements IStringSerializable
 {

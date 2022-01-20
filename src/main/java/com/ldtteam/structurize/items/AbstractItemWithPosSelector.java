@@ -59,9 +59,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     public abstract AbstractItemWithPosSelector getRegisteredItemInstance();
 
     /**
-     * <p>
      * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, World, PlayerEntity, ItemStack)}.
-     * <p/>
      * {@inheritDoc}
      */
     @Override
@@ -99,9 +97,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     }
 
     /**
-     * <p>
      * Structurize: Captures second position or Anchor Pos.
-     * <p/>
      * {@inheritDoc}
      */
     @Override
@@ -117,9 +113,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     }
 
     /**
-     * <p>
      * Structurize: Prevent block breaking server side.
-     * <p/>
      * {@inheritDoc}
      */
     @Override

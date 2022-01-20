@@ -363,9 +363,9 @@ public class Blueprint
     }
 
     /**
-     * Get a map of all blockpos->blockInfo objects in the blueprint.
+     * Get a map of all blockpos-blockInfo objects in the blueprint.
      *
-     * @return a map of all blockpos->blockInfo (position, blockState, tileEntityData).
+     * @return a map of all blockpos-blockInfo (position, blockState, tileEntityData).
      */
     public final Map<BlockPos, BlockInfo> getBlockInfoAsMap()
     {
