@@ -180,11 +180,6 @@ public final class WindowConstants
     public static final String SHAPE_TOOL_RESOURCE_SUFFIX = ":gui/windowshapetool.xml";
 
     /**
-     * Hut prefix.
-     */
-    public static final String HUT_PREFIX = "blockhut";
-
-    /**
      * The builders gui file.
      */
     public static final String LIST_RESOURCES            = "resources";
