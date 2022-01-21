@@ -35,7 +35,7 @@ project {
     description = "The Structurize Minecraft Mod"
 
     params {
-        param("env.JDK_VERSION", "jdk16")
+        param("env.JDK_VERSION", "jdk17")
         param("Project.Type", "mods")
         param("env.Version.Patch", "0")
         param("env.Version.Suffix", "")
@@ -46,7 +46,7 @@ project {
         param("env.Version.Minor", "0")
         param("Upsource.Project.Id", "structurize")
         param("Default.Branch", "version/latest")
-        param("env.GRADLE_VERSION", "7.2")
+        param("env.GRADLE_VERSION", "7.3")
         param("filename.prefix", "structurize")
     }
 
