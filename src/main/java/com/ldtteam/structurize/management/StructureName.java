@@ -115,22 +115,7 @@ public class StructureName
             }
             else
             {
-                try
-                {
-                    // This is for legacy minecolonies support
-                    if (ForgeRegistries.BLOCKS.getValue(new ResourceLocation(Constants.MINECOLONIES_MOD_ID, "blockhut" + hut)) == Blocks.AIR)
-                    {
-                        hut = "";
-                    }
-                    else
-                    {
-                        section = hut;
-                    }
-                }
-                catch (ResourceLocationException e)
-                {
-                    hut = "";
-                }
+                hut = "";
             }
         }
     }

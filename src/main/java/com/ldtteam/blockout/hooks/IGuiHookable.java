@@ -27,11 +27,10 @@ public interface IGuiHookable
 
     /**
      * Gets called whenever a new gui is opened.
-     * Logically equals to Window.onOpened() override.
+     * Logically equals to Window.onOpened() override. @link IGuiHookable.shouldOpen(Type)
      *
      * @param window      new window
      * @param triggerType type of trigger condition
-     * @see {@link #shouldOpen(Type)}
      */
     default void onOpen(final Window window, final Type triggerType)
     {

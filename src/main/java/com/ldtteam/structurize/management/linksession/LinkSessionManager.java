@@ -50,7 +50,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Creates a session
      * 
-     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUUID()} ()}
      */
     public void createSession(@NotNull final UUID ownerUUID)
     {
@@ -60,7 +60,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Removes a session from session list
      * 
-     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUUID()}
      * @return boolean: whether ownerUUID was found or not
      */
     public boolean destroySession(@NotNull final UUID ownerUUID)
@@ -71,7 +71,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for members of a session identified by owner
      * 
-     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUUID()}
      * @return List UUID: list of UUIDs of session members
      *         <p>
      *         empty list: if ownerUUID was not found
@@ -84,7 +84,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for members of a session identified by owner
      * 
-     * @param ownerUUID {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID {@link PlayerEntity#getUUID()}
      * @return List String: list of player's name (nickname) of session members
      *         <p>
      *         empty list: if ownerUUID was not found
@@ -97,7 +97,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for session names of all sessions identified by member
      * 
-     * @param memberUUID {@link PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link PlayerEntity#getUUID()}
      * @return List String: list of player's name (nickname) of session members
      *         <p>
      *         empty list: if ownerUUID was not found
@@ -117,7 +117,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
      * <p>
      * Old name: <code>getUniquePlayersInSessionsOf</code>
      * 
-     * @param memberUUID {@link PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link PlayerEntity#getUUID()}
      * @param channel    {@link ChannelsEnum}
      * @return Set UUID: list of UUIDs of session members
      */
@@ -134,8 +134,8 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Adds or updates a member in a session identified by owner
      * 
-     * @param ownerUUID   {@link PlayerEntity#getUniqueID()}
-     * @param memberUUID  {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID   {@link PlayerEntity#getUUID()}
+     * @param memberUUID  {@link PlayerEntity#getUUID()}
      * @param displayName string used in commands for displaying player's name
      * @return boolean: whether ownerUUID was found or not
      */
@@ -152,8 +152,8 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Removes a member from a session identified by owner
      * 
-     * @param ownerUUID  {@link PlayerEntity#getUniqueID()}
-     * @param memberUUID {@link PlayerEntity#getUniqueID()}
+     * @param ownerUUID  {@link PlayerEntity#getUUID()}
+     * @param memberUUID {@link PlayerEntity#getUUID()}
      * @return boolean: whether ownerUUID was found or not
      */
     public boolean removeMemberOfSession(@NotNull final UUID ownerUUID, @NotNull final UUID memberUUID)
@@ -169,7 +169,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Setter of channel mute state identified by player
      * 
-     * @param playerUUID {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID {@link PlayerEntity#getUUID()}
      * @param channel    {@link ChannelsEnum}
      * @param state      true = muted, false = unmuted
      */
@@ -185,7 +185,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Getter for channel mute state identified by player
      * 
-     * @param playerUUID {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID {@link PlayerEntity#getUUID()}
      * @param channel    {@link ChannelsEnum}
      * @return boolean: mute state (returns false if checking fails), true = muted, false = unmuted
      */
@@ -251,8 +251,8 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Adds or replaces an invite for given player
      * 
-     * @param playerUUID {@link PlayerEntity#getUniqueID()}
-     * @param ownerUUID  {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID {@link PlayerEntity#getUUID()}
+     * @param ownerUUID  {@link PlayerEntity#getUUID()}
      * @return boolean: whether ownerUUID was found or not
      */
     public boolean createInvite(@NotNull final UUID playerUUID, @NotNull final UUID ownerUUID)
@@ -268,7 +268,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Check if a player has open invite
      * 
-     * @param playerUUID {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID {@link PlayerEntity#getUUID()}
      * @return String: display name of an owner of invite's target session
      *         <p>
      *         null: if player has not an open invite
@@ -294,7 +294,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Comsumes player's invites and makes him a member in appropriate session
      * 
-     * @param playerUUID {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID {@link PlayerEntity#getUUID()}
      * @param playerName string used in commands for displaying player's name
      * @return String: owner's display name of playerUUID session
      *         <p>
@@ -321,7 +321,7 @@ public class LinkSessionManager implements INBTSerializable<CompoundNBT>
     /**
      * Comsumes player's invites and makes him a member in appropriate session
      * 
-     * @param playerUUID  {@link PlayerEntity#getUniqueID()}
+     * @param playerUUID  {@link PlayerEntity#getUUID()}
      * @param playerName  string used in commands for displaying player's name
      * @param UUIDtoCheck UUID to check against current invite
      * @return String: owner's display name of playerUUID session

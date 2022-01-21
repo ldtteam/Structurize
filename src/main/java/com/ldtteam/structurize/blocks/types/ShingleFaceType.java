@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *
  * IF YOU CHANGE THIS FILE, OR ADD ENTRIES, RUN THE DATA GENERATORS.
  *
- *  -> gradle runData <-
+ *  - gradle runData -
  */
 public enum ShingleFaceType implements IBlockList<BlockShingle>
 {

@@ -51,7 +51,7 @@ public abstract class HookManager<T, U extends IForgeRegistryEntry<U>, K>
      * @param shouldOpen     gets fired when gui is about to be opened, can deny opening
      * @param onOpen         gets fired when gui is opened
      * @param onClose        gets fired when gui is closed
-     * @see {@link IGuiHookable} for gui callbacks
+     * @see IGuiHookable for gui callbacks
      */
     protected void registerInternal(final U targetThing,
         final ResourceLocation guiLoc,

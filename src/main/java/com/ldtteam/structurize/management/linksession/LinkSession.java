@@ -29,7 +29,7 @@ public class LinkSession
     /**
      * Adds or updates a member and it's display name in this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUUID() PlayerEntity#getUUID()}
      * @param displayName string used in commands for displaying player's name
      */
     protected void addOrUpdateMember(@NotNull final UUID memberUUID, @Nullable String displayName)
@@ -48,7 +48,7 @@ public class LinkSession
     /**
      * Removes a member from this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUUID() PlayerEntity#getUUID()}
      */
     protected void removeMember(@NotNull final UUID memberUUID)
     {
@@ -58,7 +58,7 @@ public class LinkSession
     /**
      * Checker whether a player is a member of this session
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUUID() PlayerEntity#getUUID()}
      * @return boolean: whether memberUUID is or not a member of this session
      */
     protected boolean isMember(@NotNull final UUID memberUUID)
@@ -69,7 +69,7 @@ public class LinkSession
     /**
      * Getter for player's name (nickname)
      * 
-     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUniqueID() PlayerEntity#getUniqueID()}
+     * @param memberUUID {@link net.minecraft.entity.player.PlayerEntity#getUUID() PlayerEntity#getUUID()}
      * @return String: player's name in readable form (nickname)
      */
     @Nullable
