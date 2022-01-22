@@ -163,6 +163,7 @@ public class ScanResourcesMessage
             if (stack == null || amount == 0) return;
 
             final ItemStorage storage = new ItemStorage(stack);
+            storage.setAmount(amount);
 
             resources.merge(storage, storage, (a, b) ->
             {
@@ -218,7 +219,12 @@ public class ScanResourcesMessage
 
             for (int i = 0; i < resourcesCount; ++i)
             {
-                resources.add(new ItemStorage(buf.readItem()));
+                final ItemStack stack = buf.readItem();
+
+                final ItemStorage storage = new ItemStorage(stack);
+                storage.setAmount(buf.readVarInt());
+
+                resources.add(storage);
             }
 
             final List<Integer> entityIds = new ArrayList<>();
@@ -279,6 +285,7 @@ public class ScanResourcesMessage
             for (final ItemStorage resource : this.resources)
             {
                 buf.writeItem(resource.getItemStack());
+                buf.writeVarInt(resource.getAmount());
             }
 
             for (final Entity entity : this.entities)
