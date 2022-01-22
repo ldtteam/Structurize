@@ -121,30 +121,7 @@ object Alpha_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        gradle {
-            name = "Analyze"
-            id = "RUNNER_144"
-            tasks = "sonarqube"
-            buildFile = "build.gradle"
-            gradleParams = "-Dsonar.projectKey=ldtteam_structurize -Dsonar.host.url=https://code-analysis.ldtteam.com -Dsonar.login=%sonarqube.token%"
-            enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
-            param("org.jfrog.artifactory.selectedDeployableServer.useM2CompatiblePatterns", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            param("org.jfrog.artifactory.selectedDeployableServer.buildDependencies", "Requires Artifactory Pro.")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishMavenDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishIvyDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
-        }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9", "RUNNER_144")
+        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
     }
 
     features {
@@ -224,30 +201,7 @@ object Beta_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        gradle {
-            name = "Analyze"
-            id = "RUNNER_144"
-            tasks = "sonarqube"
-            buildFile = "build.gradle"
-            gradleParams = "-Dsonar.projectKey=ldtteam_structurize -Dsonar.host.url=https://code-analysis.ldtteam.com -Dsonar.login=%sonarqube.token%"
-            enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
-            param("org.jfrog.artifactory.selectedDeployableServer.useM2CompatiblePatterns", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            param("org.jfrog.artifactory.selectedDeployableServer.buildDependencies", "Requires Artifactory Pro.")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishMavenDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishIvyDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
-        }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9", "RUNNER_144")
+        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
     }
 
     features {
@@ -327,30 +281,7 @@ object Release_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        gradle {
-            name = "Analyze"
-            id = "RUNNER_144"
-            tasks = "sonarqube"
-            buildFile = "build.gradle"
-            gradleParams = "-Dsonar.projectKey=ldtteam_structurize -Dsonar.host.url=https://code-analysis.ldtteam.com -Dsonar.login=%sonarqube.token%"
-            enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
-            param("org.jfrog.artifactory.selectedDeployableServer.useM2CompatiblePatterns", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            param("org.jfrog.artifactory.selectedDeployableServer.buildDependencies", "Requires Artifactory Pro.")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishMavenDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishIvyDescriptors", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
-        }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9", "RUNNER_144")
+        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
     }
 
     features {
