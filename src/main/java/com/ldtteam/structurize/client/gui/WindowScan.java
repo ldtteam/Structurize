@@ -254,11 +254,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
-            final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
-            if (!name.isEmpty())
-            {
-                filter = name;
-            }
+            filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
 
             updateResources();
         });
