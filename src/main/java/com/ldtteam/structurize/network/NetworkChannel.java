@@ -65,8 +65,6 @@ public class NetworkChannel
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
         registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
-        registerMessage(++idx, ScanResourcesMessage.Request.class, ScanResourcesMessage.Request::new);
-        registerMessage(++idx, ScanResourcesMessage.Response.class, ScanResourcesMessage.Response::new);
     }
 
     /**

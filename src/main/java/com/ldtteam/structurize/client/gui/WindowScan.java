@@ -55,6 +55,9 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private static final String BUILDING_NAME_RESOURCE_SUFFIX = ":gui/windowscantool.xml";
 
+    /** chest warning message */
+    private static final String CHEST_WARNING = "chestwarning";
+
     /**
      * Id of clicking enter.
      */
@@ -251,7 +254,11 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
-            filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
+            final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
+            if (!name.isEmpty())
+            {
+                filter = name;
+            }
 
             updateResources();
         });
@@ -317,7 +324,8 @@ public class WindowScan extends AbstractWindowSkeleton
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
-
+        
+        final Level world = Minecraft.getInstance().level;
         resources.clear();
         entities.clear();
 
@@ -326,39 +334,97 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        // todo: maybe cache the response to not re-update on each filter change...
-        //       still need to update for coordinate changes, though
-        final Level world = Minecraft.getInstance().level;
-        ScanResourcesMessage.Response.listenOnce(response ->
+        for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
         {
-            for (final ItemStorage resource : response.getResources())
+            for(int y = Math.min(pos1.getY(), pos2.getY()); y <= Math.max(pos1.getY(), pos2.getY()); y++)
             {
-                final ItemStack res = resource.getItemStack();
-                final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
-
-                if (filter.isEmpty()
-                        || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                        || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+                for(int z = Math.min(pos1.getZ(), pos2.getZ()); z <= Math.max(pos1.getZ(), pos2.getZ()); z++)
                 {
-                    resources.put(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode, resource);
+                    final BlockPos here = new BlockPos(x, y, z);
+                    final BlockState blockState = world.getBlockState(here);
+                    final BlockEntity tileEntity = world.getBlockEntity(here);
+                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
+
+                    for (final Entity entity : list)
+                    {
+                        // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
+                        // and drops a lead, so we should alert builders that it exists in the scan
+                        if (!entities.containsKey(entity.getName().getString())
+                                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                                && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                    || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
+                        {
+                            entities.put(entity.getName().getString(), entity);
+                        }
+                    }
+
+                    @Nullable final Block block = blockState.getBlock();
+                    if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
+                    {
+                        addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
+                    }
+                    else
+                    {
+                        boolean handled = false;
+                        for (final IPlacementHandler handler : PlacementHandlers.handlers)
+                        {
+                            if (handler.canHandle(world, BlockPos.ZERO, blockState))
+                            {
+                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                                for (final ItemStack stack : itemList)
+                                {
+                                    addNeededResource(stack, 1);
+                                }
+                                handled = true;
+                                break;
+                            }
+                        }
+
+                        if (!handled)
+                        {
+                            addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
+                        }
+                    }
                 }
             }
+        }
 
-            for (final Entity entity : response.getEntities())
-            {
-                if (filter.isEmpty()
-                        || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                        || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))))
-                {
-                    entities.put(entity.getName().getString(), entity);
-                }
-            }
+        window.findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class).refreshElementPanes();
+        updateResourceList();
+        updateEntitylist();
+    }
 
-            window.findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class).refreshElementPanes();
-            updateResourceList();
-            updateEntitylist();
-        });
-        Network.getNetwork().sendToServer(new ScanResourcesMessage.Request(world.dimension(), pos1, pos2));
+    /**
+     * Add a new resource to the needed list.
+     *
+     * @param res    the resource.
+     * @param amount the amount.
+     */
+    public void addNeededResource(@Nullable final ItemStack res, final int amount)
+    {
+        if (res == null || amount == 0)
+        {
+            return;
+        }
+
+        final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
+        ItemStorage resource = resources.get(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode);
+        if (resource == null)
+        {
+            resource = new ItemStorage(res);
+            resource.setAmount(amount);
+        }
+        else
+        {
+            resource.setAmount(resource.getAmount() + amount);
+        }
+
+        if (filter.isEmpty()
+                || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+        {
+            resources.put(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode, resource);
+        }
     }
 
     public void updateEntitylist()
@@ -416,6 +482,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         resourceList.enable();
         resourceList.show();
+        window.findPaneOfTypeByID(CHEST_WARNING, Text.class).show();
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
 
         //Creates a dataProvider for the unemployed resourceList.
