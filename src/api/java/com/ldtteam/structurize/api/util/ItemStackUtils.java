@@ -4,6 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -51,10 +54,13 @@ public final class ItemStackUtils
     {
         if (state.getBlock() instanceof BaseEntityBlock && compound.contains("Items"))
         {
-            final NonNullList<ItemStack> items = NonNullList.create();
-            ContainerHelper.loadAllItems(compound, items);
-            return items;
+            // because we're constructing the BlockEntity out-of-world below, chests (and perhaps a few others)
+            // can't generate an IItemHandler for us, so we need to read the contents manually.
+            // this could be removed if we always get a "real" BE from a world, but we're called both from a
+            // real world and from a schematic non-world, and the latter still breaks.
+            return getItemStacksFromNbt(compound);
         }
+
         BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
         final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound);
         if (tileEntity == null)
@@ -78,13 +84,32 @@ public final class ItemStackUtils
         return items;
     }
 
+    @NotNull
+    private static List<ItemStack> getItemStacksFromNbt(@NotNull final CompoundTag compound)
+    {
+        final List<ItemStack> items = new ArrayList<>();
+        final ListTag listtag = compound.getList("Items", Tag.TAG_COMPOUND);
+
+        for (int i = 0; i < listtag.size(); ++i)
+        {
+            final CompoundTag compoundtag = listtag.getCompound(i);
+            final ItemStack stack = ItemStack.of(compoundtag);
+            if (!stack.isEmpty())
+            {
+                items.add(stack);
+            }
+        }
+
+        return items;
+    }
+
     /**
      * Method to get all the IItemHandlers from a given Provider.
      *
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
-        public static Set<IItemHandler> getItemHandlersFromProvider(final ICapabilityProvider provider)
+    public static Set<IItemHandler> getItemHandlersFromProvider(final ICapabilityProvider provider)
     {
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
