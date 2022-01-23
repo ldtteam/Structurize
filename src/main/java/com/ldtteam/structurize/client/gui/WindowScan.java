@@ -55,6 +55,9 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private static final String BUILDING_NAME_RESOURCE_SUFFIX = ":gui/windowscantool.xml";
 
+    /** chest warning message */
+    private static final String CHEST_WARNING = "chestwarning";
+
     /**
      * Id of clicking enter.
      */
@@ -251,11 +254,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
-            final String name = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
-            if (!name.isEmpty())
-            {
-                filter = name;
-            }
+            filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
 
             updateResources();
         });
@@ -479,6 +478,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         resourceList.enable();
         resourceList.show();
+        window.findPaneOfTypeByID(CHEST_WARNING, Text.class).show();
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
 
         //Creates a dataProvider for the unemployed resourceList.

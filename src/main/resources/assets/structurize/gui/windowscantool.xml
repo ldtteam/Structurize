@@ -50,4 +50,7 @@
                  pos="395 210"
                  textcolor="Black"
                  texthovercolor="White"/>
+
+    <label id="chestwarning" size="200 11" pos="10 89" textscale="0.5" visible="false"
+           label="$(com.ldtteam.structurize.gui.scantool.chests)"/>
 </window>
