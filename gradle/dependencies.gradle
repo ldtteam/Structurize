@@ -1,0 +1,33 @@
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+    maven {
+        url 'https://www.dogforce-games.com/maven/'
+    }
+    flatDir {
+        dirs 'libs'
+    }
+    maven {
+        url 'https://dvs1.progwml6.com/files/maven/'
+    }
+    maven {
+        url "https://harleyoconnor.com/maven/"
+    }
+    maven {
+        name "JourneyMap"
+        url "https://jm.gserv.me/repository/maven-public/"
+    }
+}
+
+dependencies {
+    apiImplementation "com.ldtteam:datagenerators:${project.datagenerators_version}"
+    implementation "com.ldtteam:datagenerators:${project.datagenerators_version}"
+
+    implementation "org.mariuszgromada.math:MathParser.org-mXparser:${project.math_parser_version}"
+    contained "org.mariuszgromada.math:MathParser.org-mXparser:${project.math_parser_version}"
+}
