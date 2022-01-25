@@ -522,12 +522,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void onDropDownListChanged(final DropDownList list)
     {
-        if (list.isEnabled())
+        if (list == sectionsDropDownList)
         {
-            if (list == sectionsDropDownList)
-            {
-                updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()));
-            }
+            updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()));
         }
     }
 
