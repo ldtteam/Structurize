@@ -225,8 +225,8 @@ public final class BlockUtils
             {
                 CompoundTag tag = tileEntityData.copy();
                 tag.putInt("x", worldEntity.getBlockPos().getX());
-                tag.putInt("y", worldEntity.getBlockPos().getX());
-                tag.putInt("z", worldEntity.getBlockPos().getX());
+                tag.putInt("y", worldEntity.getBlockPos().getY());
+                tag.putInt("z", worldEntity.getBlockPos().getZ());
                 return worldEntity.saveWithFullMetadata().equals(tag);
             }
             return true;
