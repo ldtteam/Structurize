@@ -66,27 +66,6 @@ public final class BlockUtils
     }
 
     /**
-     * Updates the rotation of the structure depending on the input.
-     *
-     * @param rotation the rotation to be set.
-     * @return returns the Rotation object.
-     */
-    public static Rotation getRotation(final int rotation)
-    {
-        switch (rotation)
-        {
-            case 1:
-                return Rotation.CLOCKWISE_90;
-            case 2:
-                return Rotation.CLOCKWISE_180;
-            case 3:
-                return Rotation.COUNTERCLOCKWISE_90;
-            default:
-                return Rotation.NONE;
-        }
-    }
-
-    /**
      * Gets a rotation from a block facing.
      *
      * @param facing the block facing.

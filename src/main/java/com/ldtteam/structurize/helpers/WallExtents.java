@@ -115,7 +115,7 @@ public class WallExtents
     }
 
     /** Serialize to network */
-    public void serialize(@NotNull final FriendlyByteBuf buf)
+    public void write(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeVarInt(this.negative);
         buf.writeVarInt(this.positive);
@@ -123,7 +123,7 @@ public class WallExtents
     }
 
     /** Deserialize from network */
-    public static WallExtents deserialize(@NotNull final FriendlyByteBuf buf)
+    public static WallExtents read(@NotNull final FriendlyByteBuf buf)
     {
         final short negative = (short) buf.readVarInt();
         final short positive = (short) buf.readVarInt();
@@ -133,7 +133,7 @@ public class WallExtents
     }
 
     /** Serialiase to NBT */
-    public void save(@NotNull final CompoundTag compound)
+    public void write(@NotNull final CompoundTag compound)
     {
         compound.putInt("wallneg", this.negative);
         compound.putInt("wallpos", this.positive);
@@ -141,10 +141,11 @@ public class WallExtents
     }
 
     /** Deserialize from NBT */
-    public void load(@NotNull final CompoundTag compound)
+    public static WallExtents read(@NotNull final CompoundTag compound)
     {
-        this.negative = compound.getShort("wallneg");
-        this.positive = compound.getShort("wallpos");
-        this.overlap = compound.getShort("wallovl");
+        final short negative = compound.getShort("wallneg");
+        final short positive = compound.getShort("wallpos");
+        final short overlap = compound.getShort("wallovl");
+        return new WallExtents(negative, positive, overlap);
     }
 }

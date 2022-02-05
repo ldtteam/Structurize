@@ -4,8 +4,8 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.helpers.WallExtents;
+import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.util.BlockInfo;
-import com.mojang.math.Vector3d;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -21,7 +21,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
@@ -826,7 +825,7 @@ public class BlueprintUtil
                 {
                     final CompoundTag nbt = anchorBlock.getTileEntityData().copy();
                     final CompoundTag blueprintData = nbt.getCompound(TAG_BLUEPRINTDATA);
-                    extents.save(blueprintData);
+                    extents.write(blueprintData);
                     wall.setTileEntityData(pos, nbt);
                 }
                 else
@@ -838,5 +837,20 @@ public class BlueprintUtil
         }
 
         return wall;
+    }
+
+    /**
+     * Gets a simplified name for display purposes, including a wall size if appropriate.
+     *
+     * @param name The structure name.
+     * @param extents The wall extents.
+     * @return The simplified name.
+     */
+    public static String getDescriptiveName(@NotNull final StructureName name,
+                                            @NotNull final WallExtents extents)
+    {
+        if (!extents.isEnabled()) return name.getSchematic();
+
+        return String.format("%s x%d", name.getSchematic(), extents.getTotalCopies());
     }
 }

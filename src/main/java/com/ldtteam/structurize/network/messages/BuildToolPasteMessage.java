@@ -1,9 +1,11 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
+import com.ldtteam.structurize.util.PlacementSettings;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Mirror;
@@ -22,11 +24,9 @@ public class BuildToolPasteMessage implements IMessage
     private final boolean complete;
     private final String structureName;
     private final String workOrderName;
-    private final int rotation;
     private final BlockPos pos;
+    private final PlacementSettings settings;
     private final boolean isHut;
-    private final boolean mirror;
-    private final WallExtents wall;
 
     /**
      * Empty constructor used when registering the 
@@ -35,11 +35,9 @@ public class BuildToolPasteMessage implements IMessage
     {
         this.structureName = buf.readUtf(32767);
         this.workOrderName = buf.readUtf(32767);
-        this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
-        this.rotation = buf.readInt();
+        this.pos = buf.readBlockPos();
+        this.settings = PlacementSettings.read(buf);
         this.isHut = buf.readBoolean();
-        this.mirror = buf.readBoolean();
-        this.wall = WallExtents.deserialize(buf);
         this.complete = buf.readBoolean();
     }
 
@@ -49,27 +47,21 @@ public class BuildToolPasteMessage implements IMessage
      *  @param structureName String representation of a structure
      * @param workOrderName String name of the work order
      * @param pos           BlockPos
-     * @param rotation      int representation of the rotation
+     * @param settings      The placement settings.
      * @param isHut         true if hut, false if decoration
-     * @param mirror        the mirror of the building or decoration.
-     * @param wall          the wall extents
      * @param complete      paste it complete (with structure blocks) or without.
      */
     public BuildToolPasteMessage(
             final String structureName,
             final String workOrderName, final BlockPos pos,
-            final Rotation rotation, final boolean isHut,
-            final Mirror mirror,
-            final WallExtents wall,
+            final PlacementSettings settings, final boolean isHut,
             final boolean complete)
     {
         this.structureName = structureName;
         this.workOrderName = workOrderName;
         this.pos = pos;
-        this.rotation = rotation.ordinal();
+        this.settings = settings;
         this.isHut = isHut;
-        this.mirror = mirror == Mirror.FRONT_BACK;
-        this.wall = wall;
         this.complete = complete;
     }
 
@@ -84,17 +76,10 @@ public class BuildToolPasteMessage implements IMessage
         buf.writeUtf(structureName);
         buf.writeUtf(workOrderName);
 
-        buf.writeInt(pos.getX());
-        buf.writeInt(pos.getY());
-        buf.writeInt(pos.getZ());
-
-        buf.writeInt(rotation);
+        buf.writeBlockPos(pos);
+        settings.write(buf);
 
         buf.writeBoolean(isHut);
-
-        buf.writeBoolean(mirror);
-
-        wall.serialize(buf);
 
         buf.writeBoolean(complete);
     }
@@ -119,7 +104,7 @@ public class BuildToolPasteMessage implements IMessage
         if (ctxIn.getSender().isCreative())
         {
             StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().level, structureName,
-              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, wall, !complete, ctxIn.getSender());
+              pos, settings, !complete, ctxIn.getSender());
         }
     }
 }

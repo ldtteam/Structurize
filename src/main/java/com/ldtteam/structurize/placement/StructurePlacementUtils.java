@@ -25,16 +25,15 @@ public class StructurePlacementUtils
      * Unload a structure at a certain location.
      *
      * @param world    the world.
-     * @param startPos      the position.
-     * @param name    the name.
-     * @param rotation the rotation.
-     * @param mirror   the mirror.
+     * @param startPos the position.
+     * @param name     the name.
+     * @param settings the placement settings.
      */
-    public static void unloadStructure(final Level world, final BlockPos startPos, final String name, final Rotation rotation, final Mirror mirror, final WallExtents wall)
+    public static void unloadStructure(final Level world, final BlockPos startPos, final String name, final PlacementSettings settings)
     {
-        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, new PlacementSettings(mirror, rotation, wall), false);
-        structure.getBluePrint().rotateWithMirror(rotation, mirror, world);
-        structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), wall));
+        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, settings, false);
+        structure.getBluePrint().rotateWithMirror(settings.getRotation(), settings.getMirror(), world);
+        structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), settings.getWallExtents()));
 
         final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
@@ -48,25 +47,21 @@ public class StructurePlacementUtils
      * @param worldObj the world to load it in
      * @param name     the structures name
      * @param pos      coordinates
-     * @param rotation the rotation.
-     * @param mirror   the mirror used.
-     * @poram wall     the wall extents
+     * @param settings the placement settings.
      * @param fancyPlacement if fancy or complete.
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
             final Level worldObj, final String name,
-            final BlockPos pos, final Rotation rotation,
-            final Mirror mirror,
-            final WallExtents wall,
+            final BlockPos pos, final PlacementSettings settings,
             final boolean fancyPlacement,
             final ServerPlayer player)
     {
         try
         {
-            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, new PlacementSettings(mirror, rotation, wall), fancyPlacement);
-            structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
-            structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), wall));
+            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, settings, fancyPlacement);
+            structure.getBluePrint().rotateWithMirror(settings.getRotation(), settings.getMirror(), worldObj);
+            structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), settings.getWallExtents()));
 
             final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
@@ -84,29 +79,25 @@ public class StructurePlacementUtils
      * @param worldObj the world to load it in
      * @param blueprint the structures blueprint
      * @param pos      coordinates
-     * @param rotation the rotation.
-     * @param mirror   the mirror used.
-     * @param wall     the wall extents
+     * @param settings the placement settings.
      * @param fancyPlacement if fancy or complete.
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
       final Level worldObj, final Blueprint blueprint,
-      final BlockPos pos, final Rotation rotation,
-      final Mirror mirror,
-      final WallExtents wall,
+      final BlockPos pos, final PlacementSettings settings,
       final boolean fancyPlacement,
       final ServerPlayer player)
     {
         try
         {
-            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, new PlacementSettings(mirror, rotation, wall), fancyPlacement);
+            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, settings, fancyPlacement);
             if (fancyPlacement)
             {
                 structure.fancyPlacement();
             }
-            structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
-            structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), wall));
+            structure.getBluePrint().rotateWithMirror(settings.getRotation(), settings.getMirror(), worldObj);
+            structure.setBlueprint(BlueprintUtil.createWall(structure.getBluePrint(), settings.getWallExtents()));
 
             final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));

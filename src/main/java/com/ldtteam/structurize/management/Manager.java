@@ -8,6 +8,7 @@ import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
+import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -130,8 +131,7 @@ public final class Manager
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
      * @param player         the player.
-     * @param mirror         the mirror.
-     * @param rotation       the rotation.
+     * @param settings       the placement settings.
      */
     public static void pasteStructure(
       final ServerLevel server,
@@ -146,11 +146,10 @@ public final class Manager
       final ItemStack inputFillBlock,
       final boolean hollow,
       final ServerPlayer player,
-      final Mirror mirror,
-      final Rotation rotation)
+      final PlacementSettings settings)
     {
         final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
-        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, new WallExtents(), true, player);
+        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, settings, true, player);
     }
 
     /**

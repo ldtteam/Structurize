@@ -5,6 +5,7 @@ import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
@@ -998,7 +999,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
         final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName.toString(),
-            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation()), Settings.instance.getWallExtents()), true);
+            Settings.instance.getPlacement(), true);
 
         if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))
         {
@@ -1093,10 +1094,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                   serverSideName,
                   structureName.toString(),
                   Settings.instance.getPosition(),
-                  BlockUtils.getRotation(Settings.instance.getRotation()),
+                  Settings.instance.getPlacement(),
                   false,
-                  Settings.instance.getMirror(),
-                  Settings.instance.getWallExtents(),
                   complete));
             }
             else
@@ -1250,10 +1249,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
           name.toString(),
           name.toString(),
           Settings.instance.getPosition(),
-          BlockUtils.getRotation(Settings.instance.getRotation()),
+          Settings.instance.getPlacement(),
           false,
-          Settings.instance.getMirror(),
-          Settings.instance.getWallExtents(),
           complete));
     }
 

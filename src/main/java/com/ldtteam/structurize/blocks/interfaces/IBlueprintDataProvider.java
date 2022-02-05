@@ -105,7 +105,7 @@ public interface IBlueprintDataProvider
 
         writeMapToCompound(compoundNBT, getPositionedTags());
 
-        getWallExtents().save(compoundNBT);
+        getWallExtents().write(compoundNBT);
 
         originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
     }
@@ -163,8 +163,7 @@ public interface IBlueprintDataProvider
         setPositionedTags(readTagPosMapFrom(compoundNBT));
 
         // Read wall extents
-        final WallExtents extents = new WallExtents();
-        extents.load(compoundNBT);
+        final WallExtents extents = WallExtents.read(compoundNBT);
         setWallExtents(extents);
     }
 

@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.management.Manager;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Mirror;
@@ -67,14 +69,9 @@ public class GenerateAndPasteMessage implements IMessage
     protected final String equation;
 
     /**
-     * The rotation.
+     * The placement settings.
      */
-    protected final int rotation;
-
-    /**
-     * The mirror.
-     */
-    protected final boolean mirror;
+    protected final PlacementSettings settings;
 
     /**
      * Empty constructor used when registering the message.
@@ -86,12 +83,11 @@ public class GenerateAndPasteMessage implements IMessage
         this.width = buf.readInt();
         this.height = buf.readInt();
         this.frequency = buf.readInt();
-        this.shape = Shape.values()[buf.readInt()];
+        this.shape = buf.readEnum(Shape.class);
         this.block = buf.readItem();
         this.block2 = buf.readItem();
         this.hollow = buf.readBoolean();
-        this.rotation = buf.readInt();
-        this.mirror = buf.readBoolean();
+        this.settings = PlacementSettings.read(buf);
         this.equation = buf.readUtf(32767);
     }
 
@@ -108,8 +104,7 @@ public class GenerateAndPasteMessage implements IMessage
      * @param block     the block to set.
      * @param block2    the fill block.
      * @param hollow    if hollow or not.
-     * @param rotation  the rotation of it.
-     * @param mirror    its mirror.
+     * @param settings  the placement settings.
      */
     public GenerateAndPasteMessage(
       final BlockPos pos,
@@ -122,8 +117,7 @@ public class GenerateAndPasteMessage implements IMessage
       final ItemStack block,
       final ItemStack block2,
       final boolean hollow,
-      final Rotation rotation,
-      final Mirror mirror)
+      final PlacementSettings settings)
     {
         this.pos = pos;
         this.length = length;
@@ -134,8 +128,7 @@ public class GenerateAndPasteMessage implements IMessage
         this.block = block;
         this.block2 = block2;
         this.hollow = hollow;
-        this.mirror = mirror != Mirror.NONE;
-        this.rotation = rotation.ordinal();
+        this.settings = settings;
         this.equation = equation;
     }
 
@@ -155,12 +148,11 @@ public class GenerateAndPasteMessage implements IMessage
         buf.writeInt(width);
         buf.writeInt(height);
         buf.writeInt(frequency);
-        buf.writeInt(shape.ordinal());
+        buf.writeEnum(shape);
         buf.writeItem(block);
         buf.writeItem(block2);
         buf.writeBoolean(hollow);
-        buf.writeInt(rotation);
-        buf.writeBoolean(mirror);
+        settings.write(buf);
         buf.writeUtf(equation);
     }
 
@@ -184,7 +176,6 @@ public class GenerateAndPasteMessage implements IMessage
           block2,
           hollow,
           ctxIn.getSender(),
-          mirror ? Mirror.FRONT_BACK : Mirror.NONE,
-          Rotation.values()[rotation]);
+          settings);
     }
 }

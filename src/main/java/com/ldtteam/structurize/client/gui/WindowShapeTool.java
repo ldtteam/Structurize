@@ -428,8 +428,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                     Settings.instance.getBlock(true),
                     Settings.instance.getBlock(false),
                     Settings.instance.isHollow(),
-                    BlockUtils.getRotation(Settings.instance.getRotation()),
-                    Settings.instance.getMirror()));
+                    Settings.instance.getPlacement()));
         }
 
         // this assumes that the server will generate exactly the same blueprint data as the client did;
@@ -452,8 +451,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
           Settings.instance.getBlock(true),
           Settings.instance.getBlock(false),
           Settings.instance.isHollow(),
-          BlockUtils.getRotation(Settings.instance.getRotation()),
-          Settings.instance.getMirror()));
+          Settings.instance.getPlacement()));
     }
 
     /**

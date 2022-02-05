@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.helpers.WallExtents;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 
@@ -47,6 +49,17 @@ public class PlacementSettings
         this.wall = wall;
     }
 
+    /**
+     * Create a new placement settings object with legacy settings.
+     * @param mirror true to mirror.
+     * @param rotation number of times to rotate clockwise.
+     * @param wall the wall extents.
+     */
+    public PlacementSettings(final boolean mirror, final int rotation, final WallExtents wall)
+    {
+        this(mirror ? Mirror.FRONT_BACK : Mirror.NONE, BlockPosUtil.getRotationFromRotations(rotation), wall);
+    }
+
     public Mirror getMirror()
     {
         return mirror;
@@ -76,4 +89,24 @@ public class PlacementSettings
     {
         this.wall = wall;
     }
+
+    public static PlacementSettings read(final FriendlyByteBuf buf)
+    {
+        final Mirror mirror = buf.readEnum(Mirror.class);
+        final Rotation rotation = buf.readEnum(Rotation.class);
+        final WallExtents wall = WallExtents.read(buf);
+
+        return new PlacementSettings(mirror, rotation, wall);
+    }
+
+    public void write(final FriendlyByteBuf buf)
+    {
+        buf.writeEnum(this.mirror);
+        buf.writeEnum(this.rotation);
+        wall.write(buf);
+    }
+
+    // the nbt read/write variants are deliberately not implemented here, to make
+    // you think about upgrade/migration a bit more ... and also because there's a
+    // backwards compatibility issue with Minecolonies work order persistence
 }

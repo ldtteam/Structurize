@@ -4,6 +4,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -34,20 +35,14 @@ public final class Settings implements INBTSerializable<CompoundTag>
      * The position of the structure.
      */
     private BlockPos  pos           = null;
-    private boolean   isMirrored    = false;
+    private PlacementSettings placement = new PlacementSettings();
     @Nullable
     private Blueprint blueprint     = null;
-    private int       rotation      = 0;
+    @Nullable
+    private Blueprint wall          = null;
     private String    structureName = null;
     private Optional<BlockPos> anchorPos = Optional.empty();
     private int       groundOffset  = 0;
-    @Nullable
-    private Blueprint wall          = null;
-
-    /**
-     * Wall mode.
-     */
-    private WallExtents wallExtents = new WallExtents();
 
     /**
      * The style index to use currently.
@@ -347,7 +342,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         else
         {
             this.blueprint = blueprint;
-            this.blueprint.rotateWithMirror(BlockPosUtil.getRotationFromRotations(rotation), isMirrored ? Mirror.FRONT_BACK : Mirror.NONE, Minecraft.getInstance().level);
+            this.blueprint.rotateWithMirror(placement.getRotation(), placement.getMirror(), Minecraft.getInstance().level);
             generateWall();
         }
     }
@@ -358,9 +353,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void reset()
     {
         resetBlueprint();
-        resetWall();
-        rotation = 0;
-        isMirrored = false;
+        placement = new PlacementSettings();
         hollow = false;
         structureName = null;
         pos = null;
@@ -398,7 +391,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public void resetWall()
     {
-        wallExtents = new WallExtents();
+        placement.setWallExtents(new WallExtents());
         generateWall();
     }
 
@@ -411,7 +404,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void setSchematicInfo(final String structureName, final int rotation)
     {
         this.structureName = structureName;
-        this.rotation = rotation;
+        this.placement.setRotation(BlockPosUtil.getRotationFromRotations(rotation));
     }
 
     /**
@@ -432,7 +425,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public int getRotation()
     {
-        return rotation;
+        return placement.getRotation().ordinal();
     }
 
     /**
@@ -442,9 +435,9 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public void setRotation(final int rotation)
     {
-        int offset = rotation - this.rotation;
+        int offset = rotation - getRotation();
 
-        this.rotation = rotation;
+        this.placement.setRotation(BlockPosUtil.getRotationFromRotations(rotation));
         if (blueprint != null)
         {
             blueprint.rotateWithMirror(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, Mirror.NONE, Minecraft.getInstance().level);
@@ -463,8 +456,11 @@ public final class Settings implements INBTSerializable<CompoundTag>
             return;
         }
 
-        isMirrored = !isMirrored;
-        blueprint.rotateWithMirror(Rotation.NONE, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().level);
+        // this is wrong -- mirroring and rotating are happening in a different order than what it will
+        // actually build ... but mirroring is generally messed up elsewhere anyway, so no point trying
+        // to fix it until it all gets fixed
+        placement.setMirror(placement.getMirror() == Mirror.NONE ? Mirror.FRONT_BACK : Mirror.NONE);
+        blueprint.rotateWithMirror(Rotation.NONE, placement.getRotation().ordinal() % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().level);
         generateWall();
         scheduleRefresh();
     }
@@ -476,14 +472,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public Mirror getMirror()
     {
-        if (isMirrored)
-        {
-            return Mirror.FRONT_BACK;
-        }
-        else
-        {
-            return Mirror.NONE;
-        }
+        return placement.getMirror();
     }
 
     /**
@@ -493,7 +482,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     @NotNull
     public WallExtents getWallExtents()
     {
-        return new WallExtents(this.wallExtents);
+        return new WallExtents(placement.getWallExtents());
     }
 
     /**
@@ -502,14 +491,25 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public void setWallExtent(@NotNull final WallExtents extents)
     {
-        this.wallExtents = new WallExtents(extents);
+        placement.setWallExtents(new WallExtents(extents));
         generateWall();
         scheduleRefresh();
     }
 
+    /**
+     * Gets {@link PlacementSettings} for the rotation, mirror, and wall.
+     *
+     * @return the placement
+     */
+    @NotNull
+    public PlacementSettings getPlacement()
+    {
+        return new PlacementSettings(getMirror(), BlockPosUtil.getRotationFromRotations(getRotation()), getWallExtents());
+    }
+
     private void generateWall()
     {
-        this.wall = BlueprintUtil.createWall(this.blueprint, this.wallExtents);
+        this.wall = BlueprintUtil.createWall(this.blueprint, placement.getWallExtents());
     }
 
     /**
@@ -601,15 +601,15 @@ public final class Settings implements INBTSerializable<CompoundTag>
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        isMirrored = nbt.getBoolean("mirror");
         staticSchematicMode = nbt.getBoolean("static");
         hollow = nbt.getBoolean("hollow");
         renderLightPlaceholders = nbt.getBoolean("renderLight");
 
-        wallExtents.load(nbt);
+        placement.setMirror(nbt.getBoolean("mirror") ? Mirror.FRONT_BACK : Mirror.NONE);
+        placement.setRotation(BlockPosUtil.getRotationFromRotations(nbt.getInt("rot")));
+        placement.setWallExtents(WallExtents.read(nbt));
 
         groundOffset = nbt.getInt("gnd");
-        rotation = nbt.getInt("rot");
         width = nbt.getInt("w");
         height = nbt.getInt("h");
         length = nbt.getInt("len");
@@ -689,15 +689,15 @@ public final class Settings implements INBTSerializable<CompoundTag>
     {
         final CompoundTag nbt = new CompoundTag();
 
-        nbt.putBoolean("mirror", isMirrored);
         nbt.putBoolean("static", staticSchematicMode);
         nbt.putBoolean("hollow", hollow);
         nbt.putBoolean("renderLight", renderLightPlaceholders);
 
-        wallExtents.save(nbt);
+        nbt.putBoolean("mirror", placement.getMirror() != Mirror.NONE);
+        nbt.putInt("rot", placement.getRotation().ordinal());
+        placement.getWallExtents().write(nbt);
 
         nbt.putInt("gnd", groundOffset);
-        nbt.putInt("rot", rotation);
         nbt.putInt("w", width);
         nbt.putInt("h", height);
         nbt.putInt("len", length);
