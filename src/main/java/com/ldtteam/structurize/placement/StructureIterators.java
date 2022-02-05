@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.placement;
 
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 
 import java.util.HashMap;

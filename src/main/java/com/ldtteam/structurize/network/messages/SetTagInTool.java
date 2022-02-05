@@ -2,7 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.network.FriendlyByteBuf;;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;

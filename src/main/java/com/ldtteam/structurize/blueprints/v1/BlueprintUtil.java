@@ -17,7 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
@@ -260,7 +259,7 @@ public class BlueprintUtil
             tag.put("architects", architectsTag);
         }
 
-        tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getWorldVersion()));
+        tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getDataVersion().getVersion()));
 
         final CompoundTag optionalTag = new CompoundTag();
         final CompoundTag structurizeTag = new CompoundTag();
