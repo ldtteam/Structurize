@@ -7,6 +7,7 @@ import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,6 +48,11 @@ public final class Structures
      * Storage location for the player's schematics.
      */
     public static final String SCHEMATICS_SCAN = "scans";
+
+    /**
+     * Wall-style schematics (enables "wall mode").
+     */
+    public static final String SCHEMATICS_WALLS = "walls";
 
     /**
      * Schematic's path in the jar file.
@@ -106,6 +112,12 @@ public final class Structures
      */
     public static void init()
     {
+        md5Map.clear();
+        fileMap.clear();
+        schematicsMap.clear();
+        schematicPieces.clear();
+
+        StructureName.loadConfigSections();
         loadStyleMaps();
     }
 

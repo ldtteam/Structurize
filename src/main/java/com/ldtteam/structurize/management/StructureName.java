@@ -1,16 +1,20 @@
 package com.ldtteam.structurize.management;
 
+import com.google.common.collect.Streams;
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +26,9 @@ public class StructureName
 {
     public static List<String> HUTS = Collections.synchronizedList(new ArrayList<>());
 
+    private static Map<String, Component> SECTIONS = createDefaultSections();
+    private static Map<String, Component> CONFIG_SECTIONS = Collections.synchronizedMap(new HashMap<>());
+
     private static final Pattern levelPattern              = Pattern.compile("[^0-9]+([0-9]+)$");
     private static final String  LOCALIZED_SCHEMATIC_LEVEL = "com.ldtteam.structurize.gui.buildtool.hut.level";
     /**
@@ -32,6 +39,15 @@ public class StructureName
     private              String  style                     = "";
     private              String  schematic                 = "";
     private              String  hut                       = "";
+
+    private static Map<String, Component> createDefaultSections()
+    {
+        final Map<String, Component> sections = Collections.synchronizedMap(new HashMap<>());
+        sections.put(Structures.SCHEMATICS_PREFIX, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.decorations"));
+        sections.put(Structures.SCHEMATICS_SCAN, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.scans"));
+        sections.put(Structures.SCHEMATICS_WALLS, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.walls"));
+        return sections;
+    }
 
     /**
      * Create a StructureName object from a schematic name.
@@ -115,7 +131,71 @@ public class StructureName
             else
             {
                 hut = "";
+                if (!tryParsingSection(CONFIG_SECTIONS))
+                {
+                    tryParsingSection(SECTIONS);
+                }
             }
+        }
+    }
+
+    private boolean tryParsingSection(@NotNull final Map<String, Component> sections)
+    {
+        for (final Map.Entry<String, Component> entry : sections.entrySet())
+        {
+            if (style.startsWith(entry.getKey() + Structures.SCHEMATICS_SEPARATOR))
+            {
+                prefix += Structures.SCHEMATICS_SEPARATOR + entry.getKey();
+                section = entry.getKey();
+                style = style.substring(entry.getKey().length() + 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get human-readable section name.
+     *
+     * @param name The internal section name (path fragment)
+     * @return the human-readable name
+     */
+    public static Component getLocalizedSectionName(@NotNull final String name)
+    {
+        Component text = CONFIG_SECTIONS.get(name);
+        if (text == null) text = SECTIONS.get(name);
+        if (text == null) text = new TextComponent(name);
+        return text;
+    }
+
+    /**
+     * Addon mods can call this during init to register additional schematic sections.
+     *
+     * @param path The path prefix, e.g. "roads"
+     * @param name The human-readable name to be shown in the UI
+     */
+    public static void registerSectionName(@NotNull final String path, @NotNull final Component name)
+    {
+        SECTIONS.put(path, name);
+    }
+
+    /**
+     * Loads custom section definitions from the config file.
+     */
+    public static void loadConfigSections()
+    {
+        CONFIG_SECTIONS.clear();
+
+        for (final String pathSection : Structurize.getConfig().getServer().sections.get())
+        {
+            final String[] split = pathSection.split(";");
+            if (split.length != 2)
+            {
+                Log.getLogger().warn("Wrongly configured section: " + pathSection);
+                continue;
+            }
+
+            CONFIG_SECTIONS.put(split[0], new TextComponent(split[1]));
         }
     }
 

@@ -300,7 +300,7 @@ public final class StructureLoadingUtils
                 }
             }
         }
-        else if (!Structures.SCHEMATICS_PREFIX.equals(sn.getPrefix()))
+        else if (sn.getPrefix() == null || !sn.getPrefix().startsWith(Structures.SCHEMATICS_PREFIX))
         {
             return null;
         }

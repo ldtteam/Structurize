@@ -5,7 +5,6 @@ import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
@@ -13,7 +12,6 @@ import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -23,7 +21,6 @@ import com.ldtteam.structurize.network.messages.SchematicRequestMessage;
 import com.ldtteam.structurize.network.messages.SchematicSaveMessage;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -32,17 +29,13 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
@@ -285,7 +278,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             final List<String> allSections = Structures.getSections();
             for (final String section : allSections)
             {
-                if (section.equals(Structures.SCHEMATICS_PREFIX) || section.equals(Structures.SCHEMATICS_SCAN) || hasMatchingBlock(inventory, section))
+                if (!StructureName.HUTS.contains(section) || hasMatchingBlock(inventory, section))
                 {
                     sections.add(section);
                 }
@@ -385,28 +378,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         public String getLabel(final int index)
         {
             final String name = sections.get(index);
-            if (Structures.SCHEMATICS_SCAN.equals(name))
-            {
-                return LanguageHandler.translateKey("com.ldtteam.structurize.gui.buildtool.scans");
-            }
-            else if (Structures.SCHEMATICS_PREFIX.equals(name))
-            {
-                return LanguageHandler.translateKey("com.ldtteam.structurize.gui.buildtool.decorations");
-            }
-            // should be a something else.
-            return getSectionName(name);
+            return StructureName.getLocalizedSectionName(name).getString();
         }
-    }
-
-    /**
-     * Get the correct name for the section.
-     * Mods which need this should override this.
-     * @param name the initial name.
-     * @return the formatted name.
-     */
-    public String getSectionName(final String name)
-    {
-        return name;
     }
 
     /**
@@ -1222,7 +1195,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     public boolean isWallModeAvailable()
     {
         final String sname = Settings.instance.getStructureName();
-        return sname != null && sname.contains("/walls/");
+        return sname != null && sname.contains(Structures.SCHEMATICS_SEPARATOR + Structures.SCHEMATICS_WALLS + Structures.SCHEMATICS_SEPARATOR);
         // the blueprint is loaded at this point so this could perhaps look for a tag
         // or some other metadata; but this seems good for backwards compatibility.
         // ideally this would only be active for straight wall sections, though, not

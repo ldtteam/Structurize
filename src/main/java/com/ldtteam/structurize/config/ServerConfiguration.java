@@ -5,6 +5,7 @@ import com.ldtteam.structurize.update.UpdateMode;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,12 +51,13 @@ public class ServerConfiguration extends AbstractConfiguration
 
     public final ForgeConfigSpec.ConfigValue<String> iteratorType;
 
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> sections;
+
     public final ForgeConfigSpec.EnumValue<UpdateMode> updateMode;
 
     public final ForgeConfigSpec.ConfigValue<List<Integer>> updateStartPos;
 
     public final ForgeConfigSpec.ConfigValue<List<Integer>> updateEndPos;
-
 
     /**
      * Builds server configuration.
@@ -74,6 +76,7 @@ public class ServerConfiguration extends AbstractConfiguration
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
         iteratorType = defineString(builder, "iteratorType", "default");
+        sections = defineList(builder, "sections", new ArrayList<>(), o -> o instanceof String);
 
         finishCategory(builder);
 
