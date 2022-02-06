@@ -1,9 +1,86 @@
-if (project.hasProperty("optifineMcJarPath") && project.optifineMcJarPath.toString().length() > 0) {
-    minecraft {
-        runs {
-            client {
-                property 'ofdev.mcjar', project.optifineMcJarPath
+import java.nio.file.Files
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "de.undercouch:gradle-download-task:4.1.2"
+    }
+}
+
+project.afterEvaluate {
+    def optifineFileName = opc.getProperty("optifineVersion").isEmpty() ? null : "OptiFine_" + opc.getProperty("optifineVersion") + ".jar" 
+    def optifineTweakerFileName = opc.getProperty("optiFineDevTweaker").isEmpty() ? null : opc.getProperty("optiFineDevTweaker").split("/")[1]
+    def optifineMcJar = opc.getProperty("optifineMcJarPath").isEmpty() ? null : opc.getProperty("optifineMcJarPath")
+
+    def downloadFolder = project.buildDir.toPath().resolve("optifine_cache")
+    def modsFolder = project.file(minecraft.runs.client.workingDirectory).toPath().resolve("mods")
+
+    if (opc.isFeatureEnabled("optifine")) {
+        if (optifineFileName == null || optifineTweakerFileName == null)
+        {
+            println "optifineVersion=" + opc.getProperty("optifineVersion")
+            println "optiFineDevTweaker=" + opc.getProperty("optiFineDevTweaker")
+            throw new GradleException("optifineVersion or optiFineDevTweaker is empty, check gradle.properties")
+        }
+
+        println "OptiFine version: " + opc.getProperty("optifineVersion")
+        println "OptiFine Tweaker version: " + opc.getProperty("optiFineDevTweaker").split("/")[0]
+
+        apply plugin: de.undercouch.gradle.tasks.download.DownloadTaskPlugin
+
+        if (optifineMcJar != null) {
+            minecraft {
+                runs {
+                    client {
+                        property 'ofdev.mcjar', optifineMcJar
+                    }
+                }
             }
+        }
+
+        mkdir downloadFolder
+
+        if (!Files.exists(downloadFolder.resolve(optifineFileName))) {
+            // optifine doesnt have timestamps nor etags
+            download {
+                src "https://optifine.net/download?f=" + optifineFileName
+                dest downloadFolder.resolve(optifineFileName).toFile()
+            }
+        }
+
+        download {
+            src "https://github.com/OpenCubicChunks/OptiFineDevTweaker/releases/download/" + opc.getProperty("optiFineDevTweaker")
+            dest downloadFolder.resolve(optifineTweakerFileName).toFile()
+            onlyIfModified true
+            useETag true
+        }
+
+        copy {
+            include optifineFileName, optifineTweakerFileName
+            from downloadFolder
+            into modsFolder
+        }
+
+        delete fileTree(modsFolder).matching {
+            exclude optifineFileName, optifineTweakerFileName
+            include "OptiFine_*", "aa_do_not_rename_OptiFineDevTweaker*"
+        }
+    }
+    else {
+        if (optifineFileName != null) delete modsFolder.resolve(optifineFileName)
+        if (optifineTweakerFileName != null) delete modsFolder.resolve(optifineTweakerFileName)
+    }
+
+    task cleanOptifine() {
+        group "Optifine"
+        description "Deletes cached Optifine files"
+
+        doLast {
+            if (optifineFileName != null) delete modsFolder.resolve(optifineFileName)
+            if (optifineTweakerFileName != null) delete modsFolder.resolve(optifineTweakerFileName)
+            delete downloadFolder
         }
     }
 }
