@@ -4,6 +4,7 @@ import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
@@ -11,6 +12,7 @@ import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
@@ -29,6 +31,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -247,6 +250,12 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_DOWN, WindowBuildTool::moveDownClicked);
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
+        registerButton(BUTTON_WALL_EXTEND_NEG, this::wallExtendNegClicked);
+        registerButton(BUTTON_WALL_REDUCE_NEG, this::wallReduceNegClicked);
+        registerButton(BUTTON_WALL_EXTEND_POS, this::wallExtendPosClicked);
+        registerButton(BUTTON_WALL_REDUCE_POS, this::wallReducePosClicked);
+        registerButton(BUTTON_WALL_EXTEND_OVL, this::wallExtendOvlClicked);
+        registerButton(BUTTON_WALL_REDUCE_OVL, this::wallReduceOvlClicked);
         registerButton(BUTTON_PASTE, this::pasteComplete);
         registerButton(BUTTON_PASTE_NICE, this::pasteNice);
         registerButton(BUTTON_SHOW_INVIS, this::showInvis);
@@ -833,6 +842,36 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         updateRotationState();
     }
 
+    private void wallExtendNegClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().extendNegative());
+    }
+
+    private void wallReduceNegClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().reduceNegative());
+    }
+
+    private void wallExtendPosClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().extendPositive());
+    }
+
+    private void wallReducePosClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().reducePositive());
+    }
+
+    private void wallExtendOvlClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().extendOverlap());
+    }
+
+    private void wallReduceOvlClicked()
+    {
+        Settings.instance.setWallExtent(Settings.instance.getWallExtents().reduceOverlap());
+    }
+
     /*
      * ---------------- Miscellaneous ----------------
      */
@@ -867,6 +906,22 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
+     * Update the state of the "wall mode" controls
+     */
+    private void updateWallMode()
+    {
+        if (isWallModeAvailable())
+        {
+            findPaneOfTypeByID("wallmode", View.class).on();
+        }
+        else
+        {
+            findPaneOfTypeByID("wallmode", View.class).off();
+            Settings.instance.resetWall();
+        }
+    }
+
+    /**
      * Changes the current structure.
      * Set to button position at that time
      */
@@ -881,6 +936,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         if (schematics.get(schematicsDropDownList.getSelectedIndex()).equals(Settings.instance.getStructureName()) &&
                 Settings.instance.getActiveStructure() != null)
         {
+            updateWallMode();
             return;
         }
         Settings.instance.setStructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
@@ -893,6 +949,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
 
         adjustToGroundOffset();
+        updateWallMode();
     }
 
     /**
@@ -941,7 +998,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         final StructureName structureName = new StructureName(sname);
         final String md5 = Structures.getMD5(structureName.toString());
         final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName.toString(),
-            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
+            new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation()), Settings.instance.getWallExtents()), true);
 
         if (!structure.hasBluePrint() || !structure.isCorrectMD5(md5))
         {
@@ -1039,6 +1096,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
                   BlockUtils.getRotation(Settings.instance.getRotation()),
                   false,
                   Settings.instance.getMirror(),
+                  Settings.instance.getWallExtents(),
                   complete));
             }
             else
@@ -1158,6 +1216,21 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
+     * Check if the "wall mode" controls should be visible.
+     *
+     * @return true if so.
+     */
+    public boolean isWallModeAvailable()
+    {
+        final String sname = Settings.instance.getStructureName();
+        return sname != null && sname.contains("/walls/");
+        // the blueprint is loaded at this point so this could perhaps look for a tag
+        // or some other metadata; but this seems good for backwards compatibility.
+        // ideally this would only be active for straight wall sections, though, not
+        // corners or other special cases, but without a tag that's harder to enforce.
+    }
+
+    /**
      * If a schematic should be pasted instantly.
      * @return true if so.
      */
@@ -1180,6 +1253,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
           BlockUtils.getRotation(Settings.instance.getRotation()),
           false,
           Settings.instance.getMirror(),
+          Settings.instance.getWallExtents(),
           complete));
     }
 

@@ -413,6 +413,27 @@ public class Blueprint
     }
 
     /**
+     * Sets the block entity data at a certain structure-relative position.
+     * @param structurePos The position relative to the corner of the structure
+     * @param nbt The block entity data to set, or null
+     */
+    public void setTileEntityData(final BlockPos structurePos, @Nullable final CompoundTag nbt)
+    {
+        if (nbt == null)
+        {
+            this.tileEntities[structurePos.getY()][structurePos.getZ()][structurePos.getX()] = null;
+        }
+        else
+        {
+            final CompoundTag te = nbt.copy();
+            te.putInt("x", structurePos.getX());
+            te.putInt("y", structurePos.getY());
+            te.putInt("z", structurePos.getZ());
+            this.tileEntities[structurePos.getY()][structurePos.getZ()][structurePos.getX()] = te;
+        }
+    }
+
+    /**
      * Calculate the item needed to place the current block in the structure.
      * 
      * @param pos the pos its at.

@@ -3,6 +3,10 @@ package com.ldtteam.structurize.blueprints.v1;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.helpers.WallExtents;
+import com.ldtteam.structurize.util.BlockInfo;
+import com.mojang.math.Vector3d;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +24,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -701,5 +707,136 @@ public class BlueprintUtil
             }
         }
         return multDimArray;
+    }
+
+    /**
+     * Creates a blueprint for a "wall" by replicating a base blueprint one or more times.
+     * @param blueprint The base wall blueprint
+     * @param extents The wall extents.
+     * @return A new blueprint for the wall.
+     */
+    @Nullable
+    public static Blueprint createWall(@Nullable final Blueprint blueprint,
+                                       @NotNull final WallExtents extents)
+    {
+        if (blueprint == null || !extents.isEnabled()) return blueprint;
+
+        // note that the source blueprint has been pre-rotated, so we don't need to; although
+        // this does produce some slightly odd behaviour when rotating an already-extended wall.
+        final Direction axis = blueprint.getSizeX() > blueprint.getSizeZ()
+                ? Direction.EAST : Direction.SOUTH;
+        final Direction perp = axis == Direction.EAST ? Direction.SOUTH : Direction.EAST;
+
+        final short height = blueprint.getSizeY();
+        final short width = (short) perp.getAxis().choose(blueprint.getSizeX(), 0, blueprint.getSizeZ());
+        final short oldLength = (short) axis.getAxis().choose(blueprint.getSizeX(), 0, blueprint.getSizeZ());
+        final short realOverlap = (short) Math.max(0, Math.min(extents.getOverlap(), oldLength - 1));
+        // todo: some max limit on extent based on oldLength and max schem size
+        final short count = extents.getTotalCopies();
+        final int offset = oldLength - realOverlap;
+        final short newLength = (short) (offset * count + realOverlap);
+        final short newSizeX = (short) axis.getAxis().choose(newLength,0, width);
+        final short newSizeZ = (short) axis.getAxis().choose(width,0, newLength);
+
+        final short[][][] oldStructure = blueprint.getStructure();
+        final short[][][] newStructure = new short[height][newSizeZ][newSizeX];
+        final CompoundTag[][][] oldBlockEntities = blueprint.getTileEntities();
+        final CompoundTag[] oldRegularEntities = blueprint.getEntities();
+        final List<CompoundTag> newBlockEntities = new ArrayList<>();
+        final List<CompoundTag> newRegularEntities = new ArrayList<>();
+
+        for (int y = 0; y < height; ++y)
+        {
+            BlockPos bpp = BlockPos.ZERO.atY(y);
+            for (int w = 0; w < width; ++w, bpp = bpp.relative(perp))
+            {
+                BlockPos bpn = bpp;
+                BlockPos bpr = bpp;
+                for (int i = 0; i < count; ++i)
+                {
+                    bpr = bpp;
+                    for (int r = 0; r < offset; ++r, bpn = bpn.relative(axis), bpr = bpr.relative(axis))
+                    {
+                        newStructure[bpn.getY()][bpn.getZ()][bpn.getX()] = oldStructure[bpr.getY()][bpr.getZ()][bpr.getX()];
+                        if (oldBlockEntities[bpr.getY()][bpr.getZ()][bpr.getX()] != null)
+                        {
+                            final CompoundTag nbt = oldBlockEntities[bpr.getY()][bpr.getZ()][bpr.getX()].copy();
+                            nbt.putInt("x", bpn.getX());
+                            nbt.putInt("y", bpn.getY());
+                            nbt.putInt("z", bpn.getZ());
+                            newBlockEntities.add(nbt);
+                        }
+                    }
+                }
+                for (int r = offset; r < oldLength; ++r, bpn = bpn.relative(axis), bpr = bpr.relative(axis))
+                {
+                    newStructure[bpn.getY()][bpn.getZ()][bpn.getX()] = oldStructure[bpr.getY()][bpr.getZ()][bpr.getX()];
+                }
+            }
+        }
+        for (final CompoundTag oldEntity : oldRegularEntities)
+        {
+            if (oldEntity != null)
+            {
+                final BlockPos oldBlockPos = new BlockPos(oldEntity.getInt("TileX"), oldEntity.getInt("TileY"), oldEntity.getInt("TileZ"));
+                final ListTag oldPosList = oldEntity.getList("Pos", DoubleTag.TAG_DOUBLE);
+                final Vec3 oldPos = new Vec3(oldPosList.getDouble(0), oldPosList.getDouble(1), oldPosList.getDouble(2));
+
+                for (int i = 0; i < count; ++i)
+                {
+                    final CompoundTag newEntity = oldEntity.copy();
+                    final BlockPos delta = BlockPos.ZERO.relative(axis, i * offset);
+                    final BlockPos newBlockPos = oldBlockPos.offset(delta);
+                    final Vec3 newPos = new Vec3(oldPos.x, oldPos.y, oldPos.z).add(Vec3.atLowerCornerOf(delta));
+                    final ListTag newPosList = new ListTag();
+                    newPosList.add(DoubleTag.valueOf(newPos.x));
+                    newPosList.add(DoubleTag.valueOf(newPos.y));
+                    newPosList.add(DoubleTag.valueOf(newPos.z));
+                    newEntity.put("Pos", newPosList);
+                    newEntity.putInt("TileX", newBlockPos.getX());
+                    newEntity.putInt("TileY", newBlockPos.getY());
+                    newEntity.putInt("TileZ", newBlockPos.getZ());
+
+                    newRegularEntities.add(newEntity);
+                }
+            }
+        }
+
+        final Blueprint wall = new Blueprint(newSizeX, height, newSizeZ,
+                blueprint.getPalleteSize(), Arrays.asList(blueprint.getPalette()),
+                newStructure, newBlockEntities.toArray(new CompoundTag[0]), blueprint.getRequiredMods());
+
+        wall.setCachePrimaryOffset(blueprint.getPrimaryBlockOffset().relative(axis, offset * extents.getNegative()));
+        wall.setName(String.format("%s x%d", blueprint.getName(), count));
+        wall.setEntities(newRegularEntities.toArray(new CompoundTag[0]));
+        wall.setArchitects(blueprint.getArchitects());
+
+        // retain only one anchor block -- the one at the "center" of the wall.
+        // we *could* replicate tags at this point as well, but currently there's no useful
+        // reason to duplicate wall tags, and they're stored relative to the anchor so they
+        // don't need to be adjusted for the anchor position change.
+        final BlockInfo anchorBlock = blueprint.getBluePrintPositionInfo(blueprint.getPrimaryBlockOffset(), false).getBlockInfo();
+        assert anchorBlock != null;
+        if (anchorBlock.getTileEntityData() != null && anchorBlock.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                final BlockPos pos = blueprint.getPrimaryBlockOffset().relative(axis, i * offset);
+                if (i == extents.getNegative())
+                {
+                    final CompoundTag nbt = anchorBlock.getTileEntityData().copy();
+                    final CompoundTag blueprintData = nbt.getCompound(TAG_BLUEPRINTDATA);
+                    extents.save(blueprintData);
+                    wall.setTileEntityData(pos, nbt);
+                }
+                else
+                {
+                    wall.addBlockState(pos, Blocks.AIR.defaultBlockState());
+                    wall.setTileEntityData(pos, null);
+                }
+            }
+        }
+
+        return wall;
     }
 }

@@ -4,6 +4,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
@@ -149,7 +150,7 @@ public final class Manager
       final Rotation rotation)
     {
         final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
-        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, true, player);
+        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, new WallExtents(), true, player);
     }
 
     /**

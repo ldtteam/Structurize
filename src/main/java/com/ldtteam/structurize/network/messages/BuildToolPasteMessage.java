@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.helpers.WallExtents;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
@@ -25,6 +26,7 @@ public class BuildToolPasteMessage implements IMessage
     private final BlockPos pos;
     private final boolean isHut;
     private final boolean mirror;
+    private final WallExtents wall;
 
     /**
      * Empty constructor used when registering the 
@@ -37,6 +39,7 @@ public class BuildToolPasteMessage implements IMessage
         this.rotation = buf.readInt();
         this.isHut = buf.readBoolean();
         this.mirror = buf.readBoolean();
+        this.wall = WallExtents.deserialize(buf);
         this.complete = buf.readBoolean();
     }
 
@@ -49,13 +52,16 @@ public class BuildToolPasteMessage implements IMessage
      * @param rotation      int representation of the rotation
      * @param isHut         true if hut, false if decoration
      * @param mirror        the mirror of the building or decoration.
+     * @param wall          the wall extents
      * @param complete      paste it complete (with structure blocks) or without.
      */
     public BuildToolPasteMessage(
-      final String structureName,
-      final String workOrderName, final BlockPos pos,
-      final Rotation rotation, final boolean isHut,
-      final Mirror mirror, final boolean complete)
+            final String structureName,
+            final String workOrderName, final BlockPos pos,
+            final Rotation rotation, final boolean isHut,
+            final Mirror mirror,
+            final WallExtents wall,
+            final boolean complete)
     {
         this.structureName = structureName;
         this.workOrderName = workOrderName;
@@ -63,6 +69,7 @@ public class BuildToolPasteMessage implements IMessage
         this.rotation = rotation.ordinal();
         this.isHut = isHut;
         this.mirror = mirror == Mirror.FRONT_BACK;
+        this.wall = wall;
         this.complete = complete;
     }
 
@@ -87,6 +94,8 @@ public class BuildToolPasteMessage implements IMessage
 
         buf.writeBoolean(mirror);
 
+        wall.serialize(buf);
+
         buf.writeBoolean(complete);
     }
 
@@ -110,7 +119,7 @@ public class BuildToolPasteMessage implements IMessage
         if (ctxIn.getSender().isCreative())
         {
             StructurePlacementUtils.loadAndPlaceStructureWithRotation(ctxIn.getSender().level, structureName,
-              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, !complete, ctxIn.getSender());
+              pos, Rotation.values()[rotation], mirror ? Mirror.FRONT_BACK : Mirror.NONE, wall, !complete, ctxIn.getSender());
         }
     }
 }

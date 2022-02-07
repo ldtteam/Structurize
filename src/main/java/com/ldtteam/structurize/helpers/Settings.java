@@ -3,6 +3,7 @@ package com.ldtteam.structurize.helpers;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -14,6 +15,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -39,6 +41,13 @@ public final class Settings implements INBTSerializable<CompoundTag>
     private String    structureName = null;
     private Optional<BlockPos> anchorPos = Optional.empty();
     private int       groundOffset  = 0;
+    @Nullable
+    private Blueprint wall          = null;
+
+    /**
+     * Wall mode.
+     */
+    private WallExtents wallExtents = new WallExtents();
 
     /**
      * The style index to use currently.
@@ -321,7 +330,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     @Nullable
     public Blueprint getActiveStructure()
     {
-        return this.blueprint;
+        return this.wall;
     }
 
     /**
@@ -339,6 +348,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         {
             this.blueprint = blueprint;
             this.blueprint.rotateWithMirror(BlockPosUtil.getRotationFromRotations(rotation), isMirrored ? Mirror.FRONT_BACK : Mirror.NONE, Minecraft.getInstance().level);
+            generateWall();
         }
     }
 
@@ -348,6 +358,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void reset()
     {
         resetBlueprint();
+        resetWall();
         rotation = 0;
         isMirrored = false;
         hollow = false;
@@ -377,8 +388,18 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void resetBlueprint()
     {
         blueprint = null;
+        wall = null;
         staticSchematicMode = false;
         staticSchematicName = null;
+    }
+
+    /**
+     * Resets the wall setup without anything else.
+     */
+    public void resetWall()
+    {
+        wallExtents = new WallExtents();
+        generateWall();
     }
 
     /**
@@ -427,6 +448,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         if (blueprint != null)
         {
             blueprint.rotateWithMirror(offset == 1 || offset == -3 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90, Mirror.NONE, Minecraft.getInstance().level);
+            generateWall();
         }
         scheduleRefresh();
     }
@@ -443,6 +465,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
 
         isMirrored = !isMirrored;
         blueprint.rotateWithMirror(Rotation.NONE, this.rotation % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT, Minecraft.getInstance().level);
+        generateWall();
         scheduleRefresh();
     }
 
@@ -461,6 +484,32 @@ public final class Settings implements INBTSerializable<CompoundTag>
         {
             return Mirror.NONE;
         }
+    }
+
+    /**
+     * Gets the wall-mode extents.
+     * @return A copy of the wall extents
+     */
+    @NotNull
+    public WallExtents getWallExtents()
+    {
+        return new WallExtents(this.wallExtents);
+    }
+
+    /**
+     * Sets the wall-mode extents.
+     * @param extents The new extents
+     */
+    public void setWallExtent(@NotNull final WallExtents extents)
+    {
+        this.wallExtents = new WallExtents(extents);
+        generateWall();
+        scheduleRefresh();
+    }
+
+    private void generateWall()
+    {
+        this.wall = BlueprintUtil.createWall(this.blueprint, this.wallExtents);
     }
 
     /**
@@ -557,6 +606,8 @@ public final class Settings implements INBTSerializable<CompoundTag>
         hollow = nbt.getBoolean("hollow");
         renderLightPlaceholders = nbt.getBoolean("renderLight");
 
+        wallExtents.load(nbt);
+
         groundOffset = nbt.getInt("gnd");
         rotation = nbt.getInt("rot");
         width = nbt.getInt("w");
@@ -642,6 +693,8 @@ public final class Settings implements INBTSerializable<CompoundTag>
         nbt.putBoolean("static", staticSchematicMode);
         nbt.putBoolean("hollow", hollow);
         nbt.putBoolean("renderLight", renderLightPlaceholders);
+
+        wallExtents.save(nbt);
 
         nbt.putInt("gnd", groundOffset);
         nbt.putInt("rot", rotation);

@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blocks.interfaces;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.helpers.WallExtents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
@@ -17,13 +18,13 @@ import java.util.function.Function;
 public interface IBlueprintDataProvider
 {
     public final static String TAG_SCHEMATIC_NAME = "schematicName";
-    public final static String TAG_CORNER_ONE     = "corner1";
-    public final static String TAG_CORNER_TWO     = "corner2";
-    public final static String TAG_TAG_POS        = "tagPos";
-    public final static String TAG_TAG_NAME       = "tagName";
-    public final static String TAG_TAG_NAME_LIST  = "tagNameList";
-    public final static String TAG_POS_TAG_MAP    = "posTagMap";
-    public final static String TAG_BLUEPRINTDATA  = "blueprintDataProvider";
+    public final static String TAG_CORNER_ONE = "corner1";
+    public final static String TAG_CORNER_TWO = "corner2";
+    public final static String TAG_TAG_POS = "tagPos";
+    public final static String TAG_TAG_NAME = "tagName";
+    public final static String TAG_TAG_NAME_LIST = "tagNameList";
+    public final static String TAG_POS_TAG_MAP = "posTagMap";
+    public final static String TAG_BLUEPRINTDATA = "blueprintDataProvider";
 
     /**
      * Gets the schematic name, required to be saved
@@ -76,6 +77,23 @@ public interface IBlueprintDataProvider
     public void setSchematicCorners(BlockPos pos1, BlockPos pos2);
 
     /**
+     * Gets the wall extents
+     *
+     * @return the wall extents
+     */
+    default WallExtents getWallExtents()
+    {
+        return new WallExtents();
+    }
+
+    /**
+     * Sets the wall extents (only needs to be implemented for upgradeable walls)
+     */
+    default void setWallExtents(WallExtents extents)
+    {
+    }
+
+    /**
      * Default write to nbt
      */
     default void writeSchematicDataToNBT(final CompoundTag originalCompound)
@@ -86,6 +104,9 @@ public interface IBlueprintDataProvider
         BlockPosUtil.writeToNBT(compoundNBT, TAG_CORNER_TWO, getSchematicCorners().getB());
 
         writeMapToCompound(compoundNBT, getPositionedTags());
+
+        getWallExtents().save(compoundNBT);
+
         originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
     }
 
@@ -140,6 +161,11 @@ public interface IBlueprintDataProvider
 
         // Read tagPosMap
         setPositionedTags(readTagPosMapFrom(compoundNBT));
+
+        // Read wall extents
+        final WallExtents extents = new WallExtents();
+        extents.load(compoundNBT);
+        setWallExtents(extents);
     }
 
     /**

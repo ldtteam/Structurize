@@ -26,6 +26,36 @@ public final class WindowConstants
     public static final String BUTTON_DOWN = "minus";
 
     /**
+     * Id of the wall extend negative button in the GUI.
+     */
+    public static final String BUTTON_WALL_EXTEND_NEG = "wallextendneg";
+
+    /**
+     * Id of the wall reduce negative button in the GUI.
+     */
+    public static final String BUTTON_WALL_REDUCE_NEG = "wallreduceneg";
+
+    /**
+     * Id of the wall extend positive button in the GUI.
+     */
+    public static final String BUTTON_WALL_EXTEND_POS = "wallextendpos";
+
+    /**
+     * Id of the wall reduce positive button in the GUI.
+     */
+    public static final String BUTTON_WALL_REDUCE_POS = "wallreducepos";
+
+    /**
+     * Id of the wall extend overlap button in the GUI.
+     */
+    public static final String BUTTON_WALL_EXTEND_OVL = "wallextendovl";
+
+    /**
+     * Id of the wall reduce overlap button in the GUI.
+     */
+    public static final String BUTTON_WALL_REDUCE_OVL = "wallreduceovl";
+
+    /**
      * The id of the delete button in the GUI.
      */
     public static final String BUTTON_DELETE = "delete";

@@ -48,6 +48,28 @@
         <button id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
     </view>
     <image id="rotation" size="16" pos="258 80"/>
+    <box id="wallmode" size="50 100" pos="0 60" color="rgb(255,255,255)" linewidth="1" visible="false">
+        <itemicon item="minecraft:cobblestone_wall" size="33 33" pos="10 0"
+                  tooltip="$(structurize.gui.buildtool.wallmode)"/>
+        <image size="16" pos="17 40" source="structurize:textures/gui/buildtool/wallneg.png"
+               tooltip="$(structurize.gui.buildtool.wallneg)"/>
+        <buttonimage id="wallreduceneg" size="14 15" pos="2 42" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="wallextendneg" size="14 15" pos="33 42" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <image size="16" pos="17 60" source="structurize:textures/gui/buildtool/wallpos.png"
+               tooltip="$(structurize.gui.buildtool.wallpos)"/>
+        <buttonimage id="wallreducepos" size="14 15" pos="2 62" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="wallextendpos" size="14 15" pos="33 62" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <image size="16" pos="17 80" source="structurize:textures/gui/buildtool/wallovl.png"
+               tooltip="$(structurize.gui.buildtool.wallovl)"/>
+        <buttonimage id="wallreduceovl" size="14 15" pos="2 82" label="-"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+        <buttonimage id="wallextendovl" size="14 15" pos="33 82" label="+"
+                     source="structurize:textures/gui/builderhut/builder_button_mini.png" textcolor="black"/>
+    </box>
 
     <button id="pastecomplete"
             tooltip="$(structurize.gui.buildtool.paste)"
