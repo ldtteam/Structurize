@@ -9,6 +9,21 @@ buildscript {
     }
 }
 
+ext.opc += [
+    getStringMapProperty: { String propertyName ->
+        // syntax: key|value;key|value;key|value ...
+        String[] entries = opc.getProperty(propertyName).split(";")
+        def result = [:]
+
+        for (entry in entries) {
+            String[] parts = entry.split("\\|")
+            result.put(parts[0], parts[1])
+        }
+
+        return result;
+    },
+]
+
 project.afterEvaluate {
     def optifineFileName = opc.getProperty("optifineVersion").isEmpty() ? null : "OptiFine_" + opc.getProperty("optifineVersion") + ".jar" 
     def optifineTweakerFileName = opc.getProperty("optiFineDevTweaker").isEmpty() ? null : opc.getProperty("optiFineDevTweaker").split("/")[1]
@@ -16,6 +31,7 @@ project.afterEvaluate {
 
     def downloadFolder = project.buildDir.toPath().resolve("optifine_cache")
     def modsFolder = project.file(minecraft.runs.client.workingDirectory).toPath().resolve("mods")
+    def shadersFolder = project.file(minecraft.runs.client.workingDirectory).toPath().resolve("shaderpacks")
 
     if (opc.isFeatureEnabled("optifine")) {
         if (optifineFileName == null || optifineTweakerFileName == null)
@@ -41,6 +57,7 @@ project.afterEvaluate {
         }
 
         mkdir downloadFolder
+        mkdir shadersFolder
 
         if (!Files.exists(downloadFolder.resolve(optifineFileName))) {
             // optifine doesnt have timestamps nor etags
@@ -54,7 +71,7 @@ project.afterEvaluate {
             src "https://github.com/OpenCubicChunks/OptiFineDevTweaker/releases/download/" + opc.getProperty("optiFineDevTweaker")
             dest downloadFolder.resolve(optifineTweakerFileName).toFile()
             onlyIfModified true
-            useETag true
+            useETag "all"
         }
 
         copy {
@@ -66,6 +83,26 @@ project.afterEvaluate {
         delete fileTree(modsFolder).matching {
             exclude optifineFileName, optifineTweakerFileName
             include "OptiFine_*", "aa_do_not_rename_OptiFineDevTweaker*"
+        }
+
+        if (project.hasProperty("shadersToUse")) {
+            def filesToKeep = []
+
+            for (shader in opc.getStringMapProperty("shadersToUse")) {
+                filesToKeep += shader.key
+
+                download {
+                    src shader.value
+                    dest shadersFolder.resolve(shader.key).toFile()
+                    onlyIfModified true
+                    useETag "all"
+                }
+            }
+
+            println filesToKeep
+            delete fileTree(shadersFolder).matching {
+                exclude filesToKeep
+            }
         }
     }
     else {
