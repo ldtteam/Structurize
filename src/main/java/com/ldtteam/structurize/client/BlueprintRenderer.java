@@ -467,7 +467,10 @@ public class BlueprintRenderer implements AutoCloseable
 
         vertexBuffers.get(layerRenderType).drawChunkLayer();
 
-        uniform.set(Vector3f.ZERO);
+        if (uniform != null)
+        {
+            uniform.set(Vector3f.ZERO);
+        }
         OptifineCompat.getInstance().setUniformChunkOffset(0.0f, 0.0f, 0.0f);
 
         shaderinstance.clear();
