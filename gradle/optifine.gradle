@@ -25,8 +25,12 @@ ext.opc += [
 ]
 
 project.afterEvaluate {
+    def optifineFileNameWildcard = "OptiFine_*"
     def optifineFileName = opc.getProperty("optifineVersion").isEmpty() ? null : "OptiFine_" + opc.getProperty("optifineVersion") + ".jar" 
+
+    def optifineTweakerFileNameWildcard = "aa_do_not_rename_OptiFineDevTweaker*"
     def optifineTweakerFileName = opc.getProperty("optiFineDevTweaker").isEmpty() ? null : opc.getProperty("optiFineDevTweaker").split("/")[1]
+    
     def optifineMcJar = opc.getProperty("optifineMcJarPath").isEmpty() ? null : opc.getProperty("optifineMcJarPath")
 
     def downloadFolder = project.buildDir.toPath().resolve("optifine_cache")
@@ -82,7 +86,7 @@ project.afterEvaluate {
 
         delete fileTree(modsFolder).matching {
             exclude optifineFileName, optifineTweakerFileName
-            include "OptiFine_*", "aa_do_not_rename_OptiFineDevTweaker*"
+            include optifineFileNameWildcard, optifineTweakerFileNameWildcard
         }
 
         if (project.hasProperty("shadersToUse")) {
@@ -99,25 +103,28 @@ project.afterEvaluate {
                 }
             }
 
-            println filesToKeep
             delete fileTree(shadersFolder).matching {
                 exclude filesToKeep
             }
         }
     }
     else {
-        if (optifineFileName != null) delete modsFolder.resolve(optifineFileName)
-        if (optifineTweakerFileName != null) delete modsFolder.resolve(optifineTweakerFileName)
+        delete fileTree(modsFolder).matching {
+            include optifineFileNameWildcard, optifineTweakerFileNameWildcard
+        }
     }
 
     task cleanOptifine() {
         group "Optifine"
-        description "Deletes cached Optifine files"
+        description "Deletes cached Optifine files + from [client run]/mods all Optifine files + content of [client run]/shaderpacks"
 
         doLast {
-            if (optifineFileName != null) delete modsFolder.resolve(optifineFileName)
-            if (optifineTweakerFileName != null) delete modsFolder.resolve(optifineTweakerFileName)
+            delete fileTree(modsFolder).matching {
+                include optifineFileNameWildcard, optifineTweakerFileNameWildcard
+            }
             delete downloadFolder
+            delete shadersFolder
         }
     }
+    tasks.clean.finalizedBy cleanOptifine
 }
