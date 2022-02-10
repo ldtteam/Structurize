@@ -105,6 +105,7 @@ project.afterEvaluate {
 
             delete fileTree(shadersFolder).matching {
                 exclude filesToKeep
+                exclude "*.txt" // possibly shaders configs files
             }
         }
     }
@@ -123,7 +124,9 @@ project.afterEvaluate {
                 include optifineFileNameWildcard, optifineTweakerFileNameWildcard
             }
             delete downloadFolder
-            delete shadersFolder
+            delete fileTree(shadersFolder).matching {
+                exclude "*.txt" // possibly shaders configs files
+            }
         }
     }
     tasks.clean.finalizedBy cleanOptifine
