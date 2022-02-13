@@ -1,7 +1,12 @@
 package com.ldtteam.structurize.optifine;
 
 import com.ldtteam.structurize.api.util.Log;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,10 +21,17 @@ public class OptifineCompat
 {
     private static OptifineCompat ourInstance = new OptifineCompat();
 
+    private Method isFogOffMethod;
+    private Method setFogAllowedMethod;
     private Method isShadersEnabledMethod;
     private Method calcNormalForLayerMethod;
     private Method setupArrayPointersVboMethod;
     private Method preRenderChunkLayerMethod;
+    private Method setModelViewMatrixMethod;
+    private Method setProjectionMatrixMethod;
+    private Method setTextureMatrixMethod;
+    private Method setColorModulatorMethod;
+    private TriFloatReflectionConsumer setUniformChunkOffsetValueMethod;
     private Method postRenderChunkLayerMethod;
     private Method endTerrainMethod;
     private Method beginEntitiesMethod;
@@ -28,6 +40,7 @@ public class OptifineCompat
     private Method beginBlockEntitiesMethod;
     private Method nextBlockEntityMethod;
     private Method endBlockEntitiesMethod;
+    private Method flushRenderBuffersMethod;
     private Method beginDebug;
     private Method endDebug;
     private Method preWaterMethod;
@@ -39,6 +52,9 @@ public class OptifineCompat
 
     private boolean currentIsRenderingWorldFieldValue = false;
     private Field isRenderingWorldField;
+
+    private Field fogStandardField;
+    private Field activeProgramIdField;
 
     public static OptifineCompat getInstance()
     {
@@ -64,9 +80,6 @@ public class OptifineCompat
      */
     public void intialize()
     {
-        if (true)
-            return;
-
         try
         {
             setupReflectedMethodReferences();
@@ -104,6 +117,20 @@ public class OptifineCompat
         final Class<?> shaderRenderClass = Class.forName("net.optifine.shaders.ShadersRender");
         final Class<?> sVertexBuilderClass = Class.forName("net.optifine.shaders.SVertexBuilder");
         final Class<?> shadersClass = Class.forName("net.optifine.shaders.Shaders");
+        final Class<?> shaderUniform3fClass = Class.forName("net.optifine.shaders.uniform.ShaderUniform3f");
+
+        final Class<RenderSystem> renderSystemClass = RenderSystem.class;
+        final Class<FogRenderer> fogRendererClass = FogRenderer.class;
+        final Class<MultiBufferSource> multiBufferSourceClass = MultiBufferSource.class;
+
+        isFogOffMethod = configClass.getMethod("isFogOff");
+        isFogOffMethod.setAccessible(true); 
+
+        fogStandardField = fogRendererClass.getField("fogStandard");
+        fogStandardField.setAccessible(true);
+        
+        setFogAllowedMethod = renderSystemClass.getMethod("setFogAllowed", boolean.class);
+        setFogAllowedMethod.setAccessible(true);
 
         isShadersEnabledMethod = configClass.getMethod("isShaders");
         isShadersEnabledMethod.setAccessible(true);
@@ -119,6 +146,29 @@ public class OptifineCompat
 
         preRenderChunkLayerMethod = shaderRenderClass.getMethod("preRenderChunkLayer", RenderType.class);
         preRenderChunkLayerMethod.setAccessible(true);
+
+        setModelViewMatrixMethod = shadersClass.getMethod("setModelViewMatrix", Matrix4f.class);
+        setModelViewMatrixMethod.setAccessible(true);
+
+        setProjectionMatrixMethod = shadersClass.getMethod("setProjectionMatrix", Matrix4f.class);
+        setProjectionMatrixMethod.setAccessible(true);
+
+        setTextureMatrixMethod = shadersClass.getMethod("setTextureMatrix", Matrix4f.class);
+        setTextureMatrixMethod.setAccessible(true);
+
+        setColorModulatorMethod = shadersClass.getMethod("setColorModulator", float[].class);
+        setColorModulatorMethod.setAccessible(true);
+
+        activeProgramIdField = shadersClass.getField("activeProgramID");
+        activeProgramIdField.setAccessible(true);
+
+        final Field uniformChunkOffsetField = shadersClass.getField("uniform_chunkOffset");
+        uniformChunkOffsetField.setAccessible(true);
+
+        final Method setValueMethod = shaderUniform3fClass.getMethod("setValue", float.class, float.class, float.class);
+        setValueMethod.setAccessible(true);
+
+        setUniformChunkOffsetValueMethod = (x, y, z) -> setValueMethod.invoke(uniformChunkOffsetField.get(null), x, y, z);
 
         setupArrayPointersVboMethod = shaderRenderClass.getMethod("setupArrayPointersVbo");
         setupArrayPointersVboMethod.setAccessible(true);
@@ -147,6 +197,9 @@ public class OptifineCompat
         endBlockEntitiesMethod = shadersClass.getMethod("endBlockEntities");
         endBlockEntitiesMethod.setAccessible(true);
 
+        flushRenderBuffersMethod = multiBufferSourceClass.getMethod("flushRenderBuffers");
+        flushRenderBuffersMethod.setAccessible(true);
+
         beginDebug = shaderRenderClass.getMethod("beginDebug");
         beginDebug.setAccessible(true);
 
@@ -161,6 +214,29 @@ public class OptifineCompat
 
         endWaterMethod = shadersClass.getMethod("endWater");
         endWaterMethod.setAccessible(true);
+    }
+
+    /**
+     * Sets up optifine fog settings.
+     */
+    public void setupFog()
+    {
+        tryRun(() -> {
+            if ((Boolean) isFogOffMethod.invoke(null) && fogStandardField.getBoolean(null))
+            {
+                setFogAllowedMethod.invoke(null, Boolean.FALSE);
+            }
+        });
+    }
+
+    /**
+     * Resets optifine fog settings.
+     */
+    public void resetFog()
+    {
+        tryRun(() -> {
+            setFogAllowedMethod.invoke(null, Boolean.TRUE);
+        });
     }
 
     /**
@@ -196,10 +272,36 @@ public class OptifineCompat
      *
      * @param layer block layer rendertype
      */
-    public void preLayerDraw(final RenderType layer)
+    public void preLayerDraw(final RenderType layer, final Matrix4f mvMatrix)
     {
         tryRunIfShadersEnabled(() -> {
             preRenderChunkLayerMethod.invoke(null, layer);
+            setModelViewMatrixMethod.invoke(null, mvMatrix);
+            setProjectionMatrixMethod.invoke(null, RenderSystem.getProjectionMatrix());
+            setTextureMatrixMethod.invoke(null, RenderSystem.getTextureMatrix());
+            setColorModulatorMethod.invoke(null, RenderSystem.getShaderColor());
+        });
+    }
+
+    /**
+     * @return true if any shader program is active
+     */
+    public boolean isShaderProgramActive()
+    {
+        return trySupplyIfShadersEnabled(() -> activeProgramIdField.getInt(null) > 0, false);
+    }
+
+    /**
+     * Sets optifine version of shaderinstance.CHUNK_OFFSET
+     * 
+     * @param x chunk blockpos x offset
+     * @param y chunk blockpos y offset
+     * @param z chunk blockpos z offset
+     */
+    public void setUniformChunkOffset(final float x, final float y, final float z)
+    {
+        tryRunIfShadersEnabled(() -> {
+            setUniformChunkOffsetValueMethod.invoke(x, y, z);
         });
     }
 
@@ -255,10 +357,16 @@ public class OptifineCompat
         });
     }
 
-    public void endBlockEntitiesBeginDebug()
+    public void endBlockEntitiesBeginDebug(final RenderBuffers renderBuffers)
     {
         tryRunIfShadersEnabled(() -> {
             endBlockEntitiesMethod.invoke(null);
+        });
+        tryRun(() -> {
+            flushRenderBuffersMethod.invoke(renderBuffers.bufferSource());
+            flushRenderBuffersMethod.invoke(renderBuffers.crumblingBufferSource());
+        });
+        tryRunIfShadersEnabled(() -> {
             beginDebug.invoke(null);
         });
     }
@@ -292,28 +400,10 @@ public class OptifineCompat
     }
 
     /**
-     * Checks if the compat is enabled and if shaders are disabled. Then tries to run supplied code runnable.
+     * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied Runnable.
      * Catches any ReflectiveOperationException so we can disable compat layer securely.
      *
-     * @param code runnable to run
-     */
-    /*
-    private void tryRunIfShadersDisabled(final ReflectionRunnable code)
-    {
-        tryRun(() -> {
-            if (!(Boolean) isShadersEnabledMethod.invoke(null))
-            {
-                code.run();
-            }
-        });
-    }
-    */
-
-    /**
-     * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied code runnable.
-     * Catches any ReflectiveOperationException so we can disable compat layer securely.
-     *
-     * @param code runnable to run
+     * @param code Runnable to run
      */
     private void tryRunIfShadersEnabled(final ReflectionRunnable code)
     {
@@ -326,10 +416,10 @@ public class OptifineCompat
     }
 
     /**
-     * Checks if the compat is enabled. Then tries to run supplied code runnable.
+     * Checks if the compat is enabled. Then tries to run supplied Runnable.
      * Catches any ReflectiveOperationException so we can disable compat layer securely.
      *
-     * @param code runnable to run
+     * @param code Runnable to run
      */
     private void tryRun(final ReflectionRunnable code)
     {
@@ -350,13 +440,59 @@ public class OptifineCompat
         }
     }
 
+    /**
+     * Checks if the compat is enabled and if shaders are enabled. Then tries to run supplied Supplier.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code Supplier to run
+     */
+    private <T> T trySupplyIfShadersEnabled(final ReflectionSupplier<T> code, final T defaultValue)
+    {
+        return trySupply(() -> (Boolean) isShadersEnabledMethod.invoke(null) ? code.get() : defaultValue, defaultValue);
+    }
+
+    /**
+     * Checks if the compat is enabled. Then tries to run supplied Supplier.
+     * Catches any ReflectiveOperationException so we can disable compat layer securely.
+     *
+     * @param code Supplier to run
+     */
+    private <T> T trySupply(final ReflectionSupplier<T> code, final T defaultValue)
+    {
+        if (!enableOptifine)
+        {
+            return defaultValue;
+        }
+
+        try
+        {
+            return code.get();
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            Log.getLogger().error("Failed to access Optifine related rendering things.", e);
+            Log.getLogger().error("Disabling Optifine Compat.");
+            enableOptifine = false;
+        }
+        return defaultValue;
+    }
+
     @FunctionalInterface
     private interface ReflectionRunnable
     {
-        /**
-         * @throws ReflectiveOperationException if any reflection operation failed for any reason
-         * @see Runnable#run()
-         */
         void run() throws ReflectiveOperationException;
+    }
+
+    @FunctionalInterface
+    private interface ReflectionSupplier<T>
+    {
+        T get() throws ReflectiveOperationException;
+    }
+
+
+    @FunctionalInterface
+    private interface TriFloatReflectionConsumer
+    {
+        void invoke(float f, float g, float h) throws ReflectiveOperationException;
     }
 }
