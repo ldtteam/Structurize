@@ -2,7 +2,6 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Network;
@@ -20,7 +19,7 @@ import java.util.List;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 import static com.ldtteam.structurize.client.gui.WindowScan.WHITE;
 
-public class WindowUndoRedo extends AbstractWindowSkeleton implements ButtonHandler
+public class WindowUndoRedo extends AbstractWindowSkeleton
 {
     /**
      * The list of the last operations done for undo/redo
@@ -31,7 +30,6 @@ public class WindowUndoRedo extends AbstractWindowSkeleton implements ButtonHand
      * Resource scrolling list.
      */
     private final ScrollingList    operationsList;
-    private       DialogDoneCancel confirmDeleteDialog = null;
 
     /**
      * Constructor for the WindowUndo class.

@@ -2,7 +2,6 @@ package com.ldtteam.structurize.config;
 
 import com.google.common.collect.Lists;
 import com.ldtteam.structurize.update.UpdateMode;
-import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.ArrayList;

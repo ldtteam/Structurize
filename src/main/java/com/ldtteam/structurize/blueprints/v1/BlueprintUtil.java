@@ -265,7 +265,7 @@ public class BlueprintUtil
             tag.put("architects", architectsTag);
         }
 
-        tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getWorldVersion()));
+        tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getDataVersion().getVersion()));
 
         final CompoundTag optionalTag = new CompoundTag();
         final CompoundTag structurizeTag = new CompoundTag();
