@@ -32,9 +32,8 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -722,8 +721,10 @@ public class BlueprintUtil
 
         // note that the source blueprint has been pre-rotated, so we don't need to; although
         // this does produce some slightly odd behaviour when rotating an already-extended wall.
-        final Direction axis = blueprint.getSizeX() > blueprint.getSizeZ()
-                ? Direction.EAST : Direction.SOUTH;
+        final BlockPos axisTag = BlueprintTagUtils.getFirstPosForTag(blueprint, EXTEND_AXIS_TAG);
+        final Direction axis = axisTag != null ? BlockPosUtil.getPositiveHorizontalOrientation(axisTag)
+                : blueprint.getSizeX() > blueprint.getSizeZ()
+                        ? Direction.EAST : Direction.SOUTH;
         final Direction perp = axis == Direction.EAST ? Direction.SOUTH : Direction.EAST;
 
         final short height = blueprint.getSizeY();

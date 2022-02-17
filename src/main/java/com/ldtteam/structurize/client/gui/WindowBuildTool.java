@@ -1194,12 +1194,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     public boolean isWallModeAvailable()
     {
-        final String sname = Settings.instance.getStructureName();
-        return sname != null && sname.contains(Structures.SCHEMATICS_SEPARATOR + Structures.SCHEMATICS_WALLS + Structures.SCHEMATICS_SEPARATOR);
-        // the blueprint is loaded at this point so this could perhaps look for a tag
-        // or some other metadata; but this seems good for backwards compatibility.
-        // ideally this would only be active for straight wall sections, though, not
-        // corners or other special cases, but without a tag that's harder to enforce.
+        // enable it for any blueprint that contains an "extendable" tag anywhere
+        final Blueprint blueprint = Settings.instance.getActiveStructure();
+        return (blueprint != null && BlueprintTagUtils.getFirstPosForTag(blueprint, EXTENDABLE_TAG) != null);
     }
 
     /**

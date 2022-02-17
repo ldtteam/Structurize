@@ -50,11 +50,6 @@ public final class Structures
     public static final String SCHEMATICS_SCAN = "scans";
 
     /**
-     * Wall-style schematics (enables "wall mode").
-     */
-    public static final String SCHEMATICS_WALLS = "walls";
-
-    /**
      * Schematic's path in the jar file.
      */
     public static final String SCHEMATICS_ASSET_PATH = "assets";

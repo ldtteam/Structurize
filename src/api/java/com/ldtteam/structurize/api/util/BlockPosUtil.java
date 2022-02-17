@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.Rotation;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility methods for BlockPos.
@@ -248,5 +249,27 @@ public final class BlockPosUtil
             return start;
         }
         return next;
+    }
+
+    /**
+     * Given a relative-to-ZERO block position, returns the axis orientation (EAST or SOUTH) closest to it.
+     *
+     * @param zeroRelative A block position close to zero.
+     * @return EAST or SOUTH, whichever seems closest.
+     */
+    public static Direction getPositiveHorizontalOrientation(@NotNull final BlockPos zeroRelative)
+    {
+        final Direction nearest = Direction.getNearest(zeroRelative.getX(), zeroRelative.getY(), zeroRelative.getZ());
+        switch (nearest)
+        {
+            case EAST:
+            case SOUTH:
+                return nearest;
+            case WEST:
+            case NORTH:
+                return nearest.getOpposite();
+            default:    // up/down
+                return Direction.EAST;
+        }
     }
 }

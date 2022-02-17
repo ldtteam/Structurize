@@ -20,6 +20,8 @@ public final class Constants
     public static final int    GROUNDSTYLE_RELATIVE             = 1; // relative to anchor
     public static final int    GROUNDSTYLE_LEGACY_CAMP          = 2; // 1 block at bottom
     public static final int    GROUNDSTYLE_LEGACY_SHIP          = 3; // 3 blocks at bottom
+    public static final String EXTENDABLE_TAG                   = "extendable";
+    public static final String EXTEND_AXIS_TAG                  = "extendaxis";
 
     /**
      * Maximum message size from client to server (Leaving some extra space).

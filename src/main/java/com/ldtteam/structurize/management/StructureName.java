@@ -40,7 +40,6 @@ public class StructureName
         final Map<String, Component> sections = Collections.synchronizedMap(new HashMap<>());
         sections.put(Structures.SCHEMATICS_PREFIX, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.decorations"));
         sections.put(Structures.SCHEMATICS_SCAN, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.scans"));
-        sections.put(Structures.SCHEMATICS_WALLS, new TranslatableComponent("com.ldtteam.structurize.gui.buildtool.walls"));
         return sections;
     }
 
