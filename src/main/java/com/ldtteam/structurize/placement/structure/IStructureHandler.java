@@ -243,8 +243,9 @@ public interface IStructureHandler
      * Execute pre placement logic if necessary.
      * @param worldPos the position the block si going to be placed.
      * @param blockState the blockstate to be placed.
+     * @param requiredItems the list of required items.
      */
-    void prePlacementLogic(final BlockPos worldPos, final BlockState blockState);
+    void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems);
 
     /**
      * Get the right solid block for the substitution block.

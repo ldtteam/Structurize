@@ -336,7 +336,7 @@ public class StructurePlacer
                     }
                 }
 
-                this.handler.prePlacementLogic(worldPos, localState);
+                this.handler.prePlacementLogic(worldPos, localState, requiredItems);
 
                 final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
                 if (result == IPlacementHandler.ActionProcessingResult.DENY)
