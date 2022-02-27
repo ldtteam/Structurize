@@ -132,7 +132,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public void prePlacementLogic(final BlockPos worldPos, final BlockState blockState)
+    public void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems)
     {
         // Do nothing
     }
