@@ -8,21 +8,21 @@ body:
       label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
-        - label: I have searched the existing issues
+        - label: I have searched the existing issues.
           required: true
   - type: checkboxes
     attributes:
-      label: Are you using the latest MineColonies Verison?
+      label: Are you using the latest Structurize Verison?
       description: Please check to see if any newer version fixes the issue you're experiencing.
       options:
-        - label: I am running the latest **alpha** version of MineColonies for my Minecraft version.
+        - label: I am running the latest **alpha** version of Structurize for my Minecraft version.
           required: true
   - type: checkboxes
     attributes:
       label: Did you check on the Wiki? or ask on Discord?
       description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
       options:
-        - label: I checked the MineColonies Wiki and made sure my issue is not covered there. Or I was sent from discord to open an issue here.
+        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my issue is not covered there.
           required: true
   - type: dropdown
     attributes:
@@ -90,10 +90,11 @@ body:
         Links? References? Anything that will give us more context about the issue you are encountering!
         Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
       value: |
-        
-        
-        
-        
+
+
+        ---
+        ## Viewers
+
         * Add a thumbs-up to the bug report if you are also affected. This helps the bug report become more visible to the team and doesn't clutter the comments.
         * Add a comment if you have any insights or background information that isn't already part of the conversation.
     validations:
