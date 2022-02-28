@@ -1,6 +1,5 @@
 name: Bug Report
 description: If you have a reproducible in-game issue
-title: ''
 labels: [Bug]
 assignees: Nightenom	
 body:
