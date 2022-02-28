@@ -6,7 +6,11 @@ body:
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
-      description: Please search to see if an issue already exists for the bug you encountered.
+      description: |
+        Please search to see if an issue already exists for the bug you encountered.
+        [List of all Structurize versions](https://www.curseforge.com/minecraft/mc-mods/structurize/files/all)
+        [List of all BlockUI versions](https://www.curseforge.com/minecraft/mc-mods/blockui/files/all)
+        [List of all MineColonies versions](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)
       options:
         - label: I have searched the existing issues.
           required: true
