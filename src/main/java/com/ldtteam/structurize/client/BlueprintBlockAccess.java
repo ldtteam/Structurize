@@ -5,6 +5,7 @@ import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.util.BlockUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.block.Block;
@@ -24,7 +25,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.tags.TagContainer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -84,7 +84,7 @@ public class BlueprintBlockAccess extends Level
     {
         super((WritableLevelData) getWorld().getLevelData(),
             getWorld().dimension(),
-            getWorld().dimensionType(),
+            getWorld().dimensionTypeRegistration(),
             () -> getWorld().getProfiler(),
             true,
             true,
@@ -168,7 +168,7 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public Biome getBiome(BlockPos p_226691_1_)
+    public Holder<Biome> getBiome(BlockPos p_226691_1_)
     {
         return getWorld().getBiome(p_226691_1_);
     }
@@ -381,12 +381,6 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return null;
-    }
-
-    @Override
-    public TagContainer getTagManager()
-    {
-        return getWorld().getTagManager();
     }
 
     @Override
@@ -733,14 +727,14 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public Biome getNoiseBiome(int x, int y, int z)
+    public Holder<Biome> getNoiseBiome(int x, int y, int z)
     {
         // Noop
         return null;
     }
 
     @Override
-    public Biome getUncachedNoiseBiome(int x, int y, int z)
+    public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z)
     {
         // Noop
         return null;

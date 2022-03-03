@@ -7,8 +7,10 @@ import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockTagSubstitution;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -33,7 +35,7 @@ public final class ModBlocks
         return BLOCKS;
     }
 
-    public static final Tag.Named<Block> NULL_PLACEMENT = BlockTags.bind("structurize:null_placement");
+    public static final TagKey<Block> NULL_PLACEMENT = BlockTags.create(new ResourceLocation("structurize:null_placement"));
 
     public static final RegistryObject<BlockSubstitution>      blockSubstitution;
     public static final RegistryObject<BlockSolidSubstitution> blockSolidSubstitution;

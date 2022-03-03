@@ -66,7 +66,7 @@ public class MultipleStringArgument implements ArgumentType<String>
         if (context.getSource() instanceof ClientSuggestionProvider)
         {
             final CommandContext<SharedSuggestionProvider> ctx = (CommandContext<SharedSuggestionProvider>) context;
-            return ctx.getSource().customSuggestion(ctx, builder);
+            return ctx.getSource().customSuggestion(context);
         }
         try
         {

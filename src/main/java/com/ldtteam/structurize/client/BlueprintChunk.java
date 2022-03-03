@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
@@ -14,18 +15,18 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
 import net.minecraft.world.ticks.TickContainerAccess;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -105,30 +106,31 @@ public class BlueprintChunk extends LevelChunk
         // Noop
     }
 
+    @Nullable
     @Override
-    public StructureStart<?> getStartForFeature(StructureFeature<?> p_230342_1_)
+    public StructureStart getStartForFeature(final ConfiguredStructureFeature<?, ?> feature)
     {
         // Noop
         return null;
     }
 
+    @NotNull
     @Override
-    public void addReferenceForFeature(StructureFeature<?> p_230343_1_, long p_230343_2_)
+    public LongSet getReferencesForFeature(final ConfiguredStructureFeature<?, ?> feature)
+    {
+        return new LongOpenHashSet();
+    }
+
+    @Override
+    public void addReferenceForFeature(final ConfiguredStructureFeature<?, ?> feature, final long p_207947_)
     {
         // Noop
     }
 
     @Override
-    public void setStartForFeature(StructureFeature<?> p_230344_1_, StructureStart<?> p_230344_2_)
+    public void setStartForFeature(final ConfiguredStructureFeature<?, ?> feature, final StructureStart start)
     {
         // Noop
-    }
-
-    @Override
-    public LongSet getReferencesForFeature(StructureFeature<?> p_230346_1_)
-    {
-        // Noop
-        return null;
     }
 
     @Override
@@ -200,38 +202,41 @@ public class BlueprintChunk extends LevelChunk
         return null;
     }
 
+    @NotNull
     @Override
     public ChunkStatus getStatus()
     {
         return ChunkStatus.FULL;
     }
 
+    @NotNull
     @Override
-    public Map<StructureFeature<?>, LongSet> getAllReferences()
+    public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences()
     {
-        // Noop
-        return null;
+        return new HashMap<>();
     }
 
+    @NotNull
     @Override
-    public Map<StructureFeature<?>, StructureStart<?>> getAllStarts()
+    public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts()
     {
-        // Noop
-        return null;
+        return new HashMap<>();
     }
 
+    @NotNull
     @Override
     public Set<BlockPos> getBlockEntitiesPos()
     {
         // Noop
-        return null;
+        return new HashSet();
     }
 
+    @NotNull
     @Override
     public Map<BlockPos, BlockEntity> getBlockEntities()
     {
         // Noop
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -340,13 +345,13 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void setAllReferences(Map<StructureFeature<?>, LongSet> p_201606_1_)
+    public void setAllReferences(final Map<ConfiguredStructureFeature<?, ?>, LongSet> p_201606_1_)
     {
         // Noop
     }
 
     @Override
-    public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> structureStartsIn)
+    public void setAllStarts(final Map<ConfiguredStructureFeature<?, ?>, StructureStart> structureStartsIn)
     {
         // Noop
     }
