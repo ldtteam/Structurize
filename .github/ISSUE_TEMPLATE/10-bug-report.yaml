@@ -49,8 +49,6 @@ body:
       label: MineColonies Version (if related bug)
       description: Exact MineColonies version either from file name or in-game mod list.
       placeholder: 1.0.463-ALPHA
-    validations:
-      required: true
   - type: textarea
     attributes:
       label: Related Mods and their Versions
