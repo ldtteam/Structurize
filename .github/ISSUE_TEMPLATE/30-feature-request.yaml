@@ -27,8 +27,9 @@ body:
       label: Did you check on the Wiki? or ask on Discord?
       description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/). Your idea might be already implemented.
       options:
-        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my feature idea is not covered there.
+        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
   - type: dropdown
+    id: mc_version
     attributes:
       label: Minecraft Version
       options: ["1.16", "1.18"]

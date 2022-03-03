@@ -32,6 +32,7 @@ body:
       options:
         - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
   - type: dropdown
+    id: mc_version
     attributes:
       label: Minecraft Version
       options: ["1.16", "1.18"]
