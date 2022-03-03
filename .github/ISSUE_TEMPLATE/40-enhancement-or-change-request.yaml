@@ -1,14 +1,13 @@
-name: Bug Report
-description: If you have a reproducible in-game issue
-labels: ["Bug"]
-assignees: Nightenom
+name: Enhancement or Change Request
+description: If you have something you would like to change or make better
+labels: ["Enhancement / Change Request"]
 body:
   - type: checkboxes
     attributes:
-      label: Is there an existing issue for this?
-      description: Please search to see if an issue already exists for the bug you encountered.
+      label: Is there an existing change request for this?
+      description: Please search to see if an issue already exists for your change request.
       options:
-        - label: I have searched the existing issues.
+        - label: I have searched the existing change requests.
           required: true
   - type: checkboxes
     attributes:
@@ -29,7 +28,6 @@ body:
       description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
       options:
         - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
-          required: true
   - type: dropdown
     id: mc_version
     attributes:
@@ -44,13 +42,6 @@ body:
       placeholder: 1.0.348-ALPHA
     validations:
       required: true
-  - type: input
-    attributes:
-      label: MineColonies Version (if related bug)
-      description: Exact MineColonies version either from file name or in-game mod list.
-      placeholder: 1.0.463-ALPHA
-    validations:
-      required: true
   - type: textarea
     attributes:
       label: Related Mods and their Versions
@@ -63,29 +54,13 @@ body:
   - type: textarea
     attributes:
       label: Current Behavior
-      description: A concise description of what you're experiencing. Please provide screenshots and videos if possible.
+      description: A concise description of what you're experiencing.
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Expected Behavior
-      description: A concise description of what you expected to happen.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Reproduction Steps
-      description: What should we do to make this issue show up in our own game? Try to give as much detail as possible here too so it's easier for us to reproduce this issue.
-      placeholder: |
-        1. Do this...
-        2. then this....
-        3. So that this happens
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: Logs
-      description: Please provide your latest.log related to the time during which you experienced the issue. Upload to eg. [gist](https://gist.github.com/) or [pastebin](https://pastebin.com/) and paste the link here.
+      label: Enhancement or Change description
+      description: "A clear and concise description of what you want to happen."
     validations:
       required: true
   - type: textarea

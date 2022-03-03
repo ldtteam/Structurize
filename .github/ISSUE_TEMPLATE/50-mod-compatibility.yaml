@@ -1,18 +1,17 @@
-name: Bug Report
-description: If you have a reproducible in-game issue
-labels: ["Bug"]
-assignees: Nightenom
+name: Mod Compatibility
+description: If Structurize does not work well with other mods	
+labels: ["Compatibility: Mod"]
 body:
   - type: checkboxes
     attributes:
-      label: Is there an existing issue for this?
+      label: Is there an existing compatibility issue for this mod?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
         - label: I have searched the existing issues.
           required: true
   - type: checkboxes
     attributes:
-      label: Are you using the latest Structurize Version?
+      label: Are you using the latest Structurize and your mod Version?
       description: |
         Please check to see if any newer version fixes the issue you're experiencing.
         [List of all Structurize versions](https://www.curseforge.com/minecraft/mc-mods/structurize/files/all)
@@ -25,11 +24,10 @@ body:
           required: true
   - type: checkboxes
     attributes:
-      label: Did you check on the Wiki? or ask on Discord?
-      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
+      label: Did you ask on Discord?
+      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/). Your idea might be already implemented.
       options:
         - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
-          required: true
   - type: dropdown
     id: mc_version
     attributes:
@@ -46,18 +44,17 @@ body:
       required: true
   - type: input
     attributes:
-      label: MineColonies Version (if related bug)
-      description: Exact MineColonies version either from file name or in-game mod list.
-      placeholder: 1.0.463-ALPHA
+      label: Your Mod Name and Version
+      description: Name and exact version of your mod either from file name or in-game mod list.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Related Mods and their Versions
-      description: Mods that may (even indirectly, like Opfitine) interact.
+      description: Mods that may interact.
       placeholder: |
         1. Forge Version:
-        2. BlockUI Version:
+        2. MineColonies Version:
         3. Domum Ornamentum Version:
         4. ....
   - type: textarea
