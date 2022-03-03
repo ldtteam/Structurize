@@ -1,13 +1,13 @@
-name: Feature Request
-description: If you have something new you would like to add
-labels: ["Feature: Request"]
+name: Enhancement or Change Request
+description: If you have something you would like to change or make better
+labels: ["Enhancement / Change Request"]
 body:
   - type: checkboxes
     attributes:
-      label: Is there an existing feature request for this?
-      description: Please search to see if an issue already exists for your feature request.
+      label: Is there an existing change request for this?
+      description: Please search to see if an issue already exists for your change request.
       options:
-        - label: I have searched the existing feature requests.
+        - label: I have searched the existing change requests.
           required: true
   - type: checkboxes
     attributes:
@@ -25,9 +25,9 @@ body:
   - type: checkboxes
     attributes:
       label: Did you check on the Wiki? or ask on Discord?
-      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/). Your idea might be already implemented.
+      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
       options:
-        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my feature idea is not covered there.
+        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my issue is not covered there.
   - type: dropdown
     attributes:
       label: Minecraft Version
@@ -39,13 +39,17 @@ body:
       label: Structurize Version
       description: Exact Structurize version either from file name or in-game mod list.
       placeholder: 1.0.348-ALPHA
+    validations:
+      required: true
   - type: textarea
     attributes:
-      label: Is your feature request related to a problem?
-      description: "A clear and concise description of what the problem is. Ex: I'm always frustrated when..."
+      label: Current Behavior
+      description: A concise description of what you're experiencing. Please provide screenshots and videos if possible.
+    validations:
+      required: true
   - type: textarea
     attributes:
-      label: Feature description
+      label: Enhancement or Change description
       description: "A clear and concise description of what you want to happen."
     validations:
       required: true
