@@ -1,13 +1,12 @@
-name: Enhancement or Change Request
-description: If you have something you would like to change or make better
-labels: ["Enhancement / Change Request"]
+name: Anything else?
+description: If you have something that does not fit the above templates	
 body:
   - type: checkboxes
     attributes:
-      label: Is there an existing change request for this?
-      description: Please search to see if an issue already exists for your change request.
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
       options:
-        - label: I have searched the existing change requests.
+        - label: I have searched the existing issues.
           required: true
   - type: checkboxes
     attributes:
@@ -28,6 +27,7 @@ body:
       description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
       options:
         - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) and made sure my issue is not covered there.
+          required: true
   - type: dropdown
     attributes:
       label: Minecraft Version
@@ -52,14 +52,8 @@ body:
         4. ....
   - type: textarea
     attributes:
-      label: Current Behavior
-      description: A concise description of what you're experiencing.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Enhancement or Change description
-      description: "A clear and concise description of what you want to happen."
+      label: Problem description
+      description: A clear and concise description of your issue.
     validations:
       required: true
   - type: textarea

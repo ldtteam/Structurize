@@ -41,6 +41,15 @@ body:
       placeholder: 1.0.348-ALPHA
   - type: textarea
     attributes:
+      label: Related Mods and their Versions
+      description: Mods that may (even indirectly, like Opfitine) interact.
+      placeholder: |
+        1. Forge Version:
+        2. BlockUI Version:
+        3. Domum Ornamentum Version:
+        4. ....
+  - type: textarea
+    attributes:
       label: Is your feature request related to a problem?
       description: "A clear and concise description of what the problem is. Ex: I'm always frustrated when..."
   - type: textarea
