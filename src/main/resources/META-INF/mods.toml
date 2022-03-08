@@ -37,7 +37,7 @@ Allows you to:
     versionRange="${blockUiRange}"
     ordering="NONE"
     side="CLIENT"
-[[dependencies.minecolonies]]
+[[dependencies.structurize]]
     modId="domum_ornamentum"
     mandatory=true
     versionRange="${domumOrnamentumRange}"

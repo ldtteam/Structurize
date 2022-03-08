@@ -24,5 +24,4 @@ dependencies {
 
     apiImplementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
     implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
-    runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
 }
