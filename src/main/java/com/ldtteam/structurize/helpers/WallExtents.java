@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A description/config for wall replication.
  */
-public class WallExtents
+public final class WallExtents
 {
     private short negative;
     private short positive;
@@ -146,6 +146,7 @@ public class WallExtents
         final short negative = compound.getShort("wallneg");
         final short positive = compound.getShort("wallpos");
         final short overlap = compound.getShort("wallovl");
+        
         return new WallExtents(negative, positive, overlap);
     }
 }
