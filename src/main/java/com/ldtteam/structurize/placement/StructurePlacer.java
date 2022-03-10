@@ -340,6 +340,7 @@ public class StructurePlacer
                 final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
                 if (result == IPlacementHandler.ActionProcessingResult.DENY)
                 {
+                    placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
                 }
 
