@@ -158,15 +158,11 @@ public class DropDownList extends View implements ButtonHandler
      *
      * @param buttonIn which have been clicked on.
      */
-    private void onButtonClickedFromList(@NotNull final Button buttonIn)
+    private void onButtonClickedFromList(final Button buttonIn)
     {
-        final Text idLabel = buttonIn.getParent().findPaneOfTypeByID("id", Text.class);
-        if (idLabel != null)
-        {
-            final int index = Integer.parseInt(idLabel.getTextAsString());
-            setSelectedIndex(index);
-            close();
-        }
+        final int index = list.getListElementIndexByPane(buttonIn);
+        setSelectedIndex(index);
+        close();
     }
 
     /**
@@ -276,12 +272,6 @@ public class DropDownList extends View implements ButtonHandler
         final Button choiceButton = rowPane.findPaneOfTypeByID("button", Button.class);
         if (choiceButton != null)
         {
-            // is idLabel necessary ?
-            final Text idLabel = rowPane.findPaneOfTypeByID("id", Text.class);
-            if (idLabel != null)
-            {
-                idLabel.setText(new StringTextComponent(Integer.toString(index)));
-            }
             choiceButton.setText(label);
             choiceButton.setHandler(this);
         }
@@ -290,12 +280,15 @@ public class DropDownList extends View implements ButtonHandler
     @Override
     public void setVisible(final boolean v)
     {
+        super.setVisible(v);
         button.setVisible(v);
+        list.setVisible(v);
     }
 
     @Override
     public void setEnabled(final boolean e)
     {
+        super.setEnabled(e);
         button.setEnabled(e);
         list.setEnabled(e);
     }
