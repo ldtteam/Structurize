@@ -677,31 +677,28 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      */
     private void onDropDownListChanged(final DropDownList list)
     {
-        if (list.isEnabled())
+        if (list == sectionsDropDownList)
         {
-            if (list == sectionsDropDownList)
+            final String name = sections.get(sectionsDropDownList.getSelectedIndex());
+            if (Structures.SCHEMATICS_SCAN.equals(name))
             {
-                final String name = sections.get(sectionsDropDownList.getSelectedIndex());
-                if (Structures.SCHEMATICS_SCAN.equals(name))
-                {
-                    renameButton.setVisible(true);
-                    deleteButton.setVisible(true);
-                }
-                else
-                {
-                    renameButton.setVisible(false);
-                    deleteButton.setVisible(false);
-                }
-                updateStyles();
+                renameButton.setVisible(true);
+                deleteButton.setVisible(true);
             }
-            else if (list == stylesDropDownList)
+            else
             {
-                updateSchematics();
+                renameButton.setVisible(false);
+                deleteButton.setVisible(false);
             }
-            else if (list == schematicsDropDownList)
-            {
-                changeSchematic();
-            }
+            updateStyles();
+        }
+        else if (list == stylesDropDownList)
+        {
+            updateSchematics();
+        }
+        else if (list == schematicsDropDownList)
+        {
+            changeSchematic();
         }
     }
 
