@@ -111,7 +111,7 @@ public interface IPlacementHandler
                 InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
             }
         }
-        else if (world.getBlockEntity(pos) != null)
+        if (world.getBlockEntity(pos) != null)
         {
             world.removeBlockEntity(pos);
         }
