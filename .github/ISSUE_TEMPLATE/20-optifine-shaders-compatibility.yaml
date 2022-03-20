@@ -1,0 +1,119 @@
+name: Optifine/Shaders Compatibility
+description: If the structure preview has a problem with OptiFine/shaders
+labels: ["Compatibility: Optifine / Shaders"]
+assignees: Nightenom
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing OptiFine issue for this?
+      description: Please search to see if an issue already exists for the OptiFine bug you encountered.
+      options:
+        - label: I have searched the existing issues.
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are you using the latest Structurize, OptiFine and shader Version?
+      description: |
+        Please check to see if any newer version fixes the issue you're experiencing.
+        Please note that we support latest **stable** version of OptiFine, bugs encountered in previews may remain open till next stable version.
+        [List of all OptiFine versions](https://optifine.net/downloads)
+        [List of all Structurize versions](https://www.curseforge.com/minecraft/mc-mods/structurize/files/all)
+        [List of all BlockUI versions](https://www.curseforge.com/minecraft/mc-mods/blockui/files/all)
+        [List of all MineColonies versions](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)
+      options:
+        - label: |
+            I am running the latest **alpha** version of Structurize for my Minecraft version.
+            I am also running the latest versions of other mods and shaders that are part of my problem.
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Did you ask on Discord?
+      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/). Your idea might be already implemented.
+      options:
+        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
+  - type: dropdown
+    id: mc_version
+    attributes:
+      label: Minecraft Version
+      options: ["1.16", "1.18"]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Structurize Version
+      description: Exact Structurize version either from file name or in-game mod list.
+      placeholder: 1.0.348-ALPHA
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: OptiFine Version
+      description: Exact OptiFine version either from file name or in-game mod list.
+      placeholder: HD U H4
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Shader Names and Versions
+      description: |
+        Shader names and exact versions (either from file name or in-game shader list).
+        Please, if possible, also link shaders' download pages.
+      placeholder: |
+        [My favourite shader](insert download link here) - version: 1.2.3
+        Another favourite shader without link - version: 4.5.6
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Related Mods and their Versions
+      description: Mods that may interact.
+      placeholder: |
+        1. Forge Version:
+        2. MineColonies Version:
+        3. Domum Ornamentum Version:
+        4. ....
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A concise description of what you're experiencing. Please provide screenshots and videos if possible.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: What should we do to make this issue show up in our own game? Try to give as much detail as possible here too so it's easier for us to reproduce this issue.
+      placeholder: |
+        1. Do this...
+        2. then this....
+        3. So that this happens
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Logs
+      description: Please provide your latest.log related to the time during which you experienced the issue. Upload to eg. [gist](https://gist.github.com/) or [pastebin](https://pastebin.com/) and paste the link here.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: |
+        Links? References? Anything that will give us more context about the issue you are encountering!
+        Tip: You can attach images or log files by clicking any text area to highlight it and then dragging files in.
+  - type: textarea
+    attributes:
+      label: "Footer"
+      description: This is issue footer. Please leave this text as is.
+      value: |
+        ---
+        ## Viewers
+        * Add a thumbs-up to the bug report if you are also affected. This helps the bug report become more visible to the team and doesn't clutter the comments.
+        * Add a comment if you have any insights or background information that isn't already part of the conversation.
+    validations:
+      required: true
