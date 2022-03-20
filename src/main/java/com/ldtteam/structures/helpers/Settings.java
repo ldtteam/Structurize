@@ -3,6 +3,10 @@ package com.ldtteam.structures.helpers;
 import com.ldtteam.structures.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
@@ -321,6 +325,15 @@ public final class Settings implements INBTSerializable<CompoundNBT>
     @Nullable
     public Blueprint getActiveStructure()
     {
+        if (this.blueprint == null && this.structureName != null && !this.structureName.isEmpty())
+        {
+            final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName,
+              new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
+            if (structure.hasBluePrint())
+            {
+                this.blueprint = structure.getBluePrint();
+            }
+        }
         return this.blueprint;
     }
 
