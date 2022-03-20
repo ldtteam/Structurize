@@ -1,0 +1,76 @@
+name: Anything else?
+description: If you have something that does not fit the above templates	
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for your problem.
+      options:
+        - label: I have searched the existing issues.
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are you using the latest Structurize Version?
+      description: |
+        Please check to see if any newer version fixes the issue you're experiencing.
+        [List of all Structurize versions](https://www.curseforge.com/minecraft/mc-mods/structurize/files/all)
+        [List of all BlockUI versions](https://www.curseforge.com/minecraft/mc-mods/blockui/files/all)
+        [List of all MineColonies versions](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)
+      options:
+        - label: |
+            I am running the latest **alpha** version of Structurize for my Minecraft version.
+            I am also running the latest versions of other mods that are part of my problem.
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Did you check on the Wiki? or ask on Discord?
+      description: Please check on our [wiki](https://wiki.minecolonies.ldtteam.com/) or ask on [discord](https://discord.minecolonies.com/) if your issue is covered there.
+      options:
+        - label: I checked the MineColonies/Structurize [Wiki](https://wiki.minecolonies.ldtteam.com/) or I asked on [discord](https://discord.minecolonies.com/).
+          required: true
+  - type: dropdown
+    id: mc_version
+    attributes:
+      label: Minecraft Version
+      options: ["1.16", "1.18"]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Structurize Version
+      description: Exact Structurize version either from file name or in-game mod list.
+      placeholder: 1.0.348-ALPHA
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Related Mods and their Versions
+      description: Mods that may (even indirectly, like Opfitine) interact.
+      placeholder: |
+        1. Forge Version:
+        2. BlockUI Version:
+        3. Domum Ornamentum Version:
+        4. ....
+  - type: textarea
+    attributes:
+      label: Problem description
+      description: A clear and concise description of your issue.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: |
+        Links? References? Anything that will give us more context about the issue you are encountering!
+        Tip: You can attach images or log files by clicking any text area to highlight it and then dragging files in.
+  - type: textarea
+    attributes:
+      label: "Footer"
+      description: This is issue footer. Please leave this text as is.
+      value: |
+        ---
+        ## Viewers
+        * Add a thumbs-up to the bug report if you are also affected. This helps the bug report become more visible to the team and doesn't clutter the comments.
+        * Add a comment if you have any insights or background information that isn't already part of the conversation.
+    validations:
+      required: true
