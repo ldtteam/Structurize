@@ -378,6 +378,7 @@ public final class Settings implements INBTSerializable<CompoundNBT>
     {
         resetBlueprint();
         hollow = false;
+        structureName = null;
         pos = null;
         groundOffset = 0;
         box = null;
