@@ -18,6 +18,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -378,6 +379,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     {
         resetBlueprint();
         hollow = false;
+        structureName = null;
         pos = null;
         groundOffset = 0;
         box = null;
