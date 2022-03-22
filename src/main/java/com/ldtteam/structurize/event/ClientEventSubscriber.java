@@ -64,7 +64,7 @@ public class ClientEventSubscriber
         final PlayerEntity player = Minecraft.getInstance().player;
         final Blueprint blueprint = Settings.instance.getActiveStructure();
 
-        if (blueprint != null)
+        if (blueprint != null && Settings.instance.getPosition() != null)
         {
             Minecraft.getInstance().getProfiler().push("struct_render");
 
