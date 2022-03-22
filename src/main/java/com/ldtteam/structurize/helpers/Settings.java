@@ -326,7 +326,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     @Nullable
     public Blueprint getActiveStructure()
     {
-        if (this.blueprint == null && this.structureName != null && !this.structureName.isEmpty())
+        if (this.blueprint == null && this.structureName != null && !this.structureName.isEmpty() && pos != null)
         {
             final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName,
               new PlacementSettings(Settings.instance.getMirror(), BlockUtils.getRotation(Settings.instance.getRotation())), true);
