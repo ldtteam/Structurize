@@ -52,7 +52,7 @@ public class ClientEventSubscriber
 
         final Blueprint blueprint = Settings.instance.getActiveStructure();
 
-        if (blueprint != null && Settings.instance.getPosition() != null)
+        if (blueprint != null)
         {
             mc.getProfiler().push("struct_render");
 
