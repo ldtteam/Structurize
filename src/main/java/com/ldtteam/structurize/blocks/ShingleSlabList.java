@@ -14,6 +14,7 @@ import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.*;
@@ -98,7 +99,7 @@ public class ShingleSlabList implements IBlockList<BlockShingleSlab>
                     .pattern("III")
                     .pattern("SSS")
                     .define('I', slab.get().getFaceType().getMaterial())
-                    .define('S', Items.STICK)
+                    .define('S', Tags.Items.RODS_WOODEN)
                     .unlockedBy("has_" + slab.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(slab.get()))
                     .save(consumer);
               }

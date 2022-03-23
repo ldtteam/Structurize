@@ -10,7 +10,7 @@
       "item": "minecraft:cobblestone"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "forge:rods/wooden"
     },
     "P": {
       "item": "minecraft:oak_planks"

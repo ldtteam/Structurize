@@ -10,7 +10,7 @@
       "item": "minecraft:gilded_blackstone"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "forge:rods/wooden"
     },
     "P": {
       "item": "minecraft:oak_planks"

@@ -10,7 +10,7 @@
       "item": "minecraft:mossy_cobblestone"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "forge:rods/wooden"
     },
     "P": {
       "item": "structurize:blockcactusplank"

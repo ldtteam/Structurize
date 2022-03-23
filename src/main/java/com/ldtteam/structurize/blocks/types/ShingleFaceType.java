@@ -16,6 +16,7 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.*;
@@ -159,7 +160,7 @@ public enum ShingleFaceType implements IBlockList<BlockShingle>
                   .pattern("SI ")
                   .pattern("PSI")
                   .define('I', block.get().getFaceType().getMaterial())
-                  .define('S', Items.STICK)
+                  .define('S', Tags.Items.RODS_WOODEN)
                   .define('P', block.get().getWoodType().getMaterial())
                   .unlockedBy("has_" + block.get().getRegistryName().getPath(), ModRecipeProvider.getDefaultCriterion(block.get()))
                   .save(consumer);
