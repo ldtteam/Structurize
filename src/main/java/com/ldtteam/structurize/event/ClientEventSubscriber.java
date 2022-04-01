@@ -51,6 +51,7 @@ public class ClientEventSubscriber
         matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
 
         final Blueprint blueprint = Settings.instance.getActiveStructure();
+
         if (blueprint != null)
         {
             mc.getProfiler().push("struct_render");

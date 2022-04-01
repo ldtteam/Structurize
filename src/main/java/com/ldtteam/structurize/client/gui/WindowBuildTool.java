@@ -989,6 +989,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
             if (ServerLifecycleHooks.getCurrentServer() == null)
             {
                 Network.getNetwork().sendToServer(new SchematicRequestMessage(structureName.toString()));
+                Settings.instance.resetBlueprint();
+                Settings.instance.setStructureName(structureName.toString());
                 return;
             }
             else

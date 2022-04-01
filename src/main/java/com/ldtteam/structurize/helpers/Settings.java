@@ -5,6 +5,10 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -325,6 +329,16 @@ public final class Settings implements INBTSerializable<CompoundTag>
     @Nullable
     public Blueprint getActiveStructure()
     {
+        if (this.blueprint == null && this.structureName != null && !this.structureName.isEmpty() && pos != null)
+        {
+            final IStructureHandler structure = new CreativeStructureHandler(Minecraft.getInstance().level, new BlockPos(0, 0, 0), structureName,
+                    Settings.instance.getPlacement(), true);
+            if (structure.hasBluePrint())
+            {
+                this.blueprint = structure.getBluePrint();
+                generateWall();
+            }
+        }
         return this.wall;
     }
 
@@ -369,6 +383,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     {
         resetBlueprint();
         hollow = false;
+        structureName = null;
         pos = null;
         groundOffset = 0;
         box = null;
