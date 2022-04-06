@@ -7,10 +7,10 @@
   ],
   "key": {
     "C": {
-      "item": "minecraft:cobblestone"
+      "tag": "forge:cobblestone/normal"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "forge:rods/wooden"
     }
   },
   "result": {
