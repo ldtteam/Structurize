@@ -13,7 +13,7 @@
       "item": "minecraft:bucket"
     },
     "S": {
-      "item": "forge:rods/wooden"
+      "tag": "forge:rods/wooden"
     }
   },
   "result": {
