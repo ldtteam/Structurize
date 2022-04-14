@@ -4,11 +4,11 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -110,10 +110,6 @@ public interface IPlacementHandler
             {
                 InventoryUtils.transferIntoNextBestSlot(item, handler.getInventory());
             }
-        }
-        if (world.getBlockEntity(pos) != null)
-        {
-            world.removeBlockEntity(pos);
         }
         world.removeBlock(pos, false);
     }
