@@ -7,7 +7,7 @@
   ],
   "key": {
     "C": {
-      "item": "minecraft:stone_crafting_materials"
+      "tag": "minecraft:stone_crafting_materials"
     },
     "S": {
       "tag": "forge:rods/wooden"
