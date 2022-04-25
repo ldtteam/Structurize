@@ -7,10 +7,10 @@
   ],
   "key": {
     "C": {
-      "item": "minecraft:cobblestone"
+      "tag": "minecraft:stone_crafting_materials"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "forge:rods/wooden"
     }
   },
   "result": {
