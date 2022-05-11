@@ -526,9 +526,8 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.addAll(getItemsFromTileEntity(tileEntityData, blockState));
+            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getContent()));
             itemList.removeIf(ItemStackUtils::isEmpty);
-
             return itemList;
         }
     }
