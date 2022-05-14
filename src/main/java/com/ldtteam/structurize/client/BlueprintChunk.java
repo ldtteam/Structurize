@@ -1,37 +1,59 @@
 package com.ldtteam.structurize.client;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData.BlockEntityTagOutput;
 import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ClipBlockStateContext;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeResolver;
+import net.minecraft.world.level.biome.Climate.Sampler;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.gameevent.GameEventDispatcher;
+import net.minecraft.world.level.levelgen.Aquifer.FluidPicker;
+import net.minecraft.world.level.levelgen.DensityFunctions.BeardifierOrMarker;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
+import net.minecraftforge.common.capabilities.CapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 
-import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.shorts.ShortList;
 
 /**
  * Blueprint simulated chunk.
@@ -50,10 +72,10 @@ public class BlueprintChunk extends LevelChunk
      * @param x       the chunk x.
      * @param z       the chunk z.
      */
-    public BlueprintChunk(final Level worldIn, final int x, final int z)
+    public BlueprintChunk(final BlueprintBlockAccess worldIn, final int x, final int z)
     {
         super(worldIn, new ChunkPos(x, z));
-        this.access = (BlueprintBlockAccess) worldIn;
+        this.access = worldIn;
     }
 
     @Override
@@ -65,13 +87,6 @@ public class BlueprintChunk extends LevelChunk
     @Nullable
     @Override
     public BlockEntity getBlockEntity(final BlockPos pos, final EntityCreationType creationMode)
-    {
-        return access.getBlockEntity(pos);
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity getBlockEntity(final BlockPos pos)
     {
         return access.getBlockEntity(pos);
     }
@@ -89,7 +104,7 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public Level getLevel()
+    public BlueprintBlockAccess getLevel()
     {
         return access;
     }
@@ -111,13 +126,14 @@ public class BlueprintChunk extends LevelChunk
     public StructureStart getStartForFeature(final ConfiguredStructureFeature<?, ?> feature)
     {
         // Noop
-        return null;
+        return StructureStart.INVALID_START;
     }
 
     @NotNull
     @Override
     public LongSet getReferencesForFeature(final ConfiguredStructureFeature<?, ?> feature)
     {
+        // Noop
         return new LongOpenHashSet();
     }
 
@@ -136,14 +152,8 @@ public class BlueprintChunk extends LevelChunk
     @Override
     public CompoundTag getBlockEntityNbt(BlockPos pos)
     {
-        // Noop
+        // Noop - this is for pending BEs
         return null;
-    }
-
-    @Override
-    public TickContainerAccess<Fluid> getFluidTicks()
-    {
-        return super.getFluidTicks();
     }
 
     @Override
@@ -168,37 +178,16 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public Stream<BlockPos> getLights()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public FullChunkStatus getFullStatus()
     {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public ShortList[] getPostProcessing()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public ChunkPos getPos()
-    {
-        // Noop
-        return null;
+        // Noop (mostly related to loading and ticking - we do NOT want both)
+        return FullChunkStatus.INACCESSIBLE;
     }
 
     @Override
     public LevelChunkSection[] getSections()
     {
-        // Noop
+        // Noop (we dont section)
         return null;
     }
 
@@ -213,30 +202,31 @@ public class BlueprintChunk extends LevelChunk
     @Override
     public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences()
     {
-        return new HashMap<>();
+        return Collections.emptyMap();
     }
 
     @NotNull
     @Override
     public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts()
     {
-        return new HashMap<>();
+        return Collections.emptyMap();
     }
 
     @NotNull
     @Override
     public Set<BlockPos> getBlockEntitiesPos()
     {
-        // Noop
-        return new HashSet();
+        // Noop (to lazy to construct that - we build BEs lazily)
+        // used just in chunk serializer
+        return null;
     }
 
     @NotNull
     @Override
     public Map<BlockPos, BlockEntity> getBlockEntities()
     {
-        // Noop
-        return new HashMap<>();
+        // Noop (to lazy to construct that - we build BEs lazily)
+        return Collections.emptyMap();
     }
 
     @Override
@@ -250,13 +240,7 @@ public class BlueprintChunk extends LevelChunk
     public UpgradeData getUpgradeData()
     {
         // Noop
-        return null;
-    }
-
-    @Override
-    public Level getWorldForge()
-    {
-        return access;
+        return UpgradeData.EMPTY;
     }
 
     @Override
@@ -382,13 +366,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public int getHighestSectionPosition()
-    {
-        // Noop
-        return 255;
-    }
-
-    @Override
     public boolean isYSpaceEmpty(int startY, int endY)
     {
         return false;
@@ -403,6 +380,183 @@ public class BlueprintChunk extends LevelChunk
     @Override
     public int getLightEmission(BlockPos pos)
     {
-        return 15;
+        return access.forceLightLevel() ? access.getOurLightLevel() : super.getLightEmission(pos);
+    }
+
+    @Override
+    public void addAndRegisterBlockEntity(BlockEntity p_156391_)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean areCapsCompatible(CapabilityProvider<LevelChunk> other)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean areCapsCompatible(@Nullable CapabilityDispatcher other)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
+    {
+        // Noop
+        return LazyOptional.empty();
+    }
+
+    @Override
+    public GameEventDispatcher getEventDispatcher(int p_156372_)
+    {
+        // Noop
+        return GameEventDispatcher.NOOP;
+    }
+
+    @Override
+    public boolean isClientLightReady()
+    {
+        return true;
+    }
+
+    @Override
+    public void registerAllBlockEntitiesAfterLevelLoad()
+    {
+        // Noop
+    }
+
+    @Override
+    public void registerTickContainerInLevel(ServerLevel p_187959_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void replaceWithPacketData(FriendlyByteBuf p_187972_, CompoundTag p_187973_, Consumer<BlockEntityTagOutput> p_187974_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setBlockEntity(BlockEntity p_156374_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setClientLightReady(boolean p_196865_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void unregisterTickContainerFromLevel(ServerLevel p_187980_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void fillBiomesFromNoise(BiomeResolver p_187638_, Sampler p_187639_)
+    {
+        // Noop
+    }
+
+    @Override
+    public Holder<Biome> getNoiseBiome(int p_204347_, int p_204348_, int p_204349_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public NoiseChunk getOrCreateNoiseChunk(NoiseRouter p_207938_,
+        Supplier<BeardifierOrMarker> p_207939_,
+        NoiseGeneratorSettings p_207940_,
+        FluidPicker p_207941_,
+        Blender p_207942_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public LevelChunkSection getSection(int p_187657_)
+    {
+        // Noop (we dont section)
+        return null;
+    }
+
+    @Override
+    public void incrementInhabitedTime(long p_187633_)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean isOldNoiseGeneration()
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean isUpgrading()
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public void setBlendingData(BlendingData p_187646_)
+    {
+        // Noop
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap)
+    {
+        // Noop
+        return LazyOptional.empty();
+    }
+
+    @Override
+    public BlockHitResult clip(ClipContext p_45548_)
+    {
+        // copied "on miss" code from super
+        final Vec3 vec3 = p_45548_.getFrom().subtract(p_45548_.getTo());
+        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_45548_.getTo()));
+    }
+
+    @Override
+    public BlockHitResult isBlockInLine(ClipBlockStateContext p_151354_)
+    {
+        // copied "on miss" code from super
+        final Vec3 vec3 = p_151354_.getFrom().subtract(p_151354_.getTo());
+        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_151354_.getTo()));
+    }
+
+    @Override
+    public int getSectionsCount()
+    {
+        // Noop (we dont section)
+        return 0;
+    }
+
+    @Override
+    public boolean isOutsideBuildHeight(int p_151563_)
+    {
+        // false cuz we're infinite world
+        return false;
+    }
+
+    @Override
+    public @Nullable BlockEntity getExistingBlockEntity(BlockPos pos)
+    {
+        // weird forge method
+        return getBlockEntity(pos);
     }
 }
