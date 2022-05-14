@@ -252,5 +252,14 @@ public interface IStructureHandler
      * @param worldPos the world pos.
      * @return the right block (classically biome dependent).
      */
+    @Deprecated(forRemoval = true, since = "1.18.2")
     BlockState getSolidBlockForPos(BlockPos worldPos);
+
+    /**
+     * Get the worldgen block for given pos while using data from handler.
+     * @param worldPos          the world pos.
+     * @param virtualBlockAbove block that is gonna be place above given worldPos, null if unknown
+     * @return the worldgen block (classically biome dependent).
+     */
+    BlockState getWorldGenBlock(BlockPos worldPos, @Nullable BlockState virtualBlockAbove);
 }

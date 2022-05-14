@@ -142,4 +142,10 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     {
         return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos);
     }
+
+    @Override
+    public BlockState getWorldGenBlock(final BlockPos worldPos, final BlockState virtualBlockAbove)
+    {
+        return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos, virtualBlockAbove);
+    }
 }

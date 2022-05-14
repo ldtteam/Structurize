@@ -14,12 +14,17 @@ import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
 import com.ldtteam.structurize.util.BackUpHelper;
+import com.ldtteam.structurize.util.BlockUtils;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +33,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -103,13 +109,49 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onWorldTick(final TickEvent.WorldTickEvent event)
     {
-        if (event.world.isClientSide)
+        if (event.world instanceof ServerLevel serverLevel)
+        {
+            if (event.phase == Phase.START)
+            {
+                Manager.onWorldTick(serverLevel);
+            }
+            /* if (event.world.getGameTime() % 200 == 0 && event.phase == Phase.END)
+            {
+                testDefaultBlocks(serverLevel);
+            } */
+        }
+    }
+
+    /**
+     * Tests for BlockUtils methods
+     * 
+     * @param level serverlevel
+     */
+    private static void testDefaultBlocks(final ServerLevel level)
+    {
+        if (level.getServer().getPlayerList().getPlayers().get(0).level != level)
         {
             return;
         }
-        Manager.onWorldTick((ServerLevel) event.world);
+        level.getServer()
+            .getPlayerList()
+            .broadcastMessage(new TextComponent(level.dimensionTypeRegistration().unwrapKey().get().toString()),
+                ChatType.SYSTEM,
+                level.getServer().getPlayerList().getPlayers().get(0).getUUID());
+        if (Minecraft.getInstance().hitResult != null && Minecraft.getInstance().hitResult instanceof BlockHitResult blockHitResult)
+        {
+            level.getServer()
+                .getPlayerList()
+                .broadcastMessage(new TextComponent("sub: " + BlockUtils.getSubstitutionBlockAtWorld(level, blockHitResult.getBlockPos(), null).toString()),
+                    ChatType.SYSTEM,
+                    level.getServer().getPlayerList().getPlayers().get(0).getUUID());
+        }
+        level.getServer()
+            .getPlayerList()
+            .broadcastMessage(new TextComponent("fluid: " + BlockUtils.getFluidForDimension(level).toString()),
+                ChatType.SYSTEM,
+                level.getServer().getPlayerList().getPlayers().get(0).getUUID());
     }
-
 
     @SubscribeEvent
     public static void onMissingBlockMappings(final RegistryEvent.MissingMappings<Block> missingBlockEvent)
