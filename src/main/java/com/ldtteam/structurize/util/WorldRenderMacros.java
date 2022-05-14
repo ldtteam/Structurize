@@ -840,6 +840,7 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
+    @SuppressWarnings("resource")
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
         final PoseStack matrixStack,

@@ -61,6 +61,7 @@ public class MultipleStringArgument implements ArgumentType<String>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder)
     {
         if (context.getSource() instanceof ClientSuggestionProvider)

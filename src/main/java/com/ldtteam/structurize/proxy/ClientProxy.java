@@ -9,9 +9,6 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +17,10 @@ import java.io.File;
 /**
  * Client side proxy.
  */
-@Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientProxy implements IProxy
 {
     @Override
+    @SuppressWarnings("resource")
     public void openBuildToolWindow(@Nullable final BlockPos pos, final int groundstyle)
     {
         if (pos == null && Settings.instance.getActiveStructure() == null)
@@ -55,6 +52,7 @@ public class ClientProxy implements IProxy
     }
 
     @Override
+    @SuppressWarnings("resource")
     public File getSchematicsFolder()
     {
         if (ServerLifecycleHooks.getCurrentServer() == null)
@@ -81,11 +79,5 @@ public class ClientProxy implements IProxy
         }
 
         return worldSchematicFolder.getParentFile();
-    }
-
-    @Override
-    public BlockState getBlockStateFromWorld(final BlockPos pos)
-    {
-        return Minecraft.getInstance().level.getBlockState(pos);
     }
 }

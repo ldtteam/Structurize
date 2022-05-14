@@ -103,6 +103,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
+    @SuppressWarnings("resource")
     private void init()
     {
         final Map<BlockPos, IModelData> teModelData = new HashMap<>();

@@ -5,7 +5,6 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
-import com.ldtteam.structurize.client.StructureClientHandler;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
@@ -59,7 +58,7 @@ public class ClientEventSubscriber
             final BlockPos pos = Settings.instance.getPosition();
             final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-            StructureClientHandler.renderStructure(blueprint, partialTicks, pos, matrixStack);
+            BlueprintHandler.getInstance().draw(blueprint, pos, matrixStack, partialTicks);
             WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
             WorldRenderMacros.renderWhiteLineBox(bufferSource,
                 matrixStack,
@@ -120,6 +119,7 @@ public class ClientEventSubscriber
      * @param event the catched event.
      */
     @SubscribeEvent
+    @SuppressWarnings("resource")
     public static void onClientTickEvent(final ClientTickEvent event)
     {
         if (event.phase != Phase.END)

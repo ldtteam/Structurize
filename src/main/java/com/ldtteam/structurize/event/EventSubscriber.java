@@ -14,17 +14,12 @@ import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
 import com.ldtteam.structurize.util.BackUpHelper;
-import com.ldtteam.structurize.util.BlockUtils;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
@@ -99,10 +94,10 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onPlayerLogin(final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getPlayer() instanceof ServerPlayer)
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer)
         {
-            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayer) event.getPlayer());
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayer) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
+            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
         }
     }
 
@@ -120,37 +115,6 @@ public class EventSubscriber
                 testDefaultBlocks(serverLevel);
             } */
         }
-    }
-
-    /**
-     * Tests for BlockUtils methods
-     * 
-     * @param level serverlevel
-     */
-    private static void testDefaultBlocks(final ServerLevel level)
-    {
-        if (level.getServer().getPlayerList().getPlayers().get(0).level != level)
-        {
-            return;
-        }
-        level.getServer()
-            .getPlayerList()
-            .broadcastMessage(new TextComponent(level.dimensionTypeRegistration().unwrapKey().get().toString()),
-                ChatType.SYSTEM,
-                level.getServer().getPlayerList().getPlayers().get(0).getUUID());
-        if (Minecraft.getInstance().hitResult != null && Minecraft.getInstance().hitResult instanceof BlockHitResult blockHitResult)
-        {
-            level.getServer()
-                .getPlayerList()
-                .broadcastMessage(new TextComponent("sub: " + BlockUtils.getSubstitutionBlockAtWorld(level, blockHitResult.getBlockPos(), null).toString()),
-                    ChatType.SYSTEM,
-                    level.getServer().getPlayerList().getPlayers().get(0).getUUID());
-        }
-        level.getServer()
-            .getPlayerList()
-            .broadcastMessage(new TextComponent("fluid: " + BlockUtils.getFluidForDimension(level).toString()),
-                ChatType.SYSTEM,
-                level.getServer().getPlayerList().getPlayers().get(0).getUUID());
     }
 
     @SubscribeEvent
@@ -252,7 +216,7 @@ public class EventSubscriber
         });
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressWarnings({"ResultOfMethodCallIgnored","resource"})
     @SubscribeEvent
     public static void onGatherServerLevelCapabilities(final AttachCapabilitiesEvent<Level> attachCapabilitiesEvent)
     {

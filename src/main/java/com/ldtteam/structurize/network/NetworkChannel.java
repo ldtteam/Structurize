@@ -4,9 +4,11 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -136,13 +138,10 @@ public class NetworkChannel
      * @param msg message to send
      * @param dim target dimension
      */
-    /*
-     * TODO: 1.16 waiting forge update
-     * public void sendToDimension(final IMessage msg, final DimensionType dim)
-     * {
-     * rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
-     * }
-     */
+    public void sendToDimension(final IMessage msg, final ResourceKey<Level> dim)
+    {
+        rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
+    }
 
     /**
      * Sends to everyone in circle made using given target point.

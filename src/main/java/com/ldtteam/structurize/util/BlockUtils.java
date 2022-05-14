@@ -144,6 +144,7 @@ public final class BlockUtils
      * @param  virtualBlockAbove block that is gonna be above this block during placement, null if unknown.
      * @return                   the BlockState of the filler block.
      */
+    @SuppressWarnings("resource")
     public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location, @Nullable final BlockState virtualBlockAbove)
     {
         // TODO: rework to use whole information from blueprint
@@ -546,6 +547,7 @@ public final class BlockUtils
      * @param world the world of the dimension
      * @return the default blockstate for the default fluid
      */
+    @SuppressWarnings("resource")
     public static BlockState getFluidForDimension(Level world)
     {
         if (world instanceof ServerLevel serverLevel)

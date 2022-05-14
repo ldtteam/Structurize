@@ -232,7 +232,6 @@ public class LinkSessionCommand
             return newLiteral(NAME).executes(s -> onExecute(s));
         }
 
-        // TODO: translations, wait for someone to cry first since it's pain to translate this :)
         private static int onExecute(final CommandContext<CommandSourceStack> command) throws CommandSyntaxException
         {
             final ServerPlayer sender = command.getSource().getPlayerOrException();

@@ -324,6 +324,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      * @return The schematic we are currently rendering.
      */
     @Nullable
+    @SuppressWarnings("resource")
     public Blueprint getActiveStructure()
     {
         if (this.blueprint == null && this.structureName != null && !this.structureName.isEmpty() && pos != null)
@@ -343,6 +344,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      *
      * @param blueprint structure to render.
      */
+    @SuppressWarnings("resource")
     public void setActiveSchematic(final Blueprint blueprint)
     {
         if (blueprint == null)
@@ -434,6 +436,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
      *
      * @param rotation the rotation to set.
      */
+    @SuppressWarnings("resource")
     public void setRotation(final int rotation)
     {
         int offset = rotation - this.rotation;
@@ -449,6 +452,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
     /**
      * Makes the building mirror.
      */
+    @SuppressWarnings("resource")
     public void mirror()
     {
         if (blueprint == null)

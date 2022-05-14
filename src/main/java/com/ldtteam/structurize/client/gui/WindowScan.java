@@ -213,6 +213,7 @@ public class WindowScan extends AbstractWindowSkeleton
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void onOpened()
     {
         super.onOpened();
@@ -289,6 +290,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Clears and resets/updates all resources.
      */
+    @SuppressWarnings("resource")
     private void updateResources()
     {
         final BlockPos def = Minecraft.getInstance().player.blockPosition();
@@ -441,6 +443,7 @@ public class WindowScan extends AbstractWindowSkeleton
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -494,6 +497,7 @@ public class WindowScan extends AbstractWindowSkeleton
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
             @Override
+            @SuppressWarnings("resource")
             public void updateElement(final int index, final Pane rowPane)
             {
                 final ItemStorage resource = tempRes.get(index);
