@@ -559,7 +559,7 @@ public final class BlockUtils
                 return defaultFluid.getFluidState().isEmpty() ? Blocks.WATER.defaultBlockState() : defaultFluid;
             }
         }
-        return  world.dimensionType().ultraWarm() ? Blocks.LAVA.defaultBlockState() : Blocks.WATER.defaultBlockState();
+        return world == null || !world.dimensionType().ultraWarm() ? Blocks.WATER.defaultBlockState() : Blocks.LAVA.defaultBlockState();
     }
 
     /**

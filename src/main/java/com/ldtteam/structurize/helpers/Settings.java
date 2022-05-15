@@ -804,4 +804,20 @@ public final class Settings implements INBTSerializable<CompoundTag>
     {
         return renderLightPlaceholders;
     }
+
+    /**
+     * @return true when should use light level from {@link #getOurLightLevel()}
+     */
+    public boolean forceLightLevel()
+    {
+        return true;
+    }
+
+    /**
+     * @return static light level
+     */
+    public int getOurLightLevel()
+    {
+        return 15;
+    }
 }

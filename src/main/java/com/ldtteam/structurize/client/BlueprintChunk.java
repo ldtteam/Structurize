@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.helpers.Settings;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -380,7 +382,7 @@ public class BlueprintChunk extends LevelChunk
     @Override
     public int getLightEmission(BlockPos pos)
     {
-        return access.forceLightLevel() ? access.getOurLightLevel() : super.getLightEmission(pos);
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() : super.getLightEmission(pos);
     }
 
     @Override
