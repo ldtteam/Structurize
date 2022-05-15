@@ -110,10 +110,6 @@ public class EventSubscriber
             {
                 Manager.onWorldTick(serverLevel);
             }
-            /* if (event.world.getGameTime() % 200 == 0 && event.phase == Phase.END)
-            {
-                testDefaultBlocks(serverLevel);
-            } */
         }
     }
 

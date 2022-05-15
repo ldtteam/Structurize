@@ -207,12 +207,6 @@ public final class BlockUtils
                     }
                 }
 
-                /* serverLevel.getServer()
-                    .getPlayerList()
-                    .broadcastMessage(new TextComponent(String.format("f: %d s: %d t: %d", firstParam, secParam, thirdParam)),
-                        ChatType.SYSTEM,
-                        serverLevel.getServer().getPlayerList().getPlayers().get(0).getUUID()); */
-
                 secParam = locY - secParam + 1;
 
                 ctx.updateXZ(locX, locZ);
