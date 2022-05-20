@@ -244,7 +244,7 @@ public final class PlacementHandlers
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 { 
                     posBelow = posBelow.below();
-                    final BlockState possibleSupport = BlockUtils.getSubstitutionBlockAtWorld(world, posBelow, i == 0 ? blockState : null);
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
                     if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
                     {
                         supportBlockState = possibleSupport;
@@ -277,7 +277,7 @@ public final class PlacementHandlers
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 { 
                     posBelow = posBelow.below();
-                    final BlockState possibleSupport = BlockUtils.getSubstitutionBlockAtWorld(world, posBelow, i == 0 ? blockState : null);
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
                     if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
                     {
                         supportBlockState = possibleSupport;

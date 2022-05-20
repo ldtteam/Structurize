@@ -128,27 +128,60 @@ public final class BlockUtils
      *
      * @param world    the world the block is in.
      * @param location the location it is at.
-     * @return the IBlockState of the filler block.
+     * @return the BlockState of the filler block.
      */
     @Deprecated(forRemoval = true, since="1.18.2")
     public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location)
     {
-        return getSubstitutionBlockAtWorld(world, location, null);
+        return Blocks.DIRT.defaultBlockState();
     }
 
     /**
-     * Get the filler block at a certain location. Always gives DIRT for non vanilla worlds including blueprint.
+     * Get the filler block at a certain location.
      *
-     * @param  world             the world the block is in.
+     * @param level    the world the block is in.
+     * @param location the location it is at.
+     * @return the BlockState of the filler block.
+     */
+    public static BlockState getSubstitutionBlockAtWorld(final Level level,
+        final BlockPos location,
+        @Nullable final BlockState virtualBlockAbove)
+    {
+        BlockState result = getWorldgenBlock(level, location, virtualBlockAbove);
+
+        if (result.getBlock() == Blocks.POWDER_SNOW)
+        {
+            result = Blocks.SNOW_BLOCK.defaultBlockState();
+        }
+        else if (!result.getMaterial().isSolid())
+        {
+            // try default level block
+            result = getDefaultBlockForLevel(level, null);
+
+            // oh non-solid again + vanilla has stupid settings so override them
+            if (result == null || !result.getMaterial().isSolid() || result.getBlock() == Blocks.STONE)
+            {
+                result = Blocks.DIRT.defaultBlockState();
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the worldGen block for a certain location. Always gives DIRT for non vanilla worlds including blueprint.
+     *
+     * @param  level             the world the block is in.
      * @param  location          the real world location.
      * @param  virtualBlockAbove block that is gonna be above this block during placement, null if unknown.
      * @return                   the BlockState of the filler block.
+     * @see net.minecraft.data.worldgen.SurfaceRuleData for possible blockstates
      */
     @SuppressWarnings("resource")
-    public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location, @Nullable final BlockState virtualBlockAbove)
+    public static BlockState getWorldgenBlock(final Level level, final BlockPos location, @Nullable final BlockState virtualBlockAbove)
     {
         // TODO: rework to use whole information from blueprint
-        if (world instanceof ServerLevel serverLevel)
+        if (level instanceof ServerLevel serverLevel)
         {
             final ChunkGenerator generator = serverLevel.getChunkSource().chunkMap.generator();
             if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
@@ -157,7 +190,7 @@ public final class BlockUtils
 
                 // VANILLA INLINE: look at usage of generatorSettings.surfaceRule()
 
-                final ChunkAccess chunk = world.getChunk(location);
+                final ChunkAccess chunk = level.getChunk(location);
                 final SurfaceRules.Context ctx = new SurfaceRules.Context(chunkGenerator.surfaceSystem,
                     chunk,
                     chunk.getOrCreateNoiseChunk(chunkGenerator.router, // noise chunk should be present most time
@@ -165,17 +198,17 @@ public final class BlockUtils
                         generatorSettings,
                         chunkGenerator.globalFluidPicker,
                         Blender.empty()), // todo: blender is giga hadr to construct
-                    world.getBiomeManager()::getBiome,
+                    level.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-                    new WorldGenerationContext(chunkGenerator, world));
+                    new WorldGenerationContext(chunkGenerator, level));
 
                 final int locX = location.getX();
                 final int locY = location.getY();
                 final int locZ = location.getZ();
 
-                int firstParam = 1;
-                int secParam = DimensionType.WAY_BELOW_MIN_Y;
-                int thirdParam = Integer.MIN_VALUE;
+                int stoneDepthAbove = 1;
+                int stoneDepthBelow = DimensionType.WAY_BELOW_MIN_Y;
+                int waterHeight = Integer.MIN_VALUE;
 
                 final MutableBlockPos temp = new MutableBlockPos(locX, locY, locZ);
                 for (int tempY = locY + 1; tempY <= chunk.getMaxBuildHeight() + 1; ++tempY)
@@ -190,9 +223,9 @@ public final class BlockUtils
                     {
                         if (!bs.getFluidState().isEmpty())
                         {
-                            thirdParam = tempY + 1;
+                            waterHeight = tempY + 1;
                         }
-                        firstParam++;
+                        stoneDepthAbove++;
                     }
                 }
 
@@ -202,15 +235,15 @@ public final class BlockUtils
                     final BlockState bs = chunk.getBlockState(temp);
                     if (bs.isAir() || !bs.getFluidState().isEmpty())
                     {
-                        secParam = tempY + 1;
+                        stoneDepthBelow = tempY + 1;
                         break;
                     }
                 }
 
-                secParam = locY - secParam + 1;
+                stoneDepthBelow = locY - stoneDepthBelow + 1;
 
                 ctx.updateXZ(locX, locZ);
-                ctx.updateY(firstParam, secParam, thirdParam, locX, locY, locZ);
+                ctx.updateY(stoneDepthAbove, stoneDepthBelow, waterHeight, locX, locY, locZ);
 
                 final BlockState blockState = generatorSettings.surfaceRule().apply(ctx).tryApply(locX, locY, locZ);
                 if (blockState != null)
@@ -542,7 +575,7 @@ public final class BlockUtils
      * @return the default blockstate for the default fluid
      */
     @SuppressWarnings("resource")
-    public static BlockState getFluidForDimension(Level world)
+    public static BlockState getFluidForDimension(final Level world)
     {
         if (world instanceof ServerLevel serverLevel)
         {
@@ -554,6 +587,26 @@ public final class BlockUtils
             }
         }
         return world == null || !world.dimensionType().ultraWarm() ? Blocks.WATER.defaultBlockState() : Blocks.LAVA.defaultBlockState();
+    }
+
+    /**
+     * A simple check to fetch the default block for this dimension
+     * @param level the world of the dimension
+     * @param defaultValue return this if unable to get default block for given level
+     * @return the default blockstate 
+     */
+    @SuppressWarnings("resource")
+    public static BlockState getDefaultBlockForLevel(final Level level, final BlockState defaultValue)
+    {
+        if (level instanceof ServerLevel serverLevel)
+        {
+            final ChunkGenerator generator = serverLevel.getChunkSource().chunkMap.generator();
+            if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
+            {
+                return chunkGenerator.settings.value().defaultBlock();
+            }
+        }
+        return defaultValue;
     }
 
     /**

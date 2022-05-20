@@ -256,10 +256,10 @@ public interface IStructureHandler
     BlockState getSolidBlockForPos(BlockPos worldPos);
 
     /**
-     * Get the worldgen block for given pos while using data from handler.
+     * Get the solid worldgen block for given pos while using data from handler.
      * @param worldPos          the world pos.
      * @param virtualBlockAbove block that is gonna be place above given worldPos, null if unknown
-     * @return the worldgen block (classically biome dependent).
+     * @return the solid worldgen block (classically biome dependent).
      */
-    BlockState getWorldGenBlock(BlockPos worldPos, @Nullable BlockState virtualBlockAbove);
+    BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable BlockState virtualBlockAbove);
 }
