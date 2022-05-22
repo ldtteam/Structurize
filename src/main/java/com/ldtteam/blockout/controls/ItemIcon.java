@@ -27,7 +27,8 @@ import net.minecraftforge.registries.ForgeRegistries;
  */
 public class ItemIcon extends Pane
 {
-    private static final float DEFAULT_ITEMSTACK_SIZE = 16f;
+    private static final int DEFAULT_ITEMSTACK_SIZE = 16;
+    private static final float DEFAULT_ITEMSTACK_SIZEF = DEFAULT_ITEMSTACK_SIZE;
 
     /**
      * ItemStack represented in the itemIcon.
@@ -93,7 +94,7 @@ public class ItemIcon extends Pane
         {
             ms.pushPose();
             ms.translate(x, y, 0.0f);
-            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZE, this.getHeight() / DEFAULT_ITEMSTACK_SIZE, 1.0f);
+            ms.scale(this.getWidth() / DEFAULT_ITEMSTACK_SIZEF, this.getHeight() / DEFAULT_ITEMSTACK_SIZEF, 1.0f);
 
             FontRenderer font = itemStack.getItem().getFontRenderer(itemStack);
             if (font == null)
@@ -122,11 +123,11 @@ public class ItemIcon extends Pane
         if (stack.getCount() != 1)
         {
             String s = String.valueOf(stack.getCount());
-            matrixstack.translate(0.0D, 0.0D, 200.0D);
+            matrixstack.translate(0.0D, 0.0D, 150.0D);
             IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
             fontRenderer.drawInBatch(s,
-              (float) (19 - 2 - fontRenderer.width(s)),
-              (float) (6 + 3),
+              DEFAULT_ITEMSTACK_SIZEF + 1 - fontRenderer.width(s),
+              DEFAULT_ITEMSTACK_SIZEF / 2 + 1,
               16777215,
               true,
               matrixstack.last().pose(),
@@ -144,10 +145,10 @@ public class ItemIcon extends Pane
             RenderSystem.disableAlphaTest();
             RenderSystem.disableBlend();
             double health = stack.getItem().getDurabilityForDisplay(stack);
-            int i = Math.round(13.0F - (float) health * 13.0F);
+            int i = Math.round((DEFAULT_ITEMSTACK_SIZEF - 3) - (float) health * (DEFAULT_ITEMSTACK_SIZEF - 3));
             int j = stack.getItem().getRGBDurabilityForDisplay(stack);
-            fill(matrixstack, 2, 13, 13, 2, 0xff000000);
-            fill(matrixstack, 2, 13, i, 1, 0xff000000 | j);
+            fill(matrixstack, 2, DEFAULT_ITEMSTACK_SIZE - 3, DEFAULT_ITEMSTACK_SIZE - 1, DEFAULT_ITEMSTACK_SIZE - 1, 0xff000000);
+            fill(matrixstack, 2, DEFAULT_ITEMSTACK_SIZE - 3, 2 + i, DEFAULT_ITEMSTACK_SIZE - 2, 0xff000000 | j);
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
             RenderSystem.enableTexture();
@@ -161,7 +162,7 @@ public class ItemIcon extends Pane
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            fill(matrixstack, 0, MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 0x7fffffff);
+            fill(matrixstack, 0, MathHelper.floor(DEFAULT_ITEMSTACK_SIZE * (1.0F - f3)), DEFAULT_ITEMSTACK_SIZE, MathHelper.ceil(DEFAULT_ITEMSTACK_SIZE * f3), 0x7fffffff);
             RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
@@ -183,9 +184,9 @@ public class ItemIcon extends Pane
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        matrixStack.translate(8.0F, 8.0F, 150.0F);
+        matrixStack.translate(8.0F, 8.0F, 100.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
-        matrixStack.scale(16.0F, 16.0F, 16.0F);
+        matrixStack.scale(DEFAULT_ITEMSTACK_SIZEF, DEFAULT_ITEMSTACK_SIZEF, 1.0F);
         IRenderTypeBuffer.Impl irendertypebuffer$impl = mc.renderBuffers().bufferSource();
         if (!bakedmodel.usesBlockLight())
         {
