@@ -10,5 +10,6 @@
   "mods": [
   "minecolonies"
   ],
-  "version": "1.18.1"
+  "version": "1",
+  "pack-format": "1"
 }
