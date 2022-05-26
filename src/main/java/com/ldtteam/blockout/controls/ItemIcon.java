@@ -7,6 +7,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -14,11 +15,13 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -103,7 +106,7 @@ public class ItemIcon extends Pane
 
             // RenderSystem.pushMatrix();
             // RenderSystem.multMatrix(ms.getLast().getMatrix());
-            // mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0);
+            // mc.getItemRenderer().renderAndDecorateItem(itemStack, 0, 0);
             renderItemModelIntoGUI(itemStack,
                 ms,
                 mc.getItemRenderer().getModel(itemStack, null, mc.player));
@@ -114,6 +117,7 @@ public class ItemIcon extends Pane
         }
     }
 
+    // VANILLA INLINE: matrix stack version
     private void renderGuiItemDecorations(
       final MatrixStack matrixstack,
       final FontRenderer fontRenderer,
@@ -122,7 +126,8 @@ public class ItemIcon extends Pane
         if (stack.getCount() != 1)
         {
             String s = String.valueOf(stack.getCount());
-            matrixstack.translate(0.0D, 0.0D, 200.0D);
+            matrixstack.pushPose();
+            matrixstack.translate(0.0D, 0.0D, 100.0D); // z translate nerf from 200
             IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
             fontRenderer.drawInBatch(s,
               (float) (19 - 2 - fontRenderer.width(s)),
@@ -135,6 +140,7 @@ public class ItemIcon extends Pane
               0,
               15728880);
             irendertypebuffer$impl.endBatch();
+            matrixstack.popPose();
         }
 
         if (stack.getItem().showDurabilityBar(stack))
@@ -143,11 +149,13 @@ public class ItemIcon extends Pane
             RenderSystem.disableTexture();
             RenderSystem.disableAlphaTest();
             RenderSystem.disableBlend();
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuilder();
             double health = stack.getItem().getDurabilityForDisplay(stack);
-            int i = Math.round(13.0F - (float) health * 13.0F);
+            int i = Math.round(13.0F - (float)health * 13.0F);
             int j = stack.getItem().getRGBDurabilityForDisplay(stack);
-            fill(matrixstack, 2, 13, 13, 2, 0xff000000);
-            fill(matrixstack, 2, 13, i, 1, 0xff000000 | j);
+            fillRect(matrixstack, bufferbuilder, 2, 13, 13, 2, 0, 0, 0, 255);
+            fillRect(matrixstack, bufferbuilder, 2, 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
             RenderSystem.enableTexture();
@@ -161,13 +169,27 @@ public class ItemIcon extends Pane
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            fill(matrixstack, 0, MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 0x7fffffff);
+            Tessellator tessellator1 = Tessellator.getInstance();
+            BufferBuilder bufferbuilder1 = tessellator1.getBuilder();
+            fillRect(matrixstack, bufferbuilder1, 0, MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
             RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
     }
 
-    // matrixstack version of mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0); with modified lighting to match the vanilla result as much as possible
+    // VANILLA INLINE: matrix stack version
+    private void fillRect(MatrixStack matrixstack, BufferBuilder p_181565_1_, int p_181565_2_, int p_181565_3_, int p_181565_4_, int p_181565_5_, int p_181565_6_, int p_181565_7_, int p_181565_8_, int p_181565_9_)
+    {
+        p_181565_1_.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        final Matrix4f pose = matrixstack.last().pose();
+        p_181565_1_.vertex(pose, (float)(p_181565_2_ + 0), (float)(p_181565_3_ + 0), 0.0f).color(p_181565_6_, p_181565_7_, p_181565_8_, p_181565_9_).endVertex();
+        p_181565_1_.vertex(pose, (float)(p_181565_2_ + 0), (float)(p_181565_3_ + p_181565_5_), 0.0f).color(p_181565_6_, p_181565_7_, p_181565_8_, p_181565_9_).endVertex();
+        p_181565_1_.vertex(pose, (float)(p_181565_2_ + p_181565_4_), (float)(p_181565_3_ + p_181565_5_), 0.0f).color(p_181565_6_, p_181565_7_, p_181565_8_, p_181565_9_).endVertex();
+        p_181565_1_.vertex(pose, (float)(p_181565_2_ + p_181565_4_), (float)(p_181565_3_ + 0), 0.0f).color(p_181565_6_, p_181565_7_, p_181565_8_, p_181565_9_).endVertex();
+        Tessellator.getInstance().end();
+    }
+
+    // VANILLA INLINE: matrixstack version of mc.getItemRenderer().renderItemAndEffectIntoGUI(itemStack, 0, 0); with modified lighting to match the vanilla result as much as possible
     // TODO: remove when fixed upstream (vanilla)
     private static final Vector3f DEF_LIGHT = Util.make(new Vector3f(0.55F, 0.3f, -0.8F), Vector3f::normalize);
     private static final Vector3f DIF_LIGHT = Util.make(new Vector3f(-0.8F, 0.3f, 0.55F), Vector3f::normalize);
@@ -183,7 +205,7 @@ public class ItemIcon extends Pane
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        matrixStack.translate(8.0F, 8.0F, 150.0F);
+        matrixStack.translate(8.0F, 8.0F, 0.0F);
         matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
         IRenderTypeBuffer.Impl irendertypebuffer$impl = mc.renderBuffers().bufferSource();
