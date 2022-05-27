@@ -95,7 +95,7 @@ public class StructurePlacer
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
-        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();;
+        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();
         BlockPos lastPos = inputPos;
         int count = 0;
 

@@ -25,6 +25,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
         if (this.progressPos.equals(NULL_POS))
         {
             this.progressPos.set(0, 0, 0);
+            return Result.NEW_BLOCK;
         }
 
         final BlockPos next = BlockPosUtil.getNextPosInCircleFrom(progressPos, BlockPos.ZERO, topRightCorner, height);
@@ -44,6 +45,7 @@ public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterat
         if (this.progressPos.equals(NULL_POS))
         {
             this.progressPos.set(0, topRightCorner.getY(), 0);
+            return Result.NEW_BLOCK;
         }
 
         progressPos.setY(topRightCorner.getY() - progressPos.getY());
