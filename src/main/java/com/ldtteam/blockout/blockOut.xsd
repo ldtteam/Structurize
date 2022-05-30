@@ -124,6 +124,7 @@
             <xs:element name="gradient" type="gradientType"/>
             <xs:element name="box" type="boxType"/>
             <xs:element name="itemicon" type="itemIconType"/>
+            <xs:element name="entityicon" type="entityIconType"/>
             <xs:element name="switch" type="switchType"/>
             <xs:element name="dropdown" type="dropdownType"/>
             <xs:element name="treeview" type="treeViewType"/>
@@ -217,6 +218,19 @@
         <xs:complexContent>
             <xs:extension base="paneType">
                 <xs:attribute name="item" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- <entityicon> -->
+    <xs:complexType name="entityIconType">
+        <xs:complexContent>
+            <xs:extension base="paneType">
+                <xs:attribute name="entity" type="xs:string"/>
+                <xs:attribute name="count" type="xs:integer"/>
+                <xs:attribute name="yaw" type="xs:float"/>
+                <xs:attribute name="pitch" type="xs:float"/>
+                <xs:attribute name="head" type="xs:float"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

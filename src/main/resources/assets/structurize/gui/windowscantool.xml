@@ -36,8 +36,9 @@
 
     <list id="entities" size="200 100" pos="220 100">
         <box size="100% 30" linewidth="2">
-            <label id="resourceName" size="100% 12" pos="0 1" color="white" wrap="true"/>
-            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeEntity" pos="0 13" size="86 17"
+            <entityicon id="resourceIcon" size="24 24" pos="1 4"/>
+            <label id="resourceName" size="166 12" pos="28 1" color="white" wrap="true"/>
+            <buttonimage label="$(com.ldtteam.structurize.gui.scanTool.remove)" id="removeEntity" pos="28 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
         </box>
     </list>
