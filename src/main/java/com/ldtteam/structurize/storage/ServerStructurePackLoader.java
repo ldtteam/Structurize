@@ -2,18 +2,26 @@ package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacks;
+import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import net.minecraft.Util;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Here we load the structure packs on the server side.
@@ -25,10 +33,16 @@ public class ServerStructurePackLoader
      */
     public enum ServerLoadingState
     {
+        UNINITIALIZED,
         LOADING,
         FINISHED_LOADING,
         FINISHED_SYNCING
     }
+
+    /**
+     * Bytebuffers that have to be synced to the client. Each buffer represents one structurepack.
+     */
+    private static ConcurrentLinkedQueue<PackagedPack> messageSendTasks = new ConcurrentLinkedQueue<>();
 
     /**
      * Map of the client sync requests that have to be handled yet.
@@ -38,13 +52,14 @@ public class ServerStructurePackLoader
     /**
      * Set after the client finished loading the schematics.
      */
-    public static volatile ServerStructurePackLoader.ServerLoadingState loadingState = ServerStructurePackLoader.ServerLoadingState.LOADING;
+    public static volatile ServerStructurePackLoader.ServerLoadingState loadingState = ServerLoadingState.UNINITIALIZED;
 
     /**
      * Called on server mod construction.
      */
     public static void onServerStarting()
     {
+        loadingState = ServerLoadingState.LOADING;
         final List<Path> modPaths = new ArrayList<>();
         final List<String> modList = new ArrayList<>();
         for (IModInfo mod : ModList.get().getMods())
@@ -53,9 +68,9 @@ public class ServerStructurePackLoader
             modList.add(mod.getModId());
         }
 
-        final Path gameFolder = ServerLifecycleHooks.getCurrentServer().getServerDirectory().toPath();
+        final Path gameFolder = new File(".").toPath();
 
-        Util.backgroundExecutor().execute(() ->
+        Util.ioPool().execute(() ->
         {
             // This loads from the jar
             for (final Path modPath : modPaths)
@@ -80,9 +95,9 @@ public class ServerStructurePackLoader
                 Log.getLogger().warn("Failed loading packs from main folder path: " + gameFolder.toString());
             }
 
-            Log.getLogger().warn("Finished discovering Structure packs");
+            Log.getLogger().warn("Finished discovering Server Structure packs");
 
-            for (final StructurePack pack : StructurePacks.packs.values())
+            for (final StructurePack pack : StructurePacks.packMetas.values())
             {
                 if (!pack.isImmutable())
                 {
@@ -97,8 +112,14 @@ public class ServerStructurePackLoader
      * Called on client sync attempt.
      * @param clientStructurePacks the client structure packs.
      */
-    public static void onClientSyncAttempt(final Map<String, Integer> clientStructurePacks, final Player player)
+    public static void onClientSyncAttempt(final Map<String, Integer> clientStructurePacks, final ServerPlayer player)
     {
+        if (loadingState == ServerLoadingState.UNINITIALIZED)
+        {
+            // Noop Single Player, Nothing to do here.
+            return;
+        }
+
         if (loadingState == ServerLoadingState.FINISHED_LOADING)
         {
             handleClientUpdate(clientStructurePacks, player);
@@ -112,15 +133,30 @@ public class ServerStructurePackLoader
     @SubscribeEvent
     public static void onWorldTick(final TickEvent.WorldTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END && event.world.isClientSide() && event.world.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+        if (event.phase == TickEvent.Phase.END && !event.world.isClientSide())
         {
-            loadingState = ServerLoadingState.FINISHED_SYNCING;
-            for (final Map.Entry<UUID, Map<String, Integer>> entry : clientSyncRequests.entrySet())
+            if (event.world.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
-                final Player player = event.world.getPlayerByUUID(entry.getKey());
+                loadingState = ServerLoadingState.FINISHED_SYNCING;
+                for (final Map.Entry<UUID, Map<String, Integer>> entry : clientSyncRequests.entrySet())
+                {
+                    final ServerPlayer player = (ServerPlayer) event.world.getPlayerByUUID(entry.getKey());
+                    if (player != null)
+                    {
+                        handleClientUpdate(entry.getValue(), player);
+                    }
+                }
+                clientSyncRequests.clear();
+            }
+
+            if (!messageSendTasks.isEmpty())
+            {
+                final PackagedPack packData = messageSendTasks.poll();
+                final ServerPlayer player = (ServerPlayer) event.world.getPlayerByUUID(packData.player);
+                // If the player logged off, we can just skip.
                 if (player != null)
                 {
-                    handleClientUpdate(entry.getValue(), player);
+                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf), player);
                 }
             }
         }
@@ -131,21 +167,118 @@ public class ServerStructurePackLoader
      * @param clientStructurePacks the client structure packs.
      * @param player the player.
      */
-    private static void handleClientUpdate(final Map<String, Integer> clientStructurePacks, final Player player)
+    private static void handleClientUpdate(final Map<String, Integer> clientStructurePacks, final ServerPlayer player)
     {
-        final List<String> packsToSync = new ArrayList<>();
-        for (final Map.Entry<String, StructurePack> entry : StructurePacks.packs.entrySet())
+        final UUID uuid = player.getUUID();
+        final Map<String, StructurePack> missingPacks = new HashMap<>();
+        final Map<String, StructurePack> packsToSync = new HashMap<>();
+
+        for (final Map.Entry<String, StructurePack> entry : StructurePacks.packMetas.entrySet())
         {
-            if (!entry.getValue().isImmutable() && clientStructurePacks.getOrDefault(entry.getKey(), -1) != entry.getValue().getVersion())
+            if (!entry.getValue().isImmutable())
             {
-                packsToSync.add(entry.getKey());
+                if (clientStructurePacks.getOrDefault(entry.getKey(), -1) != entry.getValue().getVersion())
+                {
+                    missingPacks.put(entry.getKey(), entry.getValue());
+                }
+                else
+                {
+                    packsToSync.put(entry.getKey(), entry.getValue());
+                }
             }
         }
 
-        //todo two messages:
-        // a) Server structurePack state (client can then already delete all packs that mismatch, or are missing (only delete outdated we're gonna replace soon, deactivate from list the others)
-        // b) Then one message per missing/outdated style. Collect this on a seperate tick, and then put those into a buffer to be sent over later.
-        Network.getNetwork().sendToPlayer(data, player);
-        //todo send over.
+        packsToSync.putAll(missingPacks);
+        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(packsToSync), player);
+
+        Util.ioPool().execute(() -> {
+            final List<StructurePack> missingPackList = new ArrayList<>(missingPacks.values());
+
+            for (final StructurePack pack : missingPackList)
+            {
+                final ByteBuf outputBuf = zipPack(pack.getPath());
+                if (outputBuf != null)
+                {
+                    messageSendTasks.add(new PackagedPack(pack.getName(), uuid, outputBuf));
+                }
+            }
+
+        });
+    }
+
+    /**
+     * ZIP up the data from the pack path and put it into a bytebuffer.
+     * @param sourcePath the source path.
+     * @return the bytebuffer to serialize it on the network.
+     */
+    private static ByteBuf zipPack(final Path sourcePath)
+    {
+        final ByteBuf buffer = Unpooled.buffer();
+        try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))
+        {
+            ZipOutputStream zos = new ZipOutputStream(stream);
+            Files.walkFileTree(sourcePath, new SimpleFileVisitor<>()
+            {
+                @Override
+                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+                {
+                    if (!sourcePath.equals(dir))
+                    {
+                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
+                        zos.closeEntry();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+                {
+                    zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
+                    Files.copy(file, zos);
+                    zos.closeEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().warn("Unable to ZIP up: " + sourcePath.toString());
+            return null;
+        }
+        return buffer;
+    }
+
+    /**
+     * Data required to send a structure pack to a client.
+     */
+    private static class PackagedPack
+    {
+        /**
+         * The unique name of the structure pack.
+         */
+        private final String structurePack;
+
+        /**
+         * The player UUID to send it to.
+         */
+        private final UUID player;
+
+        /**
+         * The zipped data.
+         */
+        private final ByteBuf buf;
+
+        /**
+         * Create a new pack.
+         * @param structurePack the name of the pack.
+         * @param player the player to send it to.
+         * @param buf the zipped data.
+         */
+        public PackagedPack(final String structurePack, final UUID player, final ByteBuf buf)
+        {
+            this.structurePack = structurePack;
+            this.player = player;
+            this.buf = buf;
+        }
     }
 }

@@ -7,7 +7,6 @@ import com.ldtteam.structurize.api.util.Log;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +27,7 @@ public class StructurePacks
      * The list of registered structure packs.
      * This might be accessed concurrently by client/server. That's why it is a concurrent hashmap.
      */
-    public static Map<String, StructurePack> packs = new ConcurrentHashMap<>();
+    public static Map<String, StructurePack> packMetas = new ConcurrentHashMap<>();
 
     // todo We now need a way to get a blueprint, given
     //  a) The StructurePack ID and
@@ -59,7 +58,7 @@ public class StructurePacks
                             return;
                         }
                     }
-                    packs.put(pack.getName(), pack);
+                    packMetas.put(pack.getName(), pack);
                     Log.getLogger().info("Registered structure pack: " + pack.getName());
                 }
                 else

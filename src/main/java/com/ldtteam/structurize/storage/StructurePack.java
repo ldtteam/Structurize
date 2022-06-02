@@ -78,7 +78,7 @@ public class StructurePack
         this.desc = json.get("desc").getAsString();
 
         this.mods = new ArrayList<>();
-        final JsonArray modsArray = json.get("authors").getAsJsonArray();
+        final JsonArray modsArray = json.get("mods").getAsJsonArray();
         for (int i = 0; i < modsArray.size(); i++)
         {
             mods.add(modsArray.get(i).getAsString());
@@ -140,5 +140,13 @@ public class StructurePack
     public List<String> getModList()
     {
         return mods;
+    }
+
+    /**
+     * Get the structure pack root path.
+     */
+    public Path getPath()
+    {
+        return this.rootPath;
     }
 }

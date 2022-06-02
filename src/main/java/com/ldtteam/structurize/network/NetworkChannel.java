@@ -105,6 +105,8 @@ public class NetworkChannel
         registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
 
         registerMessage(++idx, NotifyServerAboutStructurePacks.class, NotifyServerAboutStructurePacks::new);
+        registerMessage(++idx, NotifyClientAboutStructurePacks.class, NotifyClientAboutStructurePacks::new);
+        registerMessage(++idx, TransferStructurePackToClient.class, TransferStructurePackToClient::new);
     }
 
     private void setupInternalMessages()
@@ -138,7 +140,7 @@ public class NetworkChannel
      */
     public void sendToServer(final IMessage msg)
     {
-        handleSplitting(msg, s -> rawChannel.sendToServer(msg));
+        handleSplitting(msg, rawChannel::sendToServer);
     }
 
     /**
@@ -149,7 +151,7 @@ public class NetworkChannel
      */
     public void sendToPlayer(final IMessage msg, final ServerPlayer player)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.PLAYER.with(() -> player), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.PLAYER.with(() -> player), s));
     }
 
     /**
@@ -194,7 +196,7 @@ public class NetworkChannel
      */
     public void sendToPosition(final IMessage msg, final PacketDistributor.TargetPoint pos)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.NEAR.with(() -> pos), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.NEAR.with(() -> pos), s));
     }
 
     /**
@@ -204,7 +206,7 @@ public class NetworkChannel
      */
     public void sendToEveryone(final IMessage msg)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.ALL.noArg(), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.ALL.noArg(), s));
     }
 
     /**
@@ -221,7 +223,7 @@ public class NetworkChannel
      */
     public void sendToTrackingEntity(final IMessage msg, final Entity entity)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), s));
     }
 
     /**
@@ -238,7 +240,7 @@ public class NetworkChannel
      */
     public void sendToTrackingEntityAndSelf(final IMessage msg, final Entity entity)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), s));
     }
 
     /**
@@ -249,7 +251,7 @@ public class NetworkChannel
      */
     public void sendToTrackingChunk(final IMessage msg, final LevelChunk chunk)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg));
+        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), s));
     }
 
     /**
