@@ -20,7 +20,6 @@ import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Mirror;
@@ -344,22 +343,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Ignore the blocks already in the world
-     */
-    private void replaceBlocksToggle()
-    {
-        final Button replaceButton = findPaneOfTypeByID(BUTTON_REPLACE, Button.class);
-        if (replaceButton.getTextAsString().equalsIgnoreCase(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.replace").getString()))
-        {
-            replaceButton.setText(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.ignore"));
-        }
-        else if (replaceButton.getTextAsString().equalsIgnoreCase(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.ignore").getString()))
-        {
-            replaceButton.setText(new TranslatableComponent("com.ldtteam.structurize.gui.shapetool.replace"));
-        }
-    }
-
-    /**
      * Toggle the hollow or solid inputShape
      */
     private void hollowShapeToggle()
@@ -470,6 +453,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      * Sets up the buttons for either hut mode or decoration mode.
      */
     @Override
+    @SuppressWarnings("resource")
     public void onOpened()
     {
         if (!hasPermission())
@@ -496,6 +480,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      *
      * @return true if so.
      */
+    @SuppressWarnings("resource")
     public boolean isCreative()
     {
         return Minecraft.getInstance().player.isCreative();

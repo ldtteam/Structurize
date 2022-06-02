@@ -86,7 +86,6 @@ public class BlueprintRenderer implements AutoCloseable
     private BlueprintRenderer(final BlueprintBlockAccess blockAccess)
     {
         this.blockAccess = blockAccess;
-        init();
     }
 
     /**
@@ -103,6 +102,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
+    @SuppressWarnings("resource")
     private void init()
     {
         final Map<BlockPos, IModelData> teModelData = new HashMap<>();
@@ -116,9 +116,7 @@ public class BlueprintRenderer implements AutoCloseable
         final PoseStack matrixStack = new PoseStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
         final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();
-        final BlockState defaultFluidState = Minecraft.getInstance().level != null
-            ? BlockUtils.getFluidForDimension(Minecraft.getInstance().level)
-            : Blocks.WATER.defaultBlockState();
+        final BlockState defaultFluidState = BlockUtils.getFluidForDimension(Minecraft.getInstance().level);
 
         for (final RenderType renderType : RenderType.chunkBufferLayers())
         {
@@ -185,14 +183,15 @@ public class BlueprintRenderer implements AutoCloseable
         final long gameTime = mc.level.getGameTime();
     
         mc.getProfiler().push("struct_render_init");
-        if (Settings.instance.shouldRefresh())
+        final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
+        blockAccess.setWorldPos(anchorPos);
+        if (Settings.instance.shouldRefresh() || vertexBuffers == null)
         {
             init();
         }
 
         mc.getProfiler().popPush("struct_render_prepare");
         final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
-        final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(anchorPos).subtract(viewPosition);
         final Vector3f realRenderRootVecf = new Vector3f(realRenderRootVecd);
 

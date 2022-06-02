@@ -369,23 +369,6 @@ public class TickedWorldOperation
     }
 
     /**
-     * Is this the correct block to remove it or replace it.
-     *
-     * @param replacementStack the world stack to check.
-     * @param worldState       the world state to check.
-     * @param compareStack     the comparison stack.
-     * @return true if so.
-     */
-    private static boolean correctBlockToRemoveOrReplace(final ItemStack replacementStack, final BlockState worldState, final ItemStack compareStack)
-    {
-        return (replacementStack != null && replacementStack.sameItem(compareStack)
-                  || (compareStack.getItem() instanceof BucketItem && ((BucketItem) compareStack.getItem()).getFluid() == worldState.getFluidState().getType())
-                  || (compareStack.getItem() instanceof BucketItem && worldState.getBlock() instanceof LiquidBlock
-                        && ((BucketItem) compareStack.getItem()).getFluid() == ((LiquidBlock) worldState.getBlock()).getFluid())
-                  || (compareStack.getItem() == Items.AIR && (worldState.getBlock() == Blocks.AIR)));
-    }
-
-    /**
      * Get the current change storage of this operation.
      *
      * @return the ChangeStorage object.

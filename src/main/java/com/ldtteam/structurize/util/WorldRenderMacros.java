@@ -840,6 +840,7 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
+    @SuppressWarnings("resource")
     public static void renderDebugText(final BlockPos pos,
         final List<String> text,
         final PoseStack matrixStack,
@@ -926,7 +927,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
@@ -946,7 +947,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
@@ -966,7 +967,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
@@ -986,7 +987,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_DEPTH_WRITE)
                 .createCompositeState(false));
@@ -1006,7 +1007,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_DEPTH_WRITE)
                 .createCompositeState(false));
@@ -1026,7 +1027,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
-                .setOutputState(ITEM_ENTITY_TARGET)
+                .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));

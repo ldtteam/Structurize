@@ -179,6 +179,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         });
     }
 
+    @SuppressWarnings("resource")
     private void updateResources()
     {
         allItems.clear();
@@ -218,6 +219,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         }
     }
 
+    @SuppressWarnings("resource")
     public void doneClicked(final Button button)
     {
         final ItemStack to = findPaneOfTypeByID("resourceIconTo", ItemIcon.class).getItem();

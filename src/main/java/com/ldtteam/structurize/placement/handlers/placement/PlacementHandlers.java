@@ -236,9 +236,22 @@ public final class PlacementHandlers
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
+
             if (!world.getBlockState(pos.below()).getMaterial().isSolid())
             {
-                itemList.addAll(getRequiredItemsForState(world, pos, BlockUtils.getSubstitutionBlockAtWorld(world, pos), tileEntityData, complete));
+                BlockPos posBelow = pos;
+                BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
+                for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
+                { 
+                    posBelow = posBelow.below();
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
+                    if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    {
+                        supportBlockState = possibleSupport;
+                        break;
+                    }
+                }
+                itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
             }
             return itemList;
         }
@@ -259,7 +272,19 @@ public final class PlacementHandlers
 
             if (!world.getBlockState(pos.below()).getMaterial().isSolid())
             {
-                world.setBlock(pos.below(), BlockUtils.getSubstitutionBlockAtWorld(world, pos), UPDATE_FLAG);
+                BlockPos posBelow = pos;
+                BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
+                for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
+                { 
+                    posBelow = posBelow.below();
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
+                    if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    {
+                        supportBlockState = possibleSupport;
+                        break;
+                    }
+                }
+                world.setBlock(pos.below(), supportBlockState, UPDATE_FLAG);
             }
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {

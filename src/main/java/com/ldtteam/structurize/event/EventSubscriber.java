@@ -28,6 +28,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -93,23 +94,24 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onPlayerLogin(final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getPlayer() instanceof ServerPlayer)
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer)
         {
-            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), (ServerPlayer) event.getPlayer());
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), (ServerPlayer) event.getPlayer());
+            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
+            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
         }
     }
 
     @SubscribeEvent
     public static void onWorldTick(final TickEvent.WorldTickEvent event)
     {
-        if (event.world.isClientSide)
+        if (event.world instanceof ServerLevel serverLevel)
         {
-            return;
+            if (event.phase == Phase.START)
+            {
+                Manager.onWorldTick(serverLevel);
+            }
         }
-        Manager.onWorldTick((ServerLevel) event.world);
     }
-
 
     @SubscribeEvent
     public static void onMissingBlockMappings(final RegistryEvent.MissingMappings<Block> missingBlockEvent)
@@ -210,7 +212,7 @@ public class EventSubscriber
         });
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressWarnings({"ResultOfMethodCallIgnored","resource"})
     @SubscribeEvent
     public static void onGatherServerLevelCapabilities(final AttachCapabilitiesEvent<Level> attachCapabilitiesEvent)
     {

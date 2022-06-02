@@ -498,9 +498,9 @@ public class Blueprint
     private BlockPos findPrimaryBlockOffset()
     {
         final List<BlockInfo> list = getBlockInfoAsList().stream()
-                                       .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock
-                                                              || (blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
-            .collect(Collectors.toList());
+            .filter(blockInfo -> blockInfo.getState().getBlock() instanceof IAnchorBlock ||
+                (blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
+            .toList();
 
         if (list.size() != 1)
         {

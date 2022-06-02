@@ -41,7 +41,6 @@ public final class BlueprintHandler
      *
      * @return a static instance of this class.
      */
-    @Deprecated // INTERNAL USE ONLY
     public static BlueprintHandler getInstance()
     {
         return ourInstance;

@@ -91,6 +91,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void close()
     {
         super.close();

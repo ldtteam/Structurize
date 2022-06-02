@@ -322,6 +322,7 @@ public final class StructureLoadingUtils
      *
      * @return the folder for the cached schematics
      */
+    @SuppressWarnings("resource")
     public static List<File> getCachedSchematicsFolders()
     {
         final List<File> cachedSchems = new ArrayList<>();
@@ -352,6 +353,7 @@ public final class StructureLoadingUtils
      *
      * @return the client folder.
      */
+    @SuppressWarnings("resource")
     public static List<File> getClientSchematicsFolders()
     {
         final List<File> clientSchems = new ArrayList<>();

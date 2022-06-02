@@ -214,6 +214,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         this.init(pos, 0, groundstyle);
     }
 
+    @SuppressWarnings("resource")
     private void init(final BlockPos pos, final int rot, final int groundstyle)
     {
         @Nullable
@@ -507,6 +508,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      * Also updates state via {@link LSStructureDisplayerMessage}
      */
     @Override
+    @SuppressWarnings("resource")
     public void onClosed()
     {
         if (Settings.instance.getActiveStructure() != null)
@@ -930,6 +932,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Changes the current structure.
      */
+    @SuppressWarnings("resource")
     public static void commonStructureUpdate()
     {
         final String sname = Settings.instance.getStructureName();
@@ -1149,6 +1152,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
      *
      * @return true if so.
      */
+    @SuppressWarnings("resource")
     public boolean hasPermission()
     {
         final boolean result = Minecraft.getInstance().player.isCreative();

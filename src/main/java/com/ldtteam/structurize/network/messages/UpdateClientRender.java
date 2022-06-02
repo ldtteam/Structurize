@@ -56,6 +56,7 @@ public class UpdateClientRender implements IMessage
         return LogicalSide.CLIENT;
     }
 
+    @SuppressWarnings("resource")
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
