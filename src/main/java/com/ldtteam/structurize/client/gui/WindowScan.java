@@ -2,10 +2,7 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockout.Color;
 import com.ldtteam.blockout.Pane;
-import com.ldtteam.blockout.controls.Button;
-import com.ldtteam.blockout.controls.ItemIcon;
-import com.ldtteam.blockout.controls.Text;
-import com.ldtteam.blockout.controls.TextField;
+import com.ldtteam.blockout.controls.*;
 import com.ldtteam.blockout.views.ScrollingList;
 import com.ldtteam.structures.helpers.Settings;
 import com.ldtteam.structurize.Network;
@@ -453,6 +450,7 @@ public class WindowScan extends AbstractWindowSkeleton
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText((IFormattableTextComponent) tempEntities.get(index).getName());
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, EntityIcon.class).setEntity(tempEntities.get(index));
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
