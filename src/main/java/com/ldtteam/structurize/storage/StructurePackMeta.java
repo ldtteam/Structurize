@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Wrapper that contains all the info of the structure pack.
  */
-public class StructurePack
+public class StructurePackMeta
 {
     /**
      * The name of the pack.
@@ -63,7 +63,7 @@ public class StructurePack
      *
      * @param json the json to use.
      */
-    public StructurePack(final JsonObject json, final Path rootPath)
+    public StructurePackMeta(final JsonObject json, final Path rootPath)
     {
         this.packName = json.get("name").getAsString();
         this.iconPath = json.get("icon").getAsString();

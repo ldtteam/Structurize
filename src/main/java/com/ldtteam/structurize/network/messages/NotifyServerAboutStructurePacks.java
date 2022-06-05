@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
-import com.ldtteam.structurize.storage.StructurePack;
+import com.ldtteam.structurize.storage.StructurePackMeta;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -37,9 +37,9 @@ public class NotifyServerAboutStructurePacks implements IMessage
      * Notify the server about the client structurepacks.
      * @param clientStructurePacks the list of packs.
      */
-    public NotifyServerAboutStructurePacks(final Map<String, StructurePack> clientStructurePacks)
+    public NotifyServerAboutStructurePacks(final Map<String, StructurePackMeta> clientStructurePacks)
     {
-        for (final StructurePack pack : clientStructurePacks.values())
+        for (final StructurePackMeta pack : clientStructurePacks.values())
         {
             if (!pack.isImmutable())
             {

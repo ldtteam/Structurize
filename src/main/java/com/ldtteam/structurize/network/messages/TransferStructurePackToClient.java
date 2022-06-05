@@ -24,11 +24,17 @@ public class TransferStructurePackToClient implements IMessage
     private final String packname;
 
     /**
+     * If the last message.
+     */
+    private final boolean eol;
+
+    /**
      * Public standard constructor.
      */
     public TransferStructurePackToClient(final FriendlyByteBuf buf)
     {
         this.packname = buf.readUtf(32767);
+        this.eol = buf.readBoolean();
         this.payload = Unpooled.wrappedBuffer(buf.readByteArray());
     }
 
@@ -36,17 +42,20 @@ public class TransferStructurePackToClient implements IMessage
      * Transfer a zipped structure pack to the client.
      * @param packName the name of the structure pack.
      * @param payload the payload.
+     * @param eol if last message to client.
      */
-    public TransferStructurePackToClient(final String packName, final ByteBuf payload)
+    public TransferStructurePackToClient(final String packName, final ByteBuf payload, final boolean eol)
     {
         this.packname = packName;
         this.payload = payload;
+        this.eol = eol;
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(this.packname);
+        buf.writeBoolean(this.eol);
         buf.writeByteArray(this.payload.array());
         this.payload.release();
     }
@@ -63,7 +72,7 @@ public class TransferStructurePackToClient implements IMessage
     {
         if (!isLogicalServer)
         {
-            ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload);
+            ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload, this.eol);
         }
     }
 }

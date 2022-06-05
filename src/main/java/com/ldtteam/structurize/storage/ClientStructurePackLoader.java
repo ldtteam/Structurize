@@ -30,7 +30,7 @@ import java.util.zip.ZipInputStream;
  */
 public class ClientStructurePackLoader
 {
-    //todo add Md5 support in the future (stronger consistency guarantee).
+    //todo add md5 support in the future (stronger consistency guarantee).
 
     /**
      * Different states of the client structure loading progress.
@@ -127,7 +127,7 @@ public class ClientStructurePackLoader
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
         boolean needsChanges = false;
-        for (final Map.Entry<String, StructurePack> entry : new ArrayList<>(StructurePacks.packMetas.entrySet()))
+        for (final Map.Entry<String, StructurePackMeta> entry : new ArrayList<>(StructurePacks.packMetas.entrySet()))
         {
             if (!entry.getValue().isImmutable())
             {
@@ -168,13 +168,14 @@ public class ClientStructurePackLoader
      *
      * @param packName the name of the structure pack.
      * @param payload the payload of the pack.
+     * @param eol if last sync.
      */
-    public static void onStructurePackTransfer(final String packName, final ByteBuf payload)
+    public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
     {
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         Util.backgroundExecutor().execute(() ->
         {
-            final StructurePack pack = StructurePacks.packMetas.remove(packName);
+            final StructurePackMeta pack = StructurePacks.packMetas.remove(packName);
             if (pack != null)
             {
                 try
@@ -234,6 +235,10 @@ public class ClientStructurePackLoader
             }
 
             payload.release();
+            if (eol)
+            {
+                loadingState = ClientLoadingState.FINISHED_SYNCING;
+            }
         });
     }
 

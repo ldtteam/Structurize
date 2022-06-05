@@ -97,7 +97,7 @@ public class ServerStructurePackLoader
 
             Log.getLogger().warn("Finished discovering Server Structure packs");
 
-            for (final StructurePack pack : StructurePacks.packMetas.values())
+            for (final StructurePackMeta pack : StructurePacks.packMetas.values())
             {
                 if (!pack.isImmutable())
                 {
@@ -156,7 +156,7 @@ public class ServerStructurePackLoader
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {
-                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf), player);
+                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol), player);
                 }
             }
         }
@@ -170,10 +170,10 @@ public class ServerStructurePackLoader
     private static void handleClientUpdate(final Map<String, Integer> clientStructurePacks, final ServerPlayer player)
     {
         final UUID uuid = player.getUUID();
-        final Map<String, StructurePack> missingPacks = new HashMap<>();
-        final Map<String, StructurePack> packsToSync = new HashMap<>();
+        final Map<String, StructurePackMeta> missingPacks = new HashMap<>();
+        final Map<String, StructurePackMeta> packsToSync = new HashMap<>();
 
-        for (final Map.Entry<String, StructurePack> entry : StructurePacks.packMetas.entrySet())
+        for (final Map.Entry<String, StructurePackMeta> entry : StructurePacks.packMetas.entrySet())
         {
             if (!entry.getValue().isImmutable())
             {
@@ -192,17 +192,16 @@ public class ServerStructurePackLoader
         Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(packsToSync), player);
 
         Util.ioPool().execute(() -> {
-            final List<StructurePack> missingPackList = new ArrayList<>(missingPacks.values());
-
-            for (final StructurePack pack : missingPackList)
+            int index = 0;
+            for (final StructurePackMeta pack : new ArrayList<>(missingPacks.values()))
             {
                 final ByteBuf outputBuf = zipPack(pack.getPath());
                 if (outputBuf != null)
                 {
-                    messageSendTasks.add(new PackagedPack(pack.getName(), uuid, outputBuf));
+                    messageSendTasks.add(new PackagedPack(pack.getName(), uuid, outputBuf, index == missingPacks.size()));
                 }
+                index++;
             }
-
         });
     }
 
@@ -269,16 +268,23 @@ public class ServerStructurePackLoader
         private final ByteBuf buf;
 
         /**
+         * Is this the EOL package? (true if so).
+         */
+        private final boolean eol;
+
+        /**
          * Create a new pack.
          * @param structurePack the name of the pack.
          * @param player the player to send it to.
          * @param buf the zipped data.
+         * @param eol last message.
          */
-        public PackagedPack(final String structurePack, final UUID player, final ByteBuf buf)
+        public PackagedPack(final String structurePack, final UUID player, final ByteBuf buf, final boolean eol)
         {
             this.structurePack = structurePack;
             this.player = player;
             this.buf = buf;
+            this.eol = eol;
         }
     }
 }
