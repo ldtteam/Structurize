@@ -8,6 +8,7 @@ import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -38,10 +39,7 @@ public class StructurePacks
      * This might be accessed concurrently by client/server. That's why it is a concurrent hashmap.
      */
     public static Map<String, StructurePackMeta> packMetas = new ConcurrentHashMap<>();
-
-    // todo: get folder future (all sub folders of this folder)
-    // todo: get display png path if folder has it.
-
+    
     /**
      * Get a blueprint future.
      * @param structurePackId the structure pack the blueprint is in.
@@ -56,8 +54,8 @@ public class StructurePacks
     /**
      * Get a list blueprint future.
      * @param structurePackId the structure pack the blueprint is in.
-     * @param subPath the path of the specific blueprint in the pack.
-     * @return the blueprint future (might contain null).
+     * @param subPath the path of the set of blueprints (usually a folder).
+     * @return the blueprints list (might be empty).
      */
     public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath)
     {
@@ -137,6 +135,17 @@ public class StructurePacks
 
     /**
      * Get a list of categories of a specific sub-path of a given structure pack.
+     * @param structurePackId the id of the pack.
+     * @param subPath the sub-path.
+     * @return the list of categories.
+     */
+    public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
+    {
+        return Util.ioPool().submit(() -> getCategories(structurePackId, subPath));
+    }
+
+    /**
+     * Get a list of categories of a specific sub-path of a given structure pack.
      * This has IO, this may be slow.
      * @param structurePackId the id of the pack.
      * @param subPath the sub-path.
@@ -156,19 +165,29 @@ public class StructurePacks
         {
             Files.list(packMeta.getPath().resolve(subPath)).forEach(file -> {
 
-                //we're in this folder, and we want to check if there are sub-folders in here. For each of the usbfolders we create a category,
-                // each of the subfolders we scan to check if they got an icon and if they got further sub-folders. Then we create a category for them.
-
-                if (!Files.isDirectory(file) && file.endsWith("blueprint"))
+                if (Files.isDirectory(file))
                 {
+                    final Category newCategory = new Category(packMeta, file, false, true);
+                    newCategory.hasIcon = false;
+                    newCategory.isTerminal = true;
+
                     try
                     {
-                        final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
-                        blueprints.add(BlueprintUtil.readBlueprintFromNBT(nbt));
+                        Files.list(packMeta.getPath().resolve(subPath)).forEach(subFile -> {
+                            if (subFile.endsWith("icon.png"))
+                            {
+                                newCategory.hasIcon = true;
+                            }
+                            else if (Files.isDirectory(subFile))
+                            {
+                                newCategory.isTerminal = false;
+                            }
+                        });
+                        categories.add(newCategory);
                     }
                     catch (final IOException e)
                     {
-                        Log.getLogger().error("Error loading individual blueprint: " + file.toString(), e);
+                        Log.getLogger().error("Error loading category: " + file, e);
                         e.printStackTrace();
                     }
                 }
@@ -176,7 +195,7 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprints from folder: " + subPath.toString(), e);
+            Log.getLogger().error("Error loading categories from folder: " + subPath, e);
             e.printStackTrace();
         }
         return categories;
@@ -246,5 +265,20 @@ public class StructurePacks
          * If the category got further sub-categories.
          */
         public boolean isTerminal;
+
+        /**
+         * Create a new category.
+         * @param packMeta the structure pack it belongs to.
+         * @param subPath the sub path.
+         * @param hasIcon if it has an icon.
+         * @param isTerminal if it's terminal (no further sub-folders).
+         */
+        public Category(final StructurePackMeta packMeta, final Path subPath, final boolean hasIcon, final boolean isTerminal)
+        {
+            this.packMeta = packMeta;
+            this.subPath = subPath.toString().replace(packMeta.toString(), "");
+            this.hasIcon = hasIcon;
+            this.isTerminal = isTerminal;
+        }
     }
 }
