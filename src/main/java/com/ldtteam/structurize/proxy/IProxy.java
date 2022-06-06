@@ -2,7 +2,6 @@ package com.ldtteam.structurize.proxy;
 
 import java.io.File;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 
 /**
@@ -36,12 +35,6 @@ public interface IProxy
      */
     @Nullable
     default File getSchematicsFolder()
-    {
-        return null;
-    }
-
-    @Nullable
-    default BlockState getBlockStateFromWorld(final BlockPos pos)
     {
         return null;
     }

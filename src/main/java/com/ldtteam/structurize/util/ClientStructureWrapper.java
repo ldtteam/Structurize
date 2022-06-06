@@ -36,6 +36,7 @@ public final class ClientStructureWrapper
      * @param CompoundNBT compound to store.
      * @param fileName       milli seconds for fileName.
      */
+    @SuppressWarnings("resource")
     public static void handleSaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
     {
         final StructureName structureName =
@@ -57,15 +58,5 @@ public final class ClientStructureWrapper
 
         LanguageHandler.sendPlayerMessage(Minecraft.getInstance().player, "item.scepterSteel.scanSuccess", file);
         Settings.instance.setStructureName(structureName.toString());
-    }
-
-    /**
-     * Send a message to the player informing him that the schematic is too big.
-     *
-     * @param maxSize is the maximum size allowed in bytes.
-     */
-    public static void sendMessageSchematicTooBig(final int maxSize)
-    {
-        LanguageHandler.sendPlayerMessage(Minecraft.getInstance().player, "com.ldtteam.structurize.network.messages.schematicsavemessage.toobig", maxSize);
     }
 }

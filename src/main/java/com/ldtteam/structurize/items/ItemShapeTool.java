@@ -21,7 +21,8 @@ public class ItemShapeTool extends AbstractItemStructurize
         super("shapetool", properties.stacksTo(1));
     }
 
-        @Override
+    @Override
+    @SuppressWarnings("resource")
     public InteractionResult useOn(final UseOnContext context)
     {
         if (context.getLevel().isClientSide)

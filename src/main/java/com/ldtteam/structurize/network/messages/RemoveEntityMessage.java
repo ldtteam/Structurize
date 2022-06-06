@@ -2,7 +2,6 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
-import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.network.FriendlyByteBuf;

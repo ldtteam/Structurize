@@ -96,7 +96,7 @@ public class StructurePlacer
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
-        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();;
+        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();
         BlockPos lastPos = inputPos;
         int count = 0;
 
@@ -296,7 +296,9 @@ public class StructurePlacer
 
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution.get() && handler.fancyPlacement())
         {
-            localState = this.handler.getSolidBlockForPos(worldPos);
+            localState = this.handler.getSolidBlockForPos(worldPos, localPos.getY() + 1 < handler.getBluePrint().getSizeY()
+                ? handler.getBluePrint().getBlockState(localPos.above())
+                : null);
         }
         if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
         {
@@ -438,7 +440,9 @@ public class StructurePlacer
 
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution.get() && handler.fancyPlacement())
         {
-            localState = this.handler.getSolidBlockForPos(worldPos);
+            localState = this.handler.getSolidBlockForPos(worldPos, localPos.getY() + 1 < handler.getBluePrint().getSizeY()
+                ? handler.getBluePrint().getBlockState(localPos.above())
+                : null);
         }
         if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
         {

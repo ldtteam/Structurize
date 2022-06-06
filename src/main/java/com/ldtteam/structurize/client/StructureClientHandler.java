@@ -14,12 +14,6 @@ public final class StructureClientHandler
         throw new IllegalArgumentException("Utility class");
     }
 
-    @Deprecated // INTERNAL USE ONLY
-    public static void renderStructure(final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
-    {
-        BlueprintHandler.getInstance().draw(blueprint, pos, stack, partialTicks);
-    }
-
     /**
      * Renders blueprint at single position.
      *
@@ -29,14 +23,8 @@ public final class StructureClientHandler
     public static void renderStructureAtPos(final Blueprint blueprint, final float partialTicks, final BlockPos pos, final PoseStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();
-        renderStructure(blueprint, partialTicks, pos, stack);
+        BlueprintHandler.getInstance().draw(blueprint, pos, stack, partialTicks);
         OptifineCompat.getInstance().postBlueprintDraw();
-    }
-
-    @Deprecated // INTERNAL USE ONLY
-    public static void renderStructure(final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
-    {
-        BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, stack, partialTicks);
     }
 
     /**
@@ -49,7 +37,7 @@ public final class StructureClientHandler
     public static void renderStructureAtPosList(final Blueprint blueprint, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
     {
         OptifineCompat.getInstance().preBlueprintDraw();
-        renderStructure(blueprint, partialTicks, points, stack);
+        BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, stack, partialTicks);
         OptifineCompat.getInstance().postBlueprintDraw();
     }
 }

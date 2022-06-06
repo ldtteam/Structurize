@@ -1,70 +1,80 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.helpers.Settings;
+import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.core.Holder;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.entity.LevelEntityGetter;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.Explosion.BlockInteraction;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.Heightmap.Types;
-import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraft.world.level.storage.WritableLevelData;
-import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.ticks.LevelTickAccess;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
-
+import net.minecraft.core.SectionPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.ClipBlockStateContext;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Explosion.BlockInteraction;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.ticks.LevelTickAccess;
+import net.minecraft.world.ticks.TickPriority;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
- * Our world/blockAccess dummy.
- * TODO: client level
+ * Our world/blockAccess dummy. TODO: client level
  */
 public class BlueprintBlockAccess extends Level
 {
@@ -76,23 +86,30 @@ public class BlueprintBlockAccess extends Level
     private Blueprint blueprint;
 
     /**
+     * Current rendering worldPos so we can use local real world info
+     */
+    private BlockPos worldPos;
+
+    /**
      * Constructor to create a new world/blockAccess
      * 
      * @param blueprint the blueprint.
      */
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super((WritableLevelData) getWorld().getLevelData(),
-            getWorld().dimension(),
-            getWorld().dimensionTypeRegistration(),
-            () -> getWorld().getProfiler(),
+        super(new BlueprintLevelData(clientLevel().getLevelData()),
+            clientLevel().dimension(),
+            clientLevel().dimensionTypeRegistration(),
+            () -> clientLevel().getProfiler(),
             true,
-            true,
-            0L);
+            false,
+            0);
         this.blueprint = blueprint;
     }
 
-    public static Level getWorld() {
+    @SuppressWarnings("resource")
+    private static ClientLevel clientLevel()
+    {
         return Minecraft.getInstance().level;
     }
 
@@ -106,6 +123,11 @@ public class BlueprintBlockAccess extends Level
         blueprint = blueprintIn;
     }
 
+    public void setWorldPos(final BlockPos worldPos)
+    {
+        this.worldPos = worldPos;
+    }
+
     @Nullable
     @Override
     public BlockEntity getBlockEntity(final BlockPos pos)
@@ -113,64 +135,110 @@ public class BlueprintBlockAccess extends Level
         return BlueprintUtils.getTileEntityFromPos(blueprint, pos, this);
     }
 
-        @Override
+    @Override
     public BlockState getBlockState(final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
         if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
-            return Blocks.DIRT.defaultBlockState();
+            final BlockInfo blockAbove = blueprint.getBlockInfoAsMap().get(pos.above());
+            return BlockUtils.getSubstitutionBlockAtWorld(clientLevel(), pos, blockAbove == null ? null : blockAbove.getState());
         }
         if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
         {
-            return Minecraft.getInstance().level != null
-                    ? BlockUtils.getFluidForDimension( Minecraft.getInstance().level)
-                    : Blocks.WATER.defaultBlockState();
+            return BlockUtils.getFluidForDimension(clientLevel());
         }
-        return (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders()) ||
-                 state.getBlock() == ModBlocks.blockTagSubstitution.get() ? Blocks.AIR.defaultBlockState() : state;
+        if (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders())
+        {
+            return Blocks.AIR.defaultBlockState();
+        }
+        if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+        {
+            return Blocks.AIR.defaultBlockState();
+        }
+        return state;
     }
 
     @Override
     public ChunkAccess getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull)
     {
-        return new BlueprintChunk(this, x, z);
+        return nonnull || hasChunk(x, z) ? new BlueprintChunk(this, x, z) : null;
+    }
+
+    @Override
+    public boolean hasChunk(int chunkX, int chunkZ)
+    {
+        final int posX = SectionPos.sectionToBlockCoord(chunkX);
+        final int posZ = SectionPos.sectionToBlockCoord(chunkZ);
+        return posX <= blueprint.getSizeX() && posZ <= blueprint.getSizeZ();
     }
 
     @Override
     public int getMaxLocalRawBrightness(final BlockPos pos)
     {
-        return 15;
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+            clientLevel().getMaxLocalRawBrightness(worldPos.offset(pos));
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public float getBrightness(final BlockPos pos)
     {
-        return 15f;
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+            clientLevel().getBrightness(worldPos.offset(pos));
     }
 
     @Override
     public int getBrightness(final LightLayer lightType, final BlockPos pos)
     {
-        return 15;
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+            clientLevel().getBrightness(lightType, worldPos.offset(pos));
     }
 
     @Override
-    public int getRawBrightness(BlockPos blockPosIn, int amount)
+    public int getRawBrightness(BlockPos pos, int amount)
     {
-        return 15;
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+            clientLevel().getRawBrightness(worldPos.offset(pos), amount);
     }
 
     @Override
-    public float getShade(Direction p_230487_1_, boolean p_230487_2_)
+    public float getShade(Direction p_104703_, boolean p_104704_)
     {
-        return 0.9f;
+        // VANILLA INLINE: from clientlevel
+        final boolean flag = clientLevel().effects().constantAmbientLight();
+        if (!p_104704_)
+        {
+            return flag ? 0.9F : 1.0F;
+        }
+        else
+        {
+            switch (p_104703_)
+            {
+                case DOWN:
+                    return flag ? 0.9F : 0.5F;
+
+                case UP:
+                    return flag ? 0.9F : 1.0F;
+
+                case NORTH:
+                case SOUTH:
+                    return 0.8F;
+
+                case WEST:
+                case EAST:
+                    return 0.6F;
+
+                default:
+                    return 1.0F;
+            }
+        }
     }
 
     @Override
-    public Holder<Biome> getBiome(BlockPos p_226691_1_)
+    public Holder<Biome> getBiome(BlockPos pos)
     {
-        return getWorld().getBiome(p_226691_1_);
+        return clientLevel().getBiome(worldPos.offset(pos));
     }
 
     @Override
@@ -179,7 +247,7 @@ public class BlueprintBlockAccess extends Level
         return SCOREBOARD;
     }
 
-        @Override
+    @Override
     public FluidState getFluidState(final BlockPos pos)
     {
         if (isOutsideBuildHeight(pos))
@@ -190,12 +258,6 @@ public class BlueprintBlockAccess extends Level
         {
             return getBlockState(pos).getFluidState();
         }
-    }
-
-    @Override
-    public boolean loadedAndEntityCanStandOnFace(BlockPos p_234929_1_, Entity p_234929_2_, Direction p_234929_3_)
-    {
-        return !isOutsideBuildHeight(p_234929_1_) && getBlockState(p_234929_1_).entityCanStandOnFace(this, p_234929_1_, p_234929_2_, p_234929_3_);
     }
 
     @Override
@@ -224,26 +286,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public Explosion explode(Entity entityIn, double xIn, double yIn, double zIn, float explosionRadius, BlockInteraction modeIn)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public Explosion explode(Entity entityIn,
-        double xIn,
-        double yIn,
-        double zIn,
-        float explosionRadius,
-        boolean causesFire,
-        BlockInteraction modeIn)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public CrashReportCategory fillReportDetails(CrashReport report)
     {
         CrashReportCategory crashreportcategory = report.addCategory("Structurize rendering engine");
@@ -269,63 +311,28 @@ public class BlueprintBlockAccess extends Level
     @Override
     public BiomeManager getBiomeManager()
     {
-        // Noop
-        return null;
+        return clientLevel().getBiomeManager();
     }
 
     @Override
     protected LevelEntityGetter<Entity> getEntities()
     {
-        return null;
-    }
-
-    @Override
-    public float getSunAngle(float partialTicks)
-    {
-        // Noop
-        return 0;
-    }
-
-    @Override
-    public long getDayTime()
-    {
-        // Noop
-        return 6000;
-    }
-
-    @Override
-    public DifficultyInstance getCurrentDifficultyAt(BlockPos pos)
-    {
-        // Noop
+        // Noop - hard to create, level internal only
         return null;
     }
 
     @Override
     public List<Entity> getEntities(Entity entityIn, AABB boundingBox, Predicate<? super Entity> predicate)
     {
-        // Noop
+        // Noop (ppl will ask if needed)
         return null;
     }
 
     @Override
     public Entity getEntity(int id)
     {
-        // Noop
+        // Noop (ppl will ask if needed)
         return null;
-    }
-
-    @Override
-    public GameRules getGameRules()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public long getGameTime()
-    {
-        // Noop
-        return 6000;
     }
 
     @Override
@@ -352,7 +359,7 @@ public class BlueprintBlockAccess extends Level
     @Override
     public void setMapData(final String p_151533_, final MapItemSavedData p_151534_)
     {
-
+        // Noop
     }
 
     @Override
@@ -365,8 +372,7 @@ public class BlueprintBlockAccess extends Level
     @Override
     public String gatherChunkSourceStats()
     {
-        // Noop
-        return null;
+        return "Blueprint fake world for: " + blueprint.getName();
     }
 
     @Override
@@ -379,15 +385,13 @@ public class BlueprintBlockAccess extends Level
     @Override
     public RecipeManager getRecipeManager()
     {
-        // Noop
-        return null;
+        return clientLevel().getRecipeManager();
     }
 
     @Override
     public int getSkyDarken()
     {
-        // Noop
-        return 0;
+        return Settings.instance.forceLightLevel() ? 0 : clientLevel().getSkyDarken();
     }
 
     @Override
@@ -398,28 +402,7 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public WorldBorder getWorldBorder()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public LevelData getLevelData()
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public boolean mayInteract(Player player, BlockPos pos)
-    {
-        // Noop
-        return false;
-    }
-
-    @Override
-    public boolean isHumidAt(BlockPos pos)
     {
         // Noop
         return false;
@@ -428,15 +411,7 @@ public class BlueprintBlockAccess extends Level
     @Override
     public boolean isDay()
     {
-        // Noop
-        return true;
-    }
-
-    @Override
-    public boolean isNight()
-    {
-        // Noop
-        return false;
+        return !this.dimensionType().hasFixedTime() && this.getSkyDarken() < 4;
     }
 
     @Override
@@ -458,13 +433,6 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return true;
-    }
-
-    @Override
-    public boolean isThundering()
-    {
-        // Noop
-        return false;
     }
 
     @Override
@@ -515,12 +483,7 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void playSound(Player playerIn,
-        Entity entityIn,
-        SoundEvent eventIn,
-        SoundSource categoryIn,
-        float volume,
-        float pitch)
+    public void playSound(Player playerIn, Entity entityIn, SoundEvent eventIn, SoundSource categoryIn, float volume, float pitch)
     {
         // Noop
     }
@@ -595,23 +558,9 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public boolean hasChunk(int chunkX, int chunkZ)
-    {
-        // Noop
-        return true;
-    }
-
-    @Override
     public List<VoxelShape> getEntityCollisions(@Nullable final Entity p_186447_, final AABB p_186448_)
     {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public int getMaxBuildHeight()
-    {
-        // Noop
-        return 256;
+        return Collections.emptyList();
     }
 
     @Override
@@ -621,25 +570,11 @@ public class BlueprintBlockAccess extends Level
         return null;
     }
 
-    @Override
-    public Difficulty getDifficulty()
-    {
-        // Noop
-        return Difficulty.PEACEFUL;
-    }
-
-    @Override
-    public BlockPos getHeightmapPos(Types heightmapType, BlockPos pos)
-    {
-        // Noop
-        return null;
-    }
-
     @NotNull
     @Override
     public RegistryAccess registryAccess()
     {
-        return Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.registryAccess();
+        return clientLevel().registryAccess();
     }
 
     @Override
@@ -663,7 +598,6 @@ public class BlueprintBlockAccess extends Level
     @Override
     public void gameEvent(@Nullable final Entity p_151549_, final GameEvent p_151550_, final BlockPos p_151551_)
     {
-
     }
 
     @Override
@@ -679,72 +613,16 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public Player getNearestPlayer(double x, double y, double z, double distance, Predicate<Entity> predicate)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public Player getPlayerByUUID(UUID uniqueIdIn)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public List<? extends Player> players()
     {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public List<Player> getNearbyPlayers(TargetingConditions predicate, LivingEntity target, AABB box)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public boolean hasNearbyAlivePlayer(double x, double y, double z, double distance)
-    {
-        // Noop
-        return false;
-    }
-
-    @Override
-    public boolean canSeeSkyFromBelowWater(BlockPos pos)
-    {
-        // Noop
-        return true;
-    }
-
-    @Override
-    public int getBlockTint(BlockPos blockPosIn, ColorResolver colorResolverIn)
-    {
-        return super.getBlockTint(blockPosIn, colorResolverIn);
-    }
-
-    @Override
-    public Holder<Biome> getNoiseBiome(int x, int y, int z)
-    {
-        // Noop
-        return null;
+        return clientLevel().players();
     }
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z)
     {
         // Noop
-        return null;
-    }
-
-    @Override
-    public boolean hasChunksAt(int fromX, int fromY, int fromZ, int toX, int toY, int toZ)
-    {
-        // Noop
-        return true;
+        return clientLevel().getUncachedNoiseBiome(x, y, z);
     }
 
     @Override
@@ -759,5 +637,340 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return false;
+    }
+
+    @Override
+    public void addBlockEntityTicker(TickingBlockEntity p_151526_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void addFreshBlockEntities(Collection<BlockEntity> beList)
+    {
+        // Noop
+    }
+
+    @Override
+    public void blockEntityChanged(BlockPos p_151544_)
+    {
+        // Noop
+    }
+
+    @Override
+    public Explosion explode(Entity p_46526_,
+        DamageSource p_46527_,
+        ExplosionDamageCalculator p_46528_,
+        double p_46529_,
+        double p_46530_,
+        double p_46531_,
+        float p_46532_,
+        boolean p_46533_,
+        BlockInteraction p_46534_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> p_151528_, AABB p_151529_, Predicate<? super T> p_151530_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int getSeaLevel()
+    {
+        return 0;
+    }
+
+    @Override
+    public <T extends Entity> void guardEntityTick(Consumer<T> p_46654_, T p_46655_)
+    {
+        // Noop
+    }
+
+    @Override
+    protected void postGameEventInRadius(Entity p_151514_, GameEvent p_151515_, BlockPos p_151516_, int p_151517_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void setBlockEntity(BlockEntity p_151524_)
+    {
+        // Noop
+    }
+
+    @Override
+    public boolean shouldTickBlocksAt(long p_186456_)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public boolean shouldTickDeath(Entity p_186458_)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
+    {
+        return LazyOptional.empty();
+    }
+
+    @Override
+    public void invalidateCaps()
+    {
+        // Noop
+    }
+
+    @Override
+    public void reviveCaps()
+    {
+        // Noop
+    }
+
+    @Override
+    public void scheduleTick(BlockPos p_186461_, Block p_186462_, int p_186463_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void scheduleTick(BlockPos p_186470_, Fluid p_186471_, int p_186472_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void scheduleTick(BlockPos p_186465_, Block p_186466_, int p_186467_, TickPriority p_186468_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void scheduleTick(BlockPos p_186474_, Fluid p_186475_, int p_186476_, TickPriority p_186477_)
+    {
+        // Noop
+    }
+
+    @Override
+    public <T extends LivingEntity> List<T> getNearbyEntities(Class<T> p_45972_,
+        TargetingConditions p_45973_,
+        LivingEntity p_45974_,
+        AABB p_45975_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public <T extends LivingEntity> T getNearestEntity(Class<? extends T> p_45964_,
+        TargetingConditions p_45965_,
+        LivingEntity p_45966_,
+        double p_45967_,
+        double p_45968_,
+        double p_45969_,
+        AABB p_45970_)
+    {
+        // Noop
+        return null;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return blueprint.getSizeY();
+    }
+
+    @Override
+    public int getMinBuildHeight()
+    {
+        return 0;
+    }
+
+    @Override
+    public BlockHitResult clip(ClipContext p_45548_)
+    {
+        final Vec3 vec3 = p_45548_.getFrom().subtract(p_45548_.getTo());
+        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_45548_.getTo()));
+    }
+
+    @Override
+    public BlockHitResult isBlockInLine(ClipBlockStateContext p_151354_)
+    {
+        final Vec3 vec3 = p_151354_.getFrom().subtract(p_151354_.getTo());
+        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_151354_.getTo()));
+    }
+
+    @Override
+    @Nullable
+    public BlockEntity getExistingBlockEntity(BlockPos pos)
+    {
+        return getBlockEntity(pos);
+    }
+
+    @Override
+    public boolean collidesWithSuffocatingBlock(Entity p_186438_, AABB p_186439_)
+    {
+        // Noop
+        return false;
+    }
+
+    @Override
+    public Optional<Vec3> findFreePosition(Entity p_151419_,
+        VoxelShape p_151420_,
+        Vec3 p_151421_,
+        double p_151422_,
+        double p_151423_,
+        double p_151424_)
+    {
+        // Noop
+        return Optional.empty();
+    }
+
+    @Override
+    public Iterable<VoxelShape> getBlockCollisions(Entity p_186435_, AABB p_186436_)
+    {
+        // Noop
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Iterable<VoxelShape> getCollisions(Entity p_186432_, AABB p_186433_)
+    {
+        // Noop
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean noCollision(Entity p_45757_, AABB p_45758_)
+    {
+        // Noop
+        return true;
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap)
+    {
+        return LazyOptional.empty();
+    }
+
+    private static class BlueprintLevelData implements WritableLevelData
+    {
+        private final LevelData vanillaLevelData;
+
+        private BlueprintLevelData(final LevelData vanillaLevelData)
+        {
+            this.vanillaLevelData = vanillaLevelData;
+        }
+
+        @Override
+        public int getXSpawn()
+        {
+            return 0;
+        }
+
+        @Override
+        public int getYSpawn()
+        {
+            return 0;
+        }
+
+        @Override
+        public int getZSpawn()
+        {
+            return 0;
+        }
+
+        @Override
+        public float getSpawnAngle()
+        {
+            return 0;
+        }
+
+        @Override
+        public long getGameTime()
+        {
+            return vanillaLevelData.getGameTime();
+        }
+
+        @Override
+        public long getDayTime()
+        {
+            return Settings.instance.forceLightLevel() ? 6000 : clientLevel().getDayTime();
+        }
+
+        @Override
+        public boolean isThundering()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isRaining()
+        {
+            return false;
+        }
+
+        @Override
+        public void setRaining(boolean p_78171_)
+        {
+            // Noop
+        }
+
+        @Override
+        public boolean isHardcore()
+        {
+            return false;
+        }
+
+        @Override
+        public GameRules getGameRules()
+        {
+            return vanillaLevelData.getGameRules();
+        }
+
+        @Override
+        public Difficulty getDifficulty()
+        {
+            // would like peaceful but dont want to trigger entity remove
+            return Difficulty.EASY;
+        }
+
+        @Override
+        public boolean isDifficultyLocked()
+        {
+            return true;
+        }
+
+        @Override
+        public void setXSpawn(int p_78651_)
+        {
+            // Noop
+        }
+
+        @Override
+        public void setYSpawn(int p_78652_)
+        {
+            // Noop
+        }
+
+        @Override
+        public void setZSpawn(int p_78653_)
+        {
+            // Noop
+        }
+
+        @Override
+        public void setSpawnAngle(float p_78648_)
+        {
+            // Noop
+        }
     }
 }

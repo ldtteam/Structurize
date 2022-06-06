@@ -43,6 +43,7 @@ public class UpdateScanToolMessage implements IMessage
      * @param from the start pos.
      * @param to the end pos.
      */
+    @SuppressWarnings("resource")
     public UpdateScanToolMessage(final BlockPos from, final BlockPos to)
     {
         final ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
