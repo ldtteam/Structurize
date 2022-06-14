@@ -27,7 +27,7 @@ import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Mirror;
@@ -1279,8 +1279,8 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         confirmDeleteDialog = new DialogDoneCancel(getWindow());
         confirmDeleteDialog.setHandler(this::onDialogClosed);
         final StructureName structureName = new StructureName(schematics.get(schematicsDropDownList.getSelectedIndex()));
-        confirmDeleteDialog.setTitle(new TranslatableComponent("structurize.gui.delete.title"));
-        confirmDeleteDialog.setTextContent(new TranslatableComponent("structurize.gui.delete.body", structureName.toString()));
+        confirmDeleteDialog.setTitle(Component.translatable("structurize.gui.delete.title"));
+        confirmDeleteDialog.setTextContent(Component.translatable("structurize.gui.delete.body", structureName.toString()));
         confirmDeleteDialog.open();
     }
 

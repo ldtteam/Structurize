@@ -10,7 +10,7 @@ import com.ldtteam.structurize.network.messages.OperationHistoryMessage;
 import com.ldtteam.structurize.network.messages.UndoRedoMessage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
@@ -97,7 +97,7 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
             {
                 final Tuple<String, Integer> resource = lastOperations.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID("operationname", Text.class);
-                resourceLabel.setText(new TextComponent(resource.getA()));
+                resourceLabel.setText(Component.literal(resource.getA()));
                 resourceLabel.setColors(WHITE);
 
                 if (resource.getA().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)

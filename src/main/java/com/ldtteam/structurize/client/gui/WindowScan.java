@@ -18,7 +18,7 @@ import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -308,7 +308,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch(final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new TextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUUID());
+            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number - Closing!"), false);
             close();
             return;
         }
@@ -504,7 +504,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
                 resourceLabel.setText(resource.getItemStack().getHoverName());
-                quantityLabel.setText(new TextComponent(Integer.toString(resource.getAmount())));
+                quantityLabel.setText(Component.literal(Integer.toString(resource.getAmount())));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);
 

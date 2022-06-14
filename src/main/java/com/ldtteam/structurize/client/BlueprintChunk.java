@@ -24,17 +24,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.gameevent.GameEventDispatcher;
-import net.minecraft.world.level.levelgen.Aquifer.FluidPicker;
-import net.minecraft.world.level.levelgen.DensityFunctions.BeardifierOrMarker;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
-import net.minecraft.world.level.levelgen.NoiseChunk;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseRouter;
-import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -53,9 +45,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
  * Blueprint simulated chunk.
@@ -123,34 +112,6 @@ public class BlueprintChunk extends LevelChunk
         // Noop
     }
 
-    @Nullable
-    @Override
-    public StructureStart getStartForFeature(final ConfiguredStructureFeature<?, ?> feature)
-    {
-        // Noop
-        return StructureStart.INVALID_START;
-    }
-
-    @NotNull
-    @Override
-    public LongSet getReferencesForFeature(final ConfiguredStructureFeature<?, ?> feature)
-    {
-        // Noop
-        return new LongOpenHashSet();
-    }
-
-    @Override
-    public void addReferenceForFeature(final ConfiguredStructureFeature<?, ?> feature, final long p_207947_)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setStartForFeature(final ConfiguredStructureFeature<?, ?> feature, final StructureStart start)
-    {
-        // Noop
-    }
-
     @Override
     public CompoundTag getBlockEntityNbt(BlockPos pos)
     {
@@ -198,20 +159,6 @@ public class BlueprintChunk extends LevelChunk
     public ChunkStatus getStatus()
     {
         return ChunkStatus.FULL;
-    }
-
-    @NotNull
-    @Override
-    public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences()
-    {
-        return Collections.emptyMap();
-    }
-
-    @NotNull
-    @Override
-    public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts()
-    {
-        return Collections.emptyMap();
     }
 
     @NotNull
@@ -326,18 +273,6 @@ public class BlueprintChunk extends LevelChunk
 
     @Override
     public void setUnsaved(boolean modified)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setAllReferences(final Map<ConfiguredStructureFeature<?, ?>, LongSet> p_201606_1_)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setAllStarts(final Map<ConfiguredStructureFeature<?, ?>, StructureStart> structureStartsIn)
     {
         // Noop
     }
@@ -469,17 +404,6 @@ public class BlueprintChunk extends LevelChunk
 
     @Override
     public Holder<Biome> getNoiseBiome(int p_204347_, int p_204348_, int p_204349_)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
-    public NoiseChunk getOrCreateNoiseChunk(NoiseRouter p_207938_,
-        Supplier<BeardifierOrMarker> p_207939_,
-        NoiseGeneratorSettings p_207940_,
-        FluidPicker p_207941_,
-        Blender p_207942_)
     {
         // Noop
         return null;

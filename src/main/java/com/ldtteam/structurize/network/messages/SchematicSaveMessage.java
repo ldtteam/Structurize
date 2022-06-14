@@ -4,9 +4,9 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.StructureUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -106,7 +106,7 @@ public class SchematicSaveMessage implements IMessage
             if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
             {
                 Log.getLogger().info("SchematicSaveMessage: custom schematic is not allowed on this server.");
-                sender.sendMessage(new TextComponent("The server does not allow custom schematic!"), senderUuid);
+                sender.displayClientMessage(Component.literal("The server does not allow custom schematic!"), false);
                 return;
             }
 
@@ -114,7 +114,7 @@ public class SchematicSaveMessage implements IMessage
             {
                 Log.getLogger().error("Schematic has more than {} pieces, discarding.", MAX_AMOUNT_OF_PIECES);
                 sender
-                    .sendMessage(new TextComponent("Schematic has more than " + MAX_AMOUNT_OF_PIECES + " pieces, that's too big!"), senderUuid);
+                    .displayClientMessage(Component.literal("Schematic has more than " + MAX_AMOUNT_OF_PIECES + " pieces, that's too big!"), false);
                 return;
             }
 
@@ -131,11 +131,11 @@ public class SchematicSaveMessage implements IMessage
 
             if (schematicSent)
             {
-                sender.sendMessage(new TextComponent("Schematic successfully sent!"), senderUuid);
+                sender.displayClientMessage(Component.literal("Schematic successfully sent!"), false);
             }
             else
             {
-                sender.sendMessage(new TextComponent("Failed to send the Schematic!"), senderUuid);
+                sender.displayClientMessage(Component.literal("Failed to send the Schematic!"), false);
             }
         }
         else

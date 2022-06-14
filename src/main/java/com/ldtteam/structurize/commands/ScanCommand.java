@@ -9,10 +9,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +72,7 @@ public class ScanCommand extends AbstractCommand
         @Nullable final Level world = source.getLevel();
         if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
         {
-            source.sendFailure(new TextComponent(NO_PERMISSION_MESSAGE));
+            source.sendFailure(Component.literal(NO_PERMISSION_MESSAGE));
         }
 
         final Player player;
@@ -82,7 +81,7 @@ public class ScanCommand extends AbstractCommand
             player = world.getServer().getPlayerList().getPlayer(profile.getId());
             if (player == null)
             {
-                source.sendFailure(new TranslatableComponent(PLAYER_NOT_FOUND, profile.getName()));
+                source.sendFailure(Component.translatable(PLAYER_NOT_FOUND, profile.getName()));
                 return 0;
             }
         } 
@@ -92,12 +91,12 @@ public class ScanCommand extends AbstractCommand
         } 
         else
         {
-            source.sendFailure(new TranslatableComponent(PLAYER_NOT_FOUND));
+            source.sendFailure(Component.translatable(PLAYER_NOT_FOUND));
             return 0;
         }
 
         ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name, true, anchorPos);
-        source.sendFailure(new TranslatableComponent(SCAN_SUCCESS_MESSAGE));
+        source.sendFailure(Component.translatable(SCAN_SUCCESS_MESSAGE));
         return 1;
     }
 

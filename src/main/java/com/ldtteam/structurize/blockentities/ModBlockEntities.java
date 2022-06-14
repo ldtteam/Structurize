@@ -6,8 +6,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.RegistryObject;
 
-@ObjectHolder(Constants.MOD_ID)
 public final class ModBlockEntities
 {
     private ModBlockEntities() { /* prevent construction */ }
@@ -19,12 +19,6 @@ public final class ModBlockEntities
         return BLOCK_ENTITIES;
     }
 
-    @ObjectHolder("tagsubstitution")
-    public static BlockEntityType<BlockEntityTagSubstitution> TAG_SUBSTITUTION;
-
-    static
-    {
-        getRegistry().register("tagsubstitution",
-          () -> BlockEntityType.Builder.of(BlockEntityTagSubstitution::new, ModBlocks.blockTagSubstitution.get()).build(null));
-    }
+    public static RegistryObject<BlockEntityType<BlockEntityTagSubstitution>> TAG_SUBSTITUTION = getRegistry().register("tagsubstitution",
+      () -> BlockEntityType.Builder.of(BlockEntityTagSubstitution::new, ModBlocks.blockTagSubstitution.get()).build(null));
 }

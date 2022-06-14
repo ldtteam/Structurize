@@ -293,7 +293,7 @@ public class DomumOrnamentumUpdateHandler
             return Optional.empty();
         }
 
-        final String remainingName = materialName.replace(timberFrameBlock.getRegistryName().getPath() + "_", "");
+        final String remainingName = materialName.replace(ForgeRegistries.BLOCKS.getKey(timberFrameBlock).getPath() + "_", "");
 
         final Block block1;
         Block block2;

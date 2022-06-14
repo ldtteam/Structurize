@@ -11,10 +11,10 @@ import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         super.onOpened();
 
         findPaneOfTypeByID(INPUT_FIELD, TextField.class).setText(currentTag);
-        findPaneOfTypeByID(LIST_LABEL, Text.class).setText(new TextComponent("Existing tags in schematic:"));
+        findPaneOfTypeByID(LIST_LABEL, Text.class).setText(Component.literal("Existing tags in schematic:"));
         tagList = findPaneOfTypeByID(LIST_TAG_POS, ScrollingList.class);
 
         registerButton(BUTTON_CANCEL, this::onCancel);
@@ -192,7 +192,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
                     rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
 
                     final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
-                    tagsText.setText(new TextComponent(tags.toString()));
+                    tagsText.setText(Component.literal(tags.toString()));
                 }
                 else
                 {

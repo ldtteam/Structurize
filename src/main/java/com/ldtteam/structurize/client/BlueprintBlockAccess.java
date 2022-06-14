@@ -181,11 +181,9 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public float getBrightness(final BlockPos pos)
+    public int getMaxLocalRawBrightness(final @NotNull BlockPos pos, final int x)
     {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
-            clientLevel().getBrightness(worldPos.offset(pos));
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() : clientLevel().getMaxLocalRawBrightness(worldPos.offset(pos));
     }
 
     @Override
@@ -415,6 +413,34 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    public void playSeededSound(
+      @Nullable final Player p,
+      final double x,
+      final double y,
+      final double z,
+      final SoundEvent event,
+      final SoundSource source,
+      final float p_220369_,
+      final float p_220370_,
+      final long p_220371_)
+    {
+
+    }
+
+    @Override
+    public void playSeededSound(
+      @Nullable final Player p,
+      final Entity entity,
+      final SoundEvent event,
+      final SoundSource source,
+      final float p_220376_,
+      final float p_220377_,
+      final long p_220378_)
+    {
+
+    }
+
+    @Override
     public boolean isRaining()
     {
         // Noop
@@ -596,6 +622,12 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    public void gameEvent(final GameEvent p_220404_, final Vec3 p_220405_, final GameEvent.Context p_220406_)
+    {
+
+    }
+
+    @Override
     public void gameEvent(@Nullable final Entity p_151549_, final GameEvent p_151550_, final BlockPos p_151551_)
     {
     }
@@ -687,12 +719,6 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public <T extends Entity> void guardEntityTick(Consumer<T> p_46654_, T p_46655_)
-    {
-        // Noop
-    }
-
-    @Override
-    protected void postGameEventInRadius(Entity p_151514_, GameEvent p_151515_, BlockPos p_151516_, int p_151517_)
     {
         // Noop
     }

@@ -6,14 +6,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -43,12 +42,12 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(final Player player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), player.getUUID());
+        player.displayClientMessage(buildChatComponent(key.toLowerCase(Locale.US), message), false);
     }
 
     public static MutableComponent buildChatComponent(final String key, final Object... message)
     {
-        TranslatableComponent translation = null;
+        MutableComponent translation = null;
 
         int onlyArgsUntil = 0;
         for (final Object object : message)
@@ -69,7 +68,7 @@ public final class LanguageHandler
             final Object[] args = new Object[onlyArgsUntil];
             System.arraycopy(message, 0, args, 0, onlyArgsUntil);
 
-            translation = new TranslatableComponent(key, args);
+            translation = Component.translatable(key, args);
         }
 
         for (final Object object : message)
@@ -78,24 +77,24 @@ public final class LanguageHandler
             {
                 if (object instanceof Component)
                 {
-                    translation = new TranslatableComponent(key);
+                    translation = Component.translatable(key);
                 }
                 else
                 {
-                    translation = new TranslatableComponent(key, object);
+                    translation = Component.translatable(key, object);
                     continue;
                 }
             }
 
             if (object instanceof Component)
             {
-                translation.append(TextComponent.EMPTY);
+                translation.append(Component.empty());
                 translation.append((Component) object);
             }
             else if (object instanceof String)
             {
                 boolean isInArgs = false;
-                for (final Object obj : translation.getArgs())
+                for (final Object obj : translation.getSiblings())
                 {
                     if (obj.equals(object))
                     {
@@ -127,11 +126,11 @@ public final class LanguageHandler
         final String result;
         if (args.length == 0)
         {
-            result = new TranslatableComponent(key).getString();
+            result = Component.translatable(key).getString();
         }
         else
         {
-            result = new TranslatableComponent(key, args).getString();
+            result = Component.translatable(key, args).getString();
         }
         return result.isEmpty() ? key : result;
     }
@@ -154,13 +153,13 @@ public final class LanguageHandler
 
         for (final Player player : players)
         {
-            player.sendMessage(textComponent, player.getUUID());
+            player.displayClientMessage(textComponent,false);
         }
     }
 
     public static void sendMessageToPlayer(final Player player, final String key, final Object... format)
     {
-        player.sendMessage(new TextComponent(translateKeyWithFormat(key, format)), player.getUUID());
+        player.displayClientMessage(Component.literal(translateKeyWithFormat(key, format)), false);
     }
 
     /**

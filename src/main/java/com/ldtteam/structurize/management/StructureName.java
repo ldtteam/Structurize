@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.management;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -183,7 +183,7 @@ public class StructureName
             if (matcher.find())
             {
                 final int level = Integer.parseInt(matcher.group(1));
-                return new TranslatableComponent(LOCALIZED_SCHEMATIC_LEVEL, level).getString();
+                return Component.translatable(LOCALIZED_SCHEMATIC_LEVEL, level).getString();
             }
         }
         return schematic;

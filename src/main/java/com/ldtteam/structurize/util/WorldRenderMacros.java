@@ -16,10 +16,11 @@ import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import java.util.LinkedList;
 import java.util.List;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
@@ -872,7 +873,7 @@ public class WorldRenderMacros extends UiRenderMacros
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
-                final TextComponent renderText = new TextComponent(
+                final MutableComponent renderText = Component.literal(
                     mergeEveryXListElements == 1 ? text.get(i) : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 

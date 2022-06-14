@@ -6,7 +6,7 @@ import com.ldtteam.structurize.client.gui.WindowTagTool;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -198,7 +198,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProvider) te).addTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, new TranslatableComponent(
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, Component.translatable(
                   worldIn.getBlockState(pos).getBlock().getDescriptionId()));
             }
         }
@@ -207,7 +207,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProvider) te).removeTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, new TranslatableComponent(
+                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, Component.translatable(
               worldIn.getBlockState(pos).getBlock().getDescriptionId()));
             }
         }

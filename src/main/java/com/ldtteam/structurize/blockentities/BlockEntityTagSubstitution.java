@@ -37,7 +37,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
 
     public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
-        super( ModBlockEntities.TAG_SUBSTITUTION, pos, state);
+        super( ModBlockEntities.TAG_SUBSTITUTION.get(), pos, state);
     }
 
     @Override

@@ -14,7 +14,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.multiplayer.ClientSuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.brigadier.StringArgumentSerializer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -84,7 +85,7 @@ public class MultipleStringArgument implements ArgumentType<String>
     /**
      * Noop serializer, we always go for server suggestions and it's impossible to create suggestions without command source
      */
-    public static class Serializer implements ArgumentSerializer<MultipleStringArgument>
+    public static class Serializer implements ArgumentTypeInfo<MultipleStringArgument>
     {
         @Override
         public void serializeToNetwork(final MultipleStringArgument argument, final FriendlyByteBuf buffer)

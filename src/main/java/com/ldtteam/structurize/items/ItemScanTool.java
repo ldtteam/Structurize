@@ -16,6 +16,7 @@ import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,7 +29,6 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
 import java.io.File;
@@ -90,7 +90,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             {
                 if (worldIn.isClientSide)
                 {
-                    playerIn.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.scantool.outsideanchor"), playerIn.getUUID());
+                    playerIn.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.outsideanchor"), false);
                 }
             }
         }
@@ -182,7 +182,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = new TranslatableComponent("item.sceptersteel.scanformat", "", currentMillisString).getString();
+            fileName = Component.translatable("item.sceptersteel.scanformat", "", currentMillisString).getString();
         }
         else
         {
@@ -199,7 +199,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
             if (list.size() > 1)
             {
-                player.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), player.getUUID());
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), false);
             }
         }
 
@@ -257,7 +257,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final String fileName;
         if (name == null || name.isEmpty())
         {
-            fileName = new TranslatableComponent("item.sceptersteel.scanformat").getString();
+            fileName = Component.translatable("item.sceptersteel.scanformat").getString();
         }
         else
         {

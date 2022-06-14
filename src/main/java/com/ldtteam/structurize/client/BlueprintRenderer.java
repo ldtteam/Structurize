@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -112,7 +113,7 @@ public class BlueprintRenderer implements AutoCloseable
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess, teModelData);
 
         final BlockRenderDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRenderer();
-        final Random random = new Random();
+        final RandomSource random = RandomSource.create();
         final PoseStack matrixStack = new PoseStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
         final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();

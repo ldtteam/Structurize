@@ -9,7 +9,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -538,7 +538,7 @@ public final class Manager
         final List<ChangeStorage> list = changeQueue.get(player.getUUID());
         if (list == null || list.isEmpty())
         {
-            player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.notfound"), player.getUUID());
+            player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"), false);
             return;
         }
 
@@ -549,11 +549,11 @@ public final class Manager
             {
                 if (!storage.isDone())
                 {
-                    player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.inprogress", storage.getOperation()), player.getUUID());
+                    player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.inprogress", storage.getOperation()), false);
                     return;
                 }
 
-                player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.add", storage.getOperation()), player.getUUID());
+                player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
                 addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.UNDO));
                 if (storage.getOperation().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
                 {
@@ -563,7 +563,7 @@ public final class Manager
             }
         }
 
-        player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.undo.notfound"), player.getUUID());
+        player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"), false);
     }
 
     /**
@@ -577,7 +577,7 @@ public final class Manager
         final List<ChangeStorage> list = changeQueue.get(player.getUUID());
         if (list == null || list.isEmpty())
         {
-            player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.notfound"), player.getUUID());
+            player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
             return;
         }
 
@@ -587,17 +587,17 @@ public final class Manager
             {
                 if (!storage.isDone())
                 {
-                    player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.inprogress", storage.getOperation()), player.getUUID());
+                    player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.inprogress", storage.getOperation()), false);
                     return;
                 }
 
-                player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.add", storage.getOperation()), player.getUUID());
+                player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.add", storage.getOperation()), false);
                 addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.REDO));
                 return;
             }
         }
 
-        player.sendMessage(new TranslatableComponent("structurize.gui.undoredo.redo.notfound"), player.getUUID());
+        player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
     }
 
     /**
