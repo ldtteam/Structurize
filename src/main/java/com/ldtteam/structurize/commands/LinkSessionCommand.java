@@ -1,15 +1,16 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.management.linksession.ChannelsEnum;
 import com.ldtteam.structurize.management.linksession.LinkSessionManager;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.Component;
@@ -21,6 +22,7 @@ import net.minecraft.network.chat.ClickEvent;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -402,15 +404,16 @@ public class LinkSessionCommand
         protected static LiteralArgumentBuilder<CommandSourceStack> build()
         {
             return newLiteral(NAME).then(
-                newArgument(TARGET_ARG, MultipleStringArgument.multipleString((s, p) -> LinkSessionManager.INSTANCE.getSessionNamesOf(p.getUUID())))
-                    .executes(s -> onExecute(s)));
+                newArgument(TARGET_ARG, StringArgumentType.string())
+                  .suggests((c, b) -> SharedSuggestionProvider.suggest(LinkSessionManager.INSTANCE.getSessionNamesOf(c.getSource().getPlayer().getUUID()), b))
+                  .executes(s -> onExecute(s)));
         }
 
         private static int onExecute(final CommandContext<CommandSourceStack> command) throws CommandSyntaxException
         {
             final ServerPlayer sender = command.getSource().getPlayerOrException();
             final MinecraftServer server = command.getSource().getServer();
-            final String name = MultipleStringArgument.getResult(command, TARGET_ARG);
+            final String name = StringArgumentType.getString(command, TARGET_ARG);
 
             if (server.getPlayerList().getPlayerByName(name) != null)
             {

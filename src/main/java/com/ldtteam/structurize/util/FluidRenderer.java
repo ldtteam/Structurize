@@ -32,7 +32,7 @@ public class FluidRenderer
     {
         boolean isLava = fluidState.is(FluidTags.LAVA);
         TextureAtlasSprite[] atextureatlassprite = net.minecraftforge.client.ForgeHooksClient.getFluidSprites(blockAccess, pos, fluidState);
-        int color = fluidState.getType().getAttributes().getColor(blockAccess, pos);
+        int color = net.minecraftforge.client.RenderProperties.get(fluidState).getColorTint(fluidState, blockAccess, pos);
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;

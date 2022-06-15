@@ -17,6 +17,8 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -43,6 +45,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -103,6 +106,7 @@ public class BlueprintBlockAccess extends Level
             () -> clientLevel().getProfiler(),
             true,
             false,
+            RandomSource.create().nextLong(),
             0);
         this.blueprint = blueprint;
     }
