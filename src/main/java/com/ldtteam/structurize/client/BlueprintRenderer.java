@@ -13,7 +13,6 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -113,7 +112,7 @@ public class BlueprintRenderer implements AutoCloseable
         tileEntities = BlueprintUtils.instantiateTileEntities(blockAccess.getBlueprint(), blockAccess, teModelData);
 
         final BlockRenderDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRenderer();
-        final RandomSource random = RandomSource.create();
+        final Random random = new Random();
         final PoseStack matrixStack = new PoseStack();
         final List<BlockInfo> blocks = blockAccess.getBlueprint().getBlockInfoAsList();
         final Map<RenderType, VertexBuffer> newVertexBuffers = blockVertexBuffersFactory.get();
@@ -168,9 +167,9 @@ public class BlueprintRenderer implements AutoCloseable
                     LOGGER.error("Error while trying to render structure part: " + e.getMessage(), e.getCause());
                 }
             }
-            final BufferBuilder.RenderedBuffer renderedBuffer = buffer.end();
+            buffer.end();
             OptifineCompat.getInstance().beforeBuilderUpload(buffer);
-            newVertexBuffers.get(renderType).upload(renderedBuffer);
+            newVertexBuffers.get(renderType).upload(buffer);
         }
         vertexBuffers = newVertexBuffers;
     }
@@ -219,7 +218,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_blocks");
         renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
+        mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels > 0);
         renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf);
@@ -403,13 +402,13 @@ public class BlueprintRenderer implements AutoCloseable
     {
         layerRenderType.setupRenderState();
 
+        final VertexFormat vertexformat = layerRenderType.format();
         final ShaderInstance shaderinstance = RenderSystem.getShader();
         BufferUploader.reset();
 
-        for (int i = 0; i < 12; ++i)
+        for (int k = 0; k < 12; ++k)
         {
-            int k = RenderSystem.getShaderTexture(i);
-            shaderinstance.setSampler("Sampler" + i, k);
+            shaderinstance.setSampler("Sampler" + k, RenderSystem.getShaderTexture(k));
         }
 
         if (shaderinstance.MODEL_VIEW_MATRIX != null)
@@ -419,7 +418,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         if (shaderinstance.PROJECTION_MATRIX != null)
         {
-            shaderinstance.PROJECTION_MATRIX.set(mvMatrix);
+            shaderinstance.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
         }
 
         if (shaderinstance.COLOR_MODULATOR != null)
@@ -440,11 +439,6 @@ public class BlueprintRenderer implements AutoCloseable
         if (shaderinstance.FOG_COLOR != null)
         {
             shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
-        }
-
-        if (shaderinstance.FOG_SHAPE != null)
-        {
-            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
         }
 
         if (shaderinstance.TEXTURE_MATRIX != null)
@@ -470,10 +464,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         OptifineCompat.getInstance().setUniformChunkOffset(realRenderRootPos.x(), realRenderRootPos.y(), realRenderRootPos.z());
 
-        final VertexBuffer vertexBuffer = vertexBuffers.get(layerRenderType);
-
-        vertexBuffer.bind();
-        vertexBuffer.draw();
+        vertexBuffers.get(layerRenderType).drawChunkLayer();
 
         if (uniform != null)
         {
@@ -482,9 +473,10 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().setUniformChunkOffset(0.0f, 0.0f, 0.0f);
 
         shaderinstance.clear();
-        //vertexformat.clearBufferState();
+        vertexformat.clearBufferState();
 
         VertexBuffer.unbind();
+        VertexBuffer.unbindVertexArray();
         layerRenderType.clearRenderState();
     }
 }

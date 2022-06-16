@@ -17,8 +17,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -45,7 +43,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -106,7 +103,6 @@ public class BlueprintBlockAccess extends Level
             () -> clientLevel().getProfiler(),
             true,
             false,
-            RandomSource.create().nextLong(),
             0);
         this.blueprint = blueprint;
     }
@@ -185,9 +181,11 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public int getMaxLocalRawBrightness(final @NotNull BlockPos pos, final int x)
+    @SuppressWarnings("deprecation")
+    public float getBrightness(final BlockPos pos)
     {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() : clientLevel().getMaxLocalRawBrightness(worldPos.offset(pos));
+        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+            clientLevel().getBrightness(worldPos.offset(pos));
     }
 
     @Override
@@ -417,34 +415,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void playSeededSound(
-      @Nullable final Player p,
-      final double x,
-      final double y,
-      final double z,
-      final SoundEvent event,
-      final SoundSource source,
-      final float p_220369_,
-      final float p_220370_,
-      final long p_220371_)
-    {
-
-    }
-
-    @Override
-    public void playSeededSound(
-      @Nullable final Player p,
-      final Entity entity,
-      final SoundEvent event,
-      final SoundSource source,
-      final float p_220376_,
-      final float p_220377_,
-      final long p_220378_)
-    {
-
-    }
-
-    @Override
     public boolean isRaining()
     {
         // Noop
@@ -626,12 +596,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void gameEvent(final GameEvent p_220404_, final Vec3 p_220405_, final GameEvent.Context p_220406_)
-    {
-
-    }
-
-    @Override
     public void gameEvent(@Nullable final Entity p_151549_, final GameEvent p_151550_, final BlockPos p_151551_)
     {
     }
@@ -723,6 +687,12 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public <T extends Entity> void guardEntityTick(Consumer<T> p_46654_, T p_46655_)
+    {
+        // Noop
+    }
+
+    @Override
+    protected void postGameEventInRadius(Entity p_151514_, GameEvent p_151515_, BlockPos p_151516_, int p_151517_)
     {
         // Noop
     }

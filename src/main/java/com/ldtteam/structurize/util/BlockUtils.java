@@ -191,8 +191,7 @@ public final class BlockUtils
                 // VANILLA INLINE: look at usage of generatorSettings.surfaceRule()
 
                 final ChunkAccess chunk = level.getChunk(location);
-                // todo Nightenom
-                /*final SurfaceRules.Context ctx = new SurfaceRules.Context(chunkGenerator.surfaceSystem,
+                final SurfaceRules.Context ctx = new SurfaceRules.Context(chunkGenerator.surfaceSystem,
                     chunk,
                     chunk.getOrCreateNoiseChunk(chunkGenerator.router, // noise chunk should be present most time
                         () -> new Beardifier(serverLevel.structureFeatureManager(), chunk),
@@ -201,7 +200,7 @@ public final class BlockUtils
                         Blender.empty()), // todo: blender is giga hadr to construct
                     level.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-                    new WorldGenerationContext(chunkGenerator, level));*/
+                    new WorldGenerationContext(chunkGenerator, level));
 
                 final int locX = location.getX();
                 final int locY = location.getY();
@@ -243,12 +242,10 @@ public final class BlockUtils
 
                 stoneDepthBelow = locY - stoneDepthBelow + 1;
 
-                // todo Nightenom
-                //ctx.updateXZ(locX, locZ);
-                //ctx.updateY(stoneDepthAbove, stoneDepthBelow, waterHeight, locX, locY, locZ);
+                ctx.updateXZ(locX, locZ);
+                ctx.updateY(stoneDepthAbove, stoneDepthBelow, waterHeight, locX, locY, locZ);
 
-                // todo Nightenom
-                final BlockState blockState = Blocks.COBBLESTONE.defaultBlockState(); //generatorSettings.surfaceRule().apply(ctx).tryApply(locX, locY, locZ);
+                final BlockState blockState = generatorSettings.surfaceRule().apply(ctx).tryApply(locX, locY, locZ);
                 if (blockState != null)
                 {
                     return blockState;
