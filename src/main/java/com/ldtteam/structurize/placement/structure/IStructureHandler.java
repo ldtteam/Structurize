@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A handler for structures.
@@ -240,6 +241,16 @@ public interface IStructureHandler
     }
 
     /**
+     * Get the position in the blueprint translated from world pos.
+     * @param worldPos the world pos.
+     * @return the structure pos.
+     */
+    default BlockPos getStructurePosFromWorld(final BlockPos worldPos)
+    {
+        return getBluePrint().getPrimaryBlockOffset().offset(worldPos.subtract(getWorldPos()));
+    }
+
+    /**
      * Execute pre placement logic if necessary.
      * @param worldPos the position the block si going to be placed.
      * @param blockState the blockstate to be placed.
@@ -257,9 +268,11 @@ public interface IStructureHandler
 
     /**
      * Get the solid worldgen block for given pos while using data from handler.
-     * @param worldPos          the world pos.
-     * @param virtualBlockAbove block that is gonna be place above given worldPos, null if unknown
-     * @return the solid worldgen block (classically biome dependent).
+     * 
+     * @param  worldPos      the world pos.
+     * @param  virtualBlocks if null use level instead for getting surrounding block states, fnc may should return null if virtual
+     *                       block is not available
+     * @return               the solid worldgen block (classically biome dependent).
      */
-    BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable BlockState virtualBlockAbove);
+    BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable Function<BlockPos, BlockState> virtualBlocks);
 }

@@ -1,26 +1,24 @@
 package com.ldtteam.structurize.helpers;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.util.Tuple;
-import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
-
-
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Optional;
 
 /**
@@ -212,6 +210,11 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public void setPosition(final BlockPos position)
     {
         pos = position;
+
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            scheduleRefresh();
+        }
     }
 
     /**
@@ -221,9 +224,9 @@ public final class Settings implements INBTSerializable<CompoundTag>
      */
     public void setGroundOffset(final int offset)
     {
-        pos = pos.below(groundOffset);
+        setPosition(pos.below(groundOffset));
         groundOffset = offset;
-        pos = pos.above(groundOffset);
+        setPosition(pos.above(groundOffset));
     }
 
     /**
@@ -317,7 +320,7 @@ public final class Settings implements INBTSerializable<CompoundTag>
         {
             return;
         }
-        this.pos = this.pos.offset(pos);
+        setPosition(this.pos.offset(pos));
     }
 
     /**

@@ -22,7 +22,6 @@ import net.minecraft.network.chat.ClickEvent;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

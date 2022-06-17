@@ -19,6 +19,8 @@ import java.lang.reflect.Method;
  */
 public class OptifineCompat
 {
+    private static final String DISABLE_REASON = "waiting for optifine to catch up with vanilla";
+
     private static OptifineCompat ourInstance = new OptifineCompat();
 
     private Method isFogOffMethod;
@@ -80,6 +82,12 @@ public class OptifineCompat
      */
     public void intialize()
     {
+        if (DISABLE_REASON != null && !DISABLE_REASON.isBlank())
+        {
+            Log.getLogger().info("Optifine compat disabled. Reason: " + DISABLE_REASON);
+            return;
+        }
+
         try
         {
             setupReflectedMethodReferences();

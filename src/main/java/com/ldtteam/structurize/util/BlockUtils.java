@@ -9,9 +9,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.BlockItem;
@@ -30,10 +32,11 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
@@ -52,7 +55,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -139,21 +144,23 @@ public final class BlockUtils
     /**
      * Get the filler block at a certain location.
      *
-     * @param level    the world the block is in.
-     * @param location the location it is at.
-     * @return the BlockState of the filler block.
+     * @param  level         the world the block is in.
+     * @param  location      the location it is at.
+     * @param  virtualBlocks if null use level instead for getting surrounding block states, fnc may should return null if virtual
+     *                       block is not available
+     * @return               the BlockState of the filler block.
      */
     public static BlockState getSubstitutionBlockAtWorld(final Level level,
         final BlockPos location,
-        @Nullable final BlockState virtualBlockAbove)
+        @Nullable final Function<BlockPos, BlockState> virtualBlocks)
     {
-        BlockState result = getWorldgenBlock(level, location, virtualBlockAbove);
+        BlockState result = getWorldgenBlock(level, location, virtualBlocks);
 
-        if (result.getBlock() == Blocks.POWDER_SNOW)
+        if (result != null && result.getBlock() == Blocks.POWDER_SNOW)
         {
             result = Blocks.SNOW_BLOCK.defaultBlockState();
         }
-        else if (!result.getMaterial().isSolid())
+        else if (result == null || !result.getMaterial().isSolid())
         {
             // try default level block
             result = getDefaultBlockForLevel(level, null);
@@ -171,33 +178,52 @@ public final class BlockUtils
     /**
      * Get the worldGen block for a certain location. Always gives DIRT for non vanilla worlds including blueprint.
      *
-     * @param  level             the world the block is in.
-     * @param  location          the real world location.
-     * @param  virtualBlockAbove block that is gonna be above this block during placement, null if unknown.
-     * @return                   the BlockState of the filler block.
-     * @see net.minecraft.data.worldgen.SurfaceRuleData for possible blockstates
+     * @param  level         the world the block is in.
+     * @param  location      the real world location.
+     * @param  virtualBlocks if null use level instead for getting surrounding block states, fnc may should return null if virtual
+     *                       block is not available
+     * @return               the BlockState of the filler block.
+     * @see                  net.minecraft.data.worldgen.SurfaceRuleData for possible blockstates
      */
-    @SuppressWarnings("resource")
-    public static BlockState getWorldgenBlock(final Level level, final BlockPos location, @Nullable final BlockState virtualBlockAbove)
+    @Nullable
+    public static BlockState getWorldgenBlock(final Level level, final BlockPos location, @Nullable final Function<BlockPos, BlockState> virtualBlocks)
     {
-        // TODO: rework to use whole information from blueprint
         if (level instanceof ServerLevel serverLevel)
         {
-            final ChunkGenerator generator = serverLevel.getChunkSource().chunkMap.generator();
+            final ChunkGenerator generator = serverLevel.getChunkSource().getGenerator();
             if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
             {
-                final NoiseGeneratorSettings generatorSettings = chunkGenerator.settings.value();
+                final NoiseGeneratorSettings generatorSettings = chunkGenerator.generatorSettings().value();
 
                 // VANILLA INLINE: look at usage of generatorSettings.surfaceRule()
 
                 final ChunkAccess chunk = level.getChunk(location);
-                final SurfaceRules.Context ctx = new SurfaceRules.Context(chunkGenerator.surfaceSystem,
+
+                final List<ChunkAccess> surroundingChunks = new ArrayList<>(9);
+
+                final int chunkX = chunk.getPos().x;
+                final int chunkZ = chunk.getPos().z;
+
+                for (int z = -1; z <= 1; z++)
+                {
+                    for (int x = -1; x <= 1; x++)
+                    {
+                        surroundingChunks.add(level.getChunk(chunkX + x, chunkZ + z));
+                    }
+                }
+
+                final NoiseChunk noiseChunk = chunk.getOrCreateNoiseChunk(c -> {
+                    final WorldGenRegion worldGenRegion = new OurWorldGenRegion(serverLevel, surroundingChunks);
+                    return chunkGenerator.createNoiseChunk(c,
+                        serverLevel.structureManager().forWorldGenRegion(worldGenRegion),
+                        Blender.of(worldGenRegion),
+                        serverLevel.getChunkSource().randomState());
+                });
+
+                final SurfaceRules.Context ctx = new SurfaceRules.Context(serverLevel.getChunkSource().randomState().surfaceSystem(),
+                    serverLevel.getChunkSource().randomState(),
                     chunk,
-                    chunk.getOrCreateNoiseChunk(chunkGenerator.router, // noise chunk should be present most time
-                        () -> new Beardifier(serverLevel.structureFeatureManager(), chunk),
-                        generatorSettings,
-                        chunkGenerator.globalFluidPicker,
-                        Blender.empty()), // todo: blender is giga hadr to construct
+                    noiseChunk,
                     level.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
                     new WorldGenerationContext(chunkGenerator, level));
@@ -214,7 +240,8 @@ public final class BlockUtils
                 for (int tempY = locY + 1; tempY <= chunk.getMaxBuildHeight() + 1; ++tempY)
                 {
                     temp.setY(tempY);
-                    final BlockState bs = tempY == locY + 1 && virtualBlockAbove != null ? virtualBlockAbove : chunk.getBlockState(temp);
+                    final BlockState bs = virtualBlocks == null ? chunk.getBlockState(temp) :
+                        Objects.requireNonNullElseGet(virtualBlocks.apply(temp), () -> chunk.getBlockState(temp));
                     if (bs.isAir())
                     {
                         break;
@@ -232,7 +259,8 @@ public final class BlockUtils
                 for (int tempY = locY - 1; tempY >= chunk.getMinBuildHeight() - 1; --tempY)
                 {
                     temp.setY(tempY);
-                    final BlockState bs = chunk.getBlockState(temp);
+                    final BlockState bs = virtualBlocks == null ? chunk.getBlockState(temp) :
+                        Objects.requireNonNullElseGet(virtualBlocks.apply(temp), () -> chunk.getBlockState(temp));
                     if (bs.isAir() || !bs.getFluidState().isEmpty())
                     {
                         stoneDepthBelow = tempY + 1;
@@ -262,7 +290,7 @@ public final class BlockUtils
             }
         }
 
-        return Blocks.DIRT.defaultBlockState();
+        return null;
     }
 
     /**
@@ -574,16 +602,18 @@ public final class BlockUtils
      * @param world the world of the dimension
      * @return the default blockstate for the default fluid
      */
-    @SuppressWarnings("resource")
     public static BlockState getFluidForDimension(final Level world)
     {
         if (world instanceof ServerLevel serverLevel)
         {
-            final ChunkGenerator generator = serverLevel.getChunkSource().chunkMap.generator();
+            final ChunkGenerator generator = serverLevel.getChunkSource().getGenerator();
             if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
             {
-                final BlockState defaultFluid = chunkGenerator.settings.value().defaultFluid();
-                return defaultFluid.getFluidState().isEmpty() ? Blocks.WATER.defaultBlockState() : defaultFluid;
+                final BlockState defaultFluid = chunkGenerator.generatorSettings().value().defaultFluid();
+                if (!defaultFluid.getFluidState().isEmpty())
+                {
+                    return defaultFluid;
+                }
             }
         }
         return world == null || !world.dimensionType().ultraWarm() ? Blocks.WATER.defaultBlockState() : Blocks.LAVA.defaultBlockState();
@@ -595,15 +625,14 @@ public final class BlockUtils
      * @param defaultValue return this if unable to get default block for given level
      * @return the default blockstate 
      */
-    @SuppressWarnings("resource")
     public static BlockState getDefaultBlockForLevel(final Level level, final BlockState defaultValue)
     {
         if (level instanceof ServerLevel serverLevel)
         {
-            final ChunkGenerator generator = serverLevel.getChunkSource().chunkMap.generator();
+            final ChunkGenerator generator = serverLevel.getChunkSource().getGenerator();
             if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
             {
-                return chunkGenerator.settings.value().defaultBlock();
+                return chunkGenerator.generatorSettings().value().defaultBlock();
             }
         }
         return defaultValue;
@@ -691,5 +720,43 @@ public final class BlockUtils
             blockState = blockState.setValue(property, propertiesOrigin.getValue(property));
         }
         return blockState;
+    }
+
+    private static class OurWorldGenRegion extends WorldGenRegion
+    {
+        private OurWorldGenRegion(ServerLevel p_143484_, List<ChunkAccess> p_143485_)
+        {
+            super(p_143484_, p_143485_, null, -1);
+        }
+
+        @Override
+        public boolean destroyBlock(BlockPos p_9550_, boolean p_9551_, @Nullable Entity p_9552_, int p_9553_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean ensureCanWrite(BlockPos p_181031_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean setBlock(BlockPos p_9539_, BlockState p_9540_, int p_9541_, int p_9542_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean addFreshEntity(Entity p_9580_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean removeBlock(BlockPos p_9547_, boolean p_9548_)
+        {
+            return false;
+        }
     }
 }

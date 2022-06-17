@@ -242,10 +242,12 @@ public final class PlacementHandlers
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
-                { 
+                {
                     posBelow = posBelow.below();
-                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
-                    if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    final boolean isFirstTest = i == 0;
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
+                    if (possibleSupport != null && possibleSupport.getMaterial().isSolid() &&
+                        !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
                     {
                         supportBlockState = possibleSupport;
                         break;
@@ -277,8 +279,10 @@ public final class PlacementHandlers
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 { 
                     posBelow = posBelow.below();
-                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, i == 0 ? blockState : null);
-                    if (possibleSupport.getMaterial().isSolid() && !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    final boolean isFirstTest = i == 0;
+                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
+                    if (possibleSupport != null && possibleSupport.getMaterial().isSolid() &&
+                        !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
                     {
                         supportBlockState = possibleSupport;
                         break;

@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
@@ -879,5 +880,17 @@ public class Blueprint
     public BlockState getBlockState(final BlockPos pos)
     {
         return getBlockInfoAsMap().get(pos).getState();
+    }
+
+    @Nullable
+    public BlockState getRawBlockState(final BlockPos pos)
+    {
+        final BlockInfo blockInfo = getBlockInfoAsMap().get(pos);
+        return blockInfo == null ? null : blockInfo.getState();
+    }
+
+    public Function<BlockPos, BlockState> getRawBlockStateFunction()
+    {
+        return this::getRawBlockState;
     }
 }

@@ -4,7 +4,6 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.helpers.Settings;
-import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -70,7 +69,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -103,6 +101,7 @@ public class BlueprintBlockAccess extends Level
             () -> clientLevel().getProfiler(),
             true,
             false,
+            0,
             0);
         this.blueprint = blueprint;
     }
@@ -111,6 +110,12 @@ public class BlueprintBlockAccess extends Level
     private static ClientLevel clientLevel()
     {
         return Minecraft.getInstance().level;
+    }
+
+    private static Level anyLevel()
+    {
+        final Minecraft mc = Minecraft.getInstance();
+        return mc.hasSingleplayerServer() ? mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level : mc.level;
     }
 
     public Blueprint getBlueprint()
@@ -141,12 +146,11 @@ public class BlueprintBlockAccess extends Level
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
         if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
-            final BlockInfo blockAbove = blueprint.getBlockInfoAsMap().get(pos.above());
-            return BlockUtils.getSubstitutionBlockAtWorld(clientLevel(), pos, blockAbove == null ? null : blockAbove.getState());
+            return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), pos, blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
         }
         if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
         {
-            return BlockUtils.getFluidForDimension(clientLevel());
+            return BlockUtils.getFluidForDimension(anyLevel());
         }
         if (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders())
         {
@@ -171,21 +175,6 @@ public class BlueprintBlockAccess extends Level
         final int posX = SectionPos.sectionToBlockCoord(chunkX);
         final int posZ = SectionPos.sectionToBlockCoord(chunkZ);
         return posX <= blueprint.getSizeX() && posZ <= blueprint.getSizeZ();
-    }
-
-    @Override
-    public int getMaxLocalRawBrightness(final BlockPos pos)
-    {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
-            clientLevel().getMaxLocalRawBrightness(worldPos.offset(pos));
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public float getBrightness(final BlockPos pos)
-    {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
-            clientLevel().getBrightness(worldPos.offset(pos));
     }
 
     @Override
@@ -447,18 +436,6 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void setBlocksDirty(BlockPos blockPosIn, BlockState oldState, BlockState newState)
-    {
-        // Noop
-    }
-
-    @Override
-    public void neighborChanged(BlockPos pos, Block blockIn, BlockPos fromPos)
-    {
-        // Noop
-    }
-
-    @Override
     public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags)
     {
         // Noop
@@ -466,37 +443,6 @@ public class BlueprintBlockAccess extends Level
 
     @Override
     public void updateNeighborsAt(BlockPos pos, Block blockIn)
-    {
-        // Noop
-    }
-
-    @Override
-    public void updateNeighborsAtExceptFromFacing(BlockPos pos, Block blockType, Direction skipSide)
-    {
-        // Noop
-    }
-
-    @Override
-    public void onBlockStateChange(BlockPos pos, BlockState blockStateIn, BlockState newState)
-    {
-        // Noop
-    }
-
-    @Override
-    public void playSound(Player playerIn, Entity entityIn, SoundEvent eventIn, SoundSource categoryIn, float volume, float pitch)
-    {
-        // Noop
-    }
-
-    @Override
-    public void playSound(Player player,
-        double x,
-        double y,
-        double z,
-        SoundEvent soundIn,
-        SoundSource category,
-        float volume,
-        float pitch)
     {
         // Noop
     }
@@ -596,33 +542,16 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void gameEvent(@Nullable final Entity p_151549_, final GameEvent p_151550_, final BlockPos p_151551_)
-    {
-    }
-
-    @Override
-    public <T extends LivingEntity> T getNearestEntity(List<? extends T> entities,
-        TargetingConditions predicate,
-        LivingEntity target,
-        double x,
-        double y,
-        double z)
-    {
-        // Noop
-        return null;
-    }
-
-    @Override
     public List<? extends Player> players()
     {
-        return clientLevel().players();
+        return Collections.emptyList();
     }
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z)
     {
         // Noop
-        return clientLevel().getUncachedNoiseBiome(x, y, z);
+        return null;
     }
 
     @Override
@@ -630,13 +559,6 @@ public class BlueprintBlockAccess extends Level
     {
         // Noop
         return true;
-    }
-
-    @Override
-    public boolean addFreshEntity(Entity entityIn)
-    {
-        // Noop
-        return false;
     }
 
     @Override
@@ -686,13 +608,7 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public <T extends Entity> void guardEntityTick(Consumer<T> p_46654_, T p_46655_)
-    {
-        // Noop
-    }
-
-    @Override
-    protected void postGameEventInRadius(Entity p_151514_, GameEvent p_151515_, BlockPos p_151516_, int p_151517_)
+    public void gameEvent(GameEvent p_220404_, Vec3 p_220405_, GameEvent.Context p_220406_)
     {
         // Noop
     }
@@ -859,6 +775,32 @@ public class BlueprintBlockAccess extends Level
     public <T> LazyOptional<T> getCapability(Capability<T> cap)
     {
         return LazyOptional.empty();
+    }
+
+    @Override
+    public void playSeededSound(Player p_220363_,
+        double p_220364_,
+        double p_220365_,
+        double p_220366_,
+        SoundEvent p_220367_,
+        SoundSource p_220368_,
+        float p_220369_,
+        float p_220370_,
+        long p_220371_)
+    {
+        // Noop
+    }
+
+    @Override
+    public void playSeededSound(Player p_220372_,
+        Entity p_220373_,
+        SoundEvent p_220374_,
+        SoundSource p_220375_,
+        float p_220376_,
+        float p_220377_,
+        long p_220378_)
+    {
+        // Noop
     }
 
     private static class BlueprintLevelData implements WritableLevelData

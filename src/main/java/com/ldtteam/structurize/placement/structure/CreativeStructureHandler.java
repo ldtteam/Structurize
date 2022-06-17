@@ -12,6 +12,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Creative placement handler that doesn't require resources or tools.
@@ -144,8 +145,8 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos worldPos, final BlockState virtualBlockAbove)
+    public BlockState getSolidBlockForPos(final BlockPos worldPos, final Function<BlockPos, BlockState> virtualBlocks)
     {
-        return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos, virtualBlockAbove);
+        return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos, virtualBlocks);
     }
 }

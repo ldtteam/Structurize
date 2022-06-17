@@ -101,7 +101,6 @@ public class SchematicSaveMessage implements IMessage
         if (isLogicalServer)
         {
             final Player sender = ctxIn.getSender();
-            final UUID senderUuid = sender.getUUID();
 
             if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
             {
