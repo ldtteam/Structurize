@@ -7,6 +7,7 @@ import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -115,7 +116,9 @@ public class BlueprintBlockAccess extends Level
     private static Level anyLevel()
     {
         final Minecraft mc = Minecraft.getInstance();
-        return mc.hasSingleplayerServer() ? mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level : mc.level;
+        return SharedConstants.IS_RUNNING_IN_IDE && mc.hasSingleplayerServer() ?
+            mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level :
+            mc.level;
     }
 
     public Blueprint getBlueprint()
@@ -146,7 +149,7 @@ public class BlueprintBlockAccess extends Level
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
         if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
         {
-            return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), pos, blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
+            return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
         }
         if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
         {

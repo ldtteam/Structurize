@@ -33,6 +33,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ImposterProtoChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -197,36 +199,14 @@ public final class BlockUtils
 
                 // VANILLA INLINE: look at usage of generatorSettings.surfaceRule()
 
-                final ChunkAccess chunk = level.getChunk(location);
-
-                final List<ChunkAccess> surroundingChunks = new ArrayList<>(9);
-
-                final int chunkX = chunk.getPos().x;
-                final int chunkZ = chunk.getPos().z;
-
-                for (int z = -1; z <= 1; z++)
-                {
-                    for (int x = -1; x <= 1; x++)
-                    {
-                        surroundingChunks.add(level.getChunk(chunkX + x, chunkZ + z));
-                    }
-                }
-
-                final NoiseChunk noiseChunk = chunk.getOrCreateNoiseChunk(c -> {
-                    final WorldGenRegion worldGenRegion = new OurWorldGenRegion(serverLevel, surroundingChunks);
-                    return chunkGenerator.createNoiseChunk(c,
-                        serverLevel.structureManager().forWorldGenRegion(worldGenRegion),
-                        Blender.of(worldGenRegion),
-                        serverLevel.getChunkSource().randomState());
-                });
-
+                final ChunkAccess chunk = serverLevel.getChunk(location);
                 final SurfaceRules.Context ctx = new SurfaceRules.Context(serverLevel.getChunkSource().randomState().surfaceSystem(),
                     serverLevel.getChunkSource().randomState(),
                     chunk,
-                    noiseChunk,
-                    level.getBiomeManager()::getBiome,
+                    chunk.getOrCreateNoiseChunk(c -> createNoiseBiome(serverLevel, chunkGenerator, c)),
+                    serverLevel.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-                    new WorldGenerationContext(chunkGenerator, level));
+                    new WorldGenerationContext(chunkGenerator, serverLevel));
 
                 final int locX = location.getX();
                 final int locY = location.getY();
@@ -273,11 +253,7 @@ public final class BlockUtils
                 ctx.updateXZ(locX, locZ);
                 ctx.updateY(stoneDepthAbove, stoneDepthBelow, waterHeight, locX, locY, locZ);
 
-                final BlockState blockState = generatorSettings.surfaceRule().apply(ctx).tryApply(locX, locY, locZ);
-                if (blockState != null)
-                {
-                    return blockState;
-                }
+                return generatorSettings.surfaceRule().apply(ctx).tryApply(locX, locY, locZ);
             }
             else if (generator instanceof FlatLevelSource chunkGenerator)
             {
@@ -291,6 +267,41 @@ public final class BlockUtils
         }
 
         return null;
+    }
+
+    private static NoiseChunk createNoiseBiome(
+        final ServerLevel serverLevel,
+        final NoiseBasedChunkGenerator chunkGenerator,
+        final ChunkAccess chunk)
+    {
+        final int chunkX = chunk.getPos().x;
+        final int chunkZ = chunk.getPos().z;
+        final int chunkRange = ChunkStatus.SURFACE.getRange();
+        final List<ChunkAccess> surroundingChunks = new ArrayList<>(4 * chunkRange * (chunkRange + 1) + 1);
+
+        for (int z = -chunkRange; z <= chunkRange; z++)
+        {
+            for (int x = -chunkRange; x <= chunkRange; x++)
+            {
+                ChunkAccess surroundingChunk = serverLevel.getChunk(chunkX + x, chunkZ + z, ChunkStatus.SURFACE);
+   
+                if (surroundingChunk instanceof ImposterProtoChunk imposterProtoChunk)
+                {
+                    surroundingChunk = new ImposterProtoChunk(imposterProtoChunk.getWrapped(), true);
+                }
+                else if (surroundingChunk instanceof LevelChunk levelChunk)
+                {
+                    surroundingChunk = new ImposterProtoChunk(levelChunk, true);
+                }
+   
+                surroundingChunks.add(surroundingChunk);
+            }
+        }
+        final WorldGenRegion worldGenRegion = new OurWorldGenRegion(serverLevel, surroundingChunks);
+        return chunkGenerator.createNoiseChunk(chunk,
+            serverLevel.structureManager().forWorldGenRegion(worldGenRegion),
+            Blender.of(worldGenRegion),
+            serverLevel.getChunkSource().randomState());
     }
 
     /**
