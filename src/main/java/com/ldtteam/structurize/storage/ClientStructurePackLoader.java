@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
+
 /**
  * Client side structure pack discovery.
  */
 public class ClientStructurePackLoader
 {
-    //todo add md5 support in the future (stronger consistency guarantee).
-
     /**
      * Different states of the client structure loading progress.
      */
@@ -57,7 +57,7 @@ public class ClientStructurePackLoader
         final List<String> modList = new ArrayList<>();
         for (IModInfo mod : ModList.get().getMods())
         {
-            modPaths.add(mod.getOwningFile().getFile().findResource("structures", mod.getModId()));
+            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
             modList.add(mod.getModId());
         }
 
@@ -81,7 +81,7 @@ public class ClientStructurePackLoader
             // Now we load from the main folder.
             try
             {
-                final Path outputPath = gameFolder.resolve("structures");
+                final Path outputPath = gameFolder.resolve(BLUEPRINT_FOLDER);
                 if (!Files.exists(outputPath))
                 {
                     Files.createDirectory(outputPath);
@@ -191,7 +191,7 @@ public class ClientStructurePackLoader
             try (ZipInputStream zis = new ZipInputStream(new ByteBufInputStream(payload)))
             {
                 ZipEntry zipEntry = zis.getNextEntry();
-                final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve("structures");
+                final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER);
                 final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
 
                 while (zipEntry != null)

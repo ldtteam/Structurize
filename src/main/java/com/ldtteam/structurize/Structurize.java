@@ -17,7 +17,6 @@ import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
-import com.ldtteam.structurize.storage.StructurePackLoader;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -58,7 +57,6 @@ public class Structurize
         ModBlockEntities.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(StructurePackLoader.class);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientStructurePackLoader::onClientStarting);
         DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER,  () -> ServerStructurePackLoader::onServerStarting);

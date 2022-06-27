@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
+
 /**
  * Here we load the structure packs on the server side.
  */
@@ -64,7 +66,7 @@ public class ServerStructurePackLoader
         final List<String> modList = new ArrayList<>();
         for (IModInfo mod : ModList.get().getMods())
         {
-            modPaths.add(mod.getOwningFile().getFile().findResource("structures", mod.getModId()));
+            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
             modList.add(mod.getModId());
         }
 
@@ -88,7 +90,7 @@ public class ServerStructurePackLoader
             // Now we load from the main folder.
             try
             {
-                Files.list(gameFolder.resolve("structures")).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList));
+                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList));
             }
             catch (IOException e)
             {

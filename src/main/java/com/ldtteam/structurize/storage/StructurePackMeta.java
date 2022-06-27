@@ -149,4 +149,31 @@ public class StructurePackMeta
     {
         return this.rootPath;
     }
+
+    /**
+     * Get the icon path string.
+     * @return the name of the icon.
+     */
+    public String getIconPath()
+    {
+        return this.iconPath;
+    }
+
+    /**
+     * Getter for the pack description.
+     * @return the desc string.
+     */
+    public String getDesc()
+    {
+        return this.desc;
+    }
+
+    /**
+     * Get the list of authors.
+     * @return list of names.
+     */
+    public List<String> getAuthors()
+    {
+        return this.authors;
+    }
 }

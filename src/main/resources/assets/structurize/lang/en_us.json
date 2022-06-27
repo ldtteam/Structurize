@@ -130,5 +130,9 @@
   "structurize.gui.delete.body": "Do you want to delete %s?",
   "com.ldtteam.structurize.gui.scan.replace.pct": "Random Percentage:",
   "structurize.gui.replaceblock.badpct": "Bad percentage selected, assuming 100.",
-  "structurize.gui.buildtool.show": "Show Placeholder Blocks. Blocks at these positions will not be changed on placement."
+  "structurize.gui.buildtool.show": "Show Placeholder Blocks. Blocks at these positions will not be changed on placement.",
+  "structurize.gui.buildtool.switchstyle": "Switch Style",
+  "structurize.gui.buildtool.complete": "Schematic Paste",
+  "structurize.gui.buildtool.pretty": "Pretty",
+  "structurize.gui.buildtool.specialized": "Specialized"
 }

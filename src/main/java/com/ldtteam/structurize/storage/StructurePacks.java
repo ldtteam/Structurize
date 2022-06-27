@@ -2,13 +2,13 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import com.ldtteam.blockui.UiRenderMacros;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +27,13 @@ import java.util.concurrent.Future;
  */
 public class StructurePacks
 {
+    /*
+     * todo add md5 support in the future (stronger consistency guarantee).
+     * This way we can be 100% sure that the pack has the correct version.
+     */
+
+    // todo, We need the client/server loaders to signal this here a "ready". If not ready, we wait.
+
     /**
      * Current pack format.
      * Increase when the pack data format changes, or minecraft version changes require a full schematic update.
@@ -109,7 +116,7 @@ public class StructurePacks
         try
         {
             Files.list(packMeta.getPath().resolve(subPath)).forEach(file -> {
-                if (!Files.isDirectory(file) && file.endsWith("blueprint"))
+                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                 {
                     try
                     {
@@ -173,7 +180,7 @@ public class StructurePacks
 
                     try
                     {
-                        Files.list(packMeta.getPath().resolve(subPath)).forEach(subFile -> {
+                        Files.list(file).forEach(subFile -> {
                             if (subFile.endsWith("icon.png"))
                             {
                                 newCategory.hasIcon = true;
@@ -267,6 +274,14 @@ public class StructurePacks
         public boolean isTerminal;
 
         /**
+         * Create an empty category.
+         */
+        public Category()
+        {
+            // Intentionally left empty.
+        }
+
+        /**
          * Create a new category.
          * @param packMeta the structure pack it belongs to.
          * @param subPath the sub path.
@@ -276,7 +291,7 @@ public class StructurePacks
         public Category(final StructurePackMeta packMeta, final Path subPath, final boolean hasIcon, final boolean isTerminal)
         {
             this.packMeta = packMeta;
-            this.subPath = subPath.toString().replace(packMeta.toString(), "");
+            this.subPath = subPath.toString().replace(packMeta.getPath().toString() + "/", "");
             this.hasIcon = hasIcon;
             this.isTerminal = isTerminal;
         }

@@ -1,0 +1,47 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd" size="420 240" pause="false" type="FULLSCREEN" lightbox="false">
+    <button id="switch" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.switchstyle)" size="86 17" pos="5 5" textcolor="black" texthovercolor="gray"/>
+
+    <label id="tree" size="300 12" pos="100 5" textalign="MIDDLE" color="white" />
+
+
+    <view size="48 64" pos="370 100">
+        <button id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="16" pos="0 0"/>
+        <button id="up" source="structurize:textures/gui/buildtool/up.png" size="16" pos="16 0"/>
+        <button id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="16" pos="32 0"/>
+        <button id="left" source="structurize:textures/gui/buildtool/left.png" size="16" pos="0 16"/>
+        <button id="mirror" source="structurize:textures/gui/buildtool/mirror.png" size="16" pos="16 16"/>
+        <button id="right" source="structurize:textures/gui/buildtool/right.png" size="16" pos="32 16"/>
+        <button id="minus" source="structurize:textures/gui/buildtool/minus.png" size="16" pos="0 32"/>
+        <button id="down" source="structurize:textures/gui/buildtool/down.png" size="16" pos="16 32"/>
+        <button id="plus" source="structurize:textures/gui/buildtool/plus.png" size="16" pos="32 32"/>
+        <image id="rotation" size="16" pos="96 0"/>
+    </view>
+
+    <list size="100 80" pos="160 80" id="placement" visible="false">
+        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+    </list>
+
+    <list size="270 40" pos="100 160" id="subcategories" visible="false">
+        <box size="100% 20" linewidth="0">
+            <button id="1" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="87 0" textColor="black" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="174 0" textColor="black" texthovercolor="gray" visible="false"/>
+        </box>
+    </list>
+    <list size="270 40" pos="100 160" id="blueprints" visible="false">
+        <box size="100% 20" linewidth="0">
+            <button id="1" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="0 0" textColor="white" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="87 0" textColor="white" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="174 0" textColor="white" texthovercolor="gray" visible="false"/>
+        </box>
+    </list>
+    <view size="270 20" pos="120 200" id="categories">
+
+    </view>
+
+    <button id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="20" pos="300 220"/>
+    <button id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="20" pos="100 220"/>
+
+
+
+</window>

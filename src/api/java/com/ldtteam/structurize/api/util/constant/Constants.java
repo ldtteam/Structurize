@@ -20,6 +20,7 @@ public final class Constants
     public static final int    GROUNDSTYLE_RELATIVE             = 1; // relative to anchor
     public static final int    GROUNDSTYLE_LEGACY_CAMP          = 2; // 1 block at bottom
     public static final int    GROUNDSTYLE_LEGACY_SHIP          = 3; // 3 blocks at bottom
+    public static final String BLUEPRINT_FOLDER                 = "blueprints";
 
     /**
      * Maximum message size from client to server (Leaving some extra space).
@@ -40,6 +41,27 @@ public final class Constants
      * Size of the buffer.
      */
     public static final int BUFFER_SIZE = 1024;
+
+
+    /**
+     * All possible rotations.
+     */
+    public static final int POSSIBLE_ROTATIONS = 4;
+
+    /**
+     * Rotation right.
+     */
+    public static final int ROTATE_RIGHT_INDEX = 1;
+
+    /**
+     * Rotation 180 degree.
+     */
+    public static final int ROTATE_180_INDEX = 2;
+
+    /**
+     * Rotation left.
+     */
+    public static final int ROTATE_LEFT_INDEX = 3;
 
     /**
      * Private constructor to hide implicit public one.

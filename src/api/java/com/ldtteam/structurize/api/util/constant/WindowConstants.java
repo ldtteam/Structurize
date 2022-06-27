@@ -178,6 +178,7 @@ public final class WindowConstants
      */
     public static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuildtool.xml";
     public static final String SHAPE_TOOL_RESOURCE_SUFFIX = ":gui/windowshapetool.xml";
+    public static final String BUILD_TOOL_PLUS_PLUS_RESOURCE_SUFFIX = ":gui/windowbuildtoolextended.xml";
 
     /**
      * The builders gui file.

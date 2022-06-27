@@ -7,6 +7,7 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
+import net.minecraft.core.Rotations;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -819,5 +820,14 @@ public final class Settings implements INBTSerializable<CompoundTag>
     public int getOurLightLevel()
     {
         return 15;
+    }
+
+    /**
+     * Get the specific placement setting.
+     * @return the settings.
+     */
+    public PlacementSettings getPlacementSettings()
+    {
+        return new PlacementSettings(getMirror(), BlockPosUtil.getRotationFromRotations(rotation));
     }
 }

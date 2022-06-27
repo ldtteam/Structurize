@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.proxy;
 
+import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -35,6 +36,25 @@ public class ClientProxy implements IProxy
 
         @Nullable
         final WindowBuildTool window = new WindowBuildTool(pos, groundstyle);
+        window.open();
+    }
+
+    @Override
+    @SuppressWarnings("resource")
+    public void openExtendedBuildToolWindow(@Nullable final BlockPos pos, final int groundstyle)
+    {
+        if (pos == null && Settings.instance.getActiveStructure() == null)
+        {
+            return;
+        }
+
+        if (Minecraft.getInstance().screen != null)
+        {
+            return;
+        }
+
+        @Nullable
+        final WindowExtendedBuildTool window = new WindowExtendedBuildTool(pos, groundstyle);
         window.open();
     }
 

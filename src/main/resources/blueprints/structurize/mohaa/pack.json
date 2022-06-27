@@ -1,0 +1,15 @@
+{
+  "icon": "main.png",
+  "name": "mohaa",
+  "authors": [
+    "raycoms",
+    "pixblockus",
+    "kedamono"
+  ],
+  "desc": "So moha. Laaaaaalalalallala blalbabla",
+  "mods": [
+  "structurize"
+  ],
+  "version": "1",
+  "pack-format": "1"
+}
