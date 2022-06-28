@@ -107,6 +107,7 @@ public class ServerStructurePackLoader
                 }
             }
             loadingState = ServerLoadingState.FINISHED_LOADING;
+            StructurePacks.finishedLoading = true;
         });
     }
 
@@ -118,6 +119,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
+            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(Collections.emptyMap()), player);
             // Noop Single Player, Nothing to do here.
             return;
         }

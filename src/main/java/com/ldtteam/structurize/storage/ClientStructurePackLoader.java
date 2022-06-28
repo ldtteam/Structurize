@@ -126,6 +126,14 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
+        if (serverStructurePacks.isEmpty())
+        {
+            // Most likely single player. Skip.
+            loadingState = ClientLoadingState.FINISHED_SYNCING;
+            StructurePacks.finishedLoading = true;
+            return;
+        }
+
         boolean needsChanges = false;
         for (final Map.Entry<String, StructurePackMeta> entry : new ArrayList<>(StructurePacks.packMetas.entrySet()))
         {
@@ -160,6 +168,7 @@ public class ClientStructurePackLoader
         {
             // No new packs have be synced and no updated packs have to be synced.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
+            StructurePacks.finishedLoading = true;
         }
     }
 
@@ -238,6 +247,7 @@ public class ClientStructurePackLoader
             if (eol)
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
+                StructurePacks.finishedLoading = true;
             }
         });
     }

@@ -2,7 +2,6 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.ldtteam.blockui.UiRenderMacros;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
@@ -15,10 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
@@ -32,8 +28,6 @@ public class StructurePacks
      * This way we can be 100% sure that the pack has the correct version.
      */
 
-    // todo, We need the client/server loaders to signal this here a "ready". If not ready, we wait.
-
     /**
      * Current pack format.
      * Increase when the pack data format changes, or minecraft version changes require a full schematic update.
@@ -46,6 +40,11 @@ public class StructurePacks
      * This might be accessed concurrently by client/server. That's why it is a concurrent hashmap.
      */
     public static Map<String, StructurePackMeta> packMetas = new ConcurrentHashMap<>();
+
+    /**
+     * Set to true on client/server once style loading has finished.
+     */
+    public static volatile boolean finishedLoading = false;
     
     /**
      * Get a blueprint future.
@@ -56,6 +55,17 @@ public class StructurePacks
     public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
     {
         return Util.ioPool().submit(() -> getBlueprint(structurePackId, subPath));
+    }
+
+    /**
+     * Find a blueprint future.
+     * @param structurePackId the structure pack the blueprint is in.
+     * @param name the filename.
+     * @return the blueprint future (might contain null).
+     */
+    public static Future<Path> findBlueprintFuture(final String structurePackId, final String name)
+    {
+        return Util.ioPool().submit(() -> findBlueprint(structurePackId, name));
     }
 
     /**
@@ -70,6 +80,89 @@ public class StructurePacks
     }
 
     /**
+     * Get a list of categories of a specific sub-path of a given structure pack.
+     * @param structurePackId the id of the pack.
+     * @param subPath the sub-path.
+     * @return the list of categories.
+     */
+    public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
+    {
+        return Util.ioPool().submit(() -> getCategories(structurePackId, subPath));
+    }
+
+    /**
+     * Find a blueprint by name.
+     * @param structurePackId the pack to search in.
+     * @param name the name we're searching for.
+     * @return the path or null.
+     */
+    public static Path findBlueprint(final String structurePackId, final String name)
+    {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
+        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        if (packMeta == null)
+        {
+            return null;
+        }
+
+        return findBlueprint(packMeta.getPath(), name).orElse(null);
+    }
+
+    /**
+     * Find blueprint at path.
+     * Recursively goes through folder structure.
+     * @param subPath the sub path to check.
+     * @param name the name of the file we're looking for.
+     * @return the path of the file or null.
+     */
+    public static Optional<Path> findBlueprint(final Path subPath, final String name)
+    {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
+        try
+        {
+            return Files.list(subPath).filter(file -> {
+                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+                {
+                    return file.toString().replace(".blueprint", "").equals(name);
+                }
+                else if (Files.isDirectory(file))
+                {
+                    return findBlueprint(file, name).isPresent();
+                }
+                return false;
+            }).findFirst();
+        }
+        catch (final IOException e)
+        {
+            Log.getLogger().error("Error loading blueprint: ", e);
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Get a blueprint directly (careful IO, might be slow).
      * @param structurePackId the structure pack the blueprint is in.
      * @param subPath the folder containing the blueprints.
@@ -78,6 +171,18 @@ public class StructurePacks
     @Nullable
     public static Blueprint getBlueprint(final String structurePackId, final String subPath)
     {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
         final StructurePackMeta packMeta = packMetas.get(structurePackId);
         if (packMeta == null)
         {
@@ -105,6 +210,18 @@ public class StructurePacks
      */
     public static List<Blueprint> getBlueprints(final String structurePackId, final String subPath)
     {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
         final StructurePackMeta packMeta = packMetas.get(structurePackId);
         if (packMeta == null)
         {
@@ -142,17 +259,6 @@ public class StructurePacks
 
     /**
      * Get a list of categories of a specific sub-path of a given structure pack.
-     * @param structurePackId the id of the pack.
-     * @param subPath the sub-path.
-     * @return the list of categories.
-     */
-    public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
-    {
-        return Util.ioPool().submit(() -> getCategories(structurePackId, subPath));
-    }
-
-    /**
-     * Get a list of categories of a specific sub-path of a given structure pack.
      * This has IO, this may be slow.
      * @param structurePackId the id of the pack.
      * @param subPath the sub-path.
@@ -160,6 +266,18 @@ public class StructurePacks
      */
     public static List<Category> getCategories(final String structurePackId, final String subPath)
     {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
         final StructurePackMeta packMeta = packMetas.get(structurePackId);
         if (packMeta == null)
         {
