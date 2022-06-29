@@ -154,8 +154,17 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         placementList = findPaneOfTypeByID("placement", ScrollingList.class);
 
         findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + depth + (Settings.instance.getActiveStructure() == null ? "" : ("/" + Settings.instance.getActiveStructure().getName()))));
-
+        //todo level selector simple list
         categoryList = StructurePacks.getCategoriesFuture(structurePack.getName(), "");
+
+        if (Settings.instance.getActiveStructure() == null)
+        {
+            findPaneOfTypeByID("manipulator", View.class).setVisible(false);
+        }
+        else
+        {
+            findPaneOfTypeByID("manipulator", View.class).setVisible(true);
+        }
     }
 
     private void cancelClicked()
@@ -209,6 +218,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                         try
                         {
                             img.setImage(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon.png")), false);
+                            img.setImageDisabled(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon_disabled.png")), false);
                         }
                         catch (final Exception ex)
                         {
@@ -502,8 +512,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             blueprintList.setPosition(100, 160);
         }
 
-        //todo leveled schems (group schems with level)
-
         //Creates a dataProvider for the unemployed resourceList.
         blueprintList.setDataProvider(new ScrollingList.DataProvider()
         {
@@ -568,10 +576,12 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             //todo, now, on click we don't want to render! we want to render a number switcher for the levels)
 
             img.setID(depth + ":" + id);
+            final List<MutableComponent> toolTip = new ArrayList<>();
             final TextComponent desc = new TextComponent(id.split("/")[id.split("/").length - 1]);
             if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
             {
                 img.setText(((INamedBlueprintAnchorBlock) anchor.getBlock()).getBlueprintDisplayName());
+                toolTip.addAll(((INamedBlueprintAnchorBlock) anchor.getBlock()).getDesc());
             }
             else
             {
@@ -591,13 +601,15 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
 
             if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
             {
-                PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player));
+                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player));
                 if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player))
                 {
+                    PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
                     img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);
                     return;
                 }
             }
+            PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
             if (hasMatch)
             {
@@ -638,10 +650,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                 {
                     img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);
                     return;
-                }
-                else
-                {
-                    //todo, have some nicer additional desc!
                 }
             }
 
@@ -685,11 +693,12 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         }
 
         img.setID(id);
-        final TextComponent desc = new TextComponent(id.split("/")[id.split("/").length-1]);
+        String descString = id.split("/")[id.split("/").length-1];
+        descString = descString.substring(0, 1).toUpperCase(Locale.US) + descString.substring(1);
+        final TextComponent desc = new TextComponent(descString);
         img.setText(desc);
         img.setVisible(true);
         img.setTextColor(ChatFormatting.BLACK.getColor());
-        PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(desc);
     }
 
     @Override
@@ -715,6 +724,14 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             {
                 button.setHoverPane(null);
             }
+            else
+            {
+                for (final Pane pane : findPaneOfTypeByID("categories", View.class).getChildren())
+                {
+                    pane.enable();
+                }
+                button.disable();
+            }
         }
         else if (blueprintsAtDepth.containsKey(button.getID()))
         {
@@ -727,10 +744,16 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             {
                 button.setHoverPane(null);
             }
+            else
+            {
+                for (final Pane pane : findPaneOfTypeByID("categories", View.class).getChildren())
+                {
+                    pane.enable();
+                }
+                button.disable();
+            }
         }
 
-        //todo woodwork/stonework/metalwork - resource / food / misc / logistics "basic" (citizen hut, townhall, builder, tavern)
-        //todo disable button in which category we are
         else if (button.getID().contains(":"))
         {
             final String[] split = button.getID().split(":");
@@ -763,6 +786,16 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             button.setHoverPane(null);
             updateFolders(Collections.emptyList());
         }
+
+        if (Settings.instance.getActiveStructure() == null)
+        {
+            findPaneOfTypeByID("manipulator", View.class).setVisible(false);
+        }
+        else
+        {
+            findPaneOfTypeByID("manipulator", View.class).setVisible(true);
+        }
+
         super.onButtonClicked(button);
     }
 
