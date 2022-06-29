@@ -15,13 +15,18 @@ import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
+import com.ldtteam.structurize.storage.ClientStructurePackLoader;
+import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Mod main class.
@@ -52,8 +57,17 @@ public class Structurize
         ModBlockEntities.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientStructurePackLoader::onClientStarting);
+        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER,  () -> ServerStructurePackLoader::onServerStarting);
+
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerStructurePackLoader.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientStructurePackLoader.class);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientLifecycleSubscriber.class));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
+
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
 
         if (DataFixerUtils.isVanillaDF)
         {
@@ -74,6 +88,18 @@ public class Structurize
                                     + "-----------------------------------------------------------------");
         }
     }
+
+    /**
+     * Event handler for forge pre init event.
+     *
+     * @param event the forge pre init event.
+     */
+    @SubscribeEvent
+    public static void preInit(@NotNull final FMLCommonSetupEvent event)
+    {
+        Network.getNetwork().registerCommonMessages();
+    }
+
 
     /**
      * Get the config handler.
