@@ -39,10 +39,11 @@ public interface ISurvivalBlueprintHandler
     /**
      * Handle the placement.
      * @param blueprint the blueprint to place.
+     * @param clientPack if this blueprint is not inside any server pack.
      * @param level the world.
      * @param player the player placing it.
      * @param pos the position they're placing it at.
      * @param placementSettings the placement settings.
      */
-    void handle(final Blueprint blueprint, final Level level, final Player player, final BlockPos pos, final PlacementSettings placementSettings);
+    void handle(final Blueprint blueprint, final boolean clientPack, final Level level, final Player player, final BlockPos pos, final PlacementSettings placementSettings);
 }

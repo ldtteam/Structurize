@@ -1,13 +1,12 @@
 package com.ldtteam.structurize.proxy;
 
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.client.gui.WindowBuildTool;
 import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.management.Structures;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -24,26 +23,7 @@ public class ClientProxy implements IProxy
     @SuppressWarnings("resource")
     public void openBuildToolWindow(@Nullable final BlockPos pos, final int groundstyle)
     {
-        if (pos == null && Settings.instance.getActiveStructure() == null)
-        {
-            return;
-        }
-
-        if (Minecraft.getInstance().screen != null)
-        {
-            return;
-        }
-
-        @Nullable
-        final WindowBuildTool window = new WindowBuildTool(pos, groundstyle);
-        window.open();
-    }
-
-    @Override
-    @SuppressWarnings("resource")
-    public void openExtendedBuildToolWindow(@Nullable final BlockPos pos, final int groundstyle)
-    {
-        if (pos == null && Settings.instance.getActiveStructure() == null)
+        if (pos == null && RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null)
         {
             return;
         }
@@ -61,10 +41,11 @@ public class ClientProxy implements IProxy
     @Override
     public void openShapeToolWindow(@Nullable final BlockPos pos)
     {
-        if (pos == null && Settings.instance.getActiveStructure() == null)
+        /*if (pos == null && OldSettings.instance.getActiveStructure() == null)
         {
+            todo shapetool
             return;
-        }
+        }*/
 
         @Nullable
         final WindowShapeTool window = new WindowShapeTool(pos);

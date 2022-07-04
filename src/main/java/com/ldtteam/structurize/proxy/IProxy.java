@@ -21,17 +21,6 @@ public interface IProxy
     }
 
     /**
-     * Opens the new extended build tool window.
-     *
-     * @param pos coordinates.
-     * @param groundstyle one of the GROUNDSTYLE_ values.
-     */
-    default void openExtendedBuildToolWindow(final BlockPos pos, final int groundstyle)
-    {
-
-    }
-
-    /**
      * Opens a shape tool window.
      *
      * @param pos coordinates.

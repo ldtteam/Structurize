@@ -265,7 +265,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
             }
             else if (origin instanceof WindowShapeTool)
             {
-                ((WindowShapeTool) origin).updateBlock(to, mainBlock);
+                //todo ((WindowShapeTool) origin).updateBlock(to, mainBlock);
             }
             origin.open();
         }

@@ -5,16 +5,17 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.ScanPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +38,6 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderLevelLastEvent event)
     {
-        Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
         final PoseStack matrixStack = event.getPoseStack();
@@ -49,37 +49,40 @@ public class ClientEventSubscriber
         matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
 
-        final Blueprint blueprint = Settings.instance.getActiveStructure();
-
-        if (blueprint != null)
+        for (final BlueprintPreviewData previewData : RenderingCache.blueprintRenderingCache.values())
         {
-            mc.getProfiler().push("struct_render");
+            final Blueprint blueprint = previewData.getBlueprint();
 
-            final BlockPos pos = Settings.instance.getPosition();
-            final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
+            if (blueprint != null)
+            {
+                mc.getProfiler().push("struct_render");
 
-            BlueprintHandler.getInstance().draw(blueprint, pos, matrixStack, partialTicks);
-            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
-            WorldRenderMacros.renderWhiteLineBox(bufferSource,
-                matrixStack,
-                posMinusOffset,
-                posMinusOffset.offset(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
-                0.02f);
+                final BlockPos pos = previewData.pos;
+                final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-            mc.getProfiler().pop();
+                BlueprintHandler.getInstance().draw(blueprint, pos, matrixStack, partialTicks);
+                WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
+                WorldRenderMacros.renderWhiteLineBox(bufferSource,
+                  matrixStack,
+                  posMinusOffset,
+                  posMinusOffset.offset(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
+                  0.02f);
+
+                mc.getProfiler().pop();
+            }
         }
 
-        final Tuple<BlockPos, BlockPos> box = Settings.instance.getBox();
-        if (box != null)
+        for (final ScanPreviewData previewData : RenderingCache.boxRenderingCache.values())
         {
             mc.getProfiler().push("struct_box");
 
             // Used to render a red box around a scan's Primary offset (primary block)
-            Settings.instance.getAnchorPos().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
-            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, box.getA(), box.getB(), 0.02f);
+            previewData.anchor.ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
+            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, previewData.pos1, previewData.pos2, 0.02f);
 
             mc.getProfiler().pop();
         }
+
 
         final Player player = mc.player;
         final ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -109,7 +112,6 @@ public class ClientEventSubscriber
         matrixStack.popPose();
 
         OptifineCompat.getInstance().postBlueprintDraw();
-        Settings.instance.endStructurizePass();
     }
 
     /**

@@ -31,7 +31,6 @@ public final class ModItems
     public static final RegistryObject<ItemScanTool>  scanTool;
     public static final RegistryObject<ItemTagTool>   tagTool;
     public static final RegistryObject<ItemCaliper>  caliper;
-    public static final RegistryObject<ItemBuildToolPlusPlus>  buildToolPlusPlus;
 
     /**
      * Utility method to register an item
@@ -54,6 +53,5 @@ public final class ModItems
         scanTool  = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
         tagTool   = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
         caliper   = register("caliper", () -> new ItemCaliper(properties));
-        buildToolPlusPlus = register("buildtoolplusplus", () -> new ItemBuildToolPlusPlus(properties));
     }
 }

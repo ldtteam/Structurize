@@ -45,7 +45,8 @@ public class TickedWorldOperation
         SCAN,
         PLACE_STRUCTURE,
         UNDO,
-        REDO
+        REDO,
+        LOAD_AND_OPERATE
     }
 
     /**

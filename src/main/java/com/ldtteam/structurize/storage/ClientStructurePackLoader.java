@@ -1,31 +1,39 @@
 package com.ldtteam.structurize.storage;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacks;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import org.codehaus.plexus.util.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.SCANS_FOLDER;
 
 /**
  * Client side structure pack discovery.
@@ -63,7 +71,7 @@ public class ClientStructurePackLoader
 
         final Path gameFolder = Minecraft.getInstance().gameDirectory.toPath();
 
-        Util.backgroundExecutor().execute(() ->
+        Util.ioPool().execute(() ->
         {
             // This loads from the jar
             for (final Path modPath : modPaths)
@@ -86,6 +94,28 @@ public class ClientStructurePackLoader
                 {
                     Files.createDirectory(outputPath);
                 }
+
+                final Path clientPackPath = outputPath.resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US));
+                if (!Files.exists(clientPackPath))
+                {
+                    Files.createDirectory(clientPackPath);
+                    Files.createDirectory(clientPackPath.resolve(SCANS_FOLDER));
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("version", 1);
+                    jsonObject.addProperty("pack-format", 1);
+                    jsonObject.addProperty("desc", "This is your local Structurepack. This is where all your scans go.");
+                    final JsonArray authorArray = new JsonArray();
+                    authorArray.add(Minecraft.getInstance().getUser().getName());
+                    jsonObject.add("authors", authorArray);
+                    final JsonArray modsArray = new JsonArray();
+                    modsArray.add(Constants.MOD_ID);
+                    jsonObject.add("mods", modsArray);
+                    jsonObject.addProperty("name", Minecraft.getInstance().getUser().getName());
+                    jsonObject.addProperty("icon",  "");
+
+                    Files.write(clientPackPath.resolve("pack.json"), jsonObject.toString().getBytes());
+                }
+
                 Files.list(outputPath).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList));
             }
             catch (IOException e)
@@ -131,6 +161,10 @@ public class ClientStructurePackLoader
             // Most likely single player. Skip.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
             StructurePacks.finishedLoading = true;
+            if (StructurePacks.selectedPack == null && !StructurePacks.packMetas.isEmpty())
+            {
+                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
+            }
             return;
         }
 
@@ -142,7 +176,6 @@ public class ClientStructurePackLoader
                 final int version = serverStructurePacks.getOrDefault(entry.getKey(), -1);
                 if (version == -1 && !Structurize.getConfig().getServer().allowPlayerSchematics.get())
                 {
-                    // todo on scan, client creates a specific style based on player profile automatic (random name).
                     // Don't have this pack on the server, disable.
                     StructurePacks.packMetas.remove(entry.getKey());
                 }
@@ -168,6 +201,10 @@ public class ClientStructurePackLoader
         {
             // No new packs have be synced and no updated packs have to be synced.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
+            if (StructurePacks.selectedPack == null && !StructurePacks.packMetas.isEmpty())
+            {
+                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
+            }
             StructurePacks.finishedLoading = true;
         }
     }
@@ -182,7 +219,7 @@ public class ClientStructurePackLoader
     public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
     {
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
-        Util.backgroundExecutor().execute(() ->
+        Util.ioPool().execute(() ->
         {
             final StructurePackMeta pack = StructurePacks.packMetas.remove(packName);
             if (pack != null)
@@ -270,5 +307,34 @@ public class ClientStructurePackLoader
         }
 
         return normalizePath;
+    }
+
+    /**
+     * Handles the save message of scans.
+     *
+     * @param CompoundNBT compound to store.
+     * @param fileName milli seconds for fileName.
+     */
+    public static void handleSaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
+    {
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(Util.ioPool().submit(() ->
+        {
+            final Path outputFolder = Minecraft.getInstance().gameDirectory.toPath()
+              .resolve(BLUEPRINT_FOLDER)
+              .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
+              .resolve(SCANS_FOLDER);
+
+            try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(outputFolder.resolve(fileName))))
+            {
+                NbtIo.writeCompressed(CompoundNBT, outputstream);
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("Exception while trying to scan.", e);
+                return null;
+            }
+            return StructurePacks.getBlueprint(outputFolder.resolve(fileName));
+        }));
+        Minecraft.getInstance().player.sendMessage(new TranslatableComponent("Scan successfully saved as %s", fileName), Minecraft.getInstance().player.getUUID());
     }
 }

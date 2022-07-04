@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Our wrapper for Forge network layer
@@ -88,7 +87,6 @@ public class NetworkChannel
         registerMessage(++idx, BuildToolPasteMessage.class, BuildToolPasteMessage::new);
         registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
         registerMessage(++idx, GenerateAndSaveMessage.class, GenerateAndSaveMessage::new);
-        registerMessage(++idx, LSStructureDisplayerMessage.class, LSStructureDisplayerMessage::new);
         registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
         registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
@@ -101,14 +99,22 @@ public class NetworkChannel
         registerMessage(++idx, UndoRedoMessage.class, UndoRedoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
         registerMessage(++idx, UpdateClientRender.class, UpdateClientRender::new);
+        registerMessage(++idx, BuildToolPlacementMessage.class, BuildToolPlacementMessage::new);
 
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
         registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
 
         registerMessage(++idx, NotifyServerAboutStructurePacks.class, NotifyServerAboutStructurePacks::new);
+        registerMessage(++idx, BuildToolPlacementMessage.class, BuildToolPlacementMessage::new);
+        registerMessage(++idx, BlueprintSyncMessage.class, BlueprintSyncMessage::new);
+        registerMessage(++idx, SyncSettingsToServer.class, SyncSettingsToServer::new);
+        registerMessage(++idx, SyncPreviewCacheToServer.class, SyncPreviewCacheToServer::new);
+
         registerMessage(++idx, NotifyClientAboutStructurePacks.class, NotifyClientAboutStructurePacks::new);
         registerMessage(++idx, TransferStructurePackToClient.class, TransferStructurePackToClient::new);
+        registerMessage(++idx, ClientBlueprintRequestMessage.class, ClientBlueprintRequestMessage::new);
+        registerMessage(++idx, SyncPreviewCacheToClient.class, SyncPreviewCacheToClient::new);
     }
 
     private void setupInternalMessages()

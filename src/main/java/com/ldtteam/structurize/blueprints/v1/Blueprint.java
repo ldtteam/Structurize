@@ -27,6 +27,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,16 @@ public class Blueprint
      * The size of the pallete.
      */
     private short palleteSize;
+
+    /**
+     * The file name of the blueprint.
+     */
+    private String fileName;
+
+    /**
+     * The full file path.
+     */
+    private Path filePath;
 
     /**
      * The palette of different blocks.
@@ -297,6 +308,48 @@ public class Blueprint
     {
         this.name = name;
         return this;
+    }
+
+    /**
+     * Sets the file name of the Structure
+     *
+     * @param name the file name to set.
+     * @return this object.
+     */
+    public Blueprint setFileName(final String name)
+    {
+        this.fileName = name;
+        return this;
+    }
+
+    /**
+     * Getter for the filename.
+     * @return the unique file name of the structure.
+     */
+    public String getFileName()
+    {
+        return this.fileName;
+    }
+
+    /**
+     * Sets the file path of the Structure
+     *
+     * @param path the file path to set.
+     * @return this object.
+     */
+    public Blueprint setFilePath(final Path path)
+    {
+        this.filePath = path;
+        return this;
+    }
+
+    /**
+     * Getter for the file path (does not contain the file name).
+     * @return the file path of the structure.
+     */
+    public Path getFilePath()
+    {
+        return this.filePath;
     }
 
     /**
@@ -826,7 +879,7 @@ public class Blueprint
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume();
+        return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && filePath.equals(other.filePath);
     }
 
     /**

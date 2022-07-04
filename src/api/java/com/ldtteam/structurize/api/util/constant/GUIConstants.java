@@ -24,4 +24,14 @@ public class GUIConstants
      * Id of the rotation indicator.
      */
     public static final String IMAGE_ROTATION = "rotation";
+
+    /**
+     * This button will open the style selector.
+     */
+    public static final String BUTTON_SWITCH_STYLE = "switch";
+
+    /**
+     * This button will open the settings selector.
+     */
+    public static final String BUTTON_SETTINGS= "settings";
 }

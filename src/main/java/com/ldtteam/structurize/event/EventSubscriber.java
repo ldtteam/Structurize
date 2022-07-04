@@ -13,7 +13,6 @@ import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
 import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
-import com.ldtteam.structurize.util.BackUpHelper;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tuple;
@@ -76,13 +75,6 @@ public class EventSubscriber
     public static void onServerStarted(final ServerStartedEvent event)
     {
         Structures.init();
-        BackUpHelper.loadLinkSessionManager();
-    }
-
-    @SubscribeEvent
-    public static void onServerStopping(final ServerStoppingEvent event)
-    {
-        BackUpHelper.saveLinkSessionManager();
     }
 
     /**

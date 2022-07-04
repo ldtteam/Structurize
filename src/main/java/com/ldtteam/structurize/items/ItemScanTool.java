@@ -2,7 +2,6 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
@@ -13,6 +12,8 @@ import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.management.StructureName;
 import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.ScanPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.ldtteam.structurize.util.StructureLoadingUtils;
@@ -83,7 +84,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 anchorPos = Optional.of(anchorBlockPos);
                 if (worldIn.isClientSide)
                 {
-                    Settings.instance.setAnchorPos(anchorPos);
+                    RenderingCache.boxRenderingCache.get("scan").anchor = anchorPos;
                 }
             }
             else
@@ -179,7 +180,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         final long currentMillis = System.currentTimeMillis();
         final String currentMillisString = Long.toString(currentMillis);
-        final String fileName;
+        String fileName;
         if (name == null || name.isEmpty())
         {
             fileName = new TranslatableComponent("item.sceptersteel.scanformat", "", currentMillisString).getString();
@@ -187,6 +188,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         else
         {
             fileName = name;
+        }
+
+        if (!fileName.contains(".blueprint"))
+        {
+            fileName+= ".blueprint";
         }
 
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), fileName, anchorPos);
@@ -313,7 +319,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         {
             if (worldIn.isClientSide)
             {
-                Settings.instance.setAnchorPos(Optional.of(pos));
+                RenderingCache.boxRenderingCache.get("scan").anchor = Optional.of(pos);
             }
 
             final BlockPos start = ((IBlueprintDataProvider) te).getInWorldCorners().getA();
@@ -323,7 +329,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             {
                 if (worldIn.isClientSide)
                 {
-                    Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
+                    RenderingCache.boxRenderingCache.put("scan", new ScanPreviewData(((IBlueprintDataProvider) te).getInWorldCorners().getA(), ((IBlueprintDataProvider) te).getInWorldCorners().getB(), Optional.of(pos)));
                 }
                 itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
                 itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));

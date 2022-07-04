@@ -2,9 +2,10 @@ package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.helpers.Settings;
+import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
@@ -52,6 +53,8 @@ import java.util.stream.Collectors;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
+
 /**
  * The renderer for blueprint.
  * Holds all information required to render a blueprint.
@@ -98,7 +101,7 @@ public class BlueprintRenderer implements AutoCloseable
         if (blockAccess.getBlueprint() != blueprint && blockAccess.getBlueprint().hashCode() == blueprint.hashCode())
         {
             blockAccess.setBlueprint(blueprint);
-            Settings.instance.scheduleRefresh();
+            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").scheduleRefresh();
         }
     }
 
@@ -127,7 +130,7 @@ public class BlueprintRenderer implements AutoCloseable
                 try
                 {
                     BlockState state = blockInfo.getState();
-                    if ((state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders()) ||
+                    if ((state.getBlock() == ModBlocks.blockSubstitution.get() && !BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS)) ||
                           state.getBlock() == ModBlocks.blockTagSubstitution.get())
                     {
                         state = Blocks.AIR.defaultBlockState();
@@ -185,7 +188,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().push("struct_render_init");
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
-        if (Settings.instance.shouldRefresh() || vertexBuffers == null)
+        if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").shouldRefresh() || vertexBuffers == null)
         {
             init();
         }

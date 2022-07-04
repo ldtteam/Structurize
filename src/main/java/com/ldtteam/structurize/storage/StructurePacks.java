@@ -45,7 +45,12 @@ public class StructurePacks
      * Set to true on client/server once style loading has finished.
      */
     public static volatile boolean finishedLoading = false;
-    
+
+    /**
+     * Selected pack on the client.
+     */
+    public static StructurePackMeta selectedPack;
+
     /**
      * Get a blueprint future.
      * @param structurePackId the structure pack the blueprint is in.
@@ -55,6 +60,17 @@ public class StructurePacks
     public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
     {
         return Util.ioPool().submit(() -> getBlueprint(structurePackId, subPath));
+    }
+
+    /**
+     * Get a blueprint data future.
+     * @param structurePackId the structure pack the blueprint is in.
+     * @param subPath the path of the specific blueprint in the pack.
+     * @return the blueprint data future (might contain null).
+     */
+    public static Future<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
+    {
+        return Util.ioPool().submit(() -> getBlueprintData(structurePackId, subPath));
     }
 
     /**
@@ -189,14 +205,69 @@ public class StructurePacks
             return null;
         }
 
+        return getBlueprint(packMeta.getPath().resolve(subPath));
+    }
+
+    /**
+     * Get the blueprint directly with a path.
+     * @param path the path to search fr.
+     * @return the blueprint.
+     */
+    public static Blueprint getBlueprint(final Path path)
+    {
         try
         {
-            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(packMeta.getPath().resolve(subPath))));
-            return BlueprintUtil.readBlueprintFromNBT(nbt);
+            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)));
+            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+
+            final String[] splitPath = path.toString().split("/");
+            final String fileName = splitPath[splitPath.length - 1].replace(".blueprint", "");
+
+            blueprint.setFileName(fileName);
+            blueprint.setFilePath(path.getParent());
+
+            return blueprint;
         }
         catch (final IOException e)
         {
             Log.getLogger().error("Error loading blueprint: ", e);
+        }
+        return null;
+    }
+
+    /**
+     * Get blueprint data directly (careful IO, might be slow).
+     * @param structurePackId the structure pack the blueprint is in.
+     * @param subPath the folder containing the blueprints.
+     * @return the blueprint data in a byte array or null.
+     */
+    public static byte[] getBlueprintData(final String structurePackId, final String subPath)
+    {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
+        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        if (packMeta == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return Files.readAllBytes(packMeta.getPath().resolve(subPath));
+        }
+        catch (final IOException e)
+        {
+            Log.getLogger().error("Error reading blueprint data: ", e);
             e.printStackTrace();
         }
         return null;
@@ -238,11 +309,14 @@ public class StructurePacks
                     try
                     {
                         final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
-                        blueprints.add(BlueprintUtil.readBlueprintFromNBT(nbt));
+                        final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                        blueprint.setFilePath(file);
+                        blueprints.add(blueprint);
                     }
                     catch (final IOException e)
                     {
-                        Log.getLogger().error("Error loading individual blueprint: " + file.toString(), e);
+                        Log.getLogger().error("Error loading individual blueprint: " + file, e);
                         e.printStackTrace();
                     }
                 }
@@ -250,10 +324,11 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprints from folder: " + subPath.toString(), e);
+            Log.getLogger().error("Error loading blueprints from folder: " + subPath, e);
             e.printStackTrace();
         }
 
+        blueprints.sort(Comparator.comparing(Blueprint::getFileName));
         return blueprints;
     }
 

@@ -64,7 +64,9 @@ public interface IStructureHandler
                 inputStream.close();
                 setMd5(StructureUtils.calculateMD5(data));
                 final CompoundTag CompoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(data));
-                setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
+                final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(CompoundNBT);
+                blueprint.setFileName(structureName);
+                setBlueprint(blueprint);
             }
             catch (final IOException e)
             {

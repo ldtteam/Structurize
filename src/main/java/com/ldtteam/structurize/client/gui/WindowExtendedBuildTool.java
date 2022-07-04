@@ -6,27 +6,33 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blockentities.interfaces.IInvisibleBlueprintAnchorBlock;
 import com.ldtteam.structurize.blockentities.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blockentities.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blockentities.interfaces.IRequirementsBlueprintAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
-import com.ldtteam.structurize.helpers.Settings;
+import com.ldtteam.structurize.config.BlueprintRenderSettings;
+import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
+import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
+import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +67,22 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     /**
      * Placement scrolling list.
      */
-    private ScrollingList placementList;
+    private ScrollingList placementOptionsList;
+
+    /**
+     * Alternatives scrolling list.
+     */
+    private ScrollingList alternativesList;
+
+    /**
+     * Levels scrolling list.
+     */
+    private ScrollingList levelsList;
+
+    /**
+     * Settings scrolling list.
+     */
+    private ScrollingList settingsList;
 
     /**
      * Current selected structure pack.
@@ -81,7 +102,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     /**
      * List of categories at the current depth.
      */
-    private static Future<List<StructurePacks.Category>>  categoryList = null;
+    private static Future<List<StructurePacks.Category>> categoryFutures = null;
 
     /**
      * Next level of depth categories.
@@ -94,12 +115,22 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     private static Map<String, Future<List<Blueprint>>> blueprintsAtDepth = new HashMap<>();
 
     /**
+     * Current blueprint mapping from depth to processed blueprints.
+     * Depth -> Named -> Leveled.
+     */
+    private static Map<String, Map<String, Map<String, List<Blueprint>>>> currentBluePrintMappingAtDepthCache = new HashMap<>();
+
+    /**
+     * Current blueprint category.
+     */
+    private static String currentBlueprintCat = "";
+
+    /**
      * Type of button.
      */
     public enum ButtonType
     {
         Blueprint,
-        Leveled_Blueprint,
         SubCategory,
         Back
     }
@@ -115,26 +146,37 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     public WindowExtendedBuildTool(@Nullable final BlockPos pos, final int groundstyle)
     {
-        super(MOD_ID + BUILD_TOOL_PLUS_PLUS_RESOURCE_SUFFIX);
+        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
         this.init(pos, groundstyle);
     }
+
+    //todo MineColonies placement (needs also special creative placement because of hut block registering)
+    //todo shapetool integration into new system
 
     @SuppressWarnings("resource")
     private void init(final BlockPos pos, final int groundstyle)
     {
         this.groundstyle = groundstyle;
+
+        if (structurePack != null && !structurePack.getName().equals(StructurePacks.selectedPack.getName()))
+        {
+            depth = "";
+            currentBluePrintMappingAtDepthCache.clear();
+            blueprintsAtDepth.clear();
+            nextDepthMeta.clear();
+            categoryFutures = null;
+            nextDepth = "";
+            currentBlueprintCat = "";
+            RenderingCache.blueprintRenderingCache.remove("blueprint");
+        }
+
         if (pos != null)
         {
-            Settings.instance.setPosition(pos);
+            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = pos;
             adjustToGroundOffset();
         }
 
-        //if (structurePack == null)
-        {
-            //todo get it from the "StructurePacks" static
-            //todo we need a way to get it from the colony?
-            structurePack = StructurePacks.packMetas.get("Moroccan");
-        }
+        structurePack = StructurePacks.selectedPack;
 
         // Register all necessary buttons with the window.
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
@@ -148,50 +190,84 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         registerButton(BUTTON_DOWN, WindowExtendedBuildTool::moveDownClicked);
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
+        registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
+        registerButton(BUTTON_SETTINGS, this::settingsClicked);
 
         folderList = findPaneOfTypeByID("subcategories", ScrollingList.class);
         blueprintList = findPaneOfTypeByID("blueprints", ScrollingList.class);
-        placementList = findPaneOfTypeByID("placement", ScrollingList.class);
+        placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
+        alternativesList = findPaneOfTypeByID("alternatives", ScrollingList.class);
+        levelsList = findPaneOfTypeByID("levels", ScrollingList.class);
+        settingsList = findPaneOfTypeByID("settinglist", ScrollingList.class);
 
-        findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + depth + (Settings.instance.getActiveStructure() == null ? "" : ("/" + Settings.instance.getActiveStructure().getName()))));
-        //todo level selector simple list
-        categoryList = StructurePacks.getCategoriesFuture(structurePack.getName(), "");
-
-        if (Settings.instance.getActiveStructure() == null)
+        if (depth.isEmpty())
         {
-            findPaneOfTypeByID("manipulator", View.class).setVisible(false);
+            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName()).setStyle(Style.EMPTY.withBold(true)));
         }
         else
         {
-            findPaneOfTypeByID("manipulator", View.class).setVisible(true);
+            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
+              structurePack.getName() + "/" + depth + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null ? "" : ("/" + RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint().getFileName()))).setStyle(Style.EMPTY.withBold(true)));
         }
+        categoryFutures = StructurePacks.getCategoriesFuture(structurePack.getName(), "");
+        findPaneOfTypeByID("manipulator", View.class).setVisible(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() != null);
+
+        if (!currentBlueprintCat.isEmpty())
+        {
+            final String up = currentBlueprintCat.substring(0, currentBlueprintCat.lastIndexOf(":"));
+            handleBlueprintCategory(up.contains(":") ? up : currentBlueprintCat);
+        }
+        updateRotationState();
     }
 
+    /**
+     * Opens the switch style window.
+     */
+    private void switchPackClicked()
+    {
+        new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, groundstyle)).open();
+    }
+
+    /**
+     * On clicking the red cancel button.
+     */
     private void cancelClicked()
     {
+        BlueprintPreviewData previewData = RenderingCache.blueprintRenderingCache.remove("blueprint");
+        previewData.setBlueprint(null);
+        previewData.pos = BlockPos.ZERO;
+        Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(previewData));
 
+
+        close();
+        currentBlueprintCat = "";
+        depth = "";
     }
 
+    /**
+     * On clicking confirm for placement.
+     */
     private void confirmClicked()
     {
-        if (Settings.instance.getActiveStructure() != null)
+        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
+        if (previewData.getBlueprint() != null)
         {
             if (!Minecraft.getInstance().player.isCreative())
             {
-                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(Settings.instance.getActiveStructure(), Minecraft.getInstance().level, Minecraft.getInstance().player, Settings.instance.getPosition(), Settings.instance.getPlacementSettings());
+                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.pos, previewData.getPlacementSettings());
                 if (handlers.isEmpty())
                 {
-                    // todo notify player that there is no survival handler registered.
+                    Minecraft.getInstance().player.sendMessage(new TranslatableComponent("structurize.gui.no.survival.handler"), Minecraft.getInstance().player.getUUID());
                     return;
                 }
 
                 if (handlers.size() == 1)
                 {
-                    // Handle placement directly with handler id.
+                    handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handlers.get(0).getId());
                     return;
                 }
             }
-            updatePlacement();
+            updatePlacementOptions();
         }
     }
 
@@ -199,9 +275,8 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     public void onUpdate()
     {
         super.onUpdate();
-        if (categoryList != null && categoryList.isDone())
+        if (categoryFutures != null && categoryFutures.isDone())
         {
-            //todo only display the "manipulation menu" when an actual schematic is selected
             final View categoryView = findPaneOfTypeByID("categories", View.class);
             if (!categoryView.getChildren().isEmpty())
             {
@@ -210,7 +285,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             try
             {
                 int index = 0;
-                for (final StructurePacks.Category category : categoryList.get())
+                for (final StructurePacks.Category category : categoryFutures.get())
                 {
                     final ButtonImage img = new ButtonImage();
                     if (category.hasIcon)
@@ -236,7 +311,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                     img.setID(id);
 
                     categoryView.addChild(img);
-                    PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(new TextComponent(id));
+                    PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(new TextComponent(id.substring(0, 1).toUpperCase(Locale.US) + id.substring(1)));
 
                     if (category.isTerminal)
                     {
@@ -254,7 +329,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             {
                 e.printStackTrace();
             }
-            categoryList = null;
+            categoryFutures = null;
         }
 
         if (!nextDepth.isEmpty() && nextDepthMeta.containsKey(nextDepth))
@@ -318,32 +393,95 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         }
     }
 
-    public void updatePlacement()
+    /**
+     * When the settings button is clicked. Open settings window.
+     */
+    private void settingsClicked()
     {
-        placementList.enable();
-        placementList.show();
+        settingsList.show();
+        settingsList.enable();
+        alternativesList.hide();
+        alternativesList.disable();
+        levelsList.hide();
+        levelsList.disable();
+
+        final List<Map.Entry<String, Boolean>> settings = new ArrayList<>(BlueprintRenderSettings.instance.renderSettings.entrySet());
+
+        settingsList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            /**
+             * The number of rows of the list.
+             * @return the number.
+             */
+            @Override
+            public int getElementCount()
+            {
+                return settings.size();
+            }
+
+            /**
+             * Inserts the elements into each row.
+             * @param index the index of the row/list element.
+             * @param rowPane the parent Pane for the row, containing the elements to update.
+             */
+            @SuppressWarnings("resource")
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                rowPane.findPaneOfTypeByID("label", Text.class).setText(new TranslatableComponent(settings.get(index).getKey()));
+                final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
+                if (settings.get(index).getValue())
+                {
+                    buttonImage.setText(new TranslatableComponent("options.on"));
+                }
+                else
+                {
+                    buttonImage.setText(new TranslatableComponent("options.off"));
+                }
+                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
+
+                buttonImage.setHandler((button) -> {
+                    settings.get(index).setValue(!settings.get(index).getValue());
+                    Network.getNetwork().sendToServer(new SyncSettingsToServer());
+                    RenderingCache.getOrCreateBlueprintPreviewData("blueprint").scheduleRefresh();
+                });
+            }
+        });
+    }
+
+    /**
+     * Update the list of placement options.
+     */
+    public void updatePlacementOptions()
+    {
+        placementOptionsList.enable();
+        placementOptionsList.show();
         blueprintList.disable();
         blueprintList.hide();
         folderList.hide();
         folderList.disable();
+        alternativesList.hide();
+        alternativesList.disable();
+        levelsList.hide();
+        levelsList.disable();
 
-        final List<Component> categories = new ArrayList<>();
+        final List<Tuple<Component, Runnable>> categories = new ArrayList<>();
         if (Minecraft.getInstance().player.isCreative())
         {
-            categories.add(new TranslatableComponent("structurize.gui.buildtool.complete"));
-            categories.add(new TranslatableComponent("structurize.gui.buildtool.pretty"));
+            categories.add(new Tuple<>(new TranslatableComponent("structurize.gui.buildtool.complete"), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Complete, "")));
+            categories.add(new Tuple<>(new TranslatableComponent("structurize.gui.buildtool.pretty"), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Pretty, "")));
         }
 
-        if (Settings.instance.getActiveStructure() != null)
+        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
+        if (previewData.getBlueprint() != null)
         {
-            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(Settings.instance.getActiveStructure(), Minecraft.getInstance().level, Minecraft.getInstance().player, Settings.instance.getPosition(), Settings.instance.getPlacementSettings()))
+            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.pos, previewData.getPlacementSettings()))
             {
-                categories.add(handler.getDisplayName());
+                categories.add(new Tuple<>(handler.getDisplayName(), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handler.getId())));
             }
         }
 
-        //Creates a dataProvider for the unemployed resourceList.
-        placementList.setDataProvider(new ScrollingList.DataProvider()
+        placementOptionsList.setDataProvider(new ScrollingList.DataProvider()
         {
             /**
              * The number of rows of the list.
@@ -365,22 +503,46 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             public void updateElement(final int index, final Pane rowPane)
             {
                 final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("type", ButtonImage.class);
-                buttonImage.setText(categories.get(index));
+                buttonImage.setText(categories.get(index).getA());
                 buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
-                //todo handle button click.
-                //todo redirect potential to custom handler
+                buttonImage.setHandler(button -> categories.get(index).getB().run());
             }
         });
     }
 
+    /**
+     * This is called when one of the placement options is clicked.
+     * @param type the placement type
+     * @param id the custom id type.
+     */
+    private void handlePlacement(final BuildToolPlacementMessage.HandlerType type, final String id)
+    {
+        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
+        if (previewData.getBlueprint() != null)
+        {
+            Network.getNetwork()
+              .sendToServer(new BuildToolPlacementMessage(type,
+                id,
+                structurePack.getName(),
+                previewData.getBlueprint().getFilePath().toString().replace(structurePack.getPath().toString() + "/", ""),
+                previewData.pos,
+                previewData.rotation,
+                previewData.mirror));
+        }
+    }
+
+    /**
+     * Update the sub category structure.
+     * @param inputCategories the categories to render now.
+     */
     public void updateFolders(final List<StructurePacks.Category> inputCategories)
     {
         folderList.enable();
         folderList.show();
         blueprintList.disable();
         blueprintList.hide();
-        placementList.hide();
-        placementList.disable();
+        placementOptionsList.hide();
+        placementOptionsList.disable();
 
         final List<ButtonData> categories = new ArrayList<>();
         if (!inputCategories.isEmpty())
@@ -416,7 +578,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             folderList.setPosition(100, 160);
         }
 
-        //Creates a dataProvider for the unemployed resourceList.
         folderList.setDataProvider(new ScrollingList.DataProvider()
         {
             /**
@@ -450,14 +611,19 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         });
     }
 
+    /**
+     * Update the displayed blueprints.
+     * @param inputBluePrints the blueprints to display.
+     * @param depth the depth they're at.
+     */
     public void updateBlueprints(final List<Blueprint> inputBluePrints, final String depth)
     {
         blueprintList.enable();
         blueprintList.show();
         folderList.disable();
         folderList.hide();
-        placementList.hide();
-        placementList.disable();
+        placementOptionsList.hide();
+        placementOptionsList.disable();
 
         final List<ButtonData> blueprints = new ArrayList<>();
         if (!inputBluePrints.isEmpty())
@@ -472,28 +638,61 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             blueprints.add(new ButtonData(ButtonType.Back, parentCat));
         }
 
-        final Map<String, List<Blueprint>> leveledBlueprints = new HashMap<>();
+        final Map<String, List<Blueprint>> blueprintMapping = new HashMap<>();
 
         for (final Blueprint blueprint : inputBluePrints)
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+            if (anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(
+              RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset())))
+            {
+               continue;
+            }
+
             if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
             {
-                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(Settings.instance.getPosition().offset(blueprint.getPrimaryBlockOffset()), blueprint.getPrimaryBlockOffset()));
-                final String name = blueprint.getName().replace(Integer.toString(level), "");
-                final List<Blueprint> blueprintList = leveledBlueprints.getOrDefault(name, new ArrayList<>());
+                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos.offset(blueprint.getPrimaryBlockOffset()), blueprint.getPrimaryBlockOffset()));
+                final String name = blueprint.getFileName().replace(Integer.toString(level), "");
+                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
                 blueprintList.add(blueprint);
-                leveledBlueprints.put(name, blueprintList);
+                blueprintMapping.put(name, blueprintList);
             }
             else
             {
-                blueprints.add(new ButtonData(ButtonType.Blueprint, blueprint));
+                final String name = blueprint.getFileName();
+                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
+                blueprintList.add(blueprint);
+                blueprintMapping.put(name, blueprintList);
             }
         }
 
-        for (final Map.Entry<String, List<Blueprint>> entry : leveledBlueprints.entrySet())
+        final Map<String, Map<String, List<Blueprint>>> altBlueprintMapping = new HashMap<>();
+
+        for (final Map.Entry<String, List<Blueprint>> entry : blueprintMapping.entrySet())
         {
-            blueprints.add(new ButtonData(ButtonType.Leveled_Blueprint, entry.getValue()));
+            final Blueprint blueprint = entry.getValue().get(0);
+            final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
+            {
+                final String name = anchor.getBlock().getDescriptionId();
+                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new HashMap<>());
+                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
+                altBlueprintMapping.put(name, tempLeveledBlueprints);
+            }
+            else
+            {
+                final String name = blueprint.getFileName();
+                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new HashMap<>());
+                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
+                altBlueprintMapping.put(name, tempLeveledBlueprints);
+            }
+        }
+
+        currentBluePrintMappingAtDepthCache.put(depth, altBlueprintMapping);
+
+        for (final Map.Entry<String, Map<String, List<Blueprint>>> entry : altBlueprintMapping.entrySet())
+        {
+            blueprints.add(new ButtonData(ButtonType.Blueprint, entry.getKey()));
         }
 
         if (blueprints.size() <= 3)
@@ -512,7 +711,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             blueprintList.setPosition(100, 160);
         }
 
-        //Creates a dataProvider for the unemployed resourceList.
         blueprintList.setDataProvider(new ScrollingList.DataProvider()
         {
             /**
@@ -546,6 +744,110 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         });
     }
 
+    /**
+     * Update the alternative blueprint list.
+     * @param bluePrintMapping the mapping of blueprint name to leveled blueprints.
+     */
+    public void updateAlternatives(final Map<String, List<Blueprint>> bluePrintMapping, final String depth)
+    {
+        alternativesList.enable();
+        alternativesList.show();
+        levelsList.hide();
+        levelsList.disable();
+        settingsList.hide();
+        settingsList.disable();
+
+        final List<Map.Entry<String, List<Blueprint>>> list = new ArrayList<>(bluePrintMapping.entrySet());
+
+        alternativesList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            /**
+             * The number of rows of the list.
+             * @return the number.
+             */
+            @Override
+            public int getElementCount()
+            {
+                return list.size();
+            }
+
+            /**
+             * Inserts the elements into each row.
+             * @param index the index of the row/list element.
+             * @param rowPane the parent Pane for the row, containing the elements to update.
+             */
+            @SuppressWarnings("resource")
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                final ButtonImage button = rowPane.findPaneOfTypeByID("alternative", ButtonImage.class);
+                rowPane.findPaneOfTypeByID("id", Text.class).setText(new TextComponent(depth + ":" + list.get(index).getKey()));
+                button.setText(new TextComponent("Alternative: " + (index+1)));
+                button.setTextColor(ChatFormatting.BLACK.getColor());
+            }
+        });
+    }
+
+    /**
+     * Update the alternative blueprint list.
+     * @param blueprints the different blueprint levels.
+     */
+    public void updateLevels(final List<Blueprint> blueprints, final String depth, final boolean hasAlternatives)
+    {
+        levelsList.enable();
+        levelsList.show();
+        alternativesList.hide();
+        alternativesList.disable();
+        settingsList.hide();
+        settingsList.disable();
+
+        if (hasAlternatives)
+        {
+            blueprints.add(0, null);
+        }
+
+        levelsList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            /**
+             * The number of rows of the list.
+             * @return the number.
+             */
+            @Override
+            public int getElementCount()
+            {
+                return blueprints.size();
+            }
+
+            /**
+             * Inserts the elements into each row.
+             * @param index the index of the row/list element.
+             * @param rowPane the parent Pane for the row, containing the elements to update.
+             */
+            @SuppressWarnings("resource")
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                if (blueprints.get(index) == null )
+                {
+                    final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":back";
+                    final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
+                    rowPane.findPaneOfTypeByID("id", Text.class).setText(new TextComponent(buttonId));
+                    button.setText(new TextComponent(""));
+                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"), false);
+                }
+                else
+                {
+                    final String buttonId = depth + ":" + (hasAlternatives ? index - 1 : index);
+                    final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
+                    rowPane.findPaneOfTypeByID("id", Text.class).setText(new TextComponent(buttonId));
+                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_medium.png"), false);
+                    button.setText(new TextComponent("Level: " + (index + (hasAlternatives ? 0 : 1))));
+                    button.setTextColor(ChatFormatting.BLACK.getColor());
+                }
+            }
+        });
+    }
+
     private void handleBlueprint(final ButtonData buttonData, final Pane rowPane, final int index, final String depth)
     {
         ButtonImage img = rowPane.findPaneOfTypeByID(Integer.toString(index), ButtonImage.class);
@@ -560,24 +862,20 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"), false);
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(new TextComponent("back"));
         }
-        else if (buttonData.type == ButtonType.Leveled_Blueprint)
+        else if (buttonData.type == ButtonType.Blueprint)
         {
-            final List<Blueprint> blueprints = (List<Blueprint>) buttonData.data;
-            final Blueprint firstBlueprint = blueprints.get(0);
-            final BlockState anchor = firstBlueprint.getBlockState(firstBlueprint.getPrimaryBlockOffset());
-            final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(firstBlueprint.getTileEntityData(Settings.instance.getPosition().offset(firstBlueprint.getPrimaryBlockOffset()), firstBlueprint.getPrimaryBlockOffset()));
-
-            final String id = firstBlueprint.getName().replace(Integer.toString(level), "");
+            final String id = (String) buttonData.data;
             if (img == null)
             {
                 img = rowPane.findPaneOfTypeByID(depth + ":" + id, ButtonImage.class);
             }
-
-            //todo, now, on click we don't want to render! we want to render a number switcher for the levels)
-
             img.setID(depth + ":" + id);
+
+            final Map<String, List<Blueprint>> blueprintMap = currentBluePrintMappingAtDepthCache.get(depth).get(id);
+            final Blueprint firstBlueprint = blueprintMap.values().iterator().next().get(0);
+
+            final BlockState anchor = firstBlueprint.getBlockState(firstBlueprint.getPrimaryBlockOffset());
             final List<MutableComponent> toolTip = new ArrayList<>();
-            final TextComponent desc = new TextComponent(id.split("/")[id.split("/").length - 1]);
             if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
             {
                 img.setText(((INamedBlueprintAnchorBlock) anchor.getBlock()).getBlueprintDisplayName());
@@ -585,81 +883,44 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             }
             else
             {
-                img.setText(desc);
+                img.setText(new TextComponent(id.split("/")[id.split("/").length - 1]));
             }
             img.setVisible(true);
 
             boolean hasMatch = false;
-            for (final Blueprint blueprint : blueprints)
+            for (final List<Blueprint> blueprints : blueprintMap.values())
             {
-                if (blueprint.equals(Settings.instance.getActiveStructure()))
+                for (final Blueprint blueprint : blueprints)
                 {
-                    hasMatch = true;
-                    break;
+                    if (blueprint.equals(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint()))
+                    {
+                        hasMatch = true;
+                        break;
+                    }
                 }
             }
 
             if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
             {
-                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player));
-                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player))
+                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, Minecraft.getInstance().player));
+                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, Minecraft.getInstance().player))
                 {
                     PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
                     img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);
+                    img.disable();
                     return;
                 }
             }
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
+            boolean hasAlts = blueprintMap.values().size() > 1;
             if (hasMatch)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/selected_blueprint_medium.png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/" + (hasAlts ? "leveled_" : "") + "selected_blueprint_medium.png"), false);
             }
             else
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/blueprint_medium.png"), false);
-            }
-        }
-        else if (buttonData.type == ButtonType.Blueprint)
-        {
-            final Blueprint blueprint = (Blueprint) buttonData.data;
-            final String id = blueprint.getName();
-            if (img == null)
-            {
-                img = rowPane.findPaneOfTypeByID(depth + ":" + id, ButtonImage.class);
-            }
-
-            img.setID(depth + ":" + id);
-            final Component desc;
-            final Block anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset()).getBlock();
-            if (anchor instanceof INamedBlueprintAnchorBlock)
-            {
-                desc = ((INamedBlueprintAnchorBlock) anchor).getBlueprintDisplayName();
-            }
-            else
-            {
-                desc = new TextComponent(id.split("/")[id.split("/").length - 1]);
-            }
-            img.setText(desc);
-            img.setVisible(true);
-
-            if (anchor instanceof IRequirementsBlueprintAnchorBlock)
-            {
-                PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(((IRequirementsBlueprintAnchorBlock) anchor).getRequirements(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player));
-                if (!((IRequirementsBlueprintAnchorBlock) anchor).areRequirementsMet(Minecraft.getInstance().level, Settings.instance.getPosition(), Minecraft.getInstance().player))
-                {
-                    img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);
-                    return;
-                }
-            }
-
-            if (blueprint.equals(Settings.instance.getActiveStructure()))
-            {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/selected_blueprint_medium.png"), false);
-            }
-            else
-            {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/blueprint_medium.png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/" + (hasAlts ? "leveled_" : "") + "blueprint_medium.png"), false);
             }
         }
     }
@@ -704,14 +965,16 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     @Override
     public void onButtonClicked(final Button button)
     {
+        boolean handled = false;
         if (button.getID().contains("back:"))
         {
             nextDepth = button.getID().split(":").length == 1 ? "" : button.getID().split(":")[1];
             updateFolders(Collections.emptyList());
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
-            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth));
+            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
             button.setHoverPane(null);
+            handled = true;
         }
         else if (nextDepthMeta.containsKey(button.getID()))
         {
@@ -719,7 +982,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             updateFolders(Collections.emptyList());
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
-            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth));
+            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
             if (nextDepth.contains("/"))
             {
                 button.setHoverPane(null);
@@ -732,6 +995,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                 }
                 button.disable();
             }
+            handled = true;
         }
         else if (blueprintsAtDepth.containsKey(button.getID()))
         {
@@ -739,7 +1003,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             updateFolders(Collections.emptyList());
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
-            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth));
+            findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
             if (nextDepth.contains("/"))
             {
                 button.setHoverPane(null);
@@ -752,51 +1016,139 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                 }
                 button.disable();
             }
+            handled = true;
         }
-
         else if (button.getID().contains(":"))
         {
-            final String[] split = button.getID().split(":");
-            if (split.length == 2)
+            for (final Pane pane : findPaneOfTypeByID("categories", View.class).getChildren())
             {
-                if (blueprintsAtDepth.containsKey(split[0]))
-                {
-                    try
-                    {
-                        for (final Blueprint blueprint: blueprintsAtDepth.get(split[0]).get())
-                        {
-                            if (blueprint.getName().equals(split[1]))
-                            {
-                                findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + depth + "/" + blueprint.getName()));
-                                Settings.instance.setActiveSchematic(blueprint);
-                                return;
-                            }
-                        }
-                    }
-                    catch (InterruptedException | ExecutionException e)
-                    {
-                        Log.getLogger().error("Error retrieving blueprint from future.", e);
-                    }
-                }
+                pane.enable();
+            }
+
+            currentBlueprintCat = button.getID().replace(":back", "");
+            handleBlueprintCategory(currentBlueprintCat);
+            button.setHoverPane(null);
+            handled = true;
+        }
+        else if (button.getID().equals("alternative") || button.getID().equals("level"))
+        {
+            for (final Pane pane : findPaneOfTypeByID("categories", View.class).getChildren())
+            {
+                pane.enable();
+            }
+
+            currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":back", "");
+            handleBlueprintCategory(currentBlueprintCat);
+            button.setHoverPane(null);
+            handled = true;
+        }
+
+        findPaneOfTypeByID("manipulator", View.class).setVisible(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() != null);
+
+        if (!handled)
+        {
+            super.onButtonClicked(button);
+        }
+    }
+
+    private void handleBlueprintCategory(final String categoryId)
+    {
+        final String[] split = categoryId.split(":");
+        final String id = split[1];
+        final Map<String, List<Blueprint>> mapping = currentBluePrintMappingAtDepthCache.get(split[0]).get(id);
+        if (mapping == null)
+        {
+            Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
+            return;
+        }
+
+        if (split.length == 2)
+        {
+            if (mapping.size() == 1 && mapping.values().iterator().next().size() == 1)
+            {
+                alternativesList.hide();
+                alternativesList.disable();
+                levelsList.hide();
+                levelsList.disable();
+
+                final Blueprint blueprint = mapping.values().iterator().next().get(0);
+                findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                return;
+            }
+
+            if (mapping.size() > 1)
+            {
+                updateLevels(Collections.emptyList(), "", false);
+                updateAlternatives(mapping, categoryId);
             }
             else
             {
-                Log.getLogger().error("Invalid blueprint name at depth: " + button.getID());
-            }
-            button.setHoverPane(null);
-            updateFolders(Collections.emptyList());
-        }
+                updateAlternatives(Collections.emptyMap(), categoryId);
+                final List<Blueprint> leveled = mapping.values().iterator().next();
 
-        if (Settings.instance.getActiveStructure() == null)
+                if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null)
+                {
+                    final Blueprint blueprint = leveled.get(0);
+                    findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
+                      structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                    RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                }
+                updateLevels(leveled, categoryId + ":" + mapping.keySet().iterator().next(), false);
+            }
+        }
+        else if (split.length == 3)
         {
-            findPaneOfTypeByID("manipulator", View.class).setVisible(false);
+            final List<Blueprint> list = mapping.get(split[2]);
+            if (list == null || list.isEmpty())
+            {
+                Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
+                return;
+            }
+
+            if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || list.size() == 1)
+            {
+                final Blueprint blueprint = list.get(0);
+                findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
+                  structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+            }
+
+            if (list.size() == 1)
+            {
+                return;
+            }
+
+            updateAlternatives(Collections.emptyMap(), categoryId);
+            updateLevels(new ArrayList<>(list), categoryId, true);
+        }
+        else if (split.length == 4)
+        {
+            final List<Blueprint> list = mapping.get(split[2]);
+            if (list == null || list.isEmpty())
+            {
+                Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
+                return;
+            }
+
+            try
+            {
+                int level = Integer.parseInt(split[3]);
+                final Blueprint blueprint = list.get(level);
+                findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                return;
+            }
+            catch (final NumberFormatException exception)
+            {
+                Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
+            }
         }
         else
         {
-            findPaneOfTypeByID("manipulator", View.class).setVisible(true);
+            Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
         }
-
-        super.onButtonClicked(button);
+        updateFolders(Collections.emptyList());
     }
 
     @Override
@@ -814,11 +1166,29 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             }
             else if (key == 262)
             {
-                moveRightClicked();
+                if (Screen.hasShiftDown())
+                {
+                    rotateRightClicked();
+                }
+                else
+                {
+                    moveRightClicked();
+                }
             }
             else if (key == 263)
             {
-                moveLeftClicked();
+                if (Screen.hasShiftDown())
+                {
+                    rotateLeftClicked();
+                }
+                else
+                {
+                    moveLeftClicked();
+                }
+            }
+            else if (key == 257)
+            {
+                confirmClicked();
             }
         }
         else if (ch == '+')
@@ -829,6 +1199,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         {
             moveDownClicked();
         }
+
         return super.onKeyTyped(ch, key);
     }
 
@@ -841,7 +1212,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void mirror()
     {
-        Settings.instance.mirror();
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").mirror();
         updateRotationState();
     }
 
@@ -850,7 +1221,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private static void moveUpClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 1, 0));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 1, 0));
     }
 
     /**
@@ -858,7 +1229,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private static void moveDownClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, -1, 0));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, -1, 0));
     }
 
     /**
@@ -866,7 +1237,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void moveLeftClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
     }
 
     /**
@@ -874,7 +1245,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void moveRightClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
     }
 
     /**
@@ -882,7 +1253,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void moveForwardClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
     }
 
     /**
@@ -890,15 +1261,17 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void moveBackClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
     }
+
+    //todo move the "moving" to an abstract buildtool which gets a "key". So we can move this out of the shape tool and also reduce the size of this.
 
     /**
      * Rotate the structure clockwise.
      */
     private void rotateRightClicked()
     {
-        Settings.instance.setRotation((Settings.instance.getRotation() + ROTATE_RIGHT_INDEX) % POSSIBLE_ROTATIONS);
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotate(Rotation.CLOCKWISE_90);
         updateRotationState();
     }
 
@@ -907,7 +1280,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void rotateLeftClicked()
     {
-        Settings.instance.setRotation((Settings.instance.getRotation() + ROTATE_LEFT_INDEX) % POSSIBLE_ROTATIONS);
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotate(Rotation.COUNTERCLOCKWISE_90);
         updateRotationState();
     }
 
@@ -920,18 +1293,18 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").mirror.equals(Mirror.NONE) ? "" : GREEN_POS))), false);
 
         String rotation;
-        switch (Settings.instance.getRotation())
+        switch (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotation)
         {
-            case ROTATE_RIGHT_INDEX:
+            case CLOCKWISE_90:
                 rotation = "right_green";
                 break;
-            case ROTATE_180_INDEX:
+            case CLOCKWISE_180:
                 rotation = "down_green";
                 break;
-            case ROTATE_LEFT_INDEX:
+            case COUNTERCLOCKWISE_90:
                 rotation = "left_green";
                 break;
             default:
@@ -946,7 +1319,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     private void adjustToGroundOffset()
     {
-        final Blueprint blueprint = Settings.instance.getActiveStructure();
+        final Blueprint blueprint = RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint();
         if (blueprint != null)
         {
             int groundOffset;
@@ -967,7 +1340,7 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             }
 
             --groundOffset;     // compensate for clicking the top face of the ground block
-            Settings.instance.setGroundOffset(groundOffset);
+            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setGroundOffset(groundOffset);
         }
     }
 
