@@ -8,9 +8,7 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
-import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
 
@@ -71,12 +69,6 @@ public class EventSubscriber
         EntryPoint.register(event.getDispatcher(), event.getEnvironment());
     }
 
-    @SubscribeEvent
-    public static void onServerStarted(final ServerStartedEvent event)
-    {
-        Structures.init();
-    }
-
     /**
      * Called when a player logs in. If the joining player is a MP-Player, sends
      * all possible styles in a message.
@@ -89,7 +81,6 @@ public class EventSubscriber
         if (event.getPlayer() instanceof ServerPlayer serverPlayer)
         {
             Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
         }
     }
 

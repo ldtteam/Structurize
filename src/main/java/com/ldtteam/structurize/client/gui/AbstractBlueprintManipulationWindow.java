@@ -40,12 +40,12 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     /**
      * Settings scrolling list.
      */
-    private ScrollingList settingsList;
+    protected ScrollingList settingsList;
 
     /**
      * Ground style of the caller.
      */
-    private int groundstyle;
+    protected int groundstyle;
 
     /**
      * Creates a window build tool.
@@ -313,7 +313,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     /**
      * Detects the intended ground level via tag and offsets the blueprint accordingly
      */
-    private void adjustToGroundOffset()
+    protected void adjustToGroundOffset()
     {
         final Blueprint blueprint = RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getBlueprint();
         if (blueprint != null)

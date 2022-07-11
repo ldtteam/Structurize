@@ -131,8 +131,16 @@
   "com.ldtteam.structurize.gui.scan.replace.pct": "Random Percentage:",
   "structurize.gui.replaceblock.badpct": "Bad percentage selected, assuming 100.",
   "structurize.gui.buildtool.show": "Show Placeholder Blocks. Blocks at these positions will not be changed on placement.",
-  "structurize.gui.buildtool.switchstyle": "Switch Style",
+  "structurize.gui.buildtool.switchpack": "Switch Pack",
   "structurize.gui.buildtool.complete": "Schematic Paste",
-  "structurize.gui.buildtool.pretty": "Pretty",
-  "structurize.gui.buildtool.specialized": "Specialized"
+  "structurize.gui.buildtool.pretty": "Constructed",
+  "structurize.gui.buildtool.specialized": "Specialized",
+  "structurize.gui.no.survival.handler": "No Survival Handler Registered. Please use Creative Mode or Install a Mod that Provides a Survival Handler",
+  "structurize.gui.buildtool.cancel": "Cancel",
+  "structurize.gui.switchpack.select": "Select",
+  "structurize.render.placeholders": "Render Placeholders:",
+  "structurize.share.previews": "Broadcast Preview:",
+  "structurize.display.shared": "Render Surrounding Previews:",
+
+  "structurize.pack.missing.blueprint": "The Requested Blueprint does not exist on the Serverside in the same Pack. Either the Client Pack has been tampered with, or the Server Pack is outdated."
 }

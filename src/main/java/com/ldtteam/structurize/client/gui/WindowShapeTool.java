@@ -11,11 +11,8 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.storage.rendering.types.ShapesPreviewData;
-import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
@@ -48,24 +45,10 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     private static Shape shape = Shape.CUBE;
 
     /**
-     * The stack used to present blocks.
+     * Main and secondary blocks.
      */
-    private static Tuple<ItemStack, ItemStack> stack = new Tuple<>(new ItemStack(Blocks.GOLD_BLOCK), new ItemStack(Blocks.GOLD_BLOCK));
-
-    /**
-     * Pre resource string.
-     */
-    private static final String RES_STRING = "textures/gui/buildtool/%s.png";
-
-    /**
-     * Green String for selected state.
-     */
-    private static final String GREEN_POS = "_green";
-
-    /**
-     * All possible rotations.
-     */
-    private static final int POSSIBLE_ROTATIONS = 4;
+    private static ItemStack mainBlock = new ItemStack(Blocks.GOLD_BLOCK);
+    private static ItemStack secondaryBlock = new ItemStack(Blocks.GOLD_BLOCK);
 
     /**
      * Id of the paste button.
@@ -83,14 +66,9 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     private static final String BUTTON_PLUS = "plus";
 
     /**
-     * Id of the rotation indicator.
-     */
-    private static final String IMAGE_ROTATION = "rotation";
-
-    /**
      * List of section.
      */
-        private final List<String> sections = new ArrayList<>();
+    private final List<String> sections = new ArrayList<>();
 
     /**
      * Drop down list for section.
@@ -133,7 +111,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     /**
      * The equation.
      */
-    private String shapeEquation = "";
+    private String shapeequation = "";
 
     /**
      * Creates a window inputShape tool.
@@ -147,6 +125,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX, pos,0, "shapes");
         this.init(pos, false);
+        //todo placement handler support as well
     }
 
     private void init(final BlockPos pos, final boolean shouldUpdate)
@@ -162,7 +141,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
             this.shapeLength = length;
             this.shapeHeight = height;
             this.shapeFrequency = frequency;
-            this.shapeEquation = equation;
+            this.shapeequation = equation;
         }
 
         //Register all necessary buttons with the window.
@@ -230,8 +209,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
           frequency,
           equation,
           shape,
-          stack.getA(),
-          stack.getB(),
+          mainBlock,
+          secondaryBlock,
           hollow));
     }
 
@@ -276,7 +255,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(stack.getA(), OldSettings.instance.getPosition(), true, this).open();
+        new WindowReplaceBlock(mainBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos, true, this).open();
     }
 
     /**
@@ -284,7 +263,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      * */
     private void pickFillBlock()
     {
-        new WindowReplaceBlock(stack.getB(), OldSettings.instance.getPosition(), false, this).open();
+        new WindowReplaceBlock(secondaryBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos, false, this).open();
     }
 
     private void adjust(final TextField input, final int value)
@@ -318,18 +297,43 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     private void hollowShapeToggle()
     {
         final ToggleButton hollowButton = findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class);
-        OldSettings.instance.setHollow(hollowButton.isActiveState("hollow"));
+        hollow = hollowButton.isActiveState("hollow");
 
         genShape();
     }
 
-    /**
-     * Confirm button clicked.
-     */
+    @Override
     protected void confirmClicked()
     {
         place();
         clearAndClose();
+    }
+
+    /**
+     * Cancel the current structure.
+     */
+    @Override
+    protected void cancelClicked()
+    {
+        width  = 1;
+        height = 1;
+        length = 1;
+        frequency = 1;
+        equation = "";
+        hollow = false;
+        shape = Shape.CUBE;
+        mainBlock = new ItemStack(Blocks.GOLD_BLOCK);
+        secondaryBlock = new ItemStack(Blocks.GOLD_BLOCK);
+        clearAndClose();
+    }
+
+    /**
+     * Cleanup the variables and close this.
+     */
+    private void clearAndClose()
+    {
+        RenderingCache.blueprintRenderingCache.remove("shapes");
+        close();
     }
 
     /**
@@ -357,65 +361,22 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     }
 
     /**
-     * Saves the current shape to the server.
-     * @return A name that can be used to place it.
-     */
-    protected StructureName save()
-    {
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        BlueprintUtil.writeToStream(stream, OldSettings.instance.getActiveStructure());
-
-        // cache it locally...
-        Structures.handleSaveSchematicMessage(stream.toByteArray(), true);
-
-        if (!Minecraft.getInstance().hasSingleplayerServer())
-        {
-            // and also on the server if needed
-            Network.getNetwork().sendToServer(new GenerateAndSaveMessage(OldSettings.instance.getPosition(),
-                    OldSettings.instance.getLength(),
-                    OldSettings.instance.getWidth(),
-                    OldSettings.instance.getHeight(),
-                    OldSettings.instance.getFrequency(),
-                    OldSettings.instance.getEquation(),
-                    OldSettings.instance.getShape(),
-                    OldSettings.instance.getBlock(true),
-                    OldSettings.instance.getBlock(false),
-                    OldSettings.instance.isHollow(),
-                    BlockUtils.getRotation(OldSettings.instance.getRotation()),
-                    OldSettings.instance.getMirror()));
-        }
-
-        // this assumes that the server will generate exactly the same blueprint data as the client did;
-        // hopefully that is true, since they should be using the same algorithm to do it...
-        return new StructureName(Structures.SCHEMATICS_CACHE + Structures.SCHEMATICS_SEPARATOR + StructureUtils.calculateMD5(stream.toByteArray()));
-    }
-
-    /**
      * Paste a schematic in the world.
      */
     private void paste()
     {
-        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(OldSettings.instance.getPosition(),
-          OldSettings.instance.getLength(),
-          OldSettings.instance.getWidth(),
-          OldSettings.instance.getHeight(),
-          OldSettings.instance.getFrequency(),
-          OldSettings.instance.getEquation(),
-          OldSettings.instance.getShape(),
-          OldSettings.instance.getBlock(true),
-          OldSettings.instance.getBlock(false),
-          OldSettings.instance.isHollow(),
-          BlockUtils.getRotation(OldSettings.instance.getRotation()),
-          OldSettings.instance.getMirror()));
-    }
-
-    /**
-     * Rotate the structure counter clockwise.
-     */
-    private void mirror()
-    {
-        OldSettings.instance.mirror();
-        updateRotationState();
+        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos,
+          length,
+          width,
+          height,
+          frequency,
+          equation,
+          shape,
+          mainBlock,
+          secondaryBlock,
+          hollow,
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").rotation,
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").mirror));
     }
 
     /**
@@ -426,22 +387,29 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     @SuppressWarnings("resource")
     public void onOpened()
     {
-        if (!hasPermission())
-        {
-            LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player, "structurize.gui.shapetool.creative_only");
-            close();
-        }
         // updateRotation(rotation);
-        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(OldSettings.instance.getBlock(true));
-        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(OldSettings.instance.getBlock(false));
+        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(mainBlock);
+        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(secondaryBlock);
         findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
         findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 
-    public void updateBlock(final ItemStack stack, final boolean mainBlock)
+    /**
+     * Update the block from the replace block window.
+     * @param stack the stack to set.
+     * @param isMain if primary or secondary.
+     */
+    public void updateBlock(final ItemStack stack, final boolean isMain)
     {
-        OldSettings.instance.setBlock(stack, mainBlock);
-        findPaneOfTypeByID(mainBlock ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
+        if (isMain)
+        {
+            mainBlock = stack;
+        }
+        else
+        {
+            secondaryBlock = stack;
+        }
+        findPaneOfTypeByID(isMain ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
         genShape();
     }
 
@@ -490,9 +458,9 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void updateStyle(final String s)
     {
-        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != OldSettings.instance.getShape())
+        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != shape)
         {
-            OldSettings.instance.setShape(s);
+            shape = Shape.valueOf(s);
             genShape();
         }
         disableInputIfNecessary();
@@ -506,7 +474,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         final String lengthText = inputLength.getText();
         final String heightText = inputHeight.getText();
         final String frequencyText = inputFrequency.getText();
-        final String localEquation = inputShape.getText();
+        final String localequation = inputShape.getText();
 
         if (!widthText.isEmpty() && !lengthText.isEmpty() && !heightText.isEmpty())
         {
@@ -518,47 +486,28 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
                 final int localFrequency = Integer.parseInt(frequencyText);
 
                 if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency
-                      || !shapeEquation.equals(localEquation))
+                      || !shapeequation.equals(localequation))
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;
                     this.shapeHeight = localHeight;
                     this.shapeFrequency = localFrequency;
-                    this.shapeEquation = localEquation;
-                    OldSettings.instance.setWidth(localWidth);
-                    OldSettings.instance.setLength(localLength);
-                    OldSettings.instance.setHeight(localHeight);
-                    OldSettings.instance.setFrequency(localFrequency);
-                    OldSettings.instance.setEquation(localEquation);
+                    this.shapeequation = localequation;
+                    width = localWidth;
+                    length = localLength;
+                    height = localHeight;
+                    frequency = localFrequency;
+                    equation = localequation;
                     genShape();
                 }
             }
             catch (NumberFormatException e)
             {
-                inputWidth.setText(Integer.toString(OldSettings.instance.getWidth()));
-                inputLength.setText(Integer.toString(OldSettings.instance.getLength()));
-                inputHeight.setText(Integer.toString(OldSettings.instance.getHeight()));
+                inputWidth.setText(Integer.toString(width));
+                inputLength.setText(Integer.toString(length));
+                inputHeight.setText(Integer.toString(height));
             }
         }
         return result;
-    }
-
-
-    /*
-     * ---------------- Miscellaneous ----------------
-     */
-
-    private void clearAndClose()
-    {
-        OldSettings.instance.resetBlueprint();
-        close();
-    }
-
-    /**
-     * Cancel the current structure.
-     */
-    protected void cancelClicked()
-    {
-        clearAndClose();
     }
 }

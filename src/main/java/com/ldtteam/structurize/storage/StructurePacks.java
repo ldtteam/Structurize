@@ -10,13 +10,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 
 /**
  * Class that contains all the structurepacks of the instance.
@@ -107,6 +110,26 @@ public class StructurePacks
     }
 
     /**
+     * Get the blueprint directly with a path.
+     * @param path the path to search for.
+     * @return the blueprint.
+     */
+    public static Future<Blueprint> getBlueprintFuture(final Path path)
+    {
+        return Util.ioPool().submit(() -> getBlueprint(path));
+    }
+
+    /**
+     * Find the blueprint async
+     * @param blueprintPredicate the predicate to define the blueprint we're looking for.
+     * @return the blueprint future.
+     */
+    public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
+    {
+        return Util.ioPool().submit(() -> findBlueprint(structurePackId, blueprintPredicate));
+    }
+
+    /**
      * Find a blueprint by name.
      * @param structurePackId the pack to search in.
      * @param name the name we're searching for.
@@ -179,6 +202,84 @@ public class StructurePacks
     }
 
     /**
+     * Find a blueprint by name.
+     * @param structurePackId the pack to search in.
+     * @param blueprintPredicate matches the blueprint.
+     * @return the blueprint or null.
+     */
+    public static Blueprint findBlueprint(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
+    {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
+        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        if (packMeta == null)
+        {
+            return null;
+        }
+
+        return findBlueprint(packMeta.getPath(), blueprintPredicate);
+    }
+
+    /**
+     * Find blueprint at path.
+     * Recursively goes through folder structure.
+     * @param subPath the sub path to check.
+     * @param blueprintPredicate matches the blueprint.
+     * @return the path of the file or null.
+     */
+    public static Blueprint findBlueprint(final Path subPath, final Predicate<Blueprint> blueprintPredicate)
+    {
+        while (!finishedLoading)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                // Nothing on purpose.
+            }
+        }
+
+        try
+        {
+            return Files.list(subPath).map(file -> {
+                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+                {
+                    final Blueprint blueprint = getBlueprint(file);
+                    if (blueprintPredicate.test(blueprint))
+                    {
+                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                        blueprint.setFilePath(file.getParent());
+                        return blueprint;
+                    }
+                }
+                else if (Files.isDirectory(file))
+                {
+                    return findBlueprint(file, blueprintPredicate);
+                }
+                return  null;
+            }).filter(Objects::nonNull).findFirst().orElse(null);
+        }
+        catch (final IOException e)
+        {
+            Log.getLogger().error("Error loading blueprint: ", e);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Get a blueprint directly (careful IO, might be slow).
      * @param structurePackId the structure pack the blueprint is in.
      * @param subPath the folder containing the blueprints.
@@ -205,12 +306,14 @@ public class StructurePacks
             return null;
         }
 
+        //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
+
         return getBlueprint(packMeta.getPath().resolve(subPath));
     }
 
     /**
      * Get the blueprint directly with a path.
-     * @param path the path to search fr.
+     * @param path the path to search for.
      * @return the blueprint.
      */
     public static Blueprint getBlueprint(final Path path)
@@ -220,10 +323,7 @@ public class StructurePacks
             final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)));
             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
 
-            final String[] splitPath = path.toString().split("/");
-            final String fileName = splitPath[splitPath.length - 1].replace(".blueprint", "");
-
-            blueprint.setFileName(fileName);
+            blueprint.setFileName(path.getFileName().toString().replace(".blueprint", ""));
             blueprint.setFilePath(path.getParent());
 
             return blueprint;
@@ -260,6 +360,8 @@ public class StructurePacks
         {
             return null;
         }
+
+        //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
         try
         {
@@ -298,6 +400,8 @@ public class StructurePacks
         {
             return Collections.emptyList();
         }
+
+        //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
         final List<Blueprint> blueprints = new ArrayList<>();
 
@@ -358,6 +462,8 @@ public class StructurePacks
         {
             return Collections.emptyList();
         }
+
+        //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
         final List<Category> categories = new ArrayList<>();
 
@@ -439,6 +545,30 @@ public class StructurePacks
                 Log.getLogger().warn("Error Reading pack: ", ex);
             }
         }
+    }
+
+    /**
+     * Store a blueprint at a given path.
+     *
+     * @param compoundTag compound to store.
+     * @param path path to store it at.
+     */
+    public static Future<Blueprint> storeBlueprint(final CompoundTag compoundTag, final Path path)
+    {
+        return Util.ioPool().submit(() ->
+        {
+            Files.createDirectories(path.getParent());
+            try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(path)))
+            {
+                NbtIo.writeCompressed(compoundTag, outputstream);
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("Exception while trying to scan.", e);
+                return null;
+            }
+            return StructurePacks.getBlueprint(path);
+        });
     }
 
     /**

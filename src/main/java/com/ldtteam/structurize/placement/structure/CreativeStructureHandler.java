@@ -12,6 +12,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Creative placement handler that doesn't require resources or tools.
@@ -27,13 +28,13 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * Creative constructor of structure handler.
      * @param world the world it gets.
      * @param pos the position the anchor of the structure got placed.
-     * @param structureName the name of the structure.
+     * @param blueprint the blueprint.
      * @param settings the placement settings.
      * @param fancyPlacement if placement is fancy or complete.
      */
-    public CreativeStructureHandler(final Level world, final BlockPos pos, final String structureName, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
     {
-        super(world, pos, structureName, settings);
+        super(world, pos, blueprint, settings);
         this.fancyPlacement = fancyPlacement;
     }
 
@@ -44,9 +45,8 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param blueprint the blueprint.
      * @param settings the placement settings.
      * @param fancyPlacement if placement is fancy or complete.
-
      */
-    public CreativeStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final Future<Blueprint> blueprint, final PlacementSettings settings, final boolean fancyPlacement)
     {
         super(world, pos, blueprint, settings);
         this.fancyPlacement = fancyPlacement;

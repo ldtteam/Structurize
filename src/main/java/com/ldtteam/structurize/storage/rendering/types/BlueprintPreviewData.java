@@ -228,7 +228,7 @@ public class BlueprintPreviewData
      */
     private void syncChangesToServer()
     {
-        if (BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS))
+        if (BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
         {
             Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }

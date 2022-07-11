@@ -17,7 +17,8 @@ import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
-import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
+import com.ldtteam.structurize.storage.ClientBlueprintFutureProcessor;
+import com.ldtteam.structurize.storage.ServerBlueprintFutureProcessor;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
@@ -69,9 +70,10 @@ public class Structurize
 
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerStructurePackLoader.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientStructurePackLoader.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(BlueprintPlacementHandling.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientBlueprintRequestMessage.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerPreviewDistributor.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerBlueprintFutureProcessor.class);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientBlueprintFutureProcessor.class);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientLifecycleSubscriber.class));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));

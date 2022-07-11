@@ -13,11 +13,8 @@ import com.ldtteam.structurize.blockentities.interfaces.ILeveledBlueprintAnchorB
 import com.ldtteam.structurize.blockentities.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blockentities.interfaces.IRequirementsBlueprintAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
-import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -26,13 +23,10 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,13 +41,8 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 /**
  * BuildTool window.
  */
-public class WindowExtendedBuildTool extends AbstractWindowSkeleton
+public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
 {
-    /**
-     * Ground style of the caller.
-     */
-    private int groundstyle;
-
     /**
      * Folder scrolling list.
      */
@@ -78,11 +67,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      * Levels scrolling list.
      */
     private ScrollingList levelsList;
-
-    /**
-     * Settings scrolling list.
-     */
-    private ScrollingList settingsList;
 
     /**
      * Current selected structure pack.
@@ -146,12 +130,9 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
      */
     public WindowExtendedBuildTool(@Nullable final BlockPos pos, final int groundstyle)
     {
-        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX);
+        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle,"blueprint");
         this.init(pos, groundstyle);
     }
-
-    //todo MineColonies placement (needs also special creative placement because of hut block registering)
-    //todo shapetool integration into new system
 
     @SuppressWarnings("resource")
     private void init(final BlockPos pos, final int groundstyle)
@@ -178,27 +159,13 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
 
         structurePack = StructurePacks.selectedPack;
 
-        // Register all necessary buttons with the window.
-        registerButton(BUTTON_CONFIRM, this::confirmClicked);
-        registerButton(BUTTON_CANCEL, this::cancelClicked);
-        registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, this::mirror);
-        registerButton(BUTTON_RIGHT, this::moveRightClicked);
-        registerButton(BUTTON_BACKWARD, this::moveBackClicked);
-        registerButton(BUTTON_FORWARD, this::moveForwardClicked);
-        registerButton(BUTTON_UP, WindowExtendedBuildTool::moveUpClicked);
-        registerButton(BUTTON_DOWN, WindowExtendedBuildTool::moveDownClicked);
-        registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
-        registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
-        registerButton(BUTTON_SETTINGS, this::settingsClicked);
 
         folderList = findPaneOfTypeByID("subcategories", ScrollingList.class);
         blueprintList = findPaneOfTypeByID("blueprints", ScrollingList.class);
         placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
         alternativesList = findPaneOfTypeByID("alternatives", ScrollingList.class);
         levelsList = findPaneOfTypeByID("levels", ScrollingList.class);
-        settingsList = findPaneOfTypeByID("settinglist", ScrollingList.class);
 
         if (depth.isEmpty())
         {
@@ -228,10 +195,8 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, groundstyle)).open();
     }
 
-    /**
-     * On clicking the red cancel button.
-     */
-    private void cancelClicked()
+    @Override
+    protected void cancelClicked()
     {
         BlueprintPreviewData previewData = RenderingCache.blueprintRenderingCache.remove("blueprint");
         previewData.setBlueprint(null);
@@ -244,10 +209,8 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
         depth = "";
     }
 
-    /**
-     * On clicking confirm for placement.
-     */
-    private void confirmClicked()
+    @Override
+    protected void confirmClicked()
     {
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
         if (previewData.getBlueprint() != null)
@@ -394,62 +357,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * When the settings button is clicked. Open settings window.
-     */
-    private void settingsClicked()
-    {
-        settingsList.show();
-        settingsList.enable();
-        alternativesList.hide();
-        alternativesList.disable();
-        levelsList.hide();
-        levelsList.disable();
-
-        final List<Map.Entry<String, Boolean>> settings = new ArrayList<>(BlueprintRenderSettings.instance.renderSettings.entrySet());
-
-        settingsList.setDataProvider(new ScrollingList.DataProvider()
-        {
-            /**
-             * The number of rows of the list.
-             * @return the number.
-             */
-            @Override
-            public int getElementCount()
-            {
-                return settings.size();
-            }
-
-            /**
-             * Inserts the elements into each row.
-             * @param index the index of the row/list element.
-             * @param rowPane the parent Pane for the row, containing the elements to update.
-             */
-            @SuppressWarnings("resource")
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
-            {
-                rowPane.findPaneOfTypeByID("label", Text.class).setText(new TranslatableComponent(settings.get(index).getKey()));
-                final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
-                if (settings.get(index).getValue())
-                {
-                    buttonImage.setText(new TranslatableComponent("options.on"));
-                }
-                else
-                {
-                    buttonImage.setText(new TranslatableComponent("options.off"));
-                }
-                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
-
-                buttonImage.setHandler((button) -> {
-                    settings.get(index).setValue(!settings.get(index).getValue());
-                    Network.getNetwork().sendToServer(new SyncSettingsToServer());
-                    RenderingCache.getOrCreateBlueprintPreviewData("blueprint").scheduleRefresh();
-                });
-            }
-        });
-    }
-
-    /**
      * Update the list of placement options.
      */
     public void updatePlacementOptions()
@@ -528,6 +435,10 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
                 previewData.pos,
                 previewData.rotation,
                 previewData.mirror));
+            if (type == BuildToolPlacementMessage.HandlerType.Survival)
+            {
+                cancelClicked();
+            }
         }
     }
 
@@ -1149,199 +1060,6 @@ public class WindowExtendedBuildTool extends AbstractWindowSkeleton
             Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
         }
         updateFolders(Collections.emptyList());
-    }
-
-    @Override
-    public boolean onKeyTyped(final char ch, final int key)
-    {
-        if (ch == '\u0000')
-        {
-            if (key == 265)
-            {
-                moveForwardClicked();
-            }
-            else if (key == 264)
-            {
-                moveBackClicked();
-            }
-            else if (key == 262)
-            {
-                if (Screen.hasShiftDown())
-                {
-                    rotateRightClicked();
-                }
-                else
-                {
-                    moveRightClicked();
-                }
-            }
-            else if (key == 263)
-            {
-                if (Screen.hasShiftDown())
-                {
-                    rotateLeftClicked();
-                }
-                else
-                {
-                    moveLeftClicked();
-                }
-            }
-            else if (key == 257)
-            {
-                confirmClicked();
-            }
-        }
-        else if (ch == '+')
-        {
-            moveUpClicked();
-        }
-        else if (ch == '-')
-        {
-            moveDownClicked();
-        }
-
-        return super.onKeyTyped(ch, key);
-    }
-
-    /*
-     * ---------------- Button Handling -----------------
-     */
-
-    /**
-     * Rotate the structure counter clockwise.
-     */
-    private void mirror()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").mirror();
-        updateRotationState();
-    }
-
-    /**
-     * Move the schematic up.
-     */
-    private static void moveUpClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 1, 0));
-    }
-
-    /**
-     * Move the structure down.
-     */
-    private static void moveDownClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, -1, 0));
-    }
-
-    /**
-     * Move the structure left.
-     */
-    private void moveLeftClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
-    }
-
-    /**
-     * Move the structure right.
-     */
-    private void moveRightClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
-    }
-
-    /**
-     * Move the structure forward.
-     */
-    private void moveForwardClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
-    }
-
-    /**
-     * Move the structure back.
-     */
-    private void moveBackClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").move(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
-    }
-
-    //todo move the "moving" to an abstract buildtool which gets a "key". So we can move this out of the shape tool and also reduce the size of this.
-
-    /**
-     * Rotate the structure clockwise.
-     */
-    private void rotateRightClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotate(Rotation.CLOCKWISE_90);
-        updateRotationState();
-    }
-
-    /**
-     * Rotate the structure counter clockwise.
-     */
-    private void rotateLeftClicked()
-    {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotate(Rotation.COUNTERCLOCKWISE_90);
-        updateRotationState();
-    }
-
-    /*
-     * ---------------- Miscellaneous ----------------
-     */
-
-    /**
-     * Indicate the current orientation state
-     */
-    private void updateRotationState()
-    {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").mirror.equals(Mirror.NONE) ? "" : GREEN_POS))), false);
-
-        String rotation;
-        switch (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").rotation)
-        {
-            case CLOCKWISE_90:
-                rotation = "right_green";
-                break;
-            case CLOCKWISE_180:
-                rotation = "down_green";
-                break;
-            case COUNTERCLOCKWISE_90:
-                rotation = "left_green";
-                break;
-            default:
-                rotation = "up_green";
-                break;
-        }
-        findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
-    }
-
-    /**
-     * Detects the intended ground level via tag and offsets the blueprint accordingly
-     */
-    private void adjustToGroundOffset()
-    {
-        final Blueprint blueprint = RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint();
-        if (blueprint != null)
-        {
-            int groundOffset;
-            switch (groundstyle)
-            {
-                case GROUNDSTYLE_LEGACY_CAMP:
-                    groundOffset = BlueprintTagUtils.getGroundAnchorOffsetFromGroundLevels(blueprint, BlueprintTagUtils.getNumberOfGroundLevels(blueprint, 1));
-                    break;
-
-                case GROUNDSTYLE_LEGACY_SHIP:
-                    groundOffset = BlueprintTagUtils.getGroundAnchorOffsetFromGroundLevels(blueprint, BlueprintTagUtils.getNumberOfGroundLevels(blueprint, 3));
-                    break;
-
-                case GROUNDSTYLE_RELATIVE:
-                default:
-                    groundOffset = BlueprintTagUtils.getGroundAnchorOffset(blueprint, 1);
-                    break;
-            }
-
-            --groundOffset;     // compensate for clicking the top face of the ground block
-            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setGroundOffset(groundOffset);
-        }
     }
 
     /**

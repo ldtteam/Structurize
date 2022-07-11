@@ -312,29 +312,16 @@ public class ClientStructurePackLoader
     /**
      * Handles the save message of scans.
      *
-     * @param CompoundNBT compound to store.
+     * @param compound compound to store.
      * @param fileName milli seconds for fileName.
      */
-    public static void handleSaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
+    public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(Util.ioPool().submit(() ->
-        {
-            final Path outputFolder = Minecraft.getInstance().gameDirectory.toPath()
-              .resolve(BLUEPRINT_FOLDER)
-              .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
-              .resolve(SCANS_FOLDER);
-
-            try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(outputFolder.resolve(fileName))))
-            {
-                NbtIo.writeCompressed(CompoundNBT, outputstream);
-            }
-            catch (final IOException e)
-            {
-                Log.getLogger().warn("Exception while trying to scan.", e);
-                return null;
-            }
-            return StructurePacks.getBlueprint(outputFolder.resolve(fileName));
-        }));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
+          StructurePacks.storeBlueprint(compound, Minecraft.getInstance().gameDirectory.toPath()
+            .resolve(BLUEPRINT_FOLDER)
+            .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
+            .resolve(SCANS_FOLDER).resolve(fileName)));
         Minecraft.getInstance().player.sendMessage(new TranslatableComponent("Scan successfully saved as %s", fileName), Minecraft.getInstance().player.getUUID());
     }
 }

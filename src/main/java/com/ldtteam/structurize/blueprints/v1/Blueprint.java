@@ -879,7 +879,7 @@ public class Blueprint
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && filePath.equals(other.filePath);
+        return Objects.equals(name, other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && Objects.equals(filePath, other.filePath);
     }
 
     /**

@@ -21,6 +21,8 @@ public final class Constants
     public static final int    GROUNDSTYLE_LEGACY_CAMP = 2; // 1 block at bottom
     public static final int    GROUNDSTYLE_LEGACY_SHIP = 3; // 3 blocks at bottom
     public static final String BLUEPRINT_FOLDER        = "blueprints";
+    public static final String UPDATE_FOLDER           = "updater";
+
     public static final String CLIENT_FOLDER           = "clients";
     public static final String SCANS_FOLDER            = "scans";
     public static final String RENDER_PLACEHOLDERS     = MOD_ID + ".render.placeholders";

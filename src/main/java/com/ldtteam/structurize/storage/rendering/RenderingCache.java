@@ -1,9 +1,7 @@
 package com.ldtteam.structurize.storage.rendering;
 
-import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.ScanPreviewData;
-import com.ldtteam.structurize.storage.rendering.types.ShapesPreviewData;
 
 import java.util.HashMap;
 import java.util.Map;

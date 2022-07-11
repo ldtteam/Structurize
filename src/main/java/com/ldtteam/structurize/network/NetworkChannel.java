@@ -84,18 +84,13 @@ public class NetworkChannel
         setupInternalMessages();
 
         int idx = 0;
-        registerMessage(++idx, BuildToolPasteMessage.class, BuildToolPasteMessage::new);
         registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
-        registerMessage(++idx, GenerateAndSaveMessage.class, GenerateAndSaveMessage::new);
         registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
         registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
         registerMessage(++idx, ReplaceBlockMessage.class, ReplaceBlockMessage::new);
         registerMessage(++idx, ScanOnServerMessage.class, ScanOnServerMessage::new);
-        registerMessage(++idx, SchematicRequestMessage.class, SchematicRequestMessage::new);
-        registerMessage(++idx, SchematicSaveMessage.class, SchematicSaveMessage::new);
         registerMessage(++idx, ServerUUIDMessage.class, ServerUUIDMessage::new);
-        registerMessage(++idx, StructurizeStylesMessage.class, StructurizeStylesMessage::new);
         registerMessage(++idx, UndoRedoMessage.class, UndoRedoMessage::new);
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
         registerMessage(++idx, UpdateClientRender.class, UpdateClientRender::new);

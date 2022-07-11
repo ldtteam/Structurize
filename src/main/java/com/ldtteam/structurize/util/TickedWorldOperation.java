@@ -193,6 +193,11 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerLevel world)
     {
+        if (!placer.isReady())
+        {
+            return false;
+        }
+
         if (player != null && player.level.dimension() != world.dimension())
         {
             return false;

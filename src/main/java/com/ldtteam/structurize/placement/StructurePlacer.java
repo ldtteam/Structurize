@@ -528,6 +528,15 @@ public class StructurePlacer
     }
 
     /**
+     * Check if the structure placer is ready.
+     * @return true if so.
+     */
+    public boolean isReady()
+    {
+        return getHandler().isReady();
+    }
+
+    /**
      * The different operations.
      */
     public enum Operation

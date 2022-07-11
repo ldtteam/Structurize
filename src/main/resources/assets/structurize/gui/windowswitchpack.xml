@@ -1,0 +1,20 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="true">
+
+    <button id="cancel" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.cancel)" size="86 17" pos="5 5" textcolor="black" texthovercolor="gray"/>
+
+    <list size="400 200" pos="0 20" id="packs" visible="false">
+        <box size="100% 100" linewidth="0">
+            <image id="icon" pos="0 0" size="100 100" source="structurize:textures/items/sceptersteel.png"/>
+
+            <text id="name" pos="105 0" size="150 17" color="white" textscale="2"/>
+            <text id="desc" pos="105 20" size="150 40"  color="white" textscale="0.75"/>
+            <text id="authors" pos="105 60" size="150 17"  color="white" textscale="1"/>
+
+            <button id="select" source="structurize:textures/gui/buildtool/button_medium.png" text="$(structurize.gui.switchpack.select)" size="86 17" pos="105 80" textColor="black" texthovercolor="gray"/>
+        </box>
+    </list>
+
+
+
+</window>
