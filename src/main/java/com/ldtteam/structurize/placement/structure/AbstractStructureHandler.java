@@ -1,11 +1,16 @@
 package com.ldtteam.structurize.placement.structure;
 
+import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -73,6 +78,17 @@ public abstract class AbstractStructureHandler implements IStructureHandler
         this.worldPos = pos;
         this.settings = settings;
         this.blueprint = blueprint;
+    }
+
+    @Override
+    public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
+    {
+        final BlockEntity be = getWorld().getBlockEntity(pos);
+        if (be instanceof IBlueprintDataProvider)
+        {
+            ((IBlueprintDataProvider) be).setBlueprintPath(getBluePrint().getFilePath().toString().replace(StructurePacks.selectedPack.getPath().toString() + "/", "") + "/" + getBluePrint().getFileName() + ".blueprint");
+            ((IBlueprintDataProvider) be).setPackName(getBluePrint().getPackName());
+        }
     }
 
     @Override

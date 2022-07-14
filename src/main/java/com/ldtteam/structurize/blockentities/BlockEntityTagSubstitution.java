@@ -35,6 +35,16 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
      */
     private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
 
+    /**
+     * Structure pack name.
+     */
+    private String packName;
+
+    /**
+     * Structure pack path.
+     */
+    private String inPackPath;
+
     public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
         super( ModBlockEntities.TAG_SUBSTITUTION, pos, state);
@@ -107,6 +117,30 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void setPackName(final String packName)
+    {
+        this.packName = packName;
+    }
+
+    @Override
+    public void setBlueprintPath(final String inPackPath)
+    {
+        this.inPackPath = inPackPath;
+    }
+
+    @Override
+    public String getPackName()
+    {
+        return packName;
+    }
+
+    @Override
+    public String getBlueprintPath()
+    {
+        return inPackPath;
     }
 
     @NotNull

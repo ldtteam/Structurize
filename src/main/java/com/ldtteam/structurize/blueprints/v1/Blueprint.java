@@ -69,6 +69,11 @@ public class Blueprint
     private Path filePath;
 
     /**
+     * The pack name.
+     */
+    private String packName;
+
+    /**
      * The palette of different blocks.
      */
     private List<BlockState> palette;
@@ -344,12 +349,32 @@ public class Blueprint
     }
 
     /**
+     * Set the pack this blueprint is in.
+     * @param packName the id of the pack.
+     * @return this object.
+     */
+    public Blueprint setPackName(final String packName)
+    {
+        this.packName = packName;
+        return this;
+    }
+
+    /**
      * Getter for the file path (does not contain the file name).
      * @return the file path of the structure.
      */
     public Path getFilePath()
     {
         return this.filePath;
+    }
+
+    /**
+     * Get the pack name this belongs to.
+     * @return the name of the pack.
+     */
+    public String getPackName()
+    {
+        return this.packName;
     }
 
     /**

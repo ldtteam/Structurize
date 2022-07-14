@@ -48,6 +48,11 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     protected int groundstyle;
 
     /**
+     * How long the UI is open.
+     */
+    private int openTicks = 0;
+
+    /**
      * Creates a window build tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
@@ -84,6 +89,8 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
         settingsList = findPaneOfTypeByID("settinglist", ScrollingList.class);
         updateRotationState();
+
+        findPaneOfTypeByID("tip", Text.class).setVisible(pos != null);
     }
 
 
@@ -96,6 +103,16 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      * On clicking confirm for placement.
      */
     protected abstract void confirmClicked();
+
+    @Override
+    public void onUpdate()
+    {
+        super.onUpdate();
+        if (openTicks++ >= 20 * 10)
+        {
+            findPaneOfTypeByID("tip", Text.class).setVisible(false);
+        }
+    }
 
     @Override
     public boolean onKeyTyped(final char ch, final int key)

@@ -431,7 +431,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
               .sendToServer(new BuildToolPlacementMessage(type,
                 id,
                 structurePack.getName(),
-                previewData.getBlueprint().getFilePath().toString().replace(structurePack.getPath().toString() + "/", ""),
+                previewData.getBlueprint().getFilePath().toString().replace(structurePack.getPath().toString() + "/", "") + "/" + previewData.getBlueprint().getFileName() + ".blueprint",
                 previewData.pos,
                 previewData.rotation,
                 previewData.mirror));

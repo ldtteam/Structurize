@@ -1,6 +1,8 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
         size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="false">
 
+    <label id="tip" size="200 50" pos="150 100" color="white" label="$(structurize.gui.manipulation.info)" visible="false"/>
+
     <view size="48 64" pos="370 100" id="manipulator">
         <button id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="16" pos="0 0"/>
         <button id="up" source="structurize:textures/gui/buildtool/up.png" size="16" pos="16 0"/>

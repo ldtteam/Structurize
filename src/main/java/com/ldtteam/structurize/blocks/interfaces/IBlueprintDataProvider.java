@@ -24,6 +24,8 @@ public interface IBlueprintDataProvider
     public final static String TAG_TAG_NAME_LIST  = "tagNameList";
     public final static String TAG_POS_TAG_MAP    = "posTagMap";
     public final static String TAG_BLUEPRINTDATA  = "blueprintDataProvider";
+    public final static String TAG_PATH           = "path";
+    public final static String TAG_PACK           = "pack";
 
     /**
      * Gets the schematic name, required to be saved
@@ -87,6 +89,9 @@ public interface IBlueprintDataProvider
 
         writeMapToCompound(compoundNBT, getPositionedTags());
         originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
+
+        compoundNBT.putString(TAG_PACK, getPackName());
+        compoundNBT.putString(TAG_PATH, getBlueprintPath());
     }
 
     /**
@@ -295,4 +300,28 @@ public interface IBlueprintDataProvider
      * @return client update packet
      */
     public ClientboundBlockEntityDataPacket getUpdatePacket();
+
+    /**
+     * Set the blueprint path in the provider.
+     * @param filePath the path where the blueprint of this file was loaded from within a pack.
+     */
+    void setBlueprintPath(String filePath);
+
+    /**
+     * Set the pack this blueprint belongs to.
+     * @param packName the pack.
+     */
+    void setPackName(final String packName);
+
+    /**
+     * Get the pack name.
+     * @return the pack name.
+     */
+    String getPackName();
+
+    /**
+     * Getter for the blueprint path.
+     * @return the pack name.
+     */
+    String getBlueprintPath();
 }

@@ -46,7 +46,7 @@ public class BlueprintPlacementHandling
               .resolve(message.structurePackId)
               .resolve(message.blueprintPath);
 
-            ServerBlueprintFutureProcessor.consumerQueue.add(new ServerBlueprintFutureProcessor.ProcessingData(StructurePacks.getBlueprintFuture(blueprintPath),
+            ServerBlueprintFutureProcessor.consumerQueue.add(new ServerBlueprintFutureProcessor.ProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, blueprintPath),
               message.world, (blueprint) -> {
                 if (blueprint == null)
                 {
@@ -86,9 +86,16 @@ public class BlueprintPlacementHandling
         }
 
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+        blueprint.rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
+
         final IStructureHandler structure;
         if (anchor.getBlock() instanceof ISpecialCreativeHandler)
         {
+           if (!((ISpecialCreativeHandler) anchor.getBlock()).setup(message.player, message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
+              message.type == BuildToolPlacementMessage.HandlerType.Pretty, message.structurePackId, message.blueprintPath))
+           {
+               return;
+           }
             structure =
               ((ISpecialCreativeHandler) anchor.getBlock()).getStructureHandler(message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
                 message.type == BuildToolPlacementMessage.HandlerType.Pretty);
@@ -101,7 +108,6 @@ public class BlueprintPlacementHandling
               new PlacementSettings(message.mirror, message.rotation),
               message.type == BuildToolPlacementMessage.HandlerType.Pretty);
         }
-        structure.getBluePrint().rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
 
         final StructurePlacer instantPlacer = new StructurePlacer(structure);
         Manager.addToQueue(new TickedWorldOperation(instantPlacer, message.player));
@@ -141,7 +147,7 @@ public class BlueprintPlacementHandling
                 Log.getLogger().error("Failed to save blueprint file for client blueprint: " + blueprintSyncMessage.blueprintPath, e);
             }
 
-            return StructurePacks.getBlueprint(blueprintPath);
+            return StructurePacks.getBlueprint(blueprintSyncMessage.structurePackId, blueprintPath);
         }), player.level, blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level))));
     }
 }

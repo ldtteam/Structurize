@@ -6,6 +6,7 @@ import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
@@ -101,7 +102,13 @@ public class BlueprintRenderer implements AutoCloseable
         if (blockAccess.getBlueprint() != blueprint && blockAccess.getBlueprint().hashCode() == blueprint.hashCode())
         {
             blockAccess.setBlueprint(blueprint);
-            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").scheduleRefresh();
+            for (final BlueprintPreviewData item : RenderingCache.blueprintRenderingCache.values())
+            {
+                if (blueprint.equals(item.getBlueprint()))
+                {
+                    item.scheduleRefresh();
+                }
+            }
         }
     }
 
@@ -180,7 +187,7 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Draws structure into world.
      */
-    public void draw(final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
+    public void draw(final Blueprint blueprint, final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
     {
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
@@ -188,9 +195,18 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().push("struct_render_init");
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
-        if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").shouldRefresh() || vertexBuffers == null)
+        if (vertexBuffers == null)
         {
             init();
+        }
+
+        for (final BlueprintPreviewData data : RenderingCache.blueprintRenderingCache.values())
+        {
+            if (blueprint.equals(data.getBlueprint()))
+            {
+                init();
+                break;
+            }
         }
 
         mc.getProfiler().popPush("struct_render_prepare");

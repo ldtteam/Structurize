@@ -193,7 +193,7 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerLevel world)
     {
-        if (!placer.isReady())
+        if (placer != null && !placer.isReady())
         {
             return false;
         }

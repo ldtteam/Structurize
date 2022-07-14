@@ -111,12 +111,13 @@ public class StructurePacks
 
     /**
      * Get the blueprint directly with a path.
+     * @param packName the pack we're looking in.
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final Path path)
+    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path)
     {
-        return Util.ioPool().submit(() -> getBlueprint(path));
+        return Util.ioPool().submit(() -> getBlueprint(packName, path));
     }
 
     /**
@@ -181,14 +182,10 @@ public class StructurePacks
 
         try
         {
-            return Files.list(subPath).filter(file -> {
+            return Files.walk(subPath).filter(file -> {
                 if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                 {
-                    return file.toString().replace(".blueprint", "").equals(name);
-                }
-                else if (Files.isDirectory(file))
-                {
-                    return findBlueprint(file, name).isPresent();
+                    return file.getFileName().toString().replace(".blueprint", "").equals(name);
                 }
                 return false;
             }).findFirst();
@@ -227,17 +224,18 @@ public class StructurePacks
             return null;
         }
 
-        return findBlueprint(packMeta.getPath(), blueprintPredicate);
+        return findBlueprint(packMeta.getName(), packMeta.getPath(), blueprintPredicate);
     }
 
     /**
      * Find blueprint at path.
      * Recursively goes through folder structure.
+     * @param pack the pack we're looking in.
      * @param subPath the sub path to check.
      * @param blueprintPredicate matches the blueprint.
      * @return the path of the file or null.
      */
-    public static Blueprint findBlueprint(final Path subPath, final Predicate<Blueprint> blueprintPredicate)
+    public static Blueprint findBlueprint(final String pack, final Path subPath, final Predicate<Blueprint> blueprintPredicate)
     {
         while (!finishedLoading)
         {
@@ -256,17 +254,17 @@ public class StructurePacks
             return Files.list(subPath).map(file -> {
                 if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                 {
-                    final Blueprint blueprint = getBlueprint(file);
+                    final Blueprint blueprint = getBlueprint(pack, file);
                     if (blueprintPredicate.test(blueprint))
                     {
                         blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file.getParent());
+                        blueprint.setFilePath(file.getParent()).setPackName(pack);
                         return blueprint;
                     }
                 }
                 else if (Files.isDirectory(file))
                 {
-                    return findBlueprint(file, blueprintPredicate);
+                    return findBlueprint(pack, file, blueprintPredicate);
                 }
                 return  null;
             }).filter(Objects::nonNull).findFirst().orElse(null);
@@ -308,15 +306,16 @@ public class StructurePacks
 
         //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
-        return getBlueprint(packMeta.getPath().resolve(subPath));
+        return getBlueprint(structurePackId, packMeta.getPath().resolve(subPath));
     }
 
     /**
      * Get the blueprint directly with a path.
+     * @param pack the pack this belongs to.
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Blueprint getBlueprint(final Path path)
+    public static Blueprint getBlueprint(final String pack, final Path path)
     {
         try
         {
@@ -324,7 +323,7 @@ public class StructurePacks
             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
 
             blueprint.setFileName(path.getFileName().toString().replace(".blueprint", ""));
-            blueprint.setFilePath(path.getParent());
+            blueprint.setFilePath(path.getParent()).setPackName(pack);
 
             return blueprint;
         }
@@ -415,7 +414,7 @@ public class StructurePacks
                         final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
                         final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
                         blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file);
+                        blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
                         blueprints.add(blueprint);
                     }
                     catch (final IOException e)
@@ -549,11 +548,11 @@ public class StructurePacks
 
     /**
      * Store a blueprint at a given path.
-     *
+     * @param packName the pack we're storing it in.
      * @param compoundTag compound to store.
      * @param path path to store it at.
      */
-    public static Future<Blueprint> storeBlueprint(final CompoundTag compoundTag, final Path path)
+    public static Future<Blueprint> storeBlueprint(final String packName, final CompoundTag compoundTag, final Path path)
     {
         return Util.ioPool().submit(() ->
         {
@@ -567,7 +566,7 @@ public class StructurePacks
                 Log.getLogger().warn("Exception while trying to scan.", e);
                 return null;
             }
-            return StructurePacks.getBlueprint(path);
+            return StructurePacks.getBlueprint(packName, path);
         });
     }
 

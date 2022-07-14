@@ -317,8 +317,9 @@ public class ClientStructurePackLoader
      */
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
+        final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
-          StructurePacks.storeBlueprint(compound, Minecraft.getInstance().gameDirectory.toPath()
+          StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
             .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName)));

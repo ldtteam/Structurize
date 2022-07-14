@@ -71,7 +71,7 @@ public final class BlueprintHandler
         }
 
         renderer.updateBlueprint(blueprint);
-        renderer.draw(pos, stack, partialTicks);
+        renderer.draw(blueprint, pos, stack, partialTicks);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().pop();
@@ -138,7 +138,7 @@ public final class BlueprintHandler
 
         for (final BlockPos coord : points)
         {
-            renderer.draw(coord, stack, partialTicks);
+            renderer.draw(blueprint, coord, stack, partialTicks);
         }
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
