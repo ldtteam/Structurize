@@ -166,6 +166,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
         alternativesList = findPaneOfTypeByID("alternatives", ScrollingList.class);
         levelsList = findPaneOfTypeByID("levels", ScrollingList.class);
+        settingsList.setPosition(5, 140);
 
         if (depth.isEmpty())
         {

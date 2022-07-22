@@ -152,7 +152,7 @@ public class BlueprintPreviewData
                 {
                     this.blueprint = blueprintFuture.get();
                     this.blueprintFuture = null;
-                    this.blueprint.rotateWithMirror(rotation, mirror, Minecraft.getInstance().level);
+                    this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
                 }
             }
             catch (InterruptedException | ExecutionException e)
@@ -175,7 +175,7 @@ public class BlueprintPreviewData
         if (blueprint != null && !blueprint.equals(this.blueprint))
         {
             this.blueprint = blueprint;
-            this.blueprint.rotateWithMirror(rotation, mirror, Minecraft.getInstance().level);
+            this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
             syncChangesToServer();
         }
         else
@@ -195,16 +195,16 @@ public class BlueprintPreviewData
             return;
         }
 
-        Mirror localMirror = this.rotation.ordinal() % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT;
-        this.blueprint.rotateWithMirror(Rotation.NONE, localMirror, Minecraft.getInstance().level);
         if (mirror == Mirror.NONE)
         {
-            mirror = localMirror;
+            mirror = this.rotation.ordinal() % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT;
         }
         else
         {
             mirror = Mirror.NONE;
         }
+        this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
+
         scheduleRefresh();
     }
 
@@ -218,7 +218,7 @@ public class BlueprintPreviewData
         this.rotation = this.rotation.getRotated(rotation);
         if (blueprint != null)
         {
-            blueprint.rotateWithMirror(rotation, Mirror.NONE, Minecraft.getInstance().level);
+            blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
         }
         scheduleRefresh();
     }

@@ -13,6 +13,7 @@ import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -124,6 +125,16 @@ public class Blueprint
      * Source of rendering.
      */
     private BlockPos renderSource = BlockPos.ZERO;
+
+    /**
+     * The rotation setting of the blueprint.
+     */
+    private Rotation rotation = Rotation.NONE;
+
+    /**
+     * The mirror setting of the blueprint.
+     */
+    private Mirror mirror = Mirror.NONE;
 
     /**
      * Constructor of a new Blueprint.
@@ -606,14 +617,29 @@ public class Blueprint
     /**
      * Rotate the structure depending on the direction it's facing.
      *
-     * @param rotation times to rotateWithMirror.
-     * @param mirror   the mirror.
+     * @param localRotation times to rotateWithMirror.
+     * @param localMirror   the mirror.
      * @param world    the world.
      */
-    public void rotateWithMirror(final Rotation rotation, final Mirror mirror, final Level world)
+    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
     {
+        final Rotation rotDifference = Rotation.values()[Math.floorMod(localRotation.ordinal() - this.rotation.ordinal(), Rotation.values().length)];
+        final Mirror mirDifference;
+        if (this.mirror == localMirror)
+        {
+            mirDifference = Mirror.NONE;
+        }
+        else if (this.mirror == Mirror.NONE)
+        {
+            mirDifference = localMirror;
+        }
+        else
+        {
+            mirDifference = Mirror.NONE;
+        }
+
         final BlockPos primaryOffset = getPrimaryBlockOffset();
-        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
+        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotDifference);
         final short newSizeX = (short) resultSize.getX();
         final short newSizeY = (short) resultSize.getY();
         final short newSizeZ = (short) resultSize.getZ();
@@ -625,10 +651,10 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).mirror(mirror).rotate(rotation));
+            palette.add(i, this.palette.get(i).mirror(mirDifference).rotate(rotDifference));
         }
 
-        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
+        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirDifference, rotDifference);
         int minX = extremes.getX() < 0 ? -extremes.getX() - 1 : 0;
         int minY = extremes.getY() < 0 ? -extremes.getY() - 1 : 0;
         int minZ = extremes.getZ() < 0 ? -extremes.getZ() - 1 : 0;
@@ -641,7 +667,7 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).offset(minX, minY, minZ);
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirDifference, rotDifference).offset(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
@@ -667,7 +693,7 @@ public class Blueprint
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
                             {
-                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirror, rotation), entry.getValue());
+                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirDifference, rotDifference), entry.getValue());
                             }
 
                             IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
@@ -675,8 +701,8 @@ public class Blueprint
                             // Rotate corners
                             BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
                             BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
-                            corner1 = transformedBlockPos(corner1, mirror, rotation);
-                            corner2 = transformedBlockPos(corner2, mirror, rotation);
+                            corner1 = transformedBlockPos(corner1, mirDifference, rotDifference);
+                            corner2 = transformedBlockPos(corner2, mirDifference, rotDifference);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
                         }
@@ -691,11 +717,11 @@ public class Blueprint
             final CompoundTag entitiesCompound = entities[i];
             if (entitiesCompound != null)
             {
-                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotation, mirror);
+                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotDifference, mirDifference);
             }
         }
 
-        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
+        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirDifference, rotDifference, new BlockPos(0, 0, 0));
 
         setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
 
@@ -708,6 +734,9 @@ public class Blueprint
         this.tileEntities = newTileEntities;
 
         cacheReset(false);
+
+        this.rotation = localRotation;
+        this.mirror = localMirror;
     }
 
     /**

@@ -83,10 +83,14 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     @Override
     public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
     {
-        final BlockEntity be = getWorld().getBlockEntity(pos);
+        final BlockEntity be = getWorld().getBlockEntity(getProgressPosInWorld(pos));
         if (be instanceof IBlueprintDataProvider)
         {
-            ((IBlueprintDataProvider) be).setBlueprintPath(getBluePrint().getFilePath().toString().replace(StructurePacks.selectedPack.getPath().toString() + "/", "") + "/" + getBluePrint().getFileName() + ".blueprint");
+            if (getProgressPosInWorld(pos).equals(worldPos))
+            {
+                final String folder = getBluePrint().getFilePath().toString().replace(StructurePacks.packMetas.get(getBluePrint().getPackName()).getPath().toString(), "");
+                ((IBlueprintDataProvider) be).setBlueprintPath(folder + "/" + getBluePrint().getFileName() + ".blueprint");
+            }
             ((IBlueprintDataProvider) be).setPackName(getBluePrint().getPackName());
         }
     }
