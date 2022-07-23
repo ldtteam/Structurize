@@ -56,7 +56,8 @@ public class Pane extends AbstractGui
      * Should be only used during drawing methods. Outside drawing scope value may be outdated.
      */
     protected boolean wasCursorInPane = false;
-    private List<IFormattableTextComponent> toolTipLines = new ArrayList<>();
+    @Nullable
+    private List<IFormattableTextComponent> toolTipLines = null;
 
     /**
      * Default constructor.
@@ -497,11 +498,11 @@ public class Pane extends AbstractGui
         window = w;
 
         // can't gen tooltip from xml until first window is set
-        if (!toolTipLines.isEmpty())
+        if (toolTipLines != null && !toolTipLines.isEmpty())
         {
             final TooltipBuilder ttBuilder = PaneBuilders.tooltipBuilder().hoverPane(this);
             toolTipLines.forEach(ttBuilder::appendNL);
-            toolTipLines.clear(); // do not regen it when window has changed (unlikely to happen) cuz onHover might have changed
+            toolTipLines = null; // do not regen it when window has changed (unlikely to happen) cuz onHover might have changed
             onHover = ttBuilder.build();
         }
 
