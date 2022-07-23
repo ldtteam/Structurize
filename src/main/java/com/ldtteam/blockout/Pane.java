@@ -91,7 +91,7 @@ public class Pane extends AbstractGui
         visible = params.getBoolean("visible", visible);
         enabled = params.getBoolean("enabled", enabled);
         onHoverId = params.getString("onHoverId", onHoverId);
-        toolTipLines = params.getMultilineText("tooltip", toolTipLines);
+        toolTipLines = new ArrayList<>(params.getMultilineText("tooltip", toolTipLines));
     }
 
     /**
