@@ -67,7 +67,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         this.groundstyle = groundstyle;
         this.bluePrintId = blueprintId;
 
-        if (pos != null)
+        if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).pos == null)
         {
             RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).pos = pos;
             adjustToGroundOffset();
@@ -169,8 +169,14 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     /**
      * When the settings button is clicked. Open settings window.
      */
-    private void settingsClicked()
+    protected void settingsClicked()
     {
+        if (settingsList.isVisible())
+        {
+            settingsList.hide();
+            settingsList.disable();
+            return;
+        }
         settingsList.show();
         settingsList.enable();
 

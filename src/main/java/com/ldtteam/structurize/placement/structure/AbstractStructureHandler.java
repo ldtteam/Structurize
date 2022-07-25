@@ -88,8 +88,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
         {
             if (getProgressPosInWorld(pos).equals(worldPos))
             {
-                final String folder = getBluePrint().getFilePath().toString().replace(StructurePacks.packMetas.get(getBluePrint().getPackName()).getPath().toString(), "");
-                ((IBlueprintDataProvider) be).setBlueprintPath(folder + "/" + getBluePrint().getFileName() + ".blueprint");
+                ((IBlueprintDataProvider) be).setBlueprintPath(StructurePacks.packMetas.get(getBluePrint().getPackName()).getSubPath(getBluePrint().getFilePath().resolve(getBluePrint().getFileName() + ".blueprint")));
             }
             ((IBlueprintDataProvider) be).setPackName(getBluePrint().getPackName());
         }

@@ -5,8 +5,6 @@ import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
@@ -21,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionResult;
@@ -29,9 +26,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,7 +73,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
             {
                 anchorPos = Optional.of(anchorBlockPos);
-                if (worldIn.isClientSide)
+                if (worldIn.isClientSide && RenderingCache.boxRenderingCache.get("scan") != null)
                 {
                     RenderingCache.boxRenderingCache.get("scan").anchor = anchorPos;
                 }

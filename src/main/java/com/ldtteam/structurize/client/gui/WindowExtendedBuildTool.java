@@ -71,7 +71,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
     /**
      * Current selected structure pack.
      */
-    private static StructurePackMeta structurePack;
+    private static StructurePackMeta structurePack = null;
 
     /**
      * Next depth to open.
@@ -131,11 +131,11 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
     public WindowExtendedBuildTool(@Nullable final BlockPos pos, final int groundstyle)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle,"blueprint");
-        this.init(pos, groundstyle);
+        this.init(groundstyle);
     }
 
     @SuppressWarnings("resource")
-    private void init(final BlockPos pos, final int groundstyle)
+    private void init(final int groundstyle)
     {
         this.groundstyle = groundstyle;
 
@@ -149,12 +149,6 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             nextDepth = "";
             currentBlueprintCat = "";
             RenderingCache.blueprintRenderingCache.remove("blueprint");
-        }
-
-        if (pos != null)
-        {
-            RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = pos;
-            adjustToGroundOffset();
         }
 
         structurePack = StructurePacks.selectedPack;
@@ -175,7 +169,11 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         else
         {
             findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
-              structurePack.getName() + "/" + depth + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null ? "" : ("/" + RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint().getFileName()))).setStyle(Style.EMPTY.withBold(true)));
+              structurePack.getName()
+                + "/"
+                + depth
+                + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null ? "" : ("/" + RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint().getFileName())))
+              .setStyle(Style.EMPTY.withBold(true)));
         }
         categoryFutures = StructurePacks.getCategoriesFuture(structurePack.getName(), "");
         findPaneOfTypeByID("manipulator", View.class).setVisible(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() != null);
@@ -183,7 +181,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         if (!currentBlueprintCat.isEmpty())
         {
             final String up = currentBlueprintCat.substring(0, currentBlueprintCat.lastIndexOf(":"));
-            handleBlueprintCategory(up.contains(":") ? up : currentBlueprintCat);
+            handleBlueprintCategory(up.contains(":") ? up : currentBlueprintCat, true);
         }
         updateRotationState();
     }
@@ -372,6 +370,8 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         alternativesList.disable();
         levelsList.hide();
         levelsList.disable();
+        settingsList.hide();
+        settingsList.disable();
 
         final List<Tuple<Component, Runnable>> categories = new ArrayList<>();
         if (Minecraft.getInstance().player.isCreative())
@@ -432,7 +432,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
               .sendToServer(new BuildToolPlacementMessage(type,
                 id,
                 structurePack.getName(),
-                previewData.getBlueprint().getFilePath().toString().replace(structurePack.getPath().toString() + "/", "") + "/" + previewData.getBlueprint().getFileName() + ".blueprint",
+                structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
                 previewData.pos,
                 previewData.rotation,
                 previewData.mirror));
@@ -441,6 +441,14 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 cancelClicked();
             }
         }
+    }
+
+    @Override
+    public void settingsClicked()
+    {
+        super.settingsClicked();
+        folderList.disable();
+        folderList.hide();
     }
 
     /**
@@ -455,6 +463,8 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         blueprintList.hide();
         placementOptionsList.hide();
         placementOptionsList.disable();
+        settingsList.hide();
+        settingsList.disable();
 
         final List<ButtonData> categories = new ArrayList<>();
         if (!inputCategories.isEmpty())
@@ -536,6 +546,8 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         folderList.hide();
         placementOptionsList.hide();
         placementOptionsList.disable();
+        settingsList.hide();
+        settingsList.disable();
 
         final List<ButtonData> blueprints = new ArrayList<>();
         if (!inputBluePrints.isEmpty())
@@ -884,6 +896,13 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             updateFolders(Collections.emptyList());
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
+            if (depth.isEmpty())
+            {
+                for (final Pane pane : findPaneOfTypeByID("categories", View.class).getChildren())
+                {
+                    pane.enable();
+                }
+            }
             findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
             button.setHoverPane(null);
             handled = true;
@@ -938,7 +957,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             }
 
             currentBlueprintCat = button.getID().replace(":back", "");
-            handleBlueprintCategory(currentBlueprintCat);
+            handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
         }
@@ -950,7 +969,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             }
 
             currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":back", "");
-            handleBlueprintCategory(currentBlueprintCat);
+            handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
         }
@@ -963,7 +982,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         }
     }
 
-    private void handleBlueprintCategory(final String categoryId)
+    private void handleBlueprintCategory(final String categoryId, final boolean onOpen)
     {
         final String[] split = categoryId.split(":");
         final String id = split[1];
@@ -999,7 +1018,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 updateAlternatives(Collections.emptyMap(), categoryId);
                 final List<Blueprint> leveled = mapping.values().iterator().next();
 
-                if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null)
+                if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || !onOpen)
                 {
                     final Blueprint blueprint = leveled.get(0);
                     findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
@@ -1018,7 +1037,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 return;
             }
 
-            if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || list.size() == 1)
+            if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || list.size() == 1 || !onOpen)
             {
                 final Blueprint blueprint = list.get(0);
                 findPaneOfTypeByID("tree", Text.class).setText(new TextComponent(
@@ -1032,7 +1051,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             }
 
             updateAlternatives(Collections.emptyMap(), categoryId);
-            updateLevels(new ArrayList<>(list), categoryId, true);
+            updateLevels(new ArrayList<>(list), categoryId, mapping.size() > 1);
         }
         else if (split.length == 4)
         {

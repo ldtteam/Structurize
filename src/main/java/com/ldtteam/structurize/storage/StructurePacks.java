@@ -306,7 +306,7 @@ public class StructurePacks
 
         //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
-        return getBlueprint(structurePackId, packMeta.getPath().resolve(subPath));
+        return getBlueprint(structurePackId, packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)));
     }
 
     /**
@@ -364,7 +364,7 @@ public class StructurePacks
 
         try
         {
-            return Files.readAllBytes(packMeta.getPath().resolve(subPath));
+            return Files.readAllBytes(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)));
         }
         catch (final IOException e)
         {
@@ -406,7 +406,9 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(subPath)).forEach(file -> {
+            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
+                Log.getLogger().error(file.toString());
+
                 if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                 {
                     try
@@ -416,19 +418,19 @@ public class StructurePacks
                         blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
                         blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
                         blueprints.add(blueprint);
+
+                        Log.getLogger().error("found: " + file.toString());
                     }
                     catch (final IOException e)
                     {
                         Log.getLogger().error("Error loading individual blueprint: " + file, e);
-                        e.printStackTrace();
                     }
                 }
             });
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprints from folder: " + subPath, e);
-            e.printStackTrace();
+            Log.getLogger().error("Error loading blueprints from folder: " + packMeta.getNormalizedSubPath(subPath), e);
         }
 
         blueprints.sort(Comparator.comparing(Blueprint::getFileName));
@@ -468,7 +470,7 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(subPath)).forEach(file -> {
+            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
 
                 if (Files.isDirectory(file))
                 {
@@ -500,7 +502,7 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading categories from folder: " + subPath, e);
+            Log.getLogger().error("Error loading categories from folder: " + packMeta.getNormalizedSubPath(subPath), e);
             e.printStackTrace();
         }
         return categories;
@@ -613,7 +615,7 @@ public class StructurePacks
         public Category(final StructurePackMeta packMeta, final Path subPath, final boolean hasIcon, final boolean isTerminal)
         {
             this.packMeta = packMeta;
-            this.subPath = subPath.toString().replace(packMeta.getPath().toString() + "/", "");
+            this.subPath = packMeta.getSubPath(subPath).replace("\\", "/");
             this.hasIcon = hasIcon;
             this.isTerminal = isTerminal;
         }

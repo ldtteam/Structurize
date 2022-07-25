@@ -2,6 +2,7 @@ package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
@@ -49,29 +50,29 @@ public final class BlueprintHandler
     /**
      * Draw a blueprint with a rotation, mirror and offset.
      *
-     * @param blueprint the wayPointBlueprint to draw.
+     * @param previewData the blueprint and context to draw.
      * @param pos       its position.
      */
-    public void draw(final Blueprint blueprint, final BlockPos pos, final PoseStack stack, final float partialTicks)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final PoseStack stack, final float partialTicks)
     {
-        if (blueprint == null)
+        if (previewData == null || previewData.getBlueprint() == null)
         {
             Log.getLogger().warn("Trying to draw null blueprint!");
             return;
         }
         Minecraft.getInstance().getProfiler().push("struct_render_cache");
 
-        final int blueprintHash = blueprint.hashCode();
+        final int blueprintHash = previewData.getBlueprint().hashCode();
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
-        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(blueprint) : rendererRef;
+        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
 
         if (rendererRef == null)
         {
             rendererCache.put(blueprintHash, renderer);
         }
 
-        renderer.updateBlueprint(blueprint);
-        renderer.draw(blueprint, pos, stack, partialTicks);
+        renderer.updateBlueprint(previewData);
+        renderer.draw(previewData, pos, stack, partialTicks);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().pop();
@@ -111,34 +112,34 @@ public final class BlueprintHandler
      *
      * @param points       the points to render it at.
      * @param partialTicks the partial ticks.
-     * @param blueprint    the blueprint.
+     * @param previewData    the blueprint and context.
      */
-    public void drawAtListOfPositions(final Blueprint blueprint,
+    public void drawAtListOfPositions(final BlueprintPreviewData previewData,
         final List<BlockPos> points,
         final PoseStack stack,
         final float partialTicks)
     {
-        if (points.isEmpty() || blueprint == null)
+        if (points.isEmpty() || previewData == null || previewData.getBlueprint() == null)
         {
             return;
         }
 
         Minecraft.getInstance().getProfiler().push("struct_render_multi");
 
-        final int blueprintHash = blueprint.hashCode();
+        final int blueprintHash = previewData.getBlueprint().hashCode();
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
-        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(blueprint) : rendererRef;
+        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
 
         if (rendererRef == null)
         {
             rendererCache.put(blueprintHash, renderer);
         }
 
-        renderer.updateBlueprint(blueprint);
+        renderer.updateBlueprint(previewData);
 
         for (final BlockPos coord : points)
         {
-            renderer.draw(blueprint, coord, stack, partialTicks);
+            renderer.draw(previewData, coord, stack, partialTicks);
         }
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());

@@ -289,17 +289,9 @@ public class ClientStructurePackLoader
         });
     }
 
-    // protect zip slip attack
     public static Path zipSlipProtect(ZipEntry zipEntry, Path targetDir) throws IOException
     {
-
-        // test zip slip vulnerability
-        // Path targetDirResolved = targetDir.resolve("../../" + zipEntry.getName());
-
         Path targetDirResolved = targetDir.resolve(zipEntry.getName());
-
-        // make sure normalized file still has targetDir as its prefix
-        // else throws exception
         Path normalizePath = targetDirResolved.normalize();
         if (!normalizePath.startsWith(targetDir.normalize()))
         {
@@ -318,11 +310,13 @@ public class ClientStructurePackLoader
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
         final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
+        StructurePacks.selectedPack = StructurePacks.packMetas.get(Minecraft.getInstance().getUser().getName());
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
             .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName)));
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = null;
         Minecraft.getInstance().player.sendMessage(new TranslatableComponent("Scan successfully saved as %s", fileName), Minecraft.getInstance().player.getUUID());
     }
 }

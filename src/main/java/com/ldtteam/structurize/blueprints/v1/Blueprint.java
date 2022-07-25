@@ -635,7 +635,7 @@ public class Blueprint
         }
         else
         {
-            mirDifference = Mirror.NONE;
+            mirDifference = this.mirror;
         }
 
         final BlockPos primaryOffset = getPrimaryBlockOffset();

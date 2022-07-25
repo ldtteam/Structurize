@@ -176,4 +176,38 @@ public class StructurePackMeta
     {
         return this.authors;
     }
+
+    /**
+     * Get the sub path from this pack.
+     * @param subPath the path we're in.
+     * @return the relative sub path.
+     */
+    public String getSubPath(final Path subPath)
+    {
+        if (rootPath.toString().contains("\\"))
+        {
+            return subPath.toString().replace(rootPath.toString() + "\\", "");
+        }
+        else
+        {
+            return subPath.toString().replace(rootPath.toString() + "/", "");
+        }
+    }
+
+    /**
+     * Get the normalized sub path from this pack.
+     * @param subPath the path we're in.
+     * @return the relative sub path.
+     */
+    public String getNormalizedSubPath(final String subPath)
+    {
+        if (rootPath.toString().contains("\\"))
+        {
+            return subPath.replace("\\", "/");
+        }
+        else
+        {
+            return subPath;
+        }
+    }
 }

@@ -96,7 +96,8 @@ public class BlueprintPreviewData
      */
     public void writeToBuf(final FriendlyByteBuf byteBuf)
     {
-        byteBuf.writeBlockPos(pos);
+        byteBuf.writeBlockPos(pos == null ? BlockPos.ZERO : pos);
+
         if (blueprint == null)
         {
             byteBuf.writeUtf(packName);
@@ -105,7 +106,7 @@ public class BlueprintPreviewData
         else
         {
             byteBuf.writeUtf(StructurePacks.selectedPack.getName());
-            byteBuf.writeUtf(blueprint.getFilePath().toString().replace(StructurePacks.selectedPack.getPath().toString() + "/", "") + "/" + blueprint.getFileName() + ".blueprint");
+            byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFilePath() + ".blueprint")));
         }
         byteBuf.writeInt(rotation.ordinal());
         byteBuf.writeInt(mirror.ordinal());
@@ -240,8 +241,11 @@ public class BlueprintPreviewData
      */
     public void move(final BlockPos pos)
     {
-        this.pos = this.pos.offset(pos);
-        syncChangesToServer();
+        if (this.pos != null)
+        {
+            this.pos = this.pos.offset(pos);
+            syncChangesToServer();
+        }
     }
 
     /**

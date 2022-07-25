@@ -1,10 +1,12 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
@@ -21,15 +23,29 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 import java.util.List;
 import java.util.Map;
 
 public class ClientEventSubscriber
 {
+    @SubscribeEvent
+    public static void renderWorldLastEvent(final RenderGameOverlayEvent.PreLayer event)
+    {
+        if ((event.getOverlay() == ForgeIngameGui.PLAYER_HEALTH_ELEMENT || event.getOverlay() == ForgeIngameGui.FOOD_LEVEL_ELEMENT) && Minecraft.getInstance().screen instanceof BOScreen &&
+              ((BOScreen) Minecraft.getInstance().screen).getWindow() instanceof WindowExtendedBuildTool)
+        {
+             event.setCanceled(true);
+        }
+    }
+
+
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
      *
@@ -60,7 +76,7 @@ public class ClientEventSubscriber
                 final BlockPos pos = previewData.pos;
                 final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-                BlueprintHandler.getInstance().draw(blueprint, pos, matrixStack, partialTicks);
+                BlueprintHandler.getInstance().draw(previewData, pos, matrixStack, partialTicks);
                 WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
                 WorldRenderMacros.renderWhiteLineBox(bufferSource,
                   matrixStack,

@@ -95,20 +95,14 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Updates blueprint reference if it has same hash.
      *
-     * @param blueprint blueprint from active structure
+     * @param previewData blueprint and context from active structure
      */
-    public void updateBlueprint(final Blueprint blueprint)
+    public void updateBlueprint(final BlueprintPreviewData previewData)
     {
-        if (blockAccess.getBlueprint() != blueprint && blockAccess.getBlueprint().hashCode() == blueprint.hashCode())
+        if (blockAccess.getBlueprint() != previewData.getBlueprint() && blockAccess.getBlueprint().hashCode() == previewData.getBlueprint().hashCode())
         {
-            blockAccess.setBlueprint(blueprint);
-            for (final BlueprintPreviewData item : RenderingCache.blueprintRenderingCache.values())
-            {
-                if (blueprint.equals(item.getBlueprint()))
-                {
-                    item.scheduleRefresh();
-                }
-            }
+            blockAccess.setBlueprint(previewData.getBlueprint());
+            previewData.scheduleRefresh();
         }
     }
 
@@ -187,26 +181,17 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Draws structure into world.
      */
-    public void draw(final Blueprint blueprint, final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
     {
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
-    
+
         mc.getProfiler().push("struct_render_init");
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
-        if (vertexBuffers == null)
+        if (vertexBuffers == null || previewData.shouldRefresh())
         {
             init();
-        }
-
-        for (final BlueprintPreviewData data : RenderingCache.blueprintRenderingCache.values())
-        {
-            if (blueprint.equals(data.getBlueprint()))
-            {
-                init();
-                break;
-            }
         }
 
         mc.getProfiler().popPush("struct_render_prepare");

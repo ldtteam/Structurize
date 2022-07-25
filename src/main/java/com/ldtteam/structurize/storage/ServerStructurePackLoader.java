@@ -227,7 +227,7 @@ public class ServerStructurePackLoader
                 {
                     if (!sourcePath.equals(dir))
                     {
-                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
+                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir) + File.separator));
                         zos.closeEntry();
                     }
                     return FileVisitResult.CONTINUE;

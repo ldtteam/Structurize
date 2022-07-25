@@ -2,6 +2,7 @@ package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blockentities.interfaces.ISpecialCreativeHandler;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
@@ -85,6 +86,7 @@ public class BlueprintPlacementHandling
             return;
         }
 
+        Utils.playSuccessSound(message.player, message.pos);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
         blueprint.rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
 
