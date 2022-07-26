@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_CANCEL;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_SELECT;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * Window class for the style picker.
@@ -50,7 +49,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     public WindowSwitchPack(final Supplier<BOWindow> prevWindow)
     {
         super(Constants.MOD_ID + WINDOW_TAG_TOOL);
-        registerButton(BUTTON_SELECT, this::selectClicked);
+        registerButton(BUTTON_SELECT1, this::selectClicked);
+        registerButton(BUTTON_SELECT2, this::selectClicked);
+
         registerButton(BUTTON_CANCEL, this::cancelClicked);
 
         this.prevWindow = prevWindow;
@@ -79,6 +80,15 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         {
             close();
             return;
+        }
+
+        if (button.getID().contains("1"))
+        {
+
+        }
+        else
+        {
+
         }
 
         StructurePacks.selectedPack = packMetas.get(packList.getListElementIndexByPane(button));
@@ -115,31 +125,48 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             @Override
             public int getElementCount()
             {
-                return packMetas.size();
+                return (int) Math.ceil(packMetas.size() / 2.0);
             }
 
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final StructurePackMeta packMeta = packMetas.get(index);
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(new TextComponent(packMeta.getName()));
-                rowPane.findPaneOfTypeByID("desc", Text.class).setText(new TextComponent(packMeta.getDesc()));
-                StringBuilder author = new StringBuilder("Authors: ");
-                for (int i = 0; i < packMeta.getAuthors().size(); i++)
+                int metaStart = index * 2;
+
+                final StructurePackMeta packMeta = packMetas.get(metaStart);
+                fillForMeta(rowPane, packMeta, "1");
+
+                if (packMetas.size() > metaStart + 1)
                 {
-                    author.append(packMeta.getAuthors().get(i));
-                    if (i + 1 < packMeta.getAuthors().size())
-                    {
-                        author.append(", ");
-                    }
+                    fillForMeta(rowPane, packMetas.get(metaStart + 1), "2");
+                    rowPane.findPaneByID("box2").show();
                 }
-                rowPane.findPaneOfTypeByID("authors", Text.class).setText(new TextComponent(author.toString()));
-                if (!packMeta.getIconPath().isEmpty())
+                else
                 {
-                    rowPane.findPaneOfTypeByID("icon", Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
+                    rowPane.findPaneByID("box2").hide();
                 }
-                rowPane.findPaneOfTypeByID("select", Button.class).setTextColor(ChatFormatting.BLACK.getColor());
             }
         });
+    }
+
+    private static void fillForMeta(final Pane rowPane, final StructurePackMeta packMeta, final String side)
+    {
+        rowPane.findPaneOfTypeByID("name" + side, Text.class).setText(new TextComponent(packMeta.getName()));
+        rowPane.findPaneOfTypeByID("desc" + side, Text.class).setText(new TextComponent(packMeta.getDesc()));
+        StringBuilder author = new StringBuilder("Authors: ");
+        for (int i = 0; i < packMeta.getAuthors().size(); i++)
+        {
+            author.append(packMeta.getAuthors().get(i));
+            if (i + 1 < packMeta.getAuthors().size())
+            {
+                author.append(", ");
+            }
+        }
+        rowPane.findPaneOfTypeByID("authors" + side, Text.class).setText(new TextComponent(author.toString()));
+        if (!packMeta.getIconPath().isEmpty())
+        {
+            rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
+        }
+        rowPane.findPaneOfTypeByID("select" + side, Button.class).setTextColor(ChatFormatting.BLACK.getColor());
     }
 }

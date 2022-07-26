@@ -131,11 +131,11 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
     public WindowExtendedBuildTool(@Nullable final BlockPos pos, final int groundstyle)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle,"blueprint");
-        this.init(groundstyle);
+        this.init(groundstyle, pos);
     }
 
     @SuppressWarnings("resource")
-    private void init(final int groundstyle)
+    private void init(final int groundstyle, final BlockPos pos)
     {
         this.groundstyle = groundstyle;
 
@@ -149,6 +149,11 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             nextDepth = "";
             currentBlueprintCat = "";
             RenderingCache.blueprintRenderingCache.remove("blueprint");
+            if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos == null)
+            {
+                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = pos;
+                adjustToGroundOffset();
+            }
         }
 
         structurePack = StructurePacks.selectedPack;
