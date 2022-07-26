@@ -567,15 +567,15 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         for (final Blueprint blueprint : inputBluePrints)
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-            if (anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(
-              RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset())))
+            if (anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock &&
+                  !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset())))
             {
                continue;
             }
 
             if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
             {
-                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos.offset(blueprint.getPrimaryBlockOffset()), blueprint.getPrimaryBlockOffset()));
+                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset()));
                 final String name = blueprint.getFileName().replace(Integer.toString(level), "");
                 final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
                 blueprintList.add(blueprint);

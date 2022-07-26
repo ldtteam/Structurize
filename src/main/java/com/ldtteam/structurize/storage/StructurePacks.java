@@ -193,7 +193,6 @@ public class StructurePacks
         catch (final IOException e)
         {
             Log.getLogger().error("Error loading blueprint: ", e);
-            e.printStackTrace();
         }
         return Optional.empty();
     }
@@ -272,7 +271,6 @@ public class StructurePacks
         catch (final IOException e)
         {
             Log.getLogger().error("Error loading blueprint: ", e);
-            e.printStackTrace();
         }
         return null;
     }
@@ -369,7 +367,6 @@ public class StructurePacks
         catch (final IOException e)
         {
             Log.getLogger().error("Error reading blueprint data: ", e);
-            e.printStackTrace();
         }
         return null;
     }
@@ -407,8 +404,6 @@ public class StructurePacks
         try
         {
             Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
-                Log.getLogger().error(file.toString());
-
                 if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                 {
                     try
@@ -418,8 +413,6 @@ public class StructurePacks
                         blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
                         blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
                         blueprints.add(blueprint);
-
-                        Log.getLogger().error("found: " + file.toString());
                     }
                     catch (final IOException e)
                     {
@@ -495,7 +488,6 @@ public class StructurePacks
                     catch (final IOException e)
                     {
                         Log.getLogger().error("Error loading category: " + file, e);
-                        e.printStackTrace();
                     }
                 }
             });
@@ -503,12 +495,11 @@ public class StructurePacks
         catch (final IOException e)
         {
             Log.getLogger().error("Error loading categories from folder: " + packMeta.getNormalizedSubPath(subPath), e);
-            e.printStackTrace();
         }
         return categories;
     }
 
-    /**
+    /**WindowExtendedBuildTool
      * Discover a structure pack at a given path.
      * @param element the path to check for.
      * @param immutable if jar (true), else false.
