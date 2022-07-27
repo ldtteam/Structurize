@@ -115,7 +115,7 @@ public class BlueprintPreviewData
         else
         {
             byteBuf.writeUtf(StructurePacks.selectedPack.getName());
-            byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFilePath() + ".blueprint")));
+            byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
         }
         byteBuf.writeInt(rotation.ordinal());
         byteBuf.writeInt(mirror.ordinal());
