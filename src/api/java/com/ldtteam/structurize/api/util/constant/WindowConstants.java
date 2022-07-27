@@ -58,12 +58,12 @@ public final class WindowConstants
     /**
      * Button to select a the left pack.
      */
-    public static final String BUTTON_SELECT1 = "select";
+    public static final String BUTTON_SELECT1 = "select1";
 
     /**
      * Button to select the right pack.
      */
-    public static final String BUTTON_SELECT2 = "select";
+    public static final String BUTTON_SELECT2 = "select2";
 
     /**
      * This button is used to set the previous available building type.

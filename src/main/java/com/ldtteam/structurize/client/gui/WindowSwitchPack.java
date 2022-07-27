@@ -82,17 +82,17 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             return;
         }
 
+        int index = packList.getListElementIndexByPane(button);
         if (button.getID().contains("1"))
         {
-
+            StructurePacks.selectedPack = packMetas.get(index * 2);
+            prevWindow.get().open();
         }
         else
         {
-
+            StructurePacks.selectedPack = packMetas.get(index * 2 + 1);
+            prevWindow.get().open();
         }
-
-        StructurePacks.selectedPack = packMetas.get(packList.getListElementIndexByPane(button));
-        prevWindow.get().open();
     }
 
     @Override
