@@ -3,7 +3,7 @@ package com.ldtteam.structurize.storage;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.blockentities.interfaces.ISpecialCreativeHandler;
+import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.BlueprintSyncMessage;
@@ -12,6 +12,7 @@ import com.ldtteam.structurize.network.messages.ClientBlueprintRequestMessage;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.Util;
@@ -47,7 +48,7 @@ public class BlueprintPlacementHandling
               .resolve(message.structurePackId)
               .resolve(message.blueprintPath);
 
-            ServerBlueprintFutureProcessor.consumerQueue.add(new ServerBlueprintFutureProcessor.ProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, blueprintPath),
+            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, blueprintPath),
               message.world, (blueprint) -> {
                 if (blueprint == null)
                 {
@@ -60,7 +61,7 @@ public class BlueprintPlacementHandling
         }
         else
         {
-            ServerBlueprintFutureProcessor.consumerQueue.add(new ServerBlueprintFutureProcessor.ProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath),
+            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath),
               message.world, (blueprint) -> process(blueprint, message)));
         }
     }
@@ -91,15 +92,15 @@ public class BlueprintPlacementHandling
         blueprint.rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
 
         final IStructureHandler structure;
-        if (anchor.getBlock() instanceof ISpecialCreativeHandler)
+        if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)
         {
-           if (!((ISpecialCreativeHandler) anchor.getBlock()).setup(message.player, message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
+           if (!((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).setup(message.player, message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
               message.type == BuildToolPlacementMessage.HandlerType.Pretty, message.structurePackId, message.blueprintPath))
            {
                return;
            }
             structure =
-              ((ISpecialCreativeHandler) anchor.getBlock()).getStructureHandler(message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
+              ((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).getStructureHandler(message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
                 message.type == BuildToolPlacementMessage.HandlerType.Pretty);
         }
         else
@@ -121,7 +122,7 @@ public class BlueprintPlacementHandling
      */
     public static void handlePlacement(final BlueprintSyncMessage blueprintSyncMessage, final ServerPlayer player)
     {
-        ServerBlueprintFutureProcessor.consumerQueue.add(new ServerBlueprintFutureProcessor.ProcessingData(Util.ioPool().submit(() ->
+        ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(IOPool.submit(() ->
         {
             final Path blueprintPath = new File(".").toPath()
               .resolve(BLUEPRINT_FOLDER)

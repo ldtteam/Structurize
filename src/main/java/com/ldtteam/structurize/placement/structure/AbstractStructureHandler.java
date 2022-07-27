@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.placement.structure;
 
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -84,13 +84,13 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
     {
         final BlockEntity be = getWorld().getBlockEntity(getProgressPosInWorld(pos));
-        if (be instanceof IBlueprintDataProvider)
+        if (be instanceof IBlueprintDataProviderBE)
         {
             if (getProgressPosInWorld(pos).equals(worldPos))
             {
-                ((IBlueprintDataProvider) be).setBlueprintPath(StructurePacks.packMetas.get(getBluePrint().getPackName()).getSubPath(getBluePrint().getFilePath().resolve(getBluePrint().getFileName() + ".blueprint")));
+                ((IBlueprintDataProviderBE) be).setBlueprintPath(StructurePacks.packMetas.get(getBluePrint().getPackName()).getSubPath(getBluePrint().getFilePath().resolve(getBluePrint().getFileName() + ".blueprint")));
             }
-            ((IBlueprintDataProvider) be).setPackName(getBluePrint().getPackName());
+            ((IBlueprintDataProviderBE) be).setPackName(getBluePrint().getPackName());
         }
     }
 

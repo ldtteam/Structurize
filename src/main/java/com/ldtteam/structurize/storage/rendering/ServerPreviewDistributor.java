@@ -22,7 +22,7 @@ public class ServerPreviewDistributor
     /**
      * Players that signed up to receive blueprint data.
      */
-    public static Map<UUID, Tuple<ServerPlayer, BlueprintRenderSettings>> registeredPlayers = new HashMap<>();
+    private static Map<UUID, Tuple<ServerPlayer, BlueprintRenderSettings>> registeredPlayers = new HashMap<>();
 
     @SubscribeEvent
     public static void onLogin(final PlayerEvent.PlayerLoggedInEvent event)
@@ -52,10 +52,20 @@ public class ServerPreviewDistributor
     {
         for (final Tuple<ServerPlayer, BlueprintRenderSettings> entry : registeredPlayers.values())
         {
-            if (entry.getB().renderSettings.get(DISPLAY_SHARED) && entry.getA().isAlive() && player.level == entry.getA().level && !player.getUUID().equals(entry.getA().getUUID()) && (entry.getA().blockPosition().distSqr(renderingCache.pos) < 128 * 128 || renderingCache.pos.equals(BlockPos.ZERO)))
+            if (entry.getB().renderSettings.get(DISPLAY_SHARED) && entry.getA().isAlive() && player.level == entry.getA().level && !player.getUUID().equals(entry.getA().getUUID()) && (entry.getA().blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)))
             {
                 Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, entry.getA().getUUID().toString()), entry.getA());
             }
         }
+    }
+
+    /**
+     * Register a player with their settings.
+     * @param uuid the player uuid.
+     * @param settings the player settings.
+     */
+    public static void register(final UUID uuid, final Tuple<ServerPlayer, BlueprintRenderSettings> settings)
+    {
+        registeredPlayers.put(uuid, settings);
     }
 }

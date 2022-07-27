@@ -2,7 +2,7 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
@@ -156,7 +156,7 @@ public class BlueprintUtil
 
         // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
         final BlockEntity tile = world.getBlockEntity(pos.offset(schem.getPrimaryBlockOffset()));
-        if (tile instanceof IBlueprintDataProvider)
+        if (tile instanceof IBlueprintDataProviderBE)
         {
             final CompoundTag blueprintData = (CompoundTag) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
 
@@ -164,12 +164,12 @@ public class BlueprintUtil
             {
                 final String fileName = new File(name).getName();
                 blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
-                ((IBlueprintDataProvider) tile).setSchematicName(fileName);
+                ((IBlueprintDataProviderBE) tile).setSchematicName(fileName);
             }
 
             final BlockPos corner1 = BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset());
             final BlockPos corner2 = new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1).subtract(schem.getPrimaryBlockOffset());
-            ((IBlueprintDataProvider) tile).setSchematicCorners(corner1, corner2);
+            ((IBlueprintDataProviderBE) tile).setSchematicCorners(corner1, corner2);
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_ONE, corner1);
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_TWO, corner2);
 

@@ -26,14 +26,23 @@ import static com.ldtteam.structurize.api.util.constant.Constants.SHARE_PREVIEWS
  */
 public class BlueprintPreviewData
 {
+    /**
+     * The rotation of the preview.
+     */
     @NotNull
-    public Rotation rotation = Rotation.NONE;
+    private Rotation rotation = Rotation.NONE;
 
+    /**
+     * The mirror of the preview.
+     */
     @NotNull
-    public Mirror mirror = Mirror.NONE;
+    private Mirror mirror = Mirror.NONE;
 
+    /**
+     * The position of the preview.
+     */
     @Nullable
-    public BlockPos pos;
+    private BlockPos pos;
 
     /**
      * The offset to the ground.
@@ -284,5 +293,41 @@ public class BlueprintPreviewData
     public boolean isEmpty()
     {
         return blueprintFuture == null && blueprint == null;
+    }
+
+    /**
+     * Get the rotation of the preview.
+     * @return the rotation.
+     */
+    public Rotation getRotation()
+    {
+        return rotation;
+    }
+
+    /**
+     * Get the mirror of the preview.
+     * @return the mirror.
+     */
+    public Mirror getMirror()
+    {
+        return mirror;
+    }
+
+    /**
+     * Get the pos of the preview.
+     * @return the pos.
+     */
+    public BlockPos getPos()
+    {
+        return pos;
+    }
+
+    /**
+     * Set the position of the preview.
+     * @param pos the pos to set.
+     */
+    public void setPos(final BlockPos pos)
+    {
+        this.pos = pos;
     }
 }

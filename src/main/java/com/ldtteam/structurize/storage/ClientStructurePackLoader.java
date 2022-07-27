@@ -8,6 +8,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.Util;
@@ -71,7 +72,7 @@ public class ClientStructurePackLoader
 
         final Path gameFolder = Minecraft.getInstance().gameDirectory.toPath();
 
-        Util.ioPool().execute(() ->
+        IOPool.execute(() ->
         {
             // This loads from the jar
             for (final Path modPath : modPaths)
@@ -219,7 +220,7 @@ public class ClientStructurePackLoader
     public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
     {
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
-        Util.ioPool().execute(() ->
+        IOPool.execute(() ->
         {
             final StructurePackMeta pack = StructurePacks.packMetas.remove(packName);
             if (pack != null)
@@ -316,7 +317,7 @@ public class ClientStructurePackLoader
             .resolve(BLUEPRINT_FOLDER)
             .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName)));
-        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = null;
+        RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.sendMessage(new TranslatableComponent("Scan successfully saved as %s", fileName), Minecraft.getInstance().player.getUUID());
     }
 }

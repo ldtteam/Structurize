@@ -5,11 +5,11 @@ import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.ScanPreviewData;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * Item used to scan structures.
@@ -73,9 +73,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
             {
                 anchorPos = Optional.of(anchorBlockPos);
-                if (worldIn.isClientSide && RenderingCache.boxRenderingCache.get("scan") != null)
+                if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
                 {
-                    RenderingCache.boxRenderingCache.get("scan").anchor = anchorPos;
+                    RenderingCache.getBoxPreviewData("scan").setAnchor(anchorPos);
                 }
             }
             else
@@ -223,21 +223,21 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         }
 
         final BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
+        if (te instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
         {
             if (worldIn.isClientSide)
             {
-                RenderingCache.boxRenderingCache.get("scan").anchor = Optional.of(pos);
+                RenderingCache.getBoxPreviewData("scan").setAnchor(Optional.of(pos));
             }
 
-            final BlockPos start = ((IBlueprintDataProvider) te).getInWorldCorners().getA();
-            final BlockPos end = ((IBlueprintDataProvider) te).getInWorldCorners().getB();
+            final BlockPos start = ((IBlueprintDataProviderBE) te).getInWorldCorners().getA();
+            final BlockPos end = ((IBlueprintDataProviderBE) te).getInWorldCorners().getB();
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
                 if (worldIn.isClientSide)
                 {
-                    RenderingCache.boxRenderingCache.put("scan", new ScanPreviewData(((IBlueprintDataProvider) te).getInWorldCorners().getA(), ((IBlueprintDataProvider) te).getInWorldCorners().getB(), Optional.of(pos)));
+                    RenderingCache.queue("scan", new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(), ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(), Optional.of(pos)));
                 }
                 itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
                 itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));

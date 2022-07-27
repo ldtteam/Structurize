@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -62,7 +63,7 @@ public class StructurePacks
      */
     public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
     {
-        return Util.ioPool().submit(() -> getBlueprint(structurePackId, subPath));
+        return IOPool.submit(() -> getBlueprint(structurePackId, subPath));
     }
 
     /**
@@ -73,7 +74,7 @@ public class StructurePacks
      */
     public static Future<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
     {
-        return Util.ioPool().submit(() -> getBlueprintData(structurePackId, subPath));
+        return IOPool.submit(() -> getBlueprintData(structurePackId, subPath));
     }
 
     /**
@@ -84,7 +85,7 @@ public class StructurePacks
      */
     public static Future<Path> findBlueprintFuture(final String structurePackId, final String name)
     {
-        return Util.ioPool().submit(() -> findBlueprint(structurePackId, name));
+        return IOPool.submit(() -> findBlueprint(structurePackId, name));
     }
 
     /**
@@ -95,7 +96,7 @@ public class StructurePacks
      */
     public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath)
     {
-        return Util.ioPool().submit(() -> getBlueprints(structurePackId, subPath));
+        return IOPool.submit(() -> getBlueprints(structurePackId, subPath));
     }
 
     /**
@@ -106,7 +107,7 @@ public class StructurePacks
      */
     public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
     {
-        return Util.ioPool().submit(() -> getCategories(structurePackId, subPath));
+        return IOPool.submit(() -> getCategories(structurePackId, subPath));
     }
 
     /**
@@ -117,7 +118,7 @@ public class StructurePacks
      */
     public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path)
     {
-        return Util.ioPool().submit(() -> getBlueprint(packName, path));
+        return IOPool.submit(() -> getBlueprint(packName, path));
     }
 
     /**
@@ -127,7 +128,7 @@ public class StructurePacks
      */
     public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
     {
-        return Util.ioPool().submit(() -> findBlueprint(structurePackId, blueprintPredicate));
+        return IOPool.submit(() -> findBlueprint(structurePackId, blueprintPredicate));
     }
 
     /**
@@ -547,7 +548,7 @@ public class StructurePacks
      */
     public static Future<Blueprint> storeBlueprint(final String packName, final CompoundTag compoundTag, final Path path)
     {
-        return Util.ioPool().submit(() ->
+        return IOPool.submit(() ->
         {
             Files.createDirectories(path.getParent());
             try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(path)))

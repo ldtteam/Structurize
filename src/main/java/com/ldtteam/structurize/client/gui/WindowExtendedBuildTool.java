@@ -8,10 +8,10 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blockentities.interfaces.IInvisibleBlueprintAnchorBlock;
-import com.ldtteam.structurize.blockentities.interfaces.ILeveledBlueprintAnchorBlock;
-import com.ldtteam.structurize.blockentities.interfaces.INamedBlueprintAnchorBlock;
-import com.ldtteam.structurize.blockentities.interfaces.IRequirementsBlueprintAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
+import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
@@ -148,10 +148,10 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             categoryFutures = null;
             nextDepth = "";
             currentBlueprintCat = "";
-            RenderingCache.blueprintRenderingCache.remove("blueprint");
-            if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos == null)
+            RenderingCache.removeBlueprint("blueprint");
+            if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos() == null)
             {
-                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos = pos;
+                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(pos);
                 adjustToGroundOffset();
             }
         }
@@ -196,15 +196,15 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
      */
     private void switchPackClicked()
     {
-        new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, groundstyle)).open();
+        new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), groundstyle)).open();
     }
 
     @Override
     protected void cancelClicked()
     {
-        BlueprintPreviewData previewData = RenderingCache.blueprintRenderingCache.remove("blueprint");
+        BlueprintPreviewData previewData = RenderingCache.removeBlueprint("blueprint");
         previewData.setBlueprint(null);
-        previewData.pos = BlockPos.ZERO;
+        previewData.setPos(BlockPos.ZERO);
         Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(previewData));
 
 
@@ -221,7 +221,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         {
             if (!Minecraft.getInstance().player.isCreative())
             {
-                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.pos, previewData.getPlacementSettings());
+                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings());
                 if (handlers.isEmpty())
                 {
                     Minecraft.getInstance().player.sendMessage(new TranslatableComponent("structurize.gui.no.survival.handler"), Minecraft.getInstance().player.getUUID());
@@ -388,7 +388,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
         if (previewData.getBlueprint() != null)
         {
-            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.pos, previewData.getPlacementSettings()))
+            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings()))
             {
                 categories.add(new Tuple<>(handler.getDisplayName(), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handler.getId())));
             }
@@ -438,9 +438,9 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 id,
                 structurePack.getName(),
                 structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
-                previewData.pos,
-                previewData.rotation,
-                previewData.mirror));
+                previewData.getPos(),
+                previewData.getRotation(),
+                previewData.getMirror()));
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
                 cancelClicked();
@@ -573,14 +573,14 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
             if (anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock &&
-                  !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset())))
+                  !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset())))
             {
                continue;
             }
 
             if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
             {
-                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, blueprint.getPrimaryBlockOffset()));
+                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset()));
                 final String name = blueprint.getFileName().replace(Integer.toString(level), "");
                 final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
                 blueprintList.add(blueprint);
@@ -831,8 +831,8 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
 
             if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
             {
-                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, Minecraft.getInstance().player));
-                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").pos, Minecraft.getInstance().player))
+                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player));
+                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player))
                 {
                     PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
                     img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);

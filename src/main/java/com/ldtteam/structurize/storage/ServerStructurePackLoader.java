@@ -4,6 +4,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacks;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
+import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -72,7 +73,7 @@ public class ServerStructurePackLoader
 
         final Path gameFolder = new File(".").toPath();
 
-        Util.ioPool().execute(() ->
+        IOPool.execute(() ->
         {
             // This loads from the jar
             for (final Path modPath : modPaths)
@@ -195,7 +196,7 @@ public class ServerStructurePackLoader
         packsToSync.putAll(missingPacks);
         Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(packsToSync), player);
 
-        Util.ioPool().execute(() -> {
+        IOPool.execute(() -> {
             int index = 0;
             for (final StructurePackMeta pack : new ArrayList<>(missingPacks.values()))
             {

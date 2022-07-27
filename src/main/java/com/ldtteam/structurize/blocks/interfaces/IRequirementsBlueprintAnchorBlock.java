@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blockentities.interfaces;
+package com.ldtteam.structurize.blocks.interfaces;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;

@@ -67,9 +67,9 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         this.groundstyle = groundstyle;
         this.bluePrintId = blueprintId;
 
-        if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).pos == null)
+        if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).getPos() == null)
         {
-            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).pos = pos;
+            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).setPos(pos);
             adjustToGroundOffset();
         }
 
@@ -77,7 +77,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::cancelClicked);
         registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, this::mirror);
+        registerButton(BUTTON_MIRROR, this::mirrorClicked);
         registerButton(BUTTON_RIGHT, this::moveRightClicked);
         registerButton(BUTTON_BACKWARD, this::moveBackClicked);
         registerButton(BUTTON_FORWARD, this::moveForwardClicked);
@@ -162,6 +162,10 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         {
             moveDownClicked();
         }
+        else if (ch == 'm')
+        {
+            mirrorClicked();
+        }
 
         return super.onKeyTyped(ch, key);
     }
@@ -231,7 +235,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     /**
      * Rotate the structure counter clockwise.
      */
-    private void mirror()
+    private void mirrorClicked()
     {
         RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).mirror();
         updateRotationState();
@@ -312,10 +316,10 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).mirror.equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
 
         String rotation;
-        switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).rotation)
+        switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotation())
         {
             case CLOCKWISE_90:
                 rotation = "right_green";

@@ -1,34 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Request a blueprint from the client.
  */
 public class ClientBlueprintRequestMessage implements IMessage
 {
-    /**
-     * List of pending blueprint requests.
-     */
-    public static final Queue<Tuple<ClientBlueprintRequestMessage, Future<byte[]>>> blueprintRequestQueue = new LinkedList<>();
-
     /**
      * Structure placement info.
      */
@@ -96,27 +83,11 @@ public class ClientBlueprintRequestMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        blueprintRequestQueue.add(new Tuple<>(this, StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath)));
-    }
-
-    @SubscribeEvent
-    public static void onClientTick(final TickEvent.ClientTickEvent event)
-    {
-        if (event.phase == TickEvent.Phase.END && !blueprintRequestQueue.isEmpty())
-        {
-            final Tuple<ClientBlueprintRequestMessage, Future<byte[]>> tuple = blueprintRequestQueue.peek();
-            if (tuple.getB().isDone())
+        ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
+            if (blueprintData != null)
             {
-                blueprintRequestQueue.poll();
-                try
-                {
-                    Network.getNetwork().sendToServer(new BlueprintSyncMessage(tuple.getA(), tuple.getB().get()));
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    Log.getLogger().error("Something went wrong trying to send the blueprint sync message.");
-                }
+                Network.getNetwork().sendToServer(new BlueprintSyncMessage(this, blueprintData));
             }
-        }
+        }));
     }
 }

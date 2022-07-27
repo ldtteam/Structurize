@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blockentities.interfaces;
+package com.ldtteam.structurize.blocks.interfaces;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.AbstractStructureHandler;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 /**
  * Special creative placement handler anchors.
  */
-public interface ISpecialCreativeHandler
+public interface ISpecialCreativeHandlerAnchorBlock
 {
     /**
      * Get the special structure handler.

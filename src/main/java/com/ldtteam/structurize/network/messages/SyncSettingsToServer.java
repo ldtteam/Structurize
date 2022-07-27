@@ -50,6 +50,6 @@ public class SyncSettingsToServer implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ServerPreviewDistributor.registeredPlayers.put(ctxIn.getSender().getUUID(), new Tuple<>(ctxIn.getSender(), this.settings));
+        ServerPreviewDistributor.register(ctxIn.getSender().getUUID(), new Tuple<>(ctxIn.getSender(), this.settings));
     }
 }

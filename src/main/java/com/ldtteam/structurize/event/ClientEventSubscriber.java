@@ -3,7 +3,7 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
@@ -12,7 +12,7 @@ import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.ScanPreviewData;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -65,7 +65,7 @@ public class ClientEventSubscriber
         matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
 
-        for (final BlueprintPreviewData previewData : RenderingCache.blueprintRenderingCache.values())
+        for (final BlueprintPreviewData previewData : RenderingCache.getBlueprintsToRender())
         {
             final Blueprint blueprint = previewData.getBlueprint();
 
@@ -73,7 +73,7 @@ public class ClientEventSubscriber
             {
                 mc.getProfiler().push("struct_render");
 
-                final BlockPos pos = previewData.pos;
+                final BlockPos pos = previewData.getPos();
                 final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
                 BlueprintHandler.getInstance().draw(previewData, pos, matrixStack, partialTicks);
@@ -88,13 +88,13 @@ public class ClientEventSubscriber
             }
         }
 
-        for (final ScanPreviewData previewData : RenderingCache.boxRenderingCache.values())
+        for (final BoxPreviewData previewData : RenderingCache.getBoxesToRender())
         {
             mc.getProfiler().push("struct_box");
 
             // Used to render a red box around a scan's Primary offset (primary block)
-            previewData.anchor.ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
-            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, previewData.pos1, previewData.pos2, 0.02f);
+            previewData.getAnchor().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
+            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, previewData.getPos1(), previewData.getPos2(), 0.02f);
 
             mc.getProfiler().pop();
         }
@@ -110,9 +110,9 @@ public class ClientEventSubscriber
             final BlockEntity te = mc.player.level.getBlockEntity(tagAnchor);
             WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, tagAnchor, tagAnchor, 0.02f);
 
-            if (te instanceof IBlueprintDataProvider)
+            if (te instanceof IBlueprintDataProviderBE)
             {
-                final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProvider) te).getWorldTagPosMap();
+                final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProviderBE) te).getWorldTagPosMap();
 
                 for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
                 {

@@ -255,7 +255,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(mainBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos, true, this).open();
+        new WindowReplaceBlock(mainBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), true, this).open();
     }
 
     /**
@@ -263,7 +263,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      * */
     private void pickFillBlock()
     {
-        new WindowReplaceBlock(secondaryBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos, false, this).open();
+        new WindowReplaceBlock(secondaryBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), false, this).open();
     }
 
     private void adjust(final TextField input, final int value)
@@ -332,7 +332,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void clearAndClose()
     {
-        RenderingCache.blueprintRenderingCache.remove("shapes");
+        RenderingCache.removeBlueprint("shapes");
         close();
     }
 
@@ -365,7 +365,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void paste()
     {
-        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(RenderingCache.getOrCreateBlueprintPreviewData("shapes").pos,
+        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(),
           length,
           width,
           height,
@@ -375,8 +375,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
           mainBlock,
           secondaryBlock,
           hollow,
-          RenderingCache.getOrCreateBlueprintPreviewData("shapes").rotation,
-          RenderingCache.getOrCreateBlueprintPreviewData("shapes").mirror));
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getRotation(),
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getMirror()));
     }
 
     /**

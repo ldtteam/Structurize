@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blocks.interfaces;
+package com.ldtteam.structurize.blockentities.interfaces;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * Interface for TE's which hold schematic specific data. They need to write and read the data to nbt to save it!
  */
-public interface IBlueprintDataProvider
+public interface IBlueprintDataProviderBE
 {
     public final static String TAG_SCHEMATIC_NAME = "schematicName";
     public final static String TAG_CORNER_ONE     = "corner1";

@@ -2,7 +2,6 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -60,14 +59,14 @@ public class SyncPreviewCacheToClient implements IMessage
     {
         if (previewData.isEmpty())
         {
-            if (RenderingCache.blueprintRenderingCache.containsKey(this.playerUUID))
+            if (RenderingCache.hasBlueprint(this.playerUUID))
             {
-                RenderingCache.blueprintRenderingCache.remove(this.playerUUID);
+                RenderingCache.removeBlueprint(this.playerUUID);
             }
         }
         else
         {
-            RenderingCache.blueprintRenderingCache.put(this.playerUUID, this.previewData);
+            RenderingCache.queue(this.playerUUID, this.previewData);
         }
     }
 }

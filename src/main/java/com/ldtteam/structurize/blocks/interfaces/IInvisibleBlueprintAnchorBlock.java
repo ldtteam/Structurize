@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blockentities.interfaces;
+package com.ldtteam.structurize.blocks.interfaces;
 
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;

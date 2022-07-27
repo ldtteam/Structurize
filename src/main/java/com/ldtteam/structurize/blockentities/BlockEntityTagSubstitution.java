@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blockentities;
 
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * The block entity for BlockTagSubstitution
  */
-public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProvider
+public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProviderBE
 {
     /**
      * The schematic name of the block.
@@ -103,7 +103,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public void load( @NotNull final CompoundTag compound)
     {
         super.load(compound);
-        IBlueprintDataProvider.super.readSchematicDataFromNBT(compound);
+        IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
     }
 
     @Override

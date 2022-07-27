@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.blockentities.interfaces;
+package com.ldtteam.structurize.blocks.interfaces;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

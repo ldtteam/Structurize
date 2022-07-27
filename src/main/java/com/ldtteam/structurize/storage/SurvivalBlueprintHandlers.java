@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.storage;
 
+import com.google.common.collect.ImmutableList;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -22,6 +23,11 @@ public class SurvivalBlueprintHandlers
     private static final Map<String, ISurvivalBlueprintHandler> handlers = new HashMap<>();
 
     /**
+     * Our immutable list of survival handlers, internal use only.
+     */
+    private static ImmutableList<ISurvivalBlueprintHandler> survivalHandlers = ImmutableList.of();
+
+    /**
      * Get a specific handler by id.
      * @param id the id of the handler.
      * @return the handler instance.
@@ -37,7 +43,7 @@ public class SurvivalBlueprintHandlers
      */
     public static List<ISurvivalBlueprintHandler> getHandlers()
     {
-        return new ArrayList<>(handlers.values());
+        return survivalHandlers;
     }
 
     /**
@@ -47,6 +53,7 @@ public class SurvivalBlueprintHandlers
     public static void registerHandler(final ISurvivalBlueprintHandler handler)
     {
         handlers.put(handler.getId(), handler);
+        survivalHandlers = ImmutableList.copyOf(handlers.values());
     }
 
     /**

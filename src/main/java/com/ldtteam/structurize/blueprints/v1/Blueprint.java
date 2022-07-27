@@ -5,7 +5,7 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
@@ -13,7 +13,6 @@ import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -32,7 +31,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -688,7 +687,7 @@ public class Blueprint
                             CompoundTag dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
 
                             // Rotate tag map
-                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(dataCompound);
+                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(dataCompound);
                             final Map<BlockPos, List<String>> newTagPosMap = new HashMap<>();
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
@@ -696,7 +695,7 @@ public class Blueprint
                                 newTagPosMap.put(transformedBlockPos(entry.getKey(), mirDifference, rotDifference), entry.getValue());
                             }
 
-                            IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
+                            IBlueprintDataProviderBE.writeMapToCompound(dataCompound, newTagPosMap);
 
                             // Rotate corners
                             BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);

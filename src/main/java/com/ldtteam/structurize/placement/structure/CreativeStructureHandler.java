@@ -1,12 +1,9 @@
 package com.ldtteam.structurize.placement.structure;
 
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
