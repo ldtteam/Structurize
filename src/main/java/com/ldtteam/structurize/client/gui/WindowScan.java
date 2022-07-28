@@ -2,10 +2,7 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ItemIcon;
-import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
@@ -448,20 +445,7 @@ public class WindowScan extends AbstractWindowSkeleton
             public void updateElement(final int index, final Pane rowPane)
             {
                 final Entity entity = tempEntities.get(index);
-                ItemStack entityIcon = entity.getPickResult();
-                if (entity instanceof GlowItemFrame)
-                {
-                    entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
-                }
-                else if (entity instanceof ItemFrame)
-                {
-                    entityIcon = new ItemStack(Items.ITEM_FRAME);
-                }
-                else if (entity instanceof AbstractMinecart)
-                {
-                    entityIcon = new ItemStack(Items.MINECART);
-                }
-                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, EntityIcon.class).setEntity(entity);
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
