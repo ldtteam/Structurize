@@ -27,6 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.List;
 import java.util.Map;
 
+import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS;
 import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS;
 
 public class ClientEventSubscriber
@@ -39,7 +40,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
-        if (event.getStage() != AFTER_SOLID_BLOCKS)
+        if (event.getStage() != AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS)
         {
             return;
         }
