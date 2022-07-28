@@ -20,12 +20,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.List;
 import java.util.Map;
+
+import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS;
 
 public class ClientEventSubscriber
 {
@@ -35,8 +37,12 @@ public class ClientEventSubscriber
      * @param event the catched event.
      */
     @SubscribeEvent
-    public static void renderWorldLastEvent(final RenderLevelLastEvent event)
+    public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
+        if (event.getStage() != AFTER_SOLID_BLOCKS)
+        {
+            return;
+        }
         Settings.instance.startStructurizePass();
         OptifineCompat.getInstance().preBlueprintDraw();
 
