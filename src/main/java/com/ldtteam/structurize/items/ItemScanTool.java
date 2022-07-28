@@ -42,6 +42,8 @@ import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANC
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
 
+import net.minecraft.world.item.Item.Properties;
+
 /**
  * Item used to scan structures.
  */

@@ -95,7 +95,7 @@ public class InventoryUtils
     public static void consumeStack(final ItemStack tempStack, final IItemHandler handler)
     {
         int count = tempStack.getCount();
-        final ItemStack container = tempStack.getContainerItem();
+        final ItemStack container = tempStack.getCraftingRemainingItem();
 
         for (int i = 0; i < handler.getSlots(); i++)
         {

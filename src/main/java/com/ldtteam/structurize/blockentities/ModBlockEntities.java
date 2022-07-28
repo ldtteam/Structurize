@@ -11,7 +11,7 @@ public final class ModBlockEntities
 {
     private ModBlockEntities() { /* prevent construction */ }
 
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Constants.MOD_ID);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Constants.MOD_ID);
 
     public static DeferredRegister<BlockEntityType<?>> getRegistry()
     {

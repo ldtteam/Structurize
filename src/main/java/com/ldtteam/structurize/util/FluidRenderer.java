@@ -19,6 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 
 /**
  * Our own fluid renderer.
@@ -32,7 +33,7 @@ public class FluidRenderer
     {
         boolean isLava = fluidState.is(FluidTags.LAVA);
         TextureAtlasSprite[] atextureatlassprite = net.minecraftforge.client.ForgeHooksClient.getFluidSprites(blockAccess, pos, fluidState);
-        int color = net.minecraftforge.client.RenderProperties.get(fluidState).getColorTint(fluidState, blockAccess, pos);
+        int color = IClientFluidTypeExtensions.of(fluidState).getTintColor(fluidState, blockAccess, pos);
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;

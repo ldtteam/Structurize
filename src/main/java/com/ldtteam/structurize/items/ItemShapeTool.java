@@ -10,6 +10,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
@@ -48,7 +50,7 @@ public class ItemShapeTool extends AbstractItemStructurize
 
 
     @Override
-    public ItemStack getContainerItem(final ItemStack itemStack)
+    public ItemStack getCraftingRemainingItem(final ItemStack itemStack)
     {
         //we want to return the shape tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
@@ -59,7 +61,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     }
 
     @Override
-    public boolean hasContainerItem(final ItemStack itemStack)
+    public boolean hasCraftingRemainingItem(final ItemStack itemStack)
     {
         //we want to return the shape tool when use for crafting
         return !ItemStackUtils.isEmpty(itemStack);

@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
+import net.minecraft.world.phys.HitResult.Type;
+
 /**
  * Utility methods for the inventories.
  */

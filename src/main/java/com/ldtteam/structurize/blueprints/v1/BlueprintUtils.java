@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
@@ -64,7 +64,7 @@ public final class BlueprintUtils
      * @param blockAccess The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
-    public static List<BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess, final Map<BlockPos, IModelData> teModelData)
+    public static List<BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess, final Map<BlockPos, ModelData> teModelData)
     {
         return blueprint.getBlockInfoAsList()
             .stream()

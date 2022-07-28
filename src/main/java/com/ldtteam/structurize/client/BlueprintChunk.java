@@ -51,6 +51,8 @@ import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import net.minecraft.world.level.chunk.LevelChunk.EntityCreationType;
+
 /**
  * Blueprint simulated chunk.
  */

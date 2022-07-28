@@ -41,7 +41,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onRegisterCommands(final RegisterCommandsEvent event)
     {
-        EntryPoint.register(event.getDispatcher(), event.getEnvironment());
+        EntryPoint.register(event.getDispatcher(), event.getCommandSelection());
     }
 
     @SubscribeEvent
@@ -66,7 +66,7 @@ public class EventSubscriber
     @SubscribeEvent
     public static void onPlayerLogin(final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getPlayer() instanceof ServerPlayer serverPlayer)
+        if (event.getEntity() instanceof ServerPlayer serverPlayer)
         {
             Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
             Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
@@ -74,9 +74,9 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.WorldTickEvent event)
+    public static void onWorldTick(final TickEvent.LevelTickEvent event)
     {
-        if (event.world instanceof ServerLevel serverLevel)
+        if (event.level instanceof ServerLevel serverLevel)
         {
             if (event.phase == Phase.START)
             {

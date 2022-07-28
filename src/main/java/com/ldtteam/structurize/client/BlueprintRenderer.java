@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,9 +37,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +49,7 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The renderer for blueprint.
@@ -105,7 +105,7 @@ public class BlueprintRenderer implements AutoCloseable
     {
         final Blueprint blueprint = blockAccess.getBlueprint();
         final List<BlockInfo> blocks = blueprint.getBlockInfoAsList();
-        final Map<BlockPos, IModelData> teModelData = new HashMap<>();
+        final Map<BlockPos, ModelData> teModelData = new HashMap<>();
 
         final Minecraft mc = Minecraft.getInstance();
         final BlockRenderDispatcher blockRendererDispatcher = mc.getBlockRenderer();
@@ -150,13 +150,17 @@ public class BlueprintRenderer implements AutoCloseable
                 matrixStack.pushPose();
                 matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                for (final RenderType renderType : blockRenderTypes)
+                final BakedModel blockModel = blockRendererDispatcher.getBlockModel(state);
+                final @NotNull ModelData modelData = blockModel.getModelData(blockAccess, blockPos, state, teModelData.getOrDefault(blockPos, ModelData.EMPTY))
+;
+                for (final RenderType renderType : blockModel.getRenderTypes(state, random, modelData))
                 {
+                    renderType.setupRenderState();
                     final BufferBuilder buffer = newBuffers.builder(renderType);
-                    ForgeHooksClient.setRenderType(renderType);
-
-                    if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.canRenderInLayer(state, renderType))
+                    renderType.setupRenderState();
+                    if (state.getRenderShape() != RenderShape.INVISIBLE)
                     {
+                        // buffer builder is now vertex consumer
                         blockRendererDispatcher.renderBatched(state,
                             blockPos,
                             blockAccess,
@@ -164,13 +168,15 @@ public class BlueprintRenderer implements AutoCloseable
                             buffer,
                             true,
                             random,
-                            teModelData.getOrDefault(blockPos, EmptyModelData.INSTANCE));
+                            modelData,
+                            renderType);
                     }
 
-                    if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, renderType))
+                    if (!fluidState.isEmpty())
                     {
                         FluidRenderer.render(blockAccess, blockPos, buffer, fluidState);
                     }
+                    renderType.clearRenderState();
                 }
 
                 matrixStack.popPose();
@@ -180,7 +186,6 @@ public class BlueprintRenderer implements AutoCloseable
                 LOGGER.error("Error while trying to render structure part: " + e.getMessage(), e.getCause());
             }
         }
-        ForgeHooksClient.setRenderType(null);
 
         vertexBuffers = blockVertexBuffersFactory.get();
         for (final RenderType renderType : blockRenderTypes)

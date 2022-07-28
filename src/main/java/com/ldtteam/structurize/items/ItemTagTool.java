@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.world.item.Item.Properties;
+
 /**
  * Item for tagging positions with tags
  */

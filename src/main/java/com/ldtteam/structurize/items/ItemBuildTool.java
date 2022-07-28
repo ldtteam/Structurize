@@ -12,6 +12,8 @@ import net.minecraft.world.level.Level;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
 /**
+import net.minecraft.world.item.Item.Properties;
+
  * Class handling the buildTool item.
  */
 public class ItemBuildTool extends AbstractItemStructurize
@@ -50,7 +52,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
     @Override
-    public ItemStack getContainerItem(final ItemStack itemStack)
+    public ItemStack getCraftingRemainingItem(final ItemStack itemStack)
     {
         //we want to return the build tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
@@ -61,7 +63,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
     @Override
-    public boolean hasContainerItem(final ItemStack itemStack)
+    public boolean hasCraftingRemainingItem(final ItemStack itemStack)
     {
         //we want to return the build tool when use for crafting
         return !ItemStackUtils.isEmpty(itemStack);
