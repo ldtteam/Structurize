@@ -7,6 +7,7 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacks;
+import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
@@ -157,6 +158,8 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
+        Network.getNetwork().sendToServer(new SyncSettingsToServer());
+
         if (serverStructurePacks.isEmpty())
         {
             // Most likely single player. Skip.
@@ -175,10 +178,13 @@ public class ClientStructurePackLoader
             if (!entry.getValue().isImmutable())
             {
                 final int version = serverStructurePacks.getOrDefault(entry.getKey(), -1);
-                if (version == -1 && !Structurize.getConfig().getServer().allowPlayerSchematics.get())
+                if (version == -1)
                 {
-                    // Don't have this pack on the server, disable.
-                    StructurePacks.packMetas.remove(entry.getKey());
+                    if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
+                    {
+                        // Don't have this pack on the server, disable.
+                        StructurePacks.packMetas.remove(entry.getKey());
+                    }
                 }
                 else if (version != entry.getValue().getVersion())
                 {
@@ -286,6 +292,7 @@ public class ClientStructurePackLoader
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.finishedLoading = true;
+                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
             }
         });
     }
