@@ -17,6 +17,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -309,7 +310,7 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof CampfireBlockEntity campfire)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.getValue(CampfireBlock.LIT))
+                    if (bs.getBlock() instanceof CampfireBlock && bs.getValue(CampfireBlock.LIT))
                     {
                         CampfireBlockEntity.particleTick(mc.level, anchorPos.offset(tePos), bs, campfire);
                     }
@@ -317,7 +318,7 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof SkullBlockEntity skull)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
+                    if (bs.getBlock() instanceof SkullBlock &&  bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
                         SkullBlockEntity.dragonHeadAnimation(mc.level, anchorPos.offset(tePos), bs, skull);
                     }
