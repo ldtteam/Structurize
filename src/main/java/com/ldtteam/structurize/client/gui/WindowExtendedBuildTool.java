@@ -454,6 +454,8 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         super.settingsClicked();
         folderList.disable();
         folderList.hide();
+        blueprintList.disable();
+        blueprintList.hide();
     }
 
     /**
@@ -572,8 +574,9 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
         for (final Blueprint blueprint : inputBluePrints)
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-            if (anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock &&
-                  !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset())))
+            if (!Minecraft.getInstance().player.isCreative()
+                  && anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock
+                  && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset())))
             {
                continue;
             }
@@ -829,27 +832,31 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 }
             }
 
+            boolean hasAlts = blueprintMap.values().size() > 1;
             if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
             {
                 toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player));
                 if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player))
                 {
                     PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
-                    img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/disabled_blueprint_medium.png"), false);
+                    img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"), false);
                     img.disable();
                     return;
                 }
             }
+
+            boolean isInvis = anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock
+                  && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(firstBlueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), firstBlueprint.getPrimaryBlockOffset()));
+
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
-            boolean hasAlts = blueprintMap.values().size() > 1;
             if (hasMatch)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/" + (hasAlts ? "leveled_" : "") + "selected_blueprint_medium.png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
             else
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/" + (hasAlts ? "leveled_" : "") + "blueprint_medium.png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint"  + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
         }
     }

@@ -245,6 +245,7 @@ public class ClientStructurePackLoader
             {
                 ZipEntry zipEntry = zis.getNextEntry();
                 final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER);
+                FileUtils.deleteDirectory(new File(structureFolder.resolve(packName).toUri()));
                 final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
 
                 while (zipEntry != null)

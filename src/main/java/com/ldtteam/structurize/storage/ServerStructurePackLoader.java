@@ -197,7 +197,7 @@ public class ServerStructurePackLoader
         Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(packsToSync), player);
 
         IOPool.execute(() -> {
-            int index = 0;
+            int index = 1;
             for (final StructurePackMeta pack : new ArrayList<>(missingPacks.values()))
             {
                 final ByteBuf outputBuf = zipPack(pack.getPath());
