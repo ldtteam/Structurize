@@ -30,6 +30,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -325,12 +327,29 @@ public class ItemScanTool extends AbstractItemWithPosSelector
                 {
                     Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
                 }
-                itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
-                itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));
+                setBounds(itemstack, start, end);
             }
         }
 
-        itemstack.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(pos));
+        setAnchorPos(itemstack, pos);
         return false;
+    }
+
+    /**
+     * Saves the anchor coordinates on this stack.
+     * @param tool The tool stack (assumed already been validated)
+     * @param anchor The new anchor position (or null to clear)
+     */
+    public static void setAnchorPos(@NotNull final ItemStack tool,
+                                    @Nullable final BlockPos anchor)
+    {
+        if (anchor == null)
+        {
+            tool.getOrCreateTag().remove(NBT_ANCHOR_POS);
+        }
+        else
+        {
+            tool.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(anchor));
+        }
     }
 }

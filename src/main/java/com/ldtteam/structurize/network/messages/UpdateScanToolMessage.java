@@ -1,18 +1,14 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
-
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
 
 /**
  * Send the scan tool update message to the client.
@@ -49,9 +45,7 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundTag compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
+            ItemScanTool.setBounds(stack, from, to);
         }
         this.from = from;
         this.to = to;
@@ -77,9 +71,7 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = ctxIn.getSender().getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundTag compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
+            ItemScanTool.setBounds(stack, from, to);
         }
     }
 }

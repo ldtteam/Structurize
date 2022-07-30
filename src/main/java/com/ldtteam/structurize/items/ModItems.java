@@ -31,6 +31,7 @@ public final class ModItems
     public static final RegistryObject<ItemScanTool>  scanTool;
     public static final RegistryObject<ItemTagTool>   tagTool;
     public static final RegistryObject<ItemCaliper>  caliper;
+    public static final RegistryObject<ItemCommandTool> commandTool;
 
     /**
      * Utility method to register an item
@@ -48,10 +49,11 @@ public final class ModItems
     {
         final Item.Properties properties = new Item.Properties().tab(ModItemGroups.STRUCTURIZE);
 
-        buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
-        shapeTool = register("shapetool", () -> new ItemShapeTool(properties));
-        scanTool  = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
-        tagTool   = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
-        caliper   = register("caliper", () -> new ItemCaliper(properties));
+        buildTool   = register("sceptergold", () -> new ItemBuildTool(properties));
+        shapeTool   = register("shapetool", () -> new ItemShapeTool(properties));
+        scanTool    = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
+        tagTool     = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
+        caliper     = register("caliper", () -> new ItemCaliper(properties));
+        commandTool = register("commandtool", () -> new ItemCommandTool(ModItemGroups.STRUCTURIZE));
     }
 }
