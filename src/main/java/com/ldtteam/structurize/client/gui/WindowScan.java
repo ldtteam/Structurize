@@ -278,6 +278,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         Settings.instance.setAnchorPos(Optional.empty());
         Settings.instance.setBox(null);
+        Settings.instance.setStructureName(null);
         close();
     }
 

@@ -57,6 +57,5 @@ public final class ClientStructureWrapper
         }
 
         LanguageHandler.sendPlayerMessage(Minecraft.getInstance().player, "item.scepterSteel.scanSuccess", file);
-        Settings.instance.setStructureName(structureName.toString());
     }
 }
