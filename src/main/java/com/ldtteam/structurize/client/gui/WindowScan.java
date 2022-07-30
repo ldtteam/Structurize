@@ -247,12 +247,28 @@ public class WindowScan extends AbstractWindowSkeleton
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
             }
         }
+        if (Settings.instance.getStructureName() != null)
+        {
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(Settings.instance.getStructureName());
+        }
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
             filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
 
             updateResources();
         });
+    }
+
+    @Override
+    public void onClosed()
+    {
+        if (Settings.instance.getBox() != null)     // not confirmed/cancelled
+        {
+            Settings.instance.setStructureName(findPaneOfTypeByID(NAME_LABEL, TextField.class).getText());
+            updateBounds();
+        }
+
+        super.onClosed();
     }
 
     /**
@@ -287,11 +303,7 @@ public class WindowScan extends AbstractWindowSkeleton
         close();
     }
 
-    /**
-     * Clears and resets/updates all resources.
-     */
-    @SuppressWarnings("resource")
-    private void updateResources()
+    private void updateBounds()
     {
         final BlockPos def = Minecraft.getInstance().player.blockPosition();
         try
@@ -306,17 +318,25 @@ public class WindowScan extends AbstractWindowSkeleton
             final int z2 = pos2z.getText().isEmpty() ? def.getZ() : Integer.parseInt(pos2z.getText());
             pos2 = new BlockPos(x2, y2, z2);
         }
-        catch(final NumberFormatException e)
+        catch (final NumberFormatException e)
         {
-            Minecraft.getInstance().player.sendMessage(new TextComponent("Invalid Number - Closing!"), Minecraft.getInstance().player.getUUID());
-            close();
+            Minecraft.getInstance().player.sendMessage(new TextComponent("Invalid Number"), Minecraft.getInstance().player.getUUID());
             return;
         }
 
         Settings.instance.setAnchorPos(this.anchorPos);
         Settings.instance.setBox(new Tuple<>(pos1, pos2));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
-        
+    }
+
+    /**
+     * Clears and resets/updates all resources.
+     */
+    @SuppressWarnings("resource")
+    private void updateResources()
+    {
+        updateBounds();
+
         final Level world = Minecraft.getInstance().level;
         resources.clear();
         entities.clear();
