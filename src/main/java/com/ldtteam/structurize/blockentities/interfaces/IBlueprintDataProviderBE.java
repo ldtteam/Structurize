@@ -90,8 +90,8 @@ public interface IBlueprintDataProviderBE
         writeMapToCompound(compoundNBT, getPositionedTags());
         originalCompound.put(TAG_BLUEPRINTDATA, compoundNBT);
 
-        compoundNBT.putString(TAG_PACK, getPackName());
-        compoundNBT.putString(TAG_PATH, getBlueprintPath());
+        compoundNBT.putString(TAG_PACK, getPackName() == null ? "" : getPackName());
+        compoundNBT.putString(TAG_PATH, getBlueprintPath() == null ? "" : getBlueprintPath());
     }
 
     /**
