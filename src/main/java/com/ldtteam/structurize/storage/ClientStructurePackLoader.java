@@ -6,16 +6,14 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacks;
+import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,7 +59,7 @@ public class ClientStructurePackLoader
     /**
      * Called on client mod construction.
      */
-    public static void onClientStarting()
+    public static void onClientLoading()
     {
         final List<Path> modPaths = new ArrayList<>();
         final List<String> modList = new ArrayList<>();
@@ -80,7 +78,7 @@ public class ClientStructurePackLoader
             {
                 try
                 {
-                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList));
+                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
                 }
                 catch (IOException e)
                 {
@@ -118,7 +116,7 @@ public class ClientStructurePackLoader
                     Files.write(clientPackPath.resolve("pack.json"), jsonObject.toString().getBytes());
                 }
 
-                Files.list(outputPath).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList));
+                Files.list(outputPath).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
             }
             catch (IOException e)
             {
@@ -139,14 +137,14 @@ public class ClientStructurePackLoader
             if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % 20 == 0 && loadingState == ClientLoadingState.FINISHED_LOADING)
             {
                 loadingState = ClientLoadingState.SYNCING;
-                Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacks(StructurePacks.packMetas));
+                Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
             }
             else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
             {
                 Log.getLogger().warn("Client logged off. Resetting Pack Meta and Reloading State");
                 loadingState = ClientLoadingState.LOADING;
-                StructurePacks.packMetas.clear();
-                onClientStarting();
+                StructurePacks.clearPacks();
+                onClientLoading();
             }
         }
     }
@@ -164,40 +162,40 @@ public class ClientStructurePackLoader
         {
             // Most likely single player. Skip.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
-            StructurePacks.finishedLoading = true;
-            if (StructurePacks.selectedPack == null && !StructurePacks.packMetas.isEmpty())
+            StructurePacks.setFinishedLoading();
+            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
             {
-                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
+                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
             }
             return;
         }
 
         boolean needsChanges = false;
-        for (final Map.Entry<String, StructurePackMeta> entry : new ArrayList<>(StructurePacks.packMetas.entrySet()))
+        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
-            if (!entry.getValue().isImmutable())
+            if (!pack.isImmutable())
             {
-                final int version = serverStructurePacks.getOrDefault(entry.getKey(), -1);
+                final int version = serverStructurePacks.getOrDefault(pack.getName(), -1);
                 if (version == -1)
                 {
                     if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
                     {
                         // Don't have this pack on the server, disable.
-                        StructurePacks.packMetas.remove(entry.getKey());
+                        StructurePacks.disablePack(pack.getName());
                     }
                 }
-                else if (version != entry.getValue().getVersion())
+                else if (version != pack.getVersion())
                 {
                     // Version on the client is outdated. Set that we got pending changes.
-                    StructurePacks.packMetas.remove(entry.getKey());
+                    StructurePacks.disablePack(pack.getName());
                     needsChanges = true;
                 }
             }
         }
 
-        for (final String pack : serverStructurePacks.keySet())
+        for (final String packKey : serverStructurePacks.keySet())
         {
-            if (!StructurePacks.packMetas.containsKey(pack))
+            if (!StructurePacks.hasPack(packKey))
             {
                 needsChanges = true;
                 break;
@@ -208,11 +206,11 @@ public class ClientStructurePackLoader
         {
             // No new packs have be synced and no updated packs have to be synced.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
-            if (StructurePacks.selectedPack == null && !StructurePacks.packMetas.isEmpty())
+            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
             {
-                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
+                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
             }
-            StructurePacks.finishedLoading = true;
+            StructurePacks.setFinishedLoading();
         }
     }
 
@@ -228,7 +226,7 @@ public class ClientStructurePackLoader
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
-            final StructurePackMeta pack = StructurePacks.packMetas.remove(packName);
+            final StructurePackMeta pack = StructurePacks.disablePack(packName);
             if (pack != null)
             {
                 try
@@ -281,7 +279,7 @@ public class ClientStructurePackLoader
                 }
 
                 // now load what we unzipped.
-                StructurePacks.discoverPackAtPath(rootPath, true, modList);
+                StructurePacks.discoverPackAtPath(rootPath, true, modList, false);
             }
             catch (final IOException ex)
             {
@@ -292,8 +290,8 @@ public class ClientStructurePackLoader
             if (eol)
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
-                StructurePacks.finishedLoading = true;
-                StructurePacks.selectedPack = StructurePacks.packMetas.values().iterator().next();
+                StructurePacks.setFinishedLoading();
+                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
             }
         });
     }
@@ -319,7 +317,7 @@ public class ClientStructurePackLoader
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
         final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
-        StructurePacks.selectedPack = StructurePacks.packMetas.get(Minecraft.getInstance().getUser().getName());
+        StructurePacks.selectedPack = StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName());
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)

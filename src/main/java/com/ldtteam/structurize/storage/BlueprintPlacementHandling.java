@@ -1,8 +1,11 @@
 package com.ldtteam.structurize.storage;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
@@ -15,15 +18,18 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.IModInfo;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
 import static com.ldtteam.structurize.api.util.constant.Constants.CLIENT_FOLDER;
@@ -39,7 +45,7 @@ public class BlueprintPlacementHandling
      */
     public static void handlePlacement(final BuildToolPlacementMessage message)
     {
-        if (!StructurePacks.packMetas.containsKey(message.structurePackId))
+        if (!StructurePacks.hasPack(message.structurePackId))
         {
             final Path blueprintPath = new File(".").toPath()
               .resolve(BLUEPRINT_FOLDER)
@@ -124,16 +130,39 @@ public class BlueprintPlacementHandling
     {
         ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(IOPool.submit(() ->
         {
-            final Path blueprintPath = new File(".").toPath()
+            final Path blueprintParentPath = new File(".").toPath()
               .resolve(BLUEPRINT_FOLDER)
               .resolve(CLIENT_FOLDER)
               .resolve(player.getUUID().toString())
-              .resolve(blueprintSyncMessage.structurePackId)
-              .resolve(blueprintSyncMessage.blueprintPath);
+              .resolve(blueprintSyncMessage.structurePackId);
+
+            final Path blueprintPath = blueprintParentPath.resolve(blueprintSyncMessage.blueprintPath);
 
             try
             {
                 Files.createDirectories(blueprintPath.getParent());
+
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("version", 1);
+                jsonObject.addProperty("pack-format", 1);
+                jsonObject.addProperty("desc", "Local Dummy");
+                final JsonArray authorArray = new JsonArray();
+                jsonObject.add("authors", authorArray);
+                final JsonArray modsArray = new JsonArray();
+                modsArray.add(Constants.MOD_ID);
+                jsonObject.add("mods", modsArray);
+                jsonObject.addProperty("name", blueprintSyncMessage.structurePackId);
+                jsonObject.addProperty("icon",  "");
+
+                Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes());
+
+                final List<String> modList = new ArrayList<>();
+                for (IModInfo mod : ModList.get().getMods())
+                {
+                    modList.add(mod.getModId());
+                }
+
+                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true);
             }
             catch (IOException e)
             {

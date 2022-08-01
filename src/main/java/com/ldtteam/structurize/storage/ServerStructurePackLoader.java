@@ -2,13 +2,12 @@ package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacks;
+import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
 import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,6 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.CLIENT_FOLDER;
 
 /**
  * Here we load the structure packs on the server side.
@@ -80,7 +80,7 @@ public class ServerStructurePackLoader
             {
                 try
                 {
-                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList));
+                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
                 }
                 catch (IOException e)
                 {
@@ -91,16 +91,36 @@ public class ServerStructurePackLoader
             // Now we load from the main folder.
             try
             {
-                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList));
+                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
             }
             catch (IOException e)
             {
-                Log.getLogger().warn("Failed loading packs from main folder path: " + gameFolder.toString());
+                Log.getLogger().warn("Failed loading packs from main folder path: " + gameFolder);
+            }
+
+            // Now we load from the client caches.
+            try
+            {
+                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER).resolve(CLIENT_FOLDER))
+                  .forEach(element -> {
+                      try
+                      {
+                          Files.list(element).forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true));
+                      }
+                      catch (IOException e)
+                      {
+                          Log.getLogger().warn("Failed loading client pack from folder path: " + element);
+                      }
+                  });
+            }
+            catch (IOException e)
+            {
+                Log.getLogger().warn("Failed loading client packs from main folder path: " + gameFolder);
             }
 
             Log.getLogger().warn("Finished discovering Server Structure packs");
 
-            for (final StructurePackMeta pack : StructurePacks.packMetas.values())
+            for (final StructurePackMeta pack : StructurePacks.getPackMetas())
             {
                 if (!pack.isImmutable())
                 {
@@ -108,7 +128,7 @@ public class ServerStructurePackLoader
                 }
             }
             loadingState = ServerLoadingState.FINISHED_LOADING;
-            StructurePacks.finishedLoading = true;
+            StructurePacks.setFinishedLoading();
         });
     }
 
@@ -120,7 +140,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(Collections.emptyMap()), player);
+            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()), player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -178,23 +198,23 @@ public class ServerStructurePackLoader
         final Map<String, StructurePackMeta> missingPacks = new HashMap<>();
         final Map<String, StructurePackMeta> packsToSync = new HashMap<>();
 
-        for (final Map.Entry<String, StructurePackMeta> entry : StructurePacks.packMetas.entrySet())
+        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
-            if (!entry.getValue().isImmutable())
+            if (!pack.isImmutable())
             {
-                if (clientStructurePacks.getOrDefault(entry.getKey(), -1) != entry.getValue().getVersion())
+                if (clientStructurePacks.getOrDefault(pack.getName(), -1) != pack.getVersion())
                 {
-                    missingPacks.put(entry.getKey(), entry.getValue());
+                    missingPacks.put(pack.getName(), pack);
                 }
                 else
                 {
-                    packsToSync.put(entry.getKey(), entry.getValue());
+                    packsToSync.put(pack.getName(), pack);
                 }
             }
         }
 
         packsToSync.putAll(missingPacks);
-        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacks(packsToSync), player);
+        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(packsToSync), player);
 
         IOPool.execute(() -> {
             int index = 1;

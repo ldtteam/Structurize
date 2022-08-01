@@ -6,15 +6,11 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -37,23 +33,91 @@ public class StructurePacks
      * Increase when the pack data format changes, or minecraft version changes require a full schematic update.
      * When the pack format doesn't align, the pack won't be loaded.
      */
-    public static final int PACK_FORMAT = 1;
+    private static final int PACK_FORMAT = 1;
 
     /**
      * The list of registered structure packs.
      * This might be accessed concurrently by client/server. That's why it is a concurrent hashmap.
      */
-    public static Map<String, StructurePackMeta> packMetas = new ConcurrentHashMap<>();
+    private static final Map<String, StructurePackMeta> packMetas = new ConcurrentHashMap<>();
+
+    /**
+     * The list of registered client structure packs.
+     * This is always ever only accessed from the server side.
+     * Potentially from multiple threads.
+     * This is not synced to the clients.
+     */
+    private static final Map<String, StructurePackMeta> clientPackMetas = new ConcurrentHashMap<>();
 
     /**
      * Set to true on client/server once style loading has finished.
      */
-    public static volatile boolean finishedLoading = false;
+    private static volatile boolean finishedLoading = false;
 
     /**
      * Selected pack on the client.
      */
     public static StructurePackMeta selectedPack;
+
+    /**
+     * Check if the pack handling has finished loading.
+     * @return true if so.
+     */
+    public static boolean hasFinishedLoading()
+    {
+        return finishedLoading;
+    }
+
+    /**
+     * Conclude loading.
+     */
+    public static void setFinishedLoading()
+    {
+        finishedLoading = true;
+    }
+
+    /**
+     * Get the list of pack meta.
+     * @return the pack meta set.
+     */
+    public static Collection<StructurePackMeta> getPackMetas()
+    {
+        return packMetas.values();
+    }
+
+    /**
+     * Query a structure pack for a key.
+     * @param key the used key.
+     * @return the pack or null.
+     */
+    @Nullable
+    public static StructurePackMeta getStructurePack(final String key)
+    {
+        if (packMetas.containsKey(key))
+        {
+            return packMetas.get(key);
+        }
+
+        return clientPackMetas.get(key);
+    }
+
+    /**
+     * Reset pack state.
+     */
+    public static void clearPacks()
+    {
+        packMetas.clear();
+        clientPackMetas.clear();
+    }
+
+    /**
+     * Disable a specific pack.
+     * @param name the packname.
+     */
+    public static StructurePackMeta disablePack(final String name)
+    {
+        return packMetas.remove(name);
+    }
 
     /**
      * Get a blueprint future.
@@ -151,7 +215,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return null;
@@ -218,7 +282,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return null;
@@ -297,7 +361,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return null;
@@ -353,7 +417,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return null;
@@ -392,7 +456,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return Collections.emptyList();
@@ -452,7 +516,7 @@ public class StructurePacks
             }
         }
 
-        final StructurePackMeta packMeta = packMetas.get(structurePackId);
+        final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return Collections.emptyList();
@@ -505,8 +569,9 @@ public class StructurePacks
      * @param element the path to check for.
      * @param immutable if jar (true), else false.
      * @param modList the list of mods loaded on this instance.
+     * @param clientPack if this is a client pac.
      */
-    public static void discoverPackAtPath(final Path element, final boolean immutable, final List<String> modList)
+    public static void discoverPackAtPath(final Path element, final boolean immutable, final List<String> modList, final boolean clientPack)
     {
         final Path packJsonPath = element.resolve("pack.json");
         if (Files.exists(packJsonPath))
@@ -525,7 +590,14 @@ public class StructurePacks
                             return;
                         }
                     }
-                    packMetas.put(pack.getName(), pack);
+                    if (clientPack)
+                    {
+                        clientPackMetas.put(pack.getName(), pack);
+                    }
+                    else
+                    {
+                        packMetas.put(pack.getName(), pack);
+                    }
                     Log.getLogger().info("Registered structure pack: " + pack.getName());
                 }
                 else
@@ -562,6 +634,16 @@ public class StructurePacks
             }
             return StructurePacks.getBlueprint(packName, path);
         });
+    }
+
+    /**
+     * Check if the pack exists.
+     * @param key the pack id to check.
+     * @return true if so.
+     */
+    public static boolean hasPack(final String key)
+    {
+        return packMetas.containsKey(key);
     }
 
     /**

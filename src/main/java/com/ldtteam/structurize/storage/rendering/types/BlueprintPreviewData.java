@@ -87,7 +87,7 @@ public class BlueprintPreviewData
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
         this.blueprintPath = byteBuf.readUtf(32767);
-        if (StructurePacks.packMetas.containsKey(packName))
+        if (StructurePacks.hasPack(packName))
         {
             blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath);
         }

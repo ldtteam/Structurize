@@ -100,13 +100,13 @@ public class NetworkChannel
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
         registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
 
-        registerMessage(++idx, NotifyServerAboutStructurePacks.class, NotifyServerAboutStructurePacks::new);
+        registerMessage(++idx, NotifyServerAboutStructurePacksMessage.class, NotifyServerAboutStructurePacksMessage::new);
         registerMessage(++idx, BuildToolPlacementMessage.class, BuildToolPlacementMessage::new);
         registerMessage(++idx, BlueprintSyncMessage.class, BlueprintSyncMessage::new);
         registerMessage(++idx, SyncSettingsToServer.class, SyncSettingsToServer::new);
         registerMessage(++idx, SyncPreviewCacheToServer.class, SyncPreviewCacheToServer::new);
 
-        registerMessage(++idx, NotifyClientAboutStructurePacks.class, NotifyClientAboutStructurePacks::new);
+        registerMessage(++idx, NotifyClientAboutStructurePacksMessage.class, NotifyClientAboutStructurePacksMessage::new);
         registerMessage(++idx, TransferStructurePackToClient.class, TransferStructurePackToClient::new);
         registerMessage(++idx, ClientBlueprintRequestMessage.class, ClientBlueprintRequestMessage::new);
         registerMessage(++idx, SyncPreviewCacheToClient.class, SyncPreviewCacheToClient::new);

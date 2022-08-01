@@ -98,7 +98,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        while (!StructurePacks.finishedLoading)
+        while (!StructurePacks.hasFinishedLoading())
         {
             // Wait until finished loading!
         }
@@ -106,7 +106,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         // Here we would query from the online schematic server additional styles then, which, on select, we'd download to the server side.
 
         packList = findPaneOfTypeByID("packs", ScrollingList.class);
-        packMetas = new ArrayList<>(StructurePacks.packMetas.values());
+        packMetas = new ArrayList<>(StructurePacks.getPackMetas());
 
         updatePacks();
         super.onOpened();

@@ -65,7 +65,7 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientStructurePackLoader::onClientStarting);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientStructurePackLoader::onClientLoading);
         DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER,  () -> ServerStructurePackLoader::onServerStarting);
 
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerStructurePackLoader.class);
