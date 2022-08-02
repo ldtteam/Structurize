@@ -18,9 +18,9 @@ public class BlueprintSyncMessage implements IMessage
      * Structure placement info.
      */
     public final BuildToolPlacementMessage.HandlerType type;
-    public final String   handlerId;
-    public final String   structurePackId;
-    public final String   blueprintPath;
+    public final String handlerId;
+    public       String structurePackId;
+    public final String blueprintPath;
     public final BlockPos pos;
     public final Rotation rotation;
     public final Mirror   mirror;

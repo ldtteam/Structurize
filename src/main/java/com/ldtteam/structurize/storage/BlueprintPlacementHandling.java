@@ -54,7 +54,7 @@ public class BlueprintPlacementHandling
               .resolve(message.structurePackId)
               .resolve(message.blueprintPath);
 
-            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, blueprintPath),
+            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.player.getUUID() + message.structurePackId, blueprintPath),
               message.world, (blueprint) -> {
                 if (blueprint == null)
                 {
@@ -137,6 +137,8 @@ public class BlueprintPlacementHandling
               .resolve(blueprintSyncMessage.structurePackId);
 
             final Path blueprintPath = blueprintParentPath.resolve(blueprintSyncMessage.blueprintPath);
+            final String packId = player.getUUID() + blueprintSyncMessage.structurePackId;
+            blueprintSyncMessage.structurePackId = packId;
 
             try
             {
@@ -151,7 +153,7 @@ public class BlueprintPlacementHandling
                 final JsonArray modsArray = new JsonArray();
                 modsArray.add(Constants.MOD_ID);
                 jsonObject.add("mods", modsArray);
-                jsonObject.addProperty("name", player.getUUID() + blueprintSyncMessage.structurePackId);
+                jsonObject.addProperty("name", packId);
                 jsonObject.addProperty("icon",  "");
 
                 Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes());
@@ -179,7 +181,7 @@ public class BlueprintPlacementHandling
                 Log.getLogger().error("Failed to save blueprint file for client blueprint: " + blueprintSyncMessage.blueprintPath, e);
             }
 
-            return StructurePacks.getBlueprint(blueprintSyncMessage.structurePackId, blueprintPath);
+            return StructurePacks.getBlueprint(packId, blueprintPath);
         }), player.level, blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level))));
     }
 }
