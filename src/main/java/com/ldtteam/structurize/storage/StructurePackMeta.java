@@ -186,11 +186,11 @@ public class StructurePackMeta
     {
         if (rootPath.toString().contains("\\"))
         {
-            return subPath.toString().replace(rootPath.toString() + "\\", "");
+            return subPath.toString().replace(rootPath + "\\", "");
         }
         else
         {
-            return subPath.toString().replace(rootPath.toString() + "/", "");
+            return subPath.toString().replace(rootPath + "/", "");
         }
     }
 
@@ -203,11 +203,11 @@ public class StructurePackMeta
     {
         if (rootPath.toString().contains("\\"))
         {
-            return subPath.replace("\\", "/");
+            return subPath.replace("/", "\\");
         }
         else
         {
-            return subPath;
+            return subPath.replace("\\", "/");
         }
     }
 }

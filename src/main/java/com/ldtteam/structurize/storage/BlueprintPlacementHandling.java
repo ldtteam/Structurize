@@ -151,7 +151,7 @@ public class BlueprintPlacementHandling
                 final JsonArray modsArray = new JsonArray();
                 modsArray.add(Constants.MOD_ID);
                 jsonObject.add("mods", modsArray);
-                jsonObject.addProperty("name", blueprintSyncMessage.structurePackId);
+                jsonObject.addProperty("name", player.getUUID() + blueprintSyncMessage.structurePackId);
                 jsonObject.addProperty("icon",  "");
 
                 Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes());
