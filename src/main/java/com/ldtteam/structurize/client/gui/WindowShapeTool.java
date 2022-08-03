@@ -391,7 +391,6 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(mainBlock);
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(secondaryBlock);
         findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
-        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 
     /**

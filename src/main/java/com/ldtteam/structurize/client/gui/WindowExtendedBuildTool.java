@@ -801,6 +801,11 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             {
                 img = rowPane.findPaneOfTypeByID(depth + ":" + id, ButtonImage.class);
             }
+
+            if (img == null)
+            {
+                return;
+            }
             img.setID(depth + ":" + id);
 
             final Map<String, List<Blueprint>> blueprintMap = currentBluePrintMappingAtDepthCache.get(depth).get(id);
