@@ -37,6 +37,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
@@ -137,7 +139,9 @@ public class ItemCommandTool extends Item
         final long buildDistance = BlockPosUtil.getDistanceSquared(buildPos, playerIn.blockPosition());
 
         // teleport to whichever is further away of the command block or building
-        final BlockPos target = commandDistance < buildDistance ? buildPos : commandPos.above();
+        BlockPos target = commandDistance < buildDistance ? buildPos : commandPos.above();
+        final ChunkAccess chunk = worldIn.getChunk(target); // to force chunk loading for the below
+        target = worldIn.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, target).above();
 
         for (int i = 0; i < 32; ++i)
         {
