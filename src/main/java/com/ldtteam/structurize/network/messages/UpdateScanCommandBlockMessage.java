@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Updates the command in a command block auto-scanner.
  */
-public class UpdateAutoScannerMessage implements IMessage
+public class UpdateScanCommandBlockMessage implements IMessage
 {
     private final BlockPos pos;
     private final BlockPos from;
@@ -29,12 +29,12 @@ public class UpdateAutoScannerMessage implements IMessage
      * @param fileName The scan filename.
      * @param force Force overwriting the command even if it seems dodgy.
      */
-    public UpdateAutoScannerMessage(@NotNull final BlockPos pos,
-                                    @NotNull final BlockPos from,
-                                    @NotNull final BlockPos to,
-                                    @Nullable final BlockPos anchor,
-                                    @Nullable final String fileName,
-                                    final boolean force)
+    public UpdateScanCommandBlockMessage(@NotNull final BlockPos pos,
+                                         @NotNull final BlockPos from,
+                                         @NotNull final BlockPos to,
+                                         @Nullable final BlockPos anchor,
+                                         @Nullable final String fileName,
+                                         final boolean force)
     {
         this.pos = pos;
         this.from = from;
@@ -47,7 +47,7 @@ public class UpdateAutoScannerMessage implements IMessage
     /**
      * Deserialize.
      */
-    public UpdateAutoScannerMessage(@NotNull final FriendlyByteBuf buf)
+    public UpdateScanCommandBlockMessage(@NotNull final FriendlyByteBuf buf)
     {
         this.pos = buf.readBlockPos();
         this.from = buf.readBlockPos();

@@ -52,18 +52,17 @@ public class ShowScanMessage implements IMessage
      */
     public ShowScanMessage(final FriendlyByteBuf buf)
     {
-        final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
-        this.from = buffer.readBlockPos();
-        this.to = buffer.readBlockPos();
-        if (buffer.readBoolean())
+        this.from = buf.readBlockPos();
+        this.to = buf.readBlockPos();
+        if (buf.readBoolean())
         {
-            this.anchor = buffer.readBlockPos();
+            this.anchor = buf.readBlockPos();
         }
         else
         {
             this.anchor = null;
         }
-        this.fileName = buffer.readUtf();
+        this.fileName = buf.readUtf();
     }
 
     /**

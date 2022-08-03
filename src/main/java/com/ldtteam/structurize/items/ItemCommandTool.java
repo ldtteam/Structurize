@@ -6,14 +6,13 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.commands.ScanCommand;
 import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
-import com.ldtteam.structurize.network.messages.UpdateAutoScannerMessage;
+import com.ldtteam.structurize.network.messages.UpdateScanCommandBlockMessage;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -23,31 +22,23 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
-import net.minecraft.server.commands.TeleportCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -345,7 +336,7 @@ public class ItemCommandTool extends Item
                 final BlockPos anchor = Settings.instance.getAnchorPos().orElse(null);
 
                 String name = Settings.instance.getStructureName();
-                Network.getNetwork().sendToServer(new UpdateAutoScannerMessage(pos, from, to, anchor, name, player.isShiftKeyDown()));
+                Network.getNetwork().sendToServer(new UpdateScanCommandBlockMessage(pos, from, to, anchor, name, player.isShiftKeyDown()));
             }
 
             return false;
