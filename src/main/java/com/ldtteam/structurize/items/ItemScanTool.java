@@ -225,7 +225,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         final BlockEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
         {
-            if (worldIn.isClientSide)
+            if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
             {
                 RenderingCache.getBoxPreviewData("scan").setAnchor(Optional.of(pos));
             }
