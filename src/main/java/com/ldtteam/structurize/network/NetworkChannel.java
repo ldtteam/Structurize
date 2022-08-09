@@ -278,7 +278,7 @@ public class NetworkChannel
 
         //Some tracking variables.
         //Max packet size: 90% of maximum.
-        final int max_packet_size = 943718; //This is 90% of max packet size.
+        final int max_packet_size = msg.getExecutionSide() == LogicalSide.CLIENT ? 30000 : 943718; //This is 90% of max packet size.
         //The current index in the data array.
         int currentIndex = 0;
         //The current index for the split packets.
