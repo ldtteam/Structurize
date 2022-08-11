@@ -4,7 +4,6 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.commands.arguments.MultipleStringArgument;
 import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -22,7 +21,6 @@ public class LifecycleSubscriber
     {
         Network.getNetwork().registerCommonMessages();
         ArgumentTypes.register(Constants.MOD_ID + ":multistring", MultipleStringArgument.class, new MultipleStringArgument.Serializer());
-        StructureLoadingUtils.addOriginMod(Constants.MOD_ID);
     }
 
     /**

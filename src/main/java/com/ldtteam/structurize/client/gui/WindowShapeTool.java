@@ -4,57 +4,51 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.management.StructureName;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
-import com.ldtteam.structurize.network.messages.GenerateAndSaveMessage;
-import com.ldtteam.structurize.network.messages.LSStructureDisplayerMessage;
-import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.PlacementSettings;
-import com.ldtteam.structurize.util.StructureUtils;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * BuildTool window.
  */
-public class WindowShapeTool extends AbstractWindowSkeleton
+public class WindowShapeTool extends AbstractBlueprintManipulationWindow
 {
     /**
-     * Pre resource string.
+     * Shape variables.
      */
-    private static final String RES_STRING = "textures/gui/buildtool/%s.png";
+    private static int     width  = 1;
+    private static int     height = 1;
+    private static int     length = 1;
+    private static int     frequency = 1;
+    private static String  equation = "";
+
+    private static boolean hollow = false;
 
     /**
-     * Green String for selected state.
+     * The default shape to use.
      */
-    private static final String GREEN_POS = "_green";
+    private static Shape shape = Shape.CUBE;
 
     /**
-     * All possible rotations.
+     * Main and secondary blocks.
      */
-    private static final int POSSIBLE_ROTATIONS = 4;
+    private static ItemStack mainBlock = new ItemStack(Blocks.GOLD_BLOCK);
+    private static ItemStack secondaryBlock = new ItemStack(Blocks.GOLD_BLOCK);
 
     /**
      * Id of the paste button.
@@ -72,14 +66,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private static final String BUTTON_PLUS = "plus";
 
     /**
-     * Id of the rotation indicator.
-     */
-    private static final String IMAGE_ROTATION = "rotation";
-
-    /**
      * List of section.
      */
-        private final List<String> sections = new ArrayList<>();
+    private final List<String> sections = new ArrayList<>();
 
     /**
      * Drop down list for section.
@@ -122,12 +111,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     /**
      * The equation.
      */
-    private String shapeEquation = "";
-
-    /**
-     * Current rotation of the hut/decoration.
-     */
-    private int rotation = 0;
+    private String shapeequation = "";
 
     /**
      * Creates a window inputShape tool.
@@ -139,44 +123,28 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     public WindowShapeTool(@Nullable final BlockPos pos)
     {
-        super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX);
+        super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX, pos,0, "shapes");
         this.init(pos, false);
+        //todo placement handler support as well
     }
 
     private void init(final BlockPos pos, final boolean shouldUpdate)
     {
         if (!hasPermission()) return;
 
-        @Nullable final Blueprint structure = Settings.instance.getActiveStructure();
+        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("shapes");
+        @Nullable final Blueprint structure = previewData.getBlueprint();
 
         if (structure != null)
         {
-            rotation = Settings.instance.getRotation();
-
-            this.shapeWidth = Settings.instance.getWidth();
-            this.shapeLength = Settings.instance.getLength();
-            this.shapeHeight = Settings.instance.getHeight();
-            this.shapeFrequency = Settings.instance.getFrequency();
-            this.shapeEquation = Settings.instance.getEquation();
-        }
-        else if (pos != null)
-        {
-            Settings.instance.setPosition(pos);
-            Settings.instance.setRotation(0);
+            this.shapeWidth = width;
+            this.shapeLength = length;
+            this.shapeHeight = height;
+            this.shapeFrequency = frequency;
+            this.shapeequation = equation;
         }
 
         //Register all necessary buttons with the window.
-        registerButton(BUTTON_CONFIRM, this::confirmClicked);
-        registerButton(BUTTON_CANCEL, this::cancelClicked);
-        registerButton(BUTTON_LEFT, this::moveLeftClicked);
-        registerButton(BUTTON_MIRROR, this::mirror);
-        registerButton(BUTTON_RIGHT, this::moveRightClicked);
-        registerButton(BUTTON_BACKWARD, this::moveBackClicked);
-        registerButton(BUTTON_FORWARD, this::moveForwardClicked);
-        registerButton(BUTTON_UP, WindowShapeTool::moveUpClicked);
-        registerButton(BUTTON_DOWN, WindowShapeTool::moveDownClicked);
-        registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
-        registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_PICK_MAIN_BLOCK, this::pickMainBlock);
         registerButton(BUTTON_PICK_FILL_BLOCK, this::pickFillBlock);
         registerButton(BUTTON_UNDOREDO, b -> {
@@ -193,28 +161,28 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         inputFrequency = findPaneOfTypeByID(INPUT_FREQUENCY, TextField.class);
         inputShape = findPaneOfTypeByID(INPUT_SHAPE, TextField.class);
 
-        inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
-        inputLength.setText(Integer.toString(Settings.instance.getLength()));
-        inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
-        inputFrequency.setText(Integer.toString(Settings.instance.getFrequency()));
-        inputShape.setText(Settings.instance.getEquation());
+        inputWidth.setText(Integer.toString(width));
+        inputLength.setText(Integer.toString(length));
+        inputHeight.setText(Integer.toString(height));
+        inputFrequency.setText(Integer.toString(frequency));
+        inputShape.setText(equation);
 
-        registerButton(INPUT_WIDTH + BUTTON_MINUS, () -> adjust(inputWidth, Settings.instance.getWidth() - 1));
-        registerButton(INPUT_WIDTH + BUTTON_PLUS, () -> adjust(inputWidth, Settings.instance.getWidth() + 1));
-        registerButton(INPUT_LENGTH + BUTTON_MINUS, () -> adjust(inputLength, Settings.instance.getLength() - 1));
-        registerButton(INPUT_LENGTH + BUTTON_PLUS, () -> adjust(inputLength, Settings.instance.getLength() + 1));
-        registerButton(INPUT_HEIGHT + BUTTON_MINUS, () -> adjust(inputHeight, Settings.instance.getHeight() - 1));
-        registerButton(INPUT_HEIGHT + BUTTON_PLUS, () -> adjust(inputHeight, Settings.instance.getHeight() + 1));
-        registerButton(INPUT_FREQUENCY + BUTTON_MINUS, () -> adjust(inputFrequency, Settings.instance.getFrequency() - 1));
-        registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, Settings.instance.getFrequency() + 1));
+        registerButton(INPUT_WIDTH + BUTTON_MINUS, () -> adjust(inputWidth, width - 1));
+        registerButton(INPUT_WIDTH + BUTTON_PLUS, () -> adjust(inputWidth, width + 1));
+        registerButton(INPUT_LENGTH + BUTTON_MINUS, () -> adjust(inputLength, length - 1));
+        registerButton(INPUT_LENGTH + BUTTON_PLUS, () -> adjust(inputLength, length + 1));
+        registerButton(INPUT_HEIGHT + BUTTON_MINUS, () -> adjust(inputHeight, height - 1));
+        registerButton(INPUT_HEIGHT + BUTTON_PLUS, () -> adjust(inputHeight, height + 1));
+        registerButton(INPUT_FREQUENCY + BUTTON_MINUS, () -> adjust(inputFrequency, frequency - 1));
+        registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, frequency + 1));
 
         sections.clear();
-        sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).collect(Collectors.toList()));
+        sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).toList());
 
         sectionsDropDownList = findPaneOfTypeByID(DROPDOWN_STYLE_ID, DropDownList.class);
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
         sectionsDropDownList.setDataProvider(new SectionDropDownList());
-        sectionsDropDownList.setSelectedIndex(Settings.instance.getShape().ordinal());
+        sectionsDropDownList.setSelectedIndex(shape.ordinal());
         registerButton("nextShape", sectionsDropDownList::selectNext);
         registerButton("previousShape", sectionsDropDownList::selectPrevious);
         disableInputIfNecessary();
@@ -226,7 +194,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         updateRotationState();
 
         findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class)
-          .setActiveState(Settings.instance.isHollow() ? "hollow" : "solid");
+          .setActiveState(hollow ? "hollow" : "solid");
     }
 
     /**
@@ -234,30 +202,20 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private static void genShape()
     {
-        Settings.instance.setActiveSchematic(Manager.getStructureFromFormula(
-          Settings.instance.getWidth(),
-          Settings.instance.getLength(),
-          Settings.instance.getHeight(),
-          Settings.instance.getFrequency(),
-          Settings.instance.getEquation(),
-          Settings.instance.getShape(),
-          Settings.instance.getBlock(true),
-          Settings.instance.getBlock(false),
-          Settings.instance.isHollow()));
-    }
-
-    /**
-     * Generate the inputShape depending on the variables on the client.
-     */
-    public static void commonStructureUpdate()
-    {
-        genShape();
-        updateRotation(Settings.instance.getRotation());
+        RenderingCache.getOrCreateBlueprintPreviewData("shapes").setBlueprint(Manager.getStructureFromFormula(
+          width,
+          length,
+          height,
+          frequency,
+          equation,
+          shape,
+          mainBlock,
+          secondaryBlock,
+          hollow));
     }
 
     private void disableInputIfNecessary()
     {
-        final Shape shape = Settings.instance.getShape();
         final View height = findPaneOfTypeByID(HEIGHT_VIEW, View.class);
         final View width = findPaneOfTypeByID(WIDTH_VIEW, View.class);
         final View length = findPaneOfTypeByID(LENGTH_VIEW, View.class);
@@ -274,15 +232,6 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         findPaneByID(BUTTON_PICK_FILL_BLOCK).show();
         findPaneByID(RESOURCE_ICON_FILL).show();
 
-
-        /*if (shape == Shape.RANDOM)
-        {
-            equation.show();
-            frequency.hide();
-            findPaneByID(BUTTON_HOLLOW).hide();
-            findPaneByID(BUTTON_PICK_FILL_BLOCK).hide();
-            findPaneByID(RESOURCE_ICON_FILL).hide();
-        }*/
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
                    || shape == Shape.DIAMOND)
         {
@@ -306,15 +255,15 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(Settings.instance.getBlock(true), Settings.instance.getPosition(), true, this).open();
+        new WindowReplaceBlock(mainBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), true, this).open();
     }
 
     /**
      * Opens the block picker window.
-     */
+     * */
     private void pickFillBlock()
     {
-        new WindowReplaceBlock(Settings.instance.getBlock(false), Settings.instance.getPosition(), false, this).open();
+        new WindowReplaceBlock(secondaryBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), false, this).open();
     }
 
     private void adjust(final TextField input, final int value)
@@ -348,18 +297,43 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     private void hollowShapeToggle()
     {
         final ToggleButton hollowButton = findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class);
-        Settings.instance.setHollow(hollowButton.isActiveState("hollow"));
+        hollow = hollowButton.isActiveState("hollow");
 
         genShape();
     }
 
-    /**
-     * Confirm button clicked.
-     */
-    private void confirmClicked()
+    @Override
+    protected void confirmClicked()
     {
         place();
         clearAndClose();
+    }
+
+    /**
+     * Cancel the current structure.
+     */
+    @Override
+    protected void cancelClicked()
+    {
+        width  = 1;
+        height = 1;
+        length = 1;
+        frequency = 1;
+        equation = "";
+        hollow = false;
+        shape = Shape.CUBE;
+        mainBlock = new ItemStack(Blocks.GOLD_BLOCK);
+        secondaryBlock = new ItemStack(Blocks.GOLD_BLOCK);
+        clearAndClose();
+    }
+
+    /**
+     * Cleanup the variables and close this.
+     */
+    private void clearAndClose()
+    {
+        RenderingCache.removeBlueprint("shapes");
+        close();
     }
 
     /**
@@ -387,65 +361,22 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Saves the current shape to the server.
-     * @return A name that can be used to place it.
-     */
-    protected StructureName save()
-    {
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        BlueprintUtil.writeToStream(stream, Settings.instance.getActiveStructure());
-
-        // cache it locally...
-        Structures.handleSaveSchematicMessage(stream.toByteArray(), true);
-
-        if (!Minecraft.getInstance().hasSingleplayerServer())
-        {
-            // and also on the server if needed
-            Network.getNetwork().sendToServer(new GenerateAndSaveMessage(Settings.instance.getPosition(),
-                    Settings.instance.getLength(),
-                    Settings.instance.getWidth(),
-                    Settings.instance.getHeight(),
-                    Settings.instance.getFrequency(),
-                    Settings.instance.getEquation(),
-                    Settings.instance.getShape(),
-                    Settings.instance.getBlock(true),
-                    Settings.instance.getBlock(false),
-                    Settings.instance.isHollow(),
-                    BlockUtils.getRotation(Settings.instance.getRotation()),
-                    Settings.instance.getMirror()));
-        }
-
-        // this assumes that the server will generate exactly the same blueprint data as the client did;
-        // hopefully that is true, since they should be using the same algorithm to do it...
-        return new StructureName(Structures.SCHEMATICS_CACHE + Structures.SCHEMATICS_SEPARATOR + StructureUtils.calculateMD5(stream.toByteArray()));
-    }
-
-    /**
      * Paste a schematic in the world.
      */
     private void paste()
     {
-        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(Settings.instance.getPosition(),
-          Settings.instance.getLength(),
-          Settings.instance.getWidth(),
-          Settings.instance.getHeight(),
-          Settings.instance.getFrequency(),
-          Settings.instance.getEquation(),
-          Settings.instance.getShape(),
-          Settings.instance.getBlock(true),
-          Settings.instance.getBlock(false),
-          Settings.instance.isHollow(),
-          BlockUtils.getRotation(Settings.instance.getRotation()),
-          Settings.instance.getMirror()));
-    }
-
-    /**
-     * Rotate the structure counter clockwise.
-     */
-    private void mirror()
-    {
-        Settings.instance.mirror();
-        updateRotationState();
+        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(),
+          length,
+          width,
+          height,
+          frequency,
+          equation,
+          shape,
+          mainBlock,
+          secondaryBlock,
+          hollow,
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getRotation(),
+          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getMirror()));
     }
 
     /**
@@ -456,22 +387,28 @@ public class WindowShapeTool extends AbstractWindowSkeleton
     @SuppressWarnings("resource")
     public void onOpened()
     {
-        if (!hasPermission())
-        {
-            LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player, "structurize.gui.shapetool.creative_only");
-            close();
-        }
         // updateRotation(rotation);
-        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(Settings.instance.getBlock(true));
-        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(Settings.instance.getBlock(false));
+        findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(mainBlock);
+        findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(secondaryBlock);
         findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
-        findPaneOfTypeByID(BUTTON_PASTE, Button.class).setVisible(isCreative());
     }
 
-    public void updateBlock(final ItemStack stack, final boolean mainBlock)
+    /**
+     * Update the block from the replace block window.
+     * @param stack the stack to set.
+     * @param isMain if primary or secondary.
+     */
+    public void updateBlock(final ItemStack stack, final boolean isMain)
     {
-        Settings.instance.setBlock(stack, mainBlock);
-        findPaneOfTypeByID(mainBlock ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
+        if (isMain)
+        {
+            mainBlock = stack;
+        }
+        else
+        {
+            secondaryBlock = stack;
+        }
+        findPaneOfTypeByID(isMain ? RESOURCE_ICON_MAIN : RESOURCE_ICON_FILL, ItemIcon.class).setItem(stack);
         genShape();
     }
 
@@ -520,9 +457,9 @@ public class WindowShapeTool extends AbstractWindowSkeleton
      */
     private void updateStyle(final String s)
     {
-        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != Settings.instance.getShape())
+        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != shape)
         {
-            Settings.instance.setShape(s);
+            shape = Shape.valueOf(s);
             genShape();
         }
         disableInputIfNecessary();
@@ -536,7 +473,7 @@ public class WindowShapeTool extends AbstractWindowSkeleton
         final String lengthText = inputLength.getText();
         final String heightText = inputHeight.getText();
         final String frequencyText = inputFrequency.getText();
-        final String localEquation = inputShape.getText();
+        final String localequation = inputShape.getText();
 
         if (!widthText.isEmpty() && !lengthText.isEmpty() && !heightText.isEmpty())
         {
@@ -548,185 +485,28 @@ public class WindowShapeTool extends AbstractWindowSkeleton
                 final int localFrequency = Integer.parseInt(frequencyText);
 
                 if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency
-                      || !shapeEquation.equals(localEquation))
+                      || !shapeequation.equals(localequation))
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;
                     this.shapeHeight = localHeight;
                     this.shapeFrequency = localFrequency;
-                    this.shapeEquation = localEquation;
-                    Settings.instance.setWidth(localWidth);
-                    Settings.instance.setLength(localLength);
-                    Settings.instance.setHeight(localHeight);
-                    Settings.instance.setFrequency(localFrequency);
-                    Settings.instance.setEquation(localEquation);
+                    this.shapeequation = localequation;
+                    width = localWidth;
+                    length = localLength;
+                    height = localHeight;
+                    frequency = localFrequency;
+                    equation = localequation;
                     genShape();
                 }
             }
             catch (NumberFormatException e)
             {
-                inputWidth.setText(Integer.toString(Settings.instance.getWidth()));
-                inputLength.setText(Integer.toString(Settings.instance.getLength()));
-                inputHeight.setText(Integer.toString(Settings.instance.getHeight()));
+                inputWidth.setText(Integer.toString(width));
+                inputLength.setText(Integer.toString(length));
+                inputHeight.setText(Integer.toString(height));
             }
         }
         return result;
-    }
-
-    /*
-     * ---------------- Button Handling -----------------
-     */
-
-    /**
-     * Move the schematic up.
-     */
-    private static void moveUpClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, 1, 0));
-    }
-
-    /**
-     * Move the structure down.
-     */
-    private static void moveDownClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, -1, 0));
-    }
-
-    /**
-     * Move the structure left.
-     */
-    private void moveLeftClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getCounterClockWise()));
-    }
-
-    /**
-     * Move the structure right.
-     */
-    private void moveRightClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getClockWise()));
-    }
-
-    /**
-     * Move the structure forward.
-     */
-    private void moveForwardClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection()));
-    }
-
-    /**
-     * Move the structure back.
-     */
-    private void moveBackClicked()
-    {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).relative(this.mc.player.getDirection().getOpposite()));
-    }
-
-    /**
-     * Rotate the structure clockwise.
-     */
-    private void rotateRightClicked()
-    {
-        rotation = (rotation + ROTATE_ONCE) % POSSIBLE_ROTATIONS;
-        updateRotation(rotation);
-        updateRotationState();
-    }
-
-    /**
-     * Rotate the structure counter clockwise.
-     */
-    private void rotateLeftClicked()
-    {
-        rotation = (rotation + ROTATE_THREE_TIMES) % POSSIBLE_ROTATIONS;
-        updateRotation(rotation);
-        updateRotationState();
-    }
-
-
-    /*
-     * ---------------- Miscellaneous ----------------
-     */
-
-    private void clearAndClose()
-    {
-        Settings.instance.resetBlueprint();
-        Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(null, false));
-        close();
-    }
-
-    /**
-     * Cancel the current structure.
-     */
-    private void cancelClicked()
-    {
-        clearAndClose();
-    }
-
-    /**
-     * Updates the rotation of the structure depending on the input.
-     *
-     * @param rotation the rotation to be set.
-     */
-    private static void updateRotation(final int rotation)
-    {
-        final PlacementSettings settings = new PlacementSettings();
-        switch (rotation)
-        {
-            case ROTATE_ONCE:
-                settings.setRotation(Rotation.CLOCKWISE_90);
-                break;
-            case ROTATE_TWICE:
-                settings.setRotation(Rotation.CLOCKWISE_180);
-                break;
-            case ROTATE_THREE_TIMES:
-                settings.setRotation(Rotation.COUNTERCLOCKWISE_90);
-                break;
-            default:
-                settings.setRotation(Rotation.NONE);
-        }
-        Settings.instance.setRotation(rotation);
-        settings.setMirror(Settings.instance.getMirror());
-    }
-
-    private void updateRotationState()
-    {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class)
-                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR +
-                        (Settings.instance.getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
-
-        String rotation;
-        switch (Settings.instance.getRotation())
-        {
-            case ROTATE_ONCE:
-                rotation = "right_green";
-                break;
-            case ROTATE_TWICE:
-                rotation = "down_green";
-                break;
-            case ROTATE_THREE_TIMES:
-                rotation = "left_green";
-                break;
-            default:
-                rotation = "up_green";
-                break;
-        }
-        findPaneOfTypeByID(IMAGE_ROTATION, Image.class)
-                .setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
-    }
-
-    /**
-     * Called when the window is closed.
-     * Updates state via {@link LSStructureDisplayerMessage}
-     */
-    @Override
-    public void onClosed()
-    {
-        if (Settings.instance.getActiveStructure() != null)
-        {
-            Network.getNetwork().sendToServer(new LSStructureDisplayerMessage(Settings.instance.serializeNBT(), true));
-        }
     }
 }

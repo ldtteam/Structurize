@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.util.ClientStructureWrapper;
+import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.nbt.NbtIo;
@@ -88,7 +88,7 @@ public class SaveScanMessage implements IMessage
     {
         if (compoundNBT != null)
         {
-            ClientStructureWrapper.handleSaveScanMessage(compoundNBT, fileName);
+            ClientStructurePackLoader.handleSaveScanMessage(compoundNBT, fileName);
         }
     }
 }

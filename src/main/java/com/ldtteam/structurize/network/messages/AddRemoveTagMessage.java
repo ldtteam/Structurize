@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -78,9 +78,9 @@ public class AddRemoveTagMessage implements IMessage
         }
 
         final BlockEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
-        if (te instanceof IBlueprintDataProvider)
+        if (te instanceof IBlueprintDataProviderBE)
         {
-            final IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
+            final IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
             if (add)
             {
                 dataTE.addTag(tagPos, tag);

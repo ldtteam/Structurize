@@ -2,20 +2,16 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowScan;
-import com.ldtteam.structurize.management.StructureName;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionResult;
@@ -31,16 +26,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * Item used to scan structures.
@@ -81,9 +73,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             if (BlockPosUtil.isInbetween(anchorBlockPos, start, end))
             {
                 anchorPos = Optional.of(anchorBlockPos);
-                if (worldIn.isClientSide)
+                if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
                 {
-                    Settings.instance.setAnchorPos(anchorPos);
+                    RenderingCache.getBoxPreviewData("scan").setAnchor(anchorPos);
                 }
             }
             else
@@ -179,7 +171,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 
         final long currentMillis = System.currentTimeMillis();
         final String currentMillisString = Long.toString(currentMillis);
-        final String fileName;
+        String fileName;
         if (name == null || name.isEmpty())
         {
             fileName = new TranslatableComponent("item.sceptersteel.scanformat", "", currentMillisString).getString();
@@ -187,6 +179,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         else
         {
             fileName = name;
+        }
+
+        if (!fileName.contains(".blueprint"))
+        {
+            fileName+= ".blueprint";
         }
 
         final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), fileName, anchorPos);
@@ -204,89 +201,6 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         }
 
         Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayer) player);
-    }
-
-    /**
-     * Save a structure on the server.
-     *
-     * @param world the world.
-     * @param from  the start position.
-     * @param to    the end position.
-     * @param name  the name.
-     * @return true if succesful.
-     */
-    public static boolean saveStructureOnServer(
-      final Level world,
-      final BlockPos from,
-      final BlockPos to,
-      final String name)
-    {
-        return saveStructureOnServer(world, from, to, name, true);
-    }
-
-    /**
-     * Save a structure on the server.
-     *
-     * @param world        the world.
-     * @param from         the start position.
-     * @param to           the end position.
-     * @param name         the name.
-     * @param saveEntities whether to scan in entities
-     * @return true if succesful.
-     */
-    public static boolean saveStructureOnServer(
-      final Level world,
-      final BlockPos from,
-      final BlockPos to,
-      final String name,
-      final boolean saveEntities)
-    {
-        final BlockPos blockpos = new BlockPos(Math.min(from.getX(), to.getX()),
-          Math.min(from.getY(), to.getY()),
-          Math.min(from.getZ(), to.getZ()));
-        final BlockPos blockpos1 = new BlockPos(Math.max(from.getX(), to.getX()),
-          Math.max(from.getY(), to.getY()),
-          Math.max(from.getZ(), to.getZ()));
-        final BlockPos size = blockpos1.subtract(blockpos).offset(1, 1, 1);
-        if (size.getX() * size.getY() * size.getZ() > Structurize.getConfig().getServer().schematicBlockLimit.get())
-        {
-            Log.getLogger().warn("Saving too large schematic for:" + name);
-        }
-
-        final String prefix = "cache";
-        final String fileName;
-        if (name == null || name.isEmpty())
-        {
-            fileName = new TranslatableComponent("item.sceptersteel.scanformat").getString();
-        }
-        else
-        {
-            fileName = name;
-        }
-
-        final StructureName structureName = new StructureName(prefix, "backup", fileName);
-
-        final List<File> folder = StructureLoadingUtils.getCachedSchematicsFolders();
-        if (folder == null || folder.isEmpty())
-        {
-            Log.getLogger().warn("Unable to save schematic in cache since no folder was found.");
-            return false;
-        }
-
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, blockpos, saveEntities, (short) size.getX(), (short) size.getY(), (short) size.getZ(), name, Optional.empty());
-
-        final File file = new File(folder.get(0), structureName.toString() + Structures.SCHEMATIC_EXTENSION_NEW);
-        Utils.checkDirectory(file.getParentFile());
-
-        try (OutputStream outputstream = new FileOutputStream(file))
-        {
-            NbtIo.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bp), outputstream);
-        }
-        catch (final Exception e)
-        {
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -309,21 +223,21 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         }
 
         final BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) te).getSchematicName().isEmpty())
+        if (te instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
         {
-            if (worldIn.isClientSide)
+            if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
             {
-                Settings.instance.setAnchorPos(Optional.of(pos));
+                RenderingCache.getBoxPreviewData("scan").setAnchor(Optional.of(pos));
             }
 
-            final BlockPos start = ((IBlueprintDataProvider) te).getInWorldCorners().getA();
-            final BlockPos end = ((IBlueprintDataProvider) te).getInWorldCorners().getB();
+            final BlockPos start = ((IBlueprintDataProviderBE) te).getInWorldCorners().getA();
+            final BlockPos end = ((IBlueprintDataProviderBE) te).getInWorldCorners().getB();
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
                 if (worldIn.isClientSide)
                 {
-                    Settings.instance.setBox(((IBlueprintDataProvider) te).getInWorldCorners());
+                    RenderingCache.queue("scan", new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(), ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(), Optional.of(pos)));
                 }
                 itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
                 itemstack.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));
