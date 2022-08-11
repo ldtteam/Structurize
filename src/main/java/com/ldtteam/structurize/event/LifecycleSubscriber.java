@@ -3,7 +3,6 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
@@ -19,7 +18,6 @@ public class LifecycleSubscriber
     public static void onModInit(final FMLCommonSetupEvent event)
     {
         Network.getNetwork().registerCommonMessages();
-        StructureLoadingUtils.addOriginMod(Constants.MOD_ID);
     }
 
     /**

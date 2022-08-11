@@ -1,24 +1,14 @@
 package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.util.PlacementSettings;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
-import com.ldtteam.structurize.util.StructureUtils;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
@@ -28,56 +18,6 @@ import java.util.function.Function;
  */
 public interface IStructureHandler
 {
-    /**
-     * Load the blueprint from the file name.
-     *
-     * @param structureName name of the structure (at stored location).
-     */
-    default void loadBlueprint(final String structureName)
-    {
-        String correctStructureName = structureName;
-        InputStream inputStream = null;
-        try
-        {
-            // Try the cache first
-            if (Structures.hasMD5(correctStructureName))
-            {
-                inputStream = StructureLoadingUtils.getStream(Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName));
-                if (inputStream != null)
-                {
-                    correctStructureName = Structures.SCHEMATICS_CACHE + '/' + Structures.getMD5(correctStructureName);
-                }
-            }
-
-            if (inputStream == null)
-            {
-                inputStream = StructureLoadingUtils.getStream(correctStructureName);
-            }
-
-            if (inputStream == null)
-            {
-                return;
-            }
-
-            try
-            {
-                final byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
-                inputStream.close();
-                setMd5(StructureUtils.calculateMD5(data));
-                final CompoundTag CompoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(data));
-                setBlueprint(BlueprintUtil.readBlueprintFromNBT(CompoundNBT));
-            }
-            catch (final IOException e)
-            {
-                Log.getLogger().warn(String.format("Failed to load blueprint %s", correctStructureName), e);
-            }
-        }
-        finally
-        {
-            IOUtils.closeQuietly(inputStream);
-        }
-    }
-
     /**
      * Set the blueprint.
      * @param blueprint the blueprint to set.
@@ -275,4 +215,10 @@ public interface IStructureHandler
      * @return               the solid worldgen block (classically biome dependent).
      */
     BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable Function<BlockPos, BlockState> virtualBlocks);
+
+    /**
+     * Check if the handler is ready.
+     * @return true if so.
+     */
+    boolean isReady();
 }

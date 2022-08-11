@@ -1,71 +1,44 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
-        size="420 240" pause="false" lightbox="false">
+        size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="false">
+    <button id="switch" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.switchpack)" size="86 17" pos="5 5" textcolor="black" texthovercolor="gray"/>
 
-    <button id="previousBuildingType" size="15 15" pos="0 0" label="&lt;"/>
-    <button id="nextBuildingType" size="15 15" pos="125 0" label="&gt;"/>
-    <dropdown id="buildingType" size="112 15" pos="14 0" maxContentHeight="75" dropDownSize="140 75">
-        <view size="100% 15">
-            <label id="id" size="100% 100%" label="" pos="0 0"/>
-            <button id="button" size="100% 100%" label="" pos="0 0"/>
-        </view>
-    </dropdown>
+    <label id="tree" size="300 12" pos="100 5" color="white" />
 
-    <button id="previousStyle" size="15 15" pos="140 0" label="&lt;"/>
-    <button id="nextStyle" size="15 15" pos="265 0" label="&gt;"/>
-    <dropdown id="style" size="112 15" pos="154 0" maxContentHeight="75" dropDownSize="140 75">
-        <view size="100% 15">
-            <label id="id" size="100% 100%" label="" pos="0 0"/>
-            <button id="button" size="100% 100%" label="" pos="0 0"/>
-        </view>
-    </dropdown>
+    <layout source="structurize:gui/layoutmanipulation.xml"/>
 
-    <button id="previousSchematic" size="15 15" pos="280 0" label="&lt;"/>
-    <button id="nextSchematic" size="15 15" pos="405 0" label="&gt;"/>
-    <dropdown id="schematic" size="112 15" pos="294 0" maxContentHeight="75" dropDownSize="140 75">
-        <view size="100% 15">
-            <label id="id" size="100% 100%" label="" pos="0 0"/>
-            <button id="button" size="100% 100%" label="" pos="0 0"/>
-        </view>
-    </dropdown>
+    <list size="100 120" pos="5 50" id="alternatives" visible="false">
+        <box size="100% 17" linewidth="0">
+            <button id="alternative" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+            <label size="0 0" pos="0 0" id="id" visible="false"/>
+        </box>
+    </list>
 
-    <button id="rename" size="114 15" pos="293 20" label="Rename" visible="false"/>
-    <button id="delete" size="114 15" pos="293 40" label="Delete" visible="false"/>
+    <list size="100 120" pos="5 50" id="levels" visible="false">
+        <box size="100% 17" linewidth="0">
+            <button id="level" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+            <label size="0 0" pos="0 0" id="id" visible="false"/>
+        </box>
+    </list>
 
-    <label id="warning" size="70 12" pos="25 45" color="white" label="$(structurize.gui.buildtool.unexpecteddatafixer)" visible="false"/>
+    <list size="100 80" pos="160 80" id="placement" visible="false">
+        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+    </list>
 
-    <label size="300 9" pos="60 65" color="white" label="$(com.structurize.gui.buildtool.tip)" textalign="MIDDLE"/>
-    <view size="96 128" pos="162 80">
-        <button id="rotateLeft" source="structurize:textures/gui/buildtool/rotateleft.png" size="32" pos="0 0"/>
-        <button id="up" source="structurize:textures/gui/buildtool/up.png" size="32" pos="32 0"/>
-        <button id="rotateRight" source="structurize:textures/gui/buildtool/rotateright.png" size="32" pos="64 0"/>
-        <button id="left" source="structurize:textures/gui/buildtool/left.png" size="32" pos="0 32"/>
-        <button id="mirror" source="structurize:textures/gui/buildtool/mirror.png" size="32" pos="32 32"/>
-        <button id="right" source="structurize:textures/gui/buildtool/right.png" size="32" pos="64 32"/>
-        <button id="minus" source="structurize:textures/gui/buildtool/minus.png" size="32" pos="0 64"/>
-        <button id="down" source="structurize:textures/gui/buildtool/down.png" size="32" pos="32 64"/>
-        <button id="plus" source="structurize:textures/gui/buildtool/plus.png" size="32" pos="64 64"/>
-        <button id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="0 96"/>
-        <button id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="64 96"/>
+    <list size="270 40" pos="100 160" id="subcategories" visible="false">
+        <box size="100% 20" linewidth="0">
+            <button id="1" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="87 0" textColor="black" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="174 0" textColor="black" texthovercolor="gray" visible="false"/>
+        </box>
+    </list>
+    <list size="270 40" pos="100 160" id="blueprints" visible="false">
+        <box size="100% 20" linewidth="0">
+            <button id="1" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="0 0" textColor="white" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="87 0" textColor="white" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="174 0" textColor="white" texthovercolor="gray" visible="false"/>
+        </box>
+    </list>
+    <view size="180 20" pos="120 200" id="categories">
+
     </view>
-    <image id="rotation" size="16" pos="258 80"/>
-
-    <button id="pastecomplete"
-            tooltip="$(structurize.gui.buildtool.paste)"
-            source="structurize:textures/gui/buildtool/copy.png"
-            visible="false"
-            size="32 32"
-            pos="320 210"
-            textcolor="Black"
-            texthovercolor="White"/>
-    <button id="pastenice" tooltip="$(structurize.gui.buildtool.pastenice)" source="structurize:textures/gui/buildtool/paste.png" visible="false" size="32 32" pos="355 210"/>
-    <buttonimage id="undoredo"
-                 tooltip="$(structurize.gui.undoredo)"
-                 source="structurize:textures/gui/buildtool/undoredo.png"
-                 visible="true"
-                 size="32 32"
-                 pos="390 210"
-                 textcolor="Black"
-                 texthovercolor="White"/>
-
-    <button id="showinvis" tooltip="$(structurize.gui.buildtool.show)" source="structurize:textures/blocks/blocksubstitution.png" size="26 26" pos="25 210"/>
 </window>

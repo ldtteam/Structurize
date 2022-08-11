@@ -3,20 +3,18 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
-import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
-import com.ldtteam.structurize.util.BackUpHelper;
-
+import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class with methods for receiving various forge events
@@ -44,19 +42,6 @@ public class EventSubscriber
         EntryPoint.register(event.getDispatcher(), event.getCommandSelection());
     }
 
-    @SubscribeEvent
-    public static void onServerStarted(final ServerStartedEvent event)
-    {
-        Structures.init();
-        BackUpHelper.loadLinkSessionManager();
-    }
-
-    @SubscribeEvent
-    public static void onServerStopping(final ServerStoppingEvent event)
-    {
-        BackUpHelper.saveLinkSessionManager();
-    }
-
     /**
      * Called when a player logs in. If the joining player is a MP-Player, sends
      * all possible styles in a message.
@@ -69,7 +54,6 @@ public class EventSubscriber
         if (event.getEntity() instanceof ServerPlayer serverPlayer)
         {
             Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
         }
     }
 
@@ -83,5 +67,11 @@ public class EventSubscriber
                 Manager.onWorldTick(serverLevel);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onServerStopped(@NotNull final ServerStoppingEvent event)
+    {
+        IOPool.shutdown();
     }
 }

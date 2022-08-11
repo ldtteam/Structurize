@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blockentities;
 
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * The block entity for BlockTagSubstitution
  */
-public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProvider
+public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProviderBE
 {
     /**
      * The schematic name of the block.
@@ -34,6 +34,16 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
      * Map of block positions relative to TE pos and string tags
      */
     private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+
+    /**
+     * Structure pack name.
+     */
+    private String packName;
+
+    /**
+     * Structure pack path.
+     */
+    private String inPackPath;
 
     public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
@@ -93,7 +103,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public void load( @NotNull final CompoundTag compound)
     {
         super.load(compound);
-        IBlueprintDataProvider.super.readSchematicDataFromNBT(compound);
+        IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
     }
 
     @Override
@@ -107,6 +117,30 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void setPackName(final String packName)
+    {
+        this.packName = packName;
+    }
+
+    @Override
+    public void setBlueprintPath(final String inPackPath)
+    {
+        this.inPackPath = inPackPath;
+    }
+
+    @Override
+    public String getPackName()
+    {
+        return packName;
+    }
+
+    @Override
+    public String getBlueprintPath()
+    {
+        return inPackPath;
     }
 
     @NotNull

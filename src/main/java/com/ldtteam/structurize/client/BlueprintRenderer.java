@@ -2,9 +2,11 @@ package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.helpers.Settings;
+import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
@@ -17,6 +19,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -50,6 +53,8 @@ import java.util.stream.Collectors;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import org.jetbrains.annotations.NotNull;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * The renderer for blueprint.
@@ -90,14 +95,14 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Updates blueprint reference if it has same hash.
      *
-     * @param blueprint blueprint from active structure
+     * @param previewData blueprint and context from active structure
      */
-    public void updateBlueprint(final Blueprint blueprint)
+    public void updateBlueprint(final BlueprintPreviewData previewData)
     {
-        if (blockAccess.getBlueprint() != blueprint && blockAccess.getBlueprint().hashCode() == blueprint.hashCode())
+        if (blockAccess.getBlueprint() != previewData.getBlueprint() && blockAccess.getBlueprint().hashCode() == previewData.getBlueprint().hashCode())
         {
-            blockAccess.setBlueprint(blueprint);
-            Settings.instance.scheduleRefresh();
+            blockAccess.setBlueprint(previewData.getBlueprint());
+            previewData.scheduleRefresh();
         }
     }
 
@@ -127,7 +132,7 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if ((state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders()) ||
+                if ((state.getBlock() == ModBlocks.blockSubstitution.get() && BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS)) ||
                     state.getBlock() == ModBlocks.blockTagSubstitution.get())
                 {
                     state = Blocks.AIR.defaultBlockState();
@@ -209,15 +214,15 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Draws structure into world.
      */
-    public void draw(final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final PoseStack matrixStack, final float partialTicks)
     {
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
-    
+
         mc.getProfiler().push("struct_render_init");
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
-        if (Settings.instance.shouldRefresh() || vertexBuffers == null)
+        if (vertexBuffers == null || previewData.shouldRefresh())
         {
             init(anchorPos);
         }
@@ -329,7 +334,7 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof CampfireBlockEntity campfire)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.getValue(CampfireBlock.LIT))
+                    if (bs.getBlock() instanceof CampfireBlock && bs.getValue(CampfireBlock.LIT))
                     {
                         CampfireBlockEntity.particleTick(mc.level, anchorPos.offset(tePos), bs, campfire);
                     }
@@ -337,7 +342,7 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof SkullBlockEntity skull)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
+                    if (bs.getBlock() instanceof SkullBlock &&  bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
                         SkullBlockEntity.dragonHeadAnimation(mc.level, anchorPos.offset(tePos), bs, skull);
                     }

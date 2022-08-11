@@ -45,7 +45,8 @@ public class TickedWorldOperation
         SCAN,
         PLACE_STRUCTURE,
         UNDO,
-        REDO
+        REDO,
+        LOAD_AND_OPERATE
     }
 
     /**
@@ -192,6 +193,11 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerLevel world)
     {
+        if (placer != null && !placer.isReady())
+        {
+            return false;
+        }
+
         if (player != null && player.level.dimension() != world.dimension())
         {
             return false;

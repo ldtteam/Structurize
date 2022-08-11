@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;

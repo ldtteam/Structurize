@@ -1,9 +1,18 @@
 package com.ldtteam.structurize.placement.structure;
 
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Abstract implementation of the handler holding information that is common for all handlers.
@@ -11,9 +20,14 @@ import net.minecraft.world.level.Level;
 public abstract class AbstractStructureHandler implements IStructureHandler
 {
     /**
+     * The blueprint future.
+     */
+    private Future<Blueprint> blueprintFuture = null;
+    
+    /**
      * blueprint of the structure.
      */
-    private Blueprint blueprint;
+    private Blueprint               blueprint;
 
     /**
      * The MD5 value of the blueprint.
@@ -40,15 +54,15 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * Abstract constructor of structure handler.
      * @param world the world it gets.
      * @param worldPos the position the anchor of the structure got placed.
-     * @param structureName the name of the structure.
+     * @param blueprintFuture the name of the structure.
      * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final Level world, final BlockPos worldPos, final String structureName, final PlacementSettings settings)
+    public AbstractStructureHandler(final Level world, final BlockPos worldPos, final Future<Blueprint> blueprintFuture, final PlacementSettings settings)
     {
         this.world = world;
         this.worldPos = worldPos;
         this.settings = settings;
-        this.loadBlueprint(structureName);
+        this.blueprintFuture = blueprintFuture;
     }
 
     /**
@@ -64,6 +78,20 @@ public abstract class AbstractStructureHandler implements IStructureHandler
         this.worldPos = pos;
         this.settings = settings;
         this.blueprint = blueprint;
+    }
+
+    @Override
+    public void triggerSuccess(final BlockPos pos, final List<ItemStack> requiredRes, final boolean placement)
+    {
+        final BlockEntity be = getWorld().getBlockEntity(getProgressPosInWorld(pos));
+        if (be instanceof IBlueprintDataProviderBE)
+        {
+            if (getProgressPosInWorld(pos).equals(worldPos))
+            {
+                ((IBlueprintDataProviderBE) be).setBlueprintPath(StructurePacks.getStructurePack(getBluePrint().getPackName()).getSubPath(getBluePrint().getFilePath().resolve(getBluePrint().getFileName() + ".blueprint")));
+            }
+            ((IBlueprintDataProviderBE) be).setPackName(getBluePrint().getPackName());
+        }
     }
 
     @Override
@@ -87,6 +115,18 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     @Override
     public Blueprint getBluePrint()
     {
+        if (blueprint == null && blueprintFuture != null && blueprintFuture.isDone())
+        {
+            try
+            {
+                blueprint = blueprintFuture.get();
+                blueprint.rotateWithMirror(settings.getRotation(), settings.getMirror() == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, world);
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                e.printStackTrace();
+            }
+        }
         return this.blueprint;
     }
 
@@ -112,5 +152,11 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     public PlacementSettings getSettings()
     {
         return this.settings;
+    }
+    
+    @Override
+    public boolean isReady()
+    {
+        return blueprint != null || (blueprintFuture != null && blueprintFuture.isDone());
     }
 }

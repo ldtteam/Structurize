@@ -17,6 +17,7 @@ public interface IProxy
      */
     default void openBuildToolWindow(final BlockPos pos, final int groundstyle)
     {
+
     }
 
     /**
@@ -26,16 +27,5 @@ public interface IProxy
      */
     default void openShapeToolWindow(final BlockPos pos)
     {
-    }
-
-    /**
-     * Get the file representation of the additional schematics' folder.
-     *
-     * @return the folder for the schematic
-     */
-    @Nullable
-    default File getSchematicsFolder()
-    {
-        return null;
     }
 }

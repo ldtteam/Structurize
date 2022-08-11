@@ -3,7 +3,9 @@ package com.ldtteam.structurize.client;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.helpers.Settings;
+import com.ldtteam.structurize.config.BlueprintRenderSettings;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -71,6 +73,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * Our world/blockAccess dummy. TODO: client level
@@ -155,7 +159,7 @@ public class BlueprintBlockAccess extends Level
         {
             return BlockUtils.getFluidForDimension(anyLevel());
         }
-        if (state.getBlock() == ModBlocks.blockSubstitution.get() && Settings.instance.renderLightPlaceholders())
+        if (state.getBlock() == ModBlocks.blockSubstitution.get() && !BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
         {
             return Blocks.AIR.defaultBlockState();
         }
@@ -183,14 +187,14 @@ public class BlueprintBlockAccess extends Level
     @Override
     public int getBrightness(final LightLayer lightType, final BlockPos pos)
     {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+        return RenderingCache.forceLightLevel() ? RenderingCache.getOurLightLevel() :
             clientLevel().getBrightness(lightType, worldPos.offset(pos));
     }
 
     @Override
     public int getRawBrightness(BlockPos pos, int amount)
     {
-        return Settings.instance.forceLightLevel() ? Settings.instance.getOurLightLevel() :
+        return RenderingCache.forceLightLevel() ? RenderingCache.getOurLightLevel() :
             clientLevel().getRawBrightness(worldPos.offset(pos), amount);
     }
 
@@ -383,7 +387,7 @@ public class BlueprintBlockAccess extends Level
     @Override
     public int getSkyDarken()
     {
-        return Settings.instance.forceLightLevel() ? 0 : clientLevel().getSkyDarken();
+        return RenderingCache.forceLightLevel() ? 0 : clientLevel().getSkyDarken();
     }
 
     @Override
@@ -848,7 +852,7 @@ public class BlueprintBlockAccess extends Level
         @Override
         public long getDayTime()
         {
-            return Settings.instance.forceLightLevel() ? 6000 : clientLevel().getDayTime();
+            return RenderingCache.forceLightLevel() ? 6000 : clientLevel().getDayTime();
         }
 
         @Override

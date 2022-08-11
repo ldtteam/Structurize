@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDLEVEL_TAG;
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.TAG_BLUEPRINTDATA;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * Utilities for locating tags in a blueprint
@@ -30,7 +30,7 @@ public class BlueprintTagUtils
         final CompoundTag nbt = blueprint.getBlockInfoAsMap().get(anchorPos).getTileEntityData();
         if (nbt != null)
         {
-            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
+            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
             for (final Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
             {
                 for (final String tag : entry.getValue())

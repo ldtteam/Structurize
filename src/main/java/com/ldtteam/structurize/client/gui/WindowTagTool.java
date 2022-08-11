@@ -5,7 +5,7 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
@@ -111,9 +111,9 @@ public class WindowTagTool extends AbstractWindowSkeleton
         BlockPos toRemove = positionsList.get(row);
 
         BlockEntity te = world.getBlockEntity(anchorPos);
-        if (te instanceof IBlueprintDataProvider)
+        if (te instanceof IBlueprintDataProviderBE)
         {
-            IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
+            IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
             Map<BlockPos, List<String>> map = dataTE.getPositionedTags();
             if (map.containsKey(toRemove) && !map.get(toRemove).isEmpty())
             {
@@ -146,9 +146,9 @@ public class WindowTagTool extends AbstractWindowSkeleton
         tagList.show();
 
         BlockEntity te = world.getBlockEntity(anchorPos);
-        if (te instanceof IBlueprintDataProvider)
+        if (te instanceof IBlueprintDataProviderBE)
         {
-            IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
+            IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
             positionsList = new ArrayList<>(dataTE.getPositionedTags().keySet());
         }
         else
@@ -178,9 +178,9 @@ public class WindowTagTool extends AbstractWindowSkeleton
             public void updateElement(final int index, final Pane rowPane)
             {
                 BlockEntity te = world.getBlockEntity(anchorPos);
-                if (te instanceof IBlueprintDataProvider)
+                if (te instanceof IBlueprintDataProviderBE)
                 {
-                    IBlueprintDataProvider dataTE = (IBlueprintDataProvider) te;
+                    IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
                     positionsList = new ArrayList<>(dataTE.getPositionedTags().keySet());
 
 

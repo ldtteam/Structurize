@@ -2,16 +2,20 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -234,14 +238,13 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2y.setText(String.valueOf(pos2.getY()));
         pos2z.setText(String.valueOf(pos2.getZ()));
 
-        Settings.instance.setAnchorPos(this.anchorPos);
-        Settings.instance.setBox(new Tuple<>(pos1, pos2));
+        RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, anchorPos));
         if (anchorPos.isPresent())
         {
             final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
-            if (tile instanceof IBlueprintDataProvider && !((IBlueprintDataProvider) tile).getSchematicName().isEmpty())
+            if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
             {
-                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProvider) tile).getSchematicName());
+                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());
             }
         }
 
@@ -257,8 +260,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void discardClicked()
     {
-        Settings.instance.setAnchorPos(Optional.empty());
-        Settings.instance.setBox(null);
+        RenderingCache.removeBox("scan");
         close();
     }
 
@@ -277,10 +279,8 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, Settings.instance.getAnchorPos()));
-        Settings.instance.setAnchorPos(Optional.empty());
-        Settings.instance.setBox(null);
-        Settings.instance.setStructureName(null);
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, RenderingCache.getBoxPreviewData("scan").getAnchor() ));
+        RenderingCache.removeBox("scan");
         close();
     }
 
@@ -310,8 +310,7 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        Settings.instance.setAnchorPos(this.anchorPos);
-        Settings.instance.setBox(new Tuple<>(pos1, pos2));
+        RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, this.anchorPos));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
         
         final Level world = Minecraft.getInstance().level;
@@ -445,7 +444,20 @@ public class WindowScan extends AbstractWindowSkeleton
             public void updateElement(final int index, final Pane rowPane)
             {
                 final Entity entity = tempEntities.get(index);
-                rowPane.findPaneOfTypeByID(RESOURCE_ICON, EntityIcon.class).setEntity(entity);
+                ItemStack entityIcon = entity.getPickResult();
+                if (entity instanceof GlowItemFrame)
+                {
+                    entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
+                }
+                else if (entity instanceof ItemFrame)
+                {
+                    entityIcon = new ItemStack(Items.ITEM_FRAME);
+                }
+                else if (entity instanceof AbstractMinecart)
+                {
+                    entityIcon = new ItemStack(Items.MINECART);
+                }
+                rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getName());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
