@@ -47,23 +47,7 @@ public class BlueprintPlacementHandling
     {
         if (!StructurePacks.hasPack(message.structurePackId))
         {
-            final Path blueprintPath = new File(".").toPath()
-              .resolve(BLUEPRINT_FOLDER)
-              .resolve(CLIENT_FOLDER)
-              .resolve(message.player.getUUID().toString())
-              .resolve(message.structurePackId)
-              .resolve(message.blueprintPath);
-
-            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.player.getUUID() + message.structurePackId, blueprintPath),
-              message.world, (blueprint) -> {
-                if (blueprint == null)
-                {
-                    Network.getNetwork().sendToPlayer(new ClientBlueprintRequestMessage(message), message.player);
-                    return;
-                }
-                process(blueprint, message);
-            }
-            ));
+            Network.getNetwork().sendToPlayer(new ClientBlueprintRequestMessage(message), message.player);
         }
         else
         {
