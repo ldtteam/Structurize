@@ -119,7 +119,7 @@ public class BlueprintUtil
                 {
                     continue;
                 }
-                entitiesTag.add(entity.serializeNBT());
+                entitiesTag.add(entity.serializeNBT().copy());
             }
 
             world.entityManager.permanentStorage.flush(false);
@@ -147,7 +147,7 @@ public class BlueprintUtil
                                     final Vec3 posVec = new Vec3(posList.getDouble(0), posList.getDouble(1), posList.getDouble(2));
                                     if (area.contains(posVec))
                                     {
-                                        entitiesTag.add(entityCompound);
+                                        entitiesTag.add(entityCompound.copy());
                                     }
                                 }
                             }
