@@ -119,7 +119,7 @@ public class BlueprintUtil
                 {
                     continue;
                 }
-                entitiesTag.add(entity.serializeNBT().copy());
+                entitiesTag.add(entity.serializeNBT());
             }
 
             world.entityManager.permanentStorage.flush(false);
