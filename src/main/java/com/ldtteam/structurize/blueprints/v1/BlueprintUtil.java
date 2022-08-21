@@ -18,6 +18,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
@@ -162,7 +164,7 @@ public class BlueprintUtil
 
             if (name != null)
             {
-                final String fileName = new File(name).getName();
+                final String fileName = FilenameUtils.getBaseName(name);
                 blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
                 ((IBlueprintDataProviderBE) tile).setSchematicName(fileName);
             }
