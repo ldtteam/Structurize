@@ -14,7 +14,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
@@ -41,6 +43,11 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      * List of packs.
      */
     private List<StructurePackMeta> packMetas;
+
+    /**
+     * Random with a fixed random seed.
+     */
+    private static int randomSeed = new Random().nextInt();
 
     /**
      * Constructor for this window.
@@ -107,6 +114,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
 
         packList = findPaneOfTypeByID("packs", ScrollingList.class);
         packMetas = new ArrayList<>(StructurePacks.getPackMetas());
+        Collections.shuffle(packMetas, new Random(randomSeed));
 
         updatePacks();
         super.onOpened();
