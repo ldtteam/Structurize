@@ -561,6 +561,8 @@ public class StructurePacks
         {
             Log.getLogger().error("Error loading categories from folder: " + packMeta.getNormalizedSubPath(subPath), e);
         }
+
+        categories.sort(Comparator.comparing(Category::toString));
         return categories;
     }
 
@@ -692,6 +694,12 @@ public class StructurePacks
             this.subPath = packMeta.getSubPath(subPath).replace("\\", "/");
             this.hasIcon = hasIcon;
             this.isTerminal = isTerminal;
+        }
+
+        @Override
+        public String toString()
+        {
+            return subPath;
         }
     }
 }
