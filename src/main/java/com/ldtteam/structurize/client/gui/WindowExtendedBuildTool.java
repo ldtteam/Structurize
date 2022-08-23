@@ -1022,6 +1022,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 final Blueprint blueprint = mapping.values().iterator().next().get(0);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                adjustToGroundOffset();
                 return;
             }
 
@@ -1041,6 +1042,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                     findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                       structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
                     RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                    adjustToGroundOffset();
                 }
                 updateLevels(leveled, categoryId + ":" + mapping.keySet().iterator().next(), false);
             }
@@ -1060,6 +1062,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                   structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                adjustToGroundOffset();
             }
 
             if (list.size() == 1)
@@ -1085,6 +1088,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 final Blueprint blueprint = list.get(level);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
+                adjustToGroundOffset();
                 return;
             }
             catch (final NumberFormatException exception)
