@@ -41,7 +41,7 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 /**
  * BuildTool window.
  */
-public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
+public final class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
 {
     /**
      * Folder scrolling list.
@@ -91,18 +91,18 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
     /**
      * Next level of depth categories.
      */
-    private static Map<String, Future<List<StructurePacks.Category>>> nextDepthMeta = new HashMap<>();
+    private static final Map<String, Future<List<StructurePacks.Category>>> nextDepthMeta = new LinkedHashMap<>();
 
     /**
      * Blueprints at depth.
      */
-    private static Map<String, Future<List<Blueprint>>> blueprintsAtDepth = new HashMap<>();
+    private static final Map<String, Future<List<Blueprint>>> blueprintsAtDepth = new LinkedHashMap<>();
 
     /**
      * Current blueprint mapping from depth to processed blueprints.
      * Depth -> Named -> Leveled.
      */
-    private static Map<String, Map<String, Map<String, List<Blueprint>>>> currentBluePrintMappingAtDepthCache = new HashMap<>();
+    private static final Map<String, Map<String, Map<String, List<Blueprint>>>> currentBluePrintMappingAtDepthCache = new LinkedHashMap<>();
 
     /**
      * Current blueprint category.
@@ -571,7 +571,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             blueprints.add(new ButtonData(ButtonType.Back, parentCat));
         }
 
-        final Map<String, List<Blueprint>> blueprintMapping = new HashMap<>();
+        final Map<String, List<Blueprint>> blueprintMapping = new LinkedHashMap<>();
 
         for (final Blueprint blueprint : inputBluePrints)
         {
@@ -600,7 +600,7 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             }
         }
 
-        final Map<String, Map<String, List<Blueprint>>> altBlueprintMapping = new HashMap<>();
+        final Map<String, Map<String, List<Blueprint>>> altBlueprintMapping = new LinkedHashMap<>();
 
         for (final Map.Entry<String, List<Blueprint>> entry : blueprintMapping.entrySet())
         {
@@ -609,14 +609,14 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
             if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
             {
                 final String name = anchor.getBlock().getDescriptionId();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new HashMap<>());
+                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
                 tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
                 altBlueprintMapping.put(name, tempLeveledBlueprints);
             }
             else
             {
                 final String name = blueprint.getFileName();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new HashMap<>());
+                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
                 tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
                 altBlueprintMapping.put(name, tempLeveledBlueprints);
             }
