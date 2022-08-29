@@ -150,6 +150,7 @@ public class ClientStructurePackLoader
                 Log.getLogger().warn("Client logged off. Resetting Pack Meta and Reloading State");
                 loadingState = ClientLoadingState.LOADING;
                 StructurePacks.clearPacks();
+                RenderingCache.clear();
                 onClientLoading();
             }
         }

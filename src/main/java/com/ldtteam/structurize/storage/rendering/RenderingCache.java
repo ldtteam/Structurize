@@ -134,4 +134,13 @@ public class RenderingCache
     {
         return 15;
     }
+
+    /**
+     * Clean the rendering caches.
+     */
+    public static void clear()
+    {
+        blueprintRenderingCache.clear();
+        boxRenderingCache.clear();
+    }
 }
