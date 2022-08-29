@@ -23,6 +23,10 @@
         </box>
     </list>
 
+    <list size="100 80" pos="160 80" id="placement" visible="false">
+        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+    </list>
+
     <button id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="30" pos="300 213"/>
     <button id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="30" pos="90 213"/>
 

@@ -20,10 +20,6 @@
         </box>
     </list>
 
-    <list size="100 80" pos="160 80" id="placement" visible="false">
-        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
-    </list>
-
     <list size="270 40" pos="100 160" id="subcategories" visible="false">
         <box size="100% 20" linewidth="0">
             <button id="1" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray" visible="false"/>

@@ -25,41 +25,19 @@ public final class Utils
     /**
      * Play a success sound.
      * @param player the player to play it for.
-     * @param position the position it is played at.
      */
-    public static void playSuccessSound(@NotNull final Player player, @NotNull final BlockPos position)
+    public static void playSuccessSound(@NotNull final Player player)
     {
-        if (player instanceof ServerPlayer)
-        {
-            ((ServerPlayer) player).connection.send(new ClientboundSoundPacket(SoundEvents.NOTE_BLOCK_BELL,
-              SoundSource.NEUTRAL,
-              position.getX(),
-              position.getY(),
-              position.getZ(),
-              1.0f,
-              1.0f,
-              player.level.random.nextLong()));
-        }
+        player.playNotifySound(SoundEvents.NOTE_BLOCK_BELL, SoundSource.NEUTRAL, 1.0f, 1.0f);
     }
 
     /**
      * Play an error sound.
      * @param player the player to play it for.
-     * @param position the position it is played at.
      */
-    public static void playErrorSound(@NotNull final Player player, @NotNull final BlockPos position)
+    public static void playErrorSound(@NotNull final Player player)
     {
-        if (player instanceof ServerPlayer)
-        {
-            ((ServerPlayer) player).connection.send(new ClientboundSoundPacket(SoundEvents.NOTE_BLOCK_DIDGERIDOO,
-              SoundSource.NEUTRAL,
-              position.getX(),
-              position.getY(),
-              position.getZ(),
-              1.0f,
-              0.3f,
-              player.level.random.nextLong()));
-        }
+        player.playNotifySound(SoundEvents.NOTE_BLOCK_DIDGERIDOO, SoundSource.NEUTRAL, 1.0f, 0.3f);
     }
 
     /**

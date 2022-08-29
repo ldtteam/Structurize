@@ -84,7 +84,6 @@ public class NetworkChannel
         setupInternalMessages();
 
         int idx = 0;
-        registerMessage(++idx, GenerateAndPasteMessage.class, GenerateAndPasteMessage::new);
         registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
         registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
