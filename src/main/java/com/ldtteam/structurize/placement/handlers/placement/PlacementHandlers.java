@@ -897,6 +897,12 @@ public final class PlacementHandlers
             final BlockEntity newTile = BlockEntity.loadStatic(pos, world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
+                if (newTile instanceof IRotatableBlockEntity)
+                {
+                    ((IRotatableBlockEntity) newTile).rotate(settings.rotation);
+                    ((IRotatableBlockEntity) newTile).mirror(settings.mirror);
+                }
+
                 final BlockEntity worldBlockEntity = world.getBlockEntity(pos);
                 if (worldBlockEntity != null)
                 {
@@ -909,12 +915,6 @@ public final class PlacementHandlers
                 }
                 world.getBlockState(pos).rotate(world, pos, settings.rotation);
                 world.getBlockState(pos).mirror(settings.mirror);
-
-                if (newTile instanceof IRotatableBlockEntity)
-                {
-                    ((IRotatableBlockEntity) newTile).rotate(settings.rotation);
-                    ((IRotatableBlockEntity) newTile).mirror(settings.mirror);
-                }
             }
         }
     }

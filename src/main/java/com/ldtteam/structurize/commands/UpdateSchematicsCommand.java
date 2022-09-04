@@ -1,13 +1,10 @@
 package com.ldtteam.structurize.commands;
 
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
-import com.ldtteam.structurize.util.StructureLoadingUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -25,9 +22,10 @@ import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.blueprints.v1.BlueprintUtil.*;
 
 /**
@@ -44,25 +42,40 @@ public class UpdateSchematicsCommand extends AbstractCommand
 
     private static int onExecute(final CommandContext<CommandSourceStack> command) throws CommandSyntaxException
     {
-        final File updaterInput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/input");
-        final File updaterOutput = new File(Structurize.proxy.getSchematicsFolder(), "/updater/output");
-
-        updaterInput.mkdirs();
-
-        for (final File file : updaterInput.listFiles())
+        final Path gameFolder = new File(".").toPath().resolve(BLUEPRINT_FOLDER).resolve(UPDATE_FOLDER);
+        try
         {
-            update(file, updaterInput, updaterOutput);
+            Files.createDirectories(gameFolder);
         }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        try
+        {
+            Files.list(gameFolder.resolve("input")).forEach(element -> update(element, gameFolder.resolve("input"), gameFolder.resolve("output")));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+
         return 1;
     }
 
-    private static void update(final File input, final File globalInputFolder, final File globalOutputFolder)
+    private static void update(final Path input, final Path globalInputFolder, final Path globalOutputFolder)
     {
-        if (input.isDirectory())
+        if (Files.isDirectory(input))
         {
-            for (final File file : input.listFiles())
+            try
             {
-                update(file, globalInputFolder, globalOutputFolder);
+                Files.list(input).forEach(element -> update(element, globalInputFolder, globalOutputFolder));
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
             return;
         }
@@ -70,22 +83,25 @@ public class UpdateSchematicsCommand extends AbstractCommand
         try
         {
 
-            final File output = new File(globalOutputFolder, input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
-            output.getParentFile().mkdirs();
+            final Path output = globalOutputFolder.resolve(input.toString().replaceAll("\\.nbt", ".blueprint").replace(globalInputFolder.toString(), ""));
+            Files.createDirectories(output.getParent());
 
-            if (input.getPath().endsWith(".blueprint"))
+            if (input.toString().endsWith(".blueprint"))
             {
-                final Blueprint bluePrintCompound = fixBluePrints(input);
-
-                if (bluePrintCompound != null)
+                final CompoundTag bluePrintCompound = writeBlueprintToNBT(fixBluePrints(input));
+                try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(output)))
                 {
-                    output.createNewFile();
-                    NbtIo.writeCompressed(BlueprintUtil.writeBlueprintToNBT(bluePrintCompound), Files.newOutputStream(output.toPath()));
+                    NbtIo.writeCompressed(bluePrintCompound, outputstream);
                 }
+                catch (final IOException e)
+                {
+                    Log.getLogger().warn("Exception while trying to scan.", e);
+                }
+
                 return;
             }
 
-            CompoundTag blueprint = NbtIo.readCompressed(Files.newInputStream(input.toPath()));
+            CompoundTag blueprint = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
             if (blueprint == null || blueprint.isEmpty())
             {
                 return;
@@ -164,7 +180,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             bluePrintCompound.putIntArray("blocks", convertBlocksToSaveData(dataArray, (short) size[0], (short) size[1], (short) size[2]));
             bluePrintCompound.put("tile_entities", tileEntities);
             bluePrintCompound.put("architects", new ListTag());
-            bluePrintCompound.put("name", (StringTag.valueOf(input.getName().replaceAll("\\.nbt", ""))));
+            bluePrintCompound.put("name", (StringTag.valueOf(input.toString().replaceAll("\\.nbt", ""))));
             bluePrintCompound.putInt("version", 1);
 
             final ListTag newEntities = new ListTag();
@@ -181,8 +197,14 @@ public class UpdateSchematicsCommand extends AbstractCommand
             }
             bluePrintCompound.put("entities", newEntities);
 
-            output.createNewFile();
-            NbtIo.writeCompressed(bluePrintCompound, Files.newOutputStream(output.toPath()));
+            try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(output)))
+            {
+                NbtIo.writeCompressed(bluePrintCompound, outputstream);
+            }
+            catch (final IOException e)
+            {
+                Log.getLogger().warn("Exception while trying to scan.", e);
+            }
         }
         catch (final IOException e)
         {
@@ -190,20 +212,16 @@ public class UpdateSchematicsCommand extends AbstractCommand
         }
     }
 
-    private static Blueprint fixBluePrints(final File input)
+    private static Blueprint fixBluePrints(final Path input)
     {
         try
         {
-            FileInputStream inputStream = new FileInputStream(input);
-            byte[] data = StructureLoadingUtils.getStreamAsByteArray(inputStream);
-            inputStream.close();
-            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(data));
-
+            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
             return readBlueprintFromNBT(compoundNBT);
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Could not read file:" + input.getName());
+            Log.getLogger().warn("Could not read file:" + input.toString());
         }
         return null;
     }

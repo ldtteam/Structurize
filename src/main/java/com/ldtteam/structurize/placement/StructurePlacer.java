@@ -339,7 +339,7 @@ public class StructurePlacer
 
                 this.handler.prePlacementLogic(worldPos, localState, requiredItems);
 
-                final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
+                final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(getHandler().getBluePrint(), world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
                 if (result == IPlacementHandler.ActionProcessingResult.DENY)
                 {
                     placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
@@ -525,6 +525,15 @@ public class StructurePlacer
     public IStructureHandler getHandler()
     {
         return handler;
+    }
+
+    /**
+     * Check if the structure placer is ready.
+     * @return true if so.
+     */
+    public boolean isReady()
+    {
+        return getHandler().isReady();
     }
 
     /**

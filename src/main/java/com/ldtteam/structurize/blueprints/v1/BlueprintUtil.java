@@ -2,22 +2,25 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.world.level.chunk.storage.EntityStorage;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
@@ -26,7 +29,7 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
@@ -52,7 +55,7 @@ public class BlueprintUtil
      * @return the generated Blueprint
      */
     public static Blueprint createBlueprint(
-      Level world,
+      ServerLevel world,
       BlockPos pos,
       final boolean saveEntities,
       short sizeX,
@@ -109,43 +112,82 @@ public class BlueprintUtil
         final CompoundTag[] tes = tileEntities.toArray(new CompoundTag[0]);
 
         final List<CompoundTag> entitiesTag = new ArrayList<>();
-
-        List<Entity> entities = new ArrayList<>();
+        final AABB area = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ);
         if (saveEntities)
         {
-            entities = world.getEntities(null,
-              new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
-        }
-
-        for (final Entity entity : entities)
-        {
-            if (!entity.getType().canSerialize())
+            for (final Entity entity : world.getEntities(null, area))
             {
-                continue;
+                if (!entity.getType().canSerialize())
+                {
+                    continue;
+                }
+                entitiesTag.add(entity.serializeNBT());
             }
 
-            final Vec3 oldPos = entity.position();
-            final CompoundTag entityTag = entity.serializeNBT();
+            world.entityManager.permanentStorage.flush(false);
+            for (int x = SectionPos.blockToSectionCoord(pos.getX()); x <= SectionPos.blockToSectionCoord(pos.getX() + sizeX); x++)
+            {
+                for (int z = SectionPos.blockToSectionCoord(pos.getZ()); z <= SectionPos.blockToSectionCoord(pos.getZ() + sizeZ); z++)
+                {
+                    if (!world.entityManager.areEntitiesLoaded(new ChunkPos(x, z).toLong()))
+                    {
+                        try
+                        {
+                            final CompoundTag compoundTag = ((EntityStorage) world.entityManager.permanentStorage).worker.load(new ChunkPos(x, z));
+                            if (compoundTag == null)
+                            {
+                                continue;
+                            }
+
+                            final ListTag tagList = compoundTag.getList("Entities", CompoundTag.TAG_COMPOUND);
+                            for (int i = 0; i < tagList.size(); i++)
+                            {
+                                final CompoundTag entityCompound = tagList.getCompound(i);
+                                if (entityCompound.contains("Pos"))
+                                {
+                                    final ListTag posList = entityCompound.getList("Pos", CompoundTag.TAG_DOUBLE);
+                                    final Vec3 posVec = new Vec3(posList.getDouble(0), posList.getDouble(1), posList.getDouble(2));
+                                    if (area.contains(posVec))
+                                    {
+                                        entitiesTag.add(entityCompound.copy());
+                                    }
+                                }
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        final List<CompoundTag> finalEntitiesTag = new ArrayList<>();
+
+        for (final CompoundTag entity : entitiesTag)
+        {
+            final ListTag posListTag = entity.getList("Pos", CompoundTag.TAG_DOUBLE);
+            final Vec3 oldPos = new Vec3(posListTag.getDouble(0), posListTag.getDouble(1), posListTag.getDouble(2));
 
             final ListTag posList = new ListTag();
             posList.add(DoubleTag.valueOf(oldPos.x - pos.getX()));
             posList.add(DoubleTag.valueOf(oldPos.y - pos.getY()));
             posList.add(DoubleTag.valueOf(oldPos.z - pos.getZ()));
 
-            BlockPos entityPos = entity.blockPosition();
-            if (entity instanceof HangingEntity)
+            entity.put("Pos", posList);
+            if (entity.contains("TileX"))
             {
-                entityPos = ((HangingEntity) entity).getPos();
+                entity.put("TileX", IntTag.valueOf(entity.getInt("TileX") - pos.getX()));
+                entity.put("TileY", IntTag.valueOf(entity.getInt("TileY") - pos.getY()));
+                entity.put("TileZ", IntTag.valueOf(entity.getInt("TileZ") - pos.getZ()));
             }
-            entityTag.put("Pos", posList);
-            entityTag.put("TileX", IntTag.valueOf(entityPos.getX() - pos.getX()));
-            entityTag.put("TileY", IntTag.valueOf(entityPos.getY() - pos.getY()));
-            entityTag.put("TileZ", IntTag.valueOf(entityPos.getZ() - pos.getZ()));
-            entitiesTag.add(entityTag);
+
+            finalEntitiesTag.add(entity);
         }
 
         final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods);
-        schem.setEntities(entitiesTag.toArray(new CompoundTag[0]));
+        schem.setEntities(finalEntitiesTag.toArray(new CompoundTag[0]));
 
         if (anchorPos.isPresent())
         {
@@ -156,20 +198,20 @@ public class BlueprintUtil
 
         // Blueprints do auto-calc anchors when missing, so if it uses a blueprint provider as anchor we fill in the schematic data afterwards to both TE and blueprint
         final BlockEntity tile = world.getBlockEntity(pos.offset(schem.getPrimaryBlockOffset()));
-        if (tile instanceof IBlueprintDataProvider)
+        if (tile instanceof IBlueprintDataProviderBE)
         {
             final CompoundTag blueprintData = (CompoundTag) schem.getBlockInfoAsMap().get(schem.getPrimaryBlockOffset()).getTileEntityData().get(TAG_BLUEPRINTDATA);
 
             if (name != null)
             {
-                final String fileName = new File(name).getName();
+                final String fileName = FilenameUtils.getBaseName(name);
                 blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
-                ((IBlueprintDataProvider) tile).setSchematicName(fileName);
+                ((IBlueprintDataProviderBE) tile).setSchematicName(fileName);
             }
 
             final BlockPos corner1 = BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset());
             final BlockPos corner2 = new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1).subtract(schem.getPrimaryBlockOffset());
-            ((IBlueprintDataProvider) tile).setSchematicCorners(corner1, corner2);
+            ((IBlueprintDataProviderBE) tile).setSchematicCorners(corner1, corner2);
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_ONE, corner1);
             BlockPosUtil.writeToNBT(blueprintData, TAG_CORNER_TWO, corner2);
 

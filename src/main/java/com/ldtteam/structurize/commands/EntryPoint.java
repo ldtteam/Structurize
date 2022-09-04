@@ -40,18 +40,7 @@ public class EntryPoint extends AbstractCommand
      */
     public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, final CommandSelection environment)
     {
-        final CommandTree linkSession = new CommandTree(CommandSelection.ALL, "linksession")
-            .addNode(LinkSessionCommand.AboutMe::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.AcceptInvite::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.AddPlayer::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.Create::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.Destroy::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.Leave::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.MuteChannel::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.RemovePlayer::build, AbstractCommand::getEnvironmentType)
-            .addNode(LinkSessionCommand.SendMessage::build, AbstractCommand::getEnvironmentType);
         final CommandTree structurizeRoot = CommandTree.newRootNode()
-            .addNode(linkSession)
             .addNode(UpdateSchematicsCommand::build, () -> CommandSelection.INTEGRATED)
             .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType)
             .addNode(UpgradeCommand.ToDO::build, () -> CommandSelection.ALL);

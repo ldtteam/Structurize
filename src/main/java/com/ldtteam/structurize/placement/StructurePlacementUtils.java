@@ -23,52 +23,19 @@ public class StructurePlacementUtils
      * Unload a structure at a certain location.
      *
      * @param world    the world.
-     * @param startPos      the position.
-     * @param name    the name.
+     * @param startPos  the position.
+     * @param blueprint the blueprint.
      * @param rotation the rotation.
      * @param mirror   the mirror.
      */
-    public static void unloadStructure(final Level world, final BlockPos startPos, final String name, final Rotation rotation, final Mirror mirror)
+    public static void unloadStructure(final Level world, final BlockPos startPos, final Blueprint blueprint, final Rotation rotation, final Mirror mirror)
     {
-        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, name, new PlacementSettings(mirror, rotation), false);
+        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, blueprint, new PlacementSettings(mirror, rotation), false);
         structure.getBluePrint().rotateWithMirror(rotation, mirror, world);
 
         final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
           () ->  placer.getIterator().increment((info, pos, handler) -> handler.getWorld().getBlockState(pos).getBlock() instanceof AirBlock), true);
-    }
-
-    /**
-     * Load a structure into this world
-     * and place it in the right position and rotation.
-     *
-     * @param worldObj the world to load it in
-     * @param name     the structures name
-     * @param pos      coordinates
-     * @param rotation the rotation.
-     * @param mirror   the mirror used.
-     * @param fancyPlacement if fancy or complete.
-     * @param player   the placing player.
-     */
-    public static void loadAndPlaceStructureWithRotation(
-      final Level worldObj, final String name,
-      final BlockPos pos, final Rotation rotation,
-      final Mirror mirror,
-      final boolean fancyPlacement,
-      final ServerPlayer player)
-    {
-        try
-        {
-            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, name, new PlacementSettings(mirror, rotation), fancyPlacement);
-            structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
-
-            final StructurePlacer instantPlacer = new StructurePlacer(structure);
-            Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
-        }
-        catch (final IllegalStateException e)
-        {
-            Log.getLogger().warn("Could not load structure!", e);
-        }
     }
 
     /**

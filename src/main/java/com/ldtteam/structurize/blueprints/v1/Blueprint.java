@@ -5,7 +5,7 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
-import com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
@@ -27,10 +27,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.blocks.interfaces.IBlueprintDataProvider.*;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 /**
  * The blueprint class which contains the file format for the schematics.
@@ -56,6 +57,21 @@ public class Blueprint
      * The size of the pallete.
      */
     private short palleteSize;
+
+    /**
+     * The file name of the blueprint.
+     */
+    private String fileName;
+
+    /**
+     * The full file path.
+     */
+    private Path filePath;
+
+    /**
+     * The pack name.
+     */
+    private String packName;
 
     /**
      * The palette of different blocks.
@@ -108,6 +124,16 @@ public class Blueprint
      * Source of rendering.
      */
     private BlockPos renderSource = BlockPos.ZERO;
+
+    /**
+     * The rotation setting of the blueprint.
+     */
+    private Rotation rotation = Rotation.NONE;
+
+    /**
+     * The mirror setting of the blueprint.
+     */
+    private Mirror mirror = Mirror.NONE;
 
     /**
      * Constructor of a new Blueprint.
@@ -297,6 +323,68 @@ public class Blueprint
     {
         this.name = name;
         return this;
+    }
+
+    /**
+     * Sets the file name of the Structure
+     *
+     * @param name the file name to set.
+     * @return this object.
+     */
+    public Blueprint setFileName(final String name)
+    {
+        this.fileName = name;
+        return this;
+    }
+
+    /**
+     * Getter for the filename.
+     * @return the unique file name of the structure.
+     */
+    public String getFileName()
+    {
+        return this.fileName;
+    }
+
+    /**
+     * Sets the file path of the Structure
+     *
+     * @param path the file path to set.
+     * @return this object.
+     */
+    public Blueprint setFilePath(final Path path)
+    {
+        this.filePath = path;
+        return this;
+    }
+
+    /**
+     * Set the pack this blueprint is in.
+     * @param packName the id of the pack.
+     * @return this object.
+     */
+    public Blueprint setPackName(final String packName)
+    {
+        this.packName = packName;
+        return this;
+    }
+
+    /**
+     * Getter for the file path (does not contain the file name).
+     * @return the file path of the structure.
+     */
+    public Path getFilePath()
+    {
+        return this.filePath;
+    }
+
+    /**
+     * Get the pack name this belongs to.
+     * @return the name of the pack.
+     */
+    public String getPackName()
+    {
+        return this.packName;
     }
 
     /**
@@ -528,14 +616,29 @@ public class Blueprint
     /**
      * Rotate the structure depending on the direction it's facing.
      *
-     * @param rotation times to rotateWithMirror.
-     * @param mirror   the mirror.
+     * @param localRotation times to rotateWithMirror.
+     * @param localMirror   the mirror.
      * @param world    the world.
      */
-    public void rotateWithMirror(final Rotation rotation, final Mirror mirror, final Level world)
+    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
     {
+        final Rotation rotDifference = Rotation.values()[Math.floorMod(localRotation.ordinal() - this.rotation.ordinal(), Rotation.values().length)];
+        final Mirror mirDifference;
+        if (this.mirror == localMirror)
+        {
+            mirDifference = Mirror.NONE;
+        }
+        else if (this.mirror == Mirror.NONE)
+        {
+            mirDifference = localMirror;
+        }
+        else
+        {
+            mirDifference = this.mirror;
+        }
+
         final BlockPos primaryOffset = getPrimaryBlockOffset();
-        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotation);
+        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotDifference);
         final short newSizeX = (short) resultSize.getX();
         final short newSizeY = (short) resultSize.getY();
         final short newSizeZ = (short) resultSize.getZ();
@@ -547,10 +650,10 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).mirror(mirror).rotate(rotation));
+            palette.add(i, this.palette.get(i).mirror(mirDifference).rotate(rotDifference));
         }
 
-        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirror, rotation);
+        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirDifference, rotDifference);
         int minX = extremes.getX() < 0 ? -extremes.getX() - 1 : 0;
         int minY = extremes.getY() < 0 ? -extremes.getY() - 1 : 0;
         int minZ = extremes.getZ() < 0 ? -extremes.getZ() - 1 : 0;
@@ -563,7 +666,7 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirror, rotation).offset(minX, minY, minZ);
+                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirDifference, rotDifference).offset(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
@@ -584,21 +687,21 @@ public class Blueprint
                             CompoundTag dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
 
                             // Rotate tag map
-                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProvider.readTagPosMapFrom(dataCompound);
+                            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(dataCompound);
                             final Map<BlockPos, List<String>> newTagPosMap = new HashMap<>();
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
                             {
-                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirror, rotation), entry.getValue());
+                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirDifference, rotDifference), entry.getValue());
                             }
 
-                            IBlueprintDataProvider.writeMapToCompound(dataCompound, newTagPosMap);
+                            IBlueprintDataProviderBE.writeMapToCompound(dataCompound, newTagPosMap);
 
                             // Rotate corners
                             BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
                             BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
-                            corner1 = transformedBlockPos(corner1, mirror, rotation);
-                            corner2 = transformedBlockPos(corner2, mirror, rotation);
+                            corner1 = transformedBlockPos(corner1, mirDifference, rotDifference);
+                            corner2 = transformedBlockPos(corner2, mirDifference, rotDifference);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
                             BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
                         }
@@ -613,11 +716,11 @@ public class Blueprint
             final CompoundTag entitiesCompound = entities[i];
             if (entitiesCompound != null)
             {
-                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotation, mirror);
+                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotDifference, mirDifference);
             }
         }
 
-        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirror, rotation, new BlockPos(0, 0, 0));
+        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirDifference, rotDifference, new BlockPos(0, 0, 0));
 
         setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
 
@@ -630,6 +733,9 @@ public class Blueprint
         this.tileEntities = newTileEntities;
 
         cacheReset(false);
+
+        this.rotation = localRotation;
+        this.mirror = localMirror;
     }
 
     /**
@@ -826,7 +932,7 @@ public class Blueprint
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        return name.equals(other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume();
+        return Objects.equals(name, other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && Objects.equals(filePath, other.filePath);
     }
 
     /**

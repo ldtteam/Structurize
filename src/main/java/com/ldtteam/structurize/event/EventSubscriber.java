@@ -8,13 +8,11 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.management.Structures;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
-import com.ldtteam.structurize.network.messages.StructurizeStylesMessage;
 import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.ldtteam.structurize.update.UpdateMode;
-import com.ldtteam.structurize.util.BackUpHelper;
 
+import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.ChunkPos;
@@ -30,13 +28,13 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Arrays;
@@ -72,19 +70,6 @@ public class EventSubscriber
         EntryPoint.register(event.getDispatcher(), event.getEnvironment());
     }
 
-    @SubscribeEvent
-    public static void onServerStarted(final ServerStartedEvent event)
-    {
-        Structures.init();
-        BackUpHelper.loadLinkSessionManager();
-    }
-
-    @SubscribeEvent
-    public static void onServerStopping(final ServerStoppingEvent event)
-    {
-        BackUpHelper.saveLinkSessionManager();
-    }
-
     /**
      * Called when a player logs in. If the joining player is a MP-Player, sends
      * all possible styles in a message.
@@ -97,7 +82,6 @@ public class EventSubscriber
         if (event.getPlayer() instanceof ServerPlayer serverPlayer)
         {
             Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
-            Network.getNetwork().sendToPlayer(new StructurizeStylesMessage(), serverPlayer);
         }
     }
 
@@ -111,6 +95,12 @@ public class EventSubscriber
                 Manager.onWorldTick(serverLevel);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onServerStopped(@NotNull final ServerStoppingEvent event)
+    {
+        IOPool.shutdown();
     }
 
     @SubscribeEvent
