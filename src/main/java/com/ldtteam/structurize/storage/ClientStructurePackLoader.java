@@ -69,6 +69,12 @@ public class ClientStructurePackLoader
             modList.add(mod.getModId());
         }
 
+        if (Minecraft.getInstance() == null)
+        {
+            // RunData
+            return;
+        }
+
         final Path gameFolder = Minecraft.getInstance().gameDirectory.toPath();
 
         IOPool.execute(() ->
