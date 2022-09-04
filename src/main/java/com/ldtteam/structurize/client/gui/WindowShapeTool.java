@@ -7,20 +7,29 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.network.messages.GenerateAndPasteMessage;
+import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
+import com.ldtteam.structurize.storage.ClientFutureProcessor;
+import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.SHAPES_FOLDER;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
@@ -49,11 +58,6 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private static ItemStack mainBlock = new ItemStack(Blocks.GOLD_BLOCK);
     private static ItemStack secondaryBlock = new ItemStack(Blocks.GOLD_BLOCK);
-
-    /**
-     * Id of the paste button.
-     */
-    private static final String BUTTON_PASTE = "paste";
 
     /**
      * Suffix of the minus buttons.
@@ -130,8 +134,6 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
 
     private void init(final BlockPos pos, final boolean shouldUpdate)
     {
-        if (!hasPermission()) return;
-
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("shapes");
         @Nullable final Blueprint structure = previewData.getBlueprint();
 
@@ -153,7 +155,6 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         });
 
         registerButton(BUTTON_HOLLOW, this::hollowShapeToggle);
-        registerButton(BUTTON_PASTE, this::pasteClicked);
 
         inputWidth = findPaneOfTypeByID(INPUT_WIDTH, TextField.class);
         inputLength = findPaneOfTypeByID(INPUT_LENGTH, TextField.class);
@@ -303,10 +304,40 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     }
 
     @Override
-    protected void confirmClicked()
+    protected void handlePlacement(final BuildToolPlacementMessage.HandlerType type, final String id)
     {
-        place();
-        clearAndClose();
+        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("shapes");
+        if (previewData.getBlueprint() != null)
+        {
+            final String packName = Minecraft.getInstance().getUser().getName();
+            final Path subpath = Path.of(
+                    SHAPES_FOLDER,
+                    shape.toString().toLowerCase(Locale.ROOT),
+                    mainBlock.getItem().toString().replace(':', '_'),
+                    secondaryBlock.getItem().toString().replace(':', '_'),
+                    String.format("%dx%dx%dx%d_%c.blueprint", length, width, height, frequency, hollow ? 'h' : 'f'));
+            final Path path = Minecraft.getInstance().gameDirectory.toPath()
+                    .resolve(BLUEPRINT_FOLDER)
+                    .resolve(packName.toLowerCase(Locale.US))
+                    .resolve(subpath);
+
+            final CompoundTag compound = BlueprintUtil.writeBlueprintToNBT(previewData.getBlueprint());
+            ClientFutureProcessor.queueBlueprint(
+                    new ClientFutureProcessor.BlueprintProcessingData(StructurePacks.storeBlueprint(packName, compound, path), blueprint ->
+                            Network.getNetwork().sendToServer(new BuildToolPlacementMessage(
+                                    type,
+                                    id,
+                                    packName,
+                                    subpath.toString(),
+                                    previewData.getPos(),
+                                    previewData.getRotation(),
+                                    previewData.getMirror()))));
+
+            if (type == BuildToolPlacementMessage.HandlerType.Survival)
+            {
+                clearAndClose();
+            }
+        }
     }
 
     /**
@@ -337,60 +368,17 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     }
 
     /**
-     * Paste button clicked.
-     */
-    private void pasteClicked()
-    {
-        if (isCreative())
-        {
-            paste();
-        }
-
-        clearAndClose();
-    }
-
-    /**
-     * Override if place without paste is required.
-     */
-    protected void place()
-    {
-        if (isCreative())
-        {
-            paste();
-        }
-    }
-
-    /**
-     * Paste a schematic in the world.
-     */
-    private void paste()
-    {
-        Network.getNetwork().sendToServer(new GenerateAndPasteMessage(RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(),
-          length,
-          width,
-          height,
-          frequency,
-          equation,
-          shape,
-          mainBlock,
-          secondaryBlock,
-          hollow,
-          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getRotation(),
-          RenderingCache.getOrCreateBlueprintPreviewData("shapes").getMirror()));
-    }
-
-    /**
      * Called when the window is opened.
-     * Sets up the buttons for either hut mode or decoration mode.
      */
     @Override
-    @SuppressWarnings("resource")
     public void onOpened()
     {
         // updateRotation(rotation);
         findPaneOfTypeByID(RESOURCE_ICON_MAIN, ItemIcon.class).setItem(mainBlock);
         findPaneOfTypeByID(RESOURCE_ICON_FILL, ItemIcon.class).setItem(secondaryBlock);
         findPaneOfTypeByID(BUTTON_UNDOREDO, Button.class).setVisible(isCreative());
+
+        super.onOpened();
     }
 
     /**
@@ -421,16 +409,6 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     public boolean isCreative()
     {
         return Minecraft.getInstance().player.isCreative();
-    }
-
-    /**
-     * Defines if a player has permission to use this.
-     *
-     * @return true if so.
-     */
-    public boolean hasPermission()
-    {
-        return isCreative();
     }
 
     /*

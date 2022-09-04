@@ -18,7 +18,6 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
@@ -65,19 +64,22 @@ public class BlueprintPlacementHandling
     {
         if (message.type == BuildToolPlacementMessage.HandlerType.Survival)
         {
-            SurvivalBlueprintHandlers.getHandler(message.handlerId)
-              .handle(blueprint,
-                message.structurePackId,
-                message.blueprintPath,
-                message.clientPack,
-                message.world,
-                message.player,
-                message.pos,
-                new PlacementSettings(message.mirror, message.rotation));
+            final ISurvivalBlueprintHandler handler = SurvivalBlueprintHandlers.getHandler(message.handlerId);
+            if (handler != null)
+            {
+                handler.handle(blueprint,
+                        message.structurePackId,
+                        message.blueprintPath,
+                        message.clientPack,
+                        message.world,
+                        message.player,
+                        message.pos,
+                        new PlacementSettings(message.mirror, message.rotation));
+            }
             return;
         }
 
-        Utils.playSuccessSound(message.player, message.pos);
+        Utils.playSuccessSound(message.player);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
         blueprint.rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
 

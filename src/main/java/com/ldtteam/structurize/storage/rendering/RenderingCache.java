@@ -114,9 +114,7 @@ public class RenderingCache
      */
     public static BlueprintPreviewData getOrCreateBlueprintPreviewData(final String key)
     {
-        final BlueprintPreviewData data = blueprintRenderingCache.getOrDefault(key, new BlueprintPreviewData());
-        blueprintRenderingCache.put(key, data);
-        return data;
+        return blueprintRenderingCache.computeIfAbsent(key, k -> new BlueprintPreviewData());
     }
 
     /**

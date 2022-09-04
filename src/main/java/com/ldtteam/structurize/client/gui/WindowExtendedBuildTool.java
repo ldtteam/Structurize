@@ -15,10 +15,8 @@ import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlo
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
-import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.ChatFormatting;
@@ -26,7 +24,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,11 +49,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      * Blueprint scrolling list.
      */
     private ScrollingList blueprintList;
-
-    /**
-     * Placement scrolling list.
-     */
-    private ScrollingList placementOptionsList;
 
     /**
      * Alternatives scrolling list.
@@ -162,7 +154,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
         folderList = findPaneOfTypeByID("subcategories", ScrollingList.class);
         blueprintList = findPaneOfTypeByID("blueprints", ScrollingList.class);
-        placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
         alternativesList = findPaneOfTypeByID("alternatives", ScrollingList.class);
         levelsList = findPaneOfTypeByID("levels", ScrollingList.class);
 
@@ -213,30 +204,38 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     }
 
     @Override
-    protected void confirmClicked()
+    protected void hideOtherGuiForPlacement()
+    {
+        super.hideOtherGuiForPlacement();
+
+        blueprintList.disable();
+        blueprintList.hide();
+        folderList.hide();
+        folderList.disable();
+        alternativesList.hide();
+        alternativesList.disable();
+        levelsList.hide();
+        levelsList.disable();
+    }
+
+    @Override
+    protected void handlePlacement(final BuildToolPlacementMessage.HandlerType type, final String id)
     {
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
         if (previewData.getBlueprint() != null)
         {
-            if (!Minecraft.getInstance().player.isCreative())
+            Network.getNetwork()
+                    .sendToServer(new BuildToolPlacementMessage(type,
+                            id,
+                            structurePack.getName(),
+                            structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
+                            previewData.getPos(),
+                            previewData.getRotation(),
+                            previewData.getMirror()));
+            if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
-                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings());
-                if (handlers.isEmpty())
-                {
-                    if (SurvivalBlueprintHandlers.getHandlers().isEmpty())
-                    {
-                    Minecraft.getInstance().player.sendMessage(new TranslatableComponent("structurize.gui.no.survival.handler"), Minecraft.getInstance().player.getUUID());
-                    }
-                    return;
-                }
-
-                if (handlers.size() == 1)
-                {
-                    handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handlers.get(0).getId());
-                    return;
-                }
+                cancelClicked();
             }
-            updatePlacementOptions();
         }
     }
 
@@ -362,94 +361,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
     }
 
-    /**
-     * Update the list of placement options.
-     */
-    public void updatePlacementOptions()
-    {
-        placementOptionsList.enable();
-        placementOptionsList.show();
-        blueprintList.disable();
-        blueprintList.hide();
-        folderList.hide();
-        folderList.disable();
-        alternativesList.hide();
-        alternativesList.disable();
-        levelsList.hide();
-        levelsList.disable();
-        settingsList.hide();
-        settingsList.disable();
-
-        final List<Tuple<Component, Runnable>> categories = new ArrayList<>();
-        if (Minecraft.getInstance().player.isCreative())
-        {
-            categories.add(new Tuple<>(new TranslatableComponent("structurize.gui.buildtool.complete"), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Complete, "")));
-            categories.add(new Tuple<>(new TranslatableComponent("structurize.gui.buildtool.pretty"), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Pretty, "")));
-        }
-
-        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
-        if (previewData.getBlueprint() != null)
-        {
-            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings()))
-            {
-                categories.add(new Tuple<>(handler.getDisplayName(), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handler.getId())));
-            }
-        }
-
-        placementOptionsList.setDataProvider(new ScrollingList.DataProvider()
-        {
-            /**
-             * The number of rows of the list.
-             * @return the number.
-             */
-            @Override
-            public int getElementCount()
-            {
-                return categories.size();
-            }
-
-            /**
-             * Inserts the elements into each row.
-             * @param index the index of the row/list element.
-             * @param rowPane the parent Pane for the row, containing the elements to update.
-             */
-            @SuppressWarnings("resource")
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
-            {
-                final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("type", ButtonImage.class);
-                buttonImage.setText(categories.get(index).getA());
-                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
-                buttonImage.setHandler(button -> categories.get(index).getB().run());
-            }
-        });
-    }
-
-    /**
-     * This is called when one of the placement options is clicked.
-     * @param type the placement type
-     * @param id the custom id type.
-     */
-    private void handlePlacement(final BuildToolPlacementMessage.HandlerType type, final String id)
-    {
-        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
-        if (previewData.getBlueprint() != null)
-        {
-            Network.getNetwork()
-              .sendToServer(new BuildToolPlacementMessage(type,
-                id,
-                structurePack.getName(),
-                structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
-                previewData.getPos(),
-                previewData.getRotation(),
-                previewData.getMirror()));
-            if (type == BuildToolPlacementMessage.HandlerType.Survival)
-            {
-                cancelClicked();
-            }
-        }
-    }
-
     @Override
     public void settingsClicked()
     {
@@ -470,10 +381,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         folderList.show();
         blueprintList.disable();
         blueprintList.hide();
-        placementOptionsList.hide();
-        placementOptionsList.disable();
-        settingsList.hide();
-        settingsList.disable();
+        hidePlacementGui();
 
         final List<ButtonData> categories = new ArrayList<>();
         if (!inputCategories.isEmpty())
@@ -553,10 +461,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         blueprintList.show();
         folderList.disable();
         folderList.hide();
-        placementOptionsList.hide();
-        placementOptionsList.disable();
-        settingsList.hide();
-        settingsList.disable();
+        hidePlacementGui();
 
         final List<ButtonData> blueprints = new ArrayList<>();
         if (!inputBluePrints.isEmpty())
