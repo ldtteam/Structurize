@@ -223,7 +223,10 @@ public class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
                 final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings());
                 if (handlers.isEmpty())
                 {
+                    if (SurvivalBlueprintHandlers.getHandlers().isEmpty())
+                    {
                     Minecraft.getInstance().player.sendMessage(new TranslatableComponent("structurize.gui.no.survival.handler"), Minecraft.getInstance().player.getUUID());
+                    }
                     return;
                 }
 
