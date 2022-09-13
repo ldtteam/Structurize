@@ -623,6 +623,8 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(depth + ":" + list.get(index).getKey()));
                 button.setText(Component.literal("Alternative: " + (index+1)));
                 button.setTextColor(ChatFormatting.BLACK.getColor());
+
+                PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(Component.literal(list.get(index).getKey()));
             }
         });
     }

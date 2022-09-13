@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -39,7 +40,7 @@ public class BlueprintSyncMessage implements IMessage
         this.handlerId = buf.readUtf(32767);
 
         this.structurePackId = buf.readUtf(32767);
-        this.blueprintPath = buf.readUtf(32767);
+        this.blueprintPath = FilenameUtils.normalize(buf.readUtf(32767));
         this.pos = buf.readBlockPos();
         this.rotation = Rotation.values()[buf.readInt()];
         this.mirror = Mirror.values()[buf.readInt()];

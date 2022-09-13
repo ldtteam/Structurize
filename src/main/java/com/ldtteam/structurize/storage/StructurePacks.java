@@ -196,6 +196,56 @@ public class StructurePacks
     }
 
     /**
+     * Get a blueprint future.
+     * @param structurePackId the structure pack the blueprint is in.
+     * @param subPath the path of the specific blueprint in the pack.
+     * @param suppressError log exception or not.
+     * @return the blueprint future (might contain null).
+     */
+    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError)
+    {
+        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, suppressError));
+    }
+
+
+    /**
+     * Get the blueprint directly with a path.
+     * @param packName the pack we're looking in.
+     * @param path the path to search for.
+     * @param suppressError log exception or not.
+     * @return the blueprint.
+     */
+    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError)
+    {
+        return IOPool.submit(() -> getBlueprint(packName, path, suppressError));
+    }
+
+    // ------------------------- Synchronous Calls ------------------------- //
+
+    /**
+     * Get a blueprint directly (careful IO, might be slow).
+     * @param structurePackId the structure pack the blueprint is in.
+     * @param subPath the folder containing the blueprints.
+     * @return the blueprint or null.
+     */
+    @Nullable
+    public static Blueprint getBlueprint(final String structurePackId, final String subPath)
+    {
+        return getBlueprint(structurePackId, subPath, false);
+    }
+
+    /**
+     * Get the blueprint directly with a path.
+     * @param pack the pack this belongs to.
+     * @param path the path to search for.
+     * @return the blueprint.
+     */
+    public static Blueprint getBlueprint(final String pack, final Path path)
+    {
+        return getBlueprint(pack, path, false);
+    }
+
+    /**
      * Find a blueprint by name.
      * @param structurePackId the pack to search in.
      * @param name the name we're searching for.
@@ -344,10 +394,11 @@ public class StructurePacks
      * Get a blueprint directly (careful IO, might be slow).
      * @param structurePackId the structure pack the blueprint is in.
      * @param subPath the folder containing the blueprints.
+     * @param suppressError log exception or not.
      * @return the blueprint or null.
      */
     @Nullable
-    public static Blueprint getBlueprint(final String structurePackId, final String subPath)
+    public static Blueprint getBlueprint(final String structurePackId, final String subPath, final boolean suppressError)
     {
         while (!finishedLoading)
         {
@@ -369,16 +420,17 @@ public class StructurePacks
 
         //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
-        return getBlueprint(structurePackId, packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)));
+        return getBlueprint(structurePackId, packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)), suppressError);
     }
 
     /**
      * Get the blueprint directly with a path.
      * @param pack the pack this belongs to.
      * @param path the path to search for.
+     * @param suppressError log exception or not.
      * @return the blueprint.
      */
-    public static Blueprint getBlueprint(final String pack, final Path path)
+    public static Blueprint getBlueprint(final String pack, final Path path, final boolean suppressError)
     {
         try
         {
@@ -392,7 +444,10 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprint: ", e);
+            if (!suppressError)
+            {
+                Log.getLogger().error("Error loading blueprint: ", e);
+            }
         }
         return null;
     }
