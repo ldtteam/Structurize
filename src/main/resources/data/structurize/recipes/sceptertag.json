@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  X",
+    " S ",
+    "S  "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "result": {
+    "item": "structurize:sceptertag"
+  }
+}
