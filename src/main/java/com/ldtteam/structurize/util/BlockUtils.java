@@ -162,7 +162,7 @@ public final class BlockUtils
         {
             result = Blocks.SNOW_BLOCK.defaultBlockState();
         }
-        else if (result == null || !result.getMaterial().isSolid())
+        else if (result == null || !result.getMaterial().isSolid() || result.getBlock() == Blocks.BEDROCK)
         {
             // try default level block
             result = getDefaultBlockForLevel(level, null);
