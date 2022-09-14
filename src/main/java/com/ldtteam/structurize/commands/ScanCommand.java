@@ -13,9 +13,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * Command for opening WindowScanTool or scanning a structure into a file
@@ -25,7 +29,7 @@ public class ScanCommand extends AbstractCommand
     /**
      * Descriptive string.
      */
-    public final static String NAME = "scan";
+    public static final String NAME = "scan";
 
     /**
      * The player not found for a scan message.
@@ -45,27 +49,27 @@ public class ScanCommand extends AbstractCommand
     /**
      * The filename command argument.
      */
-    private static final String FILE_NAME = "filename";
+    public static final String FILE_NAME = "filename";
 
     /**
      * The player name command argument.
      */
-    private static final String PLAYER_NAME = "player";
+    public static final String PLAYER_NAME = "player";
 
     /**
      * Position 1 command argument.
      */
-    private static final String POS1 = "pos1";
+    public static final String POS1 = "pos1";
 
     /**
      * Position 2 command argument.
      */
-    private static final String POS2 = "pos2";
+    public static final String POS2 = "pos2";
 
     /**
      * Anchor position command argument.
      */
-    private static final String ANCHOR_POS = "anchor_pos";
+    public static final String ANCHOR_POS = "anchor_pos";
 
     private static int execute(final CommandSourceStack source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
     {
@@ -156,5 +160,32 @@ public class ScanCommand extends AbstractCommand
                                                 .executes(ScanCommand::onExecuteWithPlayerNameAndFileName)
                                                 .then(newArgument(ANCHOR_POS, BlockPosArgument.blockPos())
                                                         .executes(ScanCommand::onExecuteWithPlayerNameAndFileNameAndAnchorPos))))));
+    }
+
+    /**
+     * Generates a command string for the given parameters.
+     *
+     * @param from The first corner position.
+     * @param to The second corner position.
+     * @param anchor The anchor position, or null.
+     * @param name The scan filename.
+     * @return The command string.
+     */
+    @NotNull
+    public static String format(@NotNull final BlockPos from,
+                                @NotNull final BlockPos to,
+                                @Nullable final BlockPos anchor,
+                                @NotNull final String name)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(String.format("/%s %s %d %d %d %d %d %d @p %s", MOD_ID, NAME,
+                from.getX(), from.getY(), from.getZ(),
+                to.getX(), to.getY(), to.getZ(),
+                name));
+        if (anchor != null && new AABB(from, to).contains(anchor.getX(), anchor.getY(), anchor.getZ()))
+        {
+            builder.append(String.format(" %d %d %d", anchor.getX(), anchor.getY(), anchor.getZ()));
+        }
+        return builder.toString();
     }
 }

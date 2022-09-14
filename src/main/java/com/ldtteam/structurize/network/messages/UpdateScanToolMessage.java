@@ -1,24 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
-
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
 
 /**
  * Send the scan tool update message to the client.
  */
 public class UpdateScanToolMessage implements IMessage
 {
+    /**
+     * Structure name.
+     */
+    private final String name;
+
     /**
      * Position to scan from.
      */
@@ -34,6 +35,8 @@ public class UpdateScanToolMessage implements IMessage
      */
     public UpdateScanToolMessage(final FriendlyByteBuf buf)
     {
+        final String name = buf.readUtf();
+        this.name = name.isEmpty() ? null : name;
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
     }
@@ -44,15 +47,15 @@ public class UpdateScanToolMessage implements IMessage
      * @param to the end pos.
      */
     @SuppressWarnings("resource")
-    public UpdateScanToolMessage(final BlockPos from, final BlockPos to)
+    public UpdateScanToolMessage(@Nullable final String name, final BlockPos from, final BlockPos to)
     {
         final ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundTag compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
+            ItemScanTool.setStructureName(stack, name);
+            ItemScanTool.setBounds(stack, from, to);
         }
+        this.name = name;
         this.from = from;
         this.to = to;
     }
@@ -60,6 +63,7 @@ public class UpdateScanToolMessage implements IMessage
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
+        buf.writeUtf(name == null ? "" : name);
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
     }
@@ -77,9 +81,8 @@ public class UpdateScanToolMessage implements IMessage
         final ItemStack stack = ctxIn.getSender().getMainHandItem();
         if (stack.getItem() == ModItems.scanTool.get())
         {
-            final CompoundTag compound = stack.getOrCreateTag();
-            compound.put(FIRST_POS_STRING, NbtUtils.writeBlockPos(from));
-            compound.put(SECOND_POS_STRING, NbtUtils.writeBlockPos(to));
+            ItemScanTool.setStructureName(stack, name);
+            ItemScanTool.setBounds(stack, from, to);
         }
     }
 }

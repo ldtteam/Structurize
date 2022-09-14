@@ -98,6 +98,8 @@ public class NetworkChannel
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
         registerMessage(++idx, OperationHistoryMessage.class, OperationHistoryMessage::new);
+        registerMessage(++idx, ShowScanMessage.class, ShowScanMessage::new);
+        registerMessage(++idx, UpdateScanCommandBlockMessage.class, UpdateScanCommandBlockMessage::new);
 
         registerMessage(++idx, NotifyServerAboutStructurePacksMessage.class, NotifyServerAboutStructurePacksMessage::new);
         registerMessage(++idx, BuildToolPlacementMessage.class, BuildToolPlacementMessage::new);

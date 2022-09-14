@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
@@ -24,8 +25,8 @@ import net.minecraft.world.item.Item.Properties;
  */
 public abstract class AbstractItemWithPosSelector extends Item
 {
-    public static final  String NBT_START_POS    = FIRST_POS_STRING;
-    public static final  String NBT_END_POS      = SECOND_POS_STRING;
+    private static final String NBT_START_POS    = FIRST_POS_STRING;
+    private static final String NBT_END_POS      = SECOND_POS_STRING;
     private static final String START_POS_TKEY   = "item.possetter.firstpos";
     private static final String END_POS_TKEY     = "item.possetter.secondpos";
     private static final String MISSING_POS_TKEY = "item.possetter.missingpos";
@@ -59,7 +60,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     public abstract AbstractItemWithPosSelector getRegisteredItemInstance();
 
     /**
-     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, World, PlayerEntity, ItemStack)}.
+     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, Level, Player, ItemStack)}.
      * {@inheritDoc}
      */
     @Override
@@ -139,5 +140,19 @@ public abstract class AbstractItemWithPosSelector extends Item
     public float getDestroySpeed(final ItemStack stack, final BlockState state)
     {
         return Float.MAX_VALUE;
+    }
+
+    /**
+     * Saves the start/end coordinates on this stack.
+     * @param tool The tool stack (assumed already been validated)
+     * @param start The new start position
+     * @param end The new end position
+     */
+    public static void setBounds(@NotNull final ItemStack tool,
+                                 @NotNull final BlockPos start,
+                                 @NotNull final BlockPos end)
+    {
+        tool.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(start));
+        tool.getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(end));
     }
 }

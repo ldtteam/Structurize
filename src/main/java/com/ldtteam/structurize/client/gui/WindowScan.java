@@ -11,6 +11,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
@@ -74,6 +75,11 @@ public class WindowScan extends AbstractWindowSkeleton
     public static final int WHITE = Color.getByName("white", 0);
 
     /**
+     * The predefined name.
+     */
+    @Nullable private String name;
+
+    /**
      * The first pos.
      */
     private BlockPos pos1;
@@ -119,12 +125,15 @@ public class WindowScan extends AbstractWindowSkeleton
 
     /**
      * Constructor for when the player wants to scan something.
+     * @param name the predefined name (or null to guess).
      * @param pos1 the first pos.
      * @param pos2 the second pos.
+     * @param anchorPos the anchor position (or empty to guess).
      */
-    public WindowScan(final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
+    public WindowScan(@Nullable final String name, final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
     {
         super(Constants.MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
+        this.name = name;
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.anchorPos = anchorPos;
@@ -239,7 +248,11 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2z.setText(String.valueOf(pos2.getZ()));
 
         RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, anchorPos));
-        if (anchorPos.isPresent())
+        if (name != null && !name.isEmpty())
+        {
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(name);
+        }
+        else if (anchorPos.isPresent())
         {
             final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
             if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
@@ -255,12 +268,24 @@ public class WindowScan extends AbstractWindowSkeleton
         });
     }
 
+    @Override
+    public void onClosed()
+    {
+        if (RenderingCache.getBoxPreviewData("scan") != null)   // not confirmed/cancelled
+        {
+            updateBounds();
+        }
+
+        super.onClosed();
+    }
+
     /**
      * On cancel button.
      */
     private void discardClicked()
     {
         RenderingCache.removeBox("scan");
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(null, pos1, pos2));
         close();
     }
 
@@ -281,14 +306,11 @@ public class WindowScan extends AbstractWindowSkeleton
 
         Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, RenderingCache.getBoxPreviewData("scan").getAnchor() ));
         RenderingCache.removeBox("scan");
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(null, pos1, pos2));
         close();
     }
 
-    /**
-     * Clears and resets/updates all resources.
-     */
-    @SuppressWarnings("resource")
-    private void updateResources()
+    private void updateBounds()
     {
         final BlockPos def = Minecraft.getInstance().player.blockPosition();
         try
@@ -303,16 +325,25 @@ public class WindowScan extends AbstractWindowSkeleton
             final int z2 = pos2z.getText().isEmpty() ? def.getZ() : Integer.parseInt(pos2z.getText());
             pos2 = new BlockPos(x2, y2, z2);
         }
-        catch(final NumberFormatException e)
+        catch (final NumberFormatException e)
         {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number - Closing!"), false);
-            close();
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid Number"));
             return;
         }
 
         RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, this.anchorPos));
-        Network.getNetwork().sendToServer(new UpdateScanToolMessage(pos1, pos2));
-        
+        final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(name, pos1, pos2));
+    }
+
+    /**
+     * Clears and resets/updates all resources.
+     */
+    @SuppressWarnings("resource")
+    private void updateResources()
+    {
+        updateBounds();
+
         final Level world = Minecraft.getInstance().level;
         resources.clear();
         entities.clear();
