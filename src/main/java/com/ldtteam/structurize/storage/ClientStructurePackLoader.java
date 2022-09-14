@@ -10,6 +10,7 @@ import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksM
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.IOPool;
+import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
-import org.codehaus.plexus.util.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -234,23 +234,16 @@ public class ClientStructurePackLoader
         IOPool.execute(() ->
         {
             final StructurePackMeta pack = StructurePacks.disablePack(packName);
-            if (pack != null)
+            if (pack != null && !pack.isImmutable() && !JavaUtils.deleteDirectory(pack.getPath()))
             {
-                try
-                {
-                    FileUtils.deleteDirectory(new File(pack.getPath().toUri()));
-                }
-                catch (IOException e)
-                {
-                    Log.getLogger().warn("Error trying to delete pack: ", e);
-                }
+                Log.getLogger().warn("Error trying to delete pack: ");
             }
 
             try (ZipInputStream zis = new ZipInputStream(new ByteBufInputStream(payload)))
             {
                 ZipEntry zipEntry = zis.getNextEntry();
                 final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER);
-                FileUtils.deleteDirectory(new File(structureFolder.resolve(packName).toUri()));
+                JavaUtils.deleteDirectory(structureFolder.resolve(packName));
                 final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
 
                 while (zipEntry != null)

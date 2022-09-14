@@ -1,5 +1,11 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.api.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,4 +85,53 @@ public class JavaUtils
         final List<Class<?>> superClasses = commonSuperClass(true, false, classes);
         return superClasses.isEmpty() ? Object.class : superClasses.get(0);
     }
+
+    /**
+     * Delete directory and all files and directories in it.
+     * @param path the path of the file to delete.
+     * @return true if successful.
+     */
+    public static boolean deleteDirectory(Path path)
+    {
+        if (!Files.exists(path))
+        {
+            return true;
+        }
+
+        try
+        {
+            Files.list(path).forEach(child ->
+              {
+                  if (Files.isDirectory(child))
+                  {
+                      deleteDirectory(child);
+                  }
+
+                  try
+                  {
+                      Files.deleteIfExists(child);
+                  }
+                  catch (Exception e)
+                  {
+                     Log.getLogger().warn("Failed deleting: " + child, e);
+                  }
+              });
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().warn("Failed deleting: " + path, e);
+            return false;
+        }
+
+        try
+        {
+            return Files.deleteIfExists(path);
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().warn("Failed deleting: " + path, e);
+            return false;
+        }
+    }
+
 }

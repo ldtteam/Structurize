@@ -186,7 +186,7 @@ public class BlueprintPreviewData
         {
             this.blueprint = blueprint;
             this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
-            syncChangesToServer();
+            scheduleRefresh();
         }
         else
         {
