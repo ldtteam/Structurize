@@ -33,14 +33,14 @@ public class UpdateScanCommandBlockMessage implements IMessage
                                          @NotNull final BlockPos from,
                                          @NotNull final BlockPos to,
                                          @Nullable final BlockPos anchor,
-                                         @Nullable final String fileName,
+                                         @NotNull final String fileName,
                                          final boolean force)
     {
         this.pos = pos;
         this.from = from;
         this.to = to;
         this.anchor = anchor;
-        this.fileName = fileName == null ? "" : fileName;
+        this.fileName = fileName;
         this.force = force;
     }
 

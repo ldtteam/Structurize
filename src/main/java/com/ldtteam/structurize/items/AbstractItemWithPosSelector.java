@@ -58,7 +58,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     public abstract AbstractItemWithPosSelector getRegisteredItemInstance();
 
     /**
-     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, World, PlayerEntity, ItemStack)}.
+     * Structurize: Calls {@link AbstractItemWithPosSelector#onAirRightClick(BlockPos, BlockPos, Level, Player, ItemStack)}.
      * {@inheritDoc}
      */
     @Override

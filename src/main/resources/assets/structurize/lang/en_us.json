@@ -50,6 +50,7 @@
   "com.ldtteam.structurize.gui.commandtool.copycommand.notscan": "Can only copy scan commands. Attack instead to paste an active scan.",
   "com.ldtteam.structurize.gui.commandtool.copycommand.noscantool": "You need a scan tool on your hotbar to copy a scan command.",
   "com.ldtteam.structurize.gui.commandtool.pastenoscan": "You must have an active scan to paste into a command block.",
+  "com.ldtteam.structurize.gui.commandtool.pastenoscantool": "You need a scan tool on your hotbar to paste into a command block.",
   "com.ldtteam.structurize.gui.commandtool.pastebadcommand": "The command block contains something other than a scan command. Clear it first if you want to paste.",
   "com.ldtteam.structurize.gui.commandtool.pastebadname": "You must enter a filename for your scan (containing no spaces).",
   "com.ldtteam.structurize.gui.commandtool.pastedifferent": "Hold sneak if you really want to paste \"%s\" into the scanner for \"%s\".",

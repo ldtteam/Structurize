@@ -4,9 +4,10 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.commands.ScanCommand;
-import com.ldtteam.structurize.helpers.Settings;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.network.messages.UpdateScanCommandBlockMessage;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -251,7 +252,8 @@ public class ItemCommandTool extends Item
 
             ItemScanTool.setBounds(scanTool, from, to);
             ItemScanTool.setAnchorPos(scanTool, anchor);
-            Network.getNetwork().sendToPlayer(new ShowScanMessage(from, to, anchor, name), (ServerPlayer) player);
+            ItemScanTool.setStructureName(scanTool, name);
+            Network.getNetwork().sendToPlayer(new ShowScanMessage(from, to, anchor), (ServerPlayer) player);
 
             player.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.commandtool.copycommand.ok", name), player.getUUID());
             player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -329,18 +331,24 @@ public class ItemCommandTool extends Item
         {
             if (world.isClientSide())
             {
-                if (Settings.instance.getBox() == null)
+                final BoxPreviewData scan = RenderingCache.getBoxPreviewData("scan");
+                if (scan == null)
                 {
                     player.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.commandtool.pastenoscan"), player.getUUID());
                     return false;
                 }
 
-                final BlockPos from = Settings.instance.getBox().getA();
-                final BlockPos to = Settings.instance.getBox().getB();
-                final BlockPos anchor = Settings.instance.getAnchorPos().orElse(null);
+                final ItemStack scanTool = findScanTool(player);
+                if (scanTool.isEmpty())
+                {
+                    player.sendMessage(new TranslatableComponent("com.ldtteam.structurize.gui.commandtool.pastenoscantool"), player.getUUID());
+                    return false;
+                }
 
-                String name = Settings.instance.getStructureName();
-                Network.getNetwork().sendToServer(new UpdateScanCommandBlockMessage(pos, from, to, anchor, name, player.isShiftKeyDown()));
+                final String name = ItemScanTool.getStructureName(scanTool);
+                Network.getNetwork().sendToServer(new UpdateScanCommandBlockMessage(pos,
+                        scan.getPos1(), scan.getPos2(), scan.getAnchor().orElse(null),
+                        name, player.isShiftKeyDown()));
             }
 
             return false;

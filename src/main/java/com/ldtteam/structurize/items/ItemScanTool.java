@@ -12,14 +12,14 @@ import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.InteractionResult;
@@ -44,6 +44,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
+    private static final String NBT_STRUCTURE_NAME  = "structurize:name";
 
     /**
      * Creates default scan tool item.
@@ -90,18 +91,24 @@ public class ItemScanTool extends AbstractItemWithPosSelector
             }
         }
 
+        String name = getStructureName(itemStack);
+        if (name.isEmpty())
+        {
+            name = null;
+        }
+
         if (!worldIn.isClientSide)
         {
             if (playerIn.isShiftKeyDown())
             {
-                saveStructure(worldIn, start, end, playerIn, null, true, anchorPos);
+                saveStructure(worldIn, start, end, playerIn, name, true, anchorPos);
             }
         }
         else
         {
             if (!playerIn.isShiftKeyDown())
             {
-                final WindowScan window = new WindowScan(start, end, anchorPos);
+                final WindowScan window = new WindowScan(name, start, end, anchorPos);
                 window.open();
             }
         }
@@ -250,6 +257,24 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         return false;
     }
 
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack,
+                                @Nullable Level world,
+                                @NotNull List<Component> tooltip,
+                                @NotNull TooltipFlag flags)
+    {
+        super.appendHoverText(stack, world, tooltip, flags);
+
+        if (stack.hasTag())
+        {
+            final String name = getStructureName(stack);
+            if (!name.isEmpty())
+            {
+                tooltip.add(new TextComponent(name));
+            }
+        }
+    }
+
     /**
      * Saves the anchor coordinates on this stack.
      * @param tool The tool stack (assumed already been validated)
@@ -266,5 +291,33 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         {
             tool.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(anchor));
         }
+    }
+
+    /**
+     * Saves the structure name on this stack.
+     * @param tool The tool stack (assumed already validated)
+     * @param name The structure name (or null/empty to clear)
+     */
+    public static void setStructureName(@NotNull final ItemStack tool,
+                                        @Nullable final String name)
+    {
+        if (name == null || name.isEmpty())
+        {
+            tool.getOrCreateTag().remove(NBT_STRUCTURE_NAME);
+        }
+        else
+        {
+            tool.getOrCreateTag().putString(NBT_STRUCTURE_NAME, name);
+        }
+    }
+
+    /**
+     * Gets the structure name saved on this stack.
+     * @param tool The tool stack (assumed already validated)
+     * @return The structure name (or empty string)
+     */
+    public static String getStructureName(@NotNull final ItemStack tool)
+    {
+        return tool.getOrCreateTag().getString(NBT_STRUCTURE_NAME);
     }
 }

@@ -1,8 +1,9 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.helpers.Settings;
-import com.ldtteam.structurize.util.ClientStructureWrapper;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,6 @@ public class ShowScanMessage implements IMessage
     private final BlockPos from;
     private final BlockPos to;
     @Nullable private final BlockPos anchor;
-    private final String fileName;
 
     /**
      * Tell the client to update its scan region display.
@@ -34,17 +34,14 @@ public class ShowScanMessage implements IMessage
      * @param from The first corner.
      * @param to The second corner.
      * @param anchor The anchor, if any.
-     * @param fileName The scan filename.
      */
     public ShowScanMessage(@NotNull final BlockPos from,
                            @NotNull final BlockPos to,
-                           @Nullable final BlockPos anchor,
-                           @NotNull final String fileName)
+                           @Nullable final BlockPos anchor)
     {
         this.from = from;
         this.to = to;
         this.anchor = anchor;
-        this.fileName = fileName;
     }
 
     /**
@@ -62,7 +59,6 @@ public class ShowScanMessage implements IMessage
         {
             this.anchor = null;
         }
-        this.fileName = buf.readUtf();
     }
 
     /**
@@ -82,7 +78,6 @@ public class ShowScanMessage implements IMessage
             buf.writeBoolean(true);
             buf.writeBlockPos(this.anchor);
         }
-        buf.writeUtf(this.fileName);
     }
 
     @Nullable
@@ -95,8 +90,6 @@ public class ShowScanMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        Settings.instance.setAnchorPos(Optional.ofNullable(this.anchor));
-        Settings.instance.setBox(new Tuple<>(this.from, this.to));
-        Settings.instance.setStructureName(this.fileName);
+        RenderingCache.queue("scan", new BoxPreviewData(this.from, this.to, Optional.ofNullable(this.anchor)));
     }
 }
