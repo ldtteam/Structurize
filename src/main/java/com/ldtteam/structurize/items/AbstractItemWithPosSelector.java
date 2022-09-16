@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -155,5 +156,18 @@ public abstract class AbstractItemWithPosSelector extends Item
         final CompoundTag tag = tool.getOrCreateTag();
         tag.put(NBT_START_POS, NbtUtils.writeBlockPos(start));
         tag.put(NBT_END_POS, NbtUtils.writeBlockPos(end));
+    }
+
+    /**
+     * Loads the start/end coordinates from this stack.
+     * @param tool The tool stack (assumed already been validated)
+     * @return the start/end positions
+     */
+    public static Tuple<BlockPos, BlockPos> getBounds(@NotNull final ItemStack tool)
+    {
+        final CompoundTag tag = tool.getOrCreateTag();
+        final BlockPos start = NbtUtils.readBlockPos(tag.getCompound(NBT_START_POS));
+        final BlockPos end = NbtUtils.readBlockPos(tag.getCompound(NBT_END_POS));
+        return new Tuple<>(start, end);
     }
 }

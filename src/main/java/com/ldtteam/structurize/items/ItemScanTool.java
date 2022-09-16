@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.items;
 
+import com.ldtteam.structurize.api.util.IMiddleClickableItem;
+import com.ldtteam.structurize.api.util.IScrollableItem;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
@@ -8,12 +10,17 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
@@ -26,20 +33,20 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
-import net.minecraft.world.item.Item.Properties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemWithPosSelector
+public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, IMiddleClickableItem
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
@@ -275,20 +282,85 @@ public class ItemScanTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull Component displayName)
+    public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
-        displayName = super.getHighlightTip(stack, displayName);
+        MutableComponent display = Component.empty()
+                .append(super.getHighlightTip(stack, displayName))
+                .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY));
+
+        final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
+        display = display.append(Component.literal(String.valueOf(data.getCurrentSlotId())));
 
         final String name = getStructureName(stack);
         if (!name.isEmpty())
         {
-            return Component.empty()
-                    .append(displayName)
-                    .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
+            display = display.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
                     .append(Component.literal(name));
         }
 
-        return displayName;
+        return display;
+    }
+
+    @Override
+    public InteractionResult onMiddleClick(@NotNull final Player player,
+                                           @NotNull final ItemStack stack,
+                                           @Nullable final BlockPos pos)
+    {
+        if (pos == null)
+        {
+            // treat click in air like mouse scrolling (just in case someone doesn't have a wheel)
+            final double delta = player.isShiftKeyDown() ? -1 : 1;
+            return onMouseScroll(player, stack, delta);
+        }
+
+        // ignore middle click on blocks for now (standard pick-block)
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public InteractionResult onMouseScroll(@NotNull final Player player,
+                                           @NotNull final ItemStack stack,
+                                           final double delta)
+    {
+        if (player.getLevel().isClientSide())
+        {
+            return InteractionResult.SUCCESS;
+        }
+
+        switchSlot((ServerPlayer) player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
+
+        return InteractionResult.SUCCESS;
+    }
+
+    public void switchSlot(@NotNull final ServerPlayer player,
+                           @NotNull final ItemStack stack,
+                           @NotNull final Consumer<ScanToolData> action)
+    {
+        final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
+        saveSlot(data, stack);
+        action.accept(data);
+        loadSlot(data, stack, player);
+    }
+
+    private void saveSlot(@NotNull final ScanToolData data,
+                          @NotNull final ItemStack stack)
+    {
+        data.setCurrentSlotData(new ScanToolData.Slot(getStructureName(stack), getBox(stack)));
+    }
+
+    private void loadSlot(@NotNull final ScanToolData data,
+                          @NotNull final ItemStack stack,
+                          @NotNull final ServerPlayer player)
+    {
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+
+        // this seems a little silly at first, duplicating this info outside the slot storage.
+        // but it preserves compatibility with AbstractItemWithPosSelector.
+        setStructureName(stack, slot.getName());
+        setBounds(stack, slot.getBox().getPos1(), slot.getBox().getPos2());
+        setAnchorPos(stack, slot.getBox().getAnchor().orElse(null));
+
+        Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
     }
 
     /**
@@ -307,6 +379,30 @@ public class ItemScanTool extends AbstractItemWithPosSelector
         {
             tool.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(anchor));
         }
+    }
+
+    /**
+     * Loads the anchor coordinates from this stack.
+     * @param tool The tool stack (assumed already been validated)
+     * @return the anchor position or null
+     */
+    @Nullable
+    public static BlockPos getAnchorPos(@NotNull final ItemStack tool)
+    {
+        final CompoundTag tag = tool.getOrCreateTag();
+        return tag.contains(NBT_ANCHOR_POS) ? NbtUtils.readBlockPos(tag.getCompound(NBT_ANCHOR_POS)) : null;
+    }
+
+    /**
+     * Gets the coordinates of this tool as a {@link BoxPreviewData}
+     * @param tool The tool stack (assumed already been validated)
+     * @return the box
+     */
+    public static BoxPreviewData getBox(@NotNull final ItemStack tool)
+    {
+        final Tuple<BlockPos, BlockPos> bounds = getBounds(tool);
+        final Optional<BlockPos> anchor = Optional.ofNullable(getAnchorPos(tool));
+        return new BoxPreviewData(bounds.getA(), bounds.getB(), anchor);
     }
 
     /**
