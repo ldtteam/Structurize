@@ -11,6 +11,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.commands.ScanCommand;
+import com.ldtteam.structurize.config.ServerConfiguration;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -512,7 +513,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      */
     public boolean onTeleport(@NotNull final Player player, @NotNull final ItemStack stack)
     {
-        if (!player.isCreative())
+        if (!player.isCreative() || !Structurize.getConfig().getServer().teleportAllowed.get())
         {
             return false;
         }
@@ -559,14 +560,18 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
         // teleport to whichever is further away of the command block or building
         BlockPos target = commandDistance < buildDistance ? buildPos : commandPos;
-        final ChunkAccess chunk = level.getChunk(target); // to force chunk loading for the below
-        @Nullable final BlockPos safeTarget = BlockPosUtil.findSafeTeleportPos(level, target, false);
-        if (safeTarget == null)
+
+        if (Structurize.getConfig().getServer().teleportSafety.get())
         {
-            Log.getLogger().warn("No safe landing for scan-teleport " + player.getName().getString() + " to " + target.toShortString());
-            return false;
+            final ChunkAccess chunk = level.getChunk(target); // to force chunk loading for the below
+            @Nullable final BlockPos safeTarget = BlockPosUtil.findSafeTeleportPos(level, target, false);
+            if (safeTarget == null)
+            {
+                Log.getLogger().warn("No safe landing for scan-teleport " + player.getName().getString() + " to " + target.toShortString());
+                return false;
+            }
+            target = safeTarget;
         }
-        target = safeTarget;
 
         if (target.getY() < level.getMinBuildHeight() + 2)
         {
@@ -616,8 +621,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     @NotNull
     private BlockPos getTeleportPos(@NotNull final BoxPreviewData box)
     {
-        final Direction direction = Direction.SOUTH;    // these could potentially be settings
-        final int offset = 3;
+        final Direction direction = Structurize.getConfig().getServer().teleportBuildDirection.get();
+        final int offset = Structurize.getConfig().getServer().teleportBuildDistance.get();
 
         final AABB bounds = new AABB(box.getPos1(), box.getPos2());
         final int size = (int) Math.round(bounds.max(direction.getAxis()) - bounds.min(direction.getAxis()));

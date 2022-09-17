@@ -2,6 +2,7 @@ package com.ldtteam.structurize.config;
 
 import com.google.common.collect.Lists;
 import com.ldtteam.structurize.update.UpdateMode;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
@@ -55,6 +56,10 @@ public class ServerConfiguration extends AbstractConfiguration
 
     public final ForgeConfigSpec.ConfigValue<List<Integer>> updateEndPos;
 
+    public final ForgeConfigSpec.BooleanValue teleportAllowed;
+    public final ForgeConfigSpec.EnumValue<Direction> teleportBuildDirection;
+    public final ForgeConfigSpec.IntValue teleportBuildDistance;
+    public final ForgeConfigSpec.BooleanValue teleportSafety;
 
     /**
      * Builds server configuration.
@@ -73,6 +78,15 @@ public class ServerConfiguration extends AbstractConfiguration
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
         iteratorType = defineString(builder, "iteratorType", "default");
+
+        finishCategory(builder);
+
+        createCategory(builder, "teleport");
+
+        teleportAllowed = defineBoolean(builder, "teleportAllowed", true);
+        teleportBuildDirection = defineEnum(builder, "teleportBuildDirection", Direction.SOUTH);
+        teleportBuildDistance = defineInteger(builder, "teleportBuildDistance", 3, 1, 16);
+        teleportSafety = defineBoolean(builder, "teleportSafety", true);
 
         finishCategory(builder);
 
