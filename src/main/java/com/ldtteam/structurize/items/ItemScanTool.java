@@ -280,11 +280,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         return desc;
     }
 
+    @NotNull
     @Override
     public InteractionResult onMiddleClick(@NotNull final Player player,
-                                           @NotNull final ItemStack stack,
-                                           @Nullable final BlockPos pos,
-                                           final int modifiers)
+                                                    @NotNull final ItemStack stack,
+                                                    @Nullable final BlockPos pos,
+                                                    final int modifiers)
     {
         if (pos == null)
         {
@@ -302,10 +303,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         return InteractionResult.PASS;
     }
 
+    @NotNull
     @Override
     public InteractionResult onMouseScroll(@NotNull final Player player,
-                                           @NotNull final ItemStack stack,
-                                           final double delta)
+                                                    @NotNull final ItemStack stack,
+                                                    final double delta)
     {
         if (player.getLevel().isClientSide())
         {

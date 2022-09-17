@@ -22,5 +22,6 @@ public interface IMiddleClickableItem
      * @return on client side, return SUCCESS to pass to server, FAIL to cancel, or PASS to do normal scrolling.
      *         on server side, return value is ignored.
      */
+    @NotNull
     InteractionResult onMiddleClick(@NotNull Player player, @NotNull ItemStack stack, @Nullable BlockPos pos, int modifiers);
 }
