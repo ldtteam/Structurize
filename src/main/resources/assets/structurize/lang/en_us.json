@@ -46,6 +46,11 @@
   "com.ldtteam.structurize.network.messages.schematicsavemassage.toobig": "Schematic size is too big, it cannot be bigger than %s bytes!",
   "com.structurize.command.playernotfound": "Couldn't find player to save the scan!",
   "com.structurize.command.scan.no.perm": "You don't have permission to scan via commands, use the Scan Tool instead!",
+  "com.structurize.command.scan.success": "Scan successfully saved",
+
+  "com.structurize.command.paste.no.perm": "You don't have permission to paste via commands, use the Build Tool instead!",
+  "com.structurize.command.paste.success": "Paste successfully triggered",
+
   "com.structurize.gui.buildtool.leave.tip": "Right-click the build tool on a solid block to adjust the build's position",
   "com.structurize.gui.buildtool.tip": "Press ESC to leave the GUI to inspect the preview",
   "item.caliper.message.1d": "line",
