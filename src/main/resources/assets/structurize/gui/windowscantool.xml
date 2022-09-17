@@ -14,6 +14,9 @@
     <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.name)"/>
     <input id="name" size="178 18" pos="130 30" maxlength="40"/>
 
+    <label size="30 11" pos="355 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.slot)" textalign="MIDDLE_RIGHT"/>
+    <input id="slot" size="18 18" pos="390 30" maxlength="2" enabled="false"/>
+
     <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="145 50"/>
     <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="235 50"/>
 

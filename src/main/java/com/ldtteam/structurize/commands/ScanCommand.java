@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.items.ItemScanTool;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.util.ScanToolData;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -95,7 +97,7 @@ public class ScanCommand extends AbstractCommand
             return 0;
         }
 
-        ItemScanTool.saveStructure(world, from, to, player, name == null ? "" : name, true, anchorPos);
+        ItemScanTool.saveStructure(world, player, new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchorPos)), true);
         source.sendFailure(Component.translatable(SCAN_SUCCESS_MESSAGE));
         return 1;
     }

@@ -18,6 +18,7 @@
   "com.ldtteam.structurize.gui.scantool.replace": "Replace",
   "com.ldtteam.structurize.gui.scantool.select": "Select",
   "com.ldtteam.structurize.gui.scantool.showres": "Show Resources",
+  "com.ldtteam.structurize.gui.scantool.slot": "Slot",
   "com.ldtteam.structurize.gui.scantool.to": "To",
   "com.ldtteam.structurize.gui.scantool.outsideanchor": "Skipping anchor outside of selected area, select a new one if you want to set one",
   "com.ldtteam.structurize.gui.scantool.scanbadanchor": "Schematic %s has more than one possible anchor position, please select one",

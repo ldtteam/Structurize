@@ -40,12 +40,23 @@ public class ScanToolData
     }
 
     /**
+     * Gets the internal tag used to store data.  Don't fiddle with this.
+     * @return the tag
+     */
+    @NotNull
+    public CompoundTag getInternalTag()
+    {
+        return this.tag;
+    }
+
+    /**
      * Gets the currently selected slot number
      * @return the slot number
      */
     public int getCurrentSlotId()
     {
-        return Math.max(0, Math.min(NUM_SLOTS - 1, this.tag.getInt(NBT_CURRENT)));
+        // the default slot is #1 so that we can treat slot 0 as if it were slot 10 (but we still call it slot 0)
+        return this.tag.contains(NBT_CURRENT) ?  Math.max(0, Math.min(NUM_SLOTS - 1, this.tag.getInt(NBT_CURRENT))) : 1;
     }
 
     /**

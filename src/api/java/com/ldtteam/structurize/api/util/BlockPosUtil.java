@@ -6,6 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Utility methods for BlockPos.
@@ -116,16 +119,7 @@ public final class BlockPosUtil
      */
     public static boolean isInbetween(final BlockPos inside, final BlockPos corner1, final BlockPos corner2)
     {
-        final int maxX = Math.max(corner1.getX(), corner2.getX());
-        final int minX = Math.min(corner1.getX(), corner2.getX());
-
-        final int maxY = Math.max(corner1.getY(), corner2.getY());
-        final int minY = Math.min(corner1.getY(), corner2.getY());
-
-        final int maxZ = Math.max(corner1.getZ(), corner2.getZ());
-        final int minZ = Math.min(corner1.getZ(), corner2.getZ());
-
-        return inside.getX() <= maxX && inside.getX() >= minX && inside.getY() <= maxY && inside.getY() >= minY && inside.getZ() <= maxZ && inside.getZ() >= minZ;
+        return BoundingBox.fromCorners(corner1, corner2).isInside(inside);
     }
 
     /**

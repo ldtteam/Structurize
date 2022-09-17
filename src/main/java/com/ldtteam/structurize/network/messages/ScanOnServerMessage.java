@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.items.ItemScanTool;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
@@ -15,24 +17,9 @@ import java.util.Optional;
 public class ScanOnServerMessage implements IMessage
 {
     /**
-     * Position to scan from.
+     * Scan data.
      */
-    private final BlockPos from;
-
-    /**
-     * Position to scan to.
-     */
-    private final BlockPos to;
-
-    /**
-     * The Anchor Pos.
-     */
-    private final Optional<BlockPos> anchorPos;
-
-    /**
-     * Name of the file.
-     */
-    private final String name;
+    private final ScanToolData.Slot slot;
 
     /**
      * Whether to scan entities
@@ -44,31 +31,31 @@ public class ScanOnServerMessage implements IMessage
      */
     public ScanOnServerMessage(final FriendlyByteBuf buf)
     {
-        this.name = buf.readUtf(32767);
-        this.from = buf.readBlockPos();
-        this.to = buf.readBlockPos();
+        final String name = buf.readUtf(32767);
+        final BlockPos from = buf.readBlockPos();
+        final BlockPos to = buf.readBlockPos();
+        final Optional<BlockPos> anchorPos = buf.readBoolean() ? Optional.of(buf.readBlockPos()) : Optional.empty();
+
+        this.slot = new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchorPos));
         this.saveEntities = buf.readBoolean();
-        this.anchorPos = buf.readBoolean() ? Optional.of(buf.readBlockPos()) : Optional.empty();
     }
 
-    public ScanOnServerMessage(final BlockPos from, final BlockPos to, final String name, final boolean saveEntities, final Optional<BlockPos> anchorPos)
+    public ScanOnServerMessage(final ScanToolData.Slot slot, final boolean saveEntities)
     {
-        this.from = from;
-        this.to = to;
-        this.name = name;
+        this.slot = slot;
         this.saveEntities = saveEntities;
-        this.anchorPos = anchorPos;
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        buf.writeUtf(name);
-        buf.writeBlockPos(from);
-        buf.writeBlockPos(to);
+        buf.writeUtf(slot.getName());
+        buf.writeBlockPos(slot.getBox().getPos1());
+        buf.writeBlockPos(slot.getBox().getPos2());
+        buf.writeBoolean(slot.getBox().getAnchor().isPresent());
+        slot.getBox().getAnchor().ifPresent(buf::writeBlockPos);
+
         buf.writeBoolean(saveEntities);
-        buf.writeBoolean(anchorPos.isPresent());
-        anchorPos.ifPresent(buf::writeBlockPos);
     }
 
     @Nullable
@@ -81,6 +68,6 @@ public class ScanOnServerMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ItemScanTool.saveStructure(ctxIn.getSender().getCommandSenderWorld(), from, to, ctxIn.getSender(), name, saveEntities, this.anchorPos);
+        ItemScanTool.saveStructure(ctxIn.getSender().getCommandSenderWorld(), ctxIn.getSender(), this.slot, saveEntities);
     }
 }

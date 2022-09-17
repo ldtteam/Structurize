@@ -17,6 +17,7 @@ import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -33,8 +34,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -74,24 +78,9 @@ public class WindowScan extends AbstractWindowSkeleton
     public static final int WHITE = Color.getByName("white", 0);
 
     /**
-     * The predefined name.
+     * The scan tool data.
      */
-    @Nullable private String name;
-
-    /**
-     * The first pos.
-     */
-    private BlockPos pos1;
-
-    /**
-     * The second pos.
-     */
-    private BlockPos pos2;
-
-    /**
-     * The anchor pos.
-     */
-    private Optional<BlockPos> anchorPos;
+    private final ScanToolData data;
 
     /**
      * Filter for the block and entity lists.
@@ -112,6 +101,8 @@ public class WindowScan extends AbstractWindowSkeleton
     private final TextField pos2y;
     private final TextField pos2z;
 
+    private final TextField slotId;
+
     /**
      * Resource scrolling list.
      */
@@ -124,18 +115,12 @@ public class WindowScan extends AbstractWindowSkeleton
 
     /**
      * Constructor for when the player wants to scan something.
-     * @param name the predefined name (or null to guess).
-     * @param pos1 the first pos.
-     * @param pos2 the second pos.
-     * @param anchorPos the anchor position (or empty to guess).
+     * @param data the scan tool data
      */
-    public WindowScan(@Nullable final String name, final BlockPos pos1, final BlockPos pos2, final Optional<BlockPos> anchorPos)
+    public WindowScan(@NotNull final ScanToolData data)
     {
         super(Constants.MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
-        this.name = name;
-        this.pos1 = pos1;
-        this.pos2 = pos2;
-        this.anchorPos = anchorPos;
+        this.data = data;
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::discardClicked);
         registerButton(BUTTON_SHOW_RES, this::showResClicked);
@@ -154,6 +139,8 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2x = findPaneOfTypeByID(POS2X_LABEL, TextField.class);
         pos2y = findPaneOfTypeByID(POS2Y_LABEL, TextField.class);
         pos2z = findPaneOfTypeByID(POS2Z_LABEL, TextField.class);
+
+        slotId = findPaneOfTypeByID("slot", TextField.class);
 
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         entityList = findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class);
@@ -238,27 +225,7 @@ public class WindowScan extends AbstractWindowSkeleton
             pos2z.disable();
         }
 
-        pos1x.setText(String.valueOf(pos1.getX()));
-        pos1y.setText(String.valueOf(pos1.getY()));
-        pos1z.setText(String.valueOf(pos1.getZ()));
-
-        pos2x.setText(String.valueOf(pos2.getX()));
-        pos2y.setText(String.valueOf(pos2.getY()));
-        pos2z.setText(String.valueOf(pos2.getZ()));
-
-        RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, anchorPos));
-        if (name != null && !name.isEmpty())
-        {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(name);
-        }
-        else if (anchorPos.isPresent())
-        {
-            final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(anchorPos.get());
-            if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
-            {
-                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());
-            }
-        }
+        loadSlot();
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
             filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
@@ -284,7 +251,6 @@ public class WindowScan extends AbstractWindowSkeleton
     private void discardClicked()
     {
         RenderingCache.removeBox("scan");
-        Network.getNetwork().sendToServer(new UpdateScanToolMessage(null, pos1, pos2));
         close();
     }
 
@@ -293,24 +259,69 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void confirmClicked()
     {
-        final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
+        updateBounds();
 
-        final int x1 = Integer.parseInt(pos1x.getText());
-        final int y1 = Integer.parseInt(pos1y.getText());
-        final int z1 = Integer.parseInt(pos1z.getText());
-
-        final int x2 = Integer.parseInt(pos2x.getText());
-        final int y2 = Integer.parseInt(pos2y.getText());
-        final int z2 = Integer.parseInt(pos2z.getText());
-
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), name, true, RenderingCache.getBoxPreviewData("scan").getAnchor() ));
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(slot, true));
         RenderingCache.removeBox("scan");
-        Network.getNetwork().sendToServer(new UpdateScanToolMessage(null, pos1, pos2));
         close();
+    }
+
+    @Override
+    public boolean onUnhandledKeyTyped(final int ch, final int key)
+    {
+        if (key == GLFW.GLFW_KEY_ESCAPE && getFocus() != null)
+        {
+            clearFocus();
+            return true;
+        }
+
+        if (ch >= '0' && ch <= '9')
+        {
+            updateBounds();
+            data.moveTo(ch - '0');
+            loadSlot();
+            updateResources();
+            return true;
+        }
+
+        return super.onUnhandledKeyTyped(ch, key);
+    }
+
+    private void loadSlot()
+    {
+        slotId.setText(String.valueOf(data.getCurrentSlotId()));
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+
+        pos1x.setText(String.valueOf(slot.getBox().getPos1().getX()));
+        pos1y.setText(String.valueOf(slot.getBox().getPos1().getY()));
+        pos1z.setText(String.valueOf(slot.getBox().getPos1().getZ()));
+
+        pos2x.setText(String.valueOf(slot.getBox().getPos2().getX()));
+        pos2y.setText(String.valueOf(slot.getBox().getPos2().getY()));
+        pos2z.setText(String.valueOf(slot.getBox().getPos2().getZ()));
+
+        RenderingCache.queue("scan", slot.getBox());
+
+        findPaneOfTypeByID(NAME_LABEL, TextField.class).setText("");
+        if (!slot.getName().isEmpty())
+        {
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(slot.getName());
+        }
+        else if (slot.getBox().getAnchor().isPresent())
+        {
+            final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(slot.getBox().getAnchor().get());
+            if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
+            {
+                findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());
+            }
+        }
     }
 
     private void updateBounds()
     {
+        BlockPos pos1, pos2;
+
         final BlockPos def = Minecraft.getInstance().player.blockPosition();
         try
         {
@@ -330,9 +341,12 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        RenderingCache.queue("scan", new BoxPreviewData(pos1, pos2, this.anchorPos));
         final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
-        Network.getNetwork().sendToServer(new UpdateScanToolMessage(name, pos1, pos2));
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+        data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
+
+        RenderingCache.queue("scan", slot.getBox());
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(data));
     }
 
     /**
@@ -351,57 +365,52 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        for(int x = Math.min(pos1.getX(), pos2.getX()); x <= Math.max(pos1.getX(), pos2.getX()); x++)
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+
+        for (final BlockPos here : BlockPos.betweenClosed(slot.getBox().getPos1(), slot.getBox().getPos2()))
         {
-            for(int y = Math.min(pos1.getY(), pos2.getY()); y <= Math.max(pos1.getY(), pos2.getY()); y++)
+            final BlockState blockState = world.getBlockState(here);
+            final BlockEntity tileEntity = world.getBlockEntity(here);
+            final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
+
+            for (final Entity entity : list)
             {
-                for(int z = Math.min(pos1.getZ(), pos2.getZ()); z <= Math.max(pos1.getZ(), pos2.getZ()); z++)
+                // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
+                // and drops a lead, so we should alert builders that it exists in the scan
+                if (!entities.containsKey(entity.getName().getString())
+                        && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                        && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                            || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
                 {
-                    final BlockPos here = new BlockPos(x, y, z);
-                    final BlockState blockState = world.getBlockState(here);
-                    final BlockEntity tileEntity = world.getBlockEntity(here);
-                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
+                    entities.put(entity.getName().getString(), entity);
+                }
+            }
 
-                    for (final Entity entity : list)
+            @Nullable final Block block = blockState.getBlock();
+            if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
+            {
+                addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
+            }
+            else
+            {
+                boolean handled = false;
+                for (final IPlacementHandler handler : PlacementHandlers.handlers)
+                {
+                    if (handler.canHandle(world, BlockPos.ZERO, blockState))
                     {
-                        // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
-                        // and drops a lead, so we should alert builders that it exists in the scan
-                        if (!entities.containsKey(entity.getName().getString())
-                                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
-                                && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                                    || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        for (final ItemStack stack : itemList)
                         {
-                            entities.put(entity.getName().getString(), entity);
+                            addNeededResource(stack, 1);
                         }
+                        handled = true;
+                        break;
                     }
+                }
 
-                    @Nullable final Block block = blockState.getBlock();
-                    if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
-                    {
-                        addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
-                    }
-                    else
-                    {
-                        boolean handled = false;
-                        for (final IPlacementHandler handler : PlacementHandlers.handlers)
-                        {
-                            if (handler.canHandle(world, BlockPos.ZERO, blockState))
-                            {
-                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                                for (final ItemStack stack : itemList)
-                                {
-                                    addNeededResource(stack, 1);
-                                }
-                                handled = true;
-                                break;
-                            }
-                        }
-
-                        if (!handled)
-                        {
-                            addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
-                        }
-                    }
+                if (!handled)
+                {
+                    addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
                 }
             }
         }
