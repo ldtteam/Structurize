@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -194,7 +195,7 @@ public class ClientEventSubscriber
                 final ItemStack current = mc.player.getInventory().getSelected();
                 if (current.getItem() instanceof IMiddleClickableItem clickableItem)
                 {
-                    switch (clickableItem.onMiddleClick(mc.player, current, pos))
+                    switch (clickableItem.onMiddleClick(mc.player, current, pos, event.getModifiers()))
                     {
                         case PASS:
                             break;
@@ -203,7 +204,7 @@ public class ClientEventSubscriber
                             break;
                         default:
                             event.setCanceled(true);
-                            Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos));
+                            Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, event.getModifiers()));
                             break;
                     }
                 }

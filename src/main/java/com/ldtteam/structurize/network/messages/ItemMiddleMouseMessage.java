@@ -18,15 +18,18 @@ public class ItemMiddleMouseMessage implements IMessage
 {
     @Nullable private final BlockPos pos;
     private final double delta;
+    private final int modifiers;
 
     /**
      * Construct message for a middle mouse click event.
      * @param pos the block position clicked, or null if in air
+     * @param modifiers GLFW modifier keys held
      */
-    public ItemMiddleMouseMessage(@Nullable final BlockPos pos)
+    public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final int modifiers)
     {
         this.pos = pos;
         this.delta = 0;
+        this.modifiers = modifiers;
     }
 
     /**
@@ -37,6 +40,7 @@ public class ItemMiddleMouseMessage implements IMessage
     {
         this.pos = null;
         this.delta = delta;
+        this.modifiers = 0;
     }
 
     /**
@@ -47,6 +51,7 @@ public class ItemMiddleMouseMessage implements IMessage
     {
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
         this.delta = buf.readDouble();
+        this.modifiers = buf.readInt();
     }
 
     @Override
@@ -62,6 +67,7 @@ public class ItemMiddleMouseMessage implements IMessage
             buf.writeBlockPos(this.pos);
         }
         buf.writeDouble(this.delta);
+        buf.writeInt(this.modifiers);
     }
 
     @Nullable
@@ -81,7 +87,7 @@ public class ItemMiddleMouseMessage implements IMessage
         {
             if (current.getItem() instanceof IMiddleClickableItem clickableItem)
             {
-                clickableItem.onMiddleClick(player, current, this.pos);
+                clickableItem.onMiddleClick(player, current, this.pos, this.modifiers);
             }
         }
         else

@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.commands;
 
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
@@ -15,9 +16,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * Command for opening WindowScanTool or scanning a structure into a file
@@ -27,7 +31,7 @@ public class ScanCommand extends AbstractCommand
     /**
      * Descriptive string.
      */
-    public final static String NAME = "scan";
+    public static final String NAME = "scan";
 
     /**
      * The player not found for a scan message.
@@ -47,27 +51,27 @@ public class ScanCommand extends AbstractCommand
     /**
      * The filename command argument.
      */
-    private static final String FILE_NAME = "filename";
+    public static final String FILE_NAME = "filename";
 
     /**
      * The player name command argument.
      */
-    private static final String PLAYER_NAME = "player";
+    public static final String PLAYER_NAME = "player";
 
     /**
      * Position 1 command argument.
      */
-    private static final String POS1 = "pos1";
+    public static final String POS1 = "pos1";
 
     /**
      * Position 2 command argument.
      */
-    private static final String POS2 = "pos2";
+    public static final String POS2 = "pos2";
 
     /**
      * Anchor position command argument.
      */
-    private static final String ANCHOR_POS = "anchor_pos";
+    public static final String ANCHOR_POS = "anchor_pos";
 
     private static int execute(final CommandSourceStack source, final BlockPos from, final BlockPos to, final Optional<BlockPos> anchorPos, final GameProfile profile, final String name) throws CommandSyntaxException
     {
@@ -158,5 +162,27 @@ public class ScanCommand extends AbstractCommand
                                                 .executes(ScanCommand::onExecuteWithPlayerNameAndFileName)
                                                 .then(newArgument(ANCHOR_POS, BlockPosArgument.blockPos())
                                                         .executes(ScanCommand::onExecuteWithPlayerNameAndFileNameAndAnchorPos))))));
+    }
+
+    /**
+     * Generates a command string for the given parameters.
+     *
+     * @param slot The scan slot data.
+     * @return The command string.
+     */
+    @NotNull
+    public static String format(@NotNull final ScanToolData.Slot slot)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(String.format("/%s %s %s %s @p %s", MOD_ID, NAME,
+                BlockPosUtil.format(slot.getBox().getPos1()),
+                BlockPosUtil.format(slot.getBox().getPos2()),
+                slot.getName()));
+        if (slot.getBox().getAnchor().isPresent() && BlockPosUtil.isInbetween(slot.getBox().getAnchor().get(), slot.getBox().getPos1(), slot.getBox().getPos2()))
+        {
+            builder.append(' ');
+            builder.append(BlockPosUtil.format(slot.getBox().getAnchor().get()));
+        }
+        return builder.toString();
     }
 }

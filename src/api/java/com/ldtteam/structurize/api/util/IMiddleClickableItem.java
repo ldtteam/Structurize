@@ -18,8 +18,9 @@ public interface IMiddleClickableItem
      * @param player the player
      * @param stack the item stack
      * @param pos the clicked block, or null if clicking air
+     * @param modifiers GLFW modifier keys held
      * @return on client side, return SUCCESS to pass to server, FAIL to cancel, or PASS to do normal scrolling.
      *         on server side, return value is ignored.
      */
-    InteractionResult onMiddleClick(@NotNull Player player, @NotNull ItemStack stack, @Nullable BlockPos pos);
+    InteractionResult onMiddleClick(@NotNull Player player, @NotNull ItemStack stack, @Nullable BlockPos pos, int modifiers);
 }

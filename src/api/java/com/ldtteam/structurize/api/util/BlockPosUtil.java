@@ -21,6 +21,16 @@ public final class BlockPosUtil
     }
 
     /**
+     * Format a {@link BlockPos} to a string suitable for commands
+     * @param pos the pos
+     * @return a space-separated set of coord values
+     */
+    public static String format(final BlockPos pos)
+    {
+        return String.format("%d %d %d", pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /**
      * Writes a Chunk Coordinate to an NBT compound, with a specific tag name.
      *
      * @param compound Compound to write to.
