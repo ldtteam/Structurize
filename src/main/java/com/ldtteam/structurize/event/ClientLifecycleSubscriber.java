@@ -3,6 +3,7 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -14,6 +15,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -56,5 +58,11 @@ public class ClientLifecycleSubscriber
     public static void doClientStuff(final EntityRenderersEvent.RegisterRenderers event)
     {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.blockSubstitution.get(), RenderType.translucent());
+    }
+
+    @SubscribeEvent
+    public static void registerKeys(final RegisterKeyMappingsEvent event)
+    {
+        ModKeyMappings.register(event);
     }
 }

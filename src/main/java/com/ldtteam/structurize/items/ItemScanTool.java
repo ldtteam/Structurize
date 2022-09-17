@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.IMiddleClickableItem;
-import com.ldtteam.structurize.api.util.IScrollableItem;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.IMiddleClickableItem;
+import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.commands.ScanCommand;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
@@ -23,29 +24,41 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.BaseCommandBlock;
-import net.minecraft.world.level.block.CommandBlock;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,11 +70,6 @@ import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANC
 import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
-
 /**
  * Item used to scan structures.
  */
@@ -70,6 +78,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
     private static final String NBT_NAME = "structurize:name";
+    private static final String NBT_COMMAND_POS = "structurize:cmd_pos";
+    private static final String NBT_DIMENSION = "structurize:dim";
 
     /**
      * Creates default scan tool item.
@@ -413,6 +423,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                 name = StringArgumentType.getString(cmdContext, ScanCommand.FILE_NAME);
             }
 
+            stack.getOrCreateTag().put(NBT_COMMAND_POS, NbtUtils.writeBlockPos(command.getBlockPos()));
+            stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
+
             final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
             data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchor)));
             final ScanToolData.Slot slot = loadSlot(data, stack);
@@ -484,8 +497,132 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final String cmd = ScanCommand.format(slot);
         command.getCommandBlock().setCommand(cmd);
 
+        stack.getOrCreateTag().put(NBT_COMMAND_POS, NbtUtils.writeBlockPos(command.getBlockPos()));
+        stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
+
         player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.getName()), false);
         player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.0F);
+    }
+
+    /**
+     * Called on both client and server when the player presses the Teleport keybind while holding a scan tool.
+     * @param player the player
+     * @param stack the scan tool
+     * @return (client) true to pass to server, false to drop; (server) don't care
+     */
+    public boolean onTeleport(@NotNull final Player player, @NotNull final ItemStack stack)
+    {
+        if (!player.isCreative())
+        {
+            return false;
+        }
+
+        if (stack.getTag() == null || !stack.getTag().contains(NBT_COMMAND_POS))
+        {
+            if (player.getLevel().isClientSide())
+            {
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.nocmd"), false);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+            }
+            return false;
+        }
+
+        if (!player.getLevel().dimension().location().toString().equals(stack.getTag().getString(NBT_DIMENSION)))
+        {
+            if (player.getLevel().isClientSide())
+            {
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.dimension"), false);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+            }
+            return false;
+        }
+
+        final ScanToolData data = new ScanToolData(stack.getTag());
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+
+        if (slot.getBox().getPos1().equals(BlockPos.ZERO) && slot.getBox().getPos2().equals(BlockPos.ZERO))
+        {
+            if (player.getLevel().isClientSide())
+            {
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.noscan"), false);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+            }
+            return false;
+        }
+
+        final BlockPos commandPos = NbtUtils.readBlockPos(stack.getOrCreateTag().getCompound(NBT_COMMAND_POS)).above();
+        final BlockPos buildPos = getTeleportPos(slot.getBox());
+        final Level level = player.getLevel();
+
+        final long commandDistance = BlockPosUtil.getDistanceSquared(commandPos, player.blockPosition());
+        final long buildDistance = BlockPosUtil.getDistanceSquared(buildPos, player.blockPosition());
+
+        // teleport to whichever is further away of the command block or building
+        BlockPos target = commandDistance < buildDistance ? buildPos : commandPos;
+        final ChunkAccess chunk = level.getChunk(target); // to force chunk loading for the below
+        @Nullable final BlockPos safeTarget = BlockPosUtil.findSafeTeleportPos(level, target, false);
+        if (safeTarget == null)
+        {
+            Log.getLogger().warn("No safe landing for scan-teleport " + player.getName().getString() + " to " + target.toShortString());
+            return false;
+        }
+        target = safeTarget;
+
+        if (target.getY() < level.getMinBuildHeight() + 2)
+        {
+            // safety abort if we would teleport to bedrock or below (which can happen if the heightmap check fails)
+            Log.getLogger().warn("Aborting attempt to scan-teleport " + player.getName().getString() + " to " + target.toShortString());
+            return false;
+        }
+
+        for (int i = 0; i < 32; ++i)
+        {
+            level.addParticle(ParticleTypes.PORTAL, player.blockPosition().getX(), player.blockPosition().getY() + level.getRandom().nextDouble() * 2.0D, player.blockPosition().getZ(), level.getRandom().nextGaussian(), 0.0D, level.getRandom().nextGaussian());
+            level.addParticle(ParticleTypes.PORTAL, target.getX(), target.getY() + level.getRandom().nextDouble() * 2.0D, target.getZ(), level.getRandom().nextGaussian(), 0.0D, level.getRandom().nextGaussian());
+        }
+
+        if (player.getLevel() instanceof ServerLevel serverLevel)
+        {
+            player.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+
+            final CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, player.position(), Vec2.ZERO, serverLevel, 2,
+                    player.getName().getString(), stack.getDisplayName(), serverLevel.getServer(), player);
+            final CommandDispatcher<CommandSourceStack> dispatcher = serverLevel.getServer().getCommands().getDispatcher();
+            try
+            {
+                dispatcher.execute(String.format("teleport %s %f %f %f", player.getUUID(), target.getX() + 0.5, target.getY() + 0.0, target.getZ() + 0.5), source);
+            }
+            catch (Exception e)
+            {
+                Log.getLogger().error("Command tool teleport failed", e);
+            }
+
+            player.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        return true;
+    }
+
+    /**
+     * Determines the best position to teleport to, near the given scan bounds.
+     * This can't assume that the area is loaded, so it has to guess something appropriate.
+     *
+     * It's usually most convenient to appear outside the scanned area (it might be filled with placeholders),
+     * so we just pick an arbitrary location on a particular side that's convenient.
+     *
+     * @param box The scan area.
+     * @return A convenient teleportation position near but not inside the scan area.
+     */
+    @NotNull
+    private BlockPos getTeleportPos(@NotNull final BoxPreviewData box)
+    {
+        final Direction direction = Direction.SOUTH;    // these could potentially be settings
+        final int offset = 3;
+
+        final AABB bounds = new AABB(box.getPos1(), box.getPos2());
+        final int size = (int) Math.round(bounds.max(direction.getAxis()) - bounds.min(direction.getAxis()));
+
+        return new BlockPos(bounds.getCenter()).atY((int) bounds.minY).relative(direction, offset + size / 2);
     }
 
     /**

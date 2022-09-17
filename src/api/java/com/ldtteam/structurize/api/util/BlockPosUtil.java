@@ -5,10 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility methods for BlockPos.
@@ -252,5 +254,41 @@ public final class BlockPosUtil
             return start;
         }
         return next;
+    }
+
+    /**
+     * Given a target position, try to find a nearby location where a player can stand without suffocating.
+     * Searches for a 1x2x1 space of air, first at the same y level and then trying more y levels.
+     * @param level the level to search
+     * @param target the original target location
+     * @param falling if true, checks for something to land on as well; if false, assumes you don't care about fall dmg
+     * @return the safe target location, or null if none could be found
+     */
+    @Nullable
+    public static BlockPos findSafeTeleportPos(@NotNull final Level level,
+                                               @NotNull final BlockPos target,
+                                               final boolean falling)
+    {
+        final BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, target).above(2);
+
+        for (final BlockPos start : BlockPos.betweenClosed(target, top))
+        {
+            if (target.getY() < level.getMinBuildHeight()) continue;
+
+            for (final BlockPos pos : BlockPos.spiralAround(start, 15, Direction.SOUTH, Direction.EAST))
+            {
+                // look for 2 blocks of air, with a non-air block within 3 blocks below (a slight fall is acceptable)
+                if (level.isEmptyBlock(pos) && level.isEmptyBlock(pos.above()) &&
+                        (!falling ||
+                                !level.isEmptyBlock(pos.below()) ||
+                                !level.isEmptyBlock(pos.below(2)) ||
+                                !level.isEmptyBlock(pos.below(3))))
+                {
+                    return pos;
+                }
+            }
+        }
+
+        return null;
     }
 }

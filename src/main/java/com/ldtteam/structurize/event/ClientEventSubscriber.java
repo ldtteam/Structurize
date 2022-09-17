@@ -9,10 +9,13 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
+import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
+import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -163,16 +166,26 @@ public class ClientEventSubscriber
             return;
         }
 
-        Minecraft.getInstance().getProfiler().push("structurize");
+        final Minecraft mc = Minecraft.getInstance();
+        mc.getProfiler().push("structurize");
 
-        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        if (mc.level != null && mc.level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
         {
-            Minecraft.getInstance().getProfiler().push("blueprint_manager_tick");
+            mc.getProfiler().push("blueprint_manager_tick");
             BlueprintHandler.getInstance().cleanCache();
-            Minecraft.getInstance().getProfiler().pop();
+            mc.getProfiler().pop();
         }
 
-        Minecraft.getInstance().getProfiler().pop();
+        if (ModKeyMappings.TELEPORT.consumeClick() && mc.level != null && mc.player != null &&
+            mc.player.getMainHandItem().getItem() instanceof ItemScanTool tool)
+        {
+            if (tool.onTeleport(mc.player, mc.player.getMainHandItem()))
+            {
+                Network.getNetwork().sendToServer(new ScanToolTeleportMessage());
+            }
+        }
+
+        mc.getProfiler().pop();
     }
 
     @SubscribeEvent

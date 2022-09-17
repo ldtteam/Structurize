@@ -112,6 +112,7 @@ public class NetworkChannel
         registerMessage(++idx, SyncPreviewCacheToClient.class, SyncPreviewCacheToClient::new);
 
         registerMessage(++idx, ItemMiddleMouseMessage.class, ItemMiddleMouseMessage::new);
+        registerMessage(++idx, ScanToolTeleportMessage.class, ScanToolTeleportMessage::new);
     }
 
     private void setupInternalMessages()
