@@ -624,7 +624,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 button.setText(new TextComponent("Alternative: " + (index+1)));
                 button.setTextColor(ChatFormatting.BLACK.getColor());
 
-                PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(Component.literal(list.get(index).getKey()));
+                PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(new TextComponent(list.get(index).getKey()));
             }
         });
     }
