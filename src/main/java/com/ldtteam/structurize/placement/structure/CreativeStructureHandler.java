@@ -111,7 +111,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public int getStepsPerCall()
     {
-        return Structurize.getConfig().getServer().maxOperationsPerTick.get();
+        return 10;
     }
 
     @Override

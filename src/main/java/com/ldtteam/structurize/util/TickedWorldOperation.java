@@ -110,6 +110,8 @@ public class TickedWorldOperation
      */
     private int pct;
 
+    public static boolean next = true;
+
     /**
      * Create a ScanToolOperation.
      *
@@ -193,6 +195,11 @@ public class TickedWorldOperation
      */
     public boolean apply(final ServerLevel world)
     {
+        if (!next)
+        {
+            return false;
+        }
+
         if (placer != null && !placer.isReady())
         {
             return false;
@@ -220,13 +227,6 @@ public class TickedWorldOperation
                 StructurePhasePlacementResult result;
                 switch (structurePhase)
                 {
-                    case 0:
-                        //water
-                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
-                          () -> placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().canOcclude()), false);
-
-                        currentPos = result.getIteratorPos();
-                        break;
                     case 1:
                         //structure
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
@@ -251,10 +251,11 @@ public class TickedWorldOperation
                 if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
                 {
                     structurePhase++;
-                    if (structurePhase > 3)
+                    if (structurePhase > 2)
                     {
                         structurePhase = 0;
                         currentPos = null;
+                        next = false;
                     }
                 }
 

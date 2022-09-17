@@ -104,6 +104,7 @@ public class NetworkChannel
         registerMessage(++idx, BlueprintSyncMessage.class, BlueprintSyncMessage::new);
         registerMessage(++idx, SyncSettingsToServer.class, SyncSettingsToServer::new);
         registerMessage(++idx, SyncPreviewCacheToServer.class, SyncPreviewCacheToServer::new);
+        registerMessage(++idx, AdvanceQueueMessage.class, AdvanceQueueMessage::new);
 
         registerMessage(++idx, NotifyClientAboutStructurePacksMessage.class, NotifyClientAboutStructurePacksMessage::new);
         registerMessage(++idx, TransferStructurePackToClient.class, TransferStructurePackToClient::new);
