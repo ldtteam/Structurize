@@ -3,7 +3,7 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.IMiddleClickableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -21,16 +21,14 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -41,9 +39,9 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -189,37 +187,38 @@ public class ClientEventSubscriber
     }
 
     @SubscribeEvent
-    public static void onMouseButtonClick(final InputEvent.MouseButton.Pre event)
+    public static void onPreClientTickEvent(@NotNull final ClientTickEvent event)
     {
-        // it would have been nice to use the "pick block" event instead, but that only fires if clicked on a block
-        final Minecraft mc = Minecraft.getInstance();
-        if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_3 && event.getAction() == InputConstants.PRESS
-                && !event.isCanceled() && mc.player != null && mc.screen == null && mc.level != null)
-        {
-            final HitResult hitResult = mc.hitResult;
-            if (hitResult != null)
-            {
-                BlockPos pos = hitResult.getType() == HitResult.Type.BLOCK ? ((BlockHitResult)hitResult).getBlockPos() : null;
-                if (pos != null && mc.level.getBlockState(pos).isAir())
-                {
-                    pos = null;
-                }
+        if (event.phase != Phase.START) return;
 
-                final ItemStack current = mc.player.getInventory().getSelected();
-                if (current.getItem() instanceof IMiddleClickableItem clickableItem)
+        final Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || (mc.screen != null && !mc.screen.passEvents) || mc.level == null) return;
+
+        if (mc.options.keyPickItem.isDown())
+        {
+            BlockPos pos = mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK ? ((BlockHitResult)mc.hitResult).getBlockPos() : null;
+            if (pos != null && mc.level.getBlockState(pos).isAir())
+            {
+                pos = null;
+            }
+
+            final ItemStack current = mc.player.getInventory().getSelected();
+            if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
+            {
+                final boolean ctrlKey = Screen.hasControlDown();
+                switch (clickableItem.onBlockPick(mc.player, current, pos, ctrlKey))
                 {
-                    switch (clickableItem.onMiddleClick(mc.player, current, pos, event.getModifiers()))
-                    {
-                        case PASS:
-                            break;
-                        case FAIL:
-                            event.setCanceled(true);
-                            break;
-                        default:
-                            event.setCanceled(true);
-                            Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, event.getModifiers()));
-                            break;
-                    }
+                    case PASS:
+                        break;
+                    case FAIL:
+                        mc.options.keyPickItem.consumeClick();
+                        break;
+                    default:
+                        if (mc.options.keyPickItem.consumeClick())
+                        {
+                            Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
+                        }
+                        break;
                 }
             }
         }
@@ -229,23 +228,24 @@ public class ClientEventSubscriber
     public static void onMouseWheel(final InputEvent.MouseScrollingEvent event)
     {
         final Minecraft mc = Minecraft.getInstance();
-        if (!event.isCanceled() && mc.player != null && mc.player.isShiftKeyDown() && mc.screen == null && mc.level != null)
+        if (event.isCanceled() || mc.player == null || mc.screen != null || mc.level == null) return;
+        if (!mc.player.isShiftKeyDown()) return;
+
+        final ItemStack current = mc.player.getInventory().getSelected();
+        if (current.getItem() instanceof IScrollableItem scrollableItem)
         {
-            final ItemStack current = mc.player.getInventory().getSelected();
-            if (current.getItem() instanceof IScrollableItem scrollableItem)
+            final boolean ctrlKey = Screen.hasControlDown();
+            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta(), ctrlKey))
             {
-                switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta()))
-                {
-                    case PASS:
-                        break;
-                    case FAIL:
-                        event.setCanceled(true);
-                        break;
-                    default:
-                        event.setCanceled(true);
-                        Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta()));
-                        break;
-                }
+                case PASS:
+                    break;
+                case FAIL:
+                    event.setCanceled(true);
+                    break;
+                default:
+                    event.setCanceled(true);
+                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta(), ctrlKey));
+                    break;
             }
         }
     }

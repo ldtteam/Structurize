@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.IMiddleClickableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,29 +18,30 @@ public class ItemMiddleMouseMessage implements IMessage
 {
     @Nullable private final BlockPos pos;
     private final double delta;
-    private final int modifiers;
+    private final boolean ctrlKey;
 
     /**
      * Construct message for a middle mouse click event.
      * @param pos the block position clicked, or null if in air
-     * @param modifiers GLFW modifier keys held
+     * @param ctrlKey ctrl key is held
      */
-    public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final int modifiers)
+    public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final boolean ctrlKey)
     {
         this.pos = pos;
         this.delta = 0;
-        this.modifiers = modifiers;
+        this.ctrlKey = ctrlKey;
     }
 
     /**
      * Construct message for a middle mouse shift-scroll event.
      * @param delta the scroll delta; negative is upwards
+     * @param ctrlKey ctrl key is held
      */
-    public ItemMiddleMouseMessage(final double delta)
+    public ItemMiddleMouseMessage(final double delta, final boolean ctrlKey)
     {
         this.pos = null;
         this.delta = delta;
-        this.modifiers = 0;
+        this.ctrlKey = ctrlKey;
     }
 
     /**
@@ -51,7 +52,7 @@ public class ItemMiddleMouseMessage implements IMessage
     {
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
         this.delta = buf.readDouble();
-        this.modifiers = buf.readInt();
+        this.ctrlKey = buf.readBoolean();
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ItemMiddleMouseMessage implements IMessage
             buf.writeBlockPos(this.pos);
         }
         buf.writeDouble(this.delta);
-        buf.writeInt(this.modifiers);
+        buf.writeBoolean(this.ctrlKey);
     }
 
     @Nullable
@@ -85,16 +86,16 @@ public class ItemMiddleMouseMessage implements IMessage
 
         if (this.delta == 0)
         {
-            if (current.getItem() instanceof IMiddleClickableItem clickableItem)
+            if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
             {
-                clickableItem.onMiddleClick(player, current, this.pos, this.modifiers);
+                clickableItem.onBlockPick(player, current, this.pos, this.ctrlKey);
             }
         }
         else
         {
             if (current.getItem() instanceof IScrollableItem scrollableItem)
             {
-                scrollableItem.onMouseScroll(player, current, this.delta);
+                scrollableItem.onMouseScroll(player, current, this.delta, this.ctrlKey);
             }
         }
     }

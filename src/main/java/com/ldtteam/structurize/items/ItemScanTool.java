@@ -3,7 +3,7 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.IMiddleClickableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -11,7 +11,6 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.commands.ScanCommand;
-import com.ldtteam.structurize.config.ServerConfiguration;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -25,7 +24,6 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -39,27 +37,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +67,7 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, IMiddleClickableItem
+public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
@@ -282,32 +275,33 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
     @NotNull
     @Override
-    public InteractionResult onMiddleClick(@NotNull final Player player,
-                                                    @NotNull final ItemStack stack,
-                                                    @Nullable final BlockPos pos,
-                                                    final int modifiers)
+    public InteractionResult onBlockPick(@NotNull final Player player,
+                                         @NotNull final ItemStack stack,
+                                         @Nullable final BlockPos pos,
+                                         final boolean ctrlKey)
     {
         if (pos == null)
         {
-            // treat click in air like mouse scrolling (just in case someone doesn't have a wheel)
+            // treat pick in air like mouse scrolling (just in case someone doesn't have a wheel)
             final double delta = player.isShiftKeyDown() ? -1 : 1;
-            return onMouseScroll(player, stack, delta);
+            return onMouseScroll(player, stack, delta, ctrlKey);
         }
 
         if (player.getLevel().getBlockEntity(pos) instanceof CommandBlockEntity command)
         {
-            return onCommandBlockClick(player, stack, command, modifiers);
+            return onCommandBlockPick(player, stack, command, ctrlKey);
         }
 
-        // ignore middle click on blocks for now (standard pick-block)
+        // otherwise do standard pick-block
         return InteractionResult.PASS;
     }
 
     @NotNull
     @Override
     public InteractionResult onMouseScroll(@NotNull final Player player,
-                                                    @NotNull final ItemStack stack,
-                                                    final double delta)
+                                           @NotNull final ItemStack stack,
+                                           final double delta,
+                                           final boolean ctrlKey)
     {
         if (player.getLevel().isClientSide())
         {
@@ -353,17 +347,17 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     }
 
     /**
-     * Called on both client and server side when [shift-]middle-clicking a Command Block.
+     * Called on both client and server side when [shift-]pick-blocking a Command Block.
      * @param player the player
      * @param stack the scan tool
      * @param command the command block entity
-     * @param modifiers the modifier keys
+     * @param ctrlKey ctrl key is held
      * @return PASS to do the normal action, SUCCESS to pass to server, FAILURE to stop
      */
-    private InteractionResult onCommandBlockClick(@NotNull final Player player,
-                                                  @NotNull final ItemStack stack,
-                                                  @NotNull final CommandBlockEntity command,
-                                                  final int modifiers)
+    private InteractionResult onCommandBlockPick(@NotNull final Player player,
+                                                 @NotNull final ItemStack stack,
+                                                 @NotNull final CommandBlockEntity command,
+                                                 final boolean ctrlKey)
     {
         if (!player.isCreative())
         {
@@ -376,11 +370,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
         if (player.isShiftKeyDown())
         {
-            onCommandBlockPaste((ServerPlayer) player, stack, command, modifiers);
+            onCommandBlockPaste((ServerPlayer) player, stack, command, ctrlKey);
         }
         else
         {
-            onCommandBlockCopy((ServerPlayer) player, stack, command, modifiers);
+            onCommandBlockCopy((ServerPlayer) player, stack, command, ctrlKey);
         }
         return InteractionResult.SUCCESS;
     }
@@ -390,12 +384,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param player the player
      * @param stack the scan tool
      * @param command the command block
-     * @param modifiers the modifier keys
+     * @param ctrlKey ctrl key is held
      */
     private void onCommandBlockCopy(@NotNull final ServerPlayer player,
                                     @NotNull final ItemStack stack,
                                     @NotNull final CommandBlockEntity command,
-                                    final int modifiers)
+                                    final boolean ctrlKey)
     {
         final StringReader reader = new StringReader(command.getCommandBlock().getCommand());
         if (reader.canRead() && reader.peek() == '/') { reader.read(); }
@@ -448,12 +442,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param player the player
      * @param stack the scan tool
      * @param command the command block
-     * @param modifiers the modifier keys
+     * @param ctrlKey ctrl key is held
      */
     private void onCommandBlockPaste(@NotNull final ServerPlayer player,
                                      @NotNull final ItemStack stack,
                                      @NotNull final CommandBlockEntity command,
-                                     final int modifiers)
+                                     final boolean ctrlKey)
     {
         final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
         saveSlot(data, stack, player);
@@ -477,7 +471,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT, SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
-        else if ((modifiers & GLFW.GLFW_MOD_CONTROL) == 0)
+        else if (!ctrlKey)
         {
             final StringReader reader = new StringReader(command.getCommandBlock().getCommand());
             if (reader.canRead() && reader.peek() == '/') { reader.read(); }

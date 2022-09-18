@@ -16,9 +16,10 @@ public interface IScrollableItem
      * @param player the player
      * @param stack the item stack
      * @param delta the scroll delta; negative is up, positive is down
-     * @return on client side, return SUCCESS to pass to server, FAIL to cancel, or PASS to do normal scrolling.
-     *         on server side, return value is ignored.
+     * @param ctrlKey the ctrl key is held
+     * @return (client) return SUCCESS to pass to server, FAIL to cancel, or PASS to do normal scrolling.
+     *         (server) return value is ignored.
      */
     @NotNull
-    InteractionResult onMouseScroll(@NotNull Player player, @NotNull ItemStack stack, double delta);
+    InteractionResult onMouseScroll(@NotNull Player player, @NotNull ItemStack stack, double delta, boolean ctrlKey);
 }
