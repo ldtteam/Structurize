@@ -5,6 +5,7 @@ import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,6 +13,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
@@ -158,7 +160,7 @@ public class ScanCommand extends AbstractCommand
                                         .executes(ScanCommand::onExecuteWithAnchor))
                                 .then(newArgument(PLAYER_NAME, GameProfileArgument.gameProfile())
                                         .executes(ScanCommand::onExecuteWithPlayerName)
-                                        .then(newArgument(FILE_NAME, StringArgumentType.word())
+                                        .then(newArgument(FILE_NAME, StringArgumentType.string())
                                                 .executes(ScanCommand::onExecuteWithPlayerNameAndFileName)
                                                 .then(newArgument(ANCHOR_POS, BlockPosArgument.blockPos())
                                                         .executes(ScanCommand::onExecuteWithPlayerNameAndFileNameAndAnchorPos))))));
@@ -173,11 +175,14 @@ public class ScanCommand extends AbstractCommand
     @NotNull
     public static String format(@NotNull final ScanToolData.Slot slot)
     {
+        final String name = slot.getName().chars().anyMatch(c -> !StringReader.isAllowedInUnquotedString((char)c))
+                ? StringTag.quoteAndEscape(slot.getName()) : slot.getName();
+
         final StringBuilder builder = new StringBuilder();
         builder.append(String.format("/%s %s %s %s @p %s", MOD_ID, NAME,
                 BlockPosUtil.format(slot.getBox().getPos1()),
                 BlockPosUtil.format(slot.getBox().getPos2()),
-                slot.getName()));
+                name));
         if (slot.getBox().getAnchor().isPresent() && BlockPosUtil.isInbetween(slot.getBox().getAnchor().get(), slot.getBox().getPos1(), slot.getBox().getPos2()))
         {
             builder.append(' ');
