@@ -218,6 +218,10 @@ public class ClientEventSubscriber
                         break;
                 }
             }
+            else
+            {
+                ++mc.options.keyPickItem.clickCount;
+            }
         }
     }
 
