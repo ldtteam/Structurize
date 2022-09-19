@@ -194,7 +194,7 @@ public class ClientEventSubscriber
         final Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || (mc.screen != null && !mc.screen.passEvents) || mc.level == null) return;
 
-        if (mc.options.keyPickItem.isDown())
+        if (mc.options.keyPickItem.consumeClick())
         {
             BlockPos pos = mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK ? ((BlockHitResult)mc.hitResult).getBlockPos() : null;
             if (pos != null && mc.level.getBlockState(pos).isAir())
@@ -209,15 +209,12 @@ public class ClientEventSubscriber
                 switch (clickableItem.onBlockPick(mc.player, current, pos, ctrlKey))
                 {
                     case PASS:
+                        ++mc.options.keyPickItem.clickCount;
                         break;
                     case FAIL:
-                        mc.options.keyPickItem.consumeClick();
                         break;
                     default:
-                        if (mc.options.keyPickItem.consumeClick())
-                        {
-                            Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
-                        }
+                        Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
                         break;
                 }
             }
