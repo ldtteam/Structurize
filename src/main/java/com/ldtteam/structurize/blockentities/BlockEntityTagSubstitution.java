@@ -314,5 +314,18 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
             }
             return tag;
         }
+
+        /**
+         * Creates a new single-block {@link Blueprint} for the replacement block.
+         * @return the blueprint
+         */
+        @NotNull
+        public Blueprint createBlueprint()
+        {
+            final Blueprint blueprint = new Blueprint((short) 1, (short) 1, (short) 1);
+            blueprint.addBlockState(BlockPos.ZERO, getBlockState());
+            blueprint.getTileEntities()[0][0][0] = getBlockEntityTag().isEmpty() ? null : getBlockEntityTag().copy();
+            return blueprint;
+        }
     }
 }

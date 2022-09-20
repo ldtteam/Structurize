@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.items.ItemTagSubstitution;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.client.ForgeRenderTypes;
 import net.minecraftforge.client.model.data.ModelData;
@@ -93,8 +95,16 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
             final BlockEntity replacementEntity = replacement.getBlockEntity(pos);
             if (replacementEntity != null)
             {
+                // seems a little silly to create a blueprint, but the entityDispatcher won't render without a level...
+                final Blueprint blueprint = replacement.createBlueprint();
+                final BlueprintBlockAccess blockAccess = new BlueprintBlockAccess(blueprint);
+                replacementEntity.setLevel(blockAccess);
+
                 final BlockEntityRenderDispatcher entityDispatcher = this.context.getBlockEntityRenderDispatcher();
-                dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay, replacementEntity.getModelData(), renderType);
+                if (replacement.getBlockState().getRenderShape() == RenderShape.MODEL)
+                {
+                    dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay, replacementEntity.getModelData(), renderType);
+                }
                 entityDispatcher.render(replacementEntity, partialTick, poseStack, buffers);
             }
             else
