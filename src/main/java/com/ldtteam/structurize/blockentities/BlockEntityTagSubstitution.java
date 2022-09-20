@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.blockentities;
 
+import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -8,6 +10,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The block entity for BlockTagSubstitution
@@ -261,18 +266,22 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         @Nullable
         public BlockEntity getBlockEntity(final BlockPos pos)
         {
-            if (this.cachedBlockentity != null)
-            {
-                return this.cachedBlockentity;
-            }
-
-            if (this.blockentitytag.isEmpty())
-            {
-                return null;
-            }
-
-            this.cachedBlockentity = BlockEntity.loadStatic(pos, this.blockstate, this.blockentitytag);
+            this.cachedBlockentity = Optional.ofNullable(this.cachedBlockentity)
+                    .orElseGet(() -> createBlockEntity(pos));
             return this.cachedBlockentity;
+        }
+
+        /**
+         * Always creates and loads a new replacement block entity, if needed.
+         * @param pos the blockpos to use
+         * @return the new entity, or null if there isn't one
+         */
+        @Nullable
+        public BlockEntity createBlockEntity(final BlockPos pos)
+        {
+            return this.blockentitytag.isEmpty()
+                    ? null
+                    : BlockEntity.loadStatic(pos, this.blockstate, this.blockentitytag);
         }
 
         /**
