@@ -96,7 +96,12 @@ public class PasteFolderCommand extends AbstractCommand
      */
     private static final String PRETTY = "pretty";
 
-    private static int execute(final CommandSourceStack source, final BlockPos pos, final String pack, final String tempPath, final Rotation rotation, final boolean mirrored, final boolean pretty) throws CommandSyntaxException
+    /**
+     * The plot size command argument.
+     */
+    private static final String PLOT_SIZE = "plotSize";
+
+    private static int execute(final CommandSourceStack source, final BlockPos pos, final String pack, final String tempPath, final Rotation rotation, final boolean mirrored, final boolean pretty, final int plotSize) throws CommandSyntaxException
     {
         @Nullable final Level world = source.getLevel();
         if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
@@ -144,8 +149,6 @@ public class PasteFolderCommand extends AbstractCommand
         ServerFutureProcessor.queueBlueprintList(new ServerFutureProcessor.BlueprintListProcessingData(StructurePacks.getBlueprintsFuture(packName, path), world, (list) -> {
 
             final Map<String, List<Blueprint>> blueprintMapping = new LinkedHashMap<>();
-
-            // todo bulk up the ones with the same special in the GUI (those go on the same x) and the others then on the same (z)
             for (Blueprint blueprint : list)
             {
                 final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
@@ -200,9 +203,9 @@ public class PasteFolderCommand extends AbstractCommand
 
                     final StructurePlacer instantPlacer = new StructurePlacer(structure);
                     Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
-                    zOffset+=32;
+                    zOffset+=plotSize;
                 }
-                xOffset+=32;
+                xOffset+=plotSize;
                 zOffset = 0;
             }
         }));
@@ -217,7 +220,7 @@ public class PasteFolderCommand extends AbstractCommand
         final String packName  = StringArgumentType.getString(context, PACK_NAME);
         final String path  = StringArgumentType.getString(context, FILE_PATH);
 
-        return execute(context.getSource(), pos, packName, path, Rotation.NONE, false, true);
+        return execute(context.getSource(), pos, packName, path, Rotation.NONE, false, true, 34);
     }
 
     private static int onExecuteWithRotation(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -227,7 +230,7 @@ public class PasteFolderCommand extends AbstractCommand
         final String path  = StringArgumentType.getString(context, FILE_PATH);
         final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
 
-        return execute(context.getSource(), pos, packName, path, rotation, false, true);
+        return execute(context.getSource(), pos, packName, path, rotation, false, true, 34);
     }
 
     private static int onExecuteWithRotationAndMirror(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -238,7 +241,19 @@ public class PasteFolderCommand extends AbstractCommand
         final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
         final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
 
-        return execute(context.getSource(), pos, packName, path, rotation, mirror, true);
+        return execute(context.getSource(), pos, packName, path, rotation, mirror, true, 34);
+    }
+
+    private static int onExecuteWithPretty(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        final BlockPos pos = BlockPosArgument.getSpawnablePos(context, POS);
+        final String packName  = StringArgumentType.getString(context, PACK_NAME);
+        final String path  = StringArgumentType.getString(context, FILE_PATH);
+        final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
+        final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
+        final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
+
+        return execute(context.getSource(), pos, packName, path, rotation, mirror, pretty, 34);
     }
 
     private static int onExecuteWithFull(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -249,8 +264,9 @@ public class PasteFolderCommand extends AbstractCommand
         final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
         final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
         final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
+        final int plotSize = IntegerArgumentType.getInteger(context, PLOT_SIZE);
 
-        return execute(context.getSource(), pos, packName, path, rotation, mirror, pretty);
+        return execute(context.getSource(), pos, packName, path, rotation, mirror, pretty, plotSize);
     }
 
     protected static LiteralArgumentBuilder<CommandSourceStack> build()
@@ -266,6 +282,8 @@ public class PasteFolderCommand extends AbstractCommand
                     .then(newArgument(MIRROR, BoolArgumentType.bool())
                       .executes(PasteFolderCommand::onExecuteWithRotationAndMirror)
                       .then(newArgument(PRETTY, BoolArgumentType.bool())
-                        .executes(PasteFolderCommand::onExecuteWithFull))))))));
+                        .executes(PasteFolderCommand::onExecuteWithPretty)
+                              .then(newArgument(PLOT_SIZE, IntegerArgumentType.integer(16, 128))
+                                .executes(PasteFolderCommand::onExecuteWithFull)))))))));
     }
 }
