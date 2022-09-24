@@ -82,7 +82,7 @@ public final class Manager
      */
     public static void addToQueue(final TickedWorldOperation operation)
     {
-        scanToolOperationPool.push(operation);
+        scanToolOperationPool.addLast(operation);
     }
 
     /**

@@ -7,6 +7,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,12 +29,26 @@ public class ServerFutureProcessor
     private static final Queue<BlueprintDataProcessingData> blueprintDataConsumerQueue = new LinkedList<>();
 
     /**
+     * Queue for processing blueprint futures.
+     */
+    private static final Queue<BlueprintListProcessingData> blueprintListConsumerQueue = new LinkedList<>();
+
+    /**
      * Queue processing data to be handled on tick.
      * @param processingData the data to be processed.
      */
     public static void queueBlueprint(@NotNull final BlueprintProcessingData processingData)
     {
         blueprintConsumerQueue.add(processingData);
+    }
+
+    /**
+     * Queue processing data to be handled on tick.
+     * @param processingData the data to be processed.
+     */
+    public static void queueBlueprintList(@NotNull final BlueprintListProcessingData processingData)
+    {
+        blueprintListConsumerQueue.add(processingData);
     }
 
     /**
@@ -75,6 +90,19 @@ public class ServerFutureProcessor
                     e.printStackTrace();
                 }
             }
+
+            if (!blueprintListConsumerQueue.isEmpty() && blueprintListConsumerQueue.peek().level == event.level && blueprintListConsumerQueue.peek().blueprintFuture.isDone())
+            {
+                final BlueprintListProcessingData data = blueprintListConsumerQueue.poll();
+                try
+                {
+                    data.consumer.accept(data.blueprintFuture.get());
+                }
+                catch (InterruptedException | ExecutionException e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -87,4 +115,9 @@ public class ServerFutureProcessor
      * Data to be processed.
      */
     public record BlueprintDataProcessingData(Future<byte[]> blueprintDataFuture, Level level, Consumer<byte[]> consumer) { }
+
+    /**
+     * Data to be processed.
+     */
+    public record BlueprintListProcessingData(Future<List<Blueprint>> blueprintFuture, Level level, Consumer<List<Blueprint>> consumer) { }
 }
