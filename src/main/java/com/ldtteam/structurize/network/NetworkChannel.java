@@ -94,6 +94,7 @@ public class NetworkChannel
         registerMessage(++idx, UpdateScanToolMessage.class, UpdateScanToolMessage::new);
         registerMessage(++idx, UpdateClientRender.class, UpdateClientRender::new);
         registerMessage(++idx, BuildToolPlacementMessage.class, BuildToolPlacementMessage::new);
+        registerMessage(++idx, ShowScanMessage.class, ShowScanMessage::new);
 
         registerMessage(++idx, AddRemoveTagMessage.class, AddRemoveTagMessage::new);
         registerMessage(++idx, SetTagInTool.class, SetTagInTool::new);
@@ -109,6 +110,9 @@ public class NetworkChannel
         registerMessage(++idx, TransferStructurePackToClient.class, TransferStructurePackToClient::new);
         registerMessage(++idx, ClientBlueprintRequestMessage.class, ClientBlueprintRequestMessage::new);
         registerMessage(++idx, SyncPreviewCacheToClient.class, SyncPreviewCacheToClient::new);
+
+        registerMessage(++idx, ItemMiddleMouseMessage.class, ItemMiddleMouseMessage::new);
+        registerMessage(++idx, ScanToolTeleportMessage.class, ScanToolTeleportMessage::new);
     }
 
     private void setupInternalMessages()

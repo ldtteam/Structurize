@@ -1,14 +1,21 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.util.IScrollableItem;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
+import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
+import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
+import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -16,19 +23,25 @@ import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -151,15 +164,90 @@ public class ClientEventSubscriber
             return;
         }
 
-        Minecraft.getInstance().getProfiler().push("structurize");
+        final Minecraft mc = Minecraft.getInstance();
+        mc.getProfiler().push("structurize");
 
-        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        if (mc.level != null && mc.level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
         {
-            Minecraft.getInstance().getProfiler().push("blueprint_manager_tick");
+            mc.getProfiler().push("blueprint_manager_tick");
             BlueprintHandler.getInstance().cleanCache();
-            Minecraft.getInstance().getProfiler().pop();
+            mc.getProfiler().pop();
         }
 
-        Minecraft.getInstance().getProfiler().pop();
+        if (ModKeyMappings.TELEPORT.consumeClick() && mc.level != null && mc.player != null &&
+            mc.player.getMainHandItem().getItem() instanceof ItemScanTool tool)
+        {
+            if (tool.onTeleport(mc.player, mc.player.getMainHandItem()))
+            {
+                Network.getNetwork().sendToServer(new ScanToolTeleportMessage());
+            }
+        }
+
+        mc.getProfiler().pop();
+    }
+
+    @SubscribeEvent
+    public static void onPreClientTickEvent(@NotNull final ClientTickEvent event)
+    {
+        if (event.phase != Phase.START) return;
+
+        final Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || (mc.screen != null && !mc.screen.passEvents) || mc.level == null) return;
+
+        if (mc.options.keyPickItem.consumeClick())
+        {
+            BlockPos pos = mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK ? ((BlockHitResult)mc.hitResult).getBlockPos() : null;
+            if (pos != null && mc.level.getBlockState(pos).isAir())
+            {
+                pos = null;
+            }
+
+            final ItemStack current = mc.player.getInventory().getSelected();
+            if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
+            {
+                final boolean ctrlKey = Screen.hasControlDown();
+                switch (clickableItem.onBlockPick(mc.player, current, pos, ctrlKey))
+                {
+                    case PASS:
+                        ++mc.options.keyPickItem.clickCount;
+                        break;
+                    case FAIL:
+                        break;
+                    default:
+                        Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
+                        break;
+                }
+            }
+            else
+            {
+                ++mc.options.keyPickItem.clickCount;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMouseWheel(final InputEvent.MouseScrollingEvent event)
+    {
+        final Minecraft mc = Minecraft.getInstance();
+        if (event.isCanceled() || mc.player == null || mc.screen != null || mc.level == null) return;
+        if (!mc.player.isShiftKeyDown()) return;
+
+        final ItemStack current = mc.player.getInventory().getSelected();
+        if (current.getItem() instanceof IScrollableItem scrollableItem)
+        {
+            final boolean ctrlKey = Screen.hasControlDown();
+            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta(), ctrlKey))
+            {
+                case PASS:
+                    break;
+                case FAIL:
+                    event.setCanceled(true);
+                    break;
+                default:
+                    event.setCanceled(true);
+                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta(), ctrlKey));
+                    break;
+            }
+        }
     }
 }
