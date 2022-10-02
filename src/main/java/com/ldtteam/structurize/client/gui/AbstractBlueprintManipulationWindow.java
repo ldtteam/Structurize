@@ -9,6 +9,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
+import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
@@ -17,6 +18,7 @@ import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.LanguageHandler;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -248,59 +250,57 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     }
 
     @Override
-    public boolean onKeyTyped(final char ch, final int key)
+    public boolean onUnhandledKeyTyped(final int ch, final int key)
     {
-        if (ch == '\u0000')
+        if (ch != 0) return super.onUnhandledKeyTyped(ch, key);
+
+        final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
+
+        if (ModKeyMappings.MOVE_FORWARD.isActiveAndMatches(inputKey))
         {
-            if (key == 265)
-            {
-                moveForwardClicked();
-            }
-            else if (key == 264)
-            {
-                moveBackClicked();
-            }
-            else if (key == 262)
-            {
-                if (Screen.hasShiftDown())
-                {
-                    rotateRightClicked();
-                }
-                else
-                {
-                    moveRightClicked();
-                }
-            }
-            else if (key == 263)
-            {
-                if (Screen.hasShiftDown())
-                {
-                    rotateLeftClicked();
-                }
-                else
-                {
-                    moveLeftClicked();
-                }
-            }
-            else if (key == 257)
-            {
-                confirmClicked();
-            }
+            moveForwardClicked();
         }
-        else if (ch == '+')
+        else if (ModKeyMappings.MOVE_BACK.isActiveAndMatches(inputKey))
+        {
+            moveBackClicked();
+        }
+        else if (ModKeyMappings.MOVE_LEFT.isActiveAndMatches(inputKey))
+        {
+            moveLeftClicked();
+        }
+        else if (ModKeyMappings.MOVE_RIGHT.isActiveAndMatches(inputKey))
+        {
+            moveRightClicked();
+        }
+        else if (ModKeyMappings.MOVE_UP.isActiveAndMatches(inputKey))
         {
             moveUpClicked();
         }
-        else if (ch == '-')
+        else if (ModKeyMappings.MOVE_DOWN.isActiveAndMatches(inputKey))
         {
             moveDownClicked();
         }
-        else if (ch == 'm')
+        else if (ModKeyMappings.ROTATE_CW.isActiveAndMatches(inputKey))
+        {
+            rotateRightClicked();
+        }
+        else if (ModKeyMappings.ROTATE_CCW.isActiveAndMatches(inputKey))
+        {
+            rotateLeftClicked();
+        }
+        else if (ModKeyMappings.MIRROR.isActiveAndMatches(inputKey))
         {
             mirrorClicked();
         }
-
-        return super.onKeyTyped(ch, key);
+        else if (ModKeyMappings.PLACE.isActiveAndMatches(inputKey))
+        {
+            confirmClicked();
+        }
+        else
+        {
+            return super.onUnhandledKeyTyped(ch, key);
+        }
+        return true;
     }
 
     /**
