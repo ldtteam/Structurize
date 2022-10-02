@@ -256,43 +256,43 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
         final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
 
-        if (ModKeyMappings.MOVE_FORWARD.isActiveAndMatches(inputKey))
+        if (ModKeyMappings.MOVE_FORWARD.get().isActiveAndMatches(inputKey))
         {
             moveForwardClicked();
         }
-        else if (ModKeyMappings.MOVE_BACK.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MOVE_BACK.get().isActiveAndMatches(inputKey))
         {
             moveBackClicked();
         }
-        else if (ModKeyMappings.MOVE_LEFT.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MOVE_LEFT.get().isActiveAndMatches(inputKey))
         {
             moveLeftClicked();
         }
-        else if (ModKeyMappings.MOVE_RIGHT.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MOVE_RIGHT.get().isActiveAndMatches(inputKey))
         {
             moveRightClicked();
         }
-        else if (ModKeyMappings.MOVE_UP.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MOVE_UP.get().isActiveAndMatches(inputKey))
         {
             moveUpClicked();
         }
-        else if (ModKeyMappings.MOVE_DOWN.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MOVE_DOWN.get().isActiveAndMatches(inputKey))
         {
             moveDownClicked();
         }
-        else if (ModKeyMappings.ROTATE_CW.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.ROTATE_CW.get().isActiveAndMatches(inputKey))
         {
             rotateRightClicked();
         }
-        else if (ModKeyMappings.ROTATE_CCW.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.ROTATE_CCW.get().isActiveAndMatches(inputKey))
         {
             rotateLeftClicked();
         }
-        else if (ModKeyMappings.MIRROR.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.MIRROR.get().isActiveAndMatches(inputKey))
         {
             mirrorClicked();
         }
-        else if (ModKeyMappings.PLACE.isActiveAndMatches(inputKey))
+        else if (ModKeyMappings.PLACE.get().isActiveAndMatches(inputKey))
         {
             confirmClicked();
         }

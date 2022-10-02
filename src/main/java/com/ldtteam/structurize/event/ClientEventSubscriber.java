@@ -174,7 +174,7 @@ public class ClientEventSubscriber
             mc.getProfiler().pop();
         }
 
-        if (ModKeyMappings.TELEPORT.consumeClick() && mc.level != null && mc.player != null &&
+        if (ModKeyMappings.TELEPORT.get().consumeClick() && mc.level != null && mc.player != null &&
             mc.player.getMainHandItem().getItem() instanceof ItemScanTool tool)
         {
             if (tool.onTeleport(mc.player, mc.player.getMainHandItem()))
