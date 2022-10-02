@@ -253,12 +253,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     @Override
     public boolean onUnhandledKeyTyped(final int ch, final int key)
     {
-        if (key == GLFW.GLFW_KEY_ESCAPE && getFocus() != null)
-        {
-            clearFocus();
-            return true;
-        }
-
         if (ch != 0 || getFocus() != null) return super.onUnhandledKeyTyped(ch, key);
 
         final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
