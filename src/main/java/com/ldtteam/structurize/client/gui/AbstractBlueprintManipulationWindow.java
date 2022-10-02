@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -252,7 +253,13 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     @Override
     public boolean onUnhandledKeyTyped(final int ch, final int key)
     {
-        if (ch != 0) return super.onUnhandledKeyTyped(ch, key);
+        if (key == GLFW.GLFW_KEY_ESCAPE && getFocus() != null)
+        {
+            clearFocus();
+            return true;
+        }
+
+        if (ch != 0 || getFocus() != null) return super.onUnhandledKeyTyped(ch, key);
 
         final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
 
