@@ -248,7 +248,7 @@ public class ClientStructurePackLoader
 
                 while (zipEntry != null)
                 {
-                    boolean isDirectory = zipEntry.getName().endsWith(File.separator);
+                    boolean isDirectory = zipEntry.isDirectory();
                     Path newPath = zipSlipProtect(zipEntry, rootPath);
 
                     if (isDirectory)
