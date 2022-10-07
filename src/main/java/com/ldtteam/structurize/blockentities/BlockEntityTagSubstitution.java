@@ -10,6 +10,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -211,6 +212,21 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         }
 
         /**
+         * Construct
+         * @param blockstate the block state
+         * @param blockentity the block entity tag, if any
+         * @param itemstack the item stack
+         */
+        public ReplacementBlock(@NotNull final BlockState blockstate,
+                                @Nullable final CompoundTag blockentity,
+                                @NotNull final ItemStack itemstack)
+        {
+            this.blockstate = blockstate;
+            this.blockentitytag = blockentity == null ? new CompoundTag() : blockentity.copy();
+            this.itemstack = itemstack;
+        }
+
+        /**
          * Construct from tag
          * @param tag the tag to load
          */
@@ -326,6 +342,30 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
             blueprint.addBlockState(BlockPos.ZERO, getBlockState());
             blueprint.getTileEntities()[0][0][0] = getBlockEntityTag().isEmpty() ? null : getBlockEntityTag().copy();
             return blueprint;
+        }
+
+        /**
+         * Rotates and mirrors the replacement data, in response to a blueprint containing this replacement block
+         * being rotated or mirrored.
+         *
+         * @param pos the world location for the replacement block
+         * @param localRotation the relative rotation
+         * @param localMirror the relative mirror
+         * @param world the (actual) world
+         * @return the new replacement data
+         */
+        @NotNull
+        public BlockEntityTagSubstitution.ReplacementBlock rotateWithMirror(@NotNull final BlockPos pos,
+                                                                            @NotNull final Rotation localRotation,
+                                                                            @NotNull final Mirror localMirror,
+                                                                            @NotNull final Level world)
+        {
+            final Blueprint blueprint = createBlueprint();
+            blueprint.rotateWithMirror(localRotation, localMirror, world);
+
+            final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);
+            final CompoundTag newBlockData = blueprint.getTileEntityData(pos, BlockPos.ZERO);
+            return new ReplacementBlock(newBlockState, newBlockData, this.getItemStack());
         }
     }
 }

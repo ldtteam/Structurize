@@ -1,8 +1,11 @@
 package com.ldtteam.structurize.blueprints.v1;
 
+import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
+import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -682,6 +685,19 @@ public class Blueprint
                         compound.putInt("x", tempPos.getX());
                         compound.putInt("y", tempPos.getY());
                         compound.putInt("z", tempPos.getZ());
+
+                        // TODO: ideally this would be generalised to any IRotatableBlockEntity or we would instead
+                        //       reinflate the entity and use the Forge rotation method, but the latter requires a
+                        //       Level with blockstate and entity and the former requires reinflating everything
+                        //       before we can test whether it's rotatable or not, neither of which is ideal.  So
+                        //       for now this is the minimal requirement.
+                        if (compound.getString("id").equals(ModBlockEntities.TAG_SUBSTITUTION.getId().toString()))
+                        {
+                            BlockEntityTagSubstitution.ReplacementBlock replacement =
+                                    new BlockEntityTagSubstitution.ReplacementBlock(compound);
+                            replacement = replacement.rotateWithMirror(tempPos, rotDifference, mirDifference, world);
+                            replacement.write(compound);
+                        }
 
                         if (compound.contains(TAG_BLUEPRINTDATA))
                         {
