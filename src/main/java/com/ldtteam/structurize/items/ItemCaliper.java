@@ -11,14 +11,14 @@ import net.minecraft.world.level.Level;
 
 import net.minecraft.world.item.Item.Properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
  */
 public class ItemCaliper extends AbstractItemWithPosSelector
 {
-    private static final String ITEM_CALIPER_MESSAGE_SAME = "item.caliper.message.same";
-    private static final String ITEM_CALIPER_MESSAGE_BASE = "item.caliper.message.base";
-    private static final String ITEM_CALIPER_MESSAGE_BY = "item.caliper.message.by";
     private static final String ITEM_CALIPER_MESSAGE_XD = "item.caliper.message.%sd";
 
     /**
@@ -49,12 +49,6 @@ public class ItemCaliper extends AbstractItemWithPosSelector
             return InteractionResult.FAIL;
         }
 
-        if (start.equals(end))
-        {
-            playerIn.displayClientMessage(Component.translatable(ITEM_CALIPER_MESSAGE_SAME), false);
-            return InteractionResult.FAIL;
-        }
-
         handlePlayerMessage(start, end, playerIn);
 
         return InteractionResult.SUCCESS;
@@ -65,46 +59,22 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         int disX = Math.abs(end.getX() - start.getX());
         int disY = Math.abs(end.getY() - start.getY());
         int disZ = Math.abs(end.getZ() - start.getZ());
-        int flag = 3;
 
-        if (start.getX() == end.getX())
-        {
-            flag--;
-        }
-        if (start.getY() == end.getY())
-        {
-            flag--;
-        }
-        if (start.getZ() == end.getZ())
-        {
-            flag--;
-        }
-
-        final Component by = Component.empty().append(Component.literal(" "))
-                .append(Component.translatable(ITEM_CALIPER_MESSAGE_BY))
-                .append(Component.literal(" "));
-        MutableComponent msg = Component.empty();
+        List<Integer> distances = new ArrayList<>();
         if (disX != 0)
         {
-            disX++;
-            msg.append(Component.literal(String.valueOf(disX)));
+            distances.add(disX + 1);
         }
         if (disY != 0)
         {
-            if (!msg.getSiblings().isEmpty()) msg.append(by);
-            disY++;
-            msg.append(Component.literal(String.valueOf(disY)));
+            distances.add(disY + 1);
         }
         if (disZ != 0)
         {
-            if (!msg.getSiblings().isEmpty()) msg.append(by);
-            disZ++;
-            msg.append(Component.literal(String.valueOf(disZ)));
+            distances.add(disZ + 1);
         }
 
-        msg = Component.translatable(ITEM_CALIPER_MESSAGE_BASE, msg)
-                .append(Component.literal(" "))
-                .append(Component.translatable(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
-        playerIn.displayClientMessage(msg, false);
+        playerIn.displayClientMessage(Component.translatable(String.format(ITEM_CALIPER_MESSAGE_XD, distances.size()),
+                distances.toArray(new Object[0])), false);
     }
 }
