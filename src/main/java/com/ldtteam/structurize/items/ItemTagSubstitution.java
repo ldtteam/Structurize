@@ -2,11 +2,13 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.TagSubstitutionRenderer;
 import com.ldtteam.structurize.network.messages.AbsorbBlockMessage;
+import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -22,8 +24,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -113,12 +118,26 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         {
             replacement = blockception.getReplacement();
         }
+        else if (!isAllowed(blockentity))
+        {
+            Utils.playErrorSound(player);
+            return;
+        }
         else
         {
             replacement = new BlockEntityTagSubstitution.ReplacementBlock(blockstate, blockentity, absorbItem);
         }
 
         setBlockEntityData(stack, ModBlockEntities.TAG_SUBSTITUTION.get(), replacement.write(new CompoundTag()));
+    }
+
+    private boolean isAllowed(@Nullable final BlockEntity blockentity)
+    {
+        if (blockentity == null) return true;
+
+        final ITag<BlockEntityType<?>> tag = ForgeRegistries.BLOCK_ENTITY_TYPES.tags()
+                .getTag(ModTags.SUBSTITUTION_ABSORB_WHITELIST);
+        return tag.contains(blockentity.getType());
     }
 
     /**
