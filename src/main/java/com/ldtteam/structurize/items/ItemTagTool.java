@@ -200,8 +200,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProviderBE) te).addTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.addtag", currentTag, Component.translatable(
-                  worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.addtag",
+                        currentTag,
+                        Component.translatable(worldIn.getBlockState(pos).getBlock().getDescriptionId())), false);
             }
         }
         else
@@ -209,8 +210,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             ((IBlueprintDataProviderBE) te).removeTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendPlayerMessage(player, "com.ldtteam.structurize.gui.tagtool.removed", currentTag, Component.translatable(
-              worldIn.getBlockState(pos).getBlock().getDescriptionId()));
+                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.removed",
+                        currentTag,
+                        Component.translatable(worldIn.getBlockState(pos).getBlock().getDescriptionId())), false);
             }
         }
 
