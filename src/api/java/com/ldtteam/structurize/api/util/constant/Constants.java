@@ -17,6 +17,7 @@ public final class Constants
     public static final int    UPDATE_FLAG             = Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS;
     public static final String MINECOLONIES_MOD_ID     = "minecolonies";
     public static final String GROUNDLEVEL_TAG         = "groundlevel";
+    public static final String INVISIBLE_TAG           = "invisible";
     public static final int    GROUNDSTYLE_RELATIVE    = 1; // relative to anchor
     public static final int    GROUNDSTYLE_LEGACY_CAMP = 2; // 1 block at bottom
     public static final int    GROUNDSTYLE_LEGACY_SHIP = 3; // 3 blocks at bottom
