@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
@@ -74,7 +75,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "1");
+                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "1"), false);
             }
             return InteractionResultHolder.fail(itemstack);
         }
@@ -83,7 +84,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             if (worldIn.isClientSide())
             {
-                LanguageHandler.sendMessageToPlayer(playerIn, MISSING_POS_TKEY + "2");
+                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "2"), false);
             }
             return InteractionResultHolder.fail(itemstack);
         }
@@ -108,7 +109,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         final BlockPos pos = context.getClickedPos();
         if (context.getLevel().isClientSide())
         {
-            LanguageHandler.sendMessageToPlayer(context.getPlayer(), END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            context.getPlayer().displayClientMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         context.getItemInHand().getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(pos));
         return InteractionResult.SUCCESS;
@@ -129,7 +130,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(pos));
         if (player.getCommandSenderWorld().isClientSide())
         {
-            LanguageHandler.sendMessageToPlayer(player, START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            player.displayClientMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         return false;
     }

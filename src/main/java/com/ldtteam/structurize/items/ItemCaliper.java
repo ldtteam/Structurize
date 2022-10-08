@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
@@ -49,7 +51,7 @@ public class ItemCaliper extends AbstractItemWithPosSelector
 
         if (start.equals(end))
         {
-            LanguageHandler.sendMessageToPlayer(playerIn, ITEM_CALIPER_MESSAGE_SAME);
+            playerIn.displayClientMessage(Component.translatable(ITEM_CALIPER_MESSAGE_SAME), false);
             return InteractionResult.FAIL;
         }
 
@@ -78,31 +80,31 @@ public class ItemCaliper extends AbstractItemWithPosSelector
             flag--;
         }
 
-        final String by = " " + LanguageHandler.translateKey(ITEM_CALIPER_MESSAGE_BY) + " ";
-        StringBuilder msg = new StringBuilder();
+        final Component by = Component.empty().append(Component.literal(" "))
+                .append(Component.translatable(ITEM_CALIPER_MESSAGE_BY))
+                .append(Component.literal(" "));
+        MutableComponent msg = Component.empty();
         if (disX != 0)
         {
             disX++;
-            msg.append(disX);
-            msg.append(by);
+            msg.append(Component.literal(String.valueOf(disX)));
         }
         if (disY != 0)
         {
+            if (!msg.getSiblings().isEmpty()) msg.append(by);
             disY++;
-            msg.append(disY);
-            msg.append(by);
+            msg.append(Component.literal(String.valueOf(disY)));
         }
         if (disZ != 0)
         {
+            if (!msg.getSiblings().isEmpty()) msg.append(by);
             disZ++;
-            msg.append(disZ);
-            msg.append(by);
+            msg.append(Component.literal(String.valueOf(disZ)));
         }
-        msg.delete(msg.length() - by.length(), msg.length());
 
-        msg = new StringBuilder(LanguageHandler.translateKeyWithFormat(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
-        msg.append(" ");
-        msg.append(LanguageHandler.translateKeyWithFormat(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
-        LanguageHandler.sendMessageToPlayer(playerIn, msg.toString());
+        msg = Component.translatable(ITEM_CALIPER_MESSAGE_BASE, msg)
+                .append(Component.literal(" "))
+                .append(Component.translatable(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
+        playerIn.displayClientMessage(msg, false);
     }
 }
