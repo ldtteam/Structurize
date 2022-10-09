@@ -1,7 +1,6 @@
 name: Bug Report
 description: If you have a reproducible in-game issue
 labels: ["Bug"]
-assignees: Nightenom
 body:
   - type: checkboxes
     attributes:
@@ -34,7 +33,7 @@ body:
     id: mc_version
     attributes:
       label: Minecraft Version
-      options: ["1.16", "1.18"]
+      options: ["1.18", "1.19"]
     validations:
       required: true
   - type: input
