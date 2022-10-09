@@ -153,6 +153,15 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
 
         structurePack = StructurePacks.selectedPack;
+        if (structurePack == null)
+        {
+            if (StructurePacks.getPackMetas().isEmpty())
+            {
+                return;
+            }
+
+            structurePack = StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+        }
 
         registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
 
@@ -183,6 +192,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             handleBlueprintCategory(up.contains(":") ? up : currentBlueprintCat, true);
         }
         updateRotationState();
+    }
+
+    @Override
+    public void onOpened()
+    {
+        if (structurePack == null)
+        {
+            Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.pack.none"), false);
+            close();
+            return;
+        }
+
+        super.onOpened();
     }
 
     /**
