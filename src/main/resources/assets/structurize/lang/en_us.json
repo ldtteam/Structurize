@@ -179,5 +179,6 @@
   "structurize.share.previews": "Shares Previews:",
   "structurize.display.shared": "See Previews from others:",
   "structurize.gui.manipulation.info": "Use the arrow buttons on the right to move the preview around or use the configured keys. You can exit and reposition via esc and then right click again to re-enter.",
-  "structurize.pack.missing.blueprint": "The Requested Blueprint does not exist on the Serverside in the same Pack. Either the Client Pack has been tampered with, or the Server Pack is outdated."
+  "structurize.pack.missing.blueprint": "The Requested Blueprint does not exist on the Serverside in the same Pack. Either the Client Pack has been tampered with, or the Server Pack is outdated.",
+  "structurize.pack.none": "No structure packs are installed. Scan something or install a mod that provides packs."
 }
