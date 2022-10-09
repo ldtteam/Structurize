@@ -278,8 +278,10 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         @Nullable
         public BlockEntity getBlockEntity(final BlockPos pos)
         {
-            this.cachedBlockentity = Optional.ofNullable(this.cachedBlockentity)
-                    .orElseGet(() -> createBlockEntity(pos));
+            if (this.cachedBlockentity == null)
+            {
+                this.cachedBlockentity = createBlockEntity(pos);
+            }
             return this.cachedBlockentity;
         }
 
