@@ -153,7 +153,7 @@ public class BlueprintIteratorHilbert extends AbstractBlueprintIterator
         // trivial column fill
         if (width == 1)
         {
-            for (int i = 0; i < width; ++i, x += dbx, z += dbz)
+            for (int i = 0; i < height; ++i, x += dbx, z += dbz)
             {
                 this.positions.add(new BlockPos(x, 0, z));
             }
