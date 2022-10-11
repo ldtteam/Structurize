@@ -19,6 +19,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -330,8 +332,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
                                     packName,
                                     subpath.toString(),
                                     previewData.getPos(),
-                                    previewData.getRotation(),
-                                    previewData.getMirror()))));
+                                    Rotation.NONE,
+                                    Mirror.NONE))));
 
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
