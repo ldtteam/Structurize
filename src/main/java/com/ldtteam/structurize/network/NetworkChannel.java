@@ -113,6 +113,7 @@ public class NetworkChannel
 
         registerMessage(++idx, ItemMiddleMouseMessage.class, ItemMiddleMouseMessage::new);
         registerMessage(++idx, ScanToolTeleportMessage.class, ScanToolTeleportMessage::new);
+        registerMessage(++idx, AbsorbBlockMessage.class, AbsorbBlockMessage::new);
     }
 
     private void setupInternalMessages()

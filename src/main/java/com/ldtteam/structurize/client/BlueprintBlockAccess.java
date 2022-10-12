@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
@@ -165,6 +166,11 @@ public class BlueprintBlockAccess extends Level
         }
         if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
         {
+            if (BlueprintUtils.getTileEntityFromPos(blueprint, pos, this) instanceof BlockEntityTagSubstitution tag &&
+                    !tag.getReplacement().isEmpty())
+            {
+                return tag.getReplacement().getBlockState();
+            }
             return Blocks.AIR.defaultBlockState();
         }
         return state;

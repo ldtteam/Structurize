@@ -1,0 +1,33 @@
+{
+  "parent": "block/block",
+  "render_type": "cutout_mipped",
+  "textures": {
+    "particle": "structurize:blocks/blocktagsubstitution",
+    "bottom": "structurize:blocks/blocktagsubstitution",
+    "top": "structurize:blocks/blocktagsubstitution",
+    "side": "structurize:blocks/blocktagsubstitution"
+  },
+  "elements": [
+    {   "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },
+        "up":   { "uv": [ 0, 0, 16, 16 ], "texture": "#top", "cullface": "up" }
+      }
+    },
+    {   "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+        "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" }
+      }
+    },
+    {   "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "west": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" },
+        "east": { "uv": [ 0, 0, 16, 16 ], "texture": "#side" }
+      }
+    }
+  ]
+}
