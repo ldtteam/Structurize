@@ -135,6 +135,16 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     {
         this.groundstyle = groundstyle;
 
+        if (StructurePacks.selectedPack == null)
+        {
+            if (StructurePacks.getPackMetas().isEmpty())
+            {
+                return;
+            }
+
+            StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+        }
+
         if (structurePack != null && !structurePack.getName().equals(StructurePacks.selectedPack.getName()))
         {
             depth = "";
@@ -153,15 +163,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
 
         structurePack = StructurePacks.selectedPack;
-        if (structurePack == null)
-        {
-            if (StructurePacks.getPackMetas().isEmpty())
-            {
-                return;
-            }
-
-            structurePack = StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
-        }
 
         registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
 
