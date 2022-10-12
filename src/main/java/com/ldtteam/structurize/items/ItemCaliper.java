@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
@@ -9,14 +11,14 @@ import net.minecraft.world.level.Level;
 
 import net.minecraft.world.item.Item.Properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Caliper Item class. Calculates distances, areas, and volumes.
  */
 public class ItemCaliper extends AbstractItemWithPosSelector
 {
-    private static final String ITEM_CALIPER_MESSAGE_SAME = "item.caliper.message.same";
-    private static final String ITEM_CALIPER_MESSAGE_BASE = "item.caliper.message.base";
-    private static final String ITEM_CALIPER_MESSAGE_BY = "item.caliper.message.by";
     private static final String ITEM_CALIPER_MESSAGE_XD = "item.caliper.message.%sd";
 
     /**
@@ -47,12 +49,6 @@ public class ItemCaliper extends AbstractItemWithPosSelector
             return InteractionResult.FAIL;
         }
 
-        if (start.equals(end))
-        {
-            LanguageHandler.sendMessageToPlayer(playerIn, ITEM_CALIPER_MESSAGE_SAME);
-            return InteractionResult.FAIL;
-        }
-
         handlePlayerMessage(start, end, playerIn);
 
         return InteractionResult.SUCCESS;
@@ -63,46 +59,22 @@ public class ItemCaliper extends AbstractItemWithPosSelector
         int disX = Math.abs(end.getX() - start.getX());
         int disY = Math.abs(end.getY() - start.getY());
         int disZ = Math.abs(end.getZ() - start.getZ());
-        int flag = 3;
 
-        if (start.getX() == end.getX())
-        {
-            flag--;
-        }
-        if (start.getY() == end.getY())
-        {
-            flag--;
-        }
-        if (start.getZ() == end.getZ())
-        {
-            flag--;
-        }
-
-        final String by = " " + LanguageHandler.translateKey(ITEM_CALIPER_MESSAGE_BY) + " ";
-        StringBuilder msg = new StringBuilder();
+        List<Integer> distances = new ArrayList<>();
         if (disX != 0)
         {
-            disX++;
-            msg.append(disX);
-            msg.append(by);
+            distances.add(disX + 1);
         }
         if (disY != 0)
         {
-            disY++;
-            msg.append(disY);
-            msg.append(by);
+            distances.add(disY + 1);
         }
         if (disZ != 0)
         {
-            disZ++;
-            msg.append(disZ);
-            msg.append(by);
+            distances.add(disZ + 1);
         }
-        msg.delete(msg.length() - by.length(), msg.length());
 
-        msg = new StringBuilder(LanguageHandler.translateKeyWithFormat(ITEM_CALIPER_MESSAGE_BASE, msg.toString()));
-        msg.append(" ");
-        msg.append(LanguageHandler.translateKeyWithFormat(String.format(ITEM_CALIPER_MESSAGE_XD, flag)));
-        LanguageHandler.sendMessageToPlayer(playerIn, msg.toString());
+        playerIn.displayClientMessage(Component.translatable(String.format(ITEM_CALIPER_MESSAGE_XD, distances.size()),
+                distances.toArray(new Object[0])), false);
     }
 }

@@ -5,22 +5,19 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
  * Helper class for localization and sending player messages.
+ * Note that MineColonies is still using some of these, so it's not safe to delete yet.
  */
 public final class LanguageHandler
 {
@@ -30,86 +27,6 @@ public final class LanguageHandler
     private LanguageHandler()
     {
         // Intentionally left empty.
-    }
-
-    /**
-     * Send a message to the player.
-     *
-     * @param player  the player to send to.
-     * @param key     the key of the message.
-     * @param message the message to send.
-     */
-    public static void sendPlayerMessage(final Player player, final String key, final Object... message)
-    {
-        player.displayClientMessage(buildChatComponent(key.toLowerCase(Locale.US), message), false);
-    }
-
-    public static MutableComponent buildChatComponent(final String key, final Object... message)
-    {
-        MutableComponent translation = null;
-
-        int onlyArgsUntil = 0;
-        for (final Object object : message)
-        {
-            if (object instanceof Component)
-            {
-                if (onlyArgsUntil == 0)
-                {
-                    onlyArgsUntil = -1;
-                }
-                break;
-            }
-            onlyArgsUntil++;
-        }
-
-        if (onlyArgsUntil >= 0)
-        {
-            final Object[] args = new Object[onlyArgsUntil];
-            System.arraycopy(message, 0, args, 0, onlyArgsUntil);
-
-            translation = Component.translatable(key, args);
-        }
-
-        for (final Object object : message)
-        {
-            if (translation == null)
-            {
-                if (object instanceof Component)
-                {
-                    translation = Component.translatable(key);
-                }
-                else
-                {
-                    translation = Component.translatable(key, object);
-                    continue;
-                }
-            }
-
-            if (object instanceof Component)
-            {
-                translation.append(Component.empty());
-                translation.append((Component) object);
-            }
-            else if (object instanceof String)
-            {
-                boolean isInArgs = false;
-                for (final Object obj : translation.getSiblings())
-                {
-                    if (obj.equals(object))
-                    {
-                        isInArgs = true;
-                        break;
-                    }
-                }
-
-                if (!isInArgs)
-                {
-                    translation.append(" " + object);
-                }
-            }
-        }
-
-        return translation;
     }
 
     /**
@@ -132,33 +49,6 @@ public final class LanguageHandler
             result = Component.translatable(key, args).getString();
         }
         return result.isEmpty() ? key : result;
-    }
-
-    /**
-     * Send message to a list of players.
-     *
-     * @param players the list of players.
-     * @param key     key of the message.
-     * @param message the message.
-     */
-    public static void sendPlayersMessage(@Nullable final List<Player> players, final String key, final Object... message)
-    {
-        if (players == null || players.isEmpty())
-        {
-            return;
-        }
-
-        final Component textComponent = buildChatComponent(key.toLowerCase(Locale.US), message);
-
-        for (final Player player : players)
-        {
-            player.displayClientMessage(textComponent,false);
-        }
-    }
-
-    public static void sendMessageToPlayer(final Player player, final String key, final Object... format)
-    {
-        player.displayClientMessage(Component.literal(translateKeyWithFormat(key, format)), false);
     }
 
     /**

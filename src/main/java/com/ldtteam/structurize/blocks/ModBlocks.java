@@ -5,6 +5,7 @@ import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockTagSubstitution;
+import com.ldtteam.structurize.items.ItemTagSubstitution;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +19,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -65,6 +68,6 @@ public final class ModBlocks
         blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
         blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
-        blockTagSubstitution    = register("blockTagSubstitution", BlockTagSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockTagSubstitution    = BLOCKS.register("blockTagSubstitution".toLowerCase(), BlockTagSubstitution::new);
     }
 }

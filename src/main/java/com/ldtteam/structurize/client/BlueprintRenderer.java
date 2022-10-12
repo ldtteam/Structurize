@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
@@ -44,9 +45,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -120,7 +119,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         clearVertexBuffers();
         entities = BlueprintUtils.instantiateEntities(blueprint, blockAccess);
-        tileEntities = BlueprintUtils.instantiateTileEntities(blueprint, blockAccess, teModelData);
+        tileEntities = new ArrayList<>(BlueprintUtils.instantiateTileEntities(blueprint, blockAccess, teModelData));
 
         final PoseStack matrixStack = new PoseStack();
         final ChunkBufferBuilderPack newBuffers = new OurChunkBufferBuilderPack();
@@ -132,21 +131,45 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if ((state.getBlock() == ModBlocks.blockSubstitution.get() && BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS)) ||
-                    state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                if (!BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
                 {
-                    state = Blocks.AIR.defaultBlockState();
-                }
-                if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
-                {
-                    state = defaultFluidState;
-                }
-                if (SharedConstants.IS_RUNNING_IN_IDE && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
-                {
-                    state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
-                    if (state == null)
+                    if (state.getBlock() == ModBlocks.blockSubstitution.get())
                     {
-                        state = blockInfo.getState();
+                        state = Blocks.AIR.defaultBlockState();
+                    }
+                    if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                    {
+                        final Optional<BlockEntity> tagTE = tileEntities.stream()
+                                .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
+                                .findFirst();
+                        if (tagTE.isPresent())
+                        {
+                            final BlockEntityTagSubstitution.ReplacementBlock replacement = ((BlockEntityTagSubstitution) tagTE.get()).getReplacement();
+                            state = replacement.getBlockState();
+                            tileEntities.remove(tagTE.get());
+                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e ->
+                            {
+                                e.setLevel(blockAccess);
+                                teModelData.put(blockPos, e.getModelData());
+                                tileEntities.add(e);
+                            });
+                        }
+                        else
+                        {
+                            state = Blocks.AIR.defaultBlockState();
+                        }
+                    }
+                    if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+                    {
+                        state = defaultFluidState;
+                    }
+                    if (SharedConstants.IS_RUNNING_IN_IDE && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                    {
+                        state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
+                        if (state == null)
+                        {
+                            state = blockInfo.getState();
+                        }
                     }
                 }
 

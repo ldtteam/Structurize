@@ -118,7 +118,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         if (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getPos() == null)
         {
             Utils.playErrorSound(Minecraft.getInstance().player);
-            LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player, "structurize.gui.missing.pos");
+            Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.missing.pos"), false);
             cancelClicked();
         }
     }

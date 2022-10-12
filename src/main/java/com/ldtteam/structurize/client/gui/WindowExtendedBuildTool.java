@@ -8,6 +8,7 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
@@ -19,9 +20,11 @@ import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +37,7 @@ import java.util.concurrent.Future;
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * BuildTool window.
@@ -504,9 +508,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         for (final Blueprint blueprint : inputBluePrints)
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-            if (!Minecraft.getInstance().player.isCreative()
-                  && anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock
-                  && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset())))
+            if (!Minecraft.getInstance().player.isCreative() && isInvisible(blueprint))
             {
                continue;
             }
@@ -782,8 +784,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 }
             }
 
-            boolean isInvis = anchor.getBlock() instanceof IInvisibleBlueprintAnchorBlock
-                  && !((IInvisibleBlueprintAnchorBlock) anchor.getBlock()).isVisible(firstBlueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), firstBlueprint.getPrimaryBlockOffset()));
+            boolean isInvis = isInvisible(firstBlueprint);
 
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
@@ -796,6 +797,36 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint"  + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
         }
+    }
+
+    /**
+     * A blueprint may hide itself from the build tool list in one of two ways:
+     *   1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
+     *   2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     * @param blueprint the blueprint to check
+     * @return true if this blueprint should be hidden from normal players
+     */
+    private boolean isInvisible(final Blueprint blueprint)
+    {
+        final BlockInfo anchor = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset());
+        if (anchor.getState().getBlock() instanceof IInvisibleBlueprintAnchorBlock invis &&
+                !invis.isVisible(anchor.getTileEntityData()))
+        {
+            return true;
+        }
+
+        assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
+        if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+        {
+            final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData());
+            final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+            if (anchorTags.contains(INVISIBLE_TAG))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void handleSubCat(final ButtonData buttonData, final Pane rowPane, final int index)

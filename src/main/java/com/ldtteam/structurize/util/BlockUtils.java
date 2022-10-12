@@ -414,11 +414,6 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == ModBlocks.blockTagSubstitution.get() && worldBlock instanceof AirBlock)
-            {
-                return true;
-            }
-
             if (structureBlock instanceof AirBlock && worldBlock instanceof AirBlock)
             {
                 return true;

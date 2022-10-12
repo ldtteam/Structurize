@@ -143,7 +143,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (!BlockPosUtil.isInbetween(slot.getBox().getAnchor().get(), slot.getBox().getPos1(), slot.getBox().getPos2()))
             {
-                LanguageHandler.sendPlayerMessage(player, ANCHOR_POS_OUTSIDE_SCHEMATIC);
+                player.displayClientMessage(Component.translatable(ANCHOR_POS_OUTSIDE_SCHEMATIC), false);
                 return;
             }
         }
@@ -151,7 +151,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final BoundingBox box = BoundingBox.fromCorners(slot.getBox().getPos1(), slot.getBox().getPos2());
         if (box.getXSpan() * box.getYSpan() * box.getZSpan() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
-            LanguageHandler.sendPlayerMessage(player, MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get());
+            player.displayClientMessage(Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
             return;
         }
 
@@ -200,7 +200,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
         if (worldIn.isClientSide())
         {
-            LanguageHandler.sendMessageToPlayer(player, ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ());
+            player.displayClientMessage(Component.translatable(ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
         }
 
         ItemStack itemstack = player.getMainHandItem();
