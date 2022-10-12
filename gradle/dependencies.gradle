@@ -25,4 +25,11 @@ dependencies {
     apiImplementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
     implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
     runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
+
+    datagenLibrary (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}")) {
+        transitive = false
+    }
+    library (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}")) {
+        transitive = false
+    }
 }

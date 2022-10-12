@@ -1,18 +1,23 @@
 package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The block entity for BlockTagSubstitution
@@ -44,6 +49,11 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
      * Structure pack path.
      */
     private String inPackPath;
+
+    /**
+     * Replacement block.
+     */
+    private ReplacementBlock replacement = new ReplacementBlock(new CompoundTag());
 
     public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
@@ -99,11 +109,21 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         return worldPosition;
     }
 
+    /**
+     * @return the replacement block details
+     */
+    @NotNull
+    public ReplacementBlock getReplacement()
+    {
+        return this.replacement;
+    }
+
     @Override
     public void load( @NotNull final CompoundTag compound)
     {
         super.load(compound);
         IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
+        this.replacement = new ReplacementBlock(compound);
     }
 
     @Override
@@ -111,6 +131,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     {
         super.saveAdditional(compound);
         writeSchematicDataToNBT(compound);
+        this.replacement.write(compound);
     }
 
     @Override
@@ -156,5 +177,193 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
     {
         this.load(packet.getTag());
+    }
+
+    /**
+     * Storage for information about the replacement block, if any.
+     */
+    public static class ReplacementBlock
+    {
+        private static final String TAG_REPLACEMENT = "replacement";
+
+        private final BlockState blockstate;
+        private final CompoundTag blockentitytag;
+        private final ItemStack itemstack;
+
+        @Nullable private BlockEntity cachedBlockentity;
+
+        /**
+         * Construct
+         * @param blockstate the block state
+         * @param blockentity the block entity, if any
+         * @param itemstack the item stack
+         */
+        public ReplacementBlock(@NotNull final BlockState blockstate,
+                                @Nullable final BlockEntity blockentity,
+                                @NotNull final ItemStack itemstack)
+        {
+            this.blockstate = blockstate;
+            this.blockentitytag = blockentity == null ? new CompoundTag() : blockentity.saveWithFullMetadata();
+            this.itemstack = itemstack;
+        }
+
+        /**
+         * Construct
+         * @param blockstate the block state
+         * @param blockentity the block entity tag, if any
+         * @param itemstack the item stack
+         */
+        public ReplacementBlock(@NotNull final BlockState blockstate,
+                                @Nullable final CompoundTag blockentity,
+                                @NotNull final ItemStack itemstack)
+        {
+            this.blockstate = blockstate;
+            this.blockentitytag = blockentity == null ? new CompoundTag() : blockentity.copy();
+            this.itemstack = itemstack;
+        }
+
+        /**
+         * Construct from tag
+         * @param tag the tag to load
+         */
+        public ReplacementBlock(@NotNull CompoundTag tag)
+        {
+            final CompoundTag replacement = tag.getCompound(TAG_REPLACEMENT);
+
+            this.blockstate = NbtUtils.readBlockState(replacement.getCompound("b"));
+            this.blockentitytag = replacement.getCompound("e");
+            this.itemstack = replacement.contains("i") ? ItemStack.of(replacement.getCompound("i")) : ItemStack.EMPTY;
+        }
+
+        /**
+         * @return true if there is no replacement block set (assume air)
+         */
+        public boolean isEmpty()
+        {
+            return this.blockstate.isAir();
+        }
+
+        /**
+         * @return the block state
+         */
+        @NotNull
+        public BlockState getBlockState()
+        {
+            return this.blockstate;
+        }
+
+        /**
+         * @return the block entity tag
+         */
+        @NotNull
+        public CompoundTag getBlockEntityTag()
+        {
+            return this.blockentitytag;
+        }
+
+        /**
+         * @return the item stack
+         */
+        @NotNull
+        public ItemStack getItemStack()
+        {
+            return this.itemstack;
+        }
+
+        /**
+         * Creates and loads (once) the replacement block entity, or returns the preloaded one.
+         * @param pos the blockpos to use (ignored if already loaded)
+         * @return the new or cached entity, or null if there isn't one
+         */
+        @Nullable
+        public BlockEntity getBlockEntity(final BlockPos pos)
+        {
+            if (this.cachedBlockentity == null)
+            {
+                this.cachedBlockentity = createBlockEntity(pos);
+            }
+            return this.cachedBlockentity;
+        }
+
+        /**
+         * Always creates and loads a new replacement block entity, if needed.
+         * @param pos the blockpos to use
+         * @return the new entity, or null if there isn't one
+         */
+        @Nullable
+        public BlockEntity createBlockEntity(final BlockPos pos)
+        {
+            return this.blockentitytag.isEmpty()
+                    ? null
+                    : BlockEntity.loadStatic(pos, this.blockstate, this.blockentitytag);
+        }
+
+        /**
+         * Serialisation
+         * @param tag the target tag
+         * @return the target tag, for convenience
+         */
+        @NotNull
+        public CompoundTag write(@NotNull CompoundTag tag)
+        {
+            if (isEmpty())
+            {
+                tag.remove(TAG_REPLACEMENT);
+            }
+            else
+            {
+                final CompoundTag replacement = new CompoundTag();
+                replacement.put("b", NbtUtils.writeBlockState(this.blockstate));
+                if (this.blockentitytag.isEmpty())
+                {
+                    replacement.remove("e");
+                }
+                else
+                {
+                    replacement.put("e", this.blockentitytag);
+                }
+                replacement.put("i", this.itemstack.serializeNBT());
+
+                tag.put(TAG_REPLACEMENT, replacement);
+            }
+            return tag;
+        }
+
+        /**
+         * Creates a new single-block {@link Blueprint} for the replacement block.
+         * @return the blueprint
+         */
+        @NotNull
+        public Blueprint createBlueprint()
+        {
+            final Blueprint blueprint = new Blueprint((short) 1, (short) 1, (short) 1);
+            blueprint.addBlockState(BlockPos.ZERO, getBlockState());
+            blueprint.getTileEntities()[0][0][0] = getBlockEntityTag().isEmpty() ? null : getBlockEntityTag().copy();
+            return blueprint;
+        }
+
+        /**
+         * Rotates and mirrors the replacement data, in response to a blueprint containing this replacement block
+         * being rotated or mirrored.
+         *
+         * @param pos the world location for the replacement block
+         * @param localRotation the relative rotation
+         * @param localMirror the relative mirror
+         * @param world the (actual) world
+         * @return the new replacement data
+         */
+        @NotNull
+        public BlockEntityTagSubstitution.ReplacementBlock rotateWithMirror(@NotNull final BlockPos pos,
+                                                                            @NotNull final Rotation localRotation,
+                                                                            @NotNull final Mirror localMirror,
+                                                                            @NotNull final Level world)
+        {
+            final Blueprint blueprint = createBlueprint();
+            blueprint.rotateWithMirror(localRotation, localMirror, world);
+
+            final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);
+            final CompoundTag newBlockData = blueprint.getTileEntityData(pos, BlockPos.ZERO);
+            return new ReplacementBlock(newBlockState, newBlockData, this.getItemStack());
+        }
     }
 }

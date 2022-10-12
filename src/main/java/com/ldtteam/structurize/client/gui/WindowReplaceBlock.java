@@ -234,19 +234,17 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                 missingProperties.removeAll(fromBS.getProperties());
                 if (!missingProperties.isEmpty())
                 {
-                    LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
-                      "structurize.gui.replaceblock.ambiguous_properties",
-                      LanguageHandler.translateKey(fromBS.getBlock().getDescriptionId()),
-                      LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()),
+                    Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.replaceblock.ambiguous_properties",
+                      fromBS.getBlock().getName(),
+                      toBS.getBlock().getName(),
                       missingProperties.stream()
                         .map(prop -> getPropertyName(prop) + " - " + prop.getName())
-                        .collect(Collectors.joining(", ", "[", "]")));
+                        .collect(Collectors.joining(", ", "[", "]"))), false);
                 }
                 if (toBS.is(ModBlocks.NULL_PLACEMENT))
                 {
-                    LanguageHandler.sendMessageToPlayer(Minecraft.getInstance().player,
-                      "structurize.gui.replaceblock.null_placement",
-                      LanguageHandler.translateKey(toBS.getBlock().getDescriptionId()));
+                    Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.replaceblock.null_placement",
+                            toBS.getBlock().getName()), false);
                 }
 
                 final String pct = findPaneOfTypeByID("pct", TextField.class).getText();
