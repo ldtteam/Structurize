@@ -2,6 +2,7 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.MalformedJsonException;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
@@ -633,38 +634,45 @@ public class StructurePacks
         final Path packJsonPath = element.resolve("pack.json");
         if (Files.exists(packJsonPath))
         {
-            try (final JsonReader reader = new JsonReader(Files.newBufferedReader(packJsonPath)))
+            try
             {
-                final StructurePackMeta pack = new StructurePackMeta(Streams.parse(reader).getAsJsonObject(), element);
-                if (pack.getPackFormat() == PACK_FORMAT)
+                try (final JsonReader reader = new JsonReader(Files.newBufferedReader(packJsonPath));)
                 {
-                    pack.setImmutable(immutable);
-                    for (final String modId : pack.getModList())
+                    final StructurePackMeta pack = new StructurePackMeta(Streams.parse(reader).getAsJsonObject(), element);
+                    if (pack.getPackFormat() == PACK_FORMAT)
                     {
-                        if (!modList.contains(modId))
+                        pack.setImmutable(immutable);
+                        for (final String modId : pack.getModList())
                         {
-                            Log.getLogger().warn("Missing Mod: " + modId + " for Pack: " + pack.getName());
-                            return;
+                            if (!modList.contains(modId))
+                            {
+                                Log.getLogger().warn("Missing Mod: " + modId + " for Pack: " + pack.getName());
+                                return;
+                            }
                         }
-                    }
-                    if (clientPack)
-                    {
-                        clientPackMetas.put(pack.getName(), pack);
+                        if (clientPack)
+                        {
+                            clientPackMetas.put(pack.getName(), pack);
+                        }
+                        else
+                        {
+                            packMetas.put(pack.getName(), pack);
+                        }
+                        Log.getLogger().info("Registered structure pack: " + pack.getName());
                     }
                     else
                     {
-                        packMetas.put(pack.getName(), pack);
+                        Log.getLogger().warn("Wrong Pack Format: " + pack.getName());
                     }
-                    Log.getLogger().info("Registered structure pack: " + pack.getName());
                 }
-                else
+                catch (final IOException ex)
                 {
-                    Log.getLogger().warn("Wrong Pack Format: " + pack.getName());
+                    Log.getLogger().warn("Error Reading pack: ", ex);
                 }
             }
-            catch (final IOException ex)
+            catch (final Exception ex)
             {
-                Log.getLogger().warn("Error Reading pack: ", ex);
+                Log.getLogger().warn("Error Reading Json: " + element, ex);
             }
         }
     }
