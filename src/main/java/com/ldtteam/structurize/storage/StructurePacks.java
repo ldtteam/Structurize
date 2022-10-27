@@ -2,11 +2,11 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
+import com.ldtteam.structurize.util.ManualBarrier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
@@ -54,7 +54,7 @@ public class StructurePacks
     /**
      * Set to true on client/server once style loading has finished.
      */
-    private static volatile boolean finishedLoading = false;
+    private static final ManualBarrier finishedLoading = new ManualBarrier(false);
 
     /**
      * Selected pack on the client.
@@ -62,12 +62,20 @@ public class StructurePacks
     public static StructurePackMeta selectedPack;
 
     /**
-     * Check if the pack handling has finished loading.
-     * @return true if so.
+     * Blocks the current thread until loading has finished
+     * @return true if finished; false if interrupted before finishing
      */
-    public static boolean hasFinishedLoading()
+    public static boolean waitUntilFinishedLoading()
     {
-        return finishedLoading;
+        try
+        {
+            finishedLoading.waitOne();
+            return true;
+        }
+        catch (InterruptedException e)
+        {
+            return false;
+        }
     }
 
     /**
@@ -75,7 +83,7 @@ public class StructurePacks
      */
     public static void setFinishedLoading()
     {
-        finishedLoading = true;
+        finishedLoading.open();
     }
 
     /**
@@ -255,16 +263,9 @@ public class StructurePacks
      */
     public static Path findBlueprint(final String structurePackId, final String name)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -285,16 +286,9 @@ public class StructurePacks
      */
     public static Optional<Path> findBlueprint(final Path subPath, final String name)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Optional.empty();
         }
 
         try
@@ -326,16 +320,9 @@ public class StructurePacks
      */
     public static Blueprint findBlueprint(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -357,16 +344,9 @@ public class StructurePacks
      */
     public static Blueprint findBlueprint(final String pack, final Path subPath, final Predicate<Blueprint> blueprintPredicate)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         try
@@ -409,16 +389,9 @@ public class StructurePacks
     @Nullable
     public static Blueprint getBlueprint(final String structurePackId, final String subPath, final boolean suppressError)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -470,16 +443,9 @@ public class StructurePacks
      */
     public static byte[] getBlueprintData(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -509,16 +475,9 @@ public class StructurePacks
      */
     public static List<Blueprint> getBlueprints(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Collections.emptyList();
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -575,16 +534,9 @@ public class StructurePacks
      */
     public static List<Category> getCategories(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Collections.emptyList();
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);

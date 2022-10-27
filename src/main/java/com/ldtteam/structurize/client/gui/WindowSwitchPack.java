@@ -105,9 +105,10 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        while (!StructurePacks.hasFinishedLoading())
+        if (!StructurePacks.waitUntilFinishedLoading())
         {
-            // Wait until finished loading!
+            close();
+            return;
         }
 
         // Here we would query from the online schematic server additional styles then, which, on select, we'd download to the server side.
