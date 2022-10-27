@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -84,7 +85,10 @@ public class ClientStructurePackLoader
             {
                 try
                 {
-                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                    try (final Stream<Path> paths = Files.list(modPath))
+                    {
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                    }
                 }
                 catch (IOException e)
                 {
@@ -122,7 +126,10 @@ public class ClientStructurePackLoader
                     Files.write(clientPackPath.resolve("pack.json"), jsonObject.toString().getBytes());
                 }
 
-                Files.list(outputPath).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                try (final Stream<Path> paths = Files.list(outputPath))
+                {
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                }
             }
             catch (IOException e)
             {

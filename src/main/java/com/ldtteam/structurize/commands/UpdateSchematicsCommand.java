@@ -24,6 +24,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.blueprints.v1.BlueprintUtil.*;
@@ -54,7 +55,10 @@ public class UpdateSchematicsCommand extends AbstractCommand
 
         try
         {
-            Files.list(gameFolder.resolve("input")).forEach(element -> update(element, gameFolder.resolve("input"), gameFolder.resolve("output")));
+            try (final Stream<Path> paths = Files.list(gameFolder.resolve("input")))
+            {
+                paths.forEach(element -> update(element, gameFolder.resolve("input"), gameFolder.resolve("output")));
+            }
         }
         catch (IOException e)
         {
@@ -71,7 +75,10 @@ public class UpdateSchematicsCommand extends AbstractCommand
         {
             try
             {
-                Files.list(input).forEach(element -> update(element, globalInputFolder, globalOutputFolder));
+                try (final Stream<Path> paths = Files.list(input))
+                {
+                    paths.forEach(element -> update(element, globalInputFolder, globalOutputFolder));
+                }
             }
             catch (IOException e)
             {

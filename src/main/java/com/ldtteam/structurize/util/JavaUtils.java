@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class JavaUtils
 {
@@ -100,22 +101,25 @@ public class JavaUtils
 
         try
         {
-            Files.list(path).forEach(child ->
-              {
-                  if (Files.isDirectory(child))
-                  {
-                      deleteDirectory(child);
-                  }
+            try (final Stream<Path> paths = Files.list(path))
+            {
+                paths.forEach(child ->
+                {
+                    if (Files.isDirectory(child))
+                    {
+                        deleteDirectory(child);
+                    }
 
-                  try
-                  {
-                      Files.deleteIfExists(child);
-                  }
-                  catch (Exception e)
-                  {
-                     Log.getLogger().warn("Failed deleting: " + child, e);
-                  }
-              });
+                    try
+                    {
+                        Files.deleteIfExists(child);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.getLogger().warn("Failed deleting: " + child, e);
+                    }
+                });
+            }
         }
         catch (IOException e)
         {

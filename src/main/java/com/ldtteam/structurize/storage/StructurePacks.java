@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Class that contains all the structurepacks of the instance.
@@ -298,13 +299,17 @@ public class StructurePacks
 
         try
         {
-            return Files.walk(subPath).filter(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+            try (final Stream<Path> paths = Files.walk(subPath))
+            {
+                return paths.filter(file ->
                 {
-                    return file.getFileName().toString().replace(".blueprint", "").equals(name);
-                }
-                return false;
-            }).findFirst();
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+                    {
+                        return file.getFileName().toString().replace(".blueprint", "").equals(name);
+                    }
+                    return false;
+                }).findFirst();
+            }
         }
         catch (final IOException e)
         {
@@ -366,23 +371,26 @@ public class StructurePacks
 
         try
         {
-            return Files.list(subPath).map(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
-                {
-                    final Blueprint blueprint = getBlueprint(pack, file);
-                    if (blueprintPredicate.test(blueprint))
+            try (final Stream<Path> paths = Files.list(subPath))
+            {
+                return paths.map(file -> {
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                     {
-                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file.getParent()).setPackName(pack);
-                        return blueprint;
+                        final Blueprint blueprint = getBlueprint(pack, file);
+                        if (blueprintPredicate.test(blueprint))
+                        {
+                            blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                            blueprint.setFilePath(file.getParent()).setPackName(pack);
+                            return blueprint;
+                        }
                     }
-                }
-                else if (Files.isDirectory(file))
-                {
-                    return findBlueprint(pack, file, blueprintPredicate);
-                }
-                return  null;
-            }).filter(Objects::nonNull).findFirst().orElse(null);
+                    else if (Files.isDirectory(file))
+                    {
+                        return findBlueprint(pack, file, blueprintPredicate);
+                    }
+                    return  null;
+                }).filter(Objects::nonNull).findFirst().orElse(null);
+            }
         }
         catch (final IOException e)
         {
@@ -437,6 +445,7 @@ public class StructurePacks
         {
             final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)));
             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+            if (blueprint == null) return null;
 
             blueprint.setFileName(path.getFileName().toString().replace(".blueprint", ""));
             blueprint.setFilePath(path.getParent()).setPackName(pack);
@@ -524,23 +533,29 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
-                {
-                    try
+            try (final Stream<Path> paths = Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))))
+            {
+                paths.forEach(file -> {
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                     {
-                        final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
-                        final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
-                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
-                        blueprints.add(blueprint);
+                        try
+                        {
+                            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
+                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+                            if (blueprint != null)
+                            {
+                                blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                                blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
+                                blueprints.add(blueprint);
+                            }
+                        }
+                        catch (final IOException e)
+                        {
+                            Log.getLogger().error("Error loading individual blueprint: " + file, e);
+                        }
                     }
-                    catch (final IOException e)
-                    {
-                        Log.getLogger().error("Error loading individual blueprint: " + file, e);
-                    }
-                }
-            });
+                });
+            }
         }
         catch (final IOException e)
         {
@@ -584,34 +599,40 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
+            try (final Stream<Path> paths = Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))))
+            {
+                paths.forEach(file -> {
 
-                if (Files.isDirectory(file))
-                {
-                    final Category newCategory = new Category(packMeta, file, false, true);
-                    newCategory.hasIcon = false;
-                    newCategory.isTerminal = true;
+                    if (Files.isDirectory(file))
+                    {
+                        final Category newCategory = new Category(packMeta, file, false, true);
+                        newCategory.hasIcon = false;
+                        newCategory.isTerminal = true;
 
-                    try
-                    {
-                        Files.list(file).forEach(subFile -> {
-                            if (subFile.endsWith("icon.png"))
+                        try
+                        {
+                            try (final Stream<Path> subPaths = Files.list(file))
                             {
-                                newCategory.hasIcon = true;
+                                subPaths.forEach(subFile -> {
+                                    if (subFile.endsWith("icon.png"))
+                                    {
+                                        newCategory.hasIcon = true;
+                                    }
+                                    else if (Files.isDirectory(subFile))
+                                    {
+                                        newCategory.isTerminal = false;
+                                    }
+                                });
+                                categories.add(newCategory);
                             }
-                            else if (Files.isDirectory(subFile))
-                            {
-                                newCategory.isTerminal = false;
-                            }
-                        });
-                        categories.add(newCategory);
+                        }
+                        catch (final IOException e)
+                        {
+                            Log.getLogger().error("Error loading category: " + file, e);
+                        }
                     }
-                    catch (final IOException e)
-                    {
-                        Log.getLogger().error("Error loading category: " + file, e);
-                    }
-                }
-            });
+                });
+            }
         }
         catch (final IOException e)
         {
