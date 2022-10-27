@@ -10,6 +10,7 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
@@ -43,6 +46,11 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      * List of packs.
      */
     private List<StructurePackMeta> packMetas;
+
+    /**
+     * Future list of packs.
+     */
+    private Future<List<StructurePackMeta>> packMetasFuture;
 
     /**
      * Random with a fixed random seed.
@@ -105,20 +113,48 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
-        if (!StructurePacks.waitUntilFinishedLoading())
+        packMetas = Collections.emptyList();
+        packMetasFuture = IOPool.submit(() ->
         {
-            close();
-            return;
-        }
+            if (!StructurePacks.waitUntilFinishedLoading())
+            {
+                return Collections.emptyList();
+            }
 
-        // Here we would query from the online schematic server additional styles then, which, on select, we'd download to the server side.
+            // Here we would query from the online schematic server additional styles then, which, on select, we'd download to the server side.
+
+            return new ArrayList<>(StructurePacks.getPackMetas());
+        });
 
         packList = findPaneOfTypeByID("packs", ScrollingList.class);
-        packMetas = new ArrayList<>(StructurePacks.getPackMetas());
-        Collections.shuffle(packMetas, new Random(randomSeed));
 
-        updatePacks();
         super.onOpened();
+    }
+
+    @Override
+    public void onUpdate()
+    {
+        super.onUpdate();
+
+        if (packMetasFuture != null && packMetasFuture.isDone())
+        {
+            try
+            {
+                packMetas = packMetasFuture.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                e.printStackTrace();
+            }
+            packMetasFuture = null;
+
+            if (!packMetas.isEmpty())
+            {
+                Collections.shuffle(packMetas, new Random(randomSeed));
+            }
+
+            updatePacks();
+        }
     }
 
     /**
