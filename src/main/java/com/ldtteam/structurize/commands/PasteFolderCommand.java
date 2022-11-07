@@ -62,6 +62,11 @@ public class PasteFolderCommand extends AbstractCommand
     private static final String NO_PERMISSION_MESSAGE = "com.structurize.command.paste.no.perm";
 
     /**
+     * The invalid pack reply.
+     */
+    private static final String NO_PACK_MESSAGE = "com.structurize.command.paste.no.pack";
+
+    /**
      * The player name command argument.
      */
     private static final String PLAYER_NAME = "player";
@@ -145,6 +150,12 @@ public class PasteFolderCommand extends AbstractCommand
             packBuilder.append(part);
         }
         final String packName = packBuilder.toString();
+
+        if (!StructurePacks.hasPack(packName))
+        {
+            source.sendFailure(Component.translatable(NO_PACK_MESSAGE));
+            return 0;
+        }
 
         ServerFutureProcessor.queueBlueprintList(new ServerFutureProcessor.BlueprintListProcessingData(StructurePacks.getBlueprintsFuture(packName, path), world, (list) -> {
 
