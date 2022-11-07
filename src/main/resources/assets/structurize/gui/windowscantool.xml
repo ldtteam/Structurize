@@ -12,7 +12,7 @@
     <input id="pos2z" size="36 18" pos="320 5" maxlength="10"/>
 
     <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.name)"/>
-    <input id="name" size="178 18" pos="130 30" maxlength="40"/>
+    <input id="name" size="178 18" pos="130 30" maxlength="80"/>
 
     <label size="30 11" pos="355 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.slot)" textalign="MIDDLE_RIGHT"/>
     <input id="slot" size="18 18" pos="390 30" maxlength="2" enabled="false"/>
