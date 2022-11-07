@@ -273,8 +273,8 @@ public class PasteFolderCommand extends AbstractCommand
     {
         return newLiteral(commandName)
           .then(newArgument(POS, BlockPosArgument.blockPos())
-            .then(newArgument(PACK_NAME, StringArgumentType.word())
-              .then(newArgument(FILE_PATH, StringArgumentType.word())
+            .then(newArgument(PACK_NAME, StringArgumentType.string())
+              .then(newArgument(FILE_PATH, StringArgumentType.string())
                 .executes(PasteFolderCommand::onExecute)
                 .then(newArgument(ROTATION, IntegerArgumentType.integer(0, 3))
                   .executes(PasteFolderCommand::onExecuteWithRotation)
