@@ -59,6 +59,8 @@
   "com.structurize.command.scan.success": "Scan successfully saved",
 
   "com.structurize.command.paste.no.perm": "You don't have permission to paste via commands, use the Build Tool instead!",
+  "com.structurize.command.paste.no.pack": "The specified pack does not exist",
+  "com.structurize.command.paste.no.blueprint": "The specified blueprint does not exist",
   "com.structurize.command.paste.success": "Paste successfully triggered",
 
   "com.structurize.gui.buildtool.leave.tip": "Right-click the build tool on a solid block to adjust the build's position",
