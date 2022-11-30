@@ -20,6 +20,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -80,7 +81,10 @@ public class ServerStructurePackLoader
             {
                 try
                 {
-                    Files.list(modPath).forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                    try (final Stream<Path> paths = Files.list(modPath))
+                    {
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                    }
                 }
                 catch (IOException e)
                 {
@@ -91,7 +95,10 @@ public class ServerStructurePackLoader
             // Now we load from the main folder.
             try
             {
-                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)).forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)))
+                {
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                }
             }
             catch (IOException e)
             {
@@ -101,17 +108,23 @@ public class ServerStructurePackLoader
             // Now we load from the client caches.
             try
             {
-                Files.list(gameFolder.resolve(BLUEPRINT_FOLDER).resolve(CLIENT_FOLDER))
-                  .forEach(element -> {
-                      try
-                      {
-                          Files.list(element).forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true));
-                      }
-                      catch (IOException e)
-                      {
-                          Log.getLogger().warn("Failed loading client pack from folder path: " + element);
-                      }
-                  });
+                try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER).resolve(CLIENT_FOLDER)))
+                {
+                    paths.forEach(element ->
+                    {
+                        try
+                        {
+                            try (final Stream<Path> subPaths = Files.list(element))
+                            {
+                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true));
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            Log.getLogger().warn("Failed loading client pack from folder path: " + element);
+                        }
+                    });
+                }
             }
             catch (IOException e)
             {

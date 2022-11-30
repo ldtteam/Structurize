@@ -2,11 +2,11 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
+import com.ldtteam.structurize.util.ManualBarrier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Class that contains all the structurepacks of the instance.
@@ -53,7 +54,7 @@ public class StructurePacks
     /**
      * Set to true on client/server once style loading has finished.
      */
-    private static volatile boolean finishedLoading = false;
+    private static final ManualBarrier finishedLoading = new ManualBarrier(false);
 
     /**
      * Selected pack on the client.
@@ -61,12 +62,20 @@ public class StructurePacks
     public static StructurePackMeta selectedPack;
 
     /**
-     * Check if the pack handling has finished loading.
-     * @return true if so.
+     * Blocks the current thread until loading has finished
+     * @return true if finished; false if interrupted before finishing
      */
-    public static boolean hasFinishedLoading()
+    public static boolean waitUntilFinishedLoading()
     {
-        return finishedLoading;
+        try
+        {
+            finishedLoading.waitOne();
+            return true;
+        }
+        catch (InterruptedException e)
+        {
+            return false;
+        }
     }
 
     /**
@@ -74,7 +83,7 @@ public class StructurePacks
      */
     public static void setFinishedLoading()
     {
-        finishedLoading = true;
+        finishedLoading.open();
     }
 
     /**
@@ -254,16 +263,9 @@ public class StructurePacks
      */
     public static Path findBlueprint(final String structurePackId, final String name)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -284,27 +286,24 @@ public class StructurePacks
      */
     public static Optional<Path> findBlueprint(final Path subPath, final String name)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Optional.empty();
         }
 
         try
         {
-            return Files.walk(subPath).filter(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+            try (final Stream<Path> paths = Files.walk(subPath))
+            {
+                return paths.filter(file ->
                 {
-                    return file.getFileName().toString().replace(".blueprint", "").equals(name);
-                }
-                return false;
-            }).findFirst();
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
+                    {
+                        return file.getFileName().toString().replace(".blueprint", "").equals(name);
+                    }
+                    return false;
+                }).findFirst();
+            }
         }
         catch (final IOException e)
         {
@@ -321,16 +320,9 @@ public class StructurePacks
      */
     public static Blueprint findBlueprint(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -352,37 +344,33 @@ public class StructurePacks
      */
     public static Blueprint findBlueprint(final String pack, final Path subPath, final Predicate<Blueprint> blueprintPredicate)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         try
         {
-            return Files.list(subPath).map(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
-                {
-                    final Blueprint blueprint = getBlueprint(pack, file);
-                    if (blueprintPredicate.test(blueprint))
+            try (final Stream<Path> paths = Files.list(subPath))
+            {
+                return paths.map(file -> {
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                     {
-                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file.getParent()).setPackName(pack);
-                        return blueprint;
+                        final Blueprint blueprint = getBlueprint(pack, file);
+                        if (blueprintPredicate.test(blueprint))
+                        {
+                            blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                            blueprint.setFilePath(file.getParent()).setPackName(pack);
+                            return blueprint;
+                        }
                     }
-                }
-                else if (Files.isDirectory(file))
-                {
-                    return findBlueprint(pack, file, blueprintPredicate);
-                }
-                return  null;
-            }).filter(Objects::nonNull).findFirst().orElse(null);
+                    else if (Files.isDirectory(file))
+                    {
+                        return findBlueprint(pack, file, blueprintPredicate);
+                    }
+                    return  null;
+                }).filter(Objects::nonNull).findFirst().orElse(null);
+            }
         }
         catch (final IOException e)
         {
@@ -401,16 +389,9 @@ public class StructurePacks
     @Nullable
     public static Blueprint getBlueprint(final String structurePackId, final String subPath, final boolean suppressError)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -437,6 +418,7 @@ public class StructurePacks
         {
             final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)));
             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+            if (blueprint == null) return null;
 
             blueprint.setFileName(path.getFileName().toString().replace(".blueprint", ""));
             blueprint.setFilePath(path.getParent()).setPackName(pack);
@@ -461,16 +443,9 @@ public class StructurePacks
      */
     public static byte[] getBlueprintData(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return null;
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -500,16 +475,9 @@ public class StructurePacks
      */
     public static List<Blueprint> getBlueprints(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Collections.emptyList();
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -524,23 +492,29 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
-                if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
-                {
-                    try
+            try (final Stream<Path> paths = Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))))
+            {
+                paths.forEach(file -> {
+                    if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                     {
-                        final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
-                        final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
-                        blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
-                        blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
-                        blueprints.add(blueprint);
+                        try
+                        {
+                            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
+                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+                            if (blueprint != null)
+                            {
+                                blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
+                                blueprint.setFilePath(file.getParent()).setPackName(structurePackId);
+                                blueprints.add(blueprint);
+                            }
+                        }
+                        catch (final IOException e)
+                        {
+                            Log.getLogger().error("Error loading individual blueprint: " + file, e);
+                        }
                     }
-                    catch (final IOException e)
-                    {
-                        Log.getLogger().error("Error loading individual blueprint: " + file, e);
-                    }
-                }
-            });
+                });
+            }
         }
         catch (final IOException e)
         {
@@ -560,16 +534,9 @@ public class StructurePacks
      */
     public static List<Category> getCategories(final String structurePackId, final String subPath)
     {
-        while (!finishedLoading)
+        if (!waitUntilFinishedLoading())
         {
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                // Nothing on purpose.
-            }
+            return Collections.emptyList();
         }
 
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
@@ -584,34 +551,40 @@ public class StructurePacks
 
         try
         {
-            Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))).forEach(file -> {
+            try (final Stream<Path> paths = Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))))
+            {
+                paths.forEach(file -> {
 
-                if (Files.isDirectory(file))
-                {
-                    final Category newCategory = new Category(packMeta, file, false, true);
-                    newCategory.hasIcon = false;
-                    newCategory.isTerminal = true;
+                    if (Files.isDirectory(file))
+                    {
+                        final Category newCategory = new Category(packMeta, file, false, true);
+                        newCategory.hasIcon = false;
+                        newCategory.isTerminal = true;
 
-                    try
-                    {
-                        Files.list(file).forEach(subFile -> {
-                            if (subFile.endsWith("icon.png"))
+                        try
+                        {
+                            try (final Stream<Path> subPaths = Files.list(file))
                             {
-                                newCategory.hasIcon = true;
+                                subPaths.forEach(subFile -> {
+                                    if (subFile.endsWith("icon.png"))
+                                    {
+                                        newCategory.hasIcon = true;
+                                    }
+                                    else if (Files.isDirectory(subFile))
+                                    {
+                                        newCategory.isTerminal = false;
+                                    }
+                                });
+                                categories.add(newCategory);
                             }
-                            else if (Files.isDirectory(subFile))
-                            {
-                                newCategory.isTerminal = false;
-                            }
-                        });
-                        categories.add(newCategory);
+                        }
+                        catch (final IOException e)
+                        {
+                            Log.getLogger().error("Error loading category: " + file, e);
+                        }
                     }
-                    catch (final IOException e)
-                    {
-                        Log.getLogger().error("Error loading category: " + file, e);
-                    }
-                }
-            });
+                });
+            }
         }
         catch (final IOException e)
         {
