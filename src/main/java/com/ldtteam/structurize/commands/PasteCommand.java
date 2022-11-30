@@ -54,6 +54,16 @@ public class PasteCommand extends AbstractCommand
     private static final String NO_PERMISSION_MESSAGE = "com.structurize.command.paste.no.perm";
 
     /**
+     * The invalid pack reply.
+     */
+    private static final String NO_PACK_MESSAGE = "com.structurize.command.paste.no.pack";
+
+    /**
+     * The invalid pack reply.
+     */
+    private static final String NO_BLUEPRINT_MESSAGE = "com.structurize.command.paste.no.blueprint";
+
+    /**
      * The player name command argument.
      */
     private static final String PLAYER_NAME = "player";
@@ -133,7 +143,19 @@ public class PasteCommand extends AbstractCommand
         }
         final String packName = packBuilder.toString();
 
-        final Blueprint blueprint = StructurePacks.getBlueprint(packName, path + ".blueprint");
+        if (!StructurePacks.hasPack(packName))
+        {
+            source.sendFailure(Component.translatable(NO_PACK_MESSAGE));
+            return 0;
+        }
+
+        final Blueprint blueprint = StructurePacks.getBlueprint(packName, path + ".blueprint", true);
+        if (blueprint == null)
+        {
+            source.sendFailure(Component.translatable(NO_BLUEPRINT_MESSAGE));
+            return 0;
+        }
+
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
         blueprint.rotateWithMirror(rotation, mirror, world);
 
@@ -161,7 +183,7 @@ public class PasteCommand extends AbstractCommand
         final StructurePlacer instantPlacer = new StructurePlacer(structure);
         Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
 
-        source.sendFailure(Component.translatable(PASTE_SUCCESS_MESSAGE));
+        source.sendSuccess(Component.translatable(PASTE_SUCCESS_MESSAGE), true);
         return 1;
     }
 
@@ -211,8 +233,8 @@ public class PasteCommand extends AbstractCommand
     {
         return newLiteral(commandName)
           .then(newArgument(POS, BlockPosArgument.blockPos())
-            .then(newArgument(PACK_NAME, StringArgumentType.word())
-              .then(newArgument(FILE_PATH, StringArgumentType.word())
+            .then(newArgument(PACK_NAME, StringArgumentType.string())
+              .then(newArgument(FILE_PATH, StringArgumentType.string())
                 .executes(PasteCommand::onExecute)
                 .then(newArgument(ROTATION, IntegerArgumentType.integer(0, 3))
                   .executes(PasteCommand::onExecuteWithRotation)
