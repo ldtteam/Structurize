@@ -547,19 +547,19 @@ public class StructurePacks
 
         //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
+        final Path basePath = packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath));
         final List<Category> categories = new ArrayList<>();
+        boolean hasBlueprints = false;
 
         try
         {
-            try (final Stream<Path> paths = Files.list(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath))))
+            try (final Stream<Path> paths = Files.list(basePath))
             {
-                paths.forEach(file -> {
-
+                for (final Path file : paths.toList())
+                {
                     if (Files.isDirectory(file))
                     {
-                        final Category newCategory = new Category(packMeta, file, false, true);
-                        newCategory.hasIcon = false;
-                        newCategory.isTerminal = true;
+                        final Category newCategory = new Category(packMeta, file, false, true, false);
 
                         try
                         {
@@ -583,12 +583,22 @@ public class StructurePacks
                             Log.getLogger().error("Error loading category: " + file, e);
                         }
                     }
-                });
+                    else if (file.toString().endsWith(".blueprint"))
+                    {
+                        hasBlueprints = true;
+                    }
+                }
             }
         }
         catch (final IOException e)
         {
             Log.getLogger().error("Error loading categories from folder: " + packMeta.getNormalizedSubPath(subPath), e);
+        }
+
+        if (hasBlueprints && !categories.isEmpty())
+        {
+            // also add the current path as a terminal path when it directly contains both blueprints and folders.
+            categories.add(new Category(packMeta, basePath, false, true, true));
         }
 
         categories.sort(Comparator.comparing(Category::toString));
@@ -705,9 +715,14 @@ public class StructurePacks
         public boolean hasIcon;
 
         /**
-         * If the category got further sub-categories.
+         * If the category does not have further sub-categories.
          */
         public boolean isTerminal;
+
+        /**
+         * If this is a special "current folder" terminal category.
+         */
+        public boolean isCurrent;
 
         /**
          * Create an empty category.
@@ -723,13 +738,28 @@ public class StructurePacks
          * @param subPath the sub path.
          * @param hasIcon if it has an icon.
          * @param isTerminal if it's terminal (no further sub-folders).
+         * @param isCurrent if it's a "current directory" subcategory.
          */
-        public Category(final StructurePackMeta packMeta, final Path subPath, final boolean hasIcon, final boolean isTerminal)
+        public Category(final StructurePackMeta packMeta, final Path subPath, final boolean hasIcon, final boolean isTerminal, final boolean isCurrent)
         {
             this.packMeta = packMeta;
             this.subPath = packMeta.getSubPath(subPath).replace("\\", "/");
             this.hasIcon = hasIcon;
             this.isTerminal = isTerminal;
+            this.isCurrent = isCurrent;
+
+            if (this.subPath.endsWith("/"))
+            {
+                this.subPath = this.subPath.substring(0, this.subPath.length() - 1);
+            }
+            if (this.subPath.startsWith("/"))
+            {
+                this.subPath = this.subPath.substring(1);
+            }
+            if (this.isCurrent)
+            {
+                this.subPath = this.subPath + "/.";
+            }
         }
 
         @Override

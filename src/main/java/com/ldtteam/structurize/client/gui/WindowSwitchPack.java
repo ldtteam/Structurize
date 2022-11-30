@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
@@ -36,6 +37,11 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      * The parent window that opened this one.
      */
     private final Supplier<BOWindow> prevWindow;
+
+    /**
+     * The predicate to filter structure packs for display.
+     */
+    private final Predicate<StructurePackMeta> packPredicate;
 
     /**
      * Levels scrolling list.
@@ -63,6 +69,17 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      */
     public WindowSwitchPack(final Supplier<BOWindow> prevWindow)
     {
+        this(prevWindow, pack -> true);
+    }
+
+    /**
+     * Constructor for this window.
+     * @param prevWindow the origin window.
+     * @param packPredicate predicate to filter visible packs (called on IO thread, so it can block and load blueprints).
+     */
+    public WindowSwitchPack(final Supplier<BOWindow> prevWindow,
+                            final Predicate<StructurePackMeta> packPredicate)
+    {
         super(Constants.MOD_ID + WINDOW_TAG_TOOL);
         registerButton(BUTTON_SELECT1, this::selectClicked);
         registerButton(BUTTON_SELECT2, this::selectClicked);
@@ -70,6 +87,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         registerButton(BUTTON_CANCEL, this::cancelClicked);
 
         this.prevWindow = prevWindow;
+        this.packPredicate = packPredicate;
     }
 
     /**
@@ -123,7 +141,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
 
             // Here we would query from the online schematic server additional styles then, which, on select, we'd download to the server side.
 
-            return new ArrayList<>(StructurePacks.getPackMetas());
+            return new ArrayList<>(StructurePacks.getPackMetas().stream().filter(packPredicate).toList());
         });
 
         packList = findPaneOfTypeByID("packs", ScrollingList.class);

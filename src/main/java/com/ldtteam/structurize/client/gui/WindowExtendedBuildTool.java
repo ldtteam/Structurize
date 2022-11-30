@@ -342,15 +342,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     }
                     else
                     {
-                        subCats.sort(Comparator.comparing((a) -> a.subPath));
                         for (final StructurePacks.Category subCat : subCats)
                         {
-                            String id = subCat.subPath.endsWith("/") ? subCat.subPath.substring(0, subCat.subPath.length() - 1) : subCat.subPath;
-                            if (id.startsWith("/"))
-                            {
-                                id = id.substring(1);
-                            }
-
+                            final String id = subCat.subPath;
                             if (subCat.isTerminal)
                             {
                                 blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(structurePack.getName(), id));
@@ -846,11 +840,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
 
         final StructurePacks.Category subCat = (StructurePacks.Category) buttonData.data;
-        String id = subCat.subPath.endsWith("/") ? subCat.subPath.substring(0, subCat.subPath.length() - 1) : subCat.subPath;
-        if (id.startsWith("/"))
-        {
-            id = id.substring(1);
-        }
+        final String id = subCat.subPath;
 
         if (img == null)
         {
