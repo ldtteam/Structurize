@@ -167,6 +167,7 @@ public class BlueprintUtil
                 final String fileName = FilenameUtils.getBaseName(name);
                 blueprintData.putString(TAG_SCHEMATIC_NAME, fileName);
                 ((IBlueprintDataProviderBE) tile).setSchematicName(fileName);
+                ((IBlueprintDataProviderBE) tile).setBlueprintPath(name);
             }
 
             final BlockPos corner1 = BlockPos.ZERO.subtract(schem.getPrimaryBlockOffset());
