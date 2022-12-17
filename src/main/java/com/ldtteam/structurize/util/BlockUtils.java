@@ -554,7 +554,10 @@ public final class BlockUtils
             }
 
             // place
-            world.removeBlock(here, false);
+            if (blockNeedsRemoval(world, here))
+            {
+                world.removeBlock(here, false);
+            }
             world.setBlock(here, newState, Constants.UPDATE_FLAG);
             targetBlock.setPlacedBy(world, here, newState, fakePlayer, stackToPlace);
         }
@@ -575,7 +578,10 @@ public final class BlockUtils
             }
             else
             {
-                world.removeBlock(here, false);
+                if (blockNeedsRemoval(world, here))
+                {
+                    world.removeBlock(here, false);
+                }
                 world.setBlock(here, fluid.defaultFluidState().createLegacyBlock(), Constants.UPDATE_FLAG);
                 bucket.checkExtraContent(null, world, stackToPlace, here);
             }
@@ -585,6 +591,14 @@ public final class BlockUtils
             throw new IllegalArgumentException(
                 MessageFormat.format("Cannot handle placing of {0} instead of {1}?!", itemStack.toString(), blockState.toString()));
         }
+    }
+
+    private static boolean blockNeedsRemoval(Level world, BlockPos pos)
+    {
+        final BlockState state = world.getBlockState(pos);
+        final Block block = state.getBlock();
+
+        return block instanceof DoorBlock || block instanceof DoublePlantBlock;
     }
 
     /**
