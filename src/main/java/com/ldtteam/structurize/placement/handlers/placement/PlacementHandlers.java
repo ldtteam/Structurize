@@ -265,7 +265,8 @@ public final class PlacementHandlers
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -297,7 +298,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos);
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -400,7 +401,8 @@ public final class PlacementHandlers
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
@@ -412,8 +414,8 @@ public final class PlacementHandlers
 
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos);
-                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()));
+                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()), settings);
                 }
                 return ActionProcessingResult.SUCCESS;
             }
@@ -527,7 +529,8 @@ public final class PlacementHandlers
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (world.getBlockState(pos).getBlock() == blockState.getBlock())
             {
@@ -540,7 +543,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos);
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
             }
             return ActionProcessingResult.SUCCESS;
         }
@@ -754,7 +757,8 @@ public final class PlacementHandlers
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
@@ -774,7 +778,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos);
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -842,13 +846,14 @@ public final class PlacementHandlers
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
-          final BlockPos centerPos)
+          final BlockPos centerPos,
+          final PlacementSettings settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos);
+                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
                 }
                 return ActionProcessingResult.PASS;
             }
@@ -860,7 +865,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos);
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
                 blockState.getBlock().setPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
