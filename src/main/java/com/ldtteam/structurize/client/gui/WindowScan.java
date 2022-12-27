@@ -114,6 +114,11 @@ public class WindowScan extends AbstractWindowSkeleton
     private final ScrollingList entityList;
 
     /**
+     * True if using the replacement window
+     */
+    private boolean replacing;
+
+    /**
      * Constructor for when the player wants to scan something.
      * @param data the scan tool data
      */
@@ -206,6 +211,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
 
         new WindowReplaceBlock(tempRes.get(row).getItemStack(), new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), this).open();
+        replacing = true;
     }
 
     @Override
@@ -243,6 +249,19 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         super.onClosed();
+    }
+
+    @Override
+    public void onUpdate()
+    {
+        if (replacing)
+        {
+            // onOpened doesn't get called again when we're reopened from a child BO window
+            updateResources();
+            replacing = false;
+        }
+
+        super.onUpdate();
     }
 
     /**
