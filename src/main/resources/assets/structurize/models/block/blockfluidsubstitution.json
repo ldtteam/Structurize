@@ -2,11 +2,11 @@
   "parent": "block/cube_all",
   "textures": {
     "particle": "block/lapis_block",
-    "down": "structurize:blocks/blockfluidsubstitution",
-    "up": "structurize:blocks/blockfluidsubstitution",
-    "north": "structurize:blocks/blockfluidsubstitution",
-    "east": "structurize:blocks/blockfluidsubstitution",
-    "south": "structurize:blocks/blockfluidsubstitution",
-    "west": "structurize:blocks/blockfluidsubstitution"
+    "down": "structurize:block/blockfluidsubstitution",
+    "up": "structurize:block/blockfluidsubstitution",
+    "north": "structurize:block/blockfluidsubstitution",
+    "east": "structurize:block/blockfluidsubstitution",
+    "south": "structurize:block/blockfluidsubstitution",
+    "west": "structurize:block/blockfluidsubstitution"
   }
 }

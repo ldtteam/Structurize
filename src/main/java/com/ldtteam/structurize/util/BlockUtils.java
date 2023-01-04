@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -205,7 +206,7 @@ public final class BlockUtils
                     chunk,
                     chunk.getOrCreateNoiseChunk(c -> createNoiseBiome(serverLevel, chunkGenerator, c)),
                     serverLevel.getBiomeManager()::getBiome,
-                    serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
+                    serverLevel.registryAccess().registryOrThrow(Registries.BIOME),
                     new WorldGenerationContext(chunkGenerator, serverLevel));
 
                 final int locX = location.getX();

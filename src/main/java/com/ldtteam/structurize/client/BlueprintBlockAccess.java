@@ -26,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ClipBlockStateContext;
 import net.minecraft.world.level.ClipContext;
@@ -417,6 +418,21 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    public void playSeededSound(
+      @Nullable final Player p_262953_,
+      final double p_263004_,
+      final double p_263398_,
+      final double p_263376_,
+      final Holder<SoundEvent> p_263359_,
+      final SoundSource p_263020_,
+      final float p_263055_,
+      final float p_262914_,
+      final long p_262991_)
+    {
+
+    }
+
+    @Override
     public boolean isRaining()
     {
         // Noop
@@ -537,6 +553,12 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
+    public FeatureFlagSet enabledFeatures()
+    {
+        return null;
+    }
+
+    @Override
     public LevelTickAccess<Block> getBlockTicks()
     {
         return null;
@@ -590,21 +612,6 @@ public class BlueprintBlockAccess extends Level
     public void blockEntityChanged(BlockPos p_151544_)
     {
         // Noop
-    }
-
-    @Override
-    public Explosion explode(Entity p_46526_,
-        DamageSource p_46527_,
-        ExplosionDamageCalculator p_46528_,
-        double p_46529_,
-        double p_46530_,
-        double p_46531_,
-        float p_46532_,
-        boolean p_46533_,
-        BlockInteraction p_46534_)
-    {
-        // Noop
-        return null;
     }
 
     @Override
@@ -805,15 +812,16 @@ public class BlueprintBlockAccess extends Level
     }
 
     @Override
-    public void playSeededSound(Player p_220372_,
-        Entity p_220373_,
-        SoundEvent p_220374_,
-        SoundSource p_220375_,
-        float p_220376_,
-        float p_220377_,
-        long p_220378_)
+    public void playSeededSound(
+      @Nullable final Player p_220372_,
+      final Entity p_220373_,
+      final Holder<SoundEvent> p_263500_,
+      final SoundSource p_220375_,
+      final float p_220376_,
+      final float p_220377_,
+      final long p_220378_)
     {
-        // Noop
+
     }
 
     private static class BlueprintLevelData implements WritableLevelData

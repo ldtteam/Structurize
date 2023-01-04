@@ -35,12 +35,10 @@ public class ItemTagTool extends AbstractItemWithPosSelector
 
     /**
      * Creates default scan tool item.
-     *
-     * @param itemGroup creative tab
      */
-    public ItemTagTool(final CreativeModeTab itemGroup)
+    public ItemTagTool()
     {
-        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
+        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON));
     }
 
     /**

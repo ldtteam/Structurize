@@ -77,12 +77,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
     /**
      * Creates default scan tool item.
-     *
-     * @param itemGroup creative tab
      */
-    public ItemScanTool(final CreativeModeTab itemGroup)
+    public ItemScanTool()
     {
-        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).tab(itemGroup));
+        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON));
     }
 
     /**
@@ -429,7 +427,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
 
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.ok", name), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         catch (CommandSyntaxException e)
         {
@@ -456,7 +454,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         if (slot.getName().isBlank() || slot.getName().contains(" "))
         {
             player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badname"));
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
 
@@ -468,7 +466,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         else if (!command.getCommandBlock().getCommand().contains(MOD_ID + " " + ScanCommand.NAME + " "))
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badcommand"), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
         else if (!ctrlKey)
@@ -485,7 +483,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                 if (!currentName.equals(slot.getName()))
                 {
                     player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.different", slot.getName(), currentName), false);
-                    player.playNotifySound(SoundEvents.NOTE_BLOCK_XYLOPHONE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    player.playNotifySound(SoundEvents.NOTE_BLOCK_XYLOPHONE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                     return;
                 }
             }
@@ -498,7 +496,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
 
         player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.getName()), false);
-        player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.0F);
+        player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     /**
@@ -519,7 +517,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.getLevel().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.nocmd"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
             }
             return false;
         }
@@ -529,7 +527,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.getLevel().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.dimension"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
             }
             return false;
         }
@@ -542,7 +540,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.getLevel().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.noscan"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT, 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
             }
             return false;
         }

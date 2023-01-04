@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "structurize:items/caliper"
+    "layer0": "structurize:item/caliper"
   },
   "display": {
     "thirdperson": {

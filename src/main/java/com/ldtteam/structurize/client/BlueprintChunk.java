@@ -350,13 +350,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public GameEventDispatcher getEventDispatcher(int p_156372_)
-    {
-        // Noop
-        return GameEventDispatcher.NOOP;
-    }
-
-    @Override
     public boolean isClientLightReady()
     {
         return true;

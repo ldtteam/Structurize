@@ -52,10 +52,10 @@ public final class ModBlocks
      * @param <B> the block subclass for the factory response
      * @return the block entry saved to the registry
      */
-    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block, CreativeModeTab group)
+    public static <B extends Block> RegistryObject<B> register(String name, Supplier<B> block)
     {
         RegistryObject<B> registered = BLOCKS.register(name.toLowerCase(), block);
-        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties().tab(group)));
+        ModItems.getRegistry().register(name.toLowerCase(), () -> new BlockItem(registered.get(), new Item.Properties()));
         return registered;
     }
 
@@ -65,9 +65,9 @@ public final class ModBlocks
 
     static
     {
-        blockSubstitution       = register("blockSubstitution", BlockSubstitution::new, ModItemGroups.STRUCTURIZE);
-        blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new, ModItemGroups.STRUCTURIZE);
-        blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new, ModItemGroups.STRUCTURIZE);
+        blockSubstitution       = register("blockSubstitution", BlockSubstitution::new);
+        blockSolidSubstitution  = register("blockSolidSubstitution", BlockSolidSubstitution::new);
+        blockFluidSubstitution  = register("blockFluidSubstitution", BlockFluidSubstitution::new);
         blockTagSubstitution    = BLOCKS.register("blockTagSubstitution".toLowerCase(), BlockTagSubstitution::new);
     }
 }

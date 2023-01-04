@@ -11,6 +11,7 @@ import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
+import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ClientBlueprintRequestMessage;
 import com.ldtteam.structurize.proxy.ClientProxy;
@@ -79,6 +80,7 @@ public class Structurize
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class));
 
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ModItemGroups.class);
 
         BlueprintRenderSettings.instance.registerSetting(RENDER_PLACEHOLDERS, false);
         BlueprintRenderSettings.instance.registerSetting(SHARE_PREVIEWS, false);

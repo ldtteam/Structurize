@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "structurize:items/sceptersteel"
+    "layer0": "structurize:item/sceptersteel"
   },
   "display": {
     "thirdperson": {

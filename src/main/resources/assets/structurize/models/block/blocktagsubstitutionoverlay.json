@@ -2,10 +2,10 @@
   "parent": "block/block",
   "render_type": "cutout_mipped",
   "textures": {
-    "particle": "structurize:blocks/blocktagsubstitution",
-    "bottom": "structurize:blocks/blocktagsubstitution",
-    "top": "structurize:blocks/blocktagsubstitution",
-    "side": "structurize:blocks/blocktagsubstitution"
+    "particle": "structurize:block/blocktagsubstitution",
+    "bottom": "structurize:block/blocktagsubstitution",
+    "top": "structurize:block/blocktagsubstitution",
+    "side": "structurize:block/blocktagsubstitution"
   },
   "elements": [
     {   "from": [ 0, 0, 0 ],

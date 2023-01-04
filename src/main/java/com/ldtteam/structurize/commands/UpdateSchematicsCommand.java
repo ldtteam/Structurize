@@ -10,6 +10,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.datafix.fixes.References;
@@ -338,7 +339,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 final String name = fixedNbt.getString("Name");
                 if (!name.startsWith("%s:".formatted(MOD_ID)))
                 {
-                    final BlockState state = NbtUtils.readBlockState(fixedNbt);
+                    final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), fixedNbt);
                     palette.add(i, state);
                     continue;
                 }
@@ -346,7 +347,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 final Optional<Tuple<BlockState, Optional<BlockEntity>>> replacementData = DomumOrnamentumUpdateHandler.createBlockReplacementData(fixedNbt);
                 if (replacementData.isEmpty())
                 {
-                    final BlockState state = NbtUtils.readBlockState(fixedNbt);
+                    final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), fixedNbt);
                     palette.add(i, state);
                     continue;
                 }

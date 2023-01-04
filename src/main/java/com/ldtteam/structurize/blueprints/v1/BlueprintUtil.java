@@ -3,6 +3,7 @@ package com.ldtteam.structurize.blueprints.v1;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
@@ -296,7 +297,7 @@ public class BlueprintUtil
                         break;
                 }
 
-                final BlockState state = NbtUtils.readBlockState(fixedNbt);
+                final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), fixedNbt);
                 palette.add(i, state);
             }
             catch (final Exception e)
@@ -472,7 +473,7 @@ public class BlueprintUtil
             final CompoundTag teCompound = tileEntities[e.getKey()];
             tileEntities[e.getKey()] = null;
             final CompoundTag newBScompound = dataFixer.apply(teCompound);
-            final BlockState newBlockState = NbtUtils.readBlockState(newBScompound);
+            final BlockState newBlockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), newBScompound);
             final short newBlockId = paletteFull ? newBlocksToBlockId.getOrDefault(newBlockState, (short) palette.size()) : paletteIndex;
             if (newBlockId == palette.size())
             {

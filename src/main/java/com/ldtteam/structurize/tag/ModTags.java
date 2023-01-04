@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.tag;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -20,7 +21,7 @@ public class ModTags
 
     private static TagKey<BlockEntityType<?>> blockEntityTag(@NotNull final String name)
     {
-        return TagKey.create(Registry.BLOCK_ENTITY_TYPE_REGISTRY,
+        return TagKey.create(Registries.BLOCK_ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, name));
     }
 }

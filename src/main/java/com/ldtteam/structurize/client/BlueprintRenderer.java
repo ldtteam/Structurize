@@ -6,7 +6,6 @@ import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -15,8 +14,6 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.RenderShape;
@@ -52,6 +49,8 @@ import java.util.stream.Collectors;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
@@ -253,7 +252,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_prepare");
         final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
         final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(anchorPos).subtract(viewPosition);
-        final Vector3f realRenderRootVecf = new Vector3f(realRenderRootVecd);
+        final Vector3f realRenderRootVecf = realRenderRootVecd.toVector3f();
 
         // missing clipping helper? frustum?
         // missing chunk system and render distance!
@@ -367,7 +366,7 @@ public class BlueprintRenderer implements AutoCloseable
                     final BlockState bs = blockAccess.getBlockState(tePos);
                     if (bs.getBlock() instanceof SkullBlock &&  bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
-                        SkullBlockEntity.dragonHeadAnimation(mc.level, anchorPos.offset(tePos), bs, skull);
+                        SkullBlockEntity.animation(mc.level, anchorPos.offset(tePos), bs, skull);
                     }
                 }
                 // TODO: investigate beams (beacon...)
@@ -531,7 +530,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         if (uniform != null)
         {
-            uniform.set(Vector3f.ZERO);
+            uniform.set(new Vector3f(0, 0, 0));
         }
         OptifineCompat.getInstance().setUniformChunkOffset(0.0f, 0.0f, 0.0f);
 

@@ -3,17 +3,28 @@ package com.ldtteam.structurize.blockentities;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -229,8 +240,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         public ReplacementBlock(@NotNull CompoundTag tag)
         {
             final CompoundTag replacement = tag.getCompound(TAG_REPLACEMENT);
-
-            this.blockstate = NbtUtils.readBlockState(replacement.getCompound("b"));
+            this.blockstate = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), replacement.getCompound("b"));
             this.blockentitytag = replacement.getCompound("e");
             this.itemstack = replacement.contains("i") ? ItemStack.of(replacement.getCompound("i")) : ItemStack.EMPTY;
         }

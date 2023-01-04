@@ -47,12 +47,12 @@ public final class ModItems
 
     static
     {
-        final Item.Properties properties = new Item.Properties().tab(ModItemGroups.STRUCTURIZE);
+        final Item.Properties properties = new Item.Properties();
 
         buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
         shapeTool = register("shapetool", () -> new ItemShapeTool(properties));
-        scanTool  = register("sceptersteel", () -> new ItemScanTool(ModItemGroups.STRUCTURIZE));
-        tagTool   = register("sceptertag", () -> new ItemTagTool(ModItemGroups.STRUCTURIZE));
+        scanTool  = register("sceptersteel", ItemScanTool::new);
+        tagTool   = register("sceptertag", () -> new ItemTagTool());
         caliper   = register("caliper", () -> new ItemCaliper(properties));
         blockTagSubstitution = register("blockTagSubstitution", () -> new ItemTagSubstitution(properties));
     }

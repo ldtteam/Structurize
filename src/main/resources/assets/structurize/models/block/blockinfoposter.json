@@ -1,8 +1,8 @@
 {
   "credit": "Made by d3miurge.vallek@gmail.com",
   "textures": {
-    "0": "structurize:blocks/info/info_poster",
-    "1": "structurize:blocks/info/info_poster_wax"
+    "0": "structurize:block/info/info_poster",
+    "1": "structurize:block/info/info_poster_wax"
   },
   "elements": [
     {
