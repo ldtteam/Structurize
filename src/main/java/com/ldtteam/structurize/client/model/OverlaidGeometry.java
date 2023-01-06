@@ -20,7 +20,6 @@ public class OverlaidGeometry implements IUnbakedGeometry<OverlaidGeometry>
     private static final Logger LOGGER = LogManager.getLogger();
 
     private ResourceLocation overlayModelId;
-    private UnbakedModel overlayModel;
 
     public OverlaidGeometry(final ResourceLocation overlayModelId)
     {
@@ -36,7 +35,8 @@ public class OverlaidGeometry implements IUnbakedGeometry<OverlaidGeometry>
       final ItemOverrides overrides,
       final ResourceLocation modelLocation)
     {
-        BakedModel baked = this.overlayModel.bake(baker, spriteGetter, modelState, overlayModelId);
+        UnbakedModel unbaked = baker.getModel(overlayModelId);
+        BakedModel baked = unbaked.bake(baker, spriteGetter, modelState, overlayModelId);
 
         if (baked == null)
         {
