@@ -180,5 +180,6 @@
   "structurize.display.shared": "See Previews from others:",
   "structurize.gui.manipulation.info": "Use the arrow buttons on the right to move the preview around or use the configured keys. You can exit and reposition via esc and then right click again to re-enter.",
   "structurize.pack.missing.blueprint": "The Requested Blueprint does not exist on the Serverside in the same Pack. Either the Client Pack has been tampered with, or the Server Pack is outdated.",
-  "structurize.pack.none": "No structure packs are installed. Scan something or install a mod that provides packs."
+  "structurize.pack.none": "No structure packs are installed. Scan something or install a mod that provides packs.",
+  "structurize.pack.equaluser.error": "The server holds a pack with your player name, this might interfere with your ability to place personal scans. To avoid that you might want to delete the pack on the server side."
 }
