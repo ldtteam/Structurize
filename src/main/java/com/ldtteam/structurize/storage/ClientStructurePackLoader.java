@@ -183,6 +183,11 @@ public class ClientStructurePackLoader
             }
             return;
         }
+        
+        if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().getName()))
+        {
+            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.pack.equaluser.error"));
+        }
 
         boolean needsChanges = false;
         for (final StructurePackMeta pack : StructurePacks.getPackMetas())
