@@ -554,7 +554,7 @@ public final class BlockUtils
             }
 
             // place
-            world.setBlock(here, Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_NONE);
+            world.setBlock(here, Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_CLIENTS);
             world.setBlock(here, newState, Constants.UPDATE_FLAG);
             targetBlock.setPlacedBy(world, here, newState, fakePlayer, stackToPlace);
         }
@@ -575,7 +575,7 @@ public final class BlockUtils
             }
             else
             {
-                world.setBlock(here, Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_NONE);
+                world.setBlock(here, Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_CLIENTS);
                 world.setBlock(here, fluid.defaultFluidState().createLegacyBlock(), Constants.UPDATE_FLAG);
                 bucket.checkExtraContent(null, world, stackToPlace, here);
             }
