@@ -407,6 +407,10 @@ public final class BlockUtils
             }
             return true;
         }
+        else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+        {
+            return false;
+        }
 
         if (fancy)
         {
