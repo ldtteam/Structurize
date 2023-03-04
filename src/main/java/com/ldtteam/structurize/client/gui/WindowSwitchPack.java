@@ -67,12 +67,6 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      */
     private static int randomSeed = new Random().nextInt();
 
-
-    /**
-     * Filter for the block and entity lists.
-     */
-    private String filter = "";
-
     /**
      * Constructor for this window.
      * @param prevWindow the origin window.
@@ -100,9 +94,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         this.packPredicate = packPredicate;
 
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
-            filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
+            final String filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText().toLowerCase(Locale.US);
 
-            filteredPackMetas = packMetas.stream().filter(meta -> meta.getName().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))).collect(Collectors.toList());
+            filteredPackMetas = packMetas.stream().filter(meta -> meta.getName().toLowerCase(Locale.US).contains(filter)).collect(Collectors.toList());
         });
     }
 
