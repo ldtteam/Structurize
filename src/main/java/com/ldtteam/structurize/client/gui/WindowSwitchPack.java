@@ -4,6 +4,7 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
@@ -14,14 +15,12 @@ import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
@@ -52,6 +51,11 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
      * List of packs.
      */
     private List<StructurePackMeta> packMetas;
+
+    /**
+     * List of packs.
+     */
+    private List<StructurePackMeta> filteredPackMetas;
 
     /**
      * Future list of packs.
@@ -88,6 +92,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
 
         this.prevWindow = prevWindow;
         this.packPredicate = packPredicate;
+
+        findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
+            final String filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText().toLowerCase(Locale.US);
+
+            filteredPackMetas = packMetas.stream().filter(meta -> meta.getName().toLowerCase(Locale.US).contains(filter)).collect(Collectors.toList());
+        });
     }
 
     /**
@@ -118,12 +128,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         int index = packList.getListElementIndexByPane(button);
         if (button.getID().contains("1"))
         {
-            StructurePacks.selectedPack = packMetas.get(index * 2);
+            StructurePacks.selectedPack = filteredPackMetas.get(index * 2);
             prevWindow.get().open();
         }
         else
         {
-            StructurePacks.selectedPack = packMetas.get(index * 2 + 1);
+            StructurePacks.selectedPack = filteredPackMetas.get(index * 2 + 1);
             prevWindow.get().open();
         }
     }
@@ -132,6 +142,8 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     public void onOpened()
     {
         packMetas = Collections.emptyList();
+        filteredPackMetas = Collections.emptyList();
+
         packMetasFuture = IOPool.submit(() ->
         {
             if (!StructurePacks.waitUntilFinishedLoading())
@@ -171,9 +183,11 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                 Collections.shuffle(packMetas, new Random(randomSeed));
             }
 
+            filteredPackMetas = packMetas;
             updatePacks();
         }
     }
+
 
     /**
      * Updates the current pack list.
@@ -188,7 +202,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             @Override
             public int getElementCount()
             {
-                return (int) Math.ceil(packMetas.size() / 2.0);
+                return (int) Math.ceil(filteredPackMetas.size() / 2.0);
             }
 
             @Override
@@ -196,12 +210,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             {
                 int metaStart = index * 2;
 
-                final StructurePackMeta packMeta = packMetas.get(metaStart);
+                final StructurePackMeta packMeta = filteredPackMetas.get(metaStart);
                 fillForMeta(rowPane, packMeta, "1");
 
-                if (packMetas.size() > metaStart + 1)
+                if (filteredPackMetas.size() > metaStart + 1)
                 {
-                    fillForMeta(rowPane, packMetas.get(metaStart + 1), "2");
+                    fillForMeta(rowPane, filteredPackMetas.get(metaStart + 1), "2");
                     rowPane.findPaneByID("box2").show();
                 }
                 else
