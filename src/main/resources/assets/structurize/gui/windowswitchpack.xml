@@ -2,6 +2,7 @@
         size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="true">
 
     <button id="cancel" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.cancel)" size="86 17" pos="3 3" textcolor="black" texthovercolor="gray"/>
+    <input id="filter" size="129 17" pos="150 3" maxlength="25" visible="true"/>
 
     <list size="420 200" pos="0 20" id="packs" visible="false">
         <box size="100% 100" linewidth="0">
