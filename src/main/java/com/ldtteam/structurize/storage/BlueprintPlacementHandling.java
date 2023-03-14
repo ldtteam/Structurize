@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -60,8 +62,13 @@ public class BlueprintPlacementHandling
      * @param blueprint the blueprint.
      * @param message the context.
      */
-    private static void process(Blueprint blueprint, BuildToolPlacementMessage message)
+    private static void process(final @Nullable Blueprint blueprint, final @NotNull BuildToolPlacementMessage message)
     {
+        if (blueprint == null)
+        {
+            Log.getLogger().warn("Couldn't retrieve blueprint: " + message.blueprintPath);
+            return;
+        }
         if (message.type == BuildToolPlacementMessage.HandlerType.Survival)
         {
             final ISurvivalBlueprintHandler handler = SurvivalBlueprintHandlers.getHandler(message.handlerId);
