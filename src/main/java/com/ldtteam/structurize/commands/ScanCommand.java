@@ -81,6 +81,7 @@ public class ScanCommand extends AbstractCommand
         if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
         {
             source.sendFailure(Component.literal(NO_PERMISSION_MESSAGE));
+            return 0;
         }
 
         final Player player;
