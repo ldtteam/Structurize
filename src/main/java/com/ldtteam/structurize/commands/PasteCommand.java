@@ -105,6 +105,7 @@ public class PasteCommand extends AbstractCommand
         if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
         {
             source.sendFailure(Component.literal(NO_PERMISSION_MESSAGE));
+            return 0;
         }
 
         if (!(player instanceof ServerPlayer))
@@ -233,7 +234,7 @@ public class PasteCommand extends AbstractCommand
         final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
         final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
         final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
-        GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
+        final GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
 
         if (profile == null)
         {
