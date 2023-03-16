@@ -452,12 +452,12 @@ public final class Manager
             for (int z = 0; z < width; z++)
             {
                 final double yVal = (flat ? 0 : z) + (double) frequency * Math.sin(x / (double) height);
-                addPosToList(new BlockPos(x, yVal + frequency, (flat ? 0 : width) + z), block, posList);
+                addPosToList(BlockPos.containing(x, yVal + frequency, (flat ? 0 : width) + z), block, posList);
                 if (!flat)
                 {
-                    addPosToList(new BlockPos(x, yVal + frequency, width - z), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width + z - width + 1), block, posList);
-                    addPosToList(new BlockPos(x, yVal + width - 1 + frequency, width - z + width - 1), block, posList);
+                    addPosToList(BlockPos.containing(x, yVal + frequency, width - z), block, posList);
+                    addPosToList(BlockPos.containing(x, yVal + width - 1 + frequency, width + z - width + 1), block, posList);
+                    addPosToList(BlockPos.containing(x, yVal + width - 1 + frequency, width - z + width - 1), block, posList);
                 }
             }
         }

@@ -456,7 +456,7 @@ public class BlueprintChunk extends LevelChunk
     {
         // copied "on miss" code from super
         final Vec3 vec3 = p_45548_.getFrom().subtract(p_45548_.getTo());
-        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_45548_.getTo()));
+        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), BlockPos.containing(p_45548_.getTo()));
     }
 
     @Override
@@ -464,7 +464,7 @@ public class BlueprintChunk extends LevelChunk
     {
         // copied "on miss" code from super
         final Vec3 vec3 = p_151354_.getFrom().subtract(p_151354_.getTo());
-        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_151354_.getTo()));
+        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), BlockPos.containing(p_151354_.getTo()));
     }
 
     @Override

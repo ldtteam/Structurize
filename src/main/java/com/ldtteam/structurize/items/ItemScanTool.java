@@ -621,7 +621,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final AABB bounds = new AABB(box.getPos1(), box.getPos2());
         final int size = (int) Math.round(bounds.max(direction.getAxis()) - bounds.min(direction.getAxis()));
 
-        return new BlockPos(bounds.getCenter()).atY((int) bounds.minY).relative(direction, offset + size / 2);
+        return BlockPos.containing(bounds.getCenter()).atY((int) bounds.minY).relative(direction, offset + size / 2);
     }
 
     /**

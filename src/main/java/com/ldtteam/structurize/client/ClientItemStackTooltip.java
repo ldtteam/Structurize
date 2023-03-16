@@ -37,15 +37,12 @@ public class ClientItemStackTooltip implements ClientTooltipComponent
                            @NotNull final Matrix4f pose,
                            @NotNull final MultiBufferSource.BufferSource buffers)
     {
-        font.drawInBatch(this.component.getStack().getHoverName(), x + 20, y + (20 - font.lineHeight) / 2f, 0xffffffff, false, pose, buffers, false, 0, 0x00f000f0);
+        font.drawInBatch(this.component.getStack().getHoverName(), x + 20, y + (20 - font.lineHeight) / 2f, 0xffffffff, false, pose, buffers, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
     }
 
     @Override
-    public void renderImage(@NotNull Font font, final int x, final int y,
-                            @NotNull PoseStack poseStack,
-                            @NotNull final ItemRenderer renderer,
-                            final int z)
+    public void renderImage(final Font font, final int x, final int y, final PoseStack poseStack, final ItemRenderer renderer)
     {
-        renderer.renderAndDecorateItem(this.component.getStack(), x + 2, y + 2);
+        renderer.renderAndDecorateItem(poseStack, this.component.getStack(), x + 2, y + 2);
     }
 }

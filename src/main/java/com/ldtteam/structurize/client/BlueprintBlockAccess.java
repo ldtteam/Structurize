@@ -18,8 +18,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +49,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -75,6 +78,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
@@ -104,6 +108,7 @@ public class BlueprintBlockAccess extends Level
     {
         super(new BlueprintLevelData(clientLevel().getLevelData()),
             clientLevel().dimension(),
+            clientLevel().registryAccess(),
             clientLevel().dimensionTypeRegistration(),
             () -> clientLevel().getProfiler(),
             true,
@@ -734,14 +739,14 @@ public class BlueprintBlockAccess extends Level
     public BlockHitResult clip(ClipContext p_45548_)
     {
         final Vec3 vec3 = p_45548_.getFrom().subtract(p_45548_.getTo());
-        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_45548_.getTo()));
+        return BlockHitResult.miss(p_45548_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), BlockPos.containing(p_45548_.getTo()));
     }
 
     @Override
     public BlockHitResult isBlockInLine(ClipBlockStateContext p_151354_)
     {
         final Vec3 vec3 = p_151354_.getFrom().subtract(p_151354_.getTo());
-        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), new BlockPos(p_151354_.getTo()));
+        return BlockHitResult.miss(p_151354_.getTo(), Direction.getNearest(vec3.x, vec3.y, vec3.z), BlockPos.containing(p_151354_.getTo()));
     }
 
     @Override

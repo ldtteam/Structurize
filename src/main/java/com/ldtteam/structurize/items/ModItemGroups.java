@@ -20,7 +20,7 @@ public final class ModItemGroups
     @SubscribeEvent
     public static void CreativeTabEvent(final CreativeModeTabEvent.Register event)
     {
-        event.registerCreativeModeTab(CREATIVE_TAB, (cf) -> cf.icon(() -> new ItemStack(ModItems.buildTool.get())).withSearchBar().title(Component.literal(Constants.MOD_ID)).displayItems((flagSet, output, ifSth) -> {
+        event.registerCreativeModeTab(CREATIVE_TAB, (cf) -> cf.icon(() -> new ItemStack(ModItems.buildTool.get())).withSearchBar().title(Component.literal(Constants.MOD_ID)).displayItems((flagSet, output) -> {
             output.accept(ModBlocks.blockSubstitution.get());
             output.accept(ModBlocks.blockSolidSubstitution.get());
             output.accept(ModBlocks.blockFluidSubstitution.get());

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,7 +59,7 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
 
     @Override
     public void renderByItem(@NotNull final ItemStack stack,
-                             @NotNull final ItemTransforms.TransformType transformType,
+                             @NotNull final ItemDisplayContext transformType,
                              @NotNull final PoseStack poseStack,
                              @NotNull final MultiBufferSource buffers,
                              final int packedLight,

@@ -884,12 +884,12 @@ public class WorldRenderMacros extends UiRenderMacros
                     false,
                     rawPosMatrix,
                     buffer,
-                    true,
+                  Font.DisplayMode.SEE_THROUGH,
                     alphaMask,
                     0x00f000f0);
                 if (!forceWhite)
                 {
-                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, false, 0, 0x00f000f0);
+                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
                 }
                 matrixStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
             }
