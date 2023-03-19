@@ -766,19 +766,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
 
             boolean hasAlts = blueprintMap.values().size() > 1;
-            if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
+            boolean isInvis = isInvisible(firstBlueprint);
+            boolean isLocked = false;
+
+            if (anchor.getBlock() instanceof final IRequirementsBlueprintAnchorBlock requirements)
             {
-                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player));
-                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player))
+                toolTip.addAll(requirements.getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player));
+                if (!requirements.areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player))
                 {
                     PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
                     img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"), false);
-                    img.disable();
-                    return;
+                    isLocked = true;
                 }
             }
-
-            boolean isInvis = isInvisible(firstBlueprint);
 
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
@@ -786,7 +786,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             {
                 img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
-            else
+            else if (!isLocked)
             {
                 img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint"  + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
@@ -973,10 +973,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 levelsList.hide();
                 levelsList.disable();
 
-                final Blueprint blueprint = mapping.values().iterator().next().get(0);
-                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
-                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
-                adjustToGroundOffset();
+                setBlueprint(mapping.values().iterator().next().get(0));
                 return;
             }
 
@@ -992,11 +989,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
                 if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || !onOpen)
                 {
-                    final Blueprint blueprint = leveled.get(0);
-                    findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
-                      structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
-                    RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
-                    adjustToGroundOffset();
+                    setBlueprint(leveled.get(0));
                 }
                 updateLevels(leveled, categoryId + ":" + mapping.keySet().iterator().next(), false);
             }
@@ -1012,11 +1005,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null || list.size() == 1 || !onOpen)
             {
-                final Blueprint blueprint = list.get(0);
-                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
-                  structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
-                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
-                adjustToGroundOffset();
+                setBlueprint(list.get(0));
             }
 
             if (list.size() == 1)
@@ -1039,10 +1028,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             try
             {
                 int level = Integer.parseInt(split[3]);
-                final Blueprint blueprint = list.get(level);
-                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
-                RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
-                adjustToGroundOffset();
+                setBlueprint(list.get(level));
                 return;
             }
             catch (final NumberFormatException exception)
@@ -1055,6 +1041,24 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
         }
         updateFolders(Collections.emptyList());
+    }
+
+    private void setBlueprint(Blueprint blueprint)
+    {
+        final BlueprintPreviewData data = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
+
+        findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+        data.setBlueprint(blueprint);
+        adjustToGroundOffset();
+
+        boolean canBuild = true;
+        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+        if (anchor.getBlock() instanceof final IRequirementsBlueprintAnchorBlock requirements)
+        {
+            canBuild = requirements.areRequirementsMet(Minecraft.getInstance().level, data.getPos(), Minecraft.getInstance().player);
+        }
+
+        findPaneOfTypeByID(BUTTON_CONFIRM, Button.class).setVisible(canBuild);
     }
 
     /**
