@@ -6,6 +6,7 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
@@ -184,8 +185,9 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
     {
         allItems.clear();
         allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
-                                               .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                                                                                                                          && ((BucketItem) item).getFluid() != Fluids.EMPTY))
+                                               .filter(item -> item instanceof AirItem ||
+                                                       (item instanceof final BlockItem block && !(block.getBlock() instanceof IMateriallyTexturedBlock)) ||
+                                                       (item instanceof final BucketItem bucket && bucket.getFluid() != Fluids.EMPTY))
                                                .map(s -> new ItemStorage(new ItemStack(s)))
                                                .collect(Collectors.toList())));
 
