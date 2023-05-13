@@ -324,7 +324,13 @@ public class StructurePlacer
 
                 if (!this.handler.isCreative())
                 {
-                    requiredItems.addAll(placementHandler.getRequiredItemsVsWorld(world, worldPos, localState, tileEntityData, false));
+                    for (final ItemStack stack : placementHandler.getRequiredItemsVsWorld(world, worldPos, localState, tileEntityData, false))
+                    {
+                        if (!stack.isEmpty() && !this.handler.isStackFree(stack))
+                        {
+                            requiredItems.add(stack);
+                        }
+                    }
 
                     if (!this.handler.hasRequiredItems(requiredItems))
                     {
