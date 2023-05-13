@@ -283,4 +283,52 @@ public final class ItemStackUtils
         }
         return false;
     }
+
+    /**
+     * Computes what required stacks are missing from a list of available stacks.
+     * @param requiredStacks  the list of items and counts that are required.
+     * @param availableStacks the list of items and counts that are available.
+     * @return the {@code requiredStacks} that are not covered by the {@code availableStacks}.
+     *         If this is empty, that doesn't imply the lists are equal -- there might be
+     *         leftover available stacks.
+     */
+    public static List<ItemStack> computeDelta(final List<ItemStack> requiredStacks,
+                                               final List<ItemStack> availableStacks)
+    {
+        final List<ItemStack> remainingStacks = new ArrayList<>(availableStacks);
+        final List<ItemStack> missingStacks = new ArrayList<>();
+        for (ItemStack stack : requiredStacks)
+        {
+            missingStacks.add(stack);
+
+            for (final ItemStack other : remainingStacks)
+            {
+                if (ItemStackUtils.compareItemStacksIgnoreStackSize(stack, other, false, true))
+                {
+                    remainingStacks.remove(other);
+                    missingStacks.remove(stack);
+
+                    if (other.getCount() < stack.getCount())
+                    {
+                        // not enough of the available item to satisfy the requirement; add back the leftover
+                        final ItemStack leftover = stack.copy();
+                        leftover.setCount(stack.getCount() - other.getCount());
+                        stack = leftover;
+                        missingStacks.add(stack);
+                        continue;
+                    }
+                    else if (other.getCount() > stack.getCount())
+                    {
+                        // more than enough of the available item to satisfy the requirement; add back the leftover
+                        final ItemStack leftover = other.copy();
+                        leftover.setCount(other.getCount() - stack.getCount());
+                        remainingStacks.add(leftover);
+                    }
+                    break;
+                }
+            }
+        }
+
+        return missingStacks;
+    }
 }

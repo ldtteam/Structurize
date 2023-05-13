@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -9,9 +10,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -154,6 +157,39 @@ public interface IPlacementHandler
       final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
       final boolean complete);
+
+    /**
+     * {@link #getRequiredItems} but computes the difference between the desired and existing block at the
+     * same coordinates.
+     *
+     * @param world              the world
+     * @param pos                the pos
+     * @param blueprintState     the block state in the blueprint
+     * @param blueprintBlockData the block NBT in the blueprint
+     * @param complete           place it complete (with or without substitution blocks etc).
+     * @return the list of missing items
+     */
+    default List<ItemStack> getRequiredItemsVsWorld(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blueprintState,
+            @Nullable final CompoundTag blueprintBlockData,
+            final boolean complete)
+    {
+        final BlockState worldState = world.getBlockState(pos);
+        if (blueprintState.getBlock() != worldState.getBlock())
+        {
+            return getRequiredItems(world, pos, blueprintState, blueprintBlockData, complete);
+        }
+
+        final BlockEntity te = world.getBlockEntity(pos);
+        final CompoundTag worldBlockData = te == null ? null : te.saveWithFullMetadata();
+
+        final List<ItemStack> worldItems = getRequiredItems(world, pos, worldState, worldBlockData, complete);
+        final List<ItemStack> localItems = getRequiredItems(world, pos, blueprintState, blueprintBlockData, complete);
+
+        return ItemStackUtils.computeDelta(localItems, worldItems);
+    }
 
     /**
      * Possible result of an IPlacementHandler call.

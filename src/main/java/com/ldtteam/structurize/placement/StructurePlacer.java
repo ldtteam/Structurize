@@ -205,7 +205,6 @@ public class StructurePlacer
       CompoundTag tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
-        boolean sameBlockInWorld = worldState.getBlock() == localState.getBlock();
 
         if (!(worldState.getBlock() instanceof AirBlock))
         {
@@ -323,15 +322,9 @@ public class StructurePlacer
             {
                 final List<ItemStack> requiredItems = new ArrayList<>();
 
-                if (!sameBlockInWorld && !this.handler.isCreative())
+                if (!this.handler.isCreative())
                 {
-                    for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
-                    {
-                        if (!stack.isEmpty() && !this.handler.isStackFree(stack))
-                        {
-                            requiredItems.add(stack);
-                        }
-                    }
+                    requiredItems.addAll(placementHandler.getRequiredItemsVsWorld(world, worldPos, localState, tileEntityData, false));
 
                     if (!this.handler.hasRequiredItems(requiredItems))
                     {
@@ -341,7 +334,7 @@ public class StructurePlacer
 
                 if (!(worldState.getBlock() instanceof AirBlock))
                 {
-                    if (!sameBlockInWorld
+                    if (localState.getBlock() != worldState.getBlock()
                           && worldState.getMaterial() != Material.AIR
                           && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
@@ -365,7 +358,7 @@ public class StructurePlacer
                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
                 }
 
-                if (!this.handler.isCreative() && !sameBlockInWorld)
+                if (!this.handler.isCreative())
                 {
                     for (final ItemStack tempStack : requiredItems)
                     {
@@ -398,13 +391,6 @@ public class StructurePlacer
       BlockState localState,
       CompoundTag tileEntityData)
     {
-        final BlockState worldState = world.getBlockState(worldPos);
-        boolean sameBlockInWorld = false;
-        if (worldState.getBlock() == localState.getBlock())
-        {
-            sameBlockInWorld = true;
-        }
-
         final List<ItemStack> requiredItems = new ArrayList<>();
         for (final CompoundTag compound : iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
@@ -471,16 +457,16 @@ public class StructurePlacer
         {
             if (placementHandler.canHandle(world, worldPos, localState))
             {
-                if (!sameBlockInWorld)
+                final List<ItemStack> missingItems = placementHandler.getRequiredItemsVsWorld(world, worldPos, localState, tileEntityData, false);
+
+                for (final ItemStack stack : missingItems)
                 {
-                    for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
+                    if (!stack.isEmpty() && !this.handler.isStackFree(stack))
                     {
-                        if (!stack.isEmpty() && !this.handler.isStackFree(stack))
-                        {
-                            requiredItems.add(stack);
-                        }
+                        requiredItems.add(stack);
                     }
                 }
+
                 return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
             }
         }
