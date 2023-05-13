@@ -54,7 +54,6 @@ public final class PlacementHandlers
         handlers.add(new DoublePlantPlacementHandler());
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
-        handlers.add(new StairBlockPlacementHandler());
         handlers.add(new HopperClientLagPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
@@ -649,42 +648,6 @@ public final class PlacementHandlers
         }
     }
 
-    public static class StairBlockPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
-        {
-            return blockState.getBlock() instanceof StairBlock
-                     && !(blockState.getBlock() instanceof EntityBlock)
-                     && world.getBlockState(pos).getBlock() instanceof StairBlock
-                     && world.getBlockState(pos).getValue(StairBlock.FACING) == blockState.getValue(StairBlock.FACING)
-                     && blockState.getBlock() == world.getBlockState(pos).getBlock();
-        }
-
-        @Override
-        public ActionProcessingResult handle(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
-        {
-            return ActionProcessingResult.PASS;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
-        {
-            return new ArrayList<>();
-        }
-    }
-
     public static class GeneralBlockPlacementHandler implements IPlacementHandler
     {
         @Override
@@ -705,12 +668,6 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
-                world.removeBlock(pos, false);
-                world.setBlock(pos, blockState, UPDATE_FLAG);
-                if (tileEntityData != null)
-                {
-                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
-                }
                 return ActionProcessingResult.PASS;
             }
 
