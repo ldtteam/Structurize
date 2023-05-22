@@ -305,9 +305,11 @@ public class BlueprintRenderer implements AutoCloseable
 
             OptifineCompat.getInstance().preRenderEntity(entity);
 
-            Minecraft.getInstance()
-                .getEntityRenderDispatcher()
-                .render(entity,
+            try
+            {
+                Minecraft.getInstance()
+                  .getEntityRenderDispatcher()
+                  .render(entity,
                     entity.getX(),
                     entity.getY(),
                     entity.getZ(),
@@ -316,6 +318,11 @@ public class BlueprintRenderer implements AutoCloseable
                     matrixStack,
                     renderBufferSource,
                     LightTexture.pack(15, 15));
+            }
+            catch (final ClassCastException ex)
+            {
+                // Oops
+            }
         }
         matrixStack.popPose();
 
