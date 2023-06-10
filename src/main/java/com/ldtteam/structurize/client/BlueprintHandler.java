@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.client;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.vertex.PoseStack;

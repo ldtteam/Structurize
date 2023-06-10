@@ -21,7 +21,6 @@ import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.GlowItemFrame;
@@ -34,11 +33,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -323,7 +320,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         else if (slot.getBox().getAnchor().isPresent())
         {
-            final BlockEntity tile = Minecraft.getInstance().player.level.getBlockEntity(slot.getBox().getAnchor().get());
+            final BlockEntity tile = Minecraft.getInstance().player.level().getBlockEntity(slot.getBox().getAnchor().get());
             if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
             {
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());

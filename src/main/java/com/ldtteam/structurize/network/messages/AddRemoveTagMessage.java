@@ -77,7 +77,7 @@ public class AddRemoveTagMessage implements IMessage
             return;
         }
 
-        final BlockEntity te = ctxIn.getSender().level.getBlockEntity(anchorPos);
+        final BlockEntity te = ctxIn.getSender().level().getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProviderBE)
         {
             final IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;

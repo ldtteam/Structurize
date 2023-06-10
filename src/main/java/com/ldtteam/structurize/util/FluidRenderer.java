@@ -325,7 +325,7 @@ public class FluidRenderer
                     ++occurances;
                 }
             }
-            else if (!blockAccess.getBlockState(blockpos).getMaterial().isSolid())
+            else if (!blockAccess.getBlockState(blockpos).isSolid())
             {
                 ++occurances;
             }

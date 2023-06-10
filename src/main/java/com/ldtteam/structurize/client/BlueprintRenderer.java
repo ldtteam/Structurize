@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -63,7 +62,7 @@ public class BlueprintRenderer implements AutoCloseable
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
-        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer()));
+        .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
     // TODO: remove when forge events
     private static final RenderBuffers renderBuffers = new RenderBuffers();
 
@@ -113,7 +112,7 @@ public class BlueprintRenderer implements AutoCloseable
         final Minecraft mc = Minecraft.getInstance();
         final BlockRenderDispatcher blockRendererDispatcher = mc.getBlockRenderer();
         final RandomSource random = RandomSource.create();
-        final Level serverLevel = mc.hasSingleplayerServer() ? mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level : null;
+        final Level serverLevel = mc.hasSingleplayerServer() ? mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level() : null;
         final BlockState defaultFluidState = BlockUtils.getFluidForDimension(serverLevel == null ? mc.level : serverLevel);
 
         clearVertexBuffers();
@@ -224,7 +223,6 @@ public class BlueprintRenderer implements AutoCloseable
             }
             else
             {
-                // TODO: OptifineCompat.getInstance().beforeBuilderUpload(null);
                 final VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
                 vertexBuffer.bind();
                 vertexBuffer.upload(newBuffer);
@@ -272,8 +270,6 @@ public class BlueprintRenderer implements AutoCloseable
                 || mc.gui.getBossOverlay().shouldCreateWorldFog(),
             partialTicks);
 
-        OptifineCompat.getInstance().setupFog();
-
         mc.getProfiler().popPush("struct_render_blocks");
         renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
@@ -281,8 +277,6 @@ public class BlueprintRenderer implements AutoCloseable
         renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf);
-
-        OptifineCompat.getInstance().endTerrainBeginEntities();
 
         mc.getProfiler().popPush("struct_render_entities");
         final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
@@ -302,8 +296,6 @@ public class BlueprintRenderer implements AutoCloseable
                     crystal.time++;
                 }
             }
-
-            OptifineCompat.getInstance().preRenderEntity(entity);
 
             try
             {
@@ -332,8 +324,6 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch(RenderType.entityCutout(InventoryMenu.BLOCK_ATLAS));
         renderBufferSource.endBatch(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS));
         renderBufferSource.endBatch(RenderType.entitySmoothCutout(InventoryMenu.BLOCK_ATLAS));
-
-        OptifineCompat.getInstance().endEntitiesBeginBlockEntities();
 
         // Block entities
 
@@ -382,8 +372,6 @@ public class BlueprintRenderer implements AutoCloseable
             matrixStack.pushPose();
             matrixStack.translate(realRenderTePos.x, realRenderTePos.y, realRenderTePos.z);
 
-            OptifineCompat.getInstance().preRenderBlockEntity(tileEntity);
-
             mc.getBlockEntityRenderDispatcher().render(tileEntity, partialTicks, matrixStack, renderBufferSource);
             matrixStack.popPose();
         }
@@ -400,12 +388,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch(Sheets.shulkerBoxSheet());
         renderBufferSource.endBatch(Sheets.signSheet());
         renderBufferSource.endBatch(Sheets.chestSheet());
-        if (OptifineCompat.getInstance().isOptifineEnabled())
-        {
-            renderBufferSource.endBatch(Sheets.bannerSheet());
-        }
         renderBuffers.outlineBufferSource().endOutlineBatch(); // not used now
-        OptifineCompat.getInstance().endBlockEntitiesBeginDebug(renderBuffers);
 
         renderBufferSource.endBatch(Sheets.translucentCullBlockSheet());
         renderBufferSource.endBatch(Sheets.bannerSheet());
@@ -421,15 +404,12 @@ public class BlueprintRenderer implements AutoCloseable
         renderBuffers.crumblingBufferSource().endBatch(); // not used now
 
         mc.getProfiler().popPush("struct_render_blocks2");
-        OptifineCompat.getInstance().endDebugPreWaterBeginWater();
         renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf);
-        OptifineCompat.getInstance().endWater();
 
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
         renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf);
 
-        OptifineCompat.getInstance().resetFog();
         FogRenderer.setupNoFog();
         matrixStack.popPose();
 
@@ -521,16 +501,13 @@ public class BlueprintRenderer implements AutoCloseable
 
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.apply();
-        OptifineCompat.getInstance().preLayerDraw(layerRenderType, mvMatrix);
 
         final Uniform uniform = shaderinstance.CHUNK_OFFSET;
-        if (uniform != null && !OptifineCompat.getInstance().isShaderProgramActive())
+        if (uniform != null)
         {
             uniform.set(realRenderRootPos);
             uniform.upload();
         }
-
-        OptifineCompat.getInstance().setUniformChunkOffset(realRenderRootPos.x(), realRenderRootPos.y(), realRenderRootPos.z());
 
         vertexBuffer.bind();
         vertexBuffer.draw();
@@ -539,7 +516,6 @@ public class BlueprintRenderer implements AutoCloseable
         {
             uniform.set(new Vector3f(0, 0, 0));
         }
-        OptifineCompat.getInstance().setUniformChunkOffset(0.0f, 0.0f, 0.0f);
 
         shaderinstance.clear();
 

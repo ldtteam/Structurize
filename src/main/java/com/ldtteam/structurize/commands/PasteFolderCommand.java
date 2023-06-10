@@ -9,7 +9,6 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -222,7 +221,7 @@ public class PasteFolderCommand extends AbstractCommand
             }
         }));
 
-        source.sendSuccess(Component.translatable(PASTE_SUCCESS_MESSAGE), true);
+        source.sendSuccess(() -> Component.translatable(PASTE_SUCCESS_MESSAGE), true);
         return 1;
     }
 

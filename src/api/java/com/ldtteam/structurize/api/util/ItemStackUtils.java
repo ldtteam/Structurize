@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -22,10 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-
-import net.minecraft.world.phys.HitResult.Type;
 
 /**
  * Utility methods for the inventories.
@@ -113,9 +110,9 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-           provider.getCapability(ITEM_HANDLER_CAPABILITY, side).ifPresent(handlerSet::add);
+           provider.getCapability(ForgeCapabilities.ITEM_HANDLER, side).ifPresent(handlerSet::add);
         }
-        provider.getCapability(ITEM_HANDLER_CAPABILITY, null).ifPresent(handlerSet::add);
+        provider.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(handlerSet::add);
         return handlerSet;
     }
 
@@ -126,9 +123,9 @@ public final class ItemStackUtils
      * @param stack The stack to check.
      * @return True when the stack is empty, false when not.
      */
-        public static Boolean isEmpty(@Nullable final ItemStack stack)
+    public static boolean isEmpty(@Nullable final ItemStack stack)
     {
-        return stack == null || stack == ItemStack.EMPTY || stack.getCount() <= 0;
+        return stack == null || stack.isEmpty() || stack == ItemStack.EMPTY || stack.getCount() <= 0;
     }
 
     /**
@@ -196,7 +193,7 @@ public final class ItemStackUtils
      * @return True when they are equal except the stacksize, false when not.
      */
     @NotNull
-    public static Boolean compareItemStacksIgnoreStackSize(final ItemStack itemStack1, final ItemStack itemStack2)
+    public static boolean compareItemStacksIgnoreStackSize(final ItemStack itemStack1, final ItemStack itemStack2)
     {
         return compareItemStacksIgnoreStackSize(itemStack1, itemStack2, true, true);
     }

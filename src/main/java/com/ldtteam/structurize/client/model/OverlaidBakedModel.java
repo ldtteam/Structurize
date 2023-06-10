@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraftforge.client.model.BakedModelWrapper;

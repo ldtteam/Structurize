@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.blocks.interfaces;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 
 /**
  * Blueprint anchor that levels.

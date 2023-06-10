@@ -6,8 +6,6 @@ import com.ldtteam.structurize.client.*;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
-import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -31,8 +29,6 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void onClientInit(final FMLClientSetupEvent event)
     {
-        OptifineCompat.getInstance().intialize();
-
         final ResourceManager rm = Minecraft.getInstance().getResourceManager();
         if (rm instanceof final ReloadableResourceManager resourceManager)
         {

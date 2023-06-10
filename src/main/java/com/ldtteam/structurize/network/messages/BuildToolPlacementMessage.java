@@ -143,7 +143,7 @@ public class BuildToolPlacementMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        world = ctxIn.getSender().level;
+        world = ctxIn.getSender().level();
         player = ctxIn.getSender();
         BlueprintPlacementHandling.handlePlacement(this);
     }

@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.client;
 
 import com.ldtteam.blockui.BOScreen;
-import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.client.gui.AbstractBlueprintManipulationWindow;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;

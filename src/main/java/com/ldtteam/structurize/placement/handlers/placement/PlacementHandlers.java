@@ -237,7 +237,7 @@ public final class PlacementHandlers
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
-            if (!world.getBlockState(pos.below()).getMaterial().isSolid())
+            if (!BlockUtils.canBlockFloatInAir(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
@@ -246,8 +246,7 @@ public final class PlacementHandlers
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && possibleSupport.getMaterial().isSolid() &&
-                        !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport))
                     {
                         supportBlockState = possibleSupport;
                         break;
@@ -273,7 +272,7 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.getBlockState(pos.below()).getMaterial().isSolid())
+            if (!BlockUtils.canBlockFloatInAir(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
@@ -282,8 +281,7 @@ public final class PlacementHandlers
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && possibleSupport.getMaterial().isSolid() &&
-                        !(possibleSupport.getBlock() instanceof FallingBlock || possibleSupport.getBlock() instanceof Fallable))
+                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport))
                     {
                         supportBlockState = possibleSupport;
                         break;

@@ -2,8 +2,6 @@ package com.ldtteam.structurize.items;
 
 import net.minecraft.world.item.Item;
 
-import net.minecraft.world.item.Item.Properties;
-
 /**
  * Handles simple things that all items need.
  */

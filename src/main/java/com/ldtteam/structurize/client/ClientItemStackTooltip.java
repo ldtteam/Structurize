@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.items.ItemStackTooltip;
-import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Matrix4f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 public class ClientItemStackTooltip implements ClientTooltipComponent
 {
@@ -41,8 +41,25 @@ public class ClientItemStackTooltip implements ClientTooltipComponent
     }
 
     @Override
-    public void renderImage(final Font font, final int x, final int y, final PoseStack poseStack, final ItemRenderer renderer)
+    public void renderImage(final Font font, final int x, final int y, final GuiGraphics target)
     {
-        renderer.renderAndDecorateItem(poseStack, this.component.getStack(), x + 2, y + 2);
+        target.renderItem(this.component.getStack(), x + 2, y + 2);
+        target.renderItemDecorations(getFont(this.component.getStack()), this.component.getStack(), x + 2, y + 2);
+    }
+
+    /**
+     * @see com.ldtteam.blockui.BOGuiGraphics#getFont
+     */
+    private Font getFont(final ItemStack itemStack)
+    {
+        if (itemStack != null)
+        {
+            final Font font = IClientItemExtensions.of(itemStack).getFont(itemStack, IClientItemExtensions.FontContext.ITEM_COUNT);
+            if (font != null)
+            {
+                return font;
+            }
+        }
+        return Minecraft.getInstance().font;
     }
 }

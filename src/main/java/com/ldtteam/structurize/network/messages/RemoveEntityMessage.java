@@ -81,7 +81,7 @@ public class RemoveEntityMessage implements IMessage
             return;
         }
 
-        final Level world = ctxIn.getSender().getLevel();
+        final Level world = ctxIn.getSender().level();
         final ChangeStorage storage = new ChangeStorage(TickedWorldOperation.OperationType.REMOVE_ENTITY.toString(), ctxIn.getSender().getUUID());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {

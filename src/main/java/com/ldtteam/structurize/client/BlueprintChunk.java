@@ -1,13 +1,11 @@
 package com.ldtteam.structurize.client;
 
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData.BlockEntityTagOutput;
-import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -23,7 +21,6 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
-import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.level.levelgen.NoiseChunk;
@@ -48,11 +45,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-
-import net.minecraft.world.level.chunk.LevelChunk.EntityCreationType;
 
 /**
  * Blueprint simulated chunk.
@@ -146,13 +140,6 @@ public class BlueprintChunk extends LevelChunk
     {
         // Noop
         return 0;
-    }
-
-    @Override
-    public FullChunkStatus getFullStatus()
-    {
-        // Noop (mostly related to loading and ticking - we do NOT want both)
-        return FullChunkStatus.INACCESSIBLE;
     }
 
     @Override
@@ -274,12 +261,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public void setFullStatus(Supplier<FullChunkStatus> locationTypeIn)
-    {
-        // Noop
-    }
-
-    @Override
     public void setUnsaved(boolean modified)
     {
         // Noop
@@ -301,13 +282,6 @@ public class BlueprintChunk extends LevelChunk
     public void addPackedPostProcess(short packedPosition, int index)
     {
         // Noop
-    }
-
-    @Override
-    public LevelChunkSection getHighestSection()
-    {
-        // Noop
-        return null;
     }
 
     @Override
@@ -350,12 +324,6 @@ public class BlueprintChunk extends LevelChunk
     }
 
     @Override
-    public boolean isClientLightReady()
-    {
-        return true;
-    }
-
-    @Override
     public void registerAllBlockEntitiesAfterLevelLoad()
     {
         // Noop
@@ -375,12 +343,6 @@ public class BlueprintChunk extends LevelChunk
 
     @Override
     public void setBlockEntity(BlockEntity p_156374_)
-    {
-        // Noop
-    }
-
-    @Override
-    public void setClientLightReady(boolean p_196865_)
     {
         // Noop
     }

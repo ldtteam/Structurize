@@ -198,7 +198,7 @@ public class TickedWorldOperation
             return false;
         }
 
-        if (player != null && player.level.dimension() != world.dimension())
+        if (player != null && player.level().dimension() != world.dimension())
         {
             return false;
         }
@@ -230,14 +230,14 @@ public class TickedWorldOperation
                     case 1:
                         //structure
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                          () -> placer.getIterator().increment((info, pos, handler) -> !info.getBlockInfo().getState().getMaterial().isSolid()), false);
+                          () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.canBlockFloatInAir(info.getBlockInfo().getState())), false);
 
                         currentPos = result.getIteratorPos();
                         break;
                     case 2:
                         // not solid
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                          () -> placer.getIterator().increment((info, pos, handler) -> info.getBlockInfo().getState().getMaterial().isSolid()), false);
+                          () -> placer.getIterator().increment((info, pos, handler) -> BlockUtils.canBlockFloatInAir(info.getBlockInfo().getState())), false);
                         currentPos = result.getIteratorPos();
                         break;
                     default:
@@ -330,10 +330,10 @@ public class TickedWorldOperation
 
                         storage.addPreviousDataFor(here, world);
                         if (operation != OperationType.REPLACE_BLOCK && (blockState.getBlock() instanceof BucketPickup
-                                                                           || blockState.getBlock() instanceof LiquidBlock))
+                                                                           || BlockUtils.isLiquidOnlyBlock(blockState.getBlock())))
                         {
                             BlockUtils.removeFluid(world, here);
-                            if (firstBlock.getItem() instanceof BucketItem && !(blockState.getBlock() instanceof LiquidBlock))
+                            if (firstBlock.getItem() instanceof BucketItem && !BlockUtils.isLiquidOnlyBlock(blockState.getBlock()))
                             {
                                 if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
                                 {

@@ -16,7 +16,6 @@ import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
@@ -73,7 +72,6 @@ public class ClientEventSubscriber
         {
             return;
         }
-        OptifineCompat.getInstance().preBlueprintDraw();
 
         final PoseStack matrixStack = event.getPoseStack();
         final float partialTicks = event.getPartialTick();
@@ -126,7 +124,7 @@ public class ClientEventSubscriber
             mc.getProfiler().push("struct_tags");
 
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
-            final BlockEntity te = mc.player.level.getBlockEntity(tagAnchor);
+            final BlockEntity te = mc.player.level().getBlockEntity(tagAnchor);
             WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, tagAnchor, tagAnchor, 0.02f);
 
             if (te instanceof IBlueprintDataProviderBE)
@@ -145,8 +143,6 @@ public class ClientEventSubscriber
 
         bufferSource.endBatch();
         matrixStack.popPose();
-
-        OptifineCompat.getInstance().postBlueprintDraw();
     }
 
     /**
@@ -192,7 +188,7 @@ public class ClientEventSubscriber
         if (event.phase != Phase.START) return;
 
         final Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || (mc.screen != null && !mc.screen.passEvents) || mc.level == null) return;
+        if (mc.player == null || mc.screen != null || mc.level == null) return;
 
         if (mc.options.keyPickItem.consumeClick())
         {

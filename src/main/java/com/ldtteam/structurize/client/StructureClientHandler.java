@@ -1,8 +1,6 @@
 package com.ldtteam.structurize.client;
 
 import java.util.List;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.core.BlockPos;
@@ -23,9 +21,7 @@ public final class StructureClientHandler
      */
     public static void renderStructureAtPos(final BlueprintPreviewData previewData, final float partialTicks, final BlockPos pos, final PoseStack stack)
     {
-        OptifineCompat.getInstance().preBlueprintDraw();
         BlueprintHandler.getInstance().draw(previewData, pos, stack, partialTicks);
-        OptifineCompat.getInstance().postBlueprintDraw();
     }
 
     /**
@@ -37,8 +33,6 @@ public final class StructureClientHandler
      */
     public static void renderStructureAtPosList(final BlueprintPreviewData previewData, final float partialTicks, final List<BlockPos> points, final PoseStack stack)
     {
-        OptifineCompat.getInstance().preBlueprintDraw();
         BlueprintHandler.getInstance().drawAtListOfPositions(previewData, points, stack, partialTicks);
-        OptifineCompat.getInstance().postBlueprintDraw();
     }
 }

@@ -6,7 +6,6 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -18,12 +17,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -32,9 +28,6 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ClipBlockStateContext;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Explosion.BlockInteraction;
-import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -49,7 +42,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -78,7 +70,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
@@ -128,7 +119,7 @@ public class BlueprintBlockAccess extends Level
     {
         final Minecraft mc = Minecraft.getInstance();
         return SharedConstants.IS_RUNNING_IN_IDE && mc.hasSingleplayerServer() ?
-            mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level :
+            mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID()).level() :
             mc.level;
     }
 

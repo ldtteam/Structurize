@@ -23,7 +23,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;

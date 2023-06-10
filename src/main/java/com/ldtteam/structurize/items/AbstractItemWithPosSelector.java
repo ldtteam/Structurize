@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,7 +18,6 @@ import net.minecraft.world.level.Level;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
 import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
 
-import net.minecraft.world.item.Item.Properties;
 import org.jetbrains.annotations.NotNull;
 
 /**

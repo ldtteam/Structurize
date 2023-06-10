@@ -27,7 +27,7 @@ public class ServerPreviewDistributor
     @SubscribeEvent
     public static void onLogin(final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getEntity().level.isClientSide)
+        if (event.getEntity().level().isClientSide)
         {
             return;
         }
@@ -37,7 +37,7 @@ public class ServerPreviewDistributor
     @SubscribeEvent
     public static void onLogout(final PlayerEvent.PlayerLoggedOutEvent event)
     {
-        if (event.getEntity().level.isClientSide)
+        if (event.getEntity().level().isClientSide)
         {
             return;
         }
@@ -52,7 +52,7 @@ public class ServerPreviewDistributor
     {
         for (final Tuple<ServerPlayer, BlueprintRenderSettings> entry : registeredPlayers.values())
         {
-            if (entry.getB().renderSettings.get(DISPLAY_SHARED) && entry.getA().isAlive() && player.level == entry.getA().level && !player.getUUID().equals(entry.getA().getUUID()) && (entry.getA().blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)))
+            if (entry.getB().renderSettings.get(DISPLAY_SHARED) && entry.getA().isAlive() && player.level() == entry.getA().level() && !player.getUUID().equals(entry.getA().getUUID()) && (entry.getA().blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)))
             {
                 Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, entry.getA().getUUID().toString()), entry.getA());
             }

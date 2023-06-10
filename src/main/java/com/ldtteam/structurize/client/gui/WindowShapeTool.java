@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
 import static com.ldtteam.structurize.api.util.constant.Constants.SHAPES_FOLDER;

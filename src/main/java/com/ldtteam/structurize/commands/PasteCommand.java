@@ -180,7 +180,7 @@ public class PasteCommand extends AbstractCommand
         final StructurePlacer instantPlacer = new StructurePlacer(structure);
         Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
 
-        source.sendSuccess(Component.translatable(PASTE_SUCCESS_MESSAGE), true);
+        source.sendSuccess(() -> Component.translatable(PASTE_SUCCESS_MESSAGE), true);
         return 1;
     }
 

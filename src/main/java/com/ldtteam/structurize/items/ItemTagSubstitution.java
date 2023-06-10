@@ -65,25 +65,25 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     {
         if (pos == null)
         {
-            if (!player.getLevel().isClientSide())
+            if (!player.level().isClientSide())
             {
                 clearAbsorbedBlock(stack);
             }
             return InteractionResult.SUCCESS;
         }
 
-        final BlockState blockstate = player.getLevel().getBlockState(pos);
+        final BlockState blockstate = player.level().getBlockState(pos);
         if (blockstate.is(BlockTags.WITHER_IMMUNE))
         {
             // this way lies madness, and/or Sparta...
-            if (!player.getLevel().isClientSide())
+            if (!player.level().isClientSide())
             {
                 clearAbsorbedBlock(stack);
             }
             return InteractionResult.SUCCESS;
         }
 
-        if (player.getLevel().isClientSide())
+        if (player.level().isClientSide())
         {
             ItemStack pick = getPickedBlock(player, pos, blockstate);
 
@@ -97,7 +97,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @NotNull
     private ItemStack getPickedBlock(@NotNull Player player, @NotNull BlockPos pos, @NotNull BlockState blockstate)
     {
-        return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.getLevel(), pos, player);
+        return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.level(), pos, player);
     }
 
     private void clearAbsorbedBlock(@NotNull ItemStack stack)
@@ -110,8 +110,8 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
                               @NotNull final BlockPos pos,
                               @NotNull final ItemStack absorbItem)
     {
-        final BlockState blockstate = player.getLevel().getBlockState(pos);
-        final BlockEntity blockentity = player.getLevel().getBlockEntity(pos);
+        final BlockState blockstate = player.level().getBlockState(pos);
+        final BlockEntity blockentity = player.level().getBlockEntity(pos);
 
         final BlockEntityTagSubstitution.ReplacementBlock replacement;
         if (blockentity instanceof BlockEntityTagSubstitution blockception)

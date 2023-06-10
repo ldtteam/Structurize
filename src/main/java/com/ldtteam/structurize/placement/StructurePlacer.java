@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -141,7 +140,7 @@ public class StructurePlacer
                     break;
                 case WATER_REMOVAL:
                     final BlockState worldState = world.getBlockState(worldPos);
-                    if (worldState.getBlock() instanceof BucketPickup || worldState.getBlock() instanceof LiquidBlock || !worldState.getFluidState().isEmpty())
+                    if (worldState.getBlock() instanceof BucketPickup || BlockUtils.isLiquidOnlyBlock(worldState.getBlock()) || !worldState.getFluidState().isEmpty())
                     {
                         BlockUtils.removeFluid(world, worldPos);
                     }
@@ -342,7 +341,7 @@ public class StructurePlacer
                 if (!(worldState.getBlock() instanceof AirBlock))
                 {
                     if (!sameBlockInWorld
-                          && worldState.getMaterial() != Material.AIR
+                          && !worldState.isAir()
                           && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                     {
                         placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
@@ -503,7 +502,7 @@ public class StructurePlacer
 
             final BlockPos worldPos = pos.offset(localPos);
 
-            if (worldPos.getY() <= pos.getY() && !handler.getWorld().getBlockState(worldPos.below()).getMaterial().isSolid())
+            if (worldPos.getY() <= pos.getY() && !BlockUtils.canBlockFloatInAir(handler.getWorld().getBlockState(worldPos.below())))
             {
                 iterator.reset();
                 return false;

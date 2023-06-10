@@ -175,6 +175,6 @@ public class BlueprintPlacementHandling
             }
 
             return StructurePacks.getBlueprint(packId, blueprintPath);
-        }), player.level, blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level))));
+        }), player.level(), blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level()))));
     }
 }

@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.proxy;
 
-import java.io.File;
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 
 /**

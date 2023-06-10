@@ -46,6 +46,7 @@ import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -73,7 +74,7 @@ public final class BlockUtils
      */
         public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
         (block, iBlockState) -> block.equals(Blocks.AIR),
-        (block, iBlockState) -> iBlockState.getMaterial().isLiquid(),
+        (block, iBlockState) -> BlockUtils.isLiquidOnlyBlock(iBlockState.getBlock()),
         (block, iBlockState) -> BlockUtils.isWater(block.defaultBlockState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
@@ -163,13 +164,13 @@ public final class BlockUtils
         {
             result = Blocks.SNOW_BLOCK.defaultBlockState();
         }
-        else if (result == null || !result.getMaterial().isSolid() || result.getBlock() == Blocks.BEDROCK)
+        else if (result == null || !BlockUtils.canBlockFloatInAir(result) || result.getBlock() == Blocks.BEDROCK)
         {
             // try default level block
             result = getDefaultBlockForLevel(level, null);
 
             // oh non-solid again + vanilla has stupid settings so override them
-            if (result == null || !result.getMaterial().isSolid() || result.getBlock() == Blocks.STONE)
+            if (result == null || !BlockUtils.canBlockFloatInAir(result) || result.getBlock() == Blocks.STONE)
             {
                 result = Blocks.DIRT.defaultBlockState();
             }
@@ -435,14 +436,13 @@ public final class BlockUtils
             }
 
             // if the other block has fluid already or is not waterloggable, take no action
-            if ((structureBlock == ModBlocks.blockFluidSubstitution.get()
-                && (worldState.getFluidState().isSource()
-                    || !worldState.hasProperty(BlockStateProperties.WATERLOGGED)
-                    && worldState.getMaterial().isSolid()))
-             || (worldBlock == ModBlocks.blockFluidSubstitution.get()
-                && (structureState.getFluidState().isSource()
-                    || !structureState.hasProperty(BlockStateProperties.WATERLOGGED)
-                    && structureState.getMaterial().isSolid())))
+            if (
+                // structure -> world
+                (structureBlock == ModBlocks.blockFluidSubstitution.get() && (worldState.getFluidState().isSource() ||
+                    !worldState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(worldState))) ||
+                // world -> structure
+                (worldBlock == ModBlocks.blockFluidSubstitution.get() && (structureState.getFluidState().isSource() ||
+                    !structureState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(structureState))))
             {
                 return true;
             }
@@ -495,9 +495,9 @@ public final class BlockUtils
      */
     public static ItemStack getItemStackFromBlockState(final BlockState blockState)
     {
-        if (blockState.getBlock() instanceof LiquidBlock)
+        if (blockState.getBlock() instanceof final LiquidBlock liquid)
         {
-            return new ItemStack(((LiquidBlock) blockState.getBlock()).getFluid().getBucket(), 1);
+            return new ItemStack(liquid.getFluid().getBucket(), 1);
         }
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
@@ -602,7 +602,7 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof BucketPickup) || ((BucketPickup)block).pickupBlock(world, pos, state).isEmpty()) && block instanceof LiquidBlock)
+        if((!(block instanceof final BucketPickup bucketBlock) || bucketBlock.pickupBlock(world, pos, state).isEmpty()) && block instanceof LiquidBlock)
         {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.UPDATE_FLAG);
         }
@@ -661,11 +661,15 @@ public final class BlockUtils
      */
     public static List<ItemStack> getBlockDrops(final Level world, final BlockPos coords, final int fortune, final ItemStack stack)
     {
-        return world.getBlockState(coords).getDrops(new LootContext.Builder((ServerLevel) world)
-                                                      .withLuck(fortune)
-                                                      .withParameter(LootContextParams.ORIGIN, new Vec3(coords.getX(), coords.getY(), coords.getZ()))
-                                                      .withOptionalParameter(LootContextParams.BLOCK_ENTITY, world.getBlockEntity(coords))
-                                                      .withParameter(LootContextParams.TOOL, stack));
+        if (!(world instanceof final ServerLevel serverLevel))
+        {
+            throw new IllegalArgumentException("trying to get block drops at client side?!");
+        }
+        return world.getBlockState(coords)
+            .getDrops(new LootParams.Builder(serverLevel).withLuck(fortune)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atLowerCornerOf(coords))
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, world.getBlockEntity(coords))
+                .withParameter(LootContextParams.TOOL, stack));
     }
 
     /**
@@ -769,5 +773,48 @@ public final class BlockUtils
         {
             return false;
         }
+    }
+
+    /**
+     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive()} always return true)
+     */
+    public static boolean canBlockFloatInAir(final BlockState blockState)
+    {
+        if (blockState.getBlock() instanceof final LeavesBlock leaves)
+        {
+            return !leaves.isRandomlyTicking(blockState);
+        }
+
+        return canBlockFloatInAir(blockState.getBlock());
+    }
+
+    /**
+     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive()} always return true)
+     */
+    public static boolean canBlockFloatInAir(final Block block)
+    {
+        if (block instanceof LeavesBlock || block instanceof FallingBlock || block instanceof Fallable)
+        {
+            return false; // cant determine whether persistent
+        }
+
+        // TODO: ray add tag and filter block registry (https://github.com/ldtteam/Structurize/issues/585)
+        return false;
+    }
+
+    /**
+     * @return true iff block is any variant of any fluid (waterlogged etc doesnt count)
+     */
+    public static boolean isLiquidOnlyBlock(final BlockState blockState)
+    {
+        return blockState.liquid() || isLiquidOnlyBlock(blockState.getBlock());
+    }
+
+    /**
+     * @return true iff block is any variant of any fluid (waterlogged etc doesnt count)
+     */
+    public static boolean isLiquidOnlyBlock(final Block block)
+    {
+        return block instanceof LiquidBlock || block instanceof BubbleColumnBlock;
     }
 }

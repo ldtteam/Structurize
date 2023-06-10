@@ -7,8 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 /**
  * Client side proxy.
  */
