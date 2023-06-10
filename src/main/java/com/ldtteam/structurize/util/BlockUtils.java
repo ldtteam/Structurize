@@ -438,11 +438,11 @@ public final class BlockUtils
             // if the other block has fluid already or is not waterloggable, take no action
             if (
                 // structure -> world
-                (structureBlock == ModBlocks.blockFluidSubstitution.get() && (worldState.getFluidState().isSource() ||
-                    !worldState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(worldState))) ||
+                (structureBlock == ModBlocks.blockFluidSubstitution.get() &&
+                (worldState.getFluidState().isSource() || !worldState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(worldState))) ||
                 // world -> structure
-                (worldBlock == ModBlocks.blockFluidSubstitution.get() && (structureState.getFluidState().isSource() ||
-                    !structureState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(structureState))))
+                (worldBlock == ModBlocks.blockFluidSubstitution.get() &&
+                (structureState.getFluidState().isSource() || !structureState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(structureState))))
             {
                 return true;
             }
