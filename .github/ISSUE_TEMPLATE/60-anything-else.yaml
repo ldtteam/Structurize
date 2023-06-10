@@ -32,7 +32,7 @@ body:
     id: mc_version
     attributes:
       label: Minecraft Version
-      options: ["1.18", "1.19"]
+      options: ["1.18", "1.19", "1.20"]
     validations:
       required: true
   - type: input
