@@ -3,10 +3,10 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,21 +46,17 @@ import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -69,6 +66,11 @@ import java.util.function.Predicate;
  */
 public final class BlockUtils
 {
+    /**
+     * All non solid blocks in the game.
+     */
+    private static final Set<Block> nonSolidBlocks = new HashSet<>();
+
     /**
      * Predicated to determine if a block is free to place.
      */
@@ -87,6 +89,29 @@ public final class BlockUtils
     private BlockUtils()
     {
         // Hides implicit constructor.
+    }
+
+    /**
+     * Check or init the non solid blocks.
+     */
+    public static void checkOrInit()
+    {
+        if (nonSolidBlocks.isEmpty())
+        {
+            ForgeRegistries.BLOCKS.forEach(block -> {
+                try
+                {
+                    if (block.defaultBlockState().is(ModTags.NON_SOLID_BLOCKS) || !block.canSurvive(block.defaultBlockState(), null, null))
+                    {
+                        nonSolidBlocks.add(block);
+                    }
+                }
+                catch (final Exception ex)
+                {
+                    nonSolidBlocks.add(block);
+                }
+            });
+        }
     }
 
     /**
@@ -776,7 +801,7 @@ public final class BlockUtils
     }
 
     /**
-     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive()} always return true)
+     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive(BlockState, LevelReader, BlockPos)} ()} always return true)
      */
     public static boolean canBlockFloatInAir(final BlockState blockState)
     {
@@ -784,22 +809,7 @@ public final class BlockUtils
         {
             return !leaves.isRandomlyTicking(blockState);
         }
-
-        return canBlockFloatInAir(blockState.getBlock());
-    }
-
-    /**
-     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive()} always return true)
-     */
-    public static boolean canBlockFloatInAir(final Block block)
-    {
-        if (block instanceof LeavesBlock || block instanceof FallingBlock || block instanceof Fallable)
-        {
-            return false; // cant determine whether persistent
-        }
-
-        // TODO: ray add tag and filter block registry (https://github.com/ldtteam/Structurize/issues/585)
-        return false;
+        return !nonSolidBlocks.contains(blockState.getBlock());
     }
 
     /**
