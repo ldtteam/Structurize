@@ -235,9 +235,16 @@ public class TickedWorldOperation
                         currentPos = result.getIteratorPos();
                         break;
                     case 2:
+                        // weak solid
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                            () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.isWeakSolidBlock(info.getBlockInfo().getState())), false);
+
+                        currentPos = result.getIteratorPos();
+                        break;
+                    case 3:
                         // not solid
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                          () -> placer.getIterator().increment((info, pos, handler) -> BlockUtils.canBlockFloatInAir(info.getBlockInfo().getState())), false);
+                          () -> placer.getIterator().increment((info, pos, handler) -> BlockUtils.isAnySolid(info.getBlockInfo().getState())), false);
                         currentPos = result.getIteratorPos();
                         break;
                     default:
@@ -251,7 +258,7 @@ public class TickedWorldOperation
                 if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
                 {
                     structurePhase++;
-                    if (structurePhase > 3)
+                    if (structurePhase > 4)
                     {
                         structurePhase = 0;
                         currentPos = null;
