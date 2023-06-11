@@ -21,6 +21,7 @@ public class ModTags
     public static final TagKey<BlockEntityType<?>> SUBSTITUTION_ABSORB_WHITELIST = modTag(Registries.BLOCK_ENTITY_TYPE, "substitution_absorb_whitelist");
 
     public static final TagKey<Block> WEAK_SOLID_BLOCKS = modTag(Registries.BLOCK, "weak_solid_blocks");
+    public static final TagKey<Block> UNSUITABLE_SOLID_FOR_PLACEHOLDER = modTag(Registries.BLOCK, "unsuitable_solid_for_placeholder");
 
     private static <T> TagKey<T> modTag(final ResourceKey<Registry<T>> registry, @NotNull final String name)
     {

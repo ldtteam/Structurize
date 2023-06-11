@@ -1,14 +1,3 @@
-configurations {
-    library
-    implementation.extendsFrom library
-}
-
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
-    }
-}
-
 repositories {
     maven { url = 'https://files.minecraftforge.net/maven' }
     mavenLocal()
@@ -26,10 +15,7 @@ dependencies {
     implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
     runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
 
-    datagenLibrary (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}")) {
-        transitive = false
-    }
-    library (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}")) {
+    implementation (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}:universal")) {
         transitive = false
     }
 }

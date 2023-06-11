@@ -754,6 +754,7 @@ public final class BlockUtils
         return blockState;
     }
 
+
     private static class OurWorldGenRegion extends WorldGenRegion
     {
         private OurWorldGenRegion(ServerLevel p_143484_, List<ChunkAccess> p_143485_)
@@ -849,6 +850,11 @@ public final class BlockUtils
     public static boolean isAnySolid(final BlockState blockState)
     {
         return canBlockFloatInAir(blockState) || isWeakSolidBlock(blockState);
+    }
+
+    public static boolean isGoodFloorBlock(final BlockState blockState)
+    {
+        return isAnySolid(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
