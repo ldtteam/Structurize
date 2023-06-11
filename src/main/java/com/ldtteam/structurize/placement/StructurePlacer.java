@@ -486,46 +486,6 @@ public class StructurePlacer
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
     }
 
-
-    /**
-     * Check if there is enough free space to place a structure in the world.
-     *
-     * @param pos coordinates
-     * @return true if there is free space.
-     */
-    public boolean checkForFreeSpace(final BlockPos pos)
-    {
-        iterator.setProgressPos(pos);
-        while (iterator.increment() == AbstractBlueprintIterator.Result.NEW_BLOCK)
-        {
-            final BlockPos localPos = iterator.getProgressPos();
-
-            final BlockPos worldPos = pos.offset(localPos);
-
-            if (worldPos.getY() <= pos.getY() && !BlockUtils.canBlockFloatInAir(handler.getWorld().getBlockState(worldPos.below())))
-            {
-                iterator.reset();
-                return false;
-            }
-
-            final BlockState worldState = handler.getWorld().getBlockState(worldPos);
-            if (worldState.getBlock() == Blocks.BEDROCK)
-            {
-                iterator.reset();
-                return false;
-            }
-
-            if (worldPos.getY() > pos.getY() && worldState.getBlock() != Blocks.AIR)
-            {
-                iterator.reset();
-                return false;
-            }
-        }
-
-        iterator.reset();
-        return true;
-    }
-
     /**
      * Get the iterator instance.
      * @return the BlueprintIterator.

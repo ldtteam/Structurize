@@ -93,7 +93,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     @Override
     public boolean replaceWithSolidBlock(final BlockState blockState)
     {
-        return !BlockUtils.canBlockFloatInAir(blockState);
+        return !BlockUtils.isAnySolid(blockState);
     }
 
     @Override

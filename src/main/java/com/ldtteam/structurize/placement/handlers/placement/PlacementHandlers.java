@@ -222,7 +222,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof FallingBlock;
+            return blockState.getBlock() instanceof FallingBlock || blockState.getBlock() instanceof Fallable;
         }
 
         @Override

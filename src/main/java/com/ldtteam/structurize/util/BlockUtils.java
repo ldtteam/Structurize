@@ -67,9 +67,9 @@ import java.util.function.Predicate;
 public final class BlockUtils
 {
     /**
-     * All non solid blocks in the game.
+     * All solid blocks in the game that may float in the air without support.
      */
-    private static final Set<Block> nonSolidBlocks = new HashSet<>();
+    private static final Set<Block> trueSolidBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
      * Predicated to determine if a block is free to place.
@@ -96,21 +96,13 @@ public final class BlockUtils
      */
     public static void checkOrInit()
     {
-        if (nonSolidBlocks.isEmpty())
+        if (trueSolidBlocks.isEmpty())
         {
-            ForgeRegistries.BLOCKS.forEach(block -> {
-                try
-                {
-                    if (block.defaultBlockState().is(ModTags.NON_SOLID_BLOCKS) || !block.canSurvive(block.defaultBlockState(), null, null))
-                    {
-                        nonSolidBlocks.add(block);
-                    }
-                }
-                catch (final Exception ex)
-                {
-                    nonSolidBlocks.add(block);
-                }
-            });
+            ForgeRegistries.BLOCKS.getValues()
+                .stream()
+                .filter(BlockUtils::canBlockSurviveWithoutSupport)
+                .filter(block -> !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
+                .forEach(trueSolidBlocks::add);
         }
     }
 
@@ -809,7 +801,15 @@ public final class BlockUtils
         {
             return !leaves.isRandomlyTicking(blockState);
         }
-        return !nonSolidBlocks.contains(blockState.getBlock());
+        return canBlockFloatInAir(blockState.getBlock());
+    }
+
+    /**
+     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive(BlockState, LevelReader, BlockPos)} ()} always return true)
+     */
+    public static boolean canBlockFloatInAir(final Block block)
+    {
+        return trueSolidBlocks.contains(block);
     }
 
     /**
@@ -826,5 +826,66 @@ public final class BlockUtils
     public static boolean isLiquidOnlyBlock(final Block block)
     {
         return block instanceof LiquidBlock || block instanceof BubbleColumnBlock;
+    }
+
+    /**
+     * @return true iff block MAY require any support to exist (can decay/fall) and also MAY be support to floating blocks
+     */
+    public static boolean isWeakSolidBlock(final BlockState blockState)
+    {
+        if (blockState.getBlock() instanceof final LeavesBlock leaves)
+        {
+            return leaves.isRandomlyTicking(blockState);
+        }
+
+        return isWeakSolidBlock(blockState.getBlock());
+    }
+
+    /**
+     * @return true iff block MAY require any support to exist (can decay/fall) and also MAY be support to floating blocks
+     */
+    public static boolean isWeakSolidBlock(final Block block)
+    {
+        return block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS) && canBlockSurviveWithoutSupport(block);
+    }
+
+    public static boolean canBlockSurviveWithoutSupport(final Block block)
+    {
+        try
+        {
+            return block.canSurvive(block.defaultBlockState(), null, null);
+        }
+        catch (final Exception e)
+        {
+            return false;
+        }
+    }
+
+    public static boolean isAnySolid(final BlockState blockState)
+    {
+        return canBlockFloatInAir(blockState) || isWeakSolidBlock(blockState);
+    }
+
+    public static boolean isAnySolid(final Block block)
+    {
+        return canBlockFloatInAir(block) || isWeakSolidBlock(block);
+    }
+
+    public static SolidnessInfo getSolidInfo(final BlockState blockState)
+    {
+        return new SolidnessInfo(canBlockFloatInAir(blockState), isWeakSolidBlock(blockState));
+    }
+
+    public static SolidnessInfo getSolidInfo(final Block block)
+    {
+        return new SolidnessInfo(canBlockFloatInAir(block), isWeakSolidBlock(block));
+    }
+
+    public record SolidnessInfo(boolean canFloatInAir, boolean isWeakSolid)
+    {
+        public boolean isAnySolid()
+        {
+            return canFloatInAir || isWeakSolid;
+        }
     }
 }
