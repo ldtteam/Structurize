@@ -551,7 +551,7 @@ public class BlueprintBlockAccess extends Level
     @Override
     public FeatureFlagSet enabledFeatures()
     {
-        return FeatureFlagSet.of();
+        return clientLevel().enabledFeatures();
     }
 
     @Override

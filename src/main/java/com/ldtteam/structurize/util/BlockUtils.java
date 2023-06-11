@@ -101,7 +101,7 @@ public final class BlockUtils
             ForgeRegistries.BLOCKS.getValues()
                 .stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
-                .filter(block -> !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
+                .filter(block -> !block.defaultBlockState().isAir() && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
         }
     }
@@ -181,13 +181,13 @@ public final class BlockUtils
         {
             result = Blocks.SNOW_BLOCK.defaultBlockState();
         }
-        else if (result == null || !BlockUtils.canBlockFloatInAir(result) || result.getBlock() == Blocks.BEDROCK)
+        else if (result == null || !BlockUtils.isAnySolid(result) || result.getBlock() == Blocks.BEDROCK)
         {
             // try default level block
             result = getDefaultBlockForLevel(level, null);
 
             // oh non-solid again + vanilla has stupid settings so override them
-            if (result == null || !BlockUtils.canBlockFloatInAir(result) || result.getBlock() == Blocks.STONE)
+            if (result == null || !BlockUtils.isAnySolid(result) || result.getBlock() == Blocks.STONE)
             {
                 result = Blocks.DIRT.defaultBlockState();
             }

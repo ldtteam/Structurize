@@ -38,7 +38,6 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +73,6 @@ public class ClientEventSubscriber
         }
 
         final PoseStack matrixStack = event.getPoseStack();
-        final float partialTicks = event.getPartialTick();
         final MultiBufferSource.BufferSource bufferSource = WorldRenderMacros.getBufferSource();
 
         final Minecraft mc = Minecraft.getInstance();
@@ -93,7 +91,7 @@ public class ClientEventSubscriber
                 final BlockPos pos = previewData.getPos();
                 final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-                BlueprintHandler.getInstance().draw(previewData, pos, matrixStack, partialTicks);
+                BlueprintHandler.getInstance().draw(previewData, pos, event);
                 WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
                 WorldRenderMacros.renderWhiteLineBox(bufferSource,
                   matrixStack,
@@ -152,7 +150,6 @@ public class ClientEventSubscriber
      * @param event the catched event.
      */
     @SubscribeEvent
-    @SuppressWarnings("resource")
     public static void onClientTickEvent(final ClientTickEvent event)
     {
         if (event.phase != Phase.END)

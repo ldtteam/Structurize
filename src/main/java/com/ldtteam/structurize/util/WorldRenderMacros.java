@@ -21,6 +21,7 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.phys.AABB;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
@@ -159,6 +160,56 @@ public class WorldRenderMacros extends UiRenderMacros
     }
 
     /**
+     * Render a colored box around from aabb
+     *
+     * @param aabb the box
+     */
+    public static void renderLineAABB(final VertexConsumer buffer,
+        final PoseStack ps,
+        final AABB aabb,
+        final int argbColor,
+        final float lineWidth)
+    {
+        renderLineAABB(buffer,
+            ps,
+            aabb,
+            (argbColor >> 16) & 0xff,
+            (argbColor >> 8) & 0xff,
+            argbColor & 0xff,
+            (argbColor >> 24) & 0xff,
+            lineWidth);
+    }
+
+    /**
+     * Render a colored box around from aabb
+     *
+     * @param aabb the box
+     */
+    public static void renderLineAABB(final VertexConsumer buffer,
+        final PoseStack ps,
+        final AABB aabb,
+        final int red,
+        final int green,
+        final int blue,
+        final int alpha,
+        final float lineWidth)
+    {
+        renderLineBox(buffer,
+            ps,
+            (float) aabb.minX,
+            (float) aabb.minY,
+            (float) aabb.minZ,
+            (float) aabb.maxX,
+            (float) aabb.maxY,
+            (float) aabb.maxZ,
+            red,
+            green,
+            blue,
+            alpha,
+            lineWidth);
+    }
+
+    /**
      * Render a colored box around position
      *
      * @param pos The Position
@@ -220,22 +271,57 @@ public class WorldRenderMacros extends UiRenderMacros
         final int alpha,
         final float lineWidth)
     {
+        renderLineBox(buffer,
+            ps,
+            Math.min(posA.getX(), posB.getX()),
+            Math.min(posA.getY(), posB.getY()),
+            Math.min(posA.getZ(), posB.getZ()),
+            Math.max(posA.getX(), posB.getX()) + 1,
+            Math.max(posA.getY(), posB.getY()) + 1,
+            Math.max(posA.getZ(), posB.getZ()) + 1,
+            red,
+            green,
+            blue,
+            alpha,
+            lineWidth);
+    }
+
+    /**
+     * Render a box around two positions
+     *
+     * @param posA First position
+     * @param posB Second position
+     */
+    public static void renderLineBox(final VertexConsumer buffer,
+        final PoseStack ps,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        final int red,
+        final int green,
+        final int blue,
+        final int alpha,
+        final float lineWidth)
+    {
         if (alpha == 0)
         {
             return;
         }
 
         final float halfLine = lineWidth / 2.0f;
-        final float minX = Math.min(posA.getX(), posB.getX()) - halfLine;
-        final float minY = Math.min(posA.getY(), posB.getY()) - halfLine;
-        final float minZ = Math.min(posA.getZ(), posB.getZ()) - halfLine;
+        minX -= halfLine;
+        minY -= halfLine;
+        minZ -= halfLine;
         final float minX2 = minX + lineWidth;
         final float minY2 = minY + lineWidth;
         final float minZ2 = minZ + lineWidth;
 
-        final float maxX = Math.max(posA.getX(), posB.getX()) + 1 + halfLine;
-        final float maxY = Math.max(posA.getY(), posB.getY()) + 1 + halfLine;
-        final float maxZ = Math.max(posA.getZ(), posB.getZ()) + 1 + halfLine;
+        maxX += halfLine;
+        maxY += halfLine;
+        maxZ += halfLine;
         final float maxX2 = maxX - lineWidth;
         final float maxY2 = maxY - lineWidth;
         final float maxZ2 = maxZ - lineWidth;

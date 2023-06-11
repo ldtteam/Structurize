@@ -2,12 +2,13 @@ package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public final class BlueprintHandler
      * @param previewData the blueprint and context to draw.
      * @param pos       its position.
      */
-    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final PoseStack stack, final float partialTicks)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
         if (previewData == null || previewData.getBlueprint() == null)
         {
@@ -71,7 +72,7 @@ public final class BlueprintHandler
         }
 
         renderer.updateBlueprint(previewData);
-        renderer.draw(previewData, pos, stack, partialTicks);
+        renderer.draw(previewData, pos, ctx);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().pop();
@@ -111,12 +112,10 @@ public final class BlueprintHandler
      *
      * @param points       the points to render it at.
      * @param partialTicks the partial ticks.
-     * @param previewData    the blueprint and context.
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
         final List<BlockPos> points,
-        final PoseStack stack,
-        final float partialTicks)
+        final RenderLevelStageEvent ctx)
     {
         if (points.isEmpty() || previewData == null || previewData.getBlueprint() == null)
         {
@@ -138,7 +137,7 @@ public final class BlueprintHandler
 
         for (final BlockPos coord : points)
         {
-            renderer.draw(previewData, coord, stack, partialTicks);
+            renderer.draw(previewData, coord, ctx);
         }
 
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
