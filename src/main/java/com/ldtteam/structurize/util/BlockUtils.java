@@ -456,10 +456,10 @@ public final class BlockUtils
             if (
                 // structure -> world
                 (structureBlock == ModBlocks.blockFluidSubstitution.get() &&
-                (worldState.getFluidState().isSource() || !worldState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(worldState))) ||
+                (worldState.getFluidState().isSource() || !worldState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.isAnySolid(worldState))) ||
                 // world -> structure
                 (worldBlock == ModBlocks.blockFluidSubstitution.get() &&
-                (structureState.getFluidState().isSource() || !structureState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.canBlockFloatInAir(structureState))))
+                (structureState.getFluidState().isSource() || !structureState.hasProperty(BlockStateProperties.WATERLOGGED) && BlockUtils.isAnySolid(structureState))))
             {
                 return true;
             }
