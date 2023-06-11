@@ -801,15 +801,7 @@ public final class BlockUtils
         {
             return !leaves.isRandomlyTicking(blockState);
         }
-        return canBlockFloatInAir(blockState.getBlock());
-    }
-
-    /**
-     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive(BlockState, LevelReader, BlockPos)} ()} always return true)
-     */
-    public static boolean canBlockFloatInAir(final Block block)
-    {
-        return trueSolidBlocks.contains(block);
+        return trueSolidBlocks.contains(blockState.getBlock());
     }
 
     /**
@@ -838,14 +830,7 @@ public final class BlockUtils
             return leaves.isRandomlyTicking(blockState);
         }
 
-        return isWeakSolidBlock(blockState.getBlock());
-    }
-
-    /**
-     * @return true iff block MAY require any support to exist (can decay/fall) and also MAY be support to floating blocks
-     */
-    public static boolean isWeakSolidBlock(final Block block)
-    {
+        final Block block = blockState.getBlock();
         return block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS) && canBlockSurviveWithoutSupport(block);
     }
 
@@ -866,19 +851,9 @@ public final class BlockUtils
         return canBlockFloatInAir(blockState) || isWeakSolidBlock(blockState);
     }
 
-    public static boolean isAnySolid(final Block block)
-    {
-        return canBlockFloatInAir(block) || isWeakSolidBlock(block);
-    }
-
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
     {
         return new SolidnessInfo(canBlockFloatInAir(blockState), isWeakSolidBlock(blockState));
-    }
-
-    public static SolidnessInfo getSolidInfo(final Block block)
-    {
-        return new SolidnessInfo(canBlockFloatInAir(block), isWeakSolidBlock(block));
     }
 
     public record SolidnessInfo(boolean canFloatInAir, boolean isWeakSolid)
