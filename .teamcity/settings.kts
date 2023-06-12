@@ -45,7 +45,7 @@ project {
         text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for structurize.", readOnly = true, allowEmpty = true)
         param("env.Version.Minor", "0")
         param("Upsource.Project.Id", "structurize")
-        param("Default.Branch", "version/latest")
+        param("Default.Branch", "version/main")
         param("env.GRADLE_VERSION", "7.3")
         param("filename.prefix", "structurize")
     }
