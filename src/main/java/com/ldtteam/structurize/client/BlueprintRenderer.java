@@ -194,8 +194,13 @@ public class BlueprintRenderer implements AutoCloseable
                 if (!fluidState.isEmpty())
                 {
                     final RenderType renderType = ItemBlockRenderTypes.getRenderLayer(fluidState);
-                    final BufferBuilder buffer = newBuffers.builder(renderType);
 
+                    final int chunkOffsetX = blockPos.getX() - (blockPos.getX() & 15),
+                        chunkOffsetY = blockPos.getY() - (blockPos.getY() & 15),
+                        chunkOffsetZ = blockPos.getZ() - (blockPos.getZ() & 15);
+
+                    final BufferBuilder buffer = ChunkOffsetBufferBuilderWrapper
+                        .setupGlobalInstance(newBuffers.builder(renderType), chunkOffsetX, chunkOffsetY, chunkOffsetZ);
                     blockRendererDispatcher.renderLiquid(blockPos, blockAccess, buffer, state, fluidState);
                 }
 
