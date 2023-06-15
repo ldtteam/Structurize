@@ -837,6 +837,11 @@ public final class BlockUtils
 
     public static boolean canBlockSurviveWithoutSupport(final Block block)
     {
+        // TODO: add tag
+        if (block instanceof FarmBlock || block instanceof DirtPathBlock)
+        {
+            return true;
+        }
         try
         {
             return block.canSurvive(block.defaultBlockState(), null, null);
