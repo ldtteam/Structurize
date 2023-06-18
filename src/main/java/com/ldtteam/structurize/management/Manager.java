@@ -61,7 +61,6 @@ public final class Manager
      */
     public static void onWorldTick(final ServerLevel world)
     {
-        BlockUtils.checkOrInit();
         if (!scanToolOperationPool.isEmpty())
         {
             final TickedWorldOperation operation = scanToolOperationPool.peek();
