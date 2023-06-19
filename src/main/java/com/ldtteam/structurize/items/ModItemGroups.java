@@ -20,8 +20,7 @@ public final class ModItemGroups
 {
     public static final  DeferredRegister<CreativeModeTab> TAB_REG = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> GENERAL = TAB_REG.register("general", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 1).withTabsBefore(
-      CreativeModeTabs.SEARCH).icon(() -> new ItemStack(ModItems.buildTool.get())).title(Component.translatable("itemGroup." + MOD_ID)).displayItems((config, output) -> {
+    public static final RegistryObject<CreativeModeTab> GENERAL = TAB_REG.register("general", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 1).icon(() -> new ItemStack(ModItems.buildTool.get())).title(Component.translatable("itemGroup." + MOD_ID)).displayItems((config, output) -> {
         output.accept(ModBlocks.blockSubstitution.get());
         output.accept(ModBlocks.blockSolidSubstitution.get());
         output.accept(ModBlocks.blockFluidSubstitution.get());
