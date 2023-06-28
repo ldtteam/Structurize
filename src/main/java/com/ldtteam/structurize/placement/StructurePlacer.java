@@ -400,7 +400,7 @@ public class StructurePlacer
     {
         final BlockState worldState = world.getBlockState(worldPos);
         boolean sameBlockInWorld = false;
-        if (worldState.getBlock() == localState.getBlock())
+        if (worldState.getBlock() == localState.getBlock() && tileEntityData == null)
         {
             sameBlockInWorld = true;
         }
