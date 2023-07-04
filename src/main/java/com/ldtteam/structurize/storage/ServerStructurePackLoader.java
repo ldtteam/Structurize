@@ -83,7 +83,7 @@ public class ServerStructurePackLoader
                 {
                     try (final Stream<Path> paths = Files.list(modPath))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
                     }
                 }
                 catch (IOException e)
@@ -97,7 +97,7 @@ public class ServerStructurePackLoader
             {
                 try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)))
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, "Local"));
                 }
             }
             catch (IOException e)
@@ -116,7 +116,7 @@ public class ServerStructurePackLoader
                         {
                             try (final Stream<Path> subPaths = Files.list(element))
                             {
-                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true));
+                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true, "Local"));
                             }
                         }
                         catch (IOException e)

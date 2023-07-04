@@ -3,9 +3,10 @@
 
     <button id="cancel" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.cancel)" size="86 17" pos="3 3" textcolor="black" texthovercolor="gray"/>
     <input id="filter" size="129 17" pos="150 3" maxlength="25" visible="true"/>
+    <text id="packname" pos="0 0" size="119 20" color="white" textscale="1.5"/>
 
-    <list size="420 200" pos="0 20" id="packs" visible="false">
-        <box size="100% 100" linewidth="0">
+    <list size="420 200" pos="0 40" id="packs" visible="false">
+        <box size="100% 100" pos="0 20" linewidth="0">
             <box size="200 100" linewidth="0" pos="0 0"  id="box1">
                 <image id="icon1" pos="0 0" size="80 80" source="structurize:textures/items/sceptersteel.png"/>
 

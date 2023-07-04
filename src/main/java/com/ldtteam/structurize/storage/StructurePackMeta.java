@@ -13,6 +13,11 @@ import java.util.List;
 public class StructurePackMeta
 {
     /**
+     * Owner pack name (Local for local ones).
+     */
+    private final String owner;
+
+    /**
      * The name of the pack.
      */
     private final String packName;
@@ -63,7 +68,7 @@ public class StructurePackMeta
      *
      * @param json the json to use.
      */
-    public StructurePackMeta(final JsonObject json, final Path rootPath)
+    public StructurePackMeta(final JsonObject json, final Path rootPath, final String owner)
     {
         this.packName = json.get("name").getAsString();
         this.iconPath = json.get("icon").getAsString();
@@ -86,6 +91,7 @@ public class StructurePackMeta
         this.rootPath = rootPath;
         this.version = json.get("version").getAsInt();
         this.packFormat  = json.get("pack-format").getAsInt();
+        this.owner = owner;
     }
 
     public String getName()

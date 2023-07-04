@@ -244,6 +244,10 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         {
             rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
         }
+
+        //if (packMeta.getPath().)
         rowPane.findPaneOfTypeByID("select" + side, Button.class).setTextColor(ChatFormatting.BLACK.getColor());
+
+        //rowPane.getParent().findPaneOfTypeByID("packname", Text.class).setText(packMeta);
     }
 }

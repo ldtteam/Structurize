@@ -87,7 +87,7 @@ public class ClientStructurePackLoader
                 {
                     try (final Stream<Path> paths = Files.list(modPath))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
                     }
                 }
                 catch (IOException e)
@@ -128,7 +128,7 @@ public class ClientStructurePackLoader
 
                 try (final Stream<Path> paths = Files.list(outputPath))
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, "Local"));
                 }
             }
             catch (IOException e)
@@ -291,7 +291,7 @@ public class ClientStructurePackLoader
                 }
 
                 // now load what we unzipped.
-                StructurePacks.discoverPackAtPath(rootPath, true, modList, false);
+                StructurePacks.discoverPackAtPath(rootPath, true, modList, false, "Local");
             }
             catch (final IOException ex)
             {
