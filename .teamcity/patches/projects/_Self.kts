@@ -19,6 +19,9 @@ changeProject(DslContext.projectId) {
         update {
             param("Current Minecraft Version", "main")
         }
+        add {
+            param("gradle.version", "8.1.1")
+        }
     }
 
     features {
