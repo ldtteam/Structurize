@@ -15,6 +15,9 @@ changeBuildType(RelativeId("Beta_Release")) {
         add {
             param("gradle.version", "8.1.1")
         }
+        add {
+            param("env.GRADLE_VERSION", "8.1.1")
+        }
     }
 
     expectSteps {
