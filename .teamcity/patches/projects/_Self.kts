@@ -19,6 +19,12 @@ changeProject(DslContext.projectId) {
         update {
             param("Current Minecraft Version", "main")
         }
+        expect {
+            param("env.GRADLE_VERSION", "7.3")
+        }
+        update {
+            param("env.GRADLE_VERSION", "8.1.1")
+        }
         add {
             param("gradle.version", "8.1.1")
         }
