@@ -41,12 +41,12 @@ project {
         param("env.Version.Suffix", "")
         param("env.Version.Major", "1")
         text("env.Version", "%env.Version.Major%.%env.Version.Minor%.%env.Version.Patch%%env.Version.Suffix%", label = "Version", description = "The version of the project.", display = ParameterDisplay.HIDDEN, allowEmpty = true)
-        param("Current Minecraft Version", "1.18.1")
+        param("Current Minecraft Version", "main")
         text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for structurize.", readOnly = true, allowEmpty = true)
         param("env.Version.Minor", "0")
         param("Upsource.Project.Id", "structurize")
         param("Default.Branch", "version/main")
-        param("env.GRADLE_VERSION", "7.3")
+        param("env.GRADLE_VERSION", "8.1.1")
         param("filename.prefix", "structurize")
     }
 
@@ -103,8 +103,8 @@ object Beta_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
             dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
+            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
             dockerRunParameters = """
                 -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
                 -u 0
@@ -118,7 +118,7 @@ object Beta_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
+        stepsOrder = arrayListOf("RUNNER_9")
     }
 
     features {
@@ -183,8 +183,8 @@ object Release_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
             dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
+            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
             dockerRunParameters = """
                 -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
                 -u 0
@@ -198,7 +198,7 @@ object Release_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
+        stepsOrder = arrayListOf("RUNNER_9")
     }
 
     features {
