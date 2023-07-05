@@ -11,6 +11,12 @@ To apply the patch, change the buildType with id = 'Beta_Release'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Beta_Release")) {
+    params {
+        add {
+            param("gradle.version", "8.1.1")
+        }
+    }
+
     expectSteps {
         gradle {
             name = "Compile"
