@@ -101,7 +101,7 @@ public final class BlockUtils
             ForgeRegistries.BLOCKS.getValues()
                 .stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
-                .filter(block -> !block.defaultBlockState().isAir() && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
+                .filter(block -> !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
         }
     }
