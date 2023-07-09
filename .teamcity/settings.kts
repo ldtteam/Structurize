@@ -200,7 +200,7 @@ object Release_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        stepsOrder = arrayListOf("RUNNER_9")
+        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
     }
 
     features {
