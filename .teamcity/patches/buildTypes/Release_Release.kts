@@ -35,19 +35,7 @@ changeBuildType(RelativeId("Release_Release")) {
         }
     }
     steps {
-        update<GradleBuildStep>(0) {
-            id = "RUNNER_9"
-            clearConditions()
-            dockerImage = ""
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.urlId", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.resolvingRepo", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "")
-            param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "")
-        }
+        items.removeAt(0)
         check(stepsOrder == arrayListOf("RUNNER_85", "RUNNER_9")) {
             "Unexpected build steps order: $stepsOrder"
         }
