@@ -11,6 +11,14 @@ To apply the patch, change the buildType with id = 'Beta_Release'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("Beta_Release")) {
+    vcs {
+
+        check(branchFilter == "+:*") {
+            "Unexpected option value: branchFilter = $branchFilter"
+        }
+        branchFilter = "+:*"
+    }
+
     expectSteps {
         gradle {
             name = "Compile"
