@@ -30,6 +30,12 @@ public abstract class AbstractItemWithPosSelector extends Item
     private static final String START_POS_TKEY   = "item.possetter.firstpos";
     private static final String END_POS_TKEY     = "item.possetter.secondpos";
     private static final String MISSING_POS_TKEY = "item.possetter.missingpos";
+    private static final String TIMESELECTED = "item.possetter.timeselected";
+
+    /**
+     * Default timeout of 120 seconds
+     */
+    private static final int TIMEOUT_DELAY = 20 * 60 * 2;
 
     /**
      * MC redirect.
@@ -104,6 +110,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     @Override
     public InteractionResult useOn(final UseOnContext context)
     {
+        checkTimeout(context.getItemInHand(), context.getLevel());
         final BlockPos pos = context.getClickedPos();
         if (context.getLevel().isClientSide())
         {
@@ -121,6 +128,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
     {
         ItemStack itemstack = player.getMainHandItem();
+        checkTimeout(itemstack, worldIn);
         if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
             itemstack = player.getOffhandItem();
@@ -131,6 +139,29 @@ public abstract class AbstractItemWithPosSelector extends Item
             player.displayClientMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         return false;
+    }
+
+    /**
+     * Checks the selection timeout
+     */
+    protected void checkTimeout(final ItemStack stack, final Level level)
+    {
+        if (stack == null || level == null)
+        {
+            return;
+        }
+
+        if (stack.getOrCreateTag().contains(TIMESELECTED))
+        {
+            final long prevTime = stack.getOrCreateTag().getLong(TIMESELECTED);
+            if ((level.getGameTime() - prevTime) > TIMEOUT_DELAY)
+            {
+                stack.getOrCreateTag().remove(NBT_START_POS);
+                stack.getOrCreateTag().remove(NBT_END_POS);
+            }
+        }
+
+        stack.getOrCreateTag().putLong(TIMESELECTED, level.getGameTime());
     }
 
     /**
