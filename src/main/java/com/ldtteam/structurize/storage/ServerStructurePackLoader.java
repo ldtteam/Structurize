@@ -24,8 +24,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.CLIENT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Here we load the structure packs on the server side.
@@ -97,7 +96,7 @@ public class ServerStructurePackLoader
             {
                 try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)))
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, "Local"));
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, LOCAL));
                 }
             }
             catch (IOException e)
@@ -116,7 +115,7 @@ public class ServerStructurePackLoader
                         {
                             try (final Stream<Path> subPaths = Files.list(element))
                             {
-                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true, "Local"));
+                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true, LOCAL));
                             }
                         }
                         catch (IOException e)

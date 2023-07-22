@@ -14,6 +14,7 @@ import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -257,9 +258,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                 final Object obj2 = sortedPacks.get(metaStart + 1);
 
                 rowPane.findPaneByID("box0").hide();
-                if (obj1 instanceof StructurePackMeta)
+                if (obj1 instanceof StructurePackMeta meta1)
                 {
-                    fillForMeta(rowPane, (StructurePackMeta) obj1, "1");
+                    fillForMeta(rowPane, meta1, "1");
                     rowPane.findPaneByID("box1").show();
                 }
                 else
@@ -267,9 +268,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                     rowPane.findPaneByID("box1").hide();
                 }
 
-                if (obj2 instanceof StructurePackMeta)
+                if (obj2 instanceof StructurePackMeta meta2)
                 {
-                    fillForMeta(rowPane, (StructurePackMeta) obj2, "2");
+                    fillForMeta(rowPane, meta2, "2");
                     rowPane.findPaneByID("box2").show();
                 }
                 else
@@ -277,10 +278,10 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                     rowPane.findPaneByID("box2").hide();
                 }
 
-                if (obj1 instanceof String)
+                if (obj1 instanceof String str)
                 {
                     rowPane.findPaneByID("box0").show();
-                    rowPane.findPaneOfTypeByID("category", Text.class).setText(Component.literal(((String) obj1).substring(0, 1).toUpperCase(Locale.US) + ((String) obj1).substring(1)));
+                    rowPane.findPaneOfTypeByID("category", Text.class).setText(Component.literal(StringUtils.capitalize(str)));
                 }
             }
         });
@@ -305,9 +306,6 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
         }
 
-        //if (packMeta.getPath().)
         rowPane.findPaneOfTypeByID("select" + side, Button.class).setTextColor(ChatFormatting.BLACK.getColor());
-        //todo size is + 2*number of categories. A category makes all other stuff invisible and just has a big label.
-        //rowPane.getParent().findPaneOfTypeByID("packname", Text.class).setText(packMeta);
     }
 }

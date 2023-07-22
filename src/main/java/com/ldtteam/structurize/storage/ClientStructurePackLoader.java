@@ -33,8 +33,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.SCANS_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Client side structure pack discovery.
@@ -128,7 +127,7 @@ public class ClientStructurePackLoader
 
                 try (final Stream<Path> paths = Files.list(outputPath))
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, "Local"));
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, LOCAL));
                 }
             }
             catch (IOException e)
@@ -291,7 +290,7 @@ public class ClientStructurePackLoader
                 }
 
                 // now load what we unzipped.
-                StructurePacks.discoverPackAtPath(rootPath, true, modList, false, "Local");
+                StructurePacks.discoverPackAtPath(rootPath, true, modList, false, LOCAL);
             }
             catch (final IOException ex)
             {
