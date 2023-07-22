@@ -307,7 +307,7 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprint: ", e);
+            Log.getLogger().error("Error loading blueprint: " + subPath + ":" + name, e);
         }
         return Optional.empty();
     }
@@ -374,7 +374,7 @@ public class StructurePacks
         }
         catch (final IOException e)
         {
-            Log.getLogger().error("Error loading blueprint: ", e);
+            Log.getLogger().error("Error loading blueprint: " + pack + ":" + subPath, e);
         }
         return null;
     }
@@ -429,7 +429,7 @@ public class StructurePacks
         {
             if (!suppressError)
             {
-                Log.getLogger().error("Error loading blueprint: ", e);
+                Log.getLogger().error("Error loading blueprint: "  + pack + ":" + path, e);
             }
         }
         return null;
