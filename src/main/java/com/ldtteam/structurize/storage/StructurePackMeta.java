@@ -184,6 +184,15 @@ public class StructurePackMeta
     }
 
     /**
+     * Get the owning mod of place of this pack.
+     * @return the pack.
+     */
+    public String getOwner()
+    {
+        return this.owner;
+    }
+
+    /**
      * Get the sub path from this pack.
      * @param subPath the path we're in.
      * @return the relative sub path.

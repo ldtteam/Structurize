@@ -157,7 +157,7 @@ public class BlueprintPlacementHandling
                     modList.add(mod.getModId());
                 }
 
-                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true);
+                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true, "Local");
             }
             catch (IOException e)
             {
