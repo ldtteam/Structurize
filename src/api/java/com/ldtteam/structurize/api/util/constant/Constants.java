@@ -73,6 +73,11 @@ public final class Constants
     public static final int ROTATE_LEFT_INDEX = 3;
 
     /**
+     * Local standard.
+     */
+    public static final String LOCAL = "Local";
+
+    /**
      * Private constructor to hide implicit public one.
      */
     private Constants()

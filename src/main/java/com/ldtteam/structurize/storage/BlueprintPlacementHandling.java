@@ -32,8 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.CLIENT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Class where blueprint placement is handled.
@@ -157,7 +156,7 @@ public class BlueprintPlacementHandling
                     modList.add(mod.getModId());
                 }
 
-                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true);
+                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true, LOCAL);
             }
             catch (IOException e)
             {
