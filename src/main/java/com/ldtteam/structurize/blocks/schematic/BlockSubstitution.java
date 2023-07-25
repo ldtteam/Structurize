@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.blocks.schematic;
 
+import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -39,5 +41,16 @@ public class BlockSubstitution extends Block
     public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
     {
         return Shapes.box(.125D, .125D, .125D, .875D, .875D, .875D);
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext context) {
+        // Allow players to move through placeholders with a scantool in hand
+        if (context.isHoldingItem(ModItems.scanTool.get()))
+        {
+            return Shapes.empty();
+        }
+
+        return super.getCollisionShape(state,blockGetter,blockPos,context);
     }
 }

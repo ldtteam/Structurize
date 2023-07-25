@@ -3,6 +3,7 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
@@ -16,12 +17,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,7 +38,7 @@ import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_P
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
  */
-public class TickedWorldOperation
+public class TickedWorldOperation implements ITickedWorldOperation
 {
     /**
      * Scan tool operation types.
@@ -185,12 +191,7 @@ public class TickedWorldOperation
         this.placer = placer;
     }
 
-    /**
-     * Apply the operation on the world.
-     *
-     * @param world the world to apply them on.
-     * @return true if finished.
-     */
+    @Override
     public boolean apply(final ServerLevel world)
     {
         if (placer != null && !placer.isReady())
@@ -237,7 +238,7 @@ public class TickedWorldOperation
                     case 2:
                         // weak solid
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
-                            () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.isWeakSolidBlock(info.getBlockInfo().getState())), false);
+                          () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.isWeakSolidBlock(info.getBlockInfo().getState())), false);
 
                         currentPos = result.getIteratorPos();
                         break;
@@ -305,7 +306,8 @@ public class TickedWorldOperation
                         {
                             if (handler.canHandle(world, BlockPos.ZERO, blockState))
                             {
-                                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                                final List<ItemStack> itemList =
+                                  handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
                                 if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
                                 {
                                     isMatch = true;
@@ -381,21 +383,13 @@ public class TickedWorldOperation
         return true;
     }
 
-    /**
-     * Get the current change storage of this operation.
-     *
-     * @return the ChangeStorage object.
-     */
+    @Override
     public ChangeStorage getChangeStorage()
     {
         return this.storage;
     }
 
-    /**
-     * Check if operation is an undo already.
-     *
-     * @return true if so.
-     */
+    @Override
     public boolean isUndoRedo()
     {
         return operation == OperationType.UNDO || operation == OperationType.REDO;
