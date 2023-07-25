@@ -2,6 +2,7 @@ package com.ldtteam.structurize.blocks.schematic;
 
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.Block;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -46,9 +48,12 @@ public class BlockSubstitution extends Block
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext context) {
         // Allow players to move through placeholders with a scantool in hand
-        if (context.isHoldingItem(ModItems.scanTool.get()))
+        if (context instanceof EntityCollisionContext && ((EntityCollisionContext) context).getEntity() instanceof Player player)
         {
-            return Shapes.empty();
+            if (player.getMainHandItem().getItem() == ModItems.scanTool.get() || player.getOffhandItem().getItem() == ModItems.scanTool.get())
+            {
+                return Shapes.empty();
+            }
         }
 
         return super.getCollisionShape(state,blockGetter,blockPos,context);
