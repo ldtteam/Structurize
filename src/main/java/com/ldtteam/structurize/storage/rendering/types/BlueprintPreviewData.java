@@ -175,7 +175,7 @@ public class BlueprintPreviewData
     }
 
     /**
-     * Set a blueprint that is alreayd loaded.
+     * Set a blueprint that is already loaded.
      * @param blueprint the blueprint to set.
      */
     @OnlyIn(Dist.CLIENT)
@@ -185,7 +185,14 @@ public class BlueprintPreviewData
         if (blueprint != null && !blueprint.equals(this.blueprint))
         {
             this.blueprint = blueprint;
-            this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
+            if (this.rotation != Rotation.NONE)
+            {
+                this.blueprint.rotateWithMirror(this.rotation, Mirror.NONE, Minecraft.getInstance().level);
+            }
+            if (this.mirror != Mirror.NONE)
+            {
+                this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
+            }
             scheduleRefresh();
         }
         else
