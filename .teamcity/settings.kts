@@ -41,7 +41,7 @@ project {
         param("env.Version.Suffix", "")
         param("env.Version.Major", "1")
         text("env.Version", "%env.Version.Major%.%env.Version.Minor%.%env.Version.Patch%%env.Version.Suffix%", label = "Version", description = "The version of the project.", display = ParameterDisplay.HIDDEN, allowEmpty = true)
-        param("Current Minecraft Version", "1.18.1")
+        param("Current Minecraft Version", "main")
         text("Repository", "ldtteam/structurize", label = "Repository", description = "The repository for structurize.", readOnly = true, allowEmpty = true)
         param("env.Version.Minor", "0")
         param("Upsource.Project.Id", "structurize")
@@ -60,98 +60,15 @@ project {
             }
         }
     }
-    subProjectsOrder = arrayListOf(RelativeId("Release"), RelativeId("UpgradeBetaRelease"), RelativeId("Beta"), RelativeId("UpgradeAlphaBeta"), RelativeId("Alpha"), RelativeId("OfficialPublications"), RelativeId("Branches"), RelativeId("PullRequests_2"))
+    subProjectsOrder = arrayListOf(RelativeId("Release"), RelativeId("UpgradeBetaRelease"), RelativeId("Beta"), RelativeId("OfficialPublications"), RelativeId("Branches"), RelativeId("PullRequests_2"))
 
     subProject(Release)
     subProject(UpgradeBetaRelease)
     subProject(Beta)
-    subProject(UpgradeAlphaBeta)
-    subProject(Alpha)
     subProject(OfficialPublications)
     subProject(Branches)
     subProject(PullRequests_2)
 }
-
-
-object Alpha : Project({
-    name = "Alpha"
-    description = "Alpha version builds of structurize"
-
-    buildType(Alpha_Release)
-
-    params {
-        text("env.crowdinKey", "credentialsJSON:57fbe4f4-13dd-4c72-b6b3-3cc1e3a8240e", label = "Crowdin key", description = "The API key for crowdin to pull translations", allowEmpty = true)
-        param("Default.Branch", "version/%Current Minecraft Version%")
-        param("VCS.Branches", "+:refs/heads/version/(*)")
-        param("env.CURSERELEASETYPE", "alpha")
-        param("env.Version.Suffix", "-ALPHA")
-    }
-})
-
-object Alpha_Release : BuildType({
-    templates(AbsoluteId("LetSDevTogether_BuildWithRelease"))
-    name = "Release"
-    description = "Releases the mod as Alpha to CurseForge"
-
-    allowExternalStatus = true
-
-    params {
-        param("env.Version.Patch", "${OfficialPublications_CommonB.depParamRefs.buildNumber}")
-    }
-
-    steps {
-        gradle {
-            name = "Compile"
-            id = "RUNNER_9"
-            tasks = "build createChangelog curseforge publish"
-            buildFile = "build.gradle"
-            enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
-            param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            param("org.jfrog.artifactory.selectedDeployableServer.urlId", "2")
-            param("org.jfrog.artifactory.selectedDeployableServer.envVarsExcludePatterns", "*password*,*secret*")
-            param("org.jfrog.artifactory.selectedDeployableServer.resolvingRepo", "modding")
-            param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
-            param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
-        }
-        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
-    }
-
-    features {
-        vcsLabeling {
-            id = "BUILD_EXT_11"
-            vcsRootId = "${DslContext.settingsRoot.id}"
-            labelingPattern = "%env.Version%"
-            successfulOnly = true
-            branchFilter = ""
-        }
-        commitStatusPublisher {
-            id = "BUILD_EXT_15"
-            enabled = false
-            vcsRootExtId = "${DslContext.settingsRoot.id}"
-            publisher = upsource {
-                serverUrl = "https://code-analysis.ldtteam.com"
-                projectId = "%Upsource.Project.Id%"
-                userName = "upsource"
-                password = "credentialsJSON:f19631a7-1bc1-4a66-88a0-dc2b9cd36734"
-            }
-        }
-    }
-
-    dependencies {
-        snapshot(OfficialPublications_CommonB) {
-            reuseBuilds = ReuseBuilds.NO
-            onDependencyFailure = FailureAction.FAIL_TO_START
-        }
-    }
-})
 
 object Beta : Project({
     name = "Beta"
@@ -161,8 +78,10 @@ object Beta : Project({
 
     params {
         text("env.crowdinKey", "credentialsJSON:57fbe4f4-13dd-4c72-b6b3-3cc1e3a8240e", label = "Crowdin key", description = "The API key for crowdin to pull translations", allowEmpty = true)
+        param("Current Minecraft Version", "main")
+        param("env.GRADLE_VERSION", "7.3")
         param("Default.Branch", "version/%Current Minecraft Version%")
-        param("VCS.Branches", "+:refs/heads/testing/(*)")
+        param("VCS.Branches", "+:refs/heads/version/(*)")
         param("env.CURSERELEASETYPE", "beta")
         param("env.Version.Suffix", "-BETA")
     }
@@ -186,12 +105,6 @@ object Beta_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
@@ -242,7 +155,7 @@ object Release : Project({
     params {
         text("env.crowdinKey", "credentialsJSON:57fbe4f4-13dd-4c72-b6b3-3cc1e3a8240e", label = "Crowdin key", description = "The API key for crowdin to pull translations", allowEmpty = true)
         param("Default.Branch", "version/%Current Minecraft Version%")
-        param("VCS.Branches", "+:refs/heads/testing/(*)")
+        param("VCS.Branches", "+:refs/heads/version/(*)")
         param("env.CURSERELEASETYPE", "release")
         param("env.Version.Suffix", "-RELEASE")
     }
@@ -266,12 +179,6 @@ object Release_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
@@ -325,7 +232,6 @@ object Branches : Project({
         param("VCS.Branches", """
             +:refs/heads/(*)
             -:refs/heads/version/*
-            -:refs/heads/testing/*
             -:refs/heads/release/*
             -:refs/pull/*/head
             -:refs/heads/CI/*
@@ -451,42 +357,6 @@ object PullRequests_2_CommonBuildCounter : BuildType({
     description = "Defines version numbers uniquely over all Pull Request builds"
 })
 
-
-object UpgradeAlphaBeta : Project({
-    name = "Upgrade - Alpha -> Beta"
-    description = "Updates the current alpha to beta."
-
-    buildType(Beta_UpgradeAlphaBeta)
-})
-
-object Beta_UpgradeAlphaBeta : BuildType({
-    templates(AbsoluteId("LetSDevTogether_Upgrade"))
-    name = "Upgrade - Alpha -> Beta"
-    description = "Upgrades the current Alpha to Beta."
-
-    params {
-        param("Source.Branch", "version")
-        param("Default.Branch", "testing/%Current Minecraft Version%")
-        param("VCS.Branches", "+:refs/heads/testing/(*)")
-        param("Target.Branch", "testing")
-        param("env.Version", "%env.Version.Major%.%env.Version.Minor%.%build.counter%-BETA")
-    }
-
-    triggers {
-        schedule {
-            id = "TRIGGER_1"
-            schedulingPolicy = weekly {
-                timezone = "Europe/Berlin"
-            }
-            triggerBuild = always()
-            param("revisionRuleBuildBranch", "<default>")
-        }
-    }
-
-    disableSettings("BUILD_EXT_9")
-})
-
-
 object UpgradeBetaRelease : Project({
     name = "Upgrade Beta -> Release"
     description = "Upgrades the current Beta to Release"
@@ -500,7 +370,7 @@ object UpgradeBetaRelease_UpgradeBetaRelease : BuildType({
     description = "Upgrades the current Beta to Release."
 
     params {
-        param("Source.Branch", "testing")
+        param("Source.Branch", "version")
         param("Default.Branch", "release/%Current Minecraft Version%")
         param("VCS.Branches", "+:refs/heads/release/(*)")
         param("Target.Branch", "release")

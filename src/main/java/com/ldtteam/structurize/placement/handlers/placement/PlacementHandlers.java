@@ -656,6 +656,7 @@ public final class PlacementHandlers
                      && !(blockState.getBlock() instanceof EntityBlock)
                      && world.getBlockState(pos).getBlock() instanceof StairBlock
                      && world.getBlockState(pos).getValue(StairBlock.FACING) == blockState.getValue(StairBlock.FACING)
+                     && world.getBlockState(pos).getValue(StairBlock.HALF) == blockState.getValue(StairBlock.HALF)
                      && blockState.getBlock() == world.getBlockState(pos).getBlock();
         }
 

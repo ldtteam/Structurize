@@ -4,7 +4,9 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
+import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.IOPool;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -64,8 +66,13 @@ public class EventSubscriber
         {
             if (event.phase == Phase.START)
             {
+                BlockUtils.checkOrInit();
                 Manager.onWorldTick(serverLevel);
             }
+        }
+        else if (event.level instanceof ClientLevel)
+        {
+            BlockUtils.checkOrInit();
         }
     }
 
