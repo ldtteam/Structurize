@@ -71,7 +71,6 @@ public final class BlueprintHandler
             rendererCache.put(blueprintHash, renderer);
         }
 
-        renderer.updateBlueprint(previewData);
         renderer.draw(previewData, pos, ctx);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
@@ -132,8 +131,6 @@ public final class BlueprintHandler
         {
             rendererCache.put(blueprintHash, renderer);
         }
-
-        renderer.updateBlueprint(previewData);
 
         for (final BlockPos coord : points)
         {
