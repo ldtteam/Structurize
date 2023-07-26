@@ -48,7 +48,7 @@ public class BlockSubstitution extends Block
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext context) {
         // Allow players to move through placeholders with a scantool in hand
-        if (context instanceof EntityCollisionContext && ((EntityCollisionContext) context).getEntity() instanceof Player player)
+        if (context instanceof EntityCollisionContext entityContext && entityContext.getEntity() instanceof Player player)
         {
             if (player.getMainHandItem().getItem() == ModItems.scanTool.get() || player.getOffhandItem().getItem() == ModItems.scanTool.get())
             {
