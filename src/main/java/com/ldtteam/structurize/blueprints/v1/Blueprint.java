@@ -934,6 +934,8 @@ public class Blueprint
         result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
         result = prime * result + ((packName == null) ? 0 : packName.hashCode());
         result = prime * result + palleteSize;
+        result = prime * result + entities.length;
+        result = prime * result + tileEntities.length;
         result = prime * result + getVolume();
         return result;
     }
@@ -955,6 +957,8 @@ public class Blueprint
                  && Objects.equals(filePath, other.filePath)
                  && Objects.equals(packName, other.packName)
                  && palleteSize == other.palleteSize
+                 && entities.length == other.entities.length
+                 && tileEntities.length == other.tileEntities.length
                  && getVolume() == other.getVolume();
     }
 
