@@ -1025,4 +1025,22 @@ public class Blueprint
     {
         return this::getRawBlockState;
     }
+
+    /**
+     * Get the mirror value
+     * @return
+     */
+    public Mirror getMirror()
+    {
+        return mirror;
+    }
+
+    /**
+     * Get the rotation value
+     * @return
+     */
+    public Rotation getRotation()
+    {
+        return rotation;
+    }
 }
