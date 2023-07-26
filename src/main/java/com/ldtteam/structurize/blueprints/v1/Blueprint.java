@@ -930,6 +930,11 @@ public class Blueprint
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
+        result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
+        result = prime * result + ((packName == null) ? 0 : packName.hashCode());
+        result = prime * result + rotation.hashCode();
+        result = prime * result + mirror.hashCode();
         result = prime * result + palleteSize;
         result = prime * result + getVolume();
         result = prime * result + renderSource.hashCode();
@@ -948,7 +953,8 @@ public class Blueprint
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        return Objects.equals(name, other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && Objects.equals(filePath, other.filePath);
+        return Objects.equals(name, other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && Objects.equals(filePath, other.filePath)
+         && Objects.equals(packName, other.packName)  && Objects.equals(rotation, other.rotation) && Objects.equals(mirror, other.mirror);
     }
 
     /**
