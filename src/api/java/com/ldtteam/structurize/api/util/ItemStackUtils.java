@@ -229,6 +229,28 @@ public final class ItemStackUtils
       final boolean matchNBT,
       final boolean min)
     {
+        return compareItemStacksIgnoreStackSize(itemStack1, itemStack2, matchDamage, matchNBT, min, true);
+    }
+
+     /**
+     * Method to compare to stacks, ignoring their stacksize.
+     *
+     * @param itemStack1   The left stack to compare.
+     * @param itemStack2   The right stack to compare.
+     * @param matchDamage  Set to true to match damage data.
+     * @param matchNBT     Set to true to match nbt
+     * @param min          if the count of stack2 has to be at least the same as stack1.
+     * @param matchNBTSize False if it's ok for the right stack to have additional keys
+     * @return True when they are equal except the stacksize, false when not.
+     */
+    public static boolean compareItemStacksIgnoreStackSize(
+      final ItemStack itemStack1,
+      final ItemStack itemStack2,
+      final boolean matchDamage,
+      final boolean matchNBT,
+      final boolean min,
+      final boolean matchNBTSize)
+    {
         if (isEmpty(itemStack1) && isEmpty(itemStack2))
         {
             return true;
@@ -270,7 +292,7 @@ public final class ItemStackUtils
                     }
                 }
 
-                return nbt1.getAllKeys().size() == nbt2.getAllKeys().size();
+                 return !matchNBTSize || (nbt1.getAllKeys().size() == nbt2.getAllKeys().size());
             }
             else
             {

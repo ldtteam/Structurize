@@ -399,9 +399,22 @@ public class StructurePlacer
     {
         final BlockState worldState = world.getBlockState(worldPos);
         boolean sameBlockInWorld = false;
-        if (worldState.getBlock() == localState.getBlock() && tileEntityData == null)
+        if (worldState.getBlock() == localState.getBlock())
         {
-            sameBlockInWorld = true;
+            if (tileEntityData == null)
+            {
+                sameBlockInWorld = true;
+            }
+            else
+            {
+                sameBlockInWorld = ItemStackUtils.compareItemStacksIgnoreStackSize(
+                    BlockUtils.getItemStackFromBlockState(localState), 
+                    BlockUtils.getItemStackFromBlockState(worldState), 
+                    false, 
+                    true, 
+                    false, 
+                    false);
+            }
         }
 
         final List<ItemStack> requiredItems = new ArrayList<>();
