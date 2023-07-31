@@ -292,7 +292,7 @@ public final class ItemStackUtils
                     }
                 }
 
-                 return !matchNBTSize || (nbt1.getAllKeys().size() == nbt2.getAllKeys().size());
+                return !matchNBTSize || (nbt1.getAllKeys().size() == nbt2.getAllKeys().size());
             }
             else
             {
