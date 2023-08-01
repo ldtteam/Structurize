@@ -215,7 +215,7 @@ public class BlueprintPreviewData
         }
         this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
 
-        scheduleRefresh();
+        syncChangesToServer();
     }
 
     /**
@@ -230,7 +230,7 @@ public class BlueprintPreviewData
         {
             blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
         }
-        scheduleRefresh();
+        syncChangesToServer();
     }
 
     /**
