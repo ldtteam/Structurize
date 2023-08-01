@@ -930,13 +930,9 @@ public class Blueprint
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
-        result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
-        result = prime * result + ((packName == null) ? 0 : packName.hashCode());
         result = prime * result + palleteSize;
-        result = prime * result + entities.length;
-        result = prime * result + tileEntities.length;
         result = prime * result + getVolume();
+        result = prime * result + renderSource.hashCode();
         return result;
     }
 
@@ -952,14 +948,7 @@ public class Blueprint
             return false;
         }
         final Blueprint other = (Blueprint) obj;
-        return Objects.equals(name, other.name)
-                 && Objects.equals(fileName, other.fileName)
-                 && Objects.equals(filePath, other.filePath)
-                 && Objects.equals(packName, other.packName)
-                 && palleteSize == other.palleteSize
-                 && entities.length == other.entities.length
-                 && tileEntities.length == other.tileEntities.length
-                 && getVolume() == other.getVolume();
+        return Objects.equals(name, other.name) && palleteSize == other.palleteSize && getVolume() == other.getVolume() && Objects.equals(filePath, other.filePath);
     }
 
     /**
@@ -1024,23 +1013,5 @@ public class Blueprint
     public Function<BlockPos, BlockState> getRawBlockStateFunction()
     {
         return this::getRawBlockState;
-    }
-
-    /**
-     * Get the mirror value
-     * @return
-     */
-    public Mirror getMirror()
-    {
-        return mirror;
-    }
-
-    /**
-     * Get the rotation value
-     * @return
-     */
-    public Rotation getRotation()
-    {
-        return rotation;
     }
 }
