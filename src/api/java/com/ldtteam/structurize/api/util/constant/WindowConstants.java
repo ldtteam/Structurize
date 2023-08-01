@@ -51,6 +51,46 @@ public final class WindowConstants
     public static final String BUTTON_REPLACE_BLOCK = "replaceBlock";
 
     /**
+     * Button to fill the roof with placeholders
+     */
+    public static final String BUTTON_FILL_PLACEHOLDERS = "fillplaceholders";
+
+    /**
+     *  UI for filling placeholders
+     */
+    public static final String FILL_PLACEHOLDERS_UI = "fillplaceholdersui";
+
+    /**
+     * Button to cancel the fill UI
+     */
+    public static final String BUTTON_CANCEL_FILL= "cancelfill";
+
+    /**
+     * Button to send a fill request to the server
+     */
+    public static final String BUTTON_DO_FILL= "fill";
+
+    /**
+     * Input for ystretch value
+     */
+    public static final String INPUT_YSTRETCH= "ystretch";
+
+    /**
+     * Input for radius value
+     */
+    public static final String INPUT_RADIUS = "radius";
+
+    /**
+     * Input for heightoffset value
+     */
+    public static final String INPUT_HEIGHT_OFFSET = "heightoffset";
+
+    /**
+     * Input for blockdist value
+     */
+    public static final String INPUT_BLOCKDIST = "blockdist";
+
+    /**
      * Button to select a block for a replacement.
      */
     public static final String BUTTON_SELECT = "select";
