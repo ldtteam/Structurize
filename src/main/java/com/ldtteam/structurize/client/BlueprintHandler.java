@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
