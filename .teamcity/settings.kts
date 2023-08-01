@@ -105,12 +105,6 @@ object Beta_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
@@ -185,12 +179,6 @@ object Release_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")

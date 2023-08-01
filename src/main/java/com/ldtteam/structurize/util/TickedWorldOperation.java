@@ -330,8 +330,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
                             continue;
                         }
 
-                        if ((blockState.getBlock() instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
-                              || (blockState.getBlock() instanceof BedBlock && blockState.getValue(BedBlock.PART) == BedPart.HEAD))
+                        if (blockState.getBlock() instanceof DoorBlock && blockState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER)
                         {
                             continue;
                         }
