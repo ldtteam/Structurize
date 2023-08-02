@@ -88,6 +88,7 @@ public class NetworkChannel
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
         registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
         registerMessage(++idx, ReplaceBlockMessage.class, ReplaceBlockMessage::new);
+        registerMessage(++idx, FillTopPlaceholderMessage.class, FillTopPlaceholderMessage::new);
         registerMessage(++idx, ScanOnServerMessage.class, ScanOnServerMessage::new);
         registerMessage(++idx, ServerUUIDMessage.class, ServerUUIDMessage::new);
         registerMessage(++idx, UndoRedoMessage.class, UndoRedoMessage::new);

@@ -275,7 +275,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         // init
-        if (vertexBuffers == null || previewData.shouldRefresh())
+        if (previewData.shouldRefresh() || vertexBuffers == null)
         {
             init(anchorPos);
         }
@@ -315,7 +315,7 @@ public class BlueprintRenderer implements AutoCloseable
         Lighting.setupLevel(mvMatrix);
 
         // Render blocks
-         
+
         FogRenderer.setupFog(mc.gameRenderer.getMainCamera(),
             FogRenderer.FogMode.FOG_TERRAIN,
             Math.max(mc.gameRenderer.getRenderDistance(), 32.0F),
@@ -606,6 +606,6 @@ public class BlueprintRenderer implements AutoCloseable
             }
             return buffer;
         }
-        
+
     }
 }

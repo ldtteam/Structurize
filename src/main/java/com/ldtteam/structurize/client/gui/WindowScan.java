@@ -2,11 +2,9 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ItemIcon;
-import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -129,6 +127,9 @@ public class WindowScan extends AbstractWindowSkeleton
         registerButton(BUTTON_REMOVE_ENTITY, this::removeEntity);
         registerButton(BUTTON_REMOVE_BLOCK, this::removeBlock);
         registerButton(BUTTON_REPLACE_BLOCK, this::replaceBlock);
+        registerButton(BUTTON_FILL_PLACEHOLDERS, this::showFillplaceholderUI);
+        registerButton(BUTTON_CANCEL_FILL, this::cancelFill);
+        registerButton(BUTTON_DO_FILL, this::fillPlaceholders);
         registerButton(BUTTON_UNDOREDO, b -> {
             close();
             new WindowUndoRedo().open();
@@ -146,6 +147,46 @@ public class WindowScan extends AbstractWindowSkeleton
 
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         entityList = findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class);
+    }
+
+    /**
+     * Shows fill placeholder UI
+     */
+    private void showFillplaceholderUI()
+    {
+        findPaneOfTypeByID(FILL_PLACEHOLDERS_UI, View.class).setVisible(true);
+        findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class).setVisible(false);
+        findPaneOfTypeByID(BUTTON_FILL_PLACEHOLDERS, ButtonImage.class).setVisible(false);
+    }
+
+    /**
+     * Cancel fill UI
+     */
+    private void cancelFill()
+    {
+        findPaneOfTypeByID(FILL_PLACEHOLDERS_UI, View.class).setVisible(false);
+        findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class).setVisible(true);
+        findPaneOfTypeByID(BUTTON_FILL_PLACEHOLDERS, ButtonImage.class).setVisible(true);
+    }
+
+    /**
+     * Sends a fill request to the server
+     */
+    private void fillPlaceholders()
+    {
+        try
+        {
+            double yStretch = Double.parseDouble(findPaneOfTypeByID(INPUT_YSTRETCH, TextField.class).getText());
+            double circleRadiusMult = Double.parseDouble(findPaneOfTypeByID(INPUT_RADIUS, TextField.class).getText());
+            int heightOffset = Integer.parseInt(findPaneOfTypeByID(INPUT_HEIGHT_OFFSET, TextField.class).getText());
+            int minDistToBlocks = Integer.parseInt(findPaneOfTypeByID(INPUT_BLOCKDIST, TextField.class).getText());
+            Network.getNetwork().sendToServer(new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(), data.getCurrentSlotData().getBox().getPos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks));
+        }
+        catch (Exception e)
+        {
+            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number"), false);
+        }
+        close();
     }
 
     /**
