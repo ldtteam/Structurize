@@ -605,14 +605,27 @@ public class StructurePacks
         return categories;
     }
 
-    /**WindowExtendedBuildTool
+    /**
      * Discover a structure pack at a given path.
      * @param element the path to check for.
      * @param immutable if jar (true), else false.
      * @param modList the list of mods loaded on this instance.
      * @param clientPack if this is a client pac.
      */
+    /*
     public static void discoverPackAtPath(final Path element, final boolean immutable, final List<String> modList, final boolean clientPack)
+    {
+        discoverPackAtPath(element, immutable, modList, clientPack, "unknown");
+    }*/
+
+    /**
+     * Discover a structure pack at a given path.
+     * @param element the path to check for.
+     * @param immutable if jar (true), else false.
+     * @param modList the list of mods loaded on this instance.
+     * @param clientPack if this is a client pac.
+     */
+    public static void discoverPackAtPath(final Path element, final boolean immutable, final List<String> modList, final boolean clientPack, final String owner)
     {
         final Path packJsonPath = element.resolve("pack.json");
         if (Files.exists(packJsonPath))
@@ -621,7 +634,7 @@ public class StructurePacks
             {
                 try (final JsonReader reader = new JsonReader(Files.newBufferedReader(packJsonPath));)
                 {
-                    final StructurePackMeta pack = new StructurePackMeta(Streams.parse(reader).getAsJsonObject(), element);
+                    final StructurePackMeta pack = new StructurePackMeta(Streams.parse(reader).getAsJsonObject(), element, owner);
                     if (pack.getPackFormat() == PACK_FORMAT)
                     {
                         pack.setImmutable(immutable);
