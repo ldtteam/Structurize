@@ -418,7 +418,7 @@ public final class BlockUtils
             }
             else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
             {
-                return Utils.compareNBT(tileEntityData, worldEntity.saveWithFullMetadata(), false);
+                return Utils.nbtContains(tileEntityData, worldEntity.saveWithFullMetadata());
             }
             return true;
         }

@@ -54,19 +54,13 @@ public final class Utils
     }
 
     /**
-     * Check if two compound tags are equal.
+     * Check if a comparison tag has the same or more nbt tags than an origin nbt tag.
      * @param originTag the base tag to start the comparison from.
      * @param compareTag the tag we try to fit into the origin tag.
-     * @param strictMatching if we want all tag components to be the same (true) or just a compare > origin (false).
      * @return true if they match.
      */
-    public static boolean compareNBT(final CompoundTag originTag, final CompoundTag compareTag, final boolean strictMatching)
+    public static boolean nbtContains(final CompoundTag originTag, final CompoundTag compareTag)
     {
-        if (strictMatching && originTag.size() != compareTag.size())
-        {
-            return false;
-        }
-
         for (final String childTagKey : originTag.getAllKeys())
         {
             final Tag originChildTag = originTag.get(childTagKey);
