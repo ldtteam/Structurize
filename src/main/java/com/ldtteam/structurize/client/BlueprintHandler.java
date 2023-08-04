@@ -62,7 +62,7 @@ public final class BlueprintHandler
         }
         Minecraft.getInstance().getProfiler().push("struct_render_cache");
 
-        final int blueprintHash = previewData.getBlueprint().hashCode();
+        final int blueprintHash = getRenderHashFor(previewData.getBlueprint());
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
         final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
 
@@ -71,11 +71,23 @@ public final class BlueprintHandler
             rendererCache.put(blueprintHash, renderer);
         }
 
-        renderer.updateBlueprint(previewData);
         renderer.draw(previewData, pos, stack, partialTicks);
         evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().pop();
+    }
+
+    /**
+     * Calcualtes a custom render hash for blueprints, including rotation and mirroring
+     * // TODO: No longer needed once rendering is able to rotate/mirror the displayed schematic
+     * @param blueprint
+     * @return
+     */
+    private static int getRenderHashFor(final Blueprint blueprint)
+    {
+        int result = blueprint.hashCode();
+        result = 31 * result + blueprint.getRotation().hashCode();
+        return 31 * result + blueprint.getMirror().hashCode();
     }
 
     /**
@@ -134,8 +146,6 @@ public final class BlueprintHandler
         {
             rendererCache.put(blueprintHash, renderer);
         }
-
-        renderer.updateBlueprint(previewData);
 
         for (final BlockPos coord : points)
         {
