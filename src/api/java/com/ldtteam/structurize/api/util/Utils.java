@@ -55,9 +55,9 @@ public final class Utils
 
     /**
      * Check if two compound tags are equal.
-     * @param originTag the origin tag.
-     * @param compareTag the tag to compare.
-     * @param strictMatching strict matching.
+     * @param originTag the base tag to start the comparison from.
+     * @param compareTag the tag we try to fit into the origin tag.
+     * @param strictMatching if we want all tag components to be the same (true) or just a compare > origin (false).
      * @return true if they match.
      */
     public static boolean compareNBT(final CompoundTag originTag, final CompoundTag compareTag, final boolean strictMatching)
