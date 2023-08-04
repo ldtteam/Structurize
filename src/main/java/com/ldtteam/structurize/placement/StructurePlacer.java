@@ -204,7 +204,11 @@ public class StructurePlacer
       CompoundTag tileEntityData)
     {
         final BlockState worldState = world.getBlockState(worldPos);
-        boolean sameBlockInWorld = worldState.getBlock() == localState.getBlock();
+        boolean sameBlockInWorld = false;
+        if (worldState.getBlock() == localState.getBlock() && tileEntityData == null)
+        {
+            sameBlockInWorld = true;
+        }
 
         if (!(worldState.getBlock() instanceof AirBlock))
         {
@@ -449,6 +453,11 @@ public class StructurePlacer
             }
         }
 
+        BlockEntity worldEntity = null;
+        if (tileEntityData != null)
+        {
+            worldEntity = world.getBlockEntity(worldPos);
+        }
         if (localState.getBlock() == ModBlocks.blockSolidSubstitution.get() && handler.fancyPlacement())
         {
             localState = this.handler.getSolidBlockForPos(worldPos, handler.getBluePrint().getRawBlockStateFunction().compose(handler::getStructurePosFromWorld));
@@ -464,6 +473,11 @@ public class StructurePlacer
             {
                 localState = Blocks.AIR.defaultBlockState();
             }
+        }
+
+        if (BlockUtils.areBlockStatesEqual(localState, worldState, handler::replaceWithSolidBlock, handler.fancyPlacement(), handler::shouldBlocksBeConsideredEqual, tileEntityData, worldEntity))
+        {
+            return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
         }
 
         for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
