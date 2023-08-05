@@ -399,7 +399,11 @@ public final class BlockUtils
             }
             else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
             {
-                return Utils.nbtContains(tileEntityData, worldEntity.saveWithFullMetadata());
+                CompoundTag tag = tileEntityData.copy();
+                tag.putInt("x", worldEntity.getBlockPos().getX());
+                tag.putInt("y", worldEntity.getBlockPos().getY());
+                tag.putInt("z", worldEntity.getBlockPos().getZ());
+                return Utils.nbtContains(tag, worldEntity.saveWithFullMetadata());
             }
             return true;
         }
