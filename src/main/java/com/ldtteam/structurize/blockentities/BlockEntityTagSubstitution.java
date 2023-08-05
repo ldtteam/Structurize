@@ -2,6 +2,7 @@ package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -342,17 +343,8 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
             return blueprint;
         }
 
-        /**
-         * Rotates and mirrors the replacement data, in response to a blueprint containing this replacement block
-         * being rotated or mirrored.
-         *
-         * @param pos the world location for the replacement block
-         * @param localRotation the relative rotation
-         * @param localMirror the relative mirror
-         * @param world the (actual) world
-         * @return the new replacement data
-         */
         @NotNull
+        @Deprecated(since="1.20", forRemoval=true)
         public BlockEntityTagSubstitution.ReplacementBlock rotateWithMirror(@NotNull final BlockPos pos,
                                                                             @NotNull final Rotation localRotation,
                                                                             @NotNull final Mirror localMirror,
@@ -360,6 +352,25 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
         {
             final Blueprint blueprint = createBlueprint();
             blueprint.rotateWithMirror(localRotation, localMirror, world);
+
+            final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);
+            final CompoundTag newBlockData = blueprint.getTileEntityData(pos, BlockPos.ZERO);
+            return new ReplacementBlock(newBlockState, newBlockData, this.getItemStack());
+        }
+
+        /**
+         * Rotates and mirrors the replacement data, in response to a blueprint containing this replacement block
+         * being rotated or mirrored.
+         *
+         * @param pos the world location for the replacement block
+         * @param rotationMirror the relative rotation/mirror
+         * @param level the (actual) world
+         * @return the new replacement data
+         */
+        public ReplacementBlock rotateWithMirror(final BlockPos pos, final RotationMirror rotationMirror, final Level level)
+        {
+            final Blueprint blueprint = createBlueprint();
+            blueprint.setRotationMirrorRelative(rotationMirror, level);
 
             final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);
             final CompoundTag newBlockData = blueprint.getTileEntityData(pos, BlockPos.ZERO);

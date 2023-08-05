@@ -256,8 +256,8 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                             structurePack.getName(),
                             structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
                             previewData.getPos(),
-                            previewData.getRotation(),
-                            previewData.getMirror()));
+                            previewData.getRotationMirror().rotation(),
+                            previewData.getRotationMirror().mirror()));
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
                 cancelClicked();

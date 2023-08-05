@@ -5,7 +5,9 @@ import net.minecraft.world.level.block.Rotation;
 
 /**
  * Placement settings for the blueprints.
+ * @deprecated use {@link RotationMirror}
  */
+@Deprecated(since = "1.20", forRemoval = true)
 public class PlacementSettings
 {
     /**
