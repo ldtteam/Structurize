@@ -75,72 +75,82 @@ public class ServerStructurePackLoader
 
         IOPool.execute(() ->
         {
-            // This loads from the jar
-            for (final Path modPath : modPaths)
+            try
             {
+                // This loads from the jar
+                for (final Path modPath : modPaths)
+                {
+                    try
+                    {
+                        try (final Stream<Path> paths = Files.list(modPath))
+                        {
+                            paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        Log.getLogger().warn("Failed loading packs from mod path: " + modPath.toString());
+                    }
+                }
+
+                // Now we load from the main folder.
                 try
                 {
-                    try (final Stream<Path> paths = Files.list(modPath))
+                    try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, LOCAL));
                     }
                 }
                 catch (IOException e)
                 {
-                    Log.getLogger().warn("Failed loading packs from mod path: " + modPath.toString());
+                    Log.getLogger().warn("Failed loading packs from main folder path: " + gameFolder);
                 }
-            }
 
-            // Now we load from the main folder.
-            try
-            {
-                try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER)))
+                // Now we load from the client caches.
+                try
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, LOCAL));
-                }
-            }
-            catch (IOException e)
-            {
-                Log.getLogger().warn("Failed loading packs from main folder path: " + gameFolder);
-            }
-
-            // Now we load from the client caches.
-            try
-            {
-                try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER).resolve(CLIENT_FOLDER)))
-                {
-                    paths.forEach(element ->
+                    try (final Stream<Path> paths = Files.list(gameFolder.resolve(BLUEPRINT_FOLDER).resolve(CLIENT_FOLDER)))
                     {
-                        try
+                        paths.forEach(element ->
                         {
-                            try (final Stream<Path> subPaths = Files.list(element))
+                            try
                             {
-                                subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true, LOCAL));
+                                try (final Stream<Path> subPaths = Files.list(element))
+                                {
+                                    subPaths.forEach(subElement -> StructurePacks.discoverPackAtPath(subElement, false, modList, true, LOCAL));
+                                }
                             }
-                        }
-                        catch (IOException e)
-                        {
-                            Log.getLogger().warn("Failed loading client pack from folder path: " + element);
-                        }
-                    });
+                            catch (IOException e)
+                            {
+                                Log.getLogger().warn("Failed loading client pack from folder path: " + element);
+                            }
+                        });
+                    }
                 }
-            }
-            catch (IOException e)
-            {
-                Log.getLogger().warn("Failed loading client packs from main folder path: " + gameFolder);
-            }
-
-            Log.getLogger().warn("Finished discovering Server Structure packs");
-
-            for (final StructurePackMeta pack : StructurePacks.getPackMetas())
-            {
-                if (!pack.isImmutable())
+                catch (IOException e)
                 {
-                    // Request to remote schematic server for update if necessary.
+                    Log.getLogger().warn("Failed loading client packs from main folder path: " + gameFolder);
                 }
+
+                Log.getLogger().warn("Finished discovering Server Structure packs");
+
+                for (final StructurePackMeta pack : StructurePacks.getPackMetas())
+                {
+                    if (!pack.isImmutable())
+                    {
+                        // Request to remote schematic server for update if necessary.
+                    }
+                }
+                loadingState = ServerLoadingState.FINISHED_LOADING;
             }
-            loadingState = ServerLoadingState.FINISHED_LOADING;
-            StructurePacks.setFinishedLoading();
+            catch (Throwable t)
+            {
+                Log.getLogger().error("schematic loading from disk failed, please report this on the mods issue tracker!", t);
+            }
+            finally
+            {
+                StructurePacks.setFinishedLoading();
+            }
         });
     }
 
