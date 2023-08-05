@@ -246,7 +246,7 @@ public final class PlacementHandlers
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport))
+                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world, posBelow, possibleSupport))
                     {
                         supportBlockState = possibleSupport;
                         break;

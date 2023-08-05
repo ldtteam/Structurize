@@ -14,13 +14,13 @@ import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
@@ -53,9 +53,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     private List<StructurePackMeta> packMetas;
 
     /**
-     * List of packs.
+     * The packs by category.
      */
-    private List<StructurePackMeta> filteredPackMetas;
+    private List<Object> sortedPacks = new ArrayList<>();
 
     /**
      * Future list of packs.
@@ -96,7 +96,31 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
             final String filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText().toLowerCase(Locale.US);
 
-            filteredPackMetas = packMetas.stream().filter(meta -> meta.getName().toLowerCase(Locale.US).contains(filter)).collect(Collectors.toList());
+            final List<StructurePackMeta> list = new ArrayList<>();
+            final Map<String, List<StructurePackMeta>> categories = new TreeMap<>();
+            for (final StructurePackMeta meta : packMetas)
+            {
+                if (meta.getName().toLowerCase(Locale.US).contains(filter))
+                {
+                    list.add(meta);
+                    final List<StructurePackMeta> catList = categories.getOrDefault(meta.getOwner(), new ArrayList<>());
+                    catList.add(meta);
+                    categories.put(meta.getOwner(), catList);
+                }
+            }
+
+            sortedPacks.clear();
+            for (final Map.Entry<String, List<StructurePackMeta>> entry : categories.entrySet())
+            {
+                sortedPacks.add(entry.getKey());
+                sortedPacks.add(entry.getKey());
+
+                sortedPacks.addAll(entry.getValue());
+                if (entry.getValue().size() % 2 != 0)
+                {
+                    sortedPacks.add(null);
+                }
+            }
         });
     }
 
@@ -128,12 +152,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         int index = packList.getListElementIndexByPane(button);
         if (button.getID().contains("1"))
         {
-            StructurePacks.selectedPack = filteredPackMetas.get(index * 2);
+            StructurePacks.selectedPack = (StructurePackMeta) sortedPacks.get(index * 2);
             prevWindow.get().open();
         }
         else
         {
-            StructurePacks.selectedPack = filteredPackMetas.get(index * 2 + 1);
+            StructurePacks.selectedPack = (StructurePackMeta) sortedPacks.get(index * 2 + 1);
             prevWindow.get().open();
         }
     }
@@ -142,7 +166,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     public void onOpened()
     {
         packMetas = Collections.emptyList();
-        filteredPackMetas = Collections.emptyList();
+        sortedPacks.clear();
 
         packMetasFuture = IOPool.submit(() ->
         {
@@ -183,7 +207,27 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                 Collections.shuffle(packMetas, new Random(randomSeed));
             }
 
-            filteredPackMetas = packMetas;
+            final Map<String, List<StructurePackMeta>> categories = new TreeMap<>();
+            for (final StructurePackMeta meta : packMetas)
+            {
+                final List<StructurePackMeta> catList = categories.getOrDefault(meta.getOwner(), new ArrayList<>());
+                catList.add(meta);
+                categories.put(meta.getOwner(), catList);
+            }
+
+            sortedPacks.clear();
+            for (final Map.Entry<String, List<StructurePackMeta>> entry : categories.entrySet())
+            {
+                sortedPacks.add(entry.getKey());
+                sortedPacks.add(entry.getKey());
+
+                sortedPacks.addAll(entry.getValue());
+                if (entry.getValue().size() % 2 != 0)
+                {
+                    sortedPacks.add(null);
+                }
+            }
+
             updatePacks();
         }
     }
@@ -202,7 +246,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             @Override
             public int getElementCount()
             {
-                return (int) Math.ceil(filteredPackMetas.size() / 2.0);
+                return sortedPacks.size() / 2;
             }
 
             @Override
@@ -210,17 +254,34 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             {
                 int metaStart = index * 2;
 
-                final StructurePackMeta packMeta = filteredPackMetas.get(metaStart);
-                fillForMeta(rowPane, packMeta, "1");
+                final Object obj1 = sortedPacks.get(metaStart);
+                final Object obj2 = sortedPacks.get(metaStart + 1);
 
-                if (filteredPackMetas.size() > metaStart + 1)
+                rowPane.findPaneByID("box0").hide();
+                if (obj1 instanceof StructurePackMeta meta1)
                 {
-                    fillForMeta(rowPane, filteredPackMetas.get(metaStart + 1), "2");
+                    fillForMeta(rowPane, meta1, "1");
+                    rowPane.findPaneByID("box1").show();
+                }
+                else
+                {
+                    rowPane.findPaneByID("box1").hide();
+                }
+
+                if (obj2 instanceof StructurePackMeta meta2)
+                {
+                    fillForMeta(rowPane, meta2, "2");
                     rowPane.findPaneByID("box2").show();
                 }
                 else
                 {
                     rowPane.findPaneByID("box2").hide();
+                }
+
+                if (obj1 instanceof String str)
+                {
+                    rowPane.findPaneByID("box0").show();
+                    rowPane.findPaneOfTypeByID("category", Text.class).setText(Component.literal(StringUtils.capitalize(str)));
                 }
             }
         });
@@ -244,6 +305,7 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         {
             rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
         }
+
         rowPane.findPaneOfTypeByID("select" + side, Button.class).setTextColor(ChatFormatting.BLACK.getColor());
     }
 }

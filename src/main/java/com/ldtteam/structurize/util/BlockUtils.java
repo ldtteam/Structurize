@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.tag.ModTags;
@@ -421,7 +422,7 @@ public final class BlockUtils
                 tag.putInt("x", worldEntity.getBlockPos().getX());
                 tag.putInt("y", worldEntity.getBlockPos().getY());
                 tag.putInt("z", worldEntity.getBlockPos().getZ());
-                return worldEntity.saveWithFullMetadata().equals(tag);
+                return Utils.nbtContains(tag, worldEntity.saveWithFullMetadata());
             }
             return true;
         }

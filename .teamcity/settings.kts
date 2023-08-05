@@ -46,7 +46,7 @@ project {
         param("env.Version.Minor", "0")
         param("Upsource.Project.Id", "structurize")
         param("Default.Branch", "version/main")
-        param("env.GRADLE_VERSION", "8.1.1")
+        param("env.GRADLE_VERSION", "7.3")
         param("filename.prefix", "structurize")
     }
 
@@ -78,6 +78,8 @@ object Beta : Project({
 
     params {
         text("env.crowdinKey", "credentialsJSON:57fbe4f4-13dd-4c72-b6b3-3cc1e3a8240e", label = "Crowdin key", description = "The API key for crowdin to pull translations", allowEmpty = true)
+        param("Current Minecraft Version", "main")
+        param("env.GRADLE_VERSION", "7.3")
         param("Default.Branch", "version/%Current Minecraft Version%")
         param("VCS.Branches", "+:refs/heads/version/(*)")
         param("env.CURSERELEASETYPE", "beta")
@@ -103,12 +105,6 @@ object Beta_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
@@ -183,12 +179,6 @@ object Release_Release : BuildType({
             tasks = "build createChangelog curseforge publish"
             buildFile = "build.gradle"
             enableStacktrace = true
-            dockerImage = "gradle:%env.GRADLE_VERSION%-%env.JDK_VERSION%"
-            dockerImagePlatform = GradleBuildStep.ImagePlatform.Linux
-            dockerRunParameters = """
-                -v /opt/buildagent/gradle/caches:/home/gradle/.gradle/caches
-                -u 0
-            """.trimIndent()
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseText", "%Project.Type%")
             param("org.jfrog.artifactory.selectedDeployableServer.publishBuildInfo", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
@@ -198,7 +188,7 @@ object Release_Release : BuildType({
             param("org.jfrog.artifactory.selectedDeployableServer.deployReleaseFlag", "true")
             param("org.jfrog.artifactory.selectedDeployableServer.targetRepo", "libraries")
         }
-        stepsOrder = arrayListOf("RUNNER_9")
+        stepsOrder = arrayListOf("RUNNER_85", "RUNNER_9")
     }
 
     features {

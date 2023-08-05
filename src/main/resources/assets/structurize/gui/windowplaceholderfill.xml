@@ -1,0 +1,20 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        size="420 240" pause="false" lightbox="false">
+
+    <box size="100% 100%" linewidth="1">
+        <label size="50 11" pos="1 3" color="white" label="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.ystretch)"/>
+        <input id="ystretch" textContent="1" size="36 11" pos="55 3" tooltip="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.ystretch.tooltip)"  maxlength="10"/>
+        <label size="50 11" pos="1 19" color="white" label="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.radius)"/>
+        <input id="radius" textContent="1" size="36 11" pos="55 19" tooltip="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.radius.tooltip)"  maxlength="10"/>
+        <label size="50 11" pos="1 37" color="white" label="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.heightoffset)"/>
+        <input id="heightoffset" textContent="0" size="36 11" pos="55 37" tooltip="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.heightoffset.tooltip)"  maxlength="10"/>
+        <label size="50 11" pos="1 53" color="white" label="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.blockdist)"/>
+        <input id="blockdist" textContent="2" size="36 11" pos="55 53" tooltip="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.blockdist.tooltip)"  maxlength="10"/>
+
+        <buttonimage label="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.apply)" id="fill" pos="15 70" size="40 17"
+                     source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black"/>
+        <buttonimage label="X" id="cancelfill" pos="70 70" size="17 17"
+                     source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black"/>
+    </box>
+
+</window>
