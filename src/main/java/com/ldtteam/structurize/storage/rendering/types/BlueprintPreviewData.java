@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
@@ -31,7 +30,6 @@ public class BlueprintPreviewData
     /**
      * The rotation/mirror of the preview.
      */
-    @NotNull
     private RotationMirror rotationMirror = RotationMirror.NONE;
 
     /**
@@ -53,11 +51,13 @@ public class BlueprintPreviewData
     /**
      * Holds the blueprint to be rendered that is still loading.
      */
+    @Nullable
     private Future<Blueprint> blueprintFuture;
 
     /**
      * Holds the blueprint to be rendered.
      */
+    @Nullable
     private Blueprint blueprint;
 
     /**

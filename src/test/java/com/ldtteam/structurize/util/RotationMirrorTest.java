@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 public class RotationMirrorTest
 {
     @Test
-    public void testCaclDifferenceTowards()
+    public void testCalcDifferenceTowards()
     {
         for (final RotationMirror start : RotationMirror.values())
         {

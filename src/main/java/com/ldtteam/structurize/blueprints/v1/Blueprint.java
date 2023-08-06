@@ -916,6 +916,8 @@ public class Blueprint
             packName +
             ", name=" +
             name +
+            ", rotMir=" +
+            rotationMirror +
             "]";
     }
 }
