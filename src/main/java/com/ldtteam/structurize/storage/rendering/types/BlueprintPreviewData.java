@@ -225,13 +225,13 @@ public class BlueprintPreviewData
 
     /**
      * Move this preview by an offset.
-     * @param by the offset to move it by.
+     * @param offset the offset to move it by.
      */
-    public void move(final BlockPos by)
+    public void move(final BlockPos offset)
     {
         if (this.pos != null)
         {
-            setPos(pos.offset(by));
+            setPos(pos.offset(offset));
         }
     }
 

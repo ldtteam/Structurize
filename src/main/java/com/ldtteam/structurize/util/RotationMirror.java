@@ -94,9 +94,9 @@ public enum RotationMirror
         return mirror;
     }
 
-    public RotationMirror rotate(final Rotation by)
+    public RotationMirror rotate(final Rotation offset)
     {
-        return switch (by)
+        return switch (offset)
         {
             case CLOCKWISE_90 -> rotateCW90;
             case CLOCKWISE_180 -> rotateCW180;
