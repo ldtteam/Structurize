@@ -44,11 +44,6 @@ public class BlueprintPreviewData
     private int groundOffset  = 0;
 
     /**
-     * If data has to be refreshed.
-     */
-    private boolean shouldRefresh = false;
-
-    /**
      * Holds the blueprint to be rendered that is still loading.
      */
     @Nullable
@@ -215,7 +210,7 @@ public class BlueprintPreviewData
     /**
      * Sync the changes to the server.
      */
-    private void syncChangesToServer()
+    public void syncChangesToServer()
     {
         if (BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
         {
@@ -238,20 +233,21 @@ public class BlueprintPreviewData
     /**
      * Check if the blueprint rendered should refresh the cache.
      * @return true if so.
+     * @deprecated no longer needed
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public boolean shouldRefresh()
     {
-        final boolean ret = shouldRefresh;
-        shouldRefresh = false;
-        return ret;
+        return false;
     }
 
     /**
      * Tell the structurize renderer to refresh the cache.
+     * @deprecated switch to {@link #syncChangesToServer()}
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public void scheduleRefresh()
     {
-        shouldRefresh = true;
         syncChangesToServer();
     }
 
@@ -338,7 +334,7 @@ public class BlueprintPreviewData
         blueprint.setRotationMirror(rotationMirror, Minecraft.getInstance().level);
         renderKey = new RenderingCacheKey(rotationMirror, blueprint);
 
-        scheduleRefresh();
+        syncChangesToServer();
     }
 
     public RenderingCacheKey getRenderKey()

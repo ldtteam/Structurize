@@ -353,7 +353,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                 buttonImage.setHandler((button) -> {
                     settings.get(index).setValue(!settings.get(index).getValue());
                     Network.getNetwork().sendToServer(new SyncSettingsToServer());
-                    RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).scheduleRefresh();
+                    RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).syncChangesToServer();
                 });
             }
         });
