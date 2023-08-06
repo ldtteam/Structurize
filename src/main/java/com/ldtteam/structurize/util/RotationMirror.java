@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.util;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -20,6 +19,9 @@ public enum RotationMirror
     MIR_R90(Rotation.CLOCKWISE_90, Mirror.FRONT_BACK),
     MIR_R180(Rotation.CLOCKWISE_180, Mirror.FRONT_BACK),
     MIR_R270(Rotation.COUNTERCLOCKWISE_90, Mirror.FRONT_BACK);
+
+    public static final RotationMirror[] MIRRORED = {MIR_NONE, MIR_R90, MIR_R180, MIR_R270};
+    public static final RotationMirror[] NOT_MIRRORED = {NONE, R90, R180, R270};
 
     static
     {
@@ -51,22 +53,22 @@ public enum RotationMirror
         MIR_R270.rotateCCW90 = MIR_R180;
 
         NONE.mirrorFB = MIR_NONE;
-        R90.mirrorFB = MIR_R90;
+        R90.mirrorFB = MIR_R270;
         R180.mirrorFB = MIR_R180;
-        R270.mirrorFB = MIR_R270;
+        R270.mirrorFB = MIR_R90;
         MIR_NONE.mirrorFB = NONE;
-        MIR_R90.mirrorFB = R90;
+        MIR_R90.mirrorFB = R270;
         MIR_R180.mirrorFB = R180;
-        MIR_R270.mirrorFB = R270;
+        MIR_R270.mirrorFB = R90;
 
         NONE.mirrorLR = MIR_R180;
-        R90.mirrorLR = MIR_R270;
+        R90.mirrorLR = MIR_R90;
         R180.mirrorLR = MIR_NONE;
-        R270.mirrorLR = MIR_R90;
+        R270.mirrorLR = MIR_R270;
         MIR_NONE.mirrorLR = R180;
-        MIR_R90.mirrorLR = R270;
+        MIR_R90.mirrorLR = R90;
         MIR_R180.mirrorLR = NONE;
-        MIR_R270.mirrorLR = R90;
+        MIR_R270.mirrorLR = R270;
     }
 
     private final Rotation rotation;
@@ -172,9 +174,14 @@ public enum RotationMirror
      */
     public RotationMirror calcDifferenceTowards(final RotationMirror end)
     {
-        final int rotDiff =
-            StructureUtils.getRotationStepsForRotation(end.rotation) - StructureUtils.getRotationStepsForRotation(this.rotation);
-        return (this.mirror == end.mirror ? NONE : MIR_NONE).rotate(StructureUtils.getRotationForRotationSteps(rotDiff < 0 ? rotDiff + 4 : rotDiff));
+        for (final RotationMirror rotMir : (this.mirror == end.mirror ? NOT_MIRRORED : MIRRORED))
+        {
+            if (add(rotMir) == end)
+            {
+                return rotMir;
+            }
+        }
+        throw new IllegalStateException("Missing RotationMirror path");
     }
 
     /**
