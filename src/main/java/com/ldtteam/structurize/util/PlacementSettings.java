@@ -61,4 +61,9 @@ public class PlacementSettings
     {
         this.rotation = rotation;
     }
+
+    public RotationMirror getRotationMirror()
+    {
+        return RotationMirror.of(rotation, mirror);
+    }
 }
