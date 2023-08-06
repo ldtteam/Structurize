@@ -11,6 +11,7 @@ import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -257,6 +258,7 @@ public class BlueprintPreviewData
     /**
      * Get the placement settings for this instance.
      * @return the placement settings with mirror and rotation.
+     * @deprecated see {@link #getRotationMirror()}
      */
     @Deprecated(since = "1.20", forRemoval = true)
     public PlacementSettings getPlacementSettings()
@@ -271,6 +273,28 @@ public class BlueprintPreviewData
     public boolean isEmpty()
     {
         return blueprintFuture == null && blueprint == null;
+    }
+
+    /**
+     * Get the rotation of the preview.
+     * @return the rotation.
+     * @deprecated see {@link #getRotationMirror()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public Rotation getRotation()
+    {
+        return rotationMirror.rotation();
+    }
+
+    /**
+     * Get the mirror of the preview.
+     * @return the mirror.
+     * @deprecated see {@link #getRotationMirror()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public Mirror getMirror()
+    {
+        return rotationMirror.mirror();
     }
 
     /**
