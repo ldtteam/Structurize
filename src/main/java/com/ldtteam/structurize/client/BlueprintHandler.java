@@ -138,7 +138,7 @@ public final class BlueprintHandler
 
         Minecraft.getInstance().getProfiler().push("struct_render_multi");
 
-        final int blueprintHash = previewData.getBlueprint().hashCode();
+        final int blueprintHash = getRenderHashFor(previewData.getBlueprint());
         final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
         final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
 
