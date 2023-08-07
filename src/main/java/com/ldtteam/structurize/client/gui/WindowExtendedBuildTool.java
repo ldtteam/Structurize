@@ -47,7 +47,7 @@ import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TO
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
- * Schematic selection window, slightly modified extended build tool window
+ * BuildTool window.
  */
 public final class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
 {
