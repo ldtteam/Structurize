@@ -55,11 +55,11 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.model.data.ModelData;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +77,7 @@ import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHO
  */
 public class BlueprintRenderer implements AutoCloseable
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlueprintRenderer.class);
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
         .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
@@ -242,6 +242,7 @@ public class BlueprintRenderer implements AutoCloseable
                 vertexBuffer.upload(newBuffer);
             }
         }
+        newBuffers.clearAll();
         VertexBuffer.unbind();
     }
 

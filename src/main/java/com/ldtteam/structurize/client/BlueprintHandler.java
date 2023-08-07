@@ -65,10 +65,11 @@ public final class BlueprintHandler
     }
 
     /**
-     * Draw a blueprint with a rotation, mirror and offset.
+     * Draw a blueprint at given pos.
      *
      * @param previewData the blueprint and context to draw.
-     * @param pos       its position.
+     * @param pos         position to render at
+     * @param ctx         rendering event
      */
     public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
@@ -101,10 +102,11 @@ public final class BlueprintHandler
     }
 
     /**
-     * Render a blueprint at a list of points.
+     * Draw a blueprint at list of given pos.
      *
-     * @param points       the points to render it at.
-     * @param partialTicks the partial ticks.
+     * @param previewData the blueprint and context to draw.
+     * @param points      list of positions to render at
+     * @param ctx         rendering event
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
         final List<BlockPos> points,
