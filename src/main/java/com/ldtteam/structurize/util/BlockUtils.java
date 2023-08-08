@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
+import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -397,7 +397,7 @@ public final class BlockUtils
             {
                 return false;
             }
-            else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+            else if (worldEntity instanceof MateriallyTexturedBlockEntity)
             {
                 CompoundTag tag = tileEntityData.copy();
                 tag.putInt("x", worldEntity.getBlockPos().getX());
@@ -407,7 +407,7 @@ public final class BlockUtils
             }
             return true;
         }
-        else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+        else if (worldEntity instanceof MateriallyTexturedBlockEntity)
         {
             return false;
         }
