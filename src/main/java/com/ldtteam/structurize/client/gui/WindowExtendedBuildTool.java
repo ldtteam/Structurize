@@ -54,7 +54,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     /**
      * Default block requirement check
      */
-    public static Predicate<Blueprint> BLOCK_BLUEPRINT_REQUIREMENT = blueprint ->
+    public static final Predicate<Blueprint> BLOCK_BLUEPRINT_REQUIREMENT = blueprint ->
     {
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
 
@@ -137,6 +137,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     private final BiConsumer<WindowExtendedBuildTool, Blueprint> selectionCallback;
 
     /**
+     * Currently selected blueprint
+     */
+    public Blueprint selectedBlueprint= null;
+
+    /**
      * Predicate dictating which blueprints are shown
      */
     private final Predicate<Blueprint> availableBlueprintPredicate;
@@ -182,7 +187,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     }
 
     /**
-     * On clicking confirm for placement.
+     * On clicking confirm
      */
     @Override
     protected void confirmClicked()
@@ -193,15 +198,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             return;
         }
 
-        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
-        if (previewData.getBlueprint() != null)
-        {
-            selectionCallback.accept(this, previewData.getBlueprint());
-        }
-        else
-        {
-            super.confirmClicked();
-        }
+        selectionCallback.accept(this, selectedBlueprint);
     }
 
     @SuppressWarnings("resource")
@@ -1063,6 +1060,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final Blueprint blueprint = mapping.values().iterator().next().get(0);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName())
                   .setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
                 return;
@@ -1083,6 +1081,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     final Blueprint blueprint = leveled.get(0);
                     findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                       structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                    selectedBlueprint = blueprint;
                     RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                     adjustToGroundOffset();
                 }
@@ -1103,6 +1102,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final Blueprint blueprint = list.get(0);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                   structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
             }
@@ -1130,6 +1130,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final Blueprint blueprint = list.get(level);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName())
                   .setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
                 return;
