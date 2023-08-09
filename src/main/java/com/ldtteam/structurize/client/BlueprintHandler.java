@@ -129,6 +129,9 @@ public final class BlueprintHandler
         Minecraft.getInstance().getProfiler().pop();
     }
 
+    /**
+     * Hacky record to add rot/mir to blueprint hashcode (which is rot/mir independent)
+     */
     public record RenderingCacheKey(RotationMirror rotationMirror, Blueprint blueprint)
     {
     }

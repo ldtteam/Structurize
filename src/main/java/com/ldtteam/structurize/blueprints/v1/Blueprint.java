@@ -37,6 +37,8 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 
 /**
  * The blueprint class which contains the file format for the schematics.
+ * 
+ * WARNING: hashcode/equals does NOT take rotation/mirror into account
  */
 public class Blueprint
 {
@@ -605,15 +607,25 @@ public class Blueprint
         cacheEntitiesMap = null;
     }
 
+    /**
+     * Rotates and mirrors entire exactly to given param
+     * 
+     * @param rotationMirror exact rot/mir
+     * @param level world for entity construction
+     * @see #setRotationMirrorRelative(RotationMirror, Level) setRotationMirrorRelative for relative addition
+     */
     public void setRotationMirror(final RotationMirror rotationMirror, final Level level)
     {
         setRotationMirrorRelative(this.rotationMirror.calcDifferenceTowards(rotationMirror), level);
     }
 
     /**
+     * Rotates and mirrors entire content additively, formula:
+     * current state + transformBy = target state
      * 
-     * @param transformBy what to apply 
+     * @param transformBy rot/mir to add
      * @param level world for entity construction
+     * @see #setRotationMirror(RotationMirror, Level) setRotationMirror for exact setter
      */
     public void setRotationMirrorRelative(final RotationMirror transformBy, final Level level)
     {
@@ -740,7 +752,7 @@ public class Blueprint
      * @param localRotation times to rotateWithMirror.
      * @param localMirror   the mirror.
      * @param world    the world.
-     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)}
+     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)} or use exact setter {@link #setRotationMirror(RotationMirror, Level)}
      */
     @Deprecated(since="1.20", forRemoval=true)
     public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
@@ -811,6 +823,7 @@ public class Blueprint
         result = prime * result + entities.length;
         result = prime * result + tileEntities.length;
         result = prime * result + getVolume();
+        // rot/mir intentionally not incluced
         return result;
     }
 
@@ -833,6 +846,7 @@ public class Blueprint
                  && entities.length == other.entities.length
                  && tileEntities.length == other.tileEntities.length
                  && getVolume() == other.getVolume();
+        // rot/mir intentionally not incluced
     }
 
     /**
