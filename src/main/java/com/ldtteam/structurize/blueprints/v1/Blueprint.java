@@ -11,7 +11,7 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +37,8 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 
 /**
  * The blueprint class which contains the file format for the schematics.
+ * 
+ * WARNING: hashcode/equals does NOT take rotation/mirror into account
  */
 public class Blueprint
 {
@@ -124,19 +125,9 @@ public class Blueprint
     private BlockPos cachePrimaryOffset = null;
 
     /**
-     * Source of rendering.
+     * The rotation and mirror setting of the blueprint.
      */
-    private BlockPos renderSource = BlockPos.ZERO;
-
-    /**
-     * The rotation setting of the blueprint.
-     */
-    private Rotation rotation = Rotation.NONE;
-
-    /**
-     * The mirror setting of the blueprint.
-     */
-    private Mirror mirror = Mirror.NONE;
+    private RotationMirror rotationMirror = RotationMirror.NONE;
 
     /**
      * Constructor of a new Blueprint.
@@ -617,34 +608,43 @@ public class Blueprint
     }
 
     /**
-     * Rotate the structure depending on the direction it's facing.
-     *
-     * @param localRotation times to rotateWithMirror.
-     * @param localMirror   the mirror.
-     * @param world    the world.
+     * Rotates and mirrors entire exactly to given param
+     * 
+     * @param rotationMirror exact rot/mir
+     * @param level world for entity construction
+     * @see #setRotationMirrorRelative(RotationMirror, Level) setRotationMirrorRelative for relative addition
      */
-    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
+    public void setRotationMirror(final RotationMirror rotationMirror, final Level level)
     {
-        final Rotation rotDifference = Rotation.values()[Math.floorMod(localRotation.ordinal() - this.rotation.ordinal(), Rotation.values().length)];
-        final Mirror mirDifference;
-        if (this.mirror == localMirror)
-        {
-            mirDifference = Mirror.NONE;
-        }
-        else if (this.mirror == Mirror.NONE)
-        {
-            mirDifference = localMirror;
-        }
-        else
-        {
-            mirDifference = this.mirror;
-        }
+        setRotationMirrorRelative(this.rotationMirror.calcDifferenceTowards(rotationMirror), level);
+    }
 
+    /**
+     * Rotates and mirrors entire content additively, formula:
+     * current state + transformBy = target state
+     * 
+     * @param transformBy rot/mir to add
+     * @param level world for entity construction
+     * @see #setRotationMirror(RotationMirror, Level) setRotationMirror for exact setter
+     */
+    public void setRotationMirrorRelative(final RotationMirror transformBy, final Level level)
+    {
         final BlockPos primaryOffset = getPrimaryBlockOffset();
-        final BlockPos resultSize = transformedSize(new BlockPos(sizeX, sizeY, sizeZ), rotDifference);
-        final short newSizeX = (short) resultSize.getX();
-        final short newSizeY = (short) resultSize.getY();
-        final short newSizeZ = (short) resultSize.getZ();
+        final short newSizeX, newSizeZ, newSizeY = sizeY;
+
+        switch (transformBy.rotation())
+        {
+            case COUNTERCLOCKWISE_90:
+            case CLOCKWISE_90:
+                newSizeX = sizeZ;
+                newSizeZ = sizeX;
+                break;
+
+            default:
+                newSizeX = sizeX;
+                newSizeZ = sizeZ;
+                break;
+        }
 
         final short[][][] newStructure = new short[newSizeY][newSizeZ][newSizeX];
         final CompoundTag[] newEntities = new CompoundTag[entities.length];
@@ -653,10 +653,10 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).mirror(mirDifference).rotate(rotDifference));
+            palette.add(i, this.palette.get(i).mirror(transformBy.mirror()).rotate(transformBy.rotation()));
         }
 
-        final BlockPos extremes = transformedBlockPos(sizeX, sizeY, sizeZ, mirDifference, rotDifference);
+        final BlockPos extremes = transformBy.applyToPos(new BlockPos(sizeX, sizeY, sizeZ));
         int minX = extremes.getX() < 0 ? -extremes.getX() - 1 : 0;
         int minY = extremes.getY() < 0 ? -extremes.getY() - 1 : 0;
         int minZ = extremes.getZ() < 0 ? -extremes.getZ() - 1 : 0;
@@ -669,13 +669,13 @@ public class Blueprint
             {
                 for (short z = 0; z < this.sizeZ; z++)
                 {
-                    final BlockPos tempPos = transformedBlockPos(x, y, z, mirDifference, rotDifference).offset(minX, minY, minZ);
                     final short value = structure[y][z][x];
                     final BlockState state = palette.get(value & 0xFFFF);
                     if (state.getBlock() == Blocks.STRUCTURE_VOID)
                     {
                         continue;
                     }
+                    final BlockPos tempPos = transformBy.applyToPos(new BlockPos(x, y, z)).offset(minX, minY, minZ);
                     newStructure[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = value;
 
                     final CompoundTag compound = tileEntities[y][z][x];
@@ -694,7 +694,7 @@ public class Blueprint
                         {
                             BlockEntityTagSubstitution.ReplacementBlock replacement =
                                     new BlockEntityTagSubstitution.ReplacementBlock(compound);
-                            replacement = replacement.rotateWithMirror(tempPos, rotDifference, mirDifference, world);
+                            replacement = replacement.rotateWithMirror(tempPos, transformBy, level);
                             replacement.write(compound);
                         }
 
@@ -708,18 +708,14 @@ public class Blueprint
 
                             for (Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
                             {
-                                newTagPosMap.put(transformedBlockPos(entry.getKey(), mirDifference, rotDifference), entry.getValue());
+                                newTagPosMap.put(transformBy.applyToPos(entry.getKey()), entry.getValue());
                             }
 
                             IBlueprintDataProviderBE.writeMapToCompound(dataCompound, newTagPosMap);
 
                             // Rotate corners
-                            BlockPos corner1 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE);
-                            BlockPos corner2 = BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO);
-                            corner1 = transformedBlockPos(corner1, mirDifference, rotDifference);
-                            corner2 = transformedBlockPos(corner2, mirDifference, rotDifference);
-                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, corner1);
-                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, corner2);
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_ONE, transformBy.applyToPos(BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_ONE)));
+                            BlockPosUtil.writeToNBT(dataCompound, TAG_CORNER_TWO, transformBy.applyToPos(BlockPosUtil.readFromNBT(dataCompound, TAG_CORNER_TWO)));
                         }
                     }
                     newTileEntities[tempPos.getY()][tempPos.getZ()][tempPos.getX()] = compound;
@@ -732,13 +728,11 @@ public class Blueprint
             final CompoundTag entitiesCompound = entities[i];
             if (entitiesCompound != null)
             {
-                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, world, new BlockPos(minX, minY, minZ), rotDifference, mirDifference);
+                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, level, new BlockPos(minX, minY, minZ), transformBy);
             }
         }
 
-        BlockPos newOffsetPos = StructureTemplate.transform(primaryOffset, mirDifference, rotDifference, new BlockPos(0, 0, 0));
-
-        setCachePrimaryOffset(newOffsetPos.offset(minX, minY, minZ));
+        setCachePrimaryOffset(transformBy.applyToPos(primaryOffset).offset(minX, minY, minZ));
 
         sizeX = newSizeX;
         sizeY = newSizeY;
@@ -747,84 +741,23 @@ public class Blueprint
         this.structure = newStructure;
         this.entities = newEntities;
         this.tileEntities = newTileEntities;
+        this.rotationMirror = this.rotationMirror.add(transformBy);
 
         cacheReset(false);
-
-        this.rotation = localRotation;
-        this.mirror = localMirror;
     }
 
     /**
-     * Calculate the transformed size from a blockpos.
+     * Rotate the structure depending on the direction it's facing.
      *
-     * @param pos      the pos to transform
-     * @param rotation the rotation to apply.
-     * @return the resulting size.
+     * @param localRotation times to rotateWithMirror.
+     * @param localMirror   the mirror.
+     * @param world    the world.
+     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)} or use exact setter {@link #setRotationMirror(RotationMirror, Level)}
      */
-    public static BlockPos transformedSize(final BlockPos pos, final Rotation rotation)
+    @Deprecated(since="1.20", forRemoval=true)
+    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
     {
-        switch (rotation)
-        {
-            case COUNTERCLOCKWISE_90:
-            case CLOCKWISE_90:
-                return new BlockPos(pos.getZ(), pos.getY(), pos.getX());
-
-            default:
-                return pos;
-        }
-    }
-
-    
-    public static BlockPos transformedBlockPos(final BlockPos pos, final Mirror mirror, final Rotation rotation)
-    {
-        return transformedBlockPos(pos.getX(), pos.getY(), pos.getZ(), mirror, rotation);
-    }
-
-    /**
-     * Transforms a blockpos with mirror and rotation.
-     *
-     * @param xIn      the x input.
-     * @param y        the y input.
-     * @param zIn      the z input.
-     * @param mirror   the mirror.
-     * @param rotation the rotation.
-     * @return the resulting position.
-     */
-    public static BlockPos transformedBlockPos(final int xIn, final int y, final int zIn, final Mirror mirror, final Rotation rotation)
-    {
-        int x = xIn;
-        int z = zIn;
-
-        boolean flag = true;
-
-        switch (mirror)
-        {
-            case LEFT_RIGHT:
-                z = -zIn;
-                break;
-
-            case FRONT_BACK:
-                x = -xIn;
-                break;
-
-            default:
-                flag = false;
-        }
-
-        switch (rotation)
-        {
-            case COUNTERCLOCKWISE_90:
-                return new BlockPos(z, y, -x);
-
-            case CLOCKWISE_90:
-                return new BlockPos(-z, y, x);
-
-            case CLOCKWISE_180:
-                return new BlockPos(-x, y, -z);
-
-            default:
-                return flag ? new BlockPos(x, y, z) : new BlockPos(xIn, y, zIn);
-        }
+        setRotationMirrorRelative(RotationMirror.of(localRotation, localMirror), world);
     }
 
     /**
@@ -833,15 +766,13 @@ public class Blueprint
      * @param entityInfo the entity nbt.
      * @param world      the world.
      * @param pos        the position.
-     * @param rotation   the wanted rotation.
-     * @param mirror     the mirror.
+     * @param rotationMirror   the wanted rotation/mirror.
      * @return the updated nbt.
      */
-    private CompoundTag transformEntityInfoWithSettings(final CompoundTag entityInfo,
+    private static CompoundTag transformEntityInfoWithSettings(final CompoundTag entityInfo,
         final Level world,
         final BlockPos pos,
-        final Rotation rotation,
-        final Mirror mirror)
+        final RotationMirror rotationMirror)
     {
         final Optional<EntityType<?>> type = EntityType.by(entityInfo);
         if (type.isPresent())
@@ -854,13 +785,12 @@ public class Blueprint
                 {
                     finalEntity.deserializeNBT(entityInfo);
 
-                    final Vec3 entityVec = Blueprint
-                        .transformedVector3d(rotation,
-                            mirror,
+                    final Vec3 entityVec = rotationMirror
+                        .applyToPos(
                             finalEntity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : finalEntity.position())
                         .add(Vec3.atLowerCornerOf(pos));
-                    finalEntity.setYRot(finalEntity.mirror(mirror));
-                    finalEntity.setYRot(finalEntity.rotate(rotation));
+                    finalEntity.setYRot(finalEntity.mirror(rotationMirror.mirror()));
+                    finalEntity.setYRot(finalEntity.rotate(rotationMirror.rotation()));
                     finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, finalEntity.getYRot(), finalEntity.getXRot());
 
                     return finalEntity.serializeNBT();
@@ -873,50 +803,6 @@ public class Blueprint
             }
         }
         return null;
-    }
-
-    /**
-     * Transform a Vector3d with rotation and mirror.
-     *
-     * @param rotation the rotation.
-     * @param mirror   the mirror.
-     * @param vec      the vec to transform.
-     * @return the result.
-     */
-    private static Vec3 transformedVector3d(final Rotation rotation, final Mirror mirror, final Vec3 vec)
-    {
-        double xCoord = vec.x;
-        double zCoord = vec.z;
-        boolean flag = true;
-
-        switch (mirror)
-        {
-            case LEFT_RIGHT:
-                zCoord = 1.0D - zCoord;
-                break;
-
-            case FRONT_BACK:
-                xCoord = 1.0D - xCoord;
-                break;
-
-            default:
-                flag = false;
-        }
-
-        switch (rotation)
-        {
-            case COUNTERCLOCKWISE_90:
-                return new Vec3(zCoord, vec.y, 1.0D - xCoord);
-
-            case CLOCKWISE_90:
-                return new Vec3(1.0D - zCoord, vec.y, xCoord);
-
-            case CLOCKWISE_180:
-                return new Vec3(1.0D - xCoord, vec.y, 1.0D - zCoord);
-
-            default:
-                return flag ? new Vec3(xCoord, vec.y, zCoord) : vec;
-        }
     }
 
     private int getVolume()
@@ -937,6 +823,7 @@ public class Blueprint
         result = prime * result + entities.length;
         result = prime * result + tileEntities.length;
         result = prime * result + getVolume();
+        // rot/mir intentionally not incluced
         return result;
     }
 
@@ -947,11 +834,10 @@ public class Blueprint
         {
             return true;
         }
-        if (!(obj instanceof Blueprint))
+        if (!(obj instanceof final Blueprint other))
         {
             return false;
         }
-        final Blueprint other = (Blueprint) obj;
         return Objects.equals(name, other.name)
                  && Objects.equals(fileName, other.fileName)
                  && Objects.equals(filePath, other.filePath)
@@ -960,6 +846,7 @@ public class Blueprint
                  && entities.length == other.entities.length
                  && tileEntities.length == other.tileEntities.length
                  && getVolume() == other.getVolume();
+        // rot/mir intentionally not incluced
     }
 
     /**
@@ -967,10 +854,11 @@ public class Blueprint
      * This will be included in the hash to differentiate.
      * This is supposed to be used for static blueprints that are not moved around only.
      * @param pos the source position.
+     * @deprecated ask Ray what to use :)
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public void setRenderSource(final BlockPos pos)
     {
-        this.renderSource = pos;
     }
 
     /**
@@ -994,7 +882,7 @@ public class Blueprint
      * @param pos        the pos to check.
      * @return true if so.
      */
-    private boolean isAtPos(final CompoundTag entityData, final BlockPos pos)
+    private static boolean isAtPos(final CompoundTag entityData, final BlockPos pos)
     {
         final ListTag list = entityData.getList(ENTITY_POS, 6);
         final int x = (int) list.getDouble(0);
@@ -1026,21 +914,24 @@ public class Blueprint
         return this::getRawBlockState;
     }
 
-    /**
-     * Get the mirror value
-     * @return
-     */
-    public Mirror getMirror()
+    @Override
+    public String toString()
     {
-        return mirror;
-    }
-
-    /**
-     * Get the rotation value
-     * @return
-     */
-    public Rotation getRotation()
-    {
-        return rotation;
+        return "Blueprint [size=[" + sizeX +
+            ", " +
+            sizeY +
+            ", " +
+            sizeZ +
+            "], fileName=" +
+            fileName +
+            ", filePath=" +
+            filePath +
+            ", packName=" +
+            packName +
+            ", name=" +
+            name +
+            ", rotMir=" +
+            rotationMirror +
+            "]";
     }
 }

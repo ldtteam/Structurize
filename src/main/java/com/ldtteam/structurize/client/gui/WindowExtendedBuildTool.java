@@ -328,13 +328,13 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         if (previewData.getBlueprint() != null)
         {
             Network.getNetwork()
-              .sendToServer(new BuildToolPlacementMessage(type,
-                id,
-                structurePack.getName(),
-                structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
-                previewData.getPos(),
-                previewData.getRotation(),
-                previewData.getMirror()));
+                    .sendToServer(new BuildToolPlacementMessage(type,
+                            id,
+                            structurePack.getName(),
+                            structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
+                            previewData.getPos(),
+                            previewData.getRotationMirror().rotation(),
+                            previewData.getRotationMirror().mirror()));
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
                 cancelClicked();
