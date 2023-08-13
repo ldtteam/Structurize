@@ -27,7 +27,7 @@ public class ClientProxy implements IProxy
         }
 
         @Nullable
-        final WindowExtendedBuildTool window = new WindowExtendedBuildTool(pos, groundstyle);
+        final WindowExtendedBuildTool window = new WindowExtendedBuildTool(pos, groundstyle, null, WindowExtendedBuildTool.BLOCK_BLUEPRINT_REQUIREMENT);
         window.open();
     }
 
