@@ -2,7 +2,9 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
@@ -18,14 +20,15 @@ import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -33,10 +36,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
-import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.INVISIBLE_TAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.GUIConstants.BUTTON_SWITCH_STYLE;
+import static com.ldtteam.structurize.api.util.constant.GUIConstants.DEFAULT_ICON;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
@@ -44,6 +51,25 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
  */
 public final class WindowExtendedBuildTool extends AbstractBlueprintManipulationWindow
 {
+    /**
+     * Default block requirement check
+     */
+    public static final Predicate<Blueprint> BLOCK_BLUEPRINT_REQUIREMENT = blueprint ->
+    {
+        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+
+        if (anchor instanceof IRequirementsBlueprintAnchorBlock)
+        {
+            return (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level,
+              RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+              Minecraft.getInstance().player));
+        }
+        else
+        {
+            return true;
+        }
+    };
+
     /**
      * Folder scrolling list.
      */
@@ -106,6 +132,21 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     private static String currentBlueprintCat = "";
 
     /**
+     * Callback for when a schematic gets selected
+     */
+    private final BiConsumer<WindowExtendedBuildTool, Blueprint> selectionCallback;
+
+    /**
+     * Currently selected blueprint
+     */
+    public Blueprint selectedBlueprint = null;
+
+    /**
+     * Predicate dictating which blueprints are shown
+     */
+    private final Predicate<Blueprint> availableBlueprintPredicate;
+
+    /**
      * Type of button.
      */
     public enum ButtonType
@@ -115,19 +156,49 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         Back
     }
 
+    public WindowExtendedBuildTool(
+      final BlockPos pos,
+      final int groundstyle)
+    {
+        this(pos, groundstyle, null, BLOCK_BLUEPRINT_REQUIREMENT);
+    }
+
     /**
      * Creates a window build tool.
      * This requires X, Y and Z coordinates.
      * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
      *
-     * @param pos coordinate.
-     * @param groundstyle one of the GROUNDSTYLE_ values.
+     * @param pos                         coordinate.
+     * @param groundstyle                 one of the GROUNDSTYLE_ values.
+     * @param selectionCallback           callback which gets triggered on confirm clicked if a blueprint is selected
+     * @param availableBlueprintPredicate
      */
-    public WindowExtendedBuildTool(@Nullable final BlockPos pos, final int groundstyle)
+    public WindowExtendedBuildTool(
+      final BlockPos pos,
+      final int groundstyle,
+      @Nullable final BiConsumer<WindowExtendedBuildTool, Blueprint> selectionCallback,
+      @Nullable final Predicate<Blueprint> availableBlueprintPredicate)
     {
-        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle,"blueprint");
+        super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle, "blueprint");
+        this.selectionCallback = selectionCallback;
+        this.availableBlueprintPredicate = availableBlueprintPredicate;
         this.init(groundstyle, pos);
+    }
+
+    /**
+     * On clicking confirm
+     */
+    @Override
+    protected void confirmClicked()
+    {
+        if (selectionCallback == null)
+        {
+            super.confirmClicked();
+            return;
+        }
+
+        selectionCallback.accept(this, selectedBlueprint);
     }
 
     @SuppressWarnings("resource")
@@ -178,10 +249,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else
         {
             findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
-              structurePack.getName()
-                + "/"
-                + depth
-                + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null ? "" : ("/" + RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint().getFileName())))
+                structurePack.getName()
+                  + "/"
+                  + depth
+                  + (RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null
+                       ? ""
+                       : ("/" + RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint().getFileName())))
               .setStyle(Style.EMPTY.withBold(true)));
         }
         categoryFutures = StructurePacks.getCategoriesFuture(structurePack.getName(), "");
@@ -213,7 +286,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      */
     private void switchPackClicked()
     {
-        new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), groundstyle)).open();
+        new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+          groundstyle,
+          selectionCallback,
+          availableBlueprintPredicate)).open();
     }
 
     @Override
@@ -417,24 +493,24 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             categories.add(new ButtonData(ButtonType.Back, parentCat));
         }
 
-        for (final StructurePacks.Category category :inputCategories)
+        for (final StructurePacks.Category category : inputCategories)
         {
             categories.add(new ButtonData(ButtonType.SubCategory, category));
         }
 
         if (categories.size() <= 3)
         {
-            folderList.setSize(270,20);
+            folderList.setSize(270, 20);
             folderList.setPosition(100, 180);
         }
         else if (categories.size() > 6)
         {
-            folderList.setSize(270,60);
+            folderList.setSize(270, 60);
             folderList.setPosition(100, 140);
         }
         else
         {
-            folderList.setSize(270,40);
+            folderList.setSize(270, 40);
             folderList.setPosition(100, 160);
         }
 
@@ -473,8 +549,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
     /**
      * Update the displayed blueprints.
+     *
      * @param inputBluePrints the blueprints to display.
-     * @param depth the depth they're at.
+     * @param depth           the depth they're at.
      */
     public void updateBlueprints(final List<Blueprint> inputBluePrints, final String depth)
     {
@@ -504,12 +581,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
             if (!Minecraft.getInstance().player.isCreative() && isInvisible(blueprint))
             {
-               continue;
+                continue;
             }
 
             if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
             {
-                final int level = ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), blueprint.getPrimaryBlockOffset()));
+                final int level =
+                  ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+                    blueprint.getPrimaryBlockOffset()));
                 final String name = blueprint.getFileName().replace(Integer.toString(level), "");
                 final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
                 blueprintList.add(blueprint);
@@ -555,17 +634,17 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
         if (blueprints.size() <= 3)
         {
-            blueprintList.setSize(270,20);
+            blueprintList.setSize(270, 20);
             blueprintList.setPosition(100, 180);
         }
         else if (blueprints.size() > 6)
         {
-            blueprintList.setSize(270,60);
+            blueprintList.setSize(270, 60);
             blueprintList.setPosition(100, 140);
         }
         else
         {
-            blueprintList.setSize(270,40);
+            blueprintList.setSize(270, 40);
             blueprintList.setPosition(100, 160);
         }
 
@@ -604,6 +683,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
     /**
      * Update the alternative blueprint list.
+     *
      * @param bluePrintMapping the mapping of blueprint name to leveled blueprints.
      */
     public void updateAlternatives(final Map<String, List<Blueprint>> bluePrintMapping, final String depth)
@@ -648,6 +728,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
     /**
      * Update the alternative blueprint list.
+     *
      * @param blueprints the different blueprint levels.
      */
     public void updateLevels(final List<Blueprint> blueprints, final String depth, final boolean hasAlternatives)
@@ -685,7 +766,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                if (blueprints.get(index) == null )
+                if (blueprints.get(index) == null)
                 {
                     final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":back";
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
@@ -764,16 +845,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
 
             boolean hasAlts = blueprintMap.values().size() > 1;
-            if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
+            if (availableBlueprintPredicate != null && !availableBlueprintPredicate.test(firstBlueprint))
             {
-                toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player));
-                if (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(), Minecraft.getInstance().player))
+                if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
                 {
-                    PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
-                    img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"), false);
-                    img.disable();
-                    return;
+                    toolTip.addAll(((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).getRequirements(Minecraft.getInstance().level,
+                      RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+                      Minecraft.getInstance().player));
                 }
+
+                PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.disable();
+                return;
             }
 
             boolean isInvis = isInvisible(firstBlueprint);
@@ -782,19 +866,21 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (hasMatch)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
+                  false);
             }
             else
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint"  + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
         }
     }
 
     /**
      * A blueprint may hide itself from the build tool list in one of two ways:
-     *   1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
-     *   2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     * 1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
+     * 2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     *
      * @param blueprint the blueprint to check
      * @return true if this blueprint should be hidden from normal players
      */
@@ -802,7 +888,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     {
         final BlockInfo anchor = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset());
         if (anchor.getState().getBlock() instanceof IInvisibleBlueprintAnchorBlock invis &&
-                !invis.isVisible(anchor.getTileEntityData()))
+              !invis.isVisible(anchor.getTileEntityData()))
         {
             return true;
         }
@@ -810,8 +896,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
         if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
         {
-            final CompoundTag blueprintData = anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA);
-            final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(blueprintData);
+            final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData());
             final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
             if (anchorTags.contains(INVISIBLE_TAG))
             {
@@ -847,7 +932,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
 
         img.setID(id);
-        String descString = id.split("/")[id.split("/").length-1];
+        String descString = id.split("/")[id.split("/").length - 1];
         descString = descString.substring(0, 1).toUpperCase(Locale.US) + descString.substring(1);
         final Component desc = Component.literal(descString);
         img.setText(desc);
@@ -972,7 +1057,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 levelsList.disable();
 
                 final Blueprint blueprint = mapping.values().iterator().next().get(0);
-                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName())
+                  .setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
                 return;
@@ -993,6 +1080,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     final Blueprint blueprint = leveled.get(0);
                     findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                       structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                    selectedBlueprint = blueprint;
                     RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                     adjustToGroundOffset();
                 }
@@ -1013,6 +1101,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final Blueprint blueprint = list.get(0);
                 findPaneOfTypeByID("tree", Text.class).setText(Component.literal(
                   structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
             }
@@ -1038,7 +1127,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             {
                 int level = Integer.parseInt(split[3]);
                 final Blueprint blueprint = list.get(level);
-                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName()).setStyle(Style.EMPTY.withBold(true)));
+                findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + depth + "/" + blueprint.getFileName())
+                  .setStyle(Style.EMPTY.withBold(true)));
+                selectedBlueprint = blueprint;
                 RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprint(blueprint);
                 adjustToGroundOffset();
                 return;
@@ -1061,7 +1152,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     public static class ButtonData
     {
         public ButtonType type;
-        public Object data;
+        public Object     data;
 
         public ButtonData(ButtonType type, Object data)
         {
