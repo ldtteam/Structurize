@@ -60,9 +60,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
         if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
         {
-            return (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level,
+            return ((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level,
               RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
-              Minecraft.getInstance().player));
+              Minecraft.getInstance().player);
         }
         else
         {
