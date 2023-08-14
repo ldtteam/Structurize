@@ -95,11 +95,13 @@ public class BlueprintRenderer implements AutoCloseable
      * Updates blueprint reference if it has same hash.
      *
      * @param previewData blueprint and context from active structure
-     * @deprecated no longer needed
      */
-    @Deprecated(since = "1.20", forRemoval = true)
     public void updateBlueprint(final BlueprintPreviewData previewData)
     {
+        if (blockAccess.getBlueprint() != previewData.getBlueprint() && blockAccess.getBlueprint().hashCode() == previewData.getBlueprint().hashCode())
+        {
+            blockAccess.setBlueprint(previewData.getBlueprint());
+        }
     }
 
     private void init(final BlockPos anchorPos)
@@ -241,6 +243,10 @@ public class BlueprintRenderer implements AutoCloseable
         final long gameTime = mc.level.getGameTime();
 
         mc.getProfiler().push("struct_render_init");
+        
+        // make sure instances are synced
+        updateBlueprint(previewData);
+
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
         if (vertexBuffers == null || previewData.shouldRefresh())
