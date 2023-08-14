@@ -356,7 +356,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                 buttonImage.setHandler((button) -> {
                     settings.get(index).setValue(!settings.get(index).getValue());
                     Network.getNetwork().sendToServer(new SyncSettingsToServer());
-                    RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).scheduleRefresh();
+                    RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).syncChangesToServer();
                 });
             }
         });
@@ -450,24 +450,15 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getMirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
 
-        String rotation;
-        switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotation())
+        final String rotation = switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().rotation())
         {
-            case CLOCKWISE_90:
-                rotation = "right_green";
-                break;
-            case CLOCKWISE_180:
-                rotation = "down_green";
-                break;
-            case COUNTERCLOCKWISE_90:
-                rotation = "left_green";
-                break;
-            default:
-                rotation = "up_green";
-                break;
-        }
+            case CLOCKWISE_90 -> "right_green";
+            case CLOCKWISE_180 -> "down_green";
+            case COUNTERCLOCKWISE_90 -> "left_green";
+            case NONE -> "up_green";
+        };
         findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
     }
 

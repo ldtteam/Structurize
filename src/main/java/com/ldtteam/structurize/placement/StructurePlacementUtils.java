@@ -6,6 +6,7 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,7 +32,7 @@ public class StructurePlacementUtils
     public static void unloadStructure(final Level world, final BlockPos startPos, final Blueprint blueprint, final Rotation rotation, final Mirror mirror)
     {
         final IStructureHandler structure = new CreativeStructureHandler(world, startPos, blueprint, new PlacementSettings(mirror, rotation), false);
-        structure.getBluePrint().rotateWithMirror(rotation, mirror, world);
+        structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror), world);
 
         final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
@@ -64,7 +65,7 @@ public class StructurePlacementUtils
             {
                 structure.fancyPlacement();
             }
-            structure.getBluePrint().rotateWithMirror(rotation, mirror, worldObj);
+            structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror), worldObj);
 
             final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
