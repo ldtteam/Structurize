@@ -249,11 +249,6 @@ public class BlueprintRenderer implements AutoCloseable
 
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
-        if (vertexBuffers == null || previewData.shouldRefresh())
-        {
-            return;
-        }
-
         // init
         if (vertexBuffers == null)
         {
