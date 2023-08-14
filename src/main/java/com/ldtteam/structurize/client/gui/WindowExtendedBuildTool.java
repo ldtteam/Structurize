@@ -58,7 +58,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     {
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
 
-        if (anchor instanceof IRequirementsBlueprintAnchorBlock)
+        if (anchor.getBlock() instanceof IRequirementsBlueprintAnchorBlock)
         {
             return (!((IRequirementsBlueprintAnchorBlock) anchor.getBlock()).areRequirementsMet(Minecraft.getInstance().level,
               RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
