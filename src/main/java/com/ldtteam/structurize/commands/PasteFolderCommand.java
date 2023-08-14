@@ -11,6 +11,7 @@ import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -189,7 +190,7 @@ public class PasteFolderCommand extends AbstractCommand
                 for (final Blueprint blueprint : perTypeList)
                 {
                     final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-                    blueprint.rotateWithMirror(rotation, mirror, world);
+                    blueprint.setRotationMirror(RotationMirror.of(rotation, mirror), world);
                     final BlockPos placementPos = pos.offset(xOffset, 0, zOffset).offset(blueprint.getPrimaryBlockOffset());
 
                     final IStructureHandler structure;

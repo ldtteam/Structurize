@@ -42,8 +42,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.ModelData;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -51,7 +50,8 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
@@ -61,7 +61,7 @@ import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHO
  */
 public class BlueprintRenderer implements AutoCloseable
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlueprintRenderer.class);
     private static final Supplier<Map<RenderType, VertexBuffer>> blockVertexBuffersFactory = () -> RenderType.chunkBufferLayers()
         .stream()
         .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer()));
@@ -95,14 +95,11 @@ public class BlueprintRenderer implements AutoCloseable
      * Updates blueprint reference if it has same hash.
      *
      * @param previewData blueprint and context from active structure
+     * @deprecated no longer needed
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public void updateBlueprint(final BlueprintPreviewData previewData)
     {
-        if (blockAccess.getBlueprint() != previewData.getBlueprint() && blockAccess.getBlueprint().hashCode() == previewData.getBlueprint().hashCode())
-        {
-            blockAccess.setBlueprint(previewData.getBlueprint());
-            previewData.scheduleRefresh();
-        }
     }
 
     private void init(final BlockPos anchorPos)
@@ -231,6 +228,7 @@ public class BlueprintRenderer implements AutoCloseable
                 vertexBuffer.upload(newBuffer);
             }
         }
+        newBuffers.clearAll();
         VertexBuffer.unbind();
     }
 
@@ -246,6 +244,12 @@ public class BlueprintRenderer implements AutoCloseable
         final BlockPos anchorPos = pos.subtract(blockAccess.getBlueprint().getPrimaryBlockOffset());
         blockAccess.setWorldPos(anchorPos);
         if (vertexBuffers == null || previewData.shouldRefresh())
+        {
+            return;
+        }
+
+        // init
+        if (vertexBuffers == null)
         {
             init(anchorPos);
         }
