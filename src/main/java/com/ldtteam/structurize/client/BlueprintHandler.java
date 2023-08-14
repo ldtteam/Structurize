@@ -4,14 +4,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.util.RotationMirror;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -128,12 +124,5 @@ public final class BlueprintHandler
         }
 
         Minecraft.getInstance().getProfiler().pop();
-    }
-
-    /**
-     * Hacky record to add rot/mir to blueprint hashcode (which is rot/mir independent)
-     */
-    public record RenderingCacheKey(RotationMirror rotationMirror, Blueprint blueprint)
-    {
     }
 }

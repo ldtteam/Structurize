@@ -2,7 +2,7 @@ package com.ldtteam.structurize.storage.rendering.types;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.client.BlueprintHandler.RenderingCacheKey;
+import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -324,6 +324,7 @@ public class BlueprintPreviewData
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private void applyRotationMirrorAndSync()
     {
         if (blueprint == null)
