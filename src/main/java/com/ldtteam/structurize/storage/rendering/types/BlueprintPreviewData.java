@@ -66,12 +66,24 @@ public class BlueprintPreviewData
      */
     private RenderingCacheKey renderKey;
 
+    private final boolean serverSyncEnabled;
+
     /**
      * Default constructor to create a new setup.
      */
     public BlueprintPreviewData()
     {
-        // Intentionally left empty.
+        this(true);
+    }
+
+    /**
+     * Default constructor to create a new setup.
+     *
+     * @param serverSyncEnabled if false then wont send sync preview messages to server
+     */
+    public BlueprintPreviewData(final boolean serverSyncEnabled)
+    {
+        this.serverSyncEnabled = serverSyncEnabled;
     }
 
     /**
@@ -80,6 +92,8 @@ public class BlueprintPreviewData
      */
     public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
     {
+        serverSyncEnabled = true;
+
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
         this.blueprintPath = byteBuf.readUtf(32767);
@@ -208,11 +222,22 @@ public class BlueprintPreviewData
     }
 
     /**
+     * Rotate/mirror the preview to given value.
+     * @param rotationMirror new rot/mir for blueprint
+     */
+    @OnlyIn(Dist.CLIENT)
+    public void setRotationMirror(final RotationMirror rotationMirror)
+    {
+        this.rotationMirror = rotationMirror;
+        applyRotationMirrorAndSync();
+    }
+
+    /**
      * Sync the changes to the server.
      */
     public void syncChangesToServer()
     {
-        if (BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
+        if (serverSyncEnabled && BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
         {
             Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }
