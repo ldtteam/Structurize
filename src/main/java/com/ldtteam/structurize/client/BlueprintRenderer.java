@@ -9,7 +9,10 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintMissHitResult;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -59,6 +62,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL20C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -592,8 +596,12 @@ public class BlueprintRenderer implements AutoCloseable
             uniform.upload();
         }
 
+        TransparencyHack.apply();
+
         vertexBuffer.bind();
         vertexBuffer.draw();
+
+        TransparencyHack.reset();
 
         if (uniform != null)
         {
@@ -618,6 +626,44 @@ public class BlueprintRenderer implements AutoCloseable
             }
             return buffer;
         }
+    }
 
+    public static class TransparencyHack
+    {
+        public static final float THRESHOLD = 0.99f;
+        protected static boolean applied = false;
+
+        public static void apply()
+        {
+            if (GlStateManager.BLEND.mode.enabled)
+            {
+                // do not override if there is running blend fnc
+                return;
+            }
+
+            final float alpha = Structurize.getConfig().getClient().blueprintRendererTransparency.get().floatValue();
+            if (alpha > THRESHOLD)
+            {
+                return;
+            }
+
+            applied = true;
+
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(SourceFactor.CONSTANT_ALPHA, DestFactor.ONE_MINUS_CONSTANT_ALPHA);
+            GL20C.glBlendColor(0, 0, 0, alpha);
+        }
+
+        public static void reset()
+        {
+            if (!applied)
+            {
+                return;
+            }
+
+            applied = false;
+
+            RenderSystem.disableBlend();
+        }
     }
 }
