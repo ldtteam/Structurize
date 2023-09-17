@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -141,13 +142,24 @@ public class ClientStructurePackLoader
         });
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onWorldTick(final TickEvent.ClientTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.START)
         {
-            if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % 20 == 0 && loadingState == ClientLoadingState.FINISHED_LOADING)
+            if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
             {
+                if (Minecraft.getInstance().isSingleplayer())
+                {
+                    loadingState = ClientLoadingState.FINISHED_SYNCING;
+                    StructurePacks.setFinishedLoading();
+                    if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
+                    {
+                        StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                    }
+                    return;
+                }
+
                 loadingState = ClientLoadingState.SYNCING;
                 Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
             }
