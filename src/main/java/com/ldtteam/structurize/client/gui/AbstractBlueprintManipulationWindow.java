@@ -139,7 +139,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                 if (handlers.isEmpty())
                 {
                     Utils.playErrorSound(Minecraft.getInstance().player);
-                    if (SurvivalBlueprintHandlers.getHandlers().isEmpty())
+                    if (SurvivalBlueprintHandlers.noHandlers())
                     {
                         Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.no.survival.handler"), false);
                     }
