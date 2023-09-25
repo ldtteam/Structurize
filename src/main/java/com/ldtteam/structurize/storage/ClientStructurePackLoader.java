@@ -149,7 +149,7 @@ public class ClientStructurePackLoader
         {
             if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
             {
-                if (Minecraft.getInstance().isSingleplayer())
+                if (Minecraft.getInstance().getSingleplayerServer() != null && !Minecraft.getInstance().getSingleplayerServer().isPublished())
                 {
                     loadingState = ClientLoadingState.FINISHED_SYNCING;
                     StructurePacks.setFinishedLoading();
