@@ -167,6 +167,9 @@ public class BlueprintRenderSettings
         }
     }
 
+    /**
+     * Wrapper to merge normal and shared configs
+     */
     public record EitherConfig<T>(ConfigValue<T> normal, SharedSettings<T> wrapped)
     {
         public static <U> EitherConfig<U> normal(final ConfigValue<U> configValue)

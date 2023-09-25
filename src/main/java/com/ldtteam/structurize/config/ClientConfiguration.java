@@ -47,12 +47,15 @@ public class ClientConfiguration extends AbstractConfiguration
         finishCategory(builder);
     }
 
+    /**
+     * Things which should be in buildtool settings
+     */
     public void collectPreviewRendererSettings(final Consumer<ConfigValue<?>> sink)
     {
-        sink.accept(renderPlaceholders);
-        sink.accept(renderSolidToWorldgen);
         sink.accept(sharePreviews);
         sink.accept(displayShared);
+        sink.accept(renderPlaceholders);
+        sink.accept(renderSolidToWorldgen);
         sink.accept(rendererLightLevel);
     }
 }

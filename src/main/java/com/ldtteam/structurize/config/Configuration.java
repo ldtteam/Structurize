@@ -56,6 +56,9 @@ public class Configuration
         return serverConfig;
     }
 
+    /**
+     * cache starting values for watchers
+     */
     public void onConfigLoad(final ModConfig modConfig)
     {
         if (modConfig.getSpec() == client.getSpec())
@@ -68,6 +71,9 @@ public class Configuration
         }
     }
 
+    /**
+     * iterate watchers and fire changes if needed
+     */
     public void onConfigReload(final ModConfig modConfig)
     {
         if (modConfig.getSpec() == client.getSpec())
@@ -80,6 +86,12 @@ public class Configuration
         }
     }
 
+    /**
+     * This should be called from any code that manually changes ConfigValues using set functions.
+     * (Mostly done by settings UIs)
+     *
+     * @param configValue which config value was changed
+     */
     public void onConfigValueEdit(final ConfigValue<?> configValue)
     {
         for (final var watchers : (List<ConfigWatcher<?>>[]) new List[] {clientConfig.watchers, serverConfig.watchers})

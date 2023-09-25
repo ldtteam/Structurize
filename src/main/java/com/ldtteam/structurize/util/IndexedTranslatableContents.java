@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Inspired by {@link TranslatableContents} to support things from {@link MessageFormat}
+ */
 public class IndexedTranslatableContents implements ComponentContents
 {
     private final String key;
@@ -44,6 +47,9 @@ public class IndexedTranslatableContents implements ComponentContents
         return args;
     }
 
+    /**
+     * Performs (if outdated) and cache translated result
+     */
     private void translate()
     {
         final Language curLanguage = Language.getInstance();
