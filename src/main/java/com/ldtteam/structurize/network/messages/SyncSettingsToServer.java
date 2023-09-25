@@ -29,15 +29,15 @@ public class SyncSettingsToServer implements IMessage
     /**
      * Send setting data from the client.
      */
-    public SyncSettingsToServer()
+    public SyncSettingsToServer(final BlueprintRenderSettings settings)
     {
-        this.settings = BlueprintRenderSettings.instance;
+        this.settings = settings;
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        BlueprintRenderSettings.instance.writeToBuf(buf);
+        settings.writeToBuf(buf);
     }
 
     @Nullable

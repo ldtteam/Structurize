@@ -12,8 +12,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.DISPLAY_SHARED;
-
 /**
  * Class handling blueprint syncing between players.
  */
@@ -52,7 +50,11 @@ public class ServerPreviewDistributor
     {
         for (final Tuple<ServerPlayer, BlueprintRenderSettings> entry : registeredPlayers.values())
         {
-            if (entry.getB().renderSettings.get(DISPLAY_SHARED) && entry.getA().isAlive() && player.level() == entry.getA().level() && !player.getUUID().equals(entry.getA().getUUID()) && (entry.getA().blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)))
+            if (entry.getB().getSetting(BlueprintRenderSettings.DISPLAY_SHARED) && // only those who want to see them
+                entry.getA().isAlive() &&
+                player.level() == entry.getA().level() && // same level
+                !player.getUUID().equals(entry.getA().getUUID()) && // not the same player
+                (entry.getA().blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO))) // within sensible distance
             {
                 Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, entry.getA().getUUID().toString()), entry.getA());
             }

@@ -6,6 +6,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -181,7 +182,7 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
-        Network.getNetwork().sendToServer(new SyncSettingsToServer());
+        Network.getNetwork().sendToServer(new SyncSettingsToServer(BlueprintRenderSettings.instance));
 
         if (serverStructurePacks.isEmpty())
         {

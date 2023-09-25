@@ -86,10 +86,6 @@ public class Structurize
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ModItemGroups.class);
 
-        BlueprintRenderSettings.instance.registerSetting(RENDER_PLACEHOLDERS, false);
-        BlueprintRenderSettings.instance.registerSetting(SHARE_PREVIEWS, false);
-        BlueprintRenderSettings.instance.registerSetting(DISPLAY_SHARED, false);
-
         if (DataFixerUtils.isVanillaDF)
         {
             if ((DataFixers.getDataFixer().getSchema(Integer.MAX_VALUE - 1).getVersionKey()) >= DataVersion.UPCOMING.getDataVersion() * 10)

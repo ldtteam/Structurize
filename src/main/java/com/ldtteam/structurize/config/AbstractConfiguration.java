@@ -1,9 +1,8 @@
 package com.ldtteam.structurize.config;
 
-import java.util.List;
-import java.util.function.Predicate;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.server.TickTask;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -11,21 +10,31 @@ import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.LongValue;
+import net.minecraftforge.common.util.LogicalSidedProvider;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class AbstractConfiguration
 {
-    protected void createCategory(final Builder builder, final String key)
+    public static final String COMMENT_SUFFIX = ".comment";
+    final List<ConfigWatcher<?>> watchers = new ArrayList<>();
+
+    protected static void createCategory(final Builder builder, final String key)
     {
         builder.comment(LanguageHandler.translateKey(commentTKey(key))).push(key);
     }
 
-    protected void swapToCategory(final Builder builder, final String key)
+    protected static void swapToCategory(final Builder builder, final String key)
     {
         finishCategory(builder);
         createCategory(builder, key);
     }
 
-    protected void finishCategory(final Builder builder)
+    protected static void finishCategory(final Builder builder)
     {
         builder.pop();
     }
@@ -37,7 +46,7 @@ public abstract class AbstractConfiguration
 
     private static String commentTKey(final String key)
     {
-        return nameTKey(key) + ".comment";
+        return nameTKey(key) + COMMENT_SUFFIX;
     }
 
     private static Builder buildBase(final Builder builder, final String key)
@@ -97,5 +106,67 @@ public abstract class AbstractConfiguration
     protected static <V extends Enum<V>> EnumValue<V> defineEnum(final Builder builder, final String key, final V defaultValue)
     {
         return buildBase(builder, key).defineEnum(key, defaultValue);
+    }
+
+    protected <T> void addWatcher(final ConfigValue<T> configValue, final ConfigListener<T> listener)
+    {
+        watchers.add(new ConfigWatcher<>(listener, configValue));
+    }
+
+    @FunctionalInterface
+    public static interface ConfigListener<T>
+    {
+        void onChange(T oldValue, T newValue);
+    }
+
+    /**
+     * synchronized due to nature of config events
+     */
+    static class ConfigWatcher<T>
+    {
+        private final ConfigListener<T> listener;
+        private final ConfigValue<T> forgeConfig;
+        
+        private T lastValue;
+        
+        private ConfigWatcher(final ConfigListener<T> listener, final ConfigValue<T> forgeConfig)
+        {
+            this.listener = listener;
+            this.forgeConfig = forgeConfig;
+        }
+
+        boolean sameForgeConfig(final ConfigValue<?> other)
+        {
+            return other == forgeConfig;
+        }
+        
+        synchronized void cacheLastValue()
+        {
+            lastValue = forgeConfig.get();
+        }
+
+        synchronized void compareAndFireChangeEvent()
+        {
+            final T newValue = forgeConfig.get();
+
+            if (!newValue.equals(lastValue))
+            {
+                switch (FMLEnvironment.dist) {
+                    case CLIENT -> fireClient(lastValue, newValue);
+                    case DEDICATED_SERVER -> fireServer(lastValue, newValue);
+                }
+                lastValue = newValue;
+            }
+        }
+
+        private void fireClient(final T oldVal, final T newVal)
+        {
+            LogicalSidedProvider.WORKQUEUE.get(LogicalSide.CLIENT).tell(new TickTask(0, () ->  listener.onChange(oldVal, newVal)));
+        }
+
+        private void fireServer(final T oldVal, final T newVal)
+        {
+            LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER).tell(new TickTask(0, () ->  listener.onChange(oldVal, newVal)));
+        }
     }
 }

@@ -466,6 +466,20 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         folderList.hide();
         blueprintList.disable();
         blueprintList.hide();
+
+        final View cats = findPaneOfTypeByID("categories", View.class);
+        if (settingsList.isVisible())
+        {
+            cats.off();
+        }
+        else
+        {
+            cats.on();
+            for (final Pane pane : cats.getChildren())
+            {
+                pane.enable();
+            }
+        }
     }
 
     /**

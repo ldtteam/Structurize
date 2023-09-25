@@ -1,4 +1,4 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd"
         size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="false">
 
     <label id="tip" size="200 50" pos="150 100" color="white" label="$(structurize.gui.manipulation.info)" visible="false"/>
@@ -17,14 +17,15 @@
     </view>
 
     <list size="150 100" pos="5 140" id="settinglist" visible="false">
-        <box size="100% 20" linewidth="0">
+        <view size="100% 20">
             <label size="110 17" pos="0 0" id="label"/>
-            <button id="switch" source="structurize:textures/gui/builderhut/builder_button_very_small.png" size="29 15" pos="110 0" textColor="black" texthovercolor="gray"/>
-        </box>
+            <button id="switch" source="structurize:textures/gui/builderhut/builder_button_very_small.png" size="29 15" pos="110 0" textcolor="black" texthovercolor="gray"/>
+            <input id="set_input" size="29 15" pos="110 0"/>
+        </view>
     </list>
 
     <list size="100 80" pos="160 80" id="placement" visible="false">
-        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
+        <button id="type" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textcolor="black" texthovercolor="gray"/>
     </list>
 
     <button id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="30" pos="300 213"/>

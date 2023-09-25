@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -19,8 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.SHARE_PREVIEWS;
 
 /**
  * Necessary data for blueprint preview.
@@ -237,7 +235,7 @@ public class BlueprintPreviewData
      */
     public void syncChangesToServer()
     {
-        if (serverSyncEnabled && BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
+        if (serverSyncEnabled && Structurize.getConfig().getClient().sharePreviews.get() && (blueprint == null || blueprint.getName() != null))
         {
             Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }

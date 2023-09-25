@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.storage.rendering;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
@@ -122,7 +123,7 @@ public class RenderingCache
      */
     public static boolean forceLightLevel()
     {
-        return true;
+        return Structurize.getConfig().getClient().rendererLightLevel.get() >= 0;
     }
 
     /**
@@ -130,7 +131,7 @@ public class RenderingCache
      */
     public static int getOurLightLevel()
     {
-        return 15;
+        return Structurize.getConfig().getClient().rendererLightLevel.get();
     }
 
     /**

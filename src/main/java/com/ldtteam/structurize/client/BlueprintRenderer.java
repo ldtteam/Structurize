@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -68,8 +68,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * The renderer for blueprint.
@@ -146,7 +144,7 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if (!BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
+                if (!Structurize.getConfig().getClient().renderPlaceholders.get())
                 {
                     if (state.getBlock() == ModBlocks.blockSubstitution.get())
                     {

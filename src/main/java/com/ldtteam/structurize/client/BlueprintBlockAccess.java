@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.CrashReport;
@@ -70,8 +70,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * Our world/blockAccess dummy. TODO: client level
@@ -157,7 +155,7 @@ public class BlueprintBlockAccess extends Level
         {
             return BlockUtils.getFluidForDimension(anyLevel());
         }
-        if (state.getBlock() == ModBlocks.blockSubstitution.get() && !BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
+        if (state.getBlock() == ModBlocks.blockSubstitution.get() && !Structurize.getConfig().getClient().renderPlaceholders.get())
         {
             return Blocks.AIR.defaultBlockState();
         }
