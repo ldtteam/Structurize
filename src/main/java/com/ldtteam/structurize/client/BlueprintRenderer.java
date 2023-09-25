@@ -176,13 +176,14 @@ public class BlueprintRenderer implements AutoCloseable
                     {
                         state = defaultFluidState;
                     }
-                    if (SharedConstants.IS_RUNNING_IN_IDE && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                }
+
+                if (Structurize.getConfig().getClient().renderSolidToWorldgen.get() && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                {
+                    state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
+                    if (state == null)
                     {
-                        state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
-                        if (state == null)
-                        {
-                            state = blockInfo.getState();
-                        }
+                        state = blockInfo.getState();
                     }
                 }
 

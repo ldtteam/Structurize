@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.client.BlueprintHandler;
-import com.ldtteam.structurize.client.BlueprintRenderer;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -19,6 +18,7 @@ public class ClientConfiguration extends AbstractConfiguration
     // blueprint renderer
 
     public final BooleanValue renderPlaceholders;
+    public final BooleanValue renderSolidToWorldgen;
     public final BooleanValue sharePreviews;
     public final BooleanValue displayShared;
     public final IntValue rendererLightLevel;
@@ -34,14 +34,14 @@ public class ClientConfiguration extends AbstractConfiguration
         // if you add anything to this category, also add it #collectPreviewRendererSettings()
         
         renderPlaceholders = defineBoolean(builder, "render_placeholders", false);
+        renderSolidToWorldgen = defineBoolean(builder, "render_solid_to_worldgen", false);
         sharePreviews = defineBoolean(builder, "share_previews", false);
         displayShared = defineBoolean(builder, "see_shared_previews", false);
         rendererLightLevel = defineInteger(builder, "light_level", 15, -1, 15);
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            addWatcher(renderPlaceholders, (old, newV) -> BlueprintHandler.getInstance().clearCache());
-            addWatcher(rendererLightLevel, (old, newV) -> BlueprintHandler.getInstance().clearCache());
+            addWatcherGeneric(BlueprintHandler.getInstance()::clearCache, renderPlaceholders, renderSolidToWorldgen, rendererLightLevel);
         }
 
         finishCategory(builder);
@@ -50,6 +50,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public void collectPreviewRendererSettings(final Consumer<ConfigValue<?>> sink)
     {
         sink.accept(renderPlaceholders);
+        sink.accept(renderSolidToWorldgen);
         sink.accept(sharePreviews);
         sink.accept(displayShared);
         sink.accept(rendererLightLevel);

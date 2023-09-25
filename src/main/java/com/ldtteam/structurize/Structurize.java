@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blueprints.v1.DataVersion;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
@@ -13,7 +12,6 @@ import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.network.messages.ClientBlueprintRequestMessage;
 import com.ldtteam.structurize.proxy.ClientProxy;
 import com.ldtteam.structurize.proxy.IProxy;
 import com.ldtteam.structurize.proxy.ServerProxy;
@@ -33,8 +31,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Mod main class.

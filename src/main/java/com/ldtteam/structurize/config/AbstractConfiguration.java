@@ -1,7 +1,10 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.util.IndexedTranslatableContents.IndexedComp;
 import com.ldtteam.structurize.util.LanguageHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.TickTask;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
@@ -15,12 +18,16 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public abstract class AbstractConfiguration
 {
+    private static final String DEFAULT_KEY_PREFIX = "structurize.config.default.";
     public static final String COMMENT_SUFFIX = ".comment";
+
     final List<ConfigWatcher<?>> watchers = new ArrayList<>();
 
     protected static void createCategory(final Builder builder, final String key)
@@ -49,14 +56,14 @@ public abstract class AbstractConfiguration
         return nameTKey(key) + COMMENT_SUFFIX;
     }
 
-    private static Builder buildBase(final Builder builder, final String key)
+    private static Builder buildBase(final Builder builder, final String key, final MutableComponent defaultDesc)
     {
-        return builder.comment(LanguageHandler.translateKey(commentTKey(key))).translation(nameTKey(key));
+        return builder.comment(LanguageHandler.translateKey(commentTKey(key)) + " " + defaultDesc.getString()).translation(nameTKey(key));
     }
 
     protected static BooleanValue defineBoolean(final Builder builder, final String key, final boolean defaultValue)
     {
-        return buildBase(builder, key).define(key, defaultValue);
+        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "boolean", defaultValue)).define(key, defaultValue);
     }
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue)
@@ -66,12 +73,12 @@ public abstract class AbstractConfiguration
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue, final int min, final int max)
     {
-        return buildBase(builder, key).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static ConfigValue<String> defineString(final Builder builder, final String key, final String defaultValue)
     {
-        return buildBase(builder, key).define(key, defaultValue);
+        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "string", defaultValue)).define(key, defaultValue);
     }
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue)
@@ -81,7 +88,7 @@ public abstract class AbstractConfiguration
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue, final long min, final long max)
     {
-        return buildBase(builder, key).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue)
@@ -91,7 +98,7 @@ public abstract class AbstractConfiguration
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue, final double min, final double max)
     {
-        return buildBase(builder, key).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static <T> ConfigValue<List<? extends T>> defineList(
@@ -100,17 +107,32 @@ public abstract class AbstractConfiguration
         final List<? extends T> defaultValue,
         final Predicate<Object> elementValidator)
     {
-        return buildBase(builder, key).defineList(key, defaultValue, elementValidator);
+        return buildBase(builder, key, Component.empty()).defineList(key, defaultValue, elementValidator);
     }
 
     protected static <V extends Enum<V>> EnumValue<V> defineEnum(final Builder builder, final String key, final V defaultValue)
     {
-        return buildBase(builder, key).defineEnum(key, defaultValue);
+        return buildBase(builder,
+            key,
+            IndexedComp.of(DEFAULT_KEY_PREFIX + "enum",
+                defaultValue,
+                Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "))))
+            .defineEnum(key, defaultValue);
     }
 
     protected <T> void addWatcher(final ConfigValue<T> configValue, final ConfigListener<T> listener)
     {
         watchers.add(new ConfigWatcher<>(listener, configValue));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void addWatcherGeneric(final Runnable listener, final ConfigValue<?>... configValues)
+    {
+        final ConfigListener<Object> typedListener = (o, n) -> listener.run();
+        for (final var c : configValues)
+        {
+            watchers.add(new ConfigWatcher<>(typedListener, (ConfigValue<Object>) c));
+        }
     }
 
     @FunctionalInterface
@@ -151,22 +173,10 @@ public abstract class AbstractConfiguration
 
             if (!newValue.equals(lastValue))
             {
-                switch (FMLEnvironment.dist) {
-                    case CLIENT -> fireClient(lastValue, newValue);
-                    case DEDICATED_SERVER -> fireServer(lastValue, newValue);
-                }
+                LogicalSidedProvider.WORKQUEUE.get(FMLEnvironment.dist.isClient() ? LogicalSide.CLIENT : LogicalSide.SERVER)
+                    .tell(new TickTask(0, () -> listener.onChange(lastValue, newValue)));
                 lastValue = newValue;
             }
-        }
-
-        private void fireClient(final T oldVal, final T newVal)
-        {
-            LogicalSidedProvider.WORKQUEUE.get(LogicalSide.CLIENT).tell(new TickTask(0, () ->  listener.onChange(oldVal, newVal)));
-        }
-
-        private void fireServer(final T oldVal, final T newVal)
-        {
-            LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER).tell(new TickTask(0, () ->  listener.onChange(oldVal, newVal)));
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.google.gson.internal.LazilyParsedNumber;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.ButtonImage;
@@ -8,7 +9,6 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
 import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -18,7 +18,6 @@ import com.ldtteam.structurize.config.AbstractConfiguration;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.config.BlueprintRenderSettings.EitherConfig;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
-import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -373,9 +372,9 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     // TODO: ray why? RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).syncChangesToServer();
                 });
             }
-            else if (setting.getValue(blueprintRenderSettings) instanceof final Integer value)
+            else if (setting.getValue(blueprintRenderSettings) instanceof final Number value)
             {
-                final EitherConfig<Integer> typedSetting = (EitherConfig<Integer>) setting;
+                final EitherConfig<Number> typedSetting = (EitherConfig<Number>) setting;
 
                 buttonImage.off();
                 inputField.on();
@@ -391,7 +390,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     @Override
                     public boolean isAllowedCharacter(final char c)
                     {
-                        return Character.isDigit(c) || c == '-';
+                        return Character.isDigit(c) || c == '-' || c == '.';
                     }
                 });
                 inputField.setHandler(a -> {
@@ -400,10 +399,11 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         return;
                     }
 
-                    final int newValue;
+                    final Number newValue = new LazilyParsedNumber(inputField.getText());
+                    final boolean testResult;
                     try
                     {
-                        newValue = Integer.parseInt(inputField.getText());
+                        testResult = settingSpec.test(newValue);
                     }
                     catch (final NumberFormatException e)
                     {
@@ -411,9 +411,23 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         return;
                     }
 
-                    if (settingSpec.test(newValue))
+                    if (testResult)
                     {
-                        typedSetting.setValue(blueprintRenderSettings, newValue);
+                        // need properly typed thing now, but it's validated so parsing should never crash
+                        // TODO: switch instanceof
+                        final Object def = settingSpec.getDefault();
+                        if (def instanceof Integer)
+                        {
+                            typedSetting.setValue(blueprintRenderSettings, newValue.intValue());
+                        }
+                        else if (def instanceof Long)
+                        {
+                            typedSetting.setValue(blueprintRenderSettings, newValue.longValue());
+                        }
+                        else if (def instanceof Double)
+                        {
+                            typedSetting.setValue(blueprintRenderSettings, newValue.doubleValue());
+                        }
                         inputField.setTextColor(0xffe0e0e0); // vanilla defualt
                     }
                     else
