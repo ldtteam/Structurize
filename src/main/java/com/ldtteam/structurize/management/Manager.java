@@ -7,6 +7,7 @@ import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
+import com.ldtteam.structurize.util.ITickedWorldOperation;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -42,7 +43,7 @@ public final class Manager
     /**
      * List of scanTool operations.
      */
-    private static final LinkedList<TickedWorldOperation> scanToolOperationPool = new LinkedList<>();
+    private static final LinkedList<ITickedWorldOperation> scanToolOperationPool = new LinkedList<>();
 
     /**
      * Pseudo unique id for the server
@@ -63,7 +64,7 @@ public final class Manager
     {
         if (!scanToolOperationPool.isEmpty())
         {
-            final TickedWorldOperation operation = scanToolOperationPool.peek();
+            final ITickedWorldOperation operation = scanToolOperationPool.peek();
             if (operation != null && operation.apply(world))
             {
                 scanToolOperationPool.pop();
@@ -80,7 +81,7 @@ public final class Manager
      *
      * @param operation the operation to add.
      */
-    public static void addToQueue(final TickedWorldOperation operation)
+    public static void addToQueue(final ITickedWorldOperation operation)
     {
         scanToolOperationPool.addLast(operation);
     }

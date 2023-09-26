@@ -167,7 +167,7 @@ public class ClientEventSubscriber
         final Minecraft mc = Minecraft.getInstance();
         mc.getProfiler().push("structurize");
 
-        if (mc.level != null && mc.level.getGameTime() % (Constants.TICKS_SECOND * 5) == 0)
+        if (mc.level != null && mc.level.getGameTime() % (Constants.TICKS_SECOND * BlueprintHandler.CACHE_EXPIRE_CHECK_SECONDS) == 0)
         {
             mc.getProfiler().push("blueprint_manager_tick");
             BlueprintHandler.getInstance().cleanCache();

@@ -4,6 +4,7 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -120,7 +121,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
             try
             {
                 blueprint = blueprintFuture.get();
-                blueprint.rotateWithMirror(settings.getRotation(), settings.getMirror() == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, world);
+                blueprint.setRotationMirror(settings.getRotationMirror(), world);
             }
             catch (InterruptedException | ExecutionException e)
             {

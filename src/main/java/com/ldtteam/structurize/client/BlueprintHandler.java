@@ -1,16 +1,16 @@
 package com.ldtteam.structurize.client;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.ints.Int2LongArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2LongMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import java.util.Iterator;
+
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Blueprint render handler on the client side.
@@ -21,11 +21,26 @@ public final class BlueprintHandler
      * A static instance on the client.
      */
     private static final BlueprintHandler ourInstance = new BlueprintHandler();
-    private static final int CACHE_SIZE = 30;
-    private static final long CACHE_EVICT_TIME = 45_000L;
+    /**
+     * How long are cache entries valid
+     */
+    public static final int CACHE_EXPIRE_SECONDS = 45;
+    /**
+     * How often should cache cleanup happen
+     */
+    public static final int CACHE_EXPIRE_CHECK_SECONDS = CACHE_EXPIRE_SECONDS / 3;
 
-    private final Int2ObjectArrayMap<BlueprintRenderer> rendererCache = new Int2ObjectArrayMap<>(CACHE_SIZE);
-    private final Int2LongArrayMap evictTimeCache = new Int2LongArrayMap(CACHE_SIZE);
+    private final LoadingCache<RenderingCacheKey, BlueprintRenderer> rendererCache = CacheBuilder.newBuilder()
+        .expireAfterAccess(CACHE_EXPIRE_SECONDS, TimeUnit.SECONDS)
+        .<RenderingCacheKey, BlueprintRenderer>removalListener(entry -> entry.getValue().close())
+        .build(new CacheLoader<>()
+        {
+            @Override
+            public BlueprintRenderer load(final RenderingCacheKey key)
+            {
+                return BlueprintRenderer.buildRendererForBlueprint(key.blueprint());
+            }
+        });
 
     /**
      * Private constructor to hide public one.
@@ -48,10 +63,10 @@ public final class BlueprintHandler
     }
 
     /**
-     * Draw a blueprint with a rotation, mirror and offset.
+     * Draw a blueprint at given pos.
      *
      * @param previewData the blueprint and context to draw.
-     * @param pos       its position.
+     * @param pos         position to render at
      */
     public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final PoseStack stack, final float partialTicks)
     {
@@ -61,19 +76,8 @@ public final class BlueprintHandler
             return;
         }
         Minecraft.getInstance().getProfiler().push("struct_render_cache");
-
-        final int blueprintHash = previewData.getBlueprint().hashCode();
-        final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
-        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
-
-        if (rendererRef == null)
-        {
-            rendererCache.put(blueprintHash, renderer);
-        }
-
-        renderer.updateBlueprint(previewData);
-        renderer.draw(previewData, pos, stack, partialTicks);
-        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
+        
+        rendererCache.getUnchecked(previewData.getRenderKey()).draw(previewData, pos, stack, partialTicks);
 
         Minecraft.getInstance().getProfiler().pop();
     }
@@ -83,18 +87,7 @@ public final class BlueprintHandler
      */
     public void cleanCache()
     {
-        final long now = System.currentTimeMillis();
-        final Iterator<Int2LongMap.Entry> iter = evictTimeCache.int2LongEntrySet().iterator();
-
-        while (iter.hasNext())
-        {
-            final Int2LongMap.Entry entry = iter.next();
-            if (entry.getLongValue() + CACHE_EVICT_TIME < now)
-            {
-                rendererCache.remove(entry.getIntKey()).close();
-                iter.remove();
-            }
-        }
+        rendererCache.cleanUp();
     }
 
     /**
@@ -102,17 +95,14 @@ public final class BlueprintHandler
      */
     public void clearCache()
     {
-        evictTimeCache.clear();
-        rendererCache.values().forEach(BlueprintRenderer::close);
-        rendererCache.clear();
+        rendererCache.invalidateAll();
     }
 
     /**
-     * Render a blueprint at a list of points.
+     * Draw a blueprint at list of given pos.
      *
-     * @param points       the points to render it at.
-     * @param partialTicks the partial ticks.
-     * @param previewData    the blueprint and context.
+     * @param previewData the blueprint and context to draw.
+     * @param points      list of positions to render at
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
         final List<BlockPos> points,
@@ -126,23 +116,12 @@ public final class BlueprintHandler
 
         Minecraft.getInstance().getProfiler().push("struct_render_multi");
 
-        final int blueprintHash = previewData.getBlueprint().hashCode();
-        final BlueprintRenderer rendererRef = rendererCache.get(blueprintHash);
-        final BlueprintRenderer renderer = rendererRef == null ? BlueprintRenderer.buildRendererForBlueprint(previewData.getBlueprint()) : rendererRef;
-
-        if (rendererRef == null)
-        {
-            rendererCache.put(blueprintHash, renderer);
-        }
-
-        renderer.updateBlueprint(previewData);
+        final BlueprintRenderer renderer = rendererCache.getUnchecked(previewData.getRenderKey());
 
         for (final BlockPos coord : points)
         {
             renderer.draw(previewData, coord, stack, partialTicks);
         }
-
-        evictTimeCache.put(blueprintHash, System.currentTimeMillis());
 
         Minecraft.getInstance().getProfiler().pop();
     }

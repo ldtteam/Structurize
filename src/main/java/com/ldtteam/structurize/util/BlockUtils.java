@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
+import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
+import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -396,17 +397,17 @@ public final class BlockUtils
             {
                 return false;
             }
-            else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+            else if (worldEntity instanceof MateriallyTexturedBlockEntity)
             {
                 CompoundTag tag = tileEntityData.copy();
                 tag.putInt("x", worldEntity.getBlockPos().getX());
                 tag.putInt("y", worldEntity.getBlockPos().getY());
                 tag.putInt("z", worldEntity.getBlockPos().getZ());
-                return worldEntity.saveWithFullMetadata().equals(tag);
+                return Utils.nbtContains(tag, worldEntity.saveWithFullMetadata());
             }
             return true;
         }
-        else if (worldEntity instanceof IMateriallyTexturedBlockEntity)
+        else if (worldEntity instanceof MateriallyTexturedBlockEntity)
         {
             return false;
         }

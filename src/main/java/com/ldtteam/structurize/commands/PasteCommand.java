@@ -8,6 +8,7 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -154,7 +155,7 @@ public class PasteCommand extends AbstractCommand
         }
 
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        blueprint.rotateWithMirror(rotation, mirror, world);
+        blueprint.setRotationMirror(RotationMirror.of(rotation, mirror), world);
 
         final IStructureHandler structure;
         if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)

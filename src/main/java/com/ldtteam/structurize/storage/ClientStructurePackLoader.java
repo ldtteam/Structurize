@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -33,8 +34,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.SCANS_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Client side structure pack discovery.
@@ -87,7 +87,7 @@ public class ClientStructurePackLoader
                 {
                     try (final Stream<Path> paths = Files.list(modPath))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
                     }
                 }
                 catch (IOException e)
@@ -128,7 +128,7 @@ public class ClientStructurePackLoader
 
                 try (final Stream<Path> paths = Files.list(outputPath))
                 {
-                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false));
+                    paths.forEach(element -> StructurePacks.discoverPackAtPath(element, false, modList, false, LOCAL));
                 }
             }
             catch (IOException e)
@@ -142,13 +142,24 @@ public class ClientStructurePackLoader
         });
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onWorldTick(final TickEvent.ClientTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.START)
         {
-            if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.getGameTime() % 20 == 0 && loadingState == ClientLoadingState.FINISHED_LOADING)
+            if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
             {
+                if (Minecraft.getInstance().getSingleplayerServer() != null && !Minecraft.getInstance().getSingleplayerServer().isPublished())
+                {
+                    loadingState = ClientLoadingState.FINISHED_SYNCING;
+                    StructurePacks.setFinishedLoading();
+                    if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
+                    {
+                        StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                    }
+                    return;
+                }
+
                 loadingState = ClientLoadingState.SYNCING;
                 Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
             }
@@ -291,7 +302,7 @@ public class ClientStructurePackLoader
                 }
 
                 // now load what we unzipped.
-                StructurePacks.discoverPackAtPath(rootPath, true, modList, false);
+                StructurePacks.discoverPackAtPath(rootPath, true, modList, false, LOCAL);
             }
             catch (final IOException ex)
             {

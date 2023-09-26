@@ -17,9 +17,9 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -32,8 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.CLIENT_FOLDER;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Class where blueprint placement is handled.
@@ -88,7 +87,7 @@ public class BlueprintPlacementHandling
 
         Utils.playSuccessSound(message.player);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        blueprint.rotateWithMirror(message.rotation, message.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK, message.world);
+        blueprint.setRotationMirror(RotationMirror.of(message.rotation, message.mirror), message.world);
 
         final IStructureHandler structure;
         if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)
@@ -157,7 +156,7 @@ public class BlueprintPlacementHandling
                     modList.add(mod.getModId());
                 }
 
-                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true);
+                StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true, LOCAL);
             }
             catch (IOException e)
             {

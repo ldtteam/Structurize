@@ -2,10 +2,12 @@ package com.ldtteam.structurize.storage.rendering.types;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,7 +15,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
@@ -27,16 +28,9 @@ import static com.ldtteam.structurize.api.util.constant.Constants.SHARE_PREVIEWS
 public class BlueprintPreviewData
 {
     /**
-     * The rotation of the preview.
+     * The rotation/mirror of the preview.
      */
-    @NotNull
-    private Rotation rotation = Rotation.NONE;
-
-    /**
-     * The mirror of the preview.
-     */
-    @NotNull
-    private Mirror mirror = Mirror.NONE;
+    private RotationMirror rotationMirror = RotationMirror.NONE;
 
     /**
      * The position of the preview.
@@ -50,18 +44,15 @@ public class BlueprintPreviewData
     private int groundOffset  = 0;
 
     /**
-     * If data has to be refreshed.
-     */
-    private boolean shouldRefresh = false;
-
-    /**
      * Holds the blueprint to be rendered that is still loading.
      */
+    @Nullable
     private Future<Blueprint> blueprintFuture;
 
     /**
      * Holds the blueprint to be rendered.
      */
+    @Nullable
     private Blueprint blueprint;
 
     /**
@@ -71,11 +62,28 @@ public class BlueprintPreviewData
     private String packName = "";
 
     /**
+     * Used for blueprint renderer
+     */
+    private RenderingCacheKey renderKey;
+
+    private final boolean serverSyncEnabled;
+
+    /**
      * Default constructor to create a new setup.
      */
     public BlueprintPreviewData()
     {
-        // Intentionally left empty.
+        this(true);
+    }
+
+    /**
+     * Default constructor to create a new setup.
+     *
+     * @param serverSyncEnabled if false then wont send sync preview messages to server
+     */
+    public BlueprintPreviewData(final boolean serverSyncEnabled)
+    {
+        this.serverSyncEnabled = serverSyncEnabled;
     }
 
     /**
@@ -84,6 +92,8 @@ public class BlueprintPreviewData
      */
     public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
     {
+        serverSyncEnabled = true;
+
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
         this.blueprintPath = byteBuf.readUtf(32767);
@@ -95,8 +105,7 @@ public class BlueprintPreviewData
         {
             blueprintFuture = null;
         }
-        rotation = Rotation.values()[byteBuf.readInt()];
-        mirror = Mirror.values()[byteBuf.readInt()];
+        rotationMirror = RotationMirror.values()[byteBuf.readByte()];
     }
 
     /**
@@ -117,8 +126,7 @@ public class BlueprintPreviewData
             byteBuf.writeUtf(StructurePacks.selectedPack.getName());
             byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
         }
-        byteBuf.writeInt(rotation.ordinal());
-        byteBuf.writeInt(mirror.ordinal());
+        byteBuf.writeByte(rotationMirror.ordinal());
     }
 
     /**
@@ -160,9 +168,8 @@ public class BlueprintPreviewData
             {
                 if (blueprintFuture.get() != null)
                 {
-                    this.blueprint = blueprintFuture.get();
+                    setBlueprint(blueprintFuture.get());
                     this.blueprintFuture = null;
-                    this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
                 }
             }
             catch (InterruptedException | ExecutionException e)
@@ -182,15 +189,14 @@ public class BlueprintPreviewData
     public void setBlueprint(final Blueprint blueprint)
     {
         this.blueprintFuture = null;
-        if (blueprint != null && !blueprint.equals(this.blueprint))
+        if (blueprint == null)
         {
-            this.blueprint = blueprint;
-            this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
-            scheduleRefresh();
+            this.blueprint = null;
         }
-        else
+        else if (!blueprint.equals(this.blueprint))
         {
             this.blueprint = blueprint;
+            applyRotationMirrorAndSync();
         }
     }
 
@@ -200,22 +206,8 @@ public class BlueprintPreviewData
     @OnlyIn(Dist.CLIENT)
     public void mirror()
     {
-        if (blueprint == null)
-        {
-            return;
-        }
-
-        if (mirror == Mirror.NONE)
-        {
-            mirror = this.rotation.ordinal() % 2 == 0 ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT;
-        }
-        else
-        {
-            mirror = Mirror.NONE;
-        }
-        this.blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
-
-        scheduleRefresh();
+        this.rotationMirror = this.rotationMirror.mirrorate();
+        applyRotationMirrorAndSync();
     }
 
     /**
@@ -225,20 +217,27 @@ public class BlueprintPreviewData
     @OnlyIn(Dist.CLIENT)
     public void rotate(final Rotation rotation)
     {
-        this.rotation = this.rotation.getRotated(rotation);
-        if (blueprint != null)
-        {
-            blueprint.rotateWithMirror(this.rotation, this.mirror, Minecraft.getInstance().level);
-        }
-        scheduleRefresh();
+        this.rotationMirror = this.rotationMirror.rotate(rotation);
+        applyRotationMirrorAndSync();
+    }
+
+    /**
+     * Rotate/mirror the preview to given value.
+     * @param rotationMirror new rot/mir for blueprint
+     */
+    @OnlyIn(Dist.CLIENT)
+    public void setRotationMirror(final RotationMirror rotationMirror)
+    {
+        this.rotationMirror = rotationMirror;
+        applyRotationMirrorAndSync();
     }
 
     /**
      * Sync the changes to the server.
      */
-    private void syncChangesToServer()
+    public void syncChangesToServer()
     {
-        if (BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
+        if (serverSyncEnabled && BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
         {
             Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }
@@ -246,44 +245,46 @@ public class BlueprintPreviewData
 
     /**
      * Move this preview by an offset.
-     * @param pos the offset to move it by.
+     * @param offset the offset to move it by.
      */
-    public void move(final BlockPos pos)
+    public void move(final BlockPos offset)
     {
         if (this.pos != null)
         {
-            this.pos = this.pos.offset(pos);
-            syncChangesToServer();
+            setPos(pos.offset(offset));
         }
     }
 
     /**
      * Check if the blueprint rendered should refresh the cache.
      * @return true if so.
+     * @deprecated no longer needed
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public boolean shouldRefresh()
     {
-        final boolean ret = shouldRefresh;
-        shouldRefresh = false;
-        return ret;
+        return false;
     }
 
     /**
      * Tell the structurize renderer to refresh the cache.
+     * @deprecated switch to {@link #syncChangesToServer()}
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public void scheduleRefresh()
     {
-        shouldRefresh = true;
         syncChangesToServer();
     }
 
     /**
      * Get the placement settings for this instance.
      * @return the placement settings with mirror and rotation.
+     * @deprecated see {@link #getRotationMirror()}
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public PlacementSettings getPlacementSettings()
     {
-        return new PlacementSettings(mirror, rotation);
+        return new PlacementSettings(rotationMirror.mirror(), rotationMirror.rotation());
     }
 
     /**
@@ -298,19 +299,32 @@ public class BlueprintPreviewData
     /**
      * Get the rotation of the preview.
      * @return the rotation.
+     * @deprecated see {@link #getRotationMirror()}
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public Rotation getRotation()
     {
-        return rotation;
+        return rotationMirror.rotation();
     }
 
     /**
      * Get the mirror of the preview.
      * @return the mirror.
+     * @deprecated see {@link #getRotationMirror()}
      */
+    @Deprecated(since = "1.20", forRemoval = true)
     public Mirror getMirror()
     {
-        return mirror;
+        return rotationMirror.mirror();
+    }
+
+    /**
+     * Get the placement settings for this instance.
+     * @return the placement settings with mirror and rotation.
+     */
+    public RotationMirror getRotationMirror()
+    {
+        return rotationMirror;
     }
 
     /**
@@ -329,5 +343,32 @@ public class BlueprintPreviewData
     public void setPos(final BlockPos pos)
     {
         this.pos = pos;
+        if (pos != null)
+        {
+            syncChangesToServer();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void applyRotationMirrorAndSync()
+    {
+        if (blueprint == null)
+        {
+            return;
+        }
+
+        blueprint.setRotationMirror(rotationMirror, Minecraft.getInstance().level);
+        renderKey = new RenderingCacheKey(rotationMirror, blueprint);
+
+        syncChangesToServer();
+    }
+
+    public RenderingCacheKey getRenderKey()
+    {
+        if (blueprintFuture != null)
+        {
+            getBlueprint();
+        }
+        return renderKey;
     }
 }
