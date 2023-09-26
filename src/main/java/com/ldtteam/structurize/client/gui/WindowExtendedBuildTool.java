@@ -1134,12 +1134,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         adjustToGroundOffset();
         selectedBlueprint = blueprint;
 
-        boolean canBuild = true;
-        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        if (anchor.getBlock() instanceof final IRequirementsBlueprintAnchorBlock requirements)
-        {
-            canBuild = requirements.areRequirementsMet(Minecraft.getInstance().level, data.getPos(), Minecraft.getInstance().player);
-        }
+        final boolean canBuild = availableBlueprintPredicate == null || availableBlueprintPredicate.test(blueprint);
 
         findPaneOfTypeByID(BUTTON_CONFIRM, Button.class).setVisible(canBuild);
     }
