@@ -144,38 +144,36 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if (!Structurize.getConfig().getClient().renderPlaceholders.get())
+                if (!Structurize.getConfig().getClient().renderPlaceholders.get() && state.getBlock() == ModBlocks.blockSubstitution.get())
                 {
-                    if (state.getBlock() == ModBlocks.blockSubstitution.get())
+                    state = Blocks.AIR.defaultBlockState();
+                }
+
+                if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                {
+                    final Optional<BlockEntityTagSubstitution> tagTE = tileEntities.stream()
+                        .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
+                        .findFirst()
+                        .map(BlockEntityTagSubstitution.class::cast);
+                    if (tagTE.isPresent())
+                    {
+                        final BlockEntityTagSubstitution.ReplacementBlock replacement = tagTE.get().getReplacement();
+                        state = replacement.getBlockState();
+                        tileEntities.remove(tagTE.get());
+                        Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e -> {
+                            e.setLevel(blockAccess);
+                            teModelData.put(blockPos, e.getModelData());
+                            tileEntities.add(e);
+                        });
+                    }
+                    else
                     {
                         state = Blocks.AIR.defaultBlockState();
                     }
-                    if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
-                    {
-                        final Optional<BlockEntity> tagTE = tileEntities.stream()
-                                .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
-                                .findFirst();
-                        if (tagTE.isPresent())
-                        {
-                            final BlockEntityTagSubstitution.ReplacementBlock replacement = ((BlockEntityTagSubstitution) tagTE.get()).getReplacement();
-                            state = replacement.getBlockState();
-                            tileEntities.remove(tagTE.get());
-                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e ->
-                            {
-                                e.setLevel(blockAccess);
-                                teModelData.put(blockPos, e.getModelData());
-                                tileEntities.add(e);
-                            });
-                        }
-                        else
-                        {
-                            state = Blocks.AIR.defaultBlockState();
-                        }
-                    }
-                    if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
-                    {
-                        state = defaultFluidState;
-                    }
+                }
+                if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+                {
+                    state = defaultFluidState;
                 }
 
                 if (Structurize.getConfig().getClient().renderSolidToWorldgen.get() && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
