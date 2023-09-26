@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.util.ICUTranslatableContents.IndexedComp;
+import com.ldtteam.structurize.util.IcuTranslatableContents.IcuComponent;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -63,7 +63,7 @@ public abstract class AbstractConfiguration
 
     protected static BooleanValue defineBoolean(final Builder builder, final String key, final boolean defaultValue)
     {
-        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "boolean", defaultValue)).define(key, defaultValue);
+        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "boolean", defaultValue)).define(key, defaultValue);
     }
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue)
@@ -73,12 +73,12 @@ public abstract class AbstractConfiguration
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue, final int min, final int max)
     {
-        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static ConfigValue<String> defineString(final Builder builder, final String key, final String defaultValue)
     {
-        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "string", defaultValue)).define(key, defaultValue);
+        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "string", defaultValue)).define(key, defaultValue);
     }
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue)
@@ -88,7 +88,7 @@ public abstract class AbstractConfiguration
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue, final long min, final long max)
     {
-        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue)
@@ -98,7 +98,7 @@ public abstract class AbstractConfiguration
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue, final double min, final double max)
     {
-        return buildBase(builder, key, IndexedComp.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static <T> ConfigValue<List<? extends T>> defineList(
@@ -114,7 +114,7 @@ public abstract class AbstractConfiguration
     {
         return buildBase(builder,
             key,
-            IndexedComp.of(DEFAULT_KEY_PREFIX + "enum",
+            IcuComponent.of(DEFAULT_KEY_PREFIX + "enum",
                 defaultValue,
                 Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "))))
             .defineEnum(key, defaultValue);

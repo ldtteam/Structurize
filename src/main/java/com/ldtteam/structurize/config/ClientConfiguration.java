@@ -51,7 +51,7 @@ public class ClientConfiguration extends AbstractConfiguration
     }
 
     /**
-     * Things which should be in buildtool settings
+     * Things which should be in buildtool settings, order is mostly carried over to gui order
      */
     public void collectPreviewRendererSettings(final Consumer<ConfigValue<?>> sink)
     {

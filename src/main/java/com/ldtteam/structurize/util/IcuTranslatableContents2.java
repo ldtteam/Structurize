@@ -22,7 +22,7 @@ import java.util.Optional;
 /**
  * Inspired by {@link TranslatableContents} to support things from {@link MessageFormat} (plurals, pronouns, etc.)
  */
-public class ICUTranslatableContents implements ComponentContents
+public class IcuTranslatableContents implements ComponentContents
 {
     private final String key;
     private final Object[] args;
@@ -31,7 +31,7 @@ public class ICUTranslatableContents implements ComponentContents
     private Language lastLanguage = null;
     private FormattedText translated;
 
-    public ICUTranslatableContents(final String key, final Object[] args)
+    public IcuTranslatableContents(final String key, final Object[] args)
     {
         this.key = key;
         this.args = args;
@@ -112,7 +112,7 @@ public class ICUTranslatableContents implements ComponentContents
             }
         }
 
-        return MutableComponent.create(new ICUTranslatableContents(this.key, newArgs));
+        return MutableComponent.create(new IcuTranslatableContents(this.key, newArgs));
     }
 
     @Override
@@ -138,18 +138,18 @@ public class ICUTranslatableContents implements ComponentContents
         {
             return true;
         }
-        if (!(obj instanceof final ICUTranslatableContents other))
+        if (!(obj instanceof final IcuTranslatableContents other))
         {
             return false;
         }
         return Objects.equals(key, other.key) && Arrays.equals(args, other.args);
     }
 
-    public static class IndexedComp
+    public static class IcuComponent
     {
         public static MutableComponent of(final String key, final Object... args)
         {
-            return MutableComponent.create(new ICUTranslatableContents(key, args));
+            return MutableComponent.create(new IcuTranslatableContents(key, args));
         }
     }
 }
