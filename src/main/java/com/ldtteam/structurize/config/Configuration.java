@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.config.AbstractConfiguration.ConfigWatcher;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
@@ -9,7 +10,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.tuple.Pair;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +29,10 @@ public class Configuration
     private final ModConfig server;
     private final ServerConfiguration serverConfig;
 
+    private final ModConfig[] activeModConfigs;
+    private final AbstractConfiguration[] activeConfigs;
+
+
     /**
      * Builds configuration tree.
      *
@@ -36,14 +40,29 @@ public class Configuration
      */
     public Configuration(final ModContainer modContainer)
     {
-        final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
         final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::new);
-        client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
         server = new ModConfig(ModConfig.Type.SERVER, ser.getRight(), modContainer);
-        clientConfig = cli.getLeft();
         serverConfig = ser.getLeft();
-        modContainer.addConfig(client);
         modContainer.addConfig(server);
+
+        if (FMLEnvironment.dist == Dist.CLIENT)
+        {
+            final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
+            client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
+            clientConfig = cli.getLeft();
+            modContainer.addConfig(client);
+
+            activeModConfigs = new ModConfig[] {client, server};
+            activeConfigs = new AbstractConfiguration[] {clientConfig, serverConfig};
+        }
+        else
+        {
+            client = null;
+            clientConfig = null;
+
+            activeModConfigs = new ModConfig[] {server};
+            activeConfigs = new AbstractConfiguration[] {serverConfig};
+        }
     }
 
     public ClientConfiguration getClient()
@@ -61,7 +80,7 @@ public class Configuration
      */
     public void onConfigLoad(final ModConfig modConfig)
     {
-        if (modConfig.getSpec() == client.getSpec())
+        if (client != null && modConfig.getSpec() == client.getSpec())
         {
             clientConfig.watchers.forEach(ConfigWatcher::cacheLastValue);
         }
@@ -76,7 +95,7 @@ public class Configuration
      */
     public void onConfigReload(final ModConfig modConfig)
     {
-        if (modConfig.getSpec() == client.getSpec())
+        if (client != null && modConfig.getSpec() == client.getSpec())
         {
             clientConfig.watchers.forEach(ConfigWatcher::compareAndFireChangeEvent);
         }
@@ -94,9 +113,9 @@ public class Configuration
      */
     public void onConfigValueEdit(final ConfigValue<?> configValue)
     {
-        for (final var watchers : (List<ConfigWatcher<?>>[]) new List[] {clientConfig.watchers, serverConfig.watchers})
+        for (final AbstractConfiguration cfg : activeConfigs)
         {
-            for (final ConfigWatcher<?> configWatcher : watchers)
+            for (final ConfigWatcher<?> configWatcher : cfg.watchers)
             {
                 if (configWatcher.sameForgeConfig(configValue))
                 {
@@ -115,7 +134,7 @@ public class Configuration
     public Optional<ValueSpec> getSpecFromValue(final ConfigValue<?> value)
     {
         return valueSpecCache.computeIfAbsent(value, key -> {
-            for (final ModConfig cfg : new ModConfig[] {client, server})
+            for (final ModConfig cfg : activeModConfigs)
             {
                 if (cfg.getSpec().get(value.getPath()) instanceof final ValueSpec valueSpec)
                 {

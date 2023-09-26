@@ -326,7 +326,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
     protected void initSettings()
     {
-        final var settings = BlueprintRenderSettings.gatherClientRendererConfigs();
+        final List<EitherConfig<?>> settings = BlueprintRenderSettings.gatherClientRendererConfigs();
         final BlueprintRenderSettings blueprintRenderSettings = BlueprintRenderSettings.instance;
 
         settingsList.setDataProvider(settings::size, (index, rowPane) -> {
@@ -368,8 +368,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     final Boolean newValue = !typedSetting.getValue(blueprintRenderSettings);
                     typedSetting.setValue(blueprintRenderSettings, newValue);
                     buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
-
-                    // TODO: ray why? RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).syncChangesToServer();
                 });
             }
             else if (setting.getValue(blueprintRenderSettings) instanceof final Number value)

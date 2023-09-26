@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**
  * Mod client configuration.
@@ -39,10 +39,13 @@ public class ClientConfiguration extends AbstractConfiguration
         displayShared = defineBoolean(builder, "see_shared_previews", false);
         rendererLightLevel = defineInteger(builder, "light_level", 15, -1, 15);
 
-        if (FMLEnvironment.dist == Dist.CLIENT)
-        {
-            addWatcherGeneric(BlueprintHandler.getInstance()::clearCache, renderPlaceholders, renderSolidToWorldgen, rendererLightLevel);
-        }
+        addWatcher(BlueprintHandler.getInstance()::clearCache, renderPlaceholders, renderSolidToWorldgen, rendererLightLevel);
+        addWatcher(displayShared, (oldValue, isSharingEnabled) -> {
+            if (isSharingEnabled)
+            {
+                RenderingCache.getBlueprintsToRender().forEach(BlueprintPreviewData::syncChangesToServer);
+            }
+        });
 
         finishCategory(builder);
     }

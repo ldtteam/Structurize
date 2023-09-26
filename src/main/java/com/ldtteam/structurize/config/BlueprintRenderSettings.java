@@ -56,7 +56,7 @@ public class BlueprintRenderSettings
     {
         renderSettings = new ArrayList<>(SharedSettings.VALUES.size());
 
-        for (final var setting : SharedSettings.VALUES)
+        for (final SharedSettings<?> setting : SharedSettings.VALUES)
         {
             renderSettings.add(setting.bufferReader.apply(byteBuf));
         }
@@ -70,14 +70,14 @@ public class BlueprintRenderSettings
     {
         if (renderSettings == null) // client
         {
-            for (final var setting : SharedSettings.VALUES)
+            for (final SharedSettings<?> setting : SharedSettings.VALUES)
             {
                 setting.writeClientToBuf(byteBuf);
             }
         }
         else // server
         {
-            for (final var setting : SharedSettings.VALUES)
+            for (final SharedSettings<?> setting : SharedSettings.VALUES)
             {
                 setting.writeToBuf(byteBuf, renderSettings.get(setting.id));
             }
@@ -86,7 +86,7 @@ public class BlueprintRenderSettings
 
     /**
      * @param  key settings key
-     * @return     settings value
+     * @return     settings value from given key
      */
     @SuppressWarnings("unchecked")
     public <T> T getSetting(final SharedSettings<T> key)
@@ -98,6 +98,10 @@ public class BlueprintRenderSettings
             (T) renderSettings.get(key.id);
     }
 
+    /**
+     * @param key   settings key
+     * @param value value which will be written into key
+     */
     public <T> void setSetting(final SharedSettings<T> key, final T value)
     {
         if (renderSettings == null)

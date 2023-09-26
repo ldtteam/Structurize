@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.util;
 
+import com.ibm.icu.text.MessageFormat;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.locale.Language;
@@ -14,15 +15,14 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.Entity;
 import javax.annotation.Nullable;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Inspired by {@link TranslatableContents} to support things from {@link MessageFormat}
+ * Inspired by {@link TranslatableContents} to support things from {@link MessageFormat} (plurals, pronouns, etc.)
  */
-public class IndexedTranslatableContents implements ComponentContents
+public class ICUTranslatableContents implements ComponentContents
 {
     private final String key;
     private final Object[] args;
@@ -31,7 +31,7 @@ public class IndexedTranslatableContents implements ComponentContents
     private Language lastLanguage = null;
     private FormattedText translated;
 
-    public IndexedTranslatableContents(final String key, final Object[] args)
+    public ICUTranslatableContents(final String key, final Object[] args)
     {
         this.key = key;
         this.args = args;
@@ -112,7 +112,7 @@ public class IndexedTranslatableContents implements ComponentContents
             }
         }
 
-        return MutableComponent.create(new IndexedTranslatableContents(this.key, newArgs));
+        return MutableComponent.create(new ICUTranslatableContents(this.key, newArgs));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class IndexedTranslatableContents implements ComponentContents
         {
             return true;
         }
-        if (!(obj instanceof final IndexedTranslatableContents other))
+        if (!(obj instanceof final ICUTranslatableContents other))
         {
             return false;
         }
@@ -149,7 +149,7 @@ public class IndexedTranslatableContents implements ComponentContents
     {
         public static MutableComponent of(final String key, final Object... args)
         {
-            return MutableComponent.create(new IndexedTranslatableContents(key, args));
+            return MutableComponent.create(new ICUTranslatableContents(key, args));
         }
     }
 }

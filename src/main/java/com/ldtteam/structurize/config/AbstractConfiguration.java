@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.util.IndexedTranslatableContents.IndexedComp;
+import com.ldtteam.structurize.util.ICUTranslatableContents.IndexedComp;
 import com.ldtteam.structurize.util.LanguageHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -126,10 +126,10 @@ public abstract class AbstractConfiguration
     }
 
     @SuppressWarnings("unchecked")
-    protected void addWatcherGeneric(final Runnable listener, final ConfigValue<?>... configValues)
+    protected void addWatcher(final Runnable listener, final ConfigValue<?>... configValues)
     {
         final ConfigListener<Object> typedListener = (o, n) -> listener.run();
-        for (final var c : configValues)
+        for (final ConfigValue<?> c : configValues)
         {
             watchers.add(new ConfigWatcher<>(typedListener, (ConfigValue<Object>) c));
         }
