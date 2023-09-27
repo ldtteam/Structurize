@@ -1,10 +1,12 @@
 package com.ldtteam.structurize.storage.rendering;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Rendering cache for boxes, blueprints, etc.
@@ -141,5 +143,13 @@ public class RenderingCache
     {
         blueprintRenderingCache.clear();
         boxRenderingCache.clear();
+    }
+
+    /**
+     * Removes all shared previews
+     */
+    public static void removeSharedPreviews()
+    {
+        blueprintRenderingCache.keySet().removeIf(key -> key.startsWith(SyncPreviewCacheToClient.SHARED_PREFIX));
     }
 }

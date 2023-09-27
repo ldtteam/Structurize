@@ -16,7 +16,7 @@
         <image id="rotation" size="16" pos="96 0"/>
     </view>
 
-    <list size="200 100" pos="5 113" id="settinglist" visible="false">
+    <list size="188 120" pos="5 93" id="settinglist" visible="false">
         <view size="100% 20">
             <label size="150 17" pos="0 0" id="label"/>
             <button id="switch" source="structurize:textures/gui/builderhut/builder_button_very_small.png" size="29 15" pos="150 0" textcolor="black" texthovercolor="gray"/>

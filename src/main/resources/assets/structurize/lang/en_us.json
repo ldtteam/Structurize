@@ -130,6 +130,8 @@
   "structurize.config.maxcachedschematics.comment": "Max amount of schematics to be cached on the server.",
   "structurize.config.maxoperationspertick": "Max Operations per Tick",
   "structurize.config.maxoperationspertick.comment": "Max world operations per tick (max blocks to place, remove, or replace).",
+  "structurize.config.render_fluid_to_fluids": "Render fluid placeholders as fluids",
+  "structurize.config.render_fluid_to_fluids.comment": "Fluid placeholders will be rendered as fluid block. When connected to server rendered fluid might actually differ from placed one",
   "structurize.config.render_placeholders": "Render light placeholders",
   "structurize.config.render_placeholders.comment": "Whether to render light placeholders or not",
   "structurize.config.render_solid_to_worldgen": "Render solid placeholders using worldgen blocks",

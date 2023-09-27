@@ -90,7 +90,17 @@ public class BlueprintPreviewData
      */
     public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
     {
-        serverSyncEnabled = true;
+        this(byteBuf, true);
+    }
+
+    /**
+     * Create blueprint preview data from byteBuf.
+     * @param byteBuf the buffer data.
+     * @param serverSyncEnabled if false then wont send sync preview messages to server
+     */
+    public BlueprintPreviewData(final FriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
+    {
+        this.serverSyncEnabled = serverSyncEnabled;
 
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
@@ -368,5 +378,10 @@ public class BlueprintPreviewData
             getBlueprint();
         }
         return renderKey;
+    }
+
+    public boolean isServerSyncEnabled()
+    {
+        return serverSyncEnabled;
     }
 }

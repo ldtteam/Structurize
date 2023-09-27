@@ -171,7 +171,7 @@ public class BlueprintRenderer implements AutoCloseable
                         state = Blocks.AIR.defaultBlockState();
                     }
                 }
-                if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+                if (Structurize.getConfig().getClient().renderFluidToFluids.get() && state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                 {
                     state = defaultFluidState;
                 }

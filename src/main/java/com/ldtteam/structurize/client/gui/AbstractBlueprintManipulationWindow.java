@@ -9,14 +9,13 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
 import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.config.AbstractConfiguration;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
-import com.ldtteam.structurize.config.BlueprintRenderSettings.EitherConfig;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
@@ -32,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -326,12 +326,12 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
     protected void initSettings()
     {
-        final List<EitherConfig<?>> settings = BlueprintRenderSettings.gatherClientRendererConfigs();
-        final BlueprintRenderSettings blueprintRenderSettings = BlueprintRenderSettings.instance;
+        final List<ConfigValue<?>> settings = new ArrayList<>();
+        Structurize.getConfig().getClient().collectPreviewRendererSettings(settings::add);
 
         settingsList.setDataProvider(settings::size, (index, rowPane) -> {
-            final EitherConfig<?> setting = settings.get(index);
-            final Optional<ValueSpec> optional = setting.getValueSpec();
+            final ConfigValue<?> setting = settings.get(index);
+            final Optional<ValueSpec> optional = Structurize.getConfig().getSpecFromValue(setting);
             final Text label = rowPane.findPaneOfTypeByID("label", Text.class);
 
             if (optional.isEmpty())
@@ -357,26 +357,27 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             final TextFieldVanilla inputField = rowPane.findPaneOfTypeByID("set_input", TextFieldVanilla.class);
 
             // TODO: instanceof switch
-            if (setting.getValue(blueprintRenderSettings) instanceof final Boolean value)
+            if (setting.get() instanceof final Boolean value)
             {
-                final EitherConfig<Boolean> typedSetting = (EitherConfig<Boolean>) setting;
+                final ConfigValue<Boolean> typedSetting = (ConfigValue<Boolean>) setting;
 
                 inputField.off();
                 buttonImage.on();
                 buttonImage.setText(Component.translatable(value ? "options.on" : "options.off"));
                 buttonImage.setHandler((button) -> {
-                    final Boolean newValue = !typedSetting.getValue(blueprintRenderSettings);
-                    typedSetting.setValue(blueprintRenderSettings, newValue);
+                    final Boolean newValue = !typedSetting.get();
+
+                    Structurize.getConfig().set(typedSetting, newValue);
                     buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
                 });
             }
-            else if (setting.getValue(blueprintRenderSettings) instanceof final Number value)
+            else if (setting.get() instanceof final Number value)
             {
-                final EitherConfig<Number> typedSetting = (EitherConfig<Number>) setting;
+                final ConfigValue<Number> typedSetting = (ConfigValue<Number>) setting;
 
                 buttonImage.off();
                 inputField.on();
-                inputField.setText(typedSetting.getValue(blueprintRenderSettings).toString());
+                inputField.setText(typedSetting.get().toString());
                 inputField.setFilter(new Filter()
                 {
                     @Override
@@ -413,18 +414,18 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     {
                         // need properly typed thing now, but it's validated so parsing should never crash
                         // TODO: switch instanceof
-                        final Object def = settingSpec.getDefault();
-                        if (def instanceof Integer)
+                        final Object oldValue = typedSetting.get();
+                        if (oldValue instanceof Integer)
                         {
-                            typedSetting.setValue(blueprintRenderSettings, newValue.intValue());
+                            Structurize.getConfig().set(typedSetting, newValue.intValue());
                         }
-                        else if (def instanceof Long)
+                        else if (oldValue instanceof Long)
                         {
-                            typedSetting.setValue(blueprintRenderSettings, newValue.longValue());
+                            Structurize.getConfig().set(typedSetting, newValue.longValue());
                         }
-                        else if (def instanceof Double)
+                        else if (oldValue instanceof Double)
                         {
-                            typedSetting.setValue(blueprintRenderSettings, newValue.doubleValue());
+                            Structurize.getConfig().set(typedSetting, newValue.doubleValue());
                         }
                         inputField.setTextColor(0xffe0e0e0); // vanilla defualt
                     }

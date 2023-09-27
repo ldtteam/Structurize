@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.config.AbstractConfiguration.ConfigWatcher;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
@@ -45,7 +44,7 @@ public class Configuration
         serverConfig = ser.getLeft();
         modContainer.addConfig(server);
 
-        if (FMLEnvironment.dist == Dist.CLIENT)
+        if (FMLEnvironment.dist.isClient())
         {
             final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
             client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
@@ -103,6 +102,17 @@ public class Configuration
         {
             serverConfig.watchers.forEach(ConfigWatcher::compareAndFireChangeEvent);
         }
+    }
+
+    /**
+     * Setter wrapper so watchers are fine.
+     * This should be called from any code that manually changes ConfigValues using set functions.
+     * (Mostly done by settings UIs)
+     */
+    public <T> void set(final ConfigValue<T> configValue, final T value)
+    {
+        configValue.set(value);
+        onConfigValueEdit(configValue);
     }
 
     /**
