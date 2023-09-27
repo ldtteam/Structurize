@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import com.ibm.icu.text.MessageFormat;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,8 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Inspired by {@link TranslatableContents} to support things from {@link MessageFormat} (plurals, pronouns, etc.)
@@ -29,7 +32,7 @@ public class IcuTranslatableContents implements ComponentContents
 
     @Nullable
     private Language lastLanguage = null;
-    private FormattedText translated;
+    private Either<FormattedText, TranslatableContents> translated;
 
     public IcuTranslatableContents(final String key, final Object[] args)
     {
@@ -60,9 +63,20 @@ public class IcuTranslatableContents implements ComponentContents
             final String translatedKey = LanguageHandler.translateKey(key);
             if (translatedKey != key) // default quick check
             {
+                // TODO: remove in future, change translated to single FormattedText
+                if (translatedKey.indexOf('%') != -1)
+                {
+                    final TranslatableContents classic = new TranslatableContents(translatedKey, null, args);
+                    if (!MutableComponent.create(classic).getString().equals(translatedKey))
+                    {
+                        translated = Either.right(classic);
+                        return;
+                    }
+                }
+
                 try
                 {
-                    translated = FormattedText.of(MessageFormat.format(translatedKey, args));
+                    translated = Either.left(FormattedText.of(MessageFormat.format(translatedKey, args)));
                     return; // success
                 }
                 catch (final IllegalArgumentException e)
@@ -70,7 +84,7 @@ public class IcuTranslatableContents implements ComponentContents
             }
 
             // failed, use key
-            translated = FormattedText.of(key);
+            translated = Either.left(FormattedText.of(key));
         }
     }
 
@@ -78,14 +92,14 @@ public class IcuTranslatableContents implements ComponentContents
     public <T> Optional<T> visit(final ContentConsumer<T> sink)
     {
         translate();
-        return translated.visit(sink);
+        return translated.<Function<ContentConsumer<T>, Optional<T>>>map(f -> f::visit, t -> t::visit).apply(sink);
     }
 
     @Override
     public <T> Optional<T> visit(final StyledContentConsumer<T> sink, final Style style)
     {
         translate();
-        return translated.visit(sink, style);
+        return translated.<BiFunction<StyledContentConsumer<T>, Style, Optional<T>>>map(f -> f::visit, t -> t::visit).apply(sink, style);
     }
 
     /**
