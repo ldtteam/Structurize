@@ -905,8 +905,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         if (nameTag.isPresent())
         {
             final String name = nameTag.get().substring(5);
-            return new DisplayNames(name, Component.literal(name),
-                    Collections.singletonList(Component.literal(blueprint.getFileName())));
+            return new DisplayNames(name, Component.literal(name), Collections.emptyList());
         }
         else if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock namedAnchor)
         {
@@ -916,7 +915,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else
         {
             return new DisplayNames(blueprint.getFileName(),
-                    Component.literal(blueprint.getFileName()), new ArrayList<>());
+                    Component.literal(blueprint.getFileName()), Collections.emptyList());
         }
     }
 
