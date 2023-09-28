@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,25 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 public class BlueprintTagUtils
 {
     /**
+     * Gets the tag map from the given blueprint.
+     *
+     * @param blueprint the blueprint
+     * @return          the tag map, relative to the anchor block
+     */
+    public static Map<BlockPos, List<String>> getBlueprintTags(final Blueprint blueprint)
+    {
+        final BlockPos anchorPos = blueprint.getPrimaryBlockOffset();
+        final CompoundTag nbt = blueprint.getBlockInfoAsMap().get(anchorPos).getTileEntityData();
+
+        if (nbt != null)
+        {
+            return IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
+        }
+
+        return new HashMap<>();
+    }
+
+    /**
      * Get the first pos for the given tag
      *
      * @param blueprint rotated/mirrored blueprint
@@ -26,19 +46,15 @@ public class BlueprintTagUtils
      */
     public static BlockPos getFirstPosForTag(final Blueprint blueprint, final String tagName)
     {
-        final BlockPos anchorPos = blueprint.getPrimaryBlockOffset();
-        final CompoundTag nbt = blueprint.getBlockInfoAsMap().get(anchorPos).getTileEntityData();
-        if (nbt != null)
+        final Map<BlockPos, List<String>> tagPosMap = getBlueprintTags(blueprint);
+
+        for (final Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
         {
-            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
-            for (final Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
+            for (final String tag : entry.getValue())
             {
-                for (final String tag : entry.getValue())
+                if (tag.equals(tagName))
                 {
-                    if (tag.equals(tagName))
-                    {
-                        return entry.getKey();
-                    }
+                    return entry.getKey();
                 }
             }
         }
