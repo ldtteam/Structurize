@@ -434,7 +434,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                                 nextDepthMeta.put(id, StructurePacks.getCategoriesFuture(structurePack.getName(), id));
                             }
                         }
-                        updateFolders(subCats);
+                        updateFolders(subCats, null);
                         nextDepth = "";
                     }
                 }
@@ -491,7 +491,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      *
      * @param inputCategories the categories to render now.
      */
-    public void updateFolders(final List<StructurePacks.Category> inputCategories)
+    public void updateFolders(final List<StructurePacks.Category> inputCategories, final String prevCat)
     {
         folderList.enable();
         folderList.show();
@@ -510,6 +510,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 parentCat = nextDepth.replace("/" + currentCat, "");
             }
             categories.add(new ButtonData(ButtonType.Back, parentCat));
+        }
+        else if (prevCat != null)
+        {
+            categories.add(new ButtonData(ButtonType.Back, prevCat));
         }
 
         for (final StructurePacks.Category category : inputCategories)
@@ -979,7 +983,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         if (button.getID().contains("back:"))
         {
             nextDepth = button.getID().split(":").length == 1 ? "" : button.getID().split(":")[1];
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             if (depth.isEmpty())
@@ -996,7 +1000,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else if (nextDepthMeta.containsKey(button.getID()))
         {
             nextDepth = button.getID();
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
@@ -1017,7 +1021,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else if (blueprintsAtDepth.containsKey(button.getID()))
         {
             nextDepth = button.getID();
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
@@ -1155,7 +1159,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
         }
-        updateFolders(Collections.emptyList());
+        updateFolders(Collections.emptyList(), split[0]);
     }
 
     private void setBlueprint(Blueprint blueprint)
