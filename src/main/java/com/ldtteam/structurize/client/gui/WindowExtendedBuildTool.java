@@ -16,6 +16,9 @@ import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePackMeta;
@@ -600,10 +603,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 continue;
             }
 
-            if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
+            if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock leveledAnchor)
             {
                 final int level =
-                  ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+                  leveledAnchor.getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
                     blueprint.getPrimaryBlockOffset()));
                 final String name = blueprint.getFileName().replace(Integer.toString(level), "");
                 final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
@@ -624,21 +627,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         for (final Map.Entry<String, List<Blueprint>> entry : blueprintMapping.entrySet())
         {
             final Blueprint blueprint = entry.getValue().get(0);
-            final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
-            {
-                final String name = anchor.getBlock().getDescriptionId();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
-                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
-                altBlueprintMapping.put(name, tempLeveledBlueprints);
-            }
-            else
-            {
-                final String name = blueprint.getFileName();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
-                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
-                altBlueprintMapping.put(name, tempLeveledBlueprints);
-            }
+            final String name = getDisplayName(blueprint).key();
+
+            final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
+            tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
+            altBlueprintMapping.put(name, tempLeveledBlueprints);
         }
 
         currentBluePrintMappingAtDepthCache.put(depth, altBlueprintMapping);
@@ -835,16 +828,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             final Blueprint firstBlueprint = blueprintMap.values().iterator().next().get(0);
 
             final BlockState anchor = firstBlueprint.getBlockState(firstBlueprint.getPrimaryBlockOffset());
-            final List<MutableComponent> toolTip = new ArrayList<>();
-            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
-            {
-                img.setText(((INamedBlueprintAnchorBlock) anchor.getBlock()).getBlueprintDisplayName());
-                toolTip.addAll(((INamedBlueprintAnchorBlock) anchor.getBlock()).getDesc());
-            }
-            else
-            {
-                img.setText(Component.literal(id.split("/")[id.split("/").length - 1]));
-            }
+            final DisplayNames displayNames = getDisplayName(firstBlueprint);
+
+            img.setText(displayNames.name());
+            final List<MutableComponent> toolTip = displayNames.toolTip();
             img.setVisible(true);
 
             boolean hasMatch = false;
@@ -907,19 +894,50 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             return true;
         }
 
-        assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
-        if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-        {
-            final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
-            final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
-            if (anchorTags.contains(INVISIBLE_TAG))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
+        final List<String> anchorTags = tagPosMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+        return anchorTags.contains(INVISIBLE_TAG);
     }
+
+    /**
+     * Determine the display names of the given blueprint.
+     *
+     * @param blueprint the blueprint
+     * @return          its {@link DisplayNames}
+     */
+    private DisplayNames getDisplayName(final Blueprint blueprint)
+    {
+        final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
+        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+
+        final Optional<String> nameTag = tagPosMap.getOrDefault(BlockPos.ZERO, new ArrayList<>()).stream()
+                .filter(t -> t.startsWith("name=")).findFirst();
+
+        if (nameTag.isPresent())
+        {
+            final String name = nameTag.get().substring(5);
+            return new DisplayNames(name, Component.literal(name),
+                    Collections.singletonList(Component.literal(blueprint.getFileName())));
+        }
+        else if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock namedAnchor)
+        {
+            return new DisplayNames(anchor.getBlock().getDescriptionId(),
+                    namedAnchor.getBlueprintDisplayName(), namedAnchor.getDesc());
+        }
+        else
+        {
+            return new DisplayNames(blueprint.getFileName(),
+                    Component.literal(blueprint.getFileName()), new ArrayList<>());
+        }
+    }
+
+    /**
+     * Display names for a blueprint in the selection tree.
+     * @param key     a grouping key for internal use
+     * @param name    the main display name
+     * @param toolTip tooltips for the button
+     */
+    private record DisplayNames(String key, Component name, List<MutableComponent> toolTip) { }
 
     private void handleSubCat(final ButtonData buttonData, final Pane rowPane, final int index)
     {
