@@ -149,26 +149,29 @@ public class BlueprintBlockAccess extends Level
     public BlockState getBlockState(final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
-        if (state.getBlock() == ModBlocks.blockSolidSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
+        if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
         {
-            return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
-        }
-        if (state.getBlock() == ModBlocks.blockFluidSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
-        {
-            return BlockUtils.getFluidForDimension(anyLevel());
-        }
-        if (state.getBlock() == ModBlocks.blockSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
-        {
-            return Blocks.AIR.defaultBlockState();
-        }
-        if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
-        {
-            if (BlueprintUtils.getTileEntityFromPos(blueprint, pos, this) instanceof BlockEntityTagSubstitution tag &&
-                    !tag.getReplacement().isEmpty())
+            if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
-                return tag.getReplacement().getBlockState();
+                return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
             }
-            return Blocks.AIR.defaultBlockState();
+            if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+            {
+                return BlockUtils.getFluidForDimension(anyLevel());
+            }
+            if (state.getBlock() == ModBlocks.blockSubstitution.get())
+            {
+                return Blocks.AIR.defaultBlockState();
+            }
+            if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+            {
+                if (BlueprintUtils.getTileEntityFromPos(blueprint, pos, this) instanceof BlockEntityTagSubstitution tag &&
+                        !tag.getReplacement().isEmpty())
+                {
+                    return tag.getReplacement().getBlockState();
+                }
+                return Blocks.AIR.defaultBlockState();
+            }
         }
         return state;
     }
