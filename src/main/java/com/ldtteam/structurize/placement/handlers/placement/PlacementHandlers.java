@@ -237,7 +237,7 @@ public final class PlacementHandlers
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
 
-            if (!BlockUtils.canBlockFloatInAir(world.getBlockState(pos.below())))
+            if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
@@ -272,7 +272,7 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            if (!BlockUtils.canBlockFloatInAir(world.getBlockState(pos.below())))
+            if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
