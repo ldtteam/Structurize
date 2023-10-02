@@ -145,7 +145,7 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if (!Structurize.getConfig().getClient().renderPlaceholders.get() && state.getBlock() == ModBlocks.blockSubstitution.get())
+                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockSubstitution.get())
                 {
                     state = Blocks.AIR.defaultBlockState();
                 }
@@ -172,12 +172,12 @@ public class BlueprintRenderer implements AutoCloseable
                         state = Blocks.AIR.defaultBlockState();
                     }
                 }
-                if (Structurize.getConfig().getClient().renderFluidToFluids.get() && state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                 {
                     state = defaultFluidState;
                 }
 
-                if (Structurize.getConfig().getClient().renderSolidToWorldgen.get() && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
                 {
                     state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
                     if (state == null)

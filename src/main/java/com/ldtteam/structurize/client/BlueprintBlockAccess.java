@@ -149,15 +149,15 @@ public class BlueprintBlockAccess extends Level
     public BlockState getBlockState(final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
-        if (state.getBlock() == ModBlocks.blockSolidSubstitution.get() && Structurize.getConfig().getClient().renderSolidToWorldgen.get())
+        if (state.getBlock() == ModBlocks.blockSolidSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
         {
             return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
         }
-        if (state.getBlock() == ModBlocks.blockFluidSubstitution.get() && Structurize.getConfig().getClient().renderFluidToFluids.get())
+        if (state.getBlock() == ModBlocks.blockFluidSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
         {
             return BlockUtils.getFluidForDimension(anyLevel());
         }
-        if (state.getBlock() == ModBlocks.blockSubstitution.get() && !Structurize.getConfig().getClient().renderPlaceholders.get())
+        if (state.getBlock() == ModBlocks.blockSubstitution.get() && Structurize.getConfig().getClient().renderPlaceholdersNice.get())
         {
             return Blocks.AIR.defaultBlockState();
         }
