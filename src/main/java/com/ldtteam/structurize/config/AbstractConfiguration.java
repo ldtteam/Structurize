@@ -1,10 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.util.IcuTranslatableContents.IcuComponent;
 import com.ldtteam.structurize.util.LanguageHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.TickTask;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
@@ -56,14 +53,20 @@ public abstract class AbstractConfiguration
         return nameTKey(key) + COMMENT_SUFFIX;
     }
 
-    private static Builder buildBase(final Builder builder, final String key, final MutableComponent defaultDesc)
+    private static Builder buildBase(final Builder builder, final String key, final String defaultDesc)
     {
-        return builder.comment(LanguageHandler.translateKey(commentTKey(key)) + " " + defaultDesc.getString()).translation(nameTKey(key));
+        return builder.comment(LanguageHandler.translateKey(commentTKey(key)) + " " + defaultDesc).translation(nameTKey(key));
+    }
+
+    // TODO: inline with icu component
+    private static String translate(final String key, final Object... args)
+    {
+        return LanguageHandler.translateKey(key).formatted(args);
     }
 
     protected static BooleanValue defineBoolean(final Builder builder, final String key, final boolean defaultValue)
     {
-        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "boolean", defaultValue)).define(key, defaultValue);
+        return buildBase(builder, key, translate(DEFAULT_KEY_PREFIX + "boolean", defaultValue)).define(key, defaultValue);
     }
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue)
@@ -73,12 +76,12 @@ public abstract class AbstractConfiguration
 
     protected static IntValue defineInteger(final Builder builder, final String key, final int defaultValue, final int min, final int max)
     {
-        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, translate(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static ConfigValue<String> defineString(final Builder builder, final String key, final String defaultValue)
     {
-        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "string", defaultValue)).define(key, defaultValue);
+        return buildBase(builder, key, translate(DEFAULT_KEY_PREFIX + "string", defaultValue)).define(key, defaultValue);
     }
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue)
@@ -88,7 +91,7 @@ public abstract class AbstractConfiguration
 
     protected static LongValue defineLong(final Builder builder, final String key, final long defaultValue, final long min, final long max)
     {
-        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, translate(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue)
@@ -98,7 +101,7 @@ public abstract class AbstractConfiguration
 
     protected static DoubleValue defineDouble(final Builder builder, final String key, final double defaultValue, final double min, final double max)
     {
-        return buildBase(builder, key, IcuComponent.of(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
+        return buildBase(builder, key, translate(DEFAULT_KEY_PREFIX + "number", defaultValue, min, max)).defineInRange(key, defaultValue, min, max);
     }
 
     protected static <T> ConfigValue<List<? extends T>> defineList(
@@ -107,14 +110,14 @@ public abstract class AbstractConfiguration
         final List<? extends T> defaultValue,
         final Predicate<Object> elementValidator)
     {
-        return buildBase(builder, key, Component.empty()).defineList(key, defaultValue, elementValidator);
+        return buildBase(builder, key, "").defineList(key, defaultValue, elementValidator);
     }
 
     protected static <V extends Enum<V>> EnumValue<V> defineEnum(final Builder builder, final String key, final V defaultValue)
     {
         return buildBase(builder,
             key,
-            IcuComponent.of(DEFAULT_KEY_PREFIX + "enum",
+            translate(DEFAULT_KEY_PREFIX + "enum",
                 defaultValue,
                 Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "))))
             .defineEnum(key, defaultValue);
