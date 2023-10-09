@@ -421,6 +421,14 @@ public class Blueprint
     }
 
     /**
+     * @return current rot/mir as relative to freshly loaded file
+     */
+    public RotationMirror getRotationMirror()
+    {
+        return rotationMirror;
+    }
+
+    /**
      * Get a list of all entities in the blueprint as a list.
      *
      * @return the list of CompoundNBTs.
