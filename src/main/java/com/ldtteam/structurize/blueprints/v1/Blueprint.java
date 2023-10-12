@@ -666,7 +666,7 @@ public class Blueprint
 
             if (transformBy.isMirrored())
             {
-                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), this.palette.get(i));
+                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), bs);
             }
 
             palette.add(i, bs.rotate(transformBy.rotation()));
