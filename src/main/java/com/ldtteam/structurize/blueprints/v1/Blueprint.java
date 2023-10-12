@@ -662,11 +662,11 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            BlockState bs = this.palette.get(i).mirror(transformBy.mirror());
+            BlockState bs = this.palette.get(i);
 
             if (transformBy.isMirrored())
             {
-                bs = FacingFixer.fixMirroredFacing(bs, this.palette.get(i));
+                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), this.palette.get(i));
             }
 
             palette.add(i, bs.rotate(transformBy.rotation()));
