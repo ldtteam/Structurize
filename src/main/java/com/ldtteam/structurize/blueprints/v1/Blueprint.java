@@ -8,6 +8,7 @@ import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
+import com.ldtteam.structurize.blueprints.FacingFixer;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -662,7 +663,14 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).mirror(transformBy.mirror()).rotate(transformBy.rotation()));
+            BlockState bs = this.palette.get(i);
+
+            if (transformBy.isMirrored())
+            {
+                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), bs);
+            }
+
+            palette.add(i, bs.rotate(transformBy.rotation()));
         }
 
         final BlockPos extremes = transformBy.applyToPos(new BlockPos(sizeX, sizeY, sizeZ));
