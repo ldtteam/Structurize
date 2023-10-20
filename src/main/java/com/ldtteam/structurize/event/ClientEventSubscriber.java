@@ -68,7 +68,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
-        final Stage when = Structurize.getConfig().getClient().blueprintRendererTransparency.get() > TransparencyHack.THRESHOLD ?
+        final Stage when = Structurize.getConfig().getClient().rendererTransparency.get() > TransparencyHack.THRESHOLD ?
             Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS :
             Stage.AFTER_TRANSLUCENT_BLOCKS; // otherwise even worse sorting issues arise
         if (event.getStage() != when)

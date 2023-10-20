@@ -24,7 +24,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public final BooleanValue sharePreviews;
     public final BooleanValue displayShared;
     public final IntValue rendererLightLevel;
-    public DoubleValue blueprintRendererTransparency;
+    public final DoubleValue rendererTransparency;
 
     /**
      * Builds client configuration.
@@ -40,7 +40,7 @@ public class ClientConfiguration extends AbstractConfiguration
         sharePreviews = defineBoolean(builder, "share_previews", false);
         displayShared = defineBoolean(builder, "see_shared_previews", false);
         rendererLightLevel = defineInteger(builder, "light_level", 15, -1, 15);
-        blueprintRendererTransparency = defineDouble(builder, "transparency", 1, 0, 1);
+        rendererTransparency = defineDouble(builder, "transparency", -1, -1, 1);
 
         addWatcher(BlueprintHandler.getInstance()::clearCache, renderPlaceholdersNice, rendererLightLevel);
         addWatcher(displayShared, (oldValue, isSharingEnabled) -> {
@@ -70,5 +70,6 @@ public class ClientConfiguration extends AbstractConfiguration
         sink.accept(displayShared);
         sink.accept(renderPlaceholdersNice);
         sink.accept(rendererLightLevel);
+        sink.accept(rendererTransparency);
     }
 }

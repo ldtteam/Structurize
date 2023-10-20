@@ -635,14 +635,14 @@ public class BlueprintRenderer implements AutoCloseable
 
         public static void apply()
         {
-            if (GlStateManager.BLEND.mode.enabled)
+            if (applied || GlStateManager.BLEND.mode.enabled)
             {
                 // do not override if there is running blend fnc
                 return;
             }
 
-            final float alpha = Structurize.getConfig().getClient().blueprintRendererTransparency.get().floatValue();
-            if (alpha > THRESHOLD)
+            final float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            if (alpha < 0 || alpha > THRESHOLD)
             {
                 return;
             }
