@@ -76,18 +76,14 @@ public class ServerConfiguration extends AbstractConfiguration
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
         iteratorType = defineString(builder, "iteratorType", "default");
 
-        finishCategory(builder);
-
-        createCategory(builder, "teleport");
+        swapToCategory(builder, "teleport");
 
         teleportAllowed = defineBoolean(builder, "teleportAllowed", true);
         teleportBuildDirection = defineEnum(builder, "teleportBuildDirection", Direction.SOUTH);
         teleportBuildDistance = defineInteger(builder, "teleportBuildDistance", 3, 1, 16);
         teleportSafety = defineBoolean(builder, "teleportSafety", true);
 
-        finishCategory(builder);
-
-        createCategory(builder, "update");
+        swapToCategory(builder, "update");
 
         updateStartPos = builder.define("start", Lists.newArrayList(-10,-10));
         updateEndPos = builder.define("end", Lists.newArrayList(10,10));

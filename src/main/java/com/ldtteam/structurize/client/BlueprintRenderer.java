@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -17,7 +17,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.ReportedException;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -30,6 +29,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
@@ -68,8 +69,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * The renderer for blueprint.
@@ -146,24 +145,28 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if (!BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
+                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
                 {
                     if (state.getBlock() == ModBlocks.blockSubstitution.get())
                     {
                         state = Blocks.AIR.defaultBlockState();
                     }
-                    if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                    else if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                     {
-                        final Optional<BlockEntity> tagTE = tileEntities.stream()
-                                .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
-                                .findFirst();
+                        state = defaultFluidState;
+                    }
+                    else if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                    {
+                        final Optional<BlockEntityTagSubstitution> tagTE = tileEntities.stream()
+                            .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
+                            .findFirst()
+                            .map(BlockEntityTagSubstitution.class::cast);
                         if (tagTE.isPresent())
                         {
-                            final BlockEntityTagSubstitution.ReplacementBlock replacement = ((BlockEntityTagSubstitution) tagTE.get()).getReplacement();
+                            final BlockEntityTagSubstitution.ReplacementBlock replacement = tagTE.get().getReplacement();
                             state = replacement.getBlockState();
                             tileEntities.remove(tagTE.get());
-                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e ->
-                            {
+                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e -> {
                                 e.setLevel(blockAccess);
                                 teModelData.put(blockPos, e.getModelData());
                                 tileEntities.add(e);
@@ -174,11 +177,7 @@ public class BlueprintRenderer implements AutoCloseable
                             state = Blocks.AIR.defaultBlockState();
                         }
                     }
-                    if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
-                    {
-                        state = defaultFluidState;
-                    }
-                    if (SharedConstants.IS_RUNNING_IN_IDE && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                    else if (serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
                     {
                         state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
                         if (state == null)
@@ -396,7 +395,8 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_blockentities");
         for(final BlockEntity tileEntity : tileEntities)
         {
-            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()))
+            final BlockEntityRenderer<BlockEntity> renderer = mc.getBlockEntityRenderDispatcher().getRenderer(tileEntity);
+            if (renderer == null || !renderer.shouldRender(tileEntity, ourCamera.getPosition()))
             {
                 continue;
             }
@@ -427,12 +427,20 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof SkullBlockEntity skull)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.getBlock() instanceof SkullBlock &&  bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
+                    if (bs.getBlock() instanceof SkullBlock && bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
-                        SkullBlockEntity.animation(mc.level, anchorPos.offset(tePos), bs, skull);
+                        SkullBlockEntity.animation(blockAccess, tePos, bs, skull);
                     }
                 }
-                // TODO: investigate beams (beacon...)
+                else if (tileEntity instanceof final BeaconBlockEntity beacon)
+                {
+                    BeaconBlockEntity.tick(blockAccess, tePos, blockAccess.getBlockState(tePos), beacon);
+                }
+            }
+
+            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()) && !renderer.shouldRenderOffScreen(tileEntity))
+            {
+                continue;
             }
 
             matrixStack.pushPose();

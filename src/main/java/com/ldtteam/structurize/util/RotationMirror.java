@@ -91,6 +91,11 @@ public enum RotationMirror
         return rotation;
     }
 
+    public boolean isMirrored()
+    {
+        return mirror != Mirror.NONE;
+    }
+
     public Mirror mirror()
     {
         return mirror;

@@ -7,11 +7,15 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * Sync blueprint preview data to the client.
  */
 public class SyncPreviewCacheToClient implements IMessage
 {
+    public static final String SHARED_PREFIX = "shared:";
+
     /**
      * The preview data.
      */
@@ -20,21 +24,21 @@ public class SyncPreviewCacheToClient implements IMessage
     /**
      * The UUID of the origin player.
      */
-    private final String playerUUID;
+    private final UUID playerUUID;
 
     /**
      * Buffer reading message constructor.
      */
     public SyncPreviewCacheToClient(final FriendlyByteBuf buf)
     {
-        this.previewData = new BlueprintPreviewData(buf);
-        this.playerUUID = buf.readUtf(32767);
+        this.previewData = new BlueprintPreviewData(buf, false);
+        this.playerUUID = buf.readUUID();
     }
 
     /**
      * Send preview data from the server.
      */
-    public SyncPreviewCacheToClient(final BlueprintPreviewData previewData, final String playerUUID)
+    public SyncPreviewCacheToClient(final BlueprintPreviewData previewData, final UUID playerUUID)
     {
         this.previewData = previewData;
         this.playerUUID = playerUUID;
@@ -44,7 +48,7 @@ public class SyncPreviewCacheToClient implements IMessage
     public void toBytes(final FriendlyByteBuf buf)
     {
         this.previewData.writeToBuf(buf);
-        buf.writeUtf(this.playerUUID);
+        buf.writeUUID(this.playerUUID);
     }
 
     @Nullable
@@ -57,16 +61,17 @@ public class SyncPreviewCacheToClient implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
+        final String uuid = SHARED_PREFIX + playerUUID.toString();
         if (previewData.isEmpty())
         {
-            if (RenderingCache.hasBlueprint(this.playerUUID))
+            if (RenderingCache.hasBlueprint(uuid))
             {
-                RenderingCache.removeBlueprint(this.playerUUID);
+                RenderingCache.removeBlueprint(uuid);
             }
         }
         else
         {
-            RenderingCache.queue(this.playerUUID, this.previewData);
+            RenderingCache.queue(uuid, this.previewData);
         }
     }
 }
