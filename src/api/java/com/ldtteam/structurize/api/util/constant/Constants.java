@@ -27,9 +27,6 @@ public final class Constants
     public static final String CLIENT_FOLDER           = "clients";
     public static final String SCANS_FOLDER            = "scans";
     public static final String SHAPES_FOLDER           = "shapes";
-    public static final String RENDER_PLACEHOLDERS     = MOD_ID + ".render.placeholders";
-    public static final String SHARE_PREVIEWS          = MOD_ID + ".share.previews";
-    public static final String DISPLAY_SHARED          = MOD_ID + ".display.shared";
 
     /**
      * Maximum message size from client to server (Leaving some extra space).
