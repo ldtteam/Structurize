@@ -628,6 +628,11 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
+    /**
+     * Assuming there's no blend function active let's take advantage of OpenGL blend color constant
+     * which doesnt require any shader changes at all.
+     * More info at: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendColor.xhtml
+     */
     public static class TransparencyHack
     {
         public static final float THRESHOLD = 0.99f;
