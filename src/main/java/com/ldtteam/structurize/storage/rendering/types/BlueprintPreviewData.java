@@ -11,6 +11,7 @@ import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -65,6 +66,11 @@ public class BlueprintPreviewData
     private RenderingCacheKey renderKey;
 
     private final boolean serverSyncEnabled;
+    
+    /**
+     * What value should be used for transparency if enabled
+     */
+    private float overridePreviewTransparency = -1;
 
     /**
      * Default constructor to create a new setup.
@@ -383,5 +389,20 @@ public class BlueprintPreviewData
     public boolean isServerSyncEnabled()
     {
         return serverSyncEnabled;
+    }
+
+    /**
+     * Overrides client config for preview transparency if already enabled, else does nothing.
+     *
+     * @param overridePreviewTransparency -1 (or any negative) for keep config, 0 = transparent to 1 = opaque
+     */
+    public void setOverridePreviewTransparency(final float overridePreviewTransparency)
+    {
+        this.overridePreviewTransparency = Mth.clamp(overridePreviewTransparency, -1, 1);
+    }
+
+    public float getOverridePreviewTransparency()
+    {
+        return overridePreviewTransparency;
     }
 }

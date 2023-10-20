@@ -331,12 +331,12 @@ public class BlueprintRenderer implements AutoCloseable
             partialTicks);
 
         mc.getProfiler().popPush("struct_render_blocks");
-        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
-        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf, previewData);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
-        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf, previewData);
 
         mc.getProfiler().popPush("struct_render_entities");
         final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
@@ -481,11 +481,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBuffers.crumblingBufferSource().endBatch(); // not used now
 
         mc.getProfiler().popPush("struct_render_blocks2");
-        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf, previewData);
 
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
-        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf, previewData);
 
         matrixStack.popPose();
 
@@ -519,7 +519,7 @@ public class BlueprintRenderer implements AutoCloseable
         clearVertexBuffers();
     }
 
-    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos)
+    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos, final BlueprintPreviewData previewData)
     {
         final VertexBuffer vertexBuffer = vertexBuffers.get(layerRenderType);
         if (vertexBuffer == null)
@@ -596,7 +596,7 @@ public class BlueprintRenderer implements AutoCloseable
             uniform.upload();
         }
 
-        TransparencyHack.apply();
+        TransparencyHack.apply(previewData.getOverridePreviewTransparency());
 
         vertexBuffer.bind();
         vertexBuffer.draw();
@@ -633,7 +633,7 @@ public class BlueprintRenderer implements AutoCloseable
         public static final float THRESHOLD = 0.99f;
         protected static boolean applied = false;
 
-        public static void apply()
+        public static void apply(final float overrideValue)
         {
             if (applied || GlStateManager.BLEND.mode.enabled)
             {
@@ -641,11 +641,12 @@ public class BlueprintRenderer implements AutoCloseable
                 return;
             }
 
-            final float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
             if (alpha < 0 || alpha > THRESHOLD)
             {
                 return;
             }
+            alpha = overrideValue < 0 ? alpha : Mth.clamp(overrideValue, 0, 1);
 
             applied = true;
 
