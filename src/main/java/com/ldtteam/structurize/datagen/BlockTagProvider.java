@@ -35,7 +35,7 @@ public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block>
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider)
     {
-        final var weakSolidTag = this.tag(ModTags.WEAK_SOLID_BLOCKS).addTag(BlockTags.LEAVES);
+        final IntrinsicTagAppender<Block> weakSolidTag = this.tag(ModTags.WEAK_SOLID_BLOCKS).addTag(BlockTags.LEAVES);
 
         provider.lookupOrThrow(Registries.BLOCK)
             .filterElements(block -> block instanceof Fallable || block instanceof FallingBlock)

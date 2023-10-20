@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.blockui.UiRenderMacros;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,11 +9,13 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
+import net.minecraft.client.renderer.RenderStateShard.DepthTestStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -1029,14 +1032,14 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
                 .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(NO_DEPTH_TEST)
+                .setDepthTestState(AlwaysDepthTestStateShard.ALWAYS_DEPTH_TEST)
                 .setCullState(CULL)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
                 .setLayeringState(NO_LAYERING)
                 .setOutputState(MAIN_TARGET)
                 .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
+                .setWriteMaskState(COLOR_DEPTH_WRITE)
                 .createCompositeState(false));
 
         private static final RenderType LINES = create("structurize_lines",
@@ -1118,5 +1121,19 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
+    }
+    
+    public static class AlwaysDepthTestStateShard extends DepthTestStateShard
+    {
+        public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
+
+        private AlwaysDepthTestStateShard()
+        {
+            super("true_always", -1);
+            setupState = () -> {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_ALWAYS);
+            };
+        }
     }
 }

@@ -1,18 +1,22 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.google.gson.internal.LazilyParsedNumber;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextFieldVanilla;
+import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
+import com.ldtteam.structurize.config.AbstractConfiguration;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
-import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -22,10 +26,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +60,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     /**
      * Placement scrolling list.
      */
-    private ScrollingList placementOptionsList;
+    private final ScrollingList placementOptionsList;
 
     /**
      * Ground style of the caller.
@@ -105,6 +112,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         updateRotationState();
 
         findPaneOfTypeByID("tip", Text.class).setVisible(pos != null);
+        initSettings();
     }
 
     @Override
@@ -314,46 +322,117 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         }
         settingsList.show();
         settingsList.enable();
+    }
 
-        final List<Map.Entry<String, Boolean>> settings = new ArrayList<>(BlueprintRenderSettings.instance.renderSettings.entrySet());
+    protected void initSettings()
+    {
+        final List<ConfigValue<?>> settings = new ArrayList<>();
+        Structurize.getConfig().getClient().collectPreviewRendererSettings(settings::add);
 
-        settingsList.setDataProvider(new ScrollingList.DataProvider()
-        {
-            /**
-             * The number of rows of the list.
-             * @return the number.
-             */
-            @Override
-            public int getElementCount()
+        settingsList.setDataProvider(settings::size, (index, rowPane) -> {
+            final ConfigValue<?> setting = settings.get(index);
+            final Optional<ValueSpec> optional = Structurize.getConfig().getSpecFromValue(setting);
+            final Text label = rowPane.findPaneOfTypeByID("label", Text.class);
+
+            if (optional.isEmpty())
             {
-                return settings.size();
+                // config resolution failed (crashes in dev already, display error in production)
+                label.setText(Component.translatable(TranslationConstants.NO_VALUE_SPEC));
+                return;
             }
 
-            /**
-             * Inserts the elements into each row.
-             * @param index the index of the row/list element.
-             * @param rowPane the parent Pane for the row, containing the elements to update.
-             */
-            @SuppressWarnings("resource")
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
-            {
-                rowPane.findPaneOfTypeByID("label", Text.class).setText(Component.translatable(settings.get(index).getKey()));
-                final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
-                if (settings.get(index).getValue())
-                {
-                    buttonImage.setText(Component.translatable("options.on"));
-                }
-                else
-                {
-                    buttonImage.setText(Component.translatable("options.off"));
-                }
-                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
+            final ValueSpec settingSpec = optional.get();
+            final String nameTKey = settingSpec.getTranslationKey();
 
+            if (label.getText() != null && label.getText().getContents() instanceof final TranslatableContents tkey && tkey.getKey().equals(nameTKey))
+            {
+                // dont update when same row
+                return;
+            }
+
+            label.setText(Component.translatable(nameTKey));
+            PaneBuilders.singleLineTooltip(Component.translatable(nameTKey + AbstractConfiguration.COMMENT_SUFFIX), rowPane);
+
+            final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
+            final TextFieldVanilla inputField = rowPane.findPaneOfTypeByID("set_input", TextFieldVanilla.class);
+
+            // TODO: instanceof switch
+            if (setting.get() instanceof final Boolean value)
+            {
+                final ConfigValue<Boolean> typedSetting = (ConfigValue<Boolean>) setting;
+
+                inputField.off();
+                buttonImage.on();
+                buttonImage.setText(Component.translatable(value ? "options.on" : "options.off"));
                 buttonImage.setHandler((button) -> {
-                    settings.get(index).setValue(!settings.get(index).getValue());
-                    Network.getNetwork().sendToServer(new SyncSettingsToServer());
-                    RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).syncChangesToServer();
+                    final Boolean newValue = !typedSetting.get();
+
+                    Structurize.getConfig().set(typedSetting, newValue);
+                    buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
+                });
+            }
+            else if (setting.get() instanceof final Number value)
+            {
+                final ConfigValue<Number> typedSetting = (ConfigValue<Number>) setting;
+
+                buttonImage.off();
+                inputField.on();
+                inputField.setText(typedSetting.get().toString());
+                inputField.setFilter(new Filter()
+                {
+                    @Override
+                    public String filter(final String s)
+                    {
+                        return s;
+                    }
+
+                    @Override
+                    public boolean isAllowedCharacter(final char c)
+                    {
+                        return Character.isDigit(c) || c == '-' || c == '.';
+                    }
+                });
+                inputField.setHandler(a -> {
+                    if (inputField.getText().isBlank())
+                    {
+                        return;
+                    }
+
+                    final Number newValue = new LazilyParsedNumber(inputField.getText());
+                    final boolean testResult;
+                    try
+                    {
+                        testResult = settingSpec.test(newValue);
+                    }
+                    catch (final NumberFormatException e)
+                    {
+                        inputField.setTextColor(0xffff0000); // red
+                        return;
+                    }
+
+                    if (testResult)
+                    {
+                        // need properly typed thing now, but it's validated so parsing should never crash
+                        // TODO: switch instanceof
+                        final Object oldValue = typedSetting.get();
+                        if (oldValue instanceof Integer)
+                        {
+                            Structurize.getConfig().set(typedSetting, newValue.intValue());
+                        }
+                        else if (oldValue instanceof Long)
+                        {
+                            Structurize.getConfig().set(typedSetting, newValue.longValue());
+                        }
+                        else if (oldValue instanceof Double)
+                        {
+                            Structurize.getConfig().set(typedSetting, newValue.doubleValue());
+                        }
+                        inputField.setTextColor(0xffe0e0e0); // vanilla defualt
+                    }
+                    else
+                    {
+                        inputField.setTextColor(0xffff0000); // red
+                    }
                 });
             }
         });

@@ -3,6 +3,7 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.*;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
@@ -17,6 +18,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 public class ClientLifecycleSubscriber
@@ -80,5 +82,17 @@ public class ClientLifecycleSubscriber
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {
         ModKeyMappings.register(event);
+    }
+
+    @SubscribeEvent
+    public static void onConfigLoad(final ModConfigEvent.Loading event)
+    {
+        Structurize.getConfig().onConfigLoad(event.getConfig());
+    }
+
+    @SubscribeEvent
+    public static void onConfigEdit(final ModConfigEvent.Reloading event)
+    {
+        Structurize.getConfig().onConfigReload(event.getConfig());
     }
 }

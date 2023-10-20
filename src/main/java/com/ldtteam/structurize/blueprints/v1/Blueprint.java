@@ -638,6 +638,11 @@ public class Blueprint
      */
     public void setRotationMirrorRelative(final RotationMirror transformBy, final Level level)
     {
+        if (transformBy == RotationMirror.NONE)
+        {
+            return;
+        }
+
         final BlockPos primaryOffset = getPrimaryBlockOffset();
         final short newSizeX, newSizeZ, newSizeY = sizeY;
 
