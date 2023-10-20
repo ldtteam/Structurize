@@ -4,7 +4,6 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
-import com.ldtteam.structurize.update.DomumOrnamentumUpdateHandler;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -12,11 +11,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
@@ -344,36 +341,8 @@ public class UpdateSchematicsCommand extends AbstractCommand
                     continue;
                 }
 
-                final Optional<Tuple<BlockState, Optional<BlockEntity>>> replacementData = DomumOrnamentumUpdateHandler.createBlockReplacementData(fixedNbt);
-                if (replacementData.isEmpty())
-                {
-                    final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), fixedNbt);
-                    palette.add(i, state);
-                    continue;
-                }
-
-                palette.add(i, replacementData.get().getA());
-                if (replacementData.get().getB().isPresent())
-                {
-                    for (int y = 0; y < blockPos.getY(); y++)
-                    {
-                        for (int x = 0; x < blockPos.getX(); x++)
-                        {
-                            for (int z = 0; z < blockPos.getZ(); z++)
-                            {
-                                if (blocks[y][z][x] == i)
-                                {
-                                    final CompoundTag targetTag = replacementData.get().getB().get().saveWithFullMetadata().copy();
-                                    targetTag.putInt("x", x);
-                                    targetTag.putInt("y", y);
-                                    targetTag.putInt("z", z);
-
-                                    tileEntities.add(targetTag);
-                                }
-                            }
-                        }
-                    }
-                }
+                final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), fixedNbt);
+                palette.add(i, state);
             }
             catch (final Exception e)
             {
