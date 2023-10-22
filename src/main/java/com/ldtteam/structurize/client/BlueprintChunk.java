@@ -146,7 +146,7 @@ public class BlueprintChunk extends LevelChunk
     public LevelChunkSection[] getSections()
     {
         // Noop (we dont section)
-        return null;
+        return new LevelChunkSection[0];
     }
 
     @NotNull
