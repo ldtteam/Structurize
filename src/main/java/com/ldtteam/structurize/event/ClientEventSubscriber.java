@@ -99,7 +99,7 @@ public class ClientEventSubscriber
                 final BlockPos pos = previewData.getPos();
                 final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-                BlueprintHandler.getInstance().draw(previewData, pos, event);
+                BlueprintHandler.getInstance().draw(previewData, pos, matrixStack, partialTicks);
                 WorldRenderMacros.renderWhiteLineBox(bufferSource,
                   matrixStack,
                   posMinusOffset,
@@ -130,7 +130,7 @@ public class ClientEventSubscriber
             mc.getProfiler().push("struct_tags");
 
             final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
-            final BlockEntity te = player.level().getBlockEntity(tagAnchor);
+            final BlockEntity te = mc.player.level.getBlockEntity(tagAnchor);
 
             if (te instanceof IBlueprintDataProviderBE)
             {

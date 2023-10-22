@@ -37,7 +37,7 @@ public class ServerPreviewDistributor
      */
     public static void distribute(final BlueprintPreviewData renderingCache, final ServerPlayer sourcePlayer)
     {
-        for (final ServerPlayer player : sourcePlayer.getServer().getLevel(sourcePlayer.level().dimension()).players())
+        for (final ServerPlayer player : sourcePlayer.getServer().getLevel(sourcePlayer.level.dimension()).players())
         {
             if ((player.blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)) && // within sensible distance
                 !player.getUUID().equals(sourcePlayer.getUUID()) && // dont send to source

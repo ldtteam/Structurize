@@ -4,7 +4,6 @@ import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -12,6 +11,9 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
@@ -32,6 +34,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
@@ -44,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.GL20C;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -51,10 +55,9 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * The renderer for blueprint.
@@ -347,7 +350,8 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_blockentities");
         final Camera oldActiveRenderInfo = mc.getBlockEntityRenderDispatcher().camera;
         final Level oldWorld = mc.getBlockEntityRenderDispatcher().level;
-        mc.getBlockEntityRenderDispatcher().camera = new Camera();
+        final Camera ourCamera = new Camera();
+        mc.getBlockEntityRenderDispatcher().camera = ourCamera;
         mc.getBlockEntityRenderDispatcher().camera.setPosition(viewPosition.subtract(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ()));
         mc.getBlockEntityRenderDispatcher().level = blockAccess;
         for(final BlockEntity tileEntity : tileEntities)
@@ -386,7 +390,7 @@ public class BlueprintRenderer implements AutoCloseable
                     final BlockState bs = blockAccess.getBlockState(tePos);
                     if (bs.getBlock() instanceof SkullBlock && bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
-                        SkullBlockEntity.animation(blockAccess, tePos, bs, skull);
+                        SkullBlockEntity.dragonHeadAnimation(blockAccess, tePos, bs, skull);
                     }
                 }
                 else if (tileEntity instanceof final BeaconBlockEntity beacon)
@@ -395,7 +399,7 @@ public class BlueprintRenderer implements AutoCloseable
                 }
             }
 
-            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()) && !renderer.shouldRenderOffScreen(tileEntity))
+            if (!renderer.shouldRenderOffScreen(tileEntity))
             {
                 continue;
             }
