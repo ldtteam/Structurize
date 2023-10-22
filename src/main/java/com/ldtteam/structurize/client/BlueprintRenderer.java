@@ -9,7 +9,10 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintMissHitResult;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -59,6 +62,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL20C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -327,12 +331,12 @@ public class BlueprintRenderer implements AutoCloseable
             partialTicks);
 
         mc.getProfiler().popPush("struct_render_blocks");
-        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
-        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf, previewData);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
-        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf, previewData);
 
         mc.getProfiler().popPush("struct_render_entities");
         final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
@@ -477,11 +481,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBuffers.crumblingBufferSource().endBatch(); // not used now
 
         mc.getProfiler().popPush("struct_render_blocks2");
-        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf, previewData);
 
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
-        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf, previewData);
 
         matrixStack.popPose();
 
@@ -515,7 +519,7 @@ public class BlueprintRenderer implements AutoCloseable
         clearVertexBuffers();
     }
 
-    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos)
+    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos, final BlueprintPreviewData previewData)
     {
         final VertexBuffer vertexBuffer = vertexBuffers.get(layerRenderType);
         if (vertexBuffer == null)
@@ -592,8 +596,12 @@ public class BlueprintRenderer implements AutoCloseable
             uniform.upload();
         }
 
+        TransparencyHack.apply(previewData.getOverridePreviewTransparency());
+
         vertexBuffer.bind();
         vertexBuffer.draw();
+
+        TransparencyHack.reset();
 
         if (uniform != null)
         {
@@ -618,6 +626,50 @@ public class BlueprintRenderer implements AutoCloseable
             }
             return buffer;
         }
+    }
 
+    /**
+     * Assuming there's no blend function active let's take advantage of OpenGL blend color constant
+     * which doesnt require any shader changes at all.
+     * More info at: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendColor.xhtml
+     */
+    public static class TransparencyHack
+    {
+        public static final float THRESHOLD = 0.99f;
+        protected static boolean applied = false;
+
+        public static void apply(final float overrideValue)
+        {
+            if (applied || GlStateManager.BLEND.mode.enabled)
+            {
+                // do not override if there is running blend fnc
+                return;
+            }
+
+            float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            if (alpha < 0 || alpha > THRESHOLD)
+            {
+                return;
+            }
+            alpha = overrideValue < 0 ? alpha : Mth.clamp(overrideValue, 0, 1);
+
+            applied = true;
+
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(SourceFactor.CONSTANT_ALPHA, DestFactor.ONE_MINUS_CONSTANT_ALPHA);
+            GL20C.glBlendColor(0, 0, 0, alpha);
+        }
+
+        public static void reset()
+        {
+            if (!applied)
+            {
+                return;
+            }
+
+            applied = false;
+
+            RenderSystem.disableBlend();
+        }
     }
 }

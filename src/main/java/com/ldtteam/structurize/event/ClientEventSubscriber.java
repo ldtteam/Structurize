@@ -2,6 +2,7 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
@@ -10,6 +11,7 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.ModKeyMappings;
+import com.ldtteam.structurize.client.BlueprintRenderer.TransparencyHack;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
@@ -35,6 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -43,8 +46,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-
-import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS;
 
 public class ClientEventSubscriber
 {
@@ -67,7 +68,10 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
-        if (event.getStage() != AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS)
+        final Stage when = Structurize.getConfig().getClient().rendererTransparency.get() > TransparencyHack.THRESHOLD ?
+            Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS :
+            Stage.AFTER_TRANSLUCENT_BLOCKS; // otherwise even worse sorting issues arise
+        if (event.getStage() != when)
         {
             return;
         }
