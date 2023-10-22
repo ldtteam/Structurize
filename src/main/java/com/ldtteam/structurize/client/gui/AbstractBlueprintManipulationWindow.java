@@ -1,14 +1,19 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.ldtteam.blockui.Alignment;
+import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Gradient;
 import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ImageRepeatable;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
 import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.TranslationConstants;
@@ -34,6 +39,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -415,22 +421,93 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
                     if (testResult)
                     {
-                        // need properly typed thing now, but it's validated so parsing should never crash
-                        // TODO: switch instanceof
-                        final Object oldValue = typedSetting.get();
-                        if (oldValue instanceof Integer)
-                        {
-                            Structurize.getConfig().set(typedSetting, newValue.intValue());
-                        }
-                        else if (oldValue instanceof Long)
-                        {
-                            Structurize.getConfig().set(typedSetting, newValue.longValue());
-                        }
-                        else if (oldValue instanceof Double)
-                        {
-                            Structurize.getConfig().set(typedSetting, newValue.doubleValue());
-                        }
                         inputField.setTextColor(0xffe0e0e0); // vanilla defualt
+
+                        final DoubleValue rendererTransparency = Structurize.getConfig().getClient().rendererTransparency;
+                        if (setting == rendererTransparency && rendererTransparency.get() < 0)
+                        {
+                            // TODO: move to standalone ui
+                            final View confirmDialog = new View();
+                            confirmDialog.setPosition(70, 0);
+                            confirmDialog.setSize(177, 150);
+                            confirmDialog.setAlignment(Alignment.MIDDLE);
+
+                            final Gradient hidingLayer = new Gradient();
+                            hidingLayer.setGradientStart(0x10, 0x10, 0x10, 0xC0);
+                            hidingLayer.setGradientEnd(0x10, 0x10, 0x10, 0xD0);
+                            hidingLayer.setSize(getWindow().getWidth(), getWindow().getHeight());
+
+                            getWindow().addChild(hidingLayer);
+                            getWindow().addChild(confirmDialog);
+                            View.setFocus(null);
+
+                            final ImageRepeatable background = new ImageRepeatable();
+                            background.setSize(177, 150);
+                            background.setImageLoc(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_papper.png"));
+                            background.setImageSize(6, 7, 177, 231, 20, 20, 100, 100);
+                            confirmDialog.addChild(background);
+
+                            final Text text = new Text();
+                            text.setPosition(10, 8);
+                            text.setSize(157, 105);
+                            text.setColors(Color.getByName("black"));
+                            text.setTextAlignment(Alignment.TOP_MIDDLE);
+                            text.setText(Component.translatable("structurize.config.transparency.warning"));
+                            confirmDialog.addChild(text);
+
+                            final ButtonImage confirm = new ButtonImage();
+                            confirm.setPosition(10, 123);
+                            confirm.setSize(64, 17);
+                            confirm.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
+                            confirm.setColors(Color.getByName("black"));
+                            confirm.setTextAlignment(Alignment.MIDDLE);
+                            confirm.setTextRenderBox(64, 17);
+                            confirm.setText(Component.translatable("gui.yes"));
+                            confirm.setHandler(b -> {
+                                final double newVal = newValue.doubleValue();
+                                Structurize.getConfig().set(rendererTransparency, newVal < 0 ? 1 : newVal);
+                                if (newVal < 0)
+                                {
+                                    inputField.setText("1.0");
+                                }
+                                getWindow().removeChild(hidingLayer);
+                                getWindow().removeChild(confirmDialog);
+                            });
+                            confirmDialog.addChild(confirm);
+                            
+                            final ButtonImage cancel = new ButtonImage();
+                            cancel.setPosition(103, 123);
+                            cancel.setSize(64, 17);
+                            cancel.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
+                            cancel.setColors(Color.getByName("black"));
+                            cancel.setTextAlignment(Alignment.MIDDLE);
+                            cancel.setTextRenderBox(64, 17);
+                            cancel.setText(Component.translatable("gui.cancel"));
+                            cancel.setHandler(b -> {
+                                inputField.setText(Double.toString(rendererTransparency.get()));
+                                getWindow().removeChild(hidingLayer);
+                                getWindow().removeChild(confirmDialog);
+                            });
+                            confirmDialog.addChild(cancel);
+                        }
+                        else
+                        {
+                            // need properly typed thing now, but it's validated so parsing should never crash
+                            // TODO: switch instanceof
+                            final Object oldValue = typedSetting.get();
+                            if (oldValue instanceof Integer)
+                            {
+                                Structurize.getConfig().set(typedSetting, newValue.intValue());
+                            }
+                            else if (oldValue instanceof Long)
+                            {
+                                Structurize.getConfig().set(typedSetting, newValue.longValue());
+                            }
+                            else if (oldValue instanceof Double)
+                            {
+                                Structurize.getConfig().set(typedSetting, newValue.doubleValue());
+                            }
+                        }
                     }
                     else
                     {
