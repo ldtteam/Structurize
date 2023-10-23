@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.client;
+package com.ldtteam.structurize.client.fakelevel;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -2,6 +2,7 @@ package com.ldtteam.structurize.client;
 
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.client.fakelevel.BlueprintBlockAccess;
 import com.ldtteam.structurize.items.ItemTagSubstitution;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;

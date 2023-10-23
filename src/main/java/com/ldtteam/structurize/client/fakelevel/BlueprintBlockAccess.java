@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.client;
+package com.ldtteam.structurize.client.fakelevel;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
