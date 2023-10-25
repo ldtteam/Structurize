@@ -1,0 +1,10 @@
+{
+  "values": [
+    "minecraft:armor_stand",
+    "minecraft:end_crystal",
+    "minecraft:block_display",
+    "minecraft:item_display",
+    "minecraft:text_display",
+    "minecraft:furnace_minecart"
+  ]
+}
