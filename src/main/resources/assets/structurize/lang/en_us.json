@@ -188,5 +188,6 @@
   "com.ldtteam.structurize.iterators.inwardcircleheight3": "Inward Circle Height 3",
   "com.ldtteam.structurize.iterators.inwardcircleheight4": "Inward Circle Height 4",
   "com.ldtteam.structurize.iterators.hilbert": "Hilbert",
-  "com.ldtteam.structurize.iterators.random": "Random"
+  "com.ldtteam.structurize.iterators.random": "Random",
+  "structurize.preview_renderer.exception": "An error happened during blueprint preview rendering. If you do not mind, please submit it to our issue tracker. Thanks!"
 }

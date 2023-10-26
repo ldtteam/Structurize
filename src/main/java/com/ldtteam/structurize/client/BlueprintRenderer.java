@@ -22,6 +22,8 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -39,6 +41,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -86,6 +89,7 @@ public class BlueprintRenderer implements AutoCloseable
         .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
     // TODO: remove when forge events
     private static final RenderBuffers renderBuffers = new RenderBuffers();
+    private static boolean hasWarnedExceptions = false;
 
     private final BlueprintBlockAccess blockAccess;
     private List<Entity> entities;
@@ -124,7 +128,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
-    private void init(final Blueprint blueprint)
+    private void init(final Blueprint blueprint, final List<Exception> suppressedExceptions)
     {
         final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
         final RandomSource random = RandomSource.create();
@@ -206,7 +210,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
             catch (final ReportedException e)
             {
-                LOGGER.error("Error while trying to render structure part: " + e.getMessage(), e.getCause());
+                suppressedExceptions.add(e);
             }
         }
 
@@ -236,14 +240,66 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
+        try
+        {
+            final List<Exception> suppressedExceptions = drawUnsafe(previewData, pos, ctx);
+            if (!suppressedExceptions.isEmpty())
+            {
+                if (!hasWarnedExceptions)
+                {
+                    hasWarnedExceptions = true;
+                    Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.preview_renderer.exception"));
+                }
+
+                boolean crashReported = false;
+                for (final Exception exception : suppressedExceptions)
+                {
+                    if (exception instanceof final ReportedException reportedException)
+                    {
+                        previewData.getBlueprint().describeSelfInCrashReport(reportedException.getReport().addCategory("Rendering blueprint"));
+                        LOGGER.error(reportedException.getReport().getDetails());
+                        crashReported = true;
+                    }
+                    else
+                    {
+                        LOGGER.error("", exception);
+                    }
+                }
+                
+                if (!crashReported)
+                {
+                    final CrashReport crashReport = CrashReport.forThrowable(new Exception(), "Summary");
+                    previewData.getBlueprint().describeSelfInCrashReport(crashReport.addCategory("Rendering blueprint"));
+                    LOGGER.error(crashReport.getDetails());
+                }
+
+            }
+        }
+        catch (final Exception e)
+        {
+            final CrashReport crashReport = CrashReport.forThrowable(e, "Rendering blueprint");
+            final CrashReportCategory category = crashReport.addCategory("Blueprint:");
+            previewData.getBlueprint().describeSelfInCrashReport(category);
+            throw new ReportedException(crashReport);
+        }
+    }
+
+    /**
+     * Draws structure into world.
+     * 
+     * @return suppressed exceptions
+     */
+    public List<Exception> drawUnsafe(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    {
         final BlockPos anchorPos = pos.subtract(previewData.getBlueprint().getPrimaryBlockOffset());
 
         // cull entire rendering
         if (!ctx.getFrustum().isVisible(previewData.getBlueprint().getAABB().move(anchorPos)) && !bypassMainFrustum)
         {
-            return;
+            return List.of();
         }
-        
+     
+        final List<Exception> suppressedExceptions = new ArrayList<>();
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
         final PoseStack matrixStack = ctx.getPoseStack();
@@ -258,7 +314,7 @@ public class BlueprintRenderer implements AutoCloseable
         // init
         if (vertexBuffers == null)
         {
-            init(previewData.getBlueprint());
+            init(previewData.getBlueprint(), suppressedExceptions);
         }
 
         mc.getProfiler().popPush("struct_render_prepare");
@@ -341,6 +397,7 @@ public class BlueprintRenderer implements AutoCloseable
                 catch (final Exception e)
                 {
                     // well, noop
+                    suppressedExceptions.add(e);
                 }
             }
 
@@ -358,9 +415,10 @@ public class BlueprintRenderer implements AutoCloseable
                     renderBufferSource,
                     lightTexture);
             }
-            catch (final ClassCastException ex)
+            catch (final ClassCastException e)
             {
                 // Oops
+                suppressedExceptions.add(e);
             }
         }
         matrixStack.popPose();
@@ -482,6 +540,8 @@ public class BlueprintRenderer implements AutoCloseable
 
         lastGameTime = gameTime;
         mc.getProfiler().pop();
+
+        return suppressedExceptions;
     }
 
     /**
