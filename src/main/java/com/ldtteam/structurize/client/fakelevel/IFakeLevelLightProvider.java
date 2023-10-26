@@ -34,28 +34,48 @@ public interface IFakeLevelLightProvider
 
     /**
      * Returning false here means no other method from this iface will get called and all logic will be redirected to current client level.
+     * 
+     * @return false if client level should be used instead
      */
     boolean forceOwnLightLevel();
 
+    /**
+     * @return 0-15 lighting level for given pos
+     */
     int getBlockLight(BlockPos pos);
 
+    /**
+     * @return sth sth vanilla daylight progress?
+     */
     int getSkyDarken();
 
+    /**
+     * @return day time from 0 to 24000
+     */
     default long getDayTime()
     {
         return 6000; // noon
     }
 
+    /**
+     * @return 0-15 lighting level for given pos
+     */
     default int getSkyLight(final BlockPos pos)
     {
         return getBlockLight(pos);
     }
 
+    /**
+     * @return 0-15 lighting level for given pos
+     */
     default int getBrightness(final LightLayer lightLayer, final BlockPos pos)
     {
         return lightLayer == LightLayer.SKY ? getSkyLight(pos) : getBlockLight(pos);
     }
 
+    /**
+     * @return 0-15 lighting level for given pos
+     */
     default int getRawBrightness(final BlockPos pos, final int skyAmount)
     {
         final int sky = getSkyLight(pos) - skyAmount;
@@ -63,6 +83,9 @@ public interface IFakeLevelLightProvider
         return Math.max(block, sky);
     }
 
+    /**
+     * Simple light level config
+     */
     public static class ConfigBasedLightProvider implements IFakeLevelLightProvider
     {
         private final IntValue configValue;
