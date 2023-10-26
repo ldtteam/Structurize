@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.function.Consumer;
 
 /**
- * Vanilla equivalent without section storage. Should override any usage of super.sectionStorage
+ * Vanilla equivalent without section storage. Porting: should override any usage of super.sectionStorage
  */
 public class FakeLevelEntityGetterAdapter extends LevelEntityGetterAdapter<Entity>
 {

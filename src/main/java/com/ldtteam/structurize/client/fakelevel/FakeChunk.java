@@ -44,22 +44,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Blueprint simulated chunk.
+ * Fake level fake chunk :D all data related methods must redirect to fake level
+ * Updating procedure is same as fake leve
  */
 public class FakeChunk extends LevelChunk
 {
-    /**
-     * The block access it gets.
-     */
     private final FakeLevel fakeLevel;
 
-    /**
-     * Construct the element.
-     * 
-     * @param worldIn the blockAccess.
-     * @param x       the chunk x.
-     * @param z       the chunk z.
-     */
     public FakeChunk(final FakeLevel worldIn, final int x, final int z)
     {
         super(worldIn, new ChunkPos(x, z));
@@ -117,6 +108,7 @@ public class FakeChunk extends LevelChunk
     @Override
     public Map<BlockPos, BlockEntity> getBlockEntities()
     {
+        // TODO: this should ideally return only BEs in this chunk
         return fakeLevel.blockEntities;
     }
 
@@ -198,10 +190,21 @@ public class FakeChunk extends LevelChunk
     // ========================================
 
     @Override
-    public void findBlocks(BiPredicate<BlockState, BlockPos> p_285343_, BiConsumer<BlockPos, BlockState> p_285030_)
+    public void findBlocks(BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> sink)
     {
-        // TODO Auto-generated method stub
-        super.findBlocks(p_285343_, p_285030_);
+        for (final BlockPos mutablePos : BlockPos.betweenClosed(chunkPos.getBlockX(0),
+            fakeLevel.levelSource.getMinBuildHeight(),
+            chunkPos.getBlockZ(0),
+            Math.min(chunkPos.getBlockX(15), fakeLevel.levelSource.getMaxX() - 1),
+            fakeLevel.levelSource.getMaxBuildHeight() - 1,
+            Math.min(chunkPos.getBlockZ(15), fakeLevel.levelSource.getMaxZ() - 1)))
+        {
+            final BlockState blockState = getBlockState(mutablePos);
+            if (predicate.test(blockState, mutablePos))
+            {
+                sink.accept(mutablePos, blockState);
+            }
+        }
     }
 
     @Override

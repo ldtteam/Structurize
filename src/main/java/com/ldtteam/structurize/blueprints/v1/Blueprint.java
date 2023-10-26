@@ -963,12 +963,6 @@ public class Blueprint implements IFakeLevelBlockGetter
     }
 
     @Override
-    public int getMinBuildHeight()
-    {
-        return 0;
-    }
-
-    @Override
     public void describeSelfInCrashReport(final CrashReportCategory category)
     {
         // this should roughly match toString

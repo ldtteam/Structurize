@@ -5,6 +5,9 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 
+/**
+ * Porting: class is relatively small, just check super class manually (all of missing methods are/were just aliases)
+ */
 public class FakeLevelData implements WritableLevelData
 {
     protected final LevelData vanillaLevelData;
@@ -85,7 +88,7 @@ public class FakeLevelData implements WritableLevelData
     @Override
     public Difficulty getDifficulty()
     {
-        // would like peaceful but dont want to trigger entity remove
+        // would like peaceful but dont want to trigger entity remove in case someone actually manage to tick fake level
         return Difficulty.EASY;
     }
 

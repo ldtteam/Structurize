@@ -59,7 +59,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Our world/blockAccess dummy. TODO: client level
+ * As much as general fake level. Features:
+ * <ul>
+ * <li>static access to given data</li>
+ * <li>immutability - disables all external changes (but levelSource can be mutable)</li>
+ * <li>most of dimension related things is delegated to current client level (class instances can travel accross dimensions)</li>
+ * <li>biome info is also delegated from client level</li>
+ * <li>light control - manual or delegated from client level</li>
+ * <li>primitive chunk and entity management</li>
+ * <li>basic heightmap support (not fully working yet)</li>
+ * <li><b>Few unsafe NPEs methods :)</b></li>
+ * </ul>
+ * <p>
+ * 
+ * Porting info:
+ * <ol>
+ * <li>uncomment last method section</li>
+ * <li>fix compile errors</li>
+ * <li>add override for remaining methods and sort/implement them accordingly</li>
+ * <li>comment last method section</li>
+ * </ol><p>
+ * 
+ * TODO: extend from client level
  */
 public class FakeLevel extends Level
 {
@@ -68,7 +89,9 @@ public class FakeLevel extends Level
     protected final Scoreboard scoreboard;
     protected final boolean overrideBeLevel;
 
+    protected final FakeChunkSource chunkSource;
     protected FakeLevelEntityGetterAdapter levelEntityGetter = FakeLevelEntityGetterAdapter.EMPTY;
+    // TODO: this is currently manually filled by class user - ideally if not filled yet this should get constructed from levelSource manually
     protected Map<BlockPos, BlockEntity> blockEntities = Collections.emptyMap();
 
     /**
@@ -77,11 +100,15 @@ public class FakeLevel extends Level
     protected BlockPos worldPos = BlockPos.ZERO;
 
     /**
-     * Constructor to create a new world/blockAccess
+     * @param levelSource data source, also try to set block entities/entities collections
+     * @param lightProvider light source
+     * @param scoreboard if null client level is used instead
+     * @param overrideBeLevel if true all block entities will have set level to this instance
      * 
-     * @param levelSource the blueprint.
+     * @see #setBlockEntities(Map) for better block entity handling, if set then levelSource BE getter is not used
+     * @see #setEntities(Collection) only way to add entities into fake level
      */
-    public FakeLevel(final IFakeLevelBlockGetter levelSource, final IFakeLevelLightProvider lightProvider, final Scoreboard scoreboard, final boolean overrideBeLevel)
+    public FakeLevel(final IFakeLevelBlockGetter levelSource, final IFakeLevelLightProvider lightProvider, @Nullable final Scoreboard scoreboard, final boolean overrideBeLevel)
     {
         super(new FakeLevelData(clientLevel().getLevelData(), lightProvider),
             clientLevel().dimension(),
@@ -94,8 +121,9 @@ public class FakeLevel extends Level
             0);
         this.levelSource = levelSource;
         this.lightProvider = lightProvider;
-        this.scoreboard = scoreboard;
+        this.scoreboard = scoreboard == null ? clientLevel().getScoreboard() : scoreboard;
         this.overrideBeLevel = overrideBeLevel;
+        this.chunkSource = new FakeChunkSource(this);
     }
 
     // ========================================
@@ -103,39 +131,57 @@ public class FakeLevel extends Level
     // ========================================
 
     @SuppressWarnings("resource")
-    private static ClientLevel clientLevel()
+    protected static ClientLevel clientLevel()
     {
         return Minecraft.getInstance().level;
     }
 
-    public IFakeLevelBlockGetter getLevelSource()
-    {
-        return levelSource;
-    }
-
+    /**
+     * @param levelSource new data source
+     */
     public void setLevelSource(final IFakeLevelBlockGetter levelSource)
     {
         this.levelSource = levelSource;
     }
 
     /**
-     * @param worldPos where is fake level anchor when querying current client level
+     * @return current data source
+     */
+    public IFakeLevelBlockGetter getLevelSource()
+    {
+        return levelSource;
+    }
+
+    /**
+     * @param worldPos where is fake level anchor when querying current client level data
      */
     public void setWorldPos(final BlockPos worldPos)
     {
         this.worldPos = worldPos;
     }
 
+    /**
+     * @return anchor in vanilla client level
+     */
     public BlockPos getWorldPos()
     {
         return worldPos;
     }
 
+    /**
+     * For better block entity handling in chunk methods. If set then {@link IFakeLevelBlockGetter#getBlockEntity(BlockPos)
+     * levelSource.getBlockEntity(BlockPos)} is not used
+     * 
+     * @param blockEntities all block entities, should be data equivalent to levelSource
+     */
     public void setBlockEntities(final Map<BlockPos, BlockEntity> blockEntities)
     {
         this.blockEntities = blockEntities;
     }
 
+    /**
+     * @param entities all entities, their level should be this fake level instance
+     */
     public void setEntities(final Collection<? extends Entity> entities)
     {
         levelEntityGetter = FakeLevelEntityGetterAdapter.ofEntities(entities);
@@ -181,9 +227,8 @@ public class FakeLevel extends Level
     {
         final int posX = SectionPos.sectionToBlockCoord(chunkX);
         final int posZ = SectionPos.sectionToBlockCoord(chunkZ);
-        return levelSource.getMinSizeX() <= posX && posX < levelSource.getSizeX() &&
-            levelSource.getMinSizeZ() <= posZ &&
-            posZ < levelSource.getSizeZ();
+        return levelSource.getMinX() <= posX && posX < levelSource.getMaxX() &&
+            levelSource.getMinZ() <= posZ && posZ < levelSource.getMaxZ();
     }
 
     @Override
@@ -277,20 +322,27 @@ public class FakeLevel extends Level
     @Override
     public int getHeight(Types heightmapType, int x, int z)
     {
-        if (heightmapType == Types.WORLD_SURFACE)
+        final MutableBlockPos pos = new MutableBlockPos(x, levelSource.getMinBuildHeight(), z);
+
+        if (levelSource.isPosInside(pos))
         {
-            final MutableBlockPos pos = new MutableBlockPos(x, 0, z);
-            for (int y = levelSource.getHeight() - 1; y >= 0; y--)
+            for (int y = levelSource.getMaxBuildHeight() - 1; y >= levelSource.getMinBuildHeight(); y--)
             {
                 pos.setY(y);
-                if (heightmapType.isOpaque().test(getBlockState(pos)))
+                if (heightmapType.isOpaque().test(levelSource.getBlockState(pos)))
                 {
                     return y;
                 }
             }
         }
-        // else noop
-        return 0;
+            
+        return levelSource.getMinBuildHeight();
+    }
+
+    @Override
+    public ChunkSource getChunkSource()
+    {
+        return chunkSource;
     }
 
     @Override
@@ -354,15 +406,8 @@ public class FakeLevel extends Level
     @Override
     public LevelLightEngine getLightEngine()
     {
-        // Noop, impossible (or super annoying) without mixin ctor?
-        return null;
-    }
-
-    @Override
-    public ChunkSource getChunkSource()
-    {
-        // TODO: Noop
-        return null;
+        // TODO: noop
+        throw new UnsupportedOperationException("Structurize fake level - if you really need light engine please make issue on our GitHub");
     }
 
     @Override
@@ -377,7 +422,7 @@ public class FakeLevel extends Level
         ExplosionInteraction p_255784_,
         boolean p_256377_)
     {
-        return null;
+        throw new UnsupportedOperationException("Structurize fake immutable level - no explosions possible!");
     }
 
     // ========================================
