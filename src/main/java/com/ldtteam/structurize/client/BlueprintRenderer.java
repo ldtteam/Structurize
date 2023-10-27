@@ -10,7 +10,6 @@ import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockInfo;
-import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintMissHitResult;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
@@ -70,10 +69,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -97,6 +99,7 @@ public class BlueprintRenderer implements AutoCloseable
     private Map<RenderType, VertexBuffer> vertexBuffers;
     private long lastGameTime;
     private boolean bypassMainFrustum = false;
+    private Set<Object> crashingObjects = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
      * Static factory utility method to handle the extraction of the values from the blueprint.
@@ -128,7 +131,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
-    private void init(final Blueprint blueprint, final List<Exception> suppressedExceptions)
+    private void init(final Blueprint blueprint, final Map<Object, Exception> suppressedExceptions)
     {
         final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
         final RandomSource random = RandomSource.create();
@@ -147,36 +150,35 @@ public class BlueprintRenderer implements AutoCloseable
 
         for (final BlockInfo blockInfo : blueprint.getBlockInfoAsList())
         {
-            try
+            final BlockPos blockPos = blockInfo.getPos();
+            BlockState state = blockInfo.getState();
+            // specially handle blockTagSub here cuz of block entity changes
+            if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockTagSubstitution.get())
             {
-                final BlockPos blockPos = blockInfo.getPos();
-                BlockState state = blockInfo.getState();
-                // specially handle blockTagSub here cuz of block entity changes
-                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                if (tileEntitiesMap.remove(blockPos) instanceof final BlockEntityTagSubstitution tagTE)
                 {
-                    if (tileEntitiesMap.remove(blockPos) instanceof final BlockEntityTagSubstitution tagTE)
-                    {
-                        final BlockEntityTagSubstitution.ReplacementBlock replacement = tagTE.getReplacement();
-                        state = replacement.getBlockState();
+                    final BlockEntityTagSubstitution.ReplacementBlock replacement = tagTE.getReplacement();
+                    state = replacement.getBlockState();
 
-                        Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(newBe -> {
-                            newBe.setLevel(blockAccess);
-                            teModelData.put(blockPos, newBe.getModelData());
-                            tileEntitiesMap.put(blockPos, newBe);
-                        });
-                    }
-                    else
-                    {
-                        state = Blocks.AIR.defaultBlockState();
-                    }
+                    Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(newBe -> {
+                        newBe.setLevel(blockAccess);
+                        teModelData.put(blockPos, newBe.getModelData());
+                        tileEntitiesMap.put(blockPos, newBe);
+                    });
                 }
                 else
                 {
-                    state = blockAccess.prepareBlockStateForRendering(state, blockPos);
+                    state = Blocks.AIR.defaultBlockState();
                 }
+            }
+            else
+            {
+                state = blockAccess.prepareBlockStateForRendering(state, blockPos);
+            }
 
-                final FluidState fluidState = state.getFluidState();
-
+            final FluidState fluidState = state.getFluidState();
+            try
+            {
                 if (!fluidState.isEmpty())
                 {
                     final RenderType renderType = ItemBlockRenderTypes.getRenderLayer(fluidState);
@@ -210,7 +212,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
             catch (final ReportedException e)
             {
-                suppressedExceptions.add(e);
+                suppressedExceptions.put(blockInfo, e);
             }
         }
 
@@ -240,9 +242,15 @@ public class BlueprintRenderer implements AutoCloseable
      */
     public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
+        // we've crashed hard before, full skip
+        if (crashingObjects == null)
+        {
+            return;
+        }
+
         try
         {
-            final List<Exception> suppressedExceptions = drawUnsafe(previewData, pos, ctx);
+            final Map<Object, Exception> suppressedExceptions = drawUnsafe(previewData, pos, ctx);
             if (!suppressedExceptions.isEmpty())
             {
                 if (!hasWarnedExceptions)
@@ -252,27 +260,34 @@ public class BlueprintRenderer implements AutoCloseable
                 }
 
                 boolean crashReported = false;
-                for (final Exception exception : suppressedExceptions)
+                boolean isEmpty = true;
+                for (final Map.Entry<Object, Exception> e : suppressedExceptions.entrySet())
                 {
-                    if (exception instanceof final ReportedException reportedException)
+                    if (!crashingObjects.add(e.getKey()))
                     {
-                        previewData.getBlueprint().describeSelfInCrashReport(reportedException.getReport().addCategory("Rendering blueprint"));
+                        continue;
+                    }
+                    isEmpty = false;
+
+                    if (e.getValue() instanceof final ReportedException reportedException)
+                    {
+                        previewData.getBlueprint()
+                            .describeSelfInCrashReport(reportedException.getReport().addCategory("Rendering blueprint"));
                         LOGGER.error(reportedException.getReport().getDetails());
                         crashReported = true;
                     }
                     else
                     {
-                        LOGGER.error("", exception);
+                        LOGGER.error("", e.getValue());
                     }
                 }
-                
-                if (!crashReported)
+
+                if (!crashReported && !isEmpty)
                 {
                     final CrashReport crashReport = CrashReport.forThrowable(new Exception(), "Summary");
                     previewData.getBlueprint().describeSelfInCrashReport(crashReport.addCategory("Rendering blueprint"));
                     LOGGER.error(crashReport.getDetails());
                 }
-
             }
         }
         catch (final Exception e)
@@ -280,7 +295,11 @@ public class BlueprintRenderer implements AutoCloseable
             final CrashReport crashReport = CrashReport.forThrowable(e, "Rendering blueprint");
             final CrashReportCategory category = crashReport.addCategory("Blueprint:");
             previewData.getBlueprint().describeSelfInCrashReport(category);
-            throw new ReportedException(crashReport);
+            LOGGER.error(crashReport.getDetails());
+
+            crashingObjects = null;
+            Minecraft.getInstance().player.sendSystemMessage(
+                Component.translatable("structurize.preview_renderer.cannot_render", previewData.getBlueprint().getName()));
         }
     }
 
@@ -289,17 +308,17 @@ public class BlueprintRenderer implements AutoCloseable
      * 
      * @return suppressed exceptions
      */
-    public List<Exception> drawUnsafe(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    public Map<Object, Exception> drawUnsafe(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
         final BlockPos anchorPos = pos.subtract(previewData.getBlueprint().getPrimaryBlockOffset());
 
         // cull entire rendering
         if (!ctx.getFrustum().isVisible(previewData.getBlueprint().getAABB().move(anchorPos)) && !bypassMainFrustum)
         {
-            return List.of();
+            return Map.of();
         }
      
-        final List<Exception> suppressedExceptions = new ArrayList<>();
+        final Map<Object, Exception> suppressedExceptions = new IdentityHashMap<>();
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
         final PoseStack matrixStack = ctx.getPoseStack();
@@ -324,7 +343,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // cache old dispatchers
         final Level dispLevel = mc.getBlockEntityRenderDispatcher().level; // they are same for both anyway
-        final Camera dispCamera = mc.getBlockEntityRenderDispatcher().camera; // too same
+        final Camera dispCamera = mc.getBlockEntityRenderDispatcher().camera; // also same
         final HitResult beHitResult = mc.getBlockEntityRenderDispatcher().cameraHitResult;
         final Entity ePickEntity = mc.getEntityRenderDispatcher().crosshairPickEntity;
 
@@ -397,7 +416,7 @@ public class BlueprintRenderer implements AutoCloseable
                 catch (final Exception e)
                 {
                     // well, noop
-                    suppressedExceptions.add(e);
+                    suppressedExceptions.put(entity, e);
                 }
             }
 
@@ -418,7 +437,7 @@ public class BlueprintRenderer implements AutoCloseable
             catch (final ClassCastException e)
             {
                 // Oops
-                suppressedExceptions.add(e);
+                suppressedExceptions.put(entity, e);
             }
         }
         matrixStack.popPose();
