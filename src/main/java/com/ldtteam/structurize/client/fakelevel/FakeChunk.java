@@ -94,12 +94,6 @@ public class FakeChunk extends LevelChunk
     }
 
     @Override
-    public FakeLevel getLevel()
-    {
-        return fakeLevel;
-    }
-
-    @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z)
     {
         return fakeLevel.getNoiseBiome(x, y, z);
@@ -426,6 +420,12 @@ public class FakeChunk extends LevelChunk
     // ========================================
 
     /*
+    @Override
+    public Level getLevel()
+    {
+        return super.getLevel();
+    }
+
     @Override
     public void addEntity(Entity p_62826_)
     {
