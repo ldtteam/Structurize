@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.optifine.OptifineCompat;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -11,6 +11,9 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.FluidRenderer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
@@ -31,6 +34,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
@@ -43,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.GL20C;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -50,10 +55,9 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * The renderer for blueprint.
@@ -130,24 +134,28 @@ public class BlueprintRenderer implements AutoCloseable
             {
                 final BlockPos blockPos = blockInfo.getPos();
                 BlockState state = blockInfo.getState();
-                if (!BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
+                if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
                 {
                     if (state.getBlock() == ModBlocks.blockSubstitution.get())
                     {
                         state = Blocks.AIR.defaultBlockState();
                     }
-                    if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                    else if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
                     {
-                        final Optional<BlockEntity> tagTE = tileEntities.stream()
-                                .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
-                                .findFirst();
+                        state = defaultFluidState;
+                    }
+                    else if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+                    {
+                        final Optional<BlockEntityTagSubstitution> tagTE = tileEntities.stream()
+                            .filter(te -> te.getBlockPos().equals(blockPos) && te instanceof BlockEntityTagSubstitution)
+                            .findFirst()
+                            .map(BlockEntityTagSubstitution.class::cast);
                         if (tagTE.isPresent())
                         {
-                            final BlockEntityTagSubstitution.ReplacementBlock replacement = ((BlockEntityTagSubstitution) tagTE.get()).getReplacement();
+                            final BlockEntityTagSubstitution.ReplacementBlock replacement = tagTE.get().getReplacement();
                             state = replacement.getBlockState();
                             tileEntities.remove(tagTE.get());
-                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e ->
-                            {
+                            Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(e -> {
                                 e.setLevel(blockAccess);
                                 teModelData.put(blockPos, e.getModelData());
                                 tileEntities.add(e);
@@ -158,11 +166,7 @@ public class BlueprintRenderer implements AutoCloseable
                             state = Blocks.AIR.defaultBlockState();
                         }
                     }
-                    if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
-                    {
-                        state = defaultFluidState;
-                    }
-                    if (SharedConstants.IS_RUNNING_IN_IDE && serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+                    else if (serverLevel != null && state.getBlock() == ModBlocks.blockSolidSubstitution.get())
                     {
                         state = BlockUtils.getWorldgenBlock(serverLevel, anchorPos.offset(blockPos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(anchorPos)));
                         if (state == null)
@@ -281,12 +285,12 @@ public class BlueprintRenderer implements AutoCloseable
         OptifineCompat.getInstance().setupFog();
 
         mc.getProfiler().popPush("struct_render_blocks");
-        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
-        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf, previewData);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
-        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf, previewData);
 
         OptifineCompat.getInstance().endTerrainBeginEntities();
 
@@ -346,11 +350,18 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getProfiler().popPush("struct_render_blockentities");
         final Camera oldActiveRenderInfo = mc.getBlockEntityRenderDispatcher().camera;
         final Level oldWorld = mc.getBlockEntityRenderDispatcher().level;
-        mc.getBlockEntityRenderDispatcher().camera = new Camera();
+        final Camera ourCamera = new Camera();
+        mc.getBlockEntityRenderDispatcher().camera = ourCamera;
         mc.getBlockEntityRenderDispatcher().camera.setPosition(viewPosition.subtract(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ()));
         mc.getBlockEntityRenderDispatcher().level = blockAccess;
         for(final BlockEntity tileEntity : tileEntities)
         {
+            final BlockEntityRenderer<BlockEntity> renderer = mc.getBlockEntityRenderDispatcher().getRenderer(tileEntity);
+            if (renderer == null || !renderer.shouldRender(tileEntity, ourCamera.getPosition()))
+            {
+                continue;
+            }
+
             final BlockPos tePos = tileEntity.getBlockPos();
             final Vec3 realRenderTePos = realRenderRootVecd.add(tePos.getX(), tePos.getY(), tePos.getZ());
 
@@ -377,12 +388,20 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof SkullBlockEntity skull)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.getBlock() instanceof SkullBlock &&  bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
+                    if (bs.getBlock() instanceof SkullBlock && bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
                     {
-                        SkullBlockEntity.dragonHeadAnimation(mc.level, anchorPos.offset(tePos), bs, skull);
+                        SkullBlockEntity.dragonHeadAnimation(blockAccess, tePos, bs, skull);
                     }
                 }
-                // TODO: investigate beams (beacon...)
+                else if (tileEntity instanceof final BeaconBlockEntity beacon)
+                {
+                    BeaconBlockEntity.tick(blockAccess, tePos, blockAccess.getBlockState(tePos), beacon);
+                }
+            }
+
+            if (!renderer.shouldRenderOffScreen(tileEntity))
+            {
+                continue;
             }
 
             matrixStack.pushPose();
@@ -428,12 +447,12 @@ public class BlueprintRenderer implements AutoCloseable
 
         mc.getProfiler().popPush("struct_render_blocks2");
         OptifineCompat.getInstance().endDebugPreWaterBeginWater();
-        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf, previewData);
         OptifineCompat.getInstance().endWater();
 
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
-        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf);
+        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf, previewData);
 
         OptifineCompat.getInstance().resetFog();
         FogRenderer.setupNoFog();
@@ -462,7 +481,7 @@ public class BlueprintRenderer implements AutoCloseable
         clearVertexBuffers();
     }
 
-    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos)
+    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos, final BlueprintPreviewData previewData)
     {
         final VertexBuffer vertexBuffer = vertexBuffers.get(layerRenderType);
         if (vertexBuffer == null)
@@ -537,9 +556,12 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         OptifineCompat.getInstance().setUniformChunkOffset(realRenderRootPos.x(), realRenderRootPos.y(), realRenderRootPos.z());
+        TransparencyHack.apply(previewData.getOverridePreviewTransparency());
 
         vertexBuffer.bind();
         vertexBuffer.draw();
+
+        TransparencyHack.reset();
 
         if (uniform != null)
         {
@@ -565,6 +587,50 @@ public class BlueprintRenderer implements AutoCloseable
             }
             return buffer;
         }
-        
+    }
+
+    /**
+     * Assuming there's no blend function active let's take advantage of OpenGL blend color constant
+     * which doesnt require any shader changes at all.
+     * More info at: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendColor.xhtml
+     */
+    public static class TransparencyHack
+    {
+        public static final float THRESHOLD = 0.99f;
+        protected static boolean applied = false;
+
+        public static void apply(final float overrideValue)
+        {
+            if (applied || GlStateManager.BLEND.mode.enabled)
+            {
+                // do not override if there is running blend fnc
+                return;
+            }
+
+            float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            if (alpha < 0 || alpha > THRESHOLD)
+            {
+                return;
+            }
+            alpha = overrideValue < 0 ? alpha : Mth.clamp(overrideValue, 0, 1);
+
+            applied = true;
+
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(SourceFactor.CONSTANT_ALPHA, DestFactor.ONE_MINUS_CONSTANT_ALPHA);
+            GL20C.glBlendColor(0, 0, 0, alpha);
+        }
+
+        public static void reset()
+        {
+            if (!applied)
+            {
+                return;
+            }
+
+            applied = false;
+
+            RenderSystem.disableBlend();
+        }
     }
 }

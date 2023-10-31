@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
@@ -74,8 +75,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.RENDER_PLACEHOLDERS;
 
 /**
  * Our world/blockAccess dummy. TODO: client level
@@ -152,26 +151,29 @@ public class BlueprintBlockAccess extends Level
     public BlockState getBlockState(final BlockPos pos)
     {
         final BlockState state = BlueprintUtils.getBlockInfoFromPos(blueprint, pos).getState();
-        if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
+        if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
         {
-            return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
-        }
-        if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
-        {
-            return BlockUtils.getFluidForDimension(anyLevel());
-        }
-        if (state.getBlock() == ModBlocks.blockSubstitution.get() && !BlueprintRenderSettings.instance.renderSettings.get(RENDER_PLACEHOLDERS))
-        {
-            return Blocks.AIR.defaultBlockState();
-        }
-        if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
-        {
-            if (BlueprintUtils.getTileEntityFromPos(blueprint, pos, this) instanceof BlockEntityTagSubstitution tag &&
-                    !tag.getReplacement().isEmpty())
+            if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
-                return tag.getReplacement().getBlockState();
+                return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), blueprint.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
             }
-            return Blocks.AIR.defaultBlockState();
+            if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
+            {
+                return BlockUtils.getFluidForDimension(anyLevel());
+            }
+            if (state.getBlock() == ModBlocks.blockSubstitution.get())
+            {
+                return Blocks.AIR.defaultBlockState();
+            }
+            if (state.getBlock() == ModBlocks.blockTagSubstitution.get())
+            {
+                if (BlueprintUtils.getTileEntityFromPos(blueprint, pos, this) instanceof BlockEntityTagSubstitution tag &&
+                        !tag.getReplacement().isEmpty())
+                {
+                    return tag.getReplacement().getBlockState();
+                }
+                return Blocks.AIR.defaultBlockState();
+            }
         }
         return state;
     }
@@ -340,7 +342,19 @@ public class BlueprintBlockAccess extends Level
     @Override
     public int getHeight(Types heightmapType, int x, int z)
     {
-        // Noop
+        if (heightmapType == Types.WORLD_SURFACE)
+        {
+            final MutableBlockPos pos = new MutableBlockPos(x, 0, z);
+            for (int y = blueprint.getSizeY() - 1; y >= 0; y--)
+            {
+                pos.setY(y);
+                if (heightmapType.isOpaque().test(getBlockState(pos)))
+                {
+                    return y;
+                }
+            }
+        }
+        // else noop
         return 0;
     }
 

@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
@@ -13,17 +13,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class SyncSettingsToServer implements IMessage
 {
-    /**
-     * Settings map.
-     */
-    private final BlueprintRenderSettings settings;
+    private final boolean displayShared;
 
     /**
      * Buffer reading message constructor.
      */
     public SyncSettingsToServer(final FriendlyByteBuf buf)
     {
-        this.settings = new BlueprintRenderSettings(buf);
+        this.displayShared = buf.readBoolean();
     }
 
     /**
@@ -31,13 +28,13 @@ public class SyncSettingsToServer implements IMessage
      */
     public SyncSettingsToServer()
     {
-        this.settings = BlueprintRenderSettings.instance;
+        this.displayShared = Structurize.getConfig().getClient().displayShared.get();
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        BlueprintRenderSettings.instance.writeToBuf(buf);
+        buf.writeBoolean(displayShared);
     }
 
     @Nullable
@@ -50,6 +47,6 @@ public class SyncSettingsToServer implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        ServerPreviewDistributor.register(ctxIn.getSender().getUUID(), new Tuple<>(ctxIn.getSender(), this.settings));
+        ServerPreviewDistributor.register(ctxIn.getSender(), displayShared);
     }
 }

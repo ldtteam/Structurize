@@ -8,6 +8,7 @@ import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
+import com.ldtteam.structurize.blueprints.FacingFixer;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -421,6 +422,14 @@ public class Blueprint
     }
 
     /**
+     * @return current rot/mir as relative to freshly loaded file
+     */
+    public RotationMirror getRotationMirror()
+    {
+        return rotationMirror;
+    }
+
+    /**
      * Get a list of all entities in the blueprint as a list.
      *
      * @return the list of CompoundNBTs.
@@ -630,6 +639,11 @@ public class Blueprint
      */
     public void setRotationMirrorRelative(final RotationMirror transformBy, final Level level)
     {
+        if (transformBy == RotationMirror.NONE)
+        {
+            return;
+        }
+
         final BlockPos primaryOffset = getPrimaryBlockOffset();
         final short newSizeX, newSizeZ, newSizeY = sizeY;
 
@@ -654,7 +668,14 @@ public class Blueprint
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, this.palette.get(i).mirror(transformBy.mirror()).rotate(transformBy.rotation()));
+            BlockState bs = this.palette.get(i);
+
+            if (transformBy.isMirrored())
+            {
+                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), bs);
+            }
+
+            palette.add(i, bs.rotate(transformBy.rotation()));
         }
 
         final BlockPos extremes = transformBy.applyToPos(new BlockPos(sizeX, sizeY, sizeZ));

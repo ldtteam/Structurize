@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.placement.structure;
 
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
@@ -169,6 +171,24 @@ public interface IStructureHandler
      * @return true if so.
      */
     boolean hasRequiredItems(final List<ItemStack> requiredItems);
+
+    /**
+     * Consume the items from the handler inventory if existent.
+     * @param requiredItems the items to consume.
+     */
+    default void consume(final List<ItemStack> requiredItems)
+    {
+        if (this.getInventory() != null)
+        {
+            for (final ItemStack tempStack : requiredItems)
+            {
+                if (!ItemStackUtils.isEmpty(tempStack))
+                {
+                    InventoryUtils.consumeStack(tempStack, this.getInventory());
+                }
+            }
+        }
+    }
 
     /**
      * Get the position in the world translated from a local pos in the structure.

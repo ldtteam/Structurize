@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
-import com.ldtteam.structurize.config.BlueprintRenderSettings;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -11,6 +11,7 @@ import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,8 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.SHARE_PREVIEWS;
 
 /**
  * Necessary data for blueprint preview.
@@ -67,6 +66,11 @@ public class BlueprintPreviewData
     private RenderingCacheKey renderKey;
 
     private final boolean serverSyncEnabled;
+    
+    /**
+     * What value should be used for transparency if enabled
+     */
+    private float overridePreviewTransparency = -1;
 
     /**
      * Default constructor to create a new setup.
@@ -92,7 +96,17 @@ public class BlueprintPreviewData
      */
     public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
     {
-        serverSyncEnabled = true;
+        this(byteBuf, true);
+    }
+
+    /**
+     * Create blueprint preview data from byteBuf.
+     * @param byteBuf the buffer data.
+     * @param serverSyncEnabled if false then wont send sync preview messages to server
+     */
+    public BlueprintPreviewData(final FriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
+    {
+        this.serverSyncEnabled = serverSyncEnabled;
 
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
@@ -237,7 +251,7 @@ public class BlueprintPreviewData
      */
     public void syncChangesToServer()
     {
-        if (serverSyncEnabled && BlueprintRenderSettings.instance.renderSettings.get(SHARE_PREVIEWS) && (blueprint == null || blueprint.getName() != null))
+        if (serverSyncEnabled && Structurize.getConfig().getClient().sharePreviews.get() && (blueprint == null || blueprint.getName() != null))
         {
             Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }
@@ -370,5 +384,25 @@ public class BlueprintPreviewData
             getBlueprint();
         }
         return renderKey;
+    }
+
+    public boolean isServerSyncEnabled()
+    {
+        return serverSyncEnabled;
+    }
+
+    /**
+     * Overrides client config for preview transparency if already enabled, else does nothing.
+     *
+     * @param overridePreviewTransparency -1 (or any negative) for keep config, 0 = transparent to 1 = opaque
+     */
+    public void setOverridePreviewTransparency(final float overridePreviewTransparency)
+    {
+        this.overridePreviewTransparency = Mth.clamp(overridePreviewTransparency, -1, 1);
+    }
+
+    public float getOverridePreviewTransparency()
+    {
+        return overridePreviewTransparency;
     }
 }

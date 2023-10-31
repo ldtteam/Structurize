@@ -1,9 +1,12 @@
 package com.ldtteam.structurize.storage.rendering;
 
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Rendering cache for boxes, blueprints, etc.
@@ -122,7 +125,7 @@ public class RenderingCache
      */
     public static boolean forceLightLevel()
     {
-        return true;
+        return Structurize.getConfig().getClient().rendererLightLevel.get() >= 0;
     }
 
     /**
@@ -130,7 +133,7 @@ public class RenderingCache
      */
     public static int getOurLightLevel()
     {
-        return 15;
+        return Structurize.getConfig().getClient().rendererLightLevel.get();
     }
 
     /**
@@ -140,5 +143,13 @@ public class RenderingCache
     {
         blueprintRenderingCache.clear();
         boxRenderingCache.clear();
+    }
+
+    /**
+     * Removes all shared previews
+     */
+    public static void removeSharedPreviews()
+    {
+        blueprintRenderingCache.keySet().removeIf(key -> key.startsWith(SyncPreviewCacheToClient.SHARED_PREFIX));
     }
 }

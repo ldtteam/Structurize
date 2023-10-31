@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.placement.structure;
 
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
