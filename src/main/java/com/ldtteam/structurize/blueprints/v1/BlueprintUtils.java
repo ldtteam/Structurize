@@ -1,16 +1,17 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.client.BlueprintBlockAccess;
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.util.BlockEntityInfo;
 import com.ldtteam.structurize.util.BlockInfo;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -19,52 +20,26 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Utility functions for blueprints.
  */
 public final class BlueprintUtils
 {
-    private static final Function<BlockPos, BlockInfo> DEFAULT_FACTORY = pos -> new BlockInfo(pos, Blocks.AIR.defaultBlockState(), null);
-
     private BlueprintUtils()
     {
         throw new IllegalArgumentException("Utils class");
     }
 
     /**
-     * Get the tileEntity from a certain position.
-     *
-     * @param blueprint the blueprint they are in.
-     * @param pos       the position they are at.
-     * @param access    the world access to assign them to.
-     * @return the tileEntity or null.
-     */
-    public static BlockEntity getTileEntityFromPos(final Blueprint blueprint, final BlockPos pos, final BlueprintBlockAccess access)
-    {
-        final BlockInfo blockInfo = getBlockInfoFromPos(blueprint, pos);
-        if (blockInfo.getTileEntityData() != null)
-        {
-            return constructTileEntity(blockInfo, access);
-        }
-        return null;
-    }
-
-    public static BlockInfo getBlockInfoFromPos(final Blueprint blueprint, final BlockPos pos)
-    {
-        final BlockInfo blockInfo = blueprint.getBlockInfoAsMap().get(pos);
-        return blockInfo == null ? DEFAULT_FACTORY.apply(pos) : blockInfo;
-    }
-
-    /**
      * Creates a list of tileentities located in the blueprint, placed inside that blueprints block access world.
      *
      * @param blueprint   The blueprint whos tileentities need to be instantiated.
-     * @param blockAccess The blueprint world.
+     * @param beLevel The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
-    public static List<BlockEntity> instantiateTileEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess, final Map<BlockPos, ModelData> teModelData)
+    public static Map<BlockPos, BlockEntity> instantiateTileEntities(final Blueprint blueprint, final Level beLevel, final Map<BlockPos, ModelData> teModelData)
     {
         return blueprint.getBlockInfoAsList()
             .stream()
@@ -72,38 +47,39 @@ public final class BlueprintUtils
             .filter(BlockInfo::hasTileEntityData)
             .map(blockInfo -> {
                 @Nullable
-                final BlockEntity be = constructTileEntity(blockInfo, blockAccess);
+                final BlockEntity be = constructTileEntity(blockInfo, beLevel);
                 if (be != null)
                 {
                     teModelData.put(blockInfo.getPos(), be.getModelData());
+                    return new BlockEntityInfo(blockInfo.getPos(), be);
                 }
-                return be;
+                return null;
             })
             .filter(Objects::nonNull)
-            .toList();
+            .collect(Collectors.toMap(BlockEntityInfo::pos, BlockEntityInfo::blockEntity));
     }
 
     /**
      * Creates a list of entities located in the blueprint, placed inside that blueprints block access world.
      *
      * @param blueprint   The blueprint whos entities need to be instantiated.
-     * @param blockAccess The blueprints world.
+     * @param entityLevel The blueprints world.
      * @return A list of entities in the blueprint
      */
-        public static List<Entity> instantiateEntities(final Blueprint blueprint, final BlueprintBlockAccess blockAccess)
+    public static List<Entity> instantiateEntities(final Blueprint blueprint, final Level entityLevel)
     {
         return blueprint.getEntitiesAsList()
             .stream()
             .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
-            .map(entityInfo -> constructEntity(entityInfo, blockAccess))
+            .map(entityInfo -> constructEntity(entityInfo, entityLevel))
             .filter(Objects::nonNull)
             .toList();
     }
 
     @Nullable
-    private static BlockEntity constructTileEntity(final BlockInfo info, final BlueprintBlockAccess blockAccess)
+    public static BlockEntity constructTileEntity(final BlockInfo info, final Level beLevel)
     {
-        if (info.getTileEntityData() == null) return null;
+        if (info == null || info.getTileEntityData() == null) return null;
 
         final String entityId = info.getTileEntityData().getString("id");
 
@@ -114,11 +90,21 @@ public final class BlueprintUtils
             compound.putInt("y", info.getPos().getY());
             compound.putInt("z", info.getPos().getZ());
 
-            final BlockEntity entity = BlockEntity.loadStatic(info.getPos(), Objects.requireNonNull(info.getState()), compound);
+            final BlockState blockState = info.getState();
+            final BlockEntity entity = BlockEntity.loadStatic(info.getPos(), Objects.requireNonNull(blockState), compound);
 
             if (entity != null)
             {
-                entity.setLevel(blockAccess);
+                if (!entity.getType().isValid(blockState))
+                {
+                    Log.getLogger().error("TileEntity " + entityId + " does not accept blockState: " + blockState);
+                    return null;
+                }
+
+                if (beLevel != null)
+                {
+                    entity.setLevel(beLevel);
+                }
             }
             return entity;
         }
@@ -130,7 +116,7 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static Entity constructEntity(@Nullable final CompoundTag info, final BlueprintBlockAccess blockAccess)
+    private static Entity constructEntity(@Nullable final CompoundTag info, final Level entityLevel)
     {
         if (info == null) return null;
 
@@ -143,7 +129,7 @@ public final class BlueprintUtils
             final Optional<EntityType<?>> type = EntityType.by(compound);
             if (type.isPresent())
             {    
-                final Entity entity = type.get().create(blockAccess);
+                final Entity entity = type.get().create(entityLevel);
     
                 if (entity != null)
                 {

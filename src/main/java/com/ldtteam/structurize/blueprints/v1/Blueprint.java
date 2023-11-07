@@ -8,11 +8,13 @@ import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blueprints.FacingFixer;
+import com.ldtteam.structurize.client.fakelevel.IFakeLevelBlockGetter;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import com.ldtteam.structurize.util.RotationMirror;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,13 +27,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
@@ -41,7 +43,7 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
  * 
  * WARNING: hashcode/equals does NOT take rotation/mirror into account
  */
-public class Blueprint
+public class Blueprint implements IFakeLevelBlockGetter
 {
     /**
      * Entity pos constant.
@@ -923,18 +925,6 @@ public class Blueprint
         return getBlockInfoAsMap().get(pos).getState();
     }
 
-    @Nullable
-    public BlockState getRawBlockState(final BlockPos pos)
-    {
-        final BlockInfo blockInfo = getBlockInfoAsMap().get(pos);
-        return blockInfo == null ? null : blockInfo.getState();
-    }
-
-    public Function<BlockPos, BlockState> getRawBlockStateFunction()
-    {
-        return this::getRawBlockState;
-    }
-
     @Override
     public String toString()
     {
@@ -954,5 +944,33 @@ public class Blueprint
             ", rotMir=" +
             rotationMirror +
             "]";
+    }
+
+    /**
+     * @return blockEntity without world
+     */
+    @Override
+    @javax.annotation.Nullable
+    public BlockEntity getBlockEntity(final BlockPos pos)
+    {
+        return BlueprintUtils.constructTileEntity(getBlockInfoAsMap().get(pos), null);
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return getSizeY();
+    }
+
+    @Override
+    public void describeSelfInCrashReport(final CrashReportCategory category)
+    {
+        // this should roughly match toString
+        category.setDetail("Blueprint name", () -> name);
+        category.setDetail("Blueprint pack name", () -> packName);
+        category.setDetail("Blueprint file name", () -> fileName);
+        category.setDetail("Blueprint file path", () -> filePath.toString());
+        category.setDetail("Blueprint size", () -> "%d %d %d".formatted(sizeX, sizeY, sizeZ));
+        category.setDetail("Blueprint rotation mirror", () -> rotationMirror.name());
     }
 }
