@@ -157,6 +157,7 @@
   "structurize.config.teleportsafety": "Safety Check",
   "structurize.config.teleportsafety.comment": "Allow teleporting a little distance away if the landing area is blocked; disable to teleport exactly to target.",
   "structurize.gui.buildtool.creative_only": "Structurize does not support using the build tool when in survival. Switch to creative or install MineColonies and use the MineColonies Builder.",
+  "structurize.gui.tagtool.creative_only": "This tool is meant to be used in creative mode only",
   "structurize.gui.buildtool.unexpecteddatafixer": "Invalid datafixer detected! Side-effects possible! Check log for more info!",
   "structurize.gui.replaceblock.ambiguous_properties": "Transformation from %s to %s is ambiguous because the following properties are not present in the source block: %s",
   "structurize.gui.replaceblock.null_placement": "Replacement with target block \"%s\" may not work under certain conditions.",
