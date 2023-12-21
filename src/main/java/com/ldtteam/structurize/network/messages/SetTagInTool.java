@@ -63,7 +63,7 @@ public class SetTagInTool implements IMessage
 
         if (!ctxIn.getSender().isCreative())
         {
-            ctxIn.getSender().displayClientMessage(Component.literal("Cannot use tag tool in survival"), false);
+            ctxIn.getSender().displayClientMessage(Component.translatable("structurize.gui.tagtool.creative_only"), false);
             return;
         }
 
