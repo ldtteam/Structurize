@@ -3,6 +3,7 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -57,6 +58,12 @@ public class SetTagInTool implements IMessage
     {
         if (ctxIn.getSender() == null)
         {
+            return;
+        }
+
+        if (!ctxIn.getSender().isCreative())
+        {
+            ctxIn.getSender().displayClientMessage(Component.translatable("structurize.gui.tagtool.creative_only"), false);
             return;
         }
 
