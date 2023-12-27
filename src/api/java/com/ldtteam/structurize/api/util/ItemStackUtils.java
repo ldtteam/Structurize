@@ -192,7 +192,6 @@ public final class ItemStackUtils
      * @param itemStack2 The right stack to compare.
      * @return True when they are equal except the stacksize, false when not.
      */
-    @NotNull
     public static boolean compareItemStacksIgnoreStackSize(final ItemStack itemStack1, final ItemStack itemStack2)
     {
         return compareItemStacksIgnoreStackSize(itemStack1, itemStack2, true, true);

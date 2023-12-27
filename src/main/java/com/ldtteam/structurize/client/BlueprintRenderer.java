@@ -373,12 +373,15 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Render blocks
 
-        FogRenderer.setupFog(mc.gameRenderer.getMainCamera(),
-            FogRenderer.FogMode.FOG_TERRAIN,
-            Math.max(mc.gameRenderer.getRenderDistance(), 32.0F),
-            mc.level.effects().isFoggyAt(Mth.floor(viewPosition.x()), Mth.floor(viewPosition.y()))
-                || mc.gui.getBossOverlay().shouldCreateWorldFog(),
-            partialTicks);
+        if (ctx.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
+        {
+            FogRenderer.setupFog(mc.gameRenderer.getMainCamera(),
+                FogRenderer.FogMode.FOG_TERRAIN,
+                Math.max(mc.gameRenderer.getRenderDistance(), 32.0F),
+                mc.level.effects().isFoggyAt(Mth.floor(viewPosition.x()), Mth.floor(viewPosition.y()))
+                    || mc.gui.getBossOverlay().shouldCreateWorldFog(),
+                partialTicks);
+        }
 
         mc.getProfiler().popPush("struct_render_blocks");
         renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
@@ -551,7 +554,10 @@ public class BlueprintRenderer implements AutoCloseable
 
         RenderSystem.applyModelViewMatrix(); // ensure no polution
         Lighting.setupLevel(matrixStack.last().pose());
-        FogRenderer.setupNoFog();
+        if (ctx.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
+        {
+            FogRenderer.setupNoFog();
+        }
 
         // restore vanilla setup
         mc.getBlockEntityRenderDispatcher().prepare(dispLevel, dispCamera, beHitResult);
