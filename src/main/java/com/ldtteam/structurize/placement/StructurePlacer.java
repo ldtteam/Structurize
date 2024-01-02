@@ -258,14 +258,23 @@ public class StructurePlacer
                                 continue;
                             }
 
-                            final List<ItemStack> requiredItems = new ArrayList<>();
+                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
                             if (!handler.isCreative())
                             {
-                                requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
+                                if (requiredItems == null)
+                                {
+                                    // Only handle entities we explicitly know how to handle.
+                                    continue;
+                                }
+
                                 if (!this.handler.hasRequiredItems(requiredItems))
                                 {
                                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                                 }
+                            }
+                            else if (requiredItems == null)
+                            {
+                                requiredItems = new ArrayList<>();
                             }
 
                             world.addFreshEntity(entity);
@@ -273,7 +282,7 @@ public class StructurePlacer
                             {
                                 storage.addToBeKilledEntity(entity);
                             }
-
+                            
                             this.handler.consume(requiredItems);
                             this.handler.triggerEntitySuccess(localPos, requiredItems, true);
                         }
