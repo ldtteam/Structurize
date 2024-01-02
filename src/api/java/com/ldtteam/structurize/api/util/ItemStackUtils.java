@@ -8,6 +8,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -173,7 +175,7 @@ public final class ItemStackUtils
             else if (entity instanceof ArmorStand)
             {
                 request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                                        @Override
+                    @Override
                     public Type getType()
                     {
                         return Type.ENTITY;
@@ -181,6 +183,17 @@ public final class ItemStackUtils
                 }));
                 entity.getArmorSlots().forEach(request::add);
                 entity.getHandSlots().forEach(request::add);
+            }
+            else if (entity instanceof ContainerEntity containerEntity)
+            {
+                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
+                    @Override
+                    public Type getType()
+                    {
+                        return Type.ENTITY;
+                    }
+                }));
+                request.addAll(containerEntity.getItemStacks());
             }
 
             return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());
