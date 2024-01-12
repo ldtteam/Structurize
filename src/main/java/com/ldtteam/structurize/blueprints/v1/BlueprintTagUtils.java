@@ -7,6 +7,7 @@ import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,8 +59,7 @@ public class BlueprintTagUtils
             return true;
         }
 
-        final Map<BlockPos, List<String>> tagPosMap = getBlueprintTags(blueprint);
-        final List<String> anchorTags = tagPosMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+        final List<String> anchorTags = getBlueprintTags(blueprint).computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
         return anchorTags.contains(INVISIBLE_TAG);
     }
 
@@ -70,6 +70,7 @@ public class BlueprintTagUtils
      * @param tagName   tag name
      * @return found position or null
      */
+    @Nullable
     public static BlockPos getFirstPosForTag(final Blueprint blueprint, final String tagName)
     {
         final Map<BlockPos, List<String>> tagPosMap = getBlueprintTags(blueprint);
