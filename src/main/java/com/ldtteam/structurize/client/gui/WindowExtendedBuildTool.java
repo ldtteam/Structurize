@@ -607,23 +607,22 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 continue;
             }
 
+            final String name;
             if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock leveledAnchor)
             {
                 final int level =
                   leveledAnchor.getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
                     blueprint.getPrimaryBlockOffset()));
-                final String name = blueprint.getFileName().replace(Integer.toString(level), "");
-                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
-                blueprintList.add(blueprint);
-                blueprintMapping.put(name, blueprintList);
+                name = getCustomName(blueprint, blueprint.getFileName().replace(Integer.toString(level), ""));
             }
             else
             {
-                final String name = blueprint.getFileName();
-                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
-                blueprintList.add(blueprint);
-                blueprintMapping.put(name, blueprintList);
+                name = getCustomName(blueprint, blueprint.getFileName());
             }
+
+            final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
+            blueprintList.add(blueprint);
+            blueprintMapping.put(name, blueprintList);
         }
 
         final Map<String, Map<String, List<Blueprint>>> altBlueprintMapping = new LinkedHashMap<>();
@@ -631,7 +630,16 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         for (final Map.Entry<String, List<Blueprint>> entry : blueprintMapping.entrySet())
         {
             final Blueprint blueprint = entry.getValue().get(0);
-            final String name = getDisplayName(blueprint).key();
+            final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+            final String name;
+            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
+            {
+                name = anchor.getBlock().getDescriptionId();
+            }
+            else
+            {
+                name = entry.getKey();
+            }
 
             final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
             tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
@@ -832,10 +840,17 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             final Blueprint firstBlueprint = blueprintMap.values().iterator().next().get(0);
 
             final BlockState anchor = firstBlueprint.getBlockState(firstBlueprint.getPrimaryBlockOffset());
-            final DisplayNames displayNames = getDisplayName(firstBlueprint);
-
-            img.setText(displayNames.name());
-            final List<MutableComponent> toolTip = displayNames.toolTip();
+            final List<MutableComponent> toolTip = new ArrayList<>();
+            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock namedBlock)
+            {
+                img.setText(namedBlock.getBlueprintDisplayName());
+                toolTip.addAll(namedBlock.getDesc());
+            }
+            else
+            {
+                final String name = getCustomName(firstBlueprint, firstBlueprint.getFileName());
+                img.setText(Component.literal(name));
+            }
             img.setVisible(true);
 
             boolean hasMatch = false;
@@ -906,41 +921,18 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     /**
      * Determine the display names of the given blueprint.
      *
-     * @param blueprint the blueprint
-     * @return          its {@link DisplayNames}
+     * @param blueprint   the blueprint
+     * @param defaultName the name to use if the blueprint doesn't have a custom name
+     * @return            its custom name, or a default name
      */
-    private DisplayNames getDisplayName(final Blueprint blueprint)
+    private String getCustomName(final Blueprint blueprint, final String defaultName)
     {
         final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
-        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-
         final Optional<String> nameTag = tagPosMap.getOrDefault(BlockPos.ZERO, new ArrayList<>()).stream()
                 .filter(t -> t.startsWith("name=")).findFirst();
 
-        if (nameTag.isPresent())
-        {
-            final String name = nameTag.get().substring(5);
-            return new DisplayNames(name, Component.literal(name), Collections.emptyList());
-        }
-        else if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock namedAnchor)
-        {
-            return new DisplayNames(anchor.getBlock().getDescriptionId(),
-                    namedAnchor.getBlueprintDisplayName(), namedAnchor.getDesc());
-        }
-        else
-        {
-            return new DisplayNames(blueprint.getFileName(),
-                    Component.literal(blueprint.getFileName()), Collections.emptyList());
-        }
+        return nameTag.map(s -> s.substring(5)).orElse(defaultName);
     }
-
-    /**
-     * Display names for a blueprint in the selection tree.
-     * @param key     a grouping key for internal use
-     * @param name    the main display name
-     * @param toolTip tooltips for the button
-     */
-    private record DisplayNames(String key, Component name, List<MutableComponent> toolTip) { }
 
     private void handleSubCat(final ButtonData buttonData, final Pane rowPane, final int index)
     {
