@@ -58,7 +58,7 @@ public class BlueprintTagUtils
             return true;
         }
 
-        final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
+        final Map<BlockPos, List<String>> tagPosMap = getBlueprintTags(blueprint);
         final List<String> anchorTags = tagPosMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
         return anchorTags.contains(INVISIBLE_TAG);
     }
