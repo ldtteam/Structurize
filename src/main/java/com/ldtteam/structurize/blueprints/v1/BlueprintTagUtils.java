@@ -2,15 +2,19 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 
+import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
+import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.INVISIBLE_TAG;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
@@ -35,6 +39,28 @@ public class BlueprintTagUtils
         }
 
         return new HashMap<>();
+    }
+
+    /**
+     * A blueprint may hide itself from the build tool list in one of two ways:
+     * 1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
+     * 2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     *
+     * @param blueprint the blueprint to check
+     * @return true if this blueprint should be hidden from normal players
+     */
+    public static boolean isInvisible(final Blueprint blueprint)
+    {
+        final BlockInfo anchor = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset());
+        if (anchor.getState().getBlock() instanceof IInvisibleBlueprintAnchorBlock invis &&
+                !invis.isVisible(anchor.getTileEntityData()))
+        {
+            return true;
+        }
+
+        final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
+        final List<String> anchorTags = tagPosMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+        return anchorTags.contains(INVISIBLE_TAG);
     }
 
     /**
