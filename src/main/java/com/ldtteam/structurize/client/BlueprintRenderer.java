@@ -399,11 +399,6 @@ public class BlueprintRenderer implements AutoCloseable
                 }
             }
 
-            if (!renderer.shouldRenderOffScreen(tileEntity))
-            {
-                continue;
-            }
-
             matrixStack.pushPose();
             matrixStack.translate(realRenderTePos.x, realRenderTePos.y, realRenderTePos.z);
 
