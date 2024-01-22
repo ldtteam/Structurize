@@ -2,8 +2,10 @@ package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +60,7 @@ public final class PlacementHandlers
         handlers.add(new StairBlockPlacementHandler());
         handlers.add(new HopperClientLagPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
+        handlers.add(new DripStoneBlockPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
@@ -869,6 +873,88 @@ public final class PlacementHandlers
             }
 
             return ActionProcessingResult.SUCCESS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
+          @Nullable final CompoundTag tileEntityData,
+          final boolean complete)
+        {
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            itemList.removeIf(ItemStackUtils::isEmpty);
+            return itemList;
+        }
+    }
+
+    public static class DripStoneBlockPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+        {
+            return blockState.getBlock() == Blocks.POINTED_DRIPSTONE;
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+          final Blueprint blueprint,
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
+          @Nullable final CompoundTag tileEntityData,
+          final boolean complete,
+          final BlockPos centerPos,
+          final PlacementSettings settings)
+        {
+            if (world.getBlockState(pos).equals(blockState))
+            {
+                return ActionProcessingResult.PASS;
+            }
+
+            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP && blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP_MERGE)
+            {
+                return ActionProcessingResult.PASS;
+            }
+
+            final Direction dir = blockState.getValue(PointedDripstoneBlock.TIP_DIRECTION).getOpposite();
+            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) == DripstoneThickness.TIP_MERGE)
+            {
+                placeDripStoneInDir(dir.getOpposite(), blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
+                placeDripStoneInDir(dir, blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
+                world.setBlock(pos, blockState, UPDATE_FLAG);
+
+                // both direction.
+                return ActionProcessingResult.SUCCESS;
+            }
+
+            placeDripStoneInDir(dir, blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
+            world.setBlock(pos, blockState, UPDATE_FLAG);
+            return ActionProcessingResult.SUCCESS;
+        }
+
+        private static void placeDripStoneInDir(final Direction dir, final Blueprint blueprint, final BlockPos blueprintPos, final BlockPos worldPos, final BlockState blockState, final Level world)
+        {
+            try
+            {
+                final BlockState firstState = blueprint.getBlockState(blueprintPos.relative(dir, 1));
+                if (firstState != null && firstState.getBlock() == Blocks.POINTED_DRIPSTONE)
+                {
+                    final BlockState secondState = blueprint.getBlockState(blueprintPos.relative(dir, 2));
+                    if (secondState != null && secondState.getBlock() == Blocks.POINTED_DRIPSTONE)
+                    {
+                        world.setBlock(worldPos.relative(dir, 2), secondState, UPDATE_FLAG);
+                    }
+
+                    world.setBlock(worldPos.relative(dir, 1), firstState, UPDATE_FLAG);
+                }
+            }
+            catch (final Exception ex)
+            {
+                Log.getLogger().error("Problem placing dripstone. Dripstone might extend outside of the schematic.");
+            }
         }
 
         @Override
