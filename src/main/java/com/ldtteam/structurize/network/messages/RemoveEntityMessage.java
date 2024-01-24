@@ -3,6 +3,7 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.AABB;
@@ -13,6 +14,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Message to remove an entity from the world.
@@ -82,7 +84,7 @@ public class RemoveEntityMessage implements IMessage
         }
 
         final Level world = ctxIn.getSender().level();
-        final ChangeStorage storage = new ChangeStorage(TickedWorldOperation.OperationType.REMOVE_ENTITY.toString(), ctxIn.getSender().getUUID());
+        final ChangeStorage storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName), ctxIn.getSender().getUUID());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
             for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)

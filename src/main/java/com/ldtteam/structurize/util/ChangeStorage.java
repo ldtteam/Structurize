@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Manager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +47,7 @@ public class ChangeStorage
     /**
      * The operation which was done
      */
-    private final String operation;
+    private final Component operation;
 
     /**
      * Current operation iteration
@@ -60,7 +61,7 @@ public class ChangeStorage
      *
      * @param player the player owner of it.
      */
-    public ChangeStorage(final String operation, final UUID player)
+    public ChangeStorage(final Component operation, final UUID player)
     {
         this.player = player;
         this.id = storageIDs++;
@@ -74,7 +75,7 @@ public class ChangeStorage
      * @param from  the first position.
      * @param to    the second position.
      */
-    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final String operation)
+    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final Component operation)
     {
         player = UUID.randomUUID();
         this.id = storageIDs++;
@@ -255,7 +256,7 @@ public class ChangeStorage
      *
      * @return
      */
-    public String getOperation()
+    public Component getOperation()
     {
         return operation;
     }

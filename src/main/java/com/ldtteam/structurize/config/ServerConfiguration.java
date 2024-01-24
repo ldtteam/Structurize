@@ -70,7 +70,7 @@ public class ServerConfiguration extends AbstractConfiguration
         ignoreSchematicsFromJar = defineBoolean(builder, "ignoreSchematicsFromJar", false);
         allowPlayerSchematics = defineBoolean(builder, "allowPlayerSchematics", true);
         maxOperationsPerTick = defineInteger(builder, "maxOperationsPerTick", 1000, 0, 100000);
-        maxCachedChanges = defineInteger(builder, "maxCachedChanges", 10, 0, 100);
+        maxCachedChanges = defineInteger(builder, "maxCachedChanges", 50, 0, 250);
         maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
         maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
         schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);

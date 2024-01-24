@@ -70,7 +70,7 @@ public class OperationHistoryMessage implements IMessage
             operationIDs = new ArrayList<>();
             for (final ChangeStorage storage : operations)
             {
-                operationIDs.add(new Tuple<>(storage.getOperation(), storage.getID()));
+                operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
             }
 
             Network.getNetwork().sendToPlayer(this, ctxIn.getSender());

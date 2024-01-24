@@ -4,23 +4,25 @@
     <text id="textcontent" size="150 30" pos="120 40" textalign="TOP_MIDDLE" color="white" wrap="true" text="$(structurize.gui.undoredo.desc)"/>
     <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="270 40"/>
 
-    <list id="operations" size="250 120" pos="90 70" visible="true">
+    <list id="operations" size="350 120" pos="50 70" visible="true">
         <box size="100% 15" linewidth="1" visible="true">
-            <label id="operationname" size="160 16" textalign="MIDDLE_LEFT" pos="5 1" color="white" wrap="true"/>
+            <label id="operationname" size="260 16" textalign="MIDDLE_LEFT" pos="5 1" color="white" wrap="true"/>
             <buttonimage id="undo"
                          source="structurize:textures/gui/buildtool/rotateleftsmall.png"
                          visible="true"
                          size="32 16"
-                         pos="170 1"
+                         pos="270 1"
                          textcolor="Black"
-                         texthovercolor="White"/>
+                         texthovercolor="White"
+                         tooltip="$(structurize.gui.undoredo.undoop)"/>
             <buttonimage id="redo"
                          source="structurize:textures/gui/buildtool/rotaterightsmall.png"
                          visible="true"
                          size="32 16"
-                         pos="205 1"
+                         pos="305 1"
                          textcolor="Black"
-                         texthovercolor="White"/>
+                         texthovercolor="White"
+                         tooltip="$(structurize.gui.undoredo.redoop)"/>
         </box>
     </list>
 </window>

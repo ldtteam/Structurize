@@ -556,7 +556,7 @@ public final class Manager
 
                 player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
                 addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.UNDO));
-                if (storage.getOperation().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
+                if (storage.getOperation().toString().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
                 {
                     iterator.remove();
                 }

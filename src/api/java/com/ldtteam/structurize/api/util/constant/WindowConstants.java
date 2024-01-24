@@ -323,6 +323,11 @@ public final class WindowConstants
     public static final String MULTI_BLOCK_RESOURCE_SUFFIX = ":gui/windowmultiblock.xml";
 
     /**
+     * Remove filtered button.
+     */
+    public static final String REMOVE_FILTERED = "removefiltered";
+
+    /**
      * public constructor to hide implicit public one.
      */
     private WindowConstants()
