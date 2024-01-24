@@ -134,6 +134,8 @@ public class WindowScan extends AbstractWindowSkeleton
             close();
             new WindowUndoRedo().open();
         });
+        registerButton(REMOVE_FILTERED, this::removeFilteredBlock);
+
 
         pos1x = findPaneOfTypeByID(POS1X_LABEL, TextField.class);
         pos1y = findPaneOfTypeByID(POS1Y_LABEL, TextField.class);
@@ -196,6 +198,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         findPaneOfTypeByID(FILTER_NAME, TextField.class).show();
         findPaneOfTypeByID(BUTTON_SHOW_RES, Button.class).hide();
+        findPaneOfTypeByID(REMOVE_FILTERED, Button.class).show();
         updateResources();
     }
 
@@ -234,6 +237,27 @@ public class WindowScan extends AbstractWindowSkeleton
         resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         updateResourceList();
     }
+
+    private void removeFilteredBlock()
+    {
+        final int x1 = Integer.parseInt(pos1x.getText());
+        final int y1 = Integer.parseInt(pos1y.getText());
+        final int z1 = Integer.parseInt(pos1z.getText());
+
+        final int x2 = Integer.parseInt(pos2x.getText());
+        final int y2 = Integer.parseInt(pos2y.getText());
+        final int z2 = Integer.parseInt(pos2z.getText());
+
+        for (final ItemStorage tempRes : new ArrayList<>(resources.values()))
+        {
+            final ItemStack stack = tempRes.getItemStack();
+            Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
+            final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
+            resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
+        }
+        updateResourceList();
+    }
+
 
     private void replaceBlock(final Button button)
     {
