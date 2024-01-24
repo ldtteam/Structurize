@@ -3,7 +3,6 @@ package com.ldtteam.structurize.util;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
@@ -12,25 +11,21 @@ import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
@@ -143,7 +138,13 @@ public class TickedWorldOperation implements ITickedWorldOperation
         this.player = player;
         this.firstBlock = firstBlock;
         this.secondBlock = secondBlock;
-        this.storage = new ChangeStorage(type.toString(), player != null ? player.getUUID() : UUID.randomUUID());
+        final Component component = switch (type)
+        {
+            case REMOVE_BLOCK -> Component.translatable("com.ldtteam.structurize." + type.toString().toLowerCase(Locale.US), firstBlock.getDisplayName());
+            case REPLACE_BLOCK -> Component.translatable("com.ldtteam.structurize." + type.toString().toLowerCase(Locale.US), firstBlock.getDisplayName(), secondBlock.getDisplayName());
+            default -> Component.literal(type.toString());
+        };
+        this.storage = new ChangeStorage(component, player != null ? player.getUUID() : UUID.randomUUID());
         this.placer = null;
         this.pct = pct;
     }
@@ -165,9 +166,9 @@ public class TickedWorldOperation implements ITickedWorldOperation
         this.secondBlock = ItemStack.EMPTY;
         this.storage = storage;
         storage.resetUnRedo();
-        if (operation == OperationType.UNDO && storage.getOperation().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) != 0)
+        if (operation == OperationType.UNDO && storage.getOperation().toString().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) != 0)
         {
-            undoStorage = new ChangeStorage(operation.toString() + ":" + storage.getOperation(), player != null ? player.getUUID() : UUID.randomUUID());
+            undoStorage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + operation.toString().toLowerCase(Locale.US), storage.getOperation()), player != null ? player.getUUID() : UUID.randomUUID());
         }
         this.placer = null;
     }
@@ -187,7 +188,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
         this.player = player;
         this.firstBlock = ItemStack.EMPTY;
         this.secondBlock = ItemStack.EMPTY;
-        this.storage = new ChangeStorage(operation + ":" + placer.getHandler().getBluePrint().getName(), player != null ? player.getUUID() : UUID.randomUUID());
+        this.storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + operation.toString().toLowerCase(Locale.US), placer.getHandler().getBluePrint().getName()), player != null ? player.getUUID() : UUID.randomUUID());
         this.placer = placer;
     }
 
@@ -250,7 +251,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
                         break;
                     default:
                         // entities
-                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
+                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.SPAWN_ENTITY,
                           () -> placer.getIterator().increment((info, pos, handler) -> info.getEntities().length == 0), true);
                         currentPos = result.getIteratorPos();
                         break;

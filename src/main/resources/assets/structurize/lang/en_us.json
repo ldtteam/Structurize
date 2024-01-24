@@ -189,7 +189,15 @@
   "com.ldtteam.structurize.iterators.inwardcircleheight3": "Inward Circle Height 3",
   "com.ldtteam.structurize.iterators.inwardcircleheight4": "Inward Circle Height 4",
   "com.ldtteam.structurize.iterators.hilbert": "Hilbert",
-  "com.ldtteam.structurize.iterators.random": "Random",
   "structurize.preview_renderer.exception": "An error happened during blueprint preview rendering. If you do not mind, please submit latest.log to our issue tracker. Thanks!",
-  "structurize.preview_renderer.cannot_render": "Unrecoverable error occured during rendering blueprint \"%s\". If you do not mind, please submit latest.log to our issue tracker. Thanks!"
+  "structurize.preview_renderer.cannot_render": "Unrecoverable error occured during rendering blueprint \"%s\". If you do not mind, please submit latest.log to our issue tracker. Thanks!",
+  "com.ldtteam.structurize.iterators.random": "Random",
+  "com.ldtteam.structurize.remove_block": "Remove Block %s",
+  "com.ldtteam.structurize.replace_block": "Replace Block %s with %s",
+  "com.ldtteam.structurize.remove_entity": "Remove Entity %s",
+  "com.ldtteam.structurize.place_structure": "Place Structure %s",
+  "com.ldtteam.structurize.undo": "Undo %s",
+  "structurize.gui.undoredo.redoop": "Redo",
+  "structurize.gui.undoredo.undoop": "Undo"
+
 }

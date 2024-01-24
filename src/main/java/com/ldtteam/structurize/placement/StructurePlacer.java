@@ -10,7 +10,6 @@ import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
-import com.ldtteam.structurize.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -150,6 +149,9 @@ public class StructurePlacer
                     result = getResourceRequirements(world, worldPos, localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
                     requiredItems.addAll(result.getRequiredItems());
                     break;
+                case SPAWN_ENTITY:
+                    result = handleEntitySpawn(world, worldPos, localPos, storage);
+                    break;
                 default:
                     result = handleBlockPlacement(world, worldPos, localPos, storage, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos));
             }
@@ -218,6 +220,7 @@ public class StructurePlacer
             }
         }
 
+        // todo remove entity placement from here in the future.
         for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
@@ -383,6 +386,100 @@ public class StructurePlacer
     }
 
     /**
+     * This method handles entity spawning.
+     * When we extract this into another mod, we have to override the method.
+     * @param world          the world.
+     * @param worldPos       the world position.
+     * @param localPos       the local pos
+     * @param storage        the change storage.
+     */
+    public BlockPlacementResult handleEntitySpawn(
+      final Level world,
+      final BlockPos worldPos,
+      final BlockPos localPos,
+      final ChangeStorage storage)
+    {
+        for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
+        {
+            if (compound != null)
+            {
+                try
+                {
+                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+
+                    final Optional<EntityType<?>> type = EntityType.by(compound);
+                    if (type.isPresent())
+                    {
+                        final Entity entity = type.get().create(world);
+                        if (entity != null)
+                        {
+                            entity.deserializeNBT(compound);
+
+                            entity.setUUID(UUID.randomUUID());
+                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            if (entity instanceof HangingEntity hang)
+                            {
+                                posInWorld = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
+                            }
+                            entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z, entity.getYRot(), entity.getXRot());
+
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            boolean foundEntity = false;
+                            for (Entity worldEntity: list)
+                            {
+                                if (worldEntity.position().equals(posInWorld))
+                                {
+                                    foundEntity = true;
+                                    break;
+                                }
+                            }
+
+                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
+                            {
+                                continue;
+                            }
+
+                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
+                            if (!handler.isCreative())
+                            {
+                                if (requiredItems == null)
+                                {
+                                    // Only handle entities we explicitly know how to handle.
+                                    continue;
+                                }
+
+                                if (!this.handler.hasRequiredItems(requiredItems))
+                                {
+                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+                                }
+                            }
+                            else if (requiredItems == null)
+                            {
+                                requiredItems = new ArrayList<>();
+                            }
+
+                            world.addFreshEntity(entity);
+                            if (storage != null)
+                            {
+                                storage.addToBeKilledEntity(entity);
+                            }
+
+                            this.handler.consume(requiredItems);
+                            this.handler.triggerEntitySuccess(localPos, requiredItems, true);
+                        }
+                    }
+                }
+                catch (final RuntimeException e)
+                {
+                    Log.getLogger().info("Couldn't restore entity", e);
+                }
+            }
+        }
+
+        return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
+    }
+
+    /**
      * This method handles the block placement.
      * When we extract this into another mod, we have to override the method.
      *  @param world          the world.
@@ -532,7 +629,8 @@ public class StructurePlacer
         WATER_REMOVAL,
         BLOCK_REMOVAL,
         BLOCK_PLACEMENT,
-        GET_RES_REQUIREMENTS
+        GET_RES_REQUIREMENTS,
+        SPAWN_ENTITY
     }
 
 }
