@@ -12,24 +12,24 @@
     <input id="pos2z" size="36 18" pos="320 5" maxlength="10"/>
 
     <label size="100 11" pos="72 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.name)"/>
-    <input id="name" size="178 18" pos="130 30" maxlength="80"/>
+    <input id="name" size="178 18" pos="130 30" maxlength="180"/>
 
     <label size="30 11" pos="355 35" color="white" label="$(com.ldtteam.structurize.gui.scantool.slot)" textalign="MIDDLE_RIGHT"/>
     <input id="slot" size="18 18" pos="390 30" maxlength="2" enabled="false"/>
 
-    <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="145 50"/>
-    <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="235 50"/>
+    <buttonimage id="confirm" source="structurize:textures/gui/buildtool/confirm.png" size="32" pos="105 50"/>
+    <buttonimage id="cancel" source="structurize:textures/gui/buildtool/cancel.png" size="32" pos="275 50"/>
 
-    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.showres)" id="showRes" pos="140 80" size="129 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.showres)" id="showRes" pos="140 58" size="129 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium_large.png" textcolor="black"/>
 
-    <buttonimage id="fillplaceholders" pos="290 55" size="17 17"
+    <buttonimage id="fillplaceholders" pos="320 31" size="17 17"
                  source="structurize:textures/gui/buildtool/default.png" tooltip="$(com.ldtteam.structurize.gui.scantool.fillplacerholder.tooltip)" textcolor="black"/>
     <view id="fillplaceholdersui" size="95 95" label="list" pos="290 55" visible="false">
         <layout source="structurize:gui/windowplaceholderfill.xml"/>
     </view>
 
-    <input id="filter" size="129 17" pos="140 80" maxlength="25" visible="false"/>
+    <input id="filter" label="default" size="129 17" pos="140 58" maxlength="25" visible="false"/>
 
     <list id="resources" size="200 120" pos="10 100" childspacing="-1">
         <box size="100% 30" linewidth="1">
@@ -61,6 +61,9 @@
                  textcolor="Black"
                  texthovercolor="White"/>
 
-    <label id="chestwarning" size="200 11" pos="10 89" textscale="0.5" visible="false"
+    <label id="chestwarning" size="140 11" pos="140 75" textscale="0.5" visible="false"
            label="$(com.ldtteam.structurize.gui.scantool.chests)"/>
+
+    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove_filtered)" id="removefiltered" pos="80 83" size="86 17"
+                 source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black" visible="false"/>
 </window>

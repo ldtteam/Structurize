@@ -2,6 +2,7 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -63,7 +64,7 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
         this.heightOffset = heightOffset;
         this.minDistToBlocks = minDistToBlocks;
         this.endPos = new BlockPos(Math.max(startPos.getX(), endPos.getX()), Math.max(startPos.getY(), endPos.getY()), Math.max(startPos.getZ(), endPos.getZ()));
-        this.storage = new ChangeStorage("FILL_TOP_PLACEHOLDERS", player != null ? player.getUUID() : UUID.randomUUID());
+        this.storage = new ChangeStorage(Component.literal("FILL_TOP_PLACEHOLDERS"), player != null ? player.getUUID() : UUID.randomUUID());
     }
 
     @Override
