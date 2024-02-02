@@ -280,7 +280,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             // treat pick in air like mouse scrolling (just in case someone doesn't have a wheel)
             final double delta = player.isShiftKeyDown() ? -1 : 1;
-            return onMouseScroll(player, stack, delta, ctrlKey);
+            return onMouseScroll(player, stack, 0, delta, ctrlKey);
         }
 
         if (player.level().getBlockEntity(pos) instanceof CommandBlockEntity command)
@@ -296,7 +296,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     @Override
     public InteractionResult onMouseScroll(@NotNull final Player player,
                                            @NotNull final ItemStack stack,
-                                           final double delta,
+                                           final double deltaX,
+                                           final double deltaY,
                                            final boolean ctrlKey)
     {
         if (player.level().isClientSide())
@@ -304,7 +305,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return InteractionResult.SUCCESS;
         }
 
-        switchSlot((ServerPlayer) player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
+        switchSlot((ServerPlayer) player, stack, deltaY < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
 
         return InteractionResult.SUCCESS;
     }

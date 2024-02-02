@@ -17,6 +17,9 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -73,7 +76,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     /**
      * List of section.
      */
-    private final List<String> sections = new ArrayList<>();
+    private final List<Tuple<Shape, MutableComponent>> sections = new ArrayList<>();
 
     /**
      * Drop down list for section.
@@ -179,7 +182,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, frequency + 1));
 
         sections.clear();
-        sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).toList());
+        Arrays.stream(Shape.values()).map(s -> new Tuple<>(s, Component.translatable("structurize.shapetool.shape." + s.name().toLowerCase()))).forEach(sections::add);        
 
         sectionsDropDownList = findPaneOfTypeByID(DROPDOWN_STYLE_ID, DropDownList.class);
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
@@ -287,9 +290,9 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         }
 
         @Override
-        public String getLabel(final int index)
+        public MutableComponent getLabel(final int index)
         {
-            return sections.get(index);
+            return sections.get(index).getB();
         }
     }
 
@@ -425,7 +428,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     {
         if (list == sectionsDropDownList)
         {
-            updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()));
+            updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()).getA());
         }
     }
 
@@ -434,11 +437,11 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      *
      * @param s the style to use.
      */
-    private void updateStyle(final String s)
+    private void updateStyle(final Shape newShape)
     {
-        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != shape)
+        if (newShape != shape)
         {
-            shape = Shape.valueOf(s);
+            shape = newShape;
             genShape();
         }
         disableInputIfNecessary();

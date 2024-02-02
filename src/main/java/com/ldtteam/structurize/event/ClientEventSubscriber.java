@@ -233,7 +233,7 @@ public class ClientEventSubscriber
         if (current.getItem() instanceof IScrollableItem scrollableItem)
         {
             final boolean ctrlKey = Screen.hasControlDown();
-            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta(), ctrlKey))
+            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey))
             {
                 case PASS:
                     break;

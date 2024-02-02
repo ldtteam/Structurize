@@ -17,7 +17,8 @@ import org.jetbrains.annotations.Nullable;
 public class ItemMiddleMouseMessage implements IMessage
 {
     @Nullable private final BlockPos pos;
-    private final double delta;
+    private final double deltaX;
+    private final double deltaY;
     private final boolean ctrlKey;
 
     /**
@@ -28,19 +29,22 @@ public class ItemMiddleMouseMessage implements IMessage
     public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final boolean ctrlKey)
     {
         this.pos = pos;
-        this.delta = 0;
+        this.deltaX = 0;
+        this.deltaY = 0;
         this.ctrlKey = ctrlKey;
     }
 
     /**
      * Construct message for a middle mouse shift-scroll event.
-     * @param delta the scroll delta; negative is upwards
+     * @param deltaX the scroll delta; negative is upwards
+     * @param deltaY the scroll delta; negative is upwards
      * @param ctrlKey ctrl key is held
      */
-    public ItemMiddleMouseMessage(final double delta, final boolean ctrlKey)
+    public ItemMiddleMouseMessage(final double deltaX, final double deltaY, final boolean ctrlKey)
     {
         this.pos = null;
-        this.delta = delta;
+        this.deltaX = deltaX;
+        this.deltaY = deltaY;
         this.ctrlKey = ctrlKey;
     }
 
@@ -51,7 +55,8 @@ public class ItemMiddleMouseMessage implements IMessage
     public ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf)
     {
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
-        this.delta = buf.readDouble();
+        this.deltaX = buf.readDouble();
+        this.deltaY = buf.readDouble();
         this.ctrlKey = buf.readBoolean();
     }
 
@@ -67,7 +72,8 @@ public class ItemMiddleMouseMessage implements IMessage
             buf.writeBoolean(true);
             buf.writeBlockPos(this.pos);
         }
-        buf.writeDouble(this.delta);
+        buf.writeDouble(this.deltaX);
+        buf.writeDouble(this.deltaY);
         buf.writeBoolean(this.ctrlKey);
     }
 
@@ -84,7 +90,7 @@ public class ItemMiddleMouseMessage implements IMessage
         final ServerPlayer player = ctxIn.getSender();
         final ItemStack current = player.getInventory().getSelected();
 
-        if (this.delta == 0)
+        if (this.deltaX == 0 && this.deltaY == 0)
         {
             if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
             {
@@ -95,7 +101,7 @@ public class ItemMiddleMouseMessage implements IMessage
         {
             if (current.getItem() instanceof IScrollableItem scrollableItem)
             {
-                scrollableItem.onMouseScroll(player, current, this.delta, this.ctrlKey);
+                scrollableItem.onMouseScroll(player, current, this.deltaX, this.deltaY, this.ctrlKey);
             }
         }
     }
