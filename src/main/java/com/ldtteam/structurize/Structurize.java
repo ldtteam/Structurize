@@ -2,10 +2,13 @@ package com.ldtteam.structurize;
 
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.blueprints.v1.DataVersion;
+import com.ldtteam.structurize.config.ClientConfiguration;
+import com.ldtteam.structurize.config.ServerConfiguration;
+import com.ldtteam.common.config.AbstractConfiguration;
+import com.ldtteam.common.config.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
@@ -23,13 +26,16 @@ import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import net.minecraft.util.datafix.DataFixers;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.DistExecutor;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,14 +53,17 @@ public class Structurize
     /**
      * The config instance.
      */
-    private static Configuration config;
+    private static Configurations<ClientConfiguration, ServerConfiguration, ?> config;
 
     /**
      * Mod init, registers events to their respective busses
      */
-    public Structurize()
+    public Structurize(final FMLModContainer modContainer, final Dist dist)
     {
-        config = new Configuration(ModLoadingContext.get().getActiveContainer());
+        final IEventBus modBus = modContainer.getEventBus();
+        final IEventBus forgeBus = NeoForge.EVENT_BUS;
+        
+        config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, null);
 
         ModBlocks.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
         ModItems.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -119,7 +128,7 @@ public class Structurize
      *
      * @return the config handler.
      */
-    public static Configuration getConfig()
+    public static Configurations<ClientConfiguration, ServerConfiguration, ?> getConfig()
     {
         return config;
     }

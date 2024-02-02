@@ -20,7 +20,6 @@ import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
-import com.ldtteam.structurize.config.AbstractConfiguration;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
@@ -36,9 +35,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.neoforged.neoforge.common.NeoForgeConfigSpec.ConfigValue;
-import net.neoforged.neoforge.common.NeoForgeConfigSpec.DoubleValue;
-import net.neoforged.neoforge.common.NeoForgeConfigSpec.ValueSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
+import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -357,7 +356,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             }
 
             label.setText(Component.translatable(nameTKey));
-            PaneBuilders.singleLineTooltip(Component.translatable(nameTKey + AbstractConfiguration.COMMENT_SUFFIX), rowPane);
+            PaneBuilders.singleLineTooltip(Component.literal(settingSpec.getComment()), rowPane);
 
             final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
             final TextFieldVanilla inputField = rowPane.findPaneOfTypeByID("set_input", TextFieldVanilla.class);
