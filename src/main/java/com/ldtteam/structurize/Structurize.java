@@ -14,9 +14,6 @@ import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.proxy.ClientProxy;
-import com.ldtteam.structurize.proxy.IProxy;
-import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
@@ -30,7 +27,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.DistExecutor;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
@@ -43,11 +39,6 @@ import org.jetbrains.annotations.NotNull;
 @Mod(Constants.MOD_ID)
 public class Structurize
 {
-    /**
-     * The proxy.
-     */
-    public static final IProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
-
     /**
      * The config instance.
      */
