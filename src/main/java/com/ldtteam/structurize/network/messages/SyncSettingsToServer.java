@@ -3,7 +3,6 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;

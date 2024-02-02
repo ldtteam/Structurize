@@ -377,7 +377,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
                 });
             }
-            else if (setting.get() instanceof final Number value)
+            else if (setting.get() instanceof Number)
             {
                 final ConfigValue<Number> typedSetting = (ConfigValue<Number>) setting;
 
