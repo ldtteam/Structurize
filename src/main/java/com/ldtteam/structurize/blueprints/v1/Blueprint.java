@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.common.fakelevel.IFakeLevelBlockGetter;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
@@ -8,7 +9,6 @@ import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blueprints.FacingFixer;
-import com.ldtteam.structurize.client.fakelevel.IFakeLevelBlockGetter;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -196,7 +196,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the X-Axis (without rotation and/or mirroring)
      */
-    public short getSizeX()
+    public int getSizeX()
     {
         return this.sizeX;
     }
@@ -212,7 +212,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the Z-Axis (without rotation and/or mirroring)
      */
-    public short getSizeZ()
+    public int getSizeZ()
     {
         return this.sizeZ;
     }

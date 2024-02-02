@@ -201,9 +201,9 @@ public class BlueprintUtil
         // Set Blueprint Version
         tag.putByte("version", (byte) 1);
         // Set Blueprint Size
-        tag.putShort("size_x", schem.getSizeX());
+        tag.putShort("size_x", (short) schem.getSizeX());
         tag.putShort("size_y", schem.getSizeY());
-        tag.putShort("size_z", schem.getSizeZ());
+        tag.putShort("size_z", (short) schem.getSizeZ());
 
         // Create Pallete
         final BlockState[] palette = schem.getPalette();
@@ -632,7 +632,7 @@ public class BlueprintUtil
      * @param sizeZ        Sturcture size on the Z-Axis
      * @return An 1 Dimensional int array
      */
-    private static int[] convertBlocksToSaveData(short[][][] multDimArray, short sizeX, short sizeY, short sizeZ)
+    private static int[] convertBlocksToSaveData(short[][][] multDimArray, int sizeX, int sizeY, int sizeZ)
     {
         // Converting 3 Dimensional Array to One DImensional
         short[] oneDimArray = new short[sizeX * sizeY * sizeZ];
