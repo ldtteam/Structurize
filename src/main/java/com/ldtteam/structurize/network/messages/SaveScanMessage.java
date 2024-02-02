@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.network.NetworkEvent;
@@ -32,7 +33,7 @@ public class SaveScanMessage implements IMessage
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
-            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream);
+            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
             this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
             this.fileName = wrapperCompound.getString(TAG_MILLIS);
         }

@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.api.util;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -152,7 +153,7 @@ public class ItemStorage
     {
         return Objects.hash(stack.getItem())
                 + (this.shouldIgnoreDamageValue ? 0 : (this.stack.getDamageValue() * 31))
-                + (this.shouldIgnoreNBTValue ? 0 : ((this.stack.serializeNBT() == null) ? 0 : this.stack.serializeNBT().hashCode()));
+                + (this.shouldIgnoreNBTValue ? 0 : this.stack.save(new CompoundTag()).hashCode());
     }
 
     @Override

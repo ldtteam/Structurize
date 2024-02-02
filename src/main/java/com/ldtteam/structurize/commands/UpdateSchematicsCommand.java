@@ -106,7 +106,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 return;
             }
 
-            CompoundTag blueprint = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
+            CompoundTag blueprint = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)), NbtAccounter.unlimitedHeap());
             if (blueprint == null || blueprint.isEmpty())
             {
                 return;
@@ -221,7 +221,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
     {
         try
         {
-            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
+            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)), NbtAccounter.unlimitedHeap());
             return readBlueprintFromNBT(compoundNBT);
         }
         catch (Exception e)

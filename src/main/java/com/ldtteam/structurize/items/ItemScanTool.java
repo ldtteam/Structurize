@@ -617,7 +617,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final Direction direction = Structurize.getConfig().getServer().teleportBuildDirection.get();
         final int offset = Structurize.getConfig().getServer().teleportBuildDistance.get();
 
-        final AABB bounds = new AABB(box.getPos1(), box.getPos2());
+        final AABB bounds = AABB.encapsulatingFullBlocks(box.getPos1(), box.getPos2());
         final int size = (int) Math.round(bounds.max(direction.getAxis()) - bounds.min(direction.getAxis()));
 
         return BlockPos.containing(bounds.getCenter()).atY((int) bounds.minY).relative(direction, offset + size / 2);

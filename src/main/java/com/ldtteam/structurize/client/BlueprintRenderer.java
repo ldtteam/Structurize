@@ -26,7 +26,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
@@ -504,7 +503,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
 
             bypassMainFrustum |= renderer.shouldRenderOffScreen(tileEntity);
-            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()) && !renderer.shouldRenderOffScreen(tileEntity))
+            if (!blueprintLocalFrustum.isVisible(renderer.getRenderBoundingBox(tileEntity)) && !renderer.shouldRenderOffScreen(tileEntity))
             {
                 continue;
             }

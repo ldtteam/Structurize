@@ -560,7 +560,7 @@ public final class PlacementHandlers
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getContent()));
+            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getPotted()));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }

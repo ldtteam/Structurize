@@ -323,7 +323,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
                 {
                     replacement.put("e", this.blockentitytag);
                 }
-                replacement.put("i", this.itemstack.serializeNBT());
+                replacement.put("i", this.itemstack.save(new CompoundTag()));
 
                 tag.put(TAG_REPLACEMENT, replacement);
             }

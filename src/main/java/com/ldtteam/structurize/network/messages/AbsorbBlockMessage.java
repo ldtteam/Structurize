@@ -47,7 +47,7 @@ public class AbsorbBlockMessage implements IMessage
     public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
-        buf.writeItemStack(this.stack, false);
+        buf.writeItem(this.stack);
     }
 
     @Nullable
