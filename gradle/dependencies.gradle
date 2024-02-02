@@ -8,12 +8,12 @@ repositories {
 }
 
 dependencies {
-    apiImplementation fg.deobf("com.ldtteam:blockui:${project.blockUiVersion}")
-    implementation fg.deobf("com.ldtteam:blockui:${project.blockUiVersion}")
+    apiImplementation "com.ldtteam:blockui:${project.blockUiVersion}"
+    implementation "com.ldtteam:blockui:${project.blockUiVersion}"
 
-    apiImplementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
-    implementation fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
-    runtimeOnly fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")
+    apiImplementation "com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal"
+    implementation "com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal"
+    runtimeOnly "com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal"
 
     implementation (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}:universal")) {
         transitive = false

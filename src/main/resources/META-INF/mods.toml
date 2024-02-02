@@ -21,25 +21,25 @@ Allows you to:
 '''
 [[dependencies.structurize]]
     modId="forge"
-    mandatory=true
+    type="required"
     versionRange="${forgeRange}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="${minecraftRange}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="blockui"
-    mandatory=true
+    type="required"
     versionRange="${blockUiRange}"
-    ordering="NONE"
-    side="CLIENT"
+    ordering="AFTER"
+    side="BOTH"
 [[dependencies.structurize]]
     modId="domum_ornamentum"
-    mandatory=true
+    type="required"
     versionRange="${domumOrnamentumRange}"
     ordering="AFTER"
     side="BOTH"
