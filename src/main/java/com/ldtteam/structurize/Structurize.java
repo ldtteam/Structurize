@@ -23,14 +23,10 @@ import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import net.minecraft.util.datafix.DataFixers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.DistExecutor;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Mod main class.
@@ -59,26 +55,22 @@ public class Structurize
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         ModItemGroups.TAB_REG.register(modBus);
 
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
+        modBus.register(LifecycleSubscriber.class);
+        forgeBus.register(EventSubscriber.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            ClientStructurePackLoader.onClientLoading();
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientStructurePackLoader.class);
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientFutureProcessor.class);
-            Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientLifecycleSubscriber.class);
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class);
-        });
+        if (FMLEnvironment.dist.isClient())
+        {
+            modBus.register(ClientLifecycleSubscriber.class);
+            forgeBus.register(ClientEventSubscriber.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER,  () -> ServerStructurePackLoader::onServerStarting);
+            forgeBus.register(ClientStructurePackLoader.class);
+            forgeBus.register(ClientFutureProcessor.class);
+        }
 
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerStructurePackLoader.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerPreviewDistributor.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerFutureProcessor.class);
+        forgeBus.register(ServerStructurePackLoader.class);
+        forgeBus.register(ServerFutureProcessor.class);
 
-
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ModItemGroups.class);
+        forgeBus.register(ServerPreviewDistributor.class);
 
         if (DataFixerUtils.isVanillaDF)
         {
@@ -99,18 +91,6 @@ public class Structurize
                                     + "-----------------------------------------------------------------");
         }
     }
-
-    /**
-     * Event handler for forge pre init event.
-     *
-     * @param event the forge pre init event.
-     */
-    @SubscribeEvent
-    public static void preInit(@NotNull final FMLCommonSetupEvent event)
-    {
-        Network.getNetwork().registerCommonMessages();
-    }
-
 
     /**
      * Get the config handler.

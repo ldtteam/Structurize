@@ -4,11 +4,13 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
+import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import com.ldtteam.common.language.LanguageHandler;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +37,12 @@ public class LifecycleSubscriber
     public static void onLoadComplete(final FMLLoadCompleteEvent event)
     {
         LanguageHandler.setMClanguageLoaded();
+    }
+
+    @SubscribeEvent
+    public static void onDedicatedServerInit(final FMLDedicatedServerSetupEvent event)
+    {
+        ServerStructurePackLoader.onServerStarting();
     }
 
     @SubscribeEvent

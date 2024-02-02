@@ -3,10 +3,10 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.*;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
+import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -17,9 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -55,6 +53,8 @@ public class ClientLifecycleSubscriber
                 }
             });
         }
+
+        ClientStructurePackLoader.onClientLoading();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -86,17 +86,5 @@ public class ClientLifecycleSubscriber
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {
         ModKeyMappings.register(event);
-    }
-
-    @SubscribeEvent
-    public static void onConfigLoad(final ModConfigEvent.Loading event)
-    {
-        Structurize.getConfig().onConfigLoad(event.getConfig());
-    }
-
-    @SubscribeEvent
-    public static void onConfigEdit(final ModConfigEvent.Reloading event)
-    {
-        Structurize.getConfig().onConfigReload(event.getConfig());
     }
 }

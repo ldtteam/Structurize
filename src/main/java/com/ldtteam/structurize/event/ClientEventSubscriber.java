@@ -242,7 +242,7 @@ public class ClientEventSubscriber
                     break;
                 default:
                     event.setCanceled(true);
-                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta(), ctrlKey));
+                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey));
                     break;
             }
         }
