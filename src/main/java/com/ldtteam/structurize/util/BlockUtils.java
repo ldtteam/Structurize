@@ -51,11 +51,10 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.GameData;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
-
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.BiPredicate;

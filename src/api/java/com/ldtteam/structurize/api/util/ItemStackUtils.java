@@ -16,9 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
+import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,9 +111,9 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-           provider.getCapability(ForgeCapabilities.ITEM_HANDLER, side).ifPresent(handlerSet::add);
+           provider.getCapability(Capabilities.ITEM_HANDLER, side).ifPresent(handlerSet::add);
         }
-        provider.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(handlerSet::add);
+        provider.getCapability(Capabilities.ITEM_HANDLER, null).ifPresent(handlerSet::add);
         return handlerSet;
     }
 

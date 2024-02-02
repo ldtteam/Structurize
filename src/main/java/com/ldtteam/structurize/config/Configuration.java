@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.config.AbstractConfiguration.ConfigWatcher;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForgeConfigSpec;
+import net.neoforged.neoforge.common.NeoForgeConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.NeoForgeConfigSpec.ValueSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -39,14 +39,14 @@ public class Configuration
      */
     public Configuration(final ModContainer modContainer)
     {
-        final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::new);
+        final Pair<ServerConfiguration, NeoForgeConfigSpec> ser = new NeoForgeConfigSpec.Builder().configure(ServerConfiguration::new);
         server = new ModConfig(ModConfig.Type.SERVER, ser.getRight(), modContainer);
         serverConfig = ser.getLeft();
         modContainer.addConfig(server);
 
         if (FMLEnvironment.dist.isClient())
         {
-            final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
+            final Pair<ClientConfiguration, NeoForgeConfigSpec> cli = new NeoForgeConfigSpec.Builder().configure(ClientConfiguration::new);
             client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
             clientConfig = cli.getLeft();
             modContainer.addConfig(client);

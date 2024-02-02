@@ -15,7 +15,7 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
