@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.items;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -7,9 +8,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.RegistryObject;
+import java.util.function.Supplier;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * Class used to handle the creativeTab of structurize.
@@ -17,9 +17,9 @@ import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 @Mod.EventBusSubscriber
 public final class ModItemGroups
 {
-    public static final  DeferredRegister<CreativeModeTab> TAB_REG = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> TAB_REG = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> GENERAL = TAB_REG.register("general", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 1).icon(() -> new ItemStack(ModItems.buildTool.get())).title(Component.translatable("itemGroup." + MOD_ID)).displayItems((config, output) -> {
+    public static final Supplier<CreativeModeTab> GENERAL = TAB_REG.register("general", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 1).icon(() -> new ItemStack(ModItems.buildTool.get())).title(Component.translatable("itemGroup." + Constants.MOD_ID)).displayItems((config, output) -> {
         output.accept(ModBlocks.blockSubstitution.get());
         output.accept(ModBlocks.blockSolidSubstitution.get());
         output.accept(ModBlocks.blockFluidSubstitution.get());

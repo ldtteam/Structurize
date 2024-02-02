@@ -66,7 +66,7 @@ public class Structurize
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
-        ModItemGroups.TAB_REG.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModItemGroups.TAB_REG.register(modBus);
 
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
