@@ -28,8 +28,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -182,7 +182,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
     private void updateResources()
     {
         allItems.clear();
-        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(BuiltInRegistries.ITEM.iterator(), Spliterator.ORDERED), false)
                                                .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
                                                                                                                           && ((BucketItem) item).getFluid() != Fluids.EMPTY))
                                                .map(s -> new ItemStorage(new ItemStack(s)))

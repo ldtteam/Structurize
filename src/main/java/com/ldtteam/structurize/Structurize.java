@@ -4,7 +4,6 @@ import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.blueprints.v1.DataVersion;
 import com.ldtteam.structurize.config.ClientConfiguration;
 import com.ldtteam.structurize.config.ServerConfiguration;
-import com.ldtteam.common.config.AbstractConfiguration;
 import com.ldtteam.common.config.Configurations;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -29,7 +28,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.DistExecutor;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -65,9 +63,9 @@ public class Structurize
         
         config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, null);
 
-        ModBlocks.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModItems.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModBlockEntities.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModBlocks.BLOCKS.register(modBus);
+        ModItems.ITEMS.register(modBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         ModItemGroups.TAB_REG.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);

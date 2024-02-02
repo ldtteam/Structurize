@@ -19,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
@@ -74,7 +73,7 @@ public class BlueprintUtil
         for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.offset(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
-            String modName = ForgeRegistries.BLOCKS.getKey(state.getBlock()).getNamespace();
+            String modName = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),
               z = (short) (mutablePos.getZ() - pos.getZ());

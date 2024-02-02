@@ -20,11 +20,10 @@ public class ItemBuildTool extends AbstractItemStructurize
 {
     /**
      * Instantiates the buildTool on load.
-     * @param properties the properties.
      */
-    public ItemBuildTool(final Properties properties)
+    public ItemBuildTool()
     {
-        super("sceptergold", properties.stacksTo(1));
+        super("sceptergold", new Properties().stacksTo(1));
     }
 
     @Override

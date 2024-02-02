@@ -8,6 +8,7 @@ import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -52,7 +53,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 import net.neoforged.neoforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
 import java.text.MessageFormat;
@@ -80,7 +80,7 @@ public final class BlockUtils
         (block, iBlockState) -> BlockUtils.isWater(block.defaultBlockState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
-        (block, iBlockState) -> block.equals(Blocks.GRASS),
+        (block, iBlockState) -> block.equals(Blocks.GRASS_BLOCK),
         (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.getValue(BooleanProperty.create("upper")));
 
     /**
@@ -98,8 +98,7 @@ public final class BlockUtils
     {
         if (trueSolidBlocks.isEmpty())
         {
-            ForgeRegistries.BLOCKS.getValues()
-                .stream()
+            BuiltInRegistries.BLOCK.stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
                 .filter(block -> !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);

@@ -14,11 +14,10 @@ public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
      * Sets the name, creative tab, and registers the item.
-     * @param properties the properties
      */
-    public ItemShapeTool(final Properties properties)
+    public ItemShapeTool()
     {
-        super("shapetool", properties.stacksTo(1));
+        super("shapetool", new Properties().stacksTo(1));
     }
 
     @Override
