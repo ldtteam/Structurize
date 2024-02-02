@@ -4,7 +4,7 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
-import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.common.language.LanguageHandler;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.bus.api.SubscribeEvent;

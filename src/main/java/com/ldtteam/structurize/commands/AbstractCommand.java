@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.util.LanguageHandler;
+import com.ldtteam.common.language.LanguageHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
