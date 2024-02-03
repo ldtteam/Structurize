@@ -25,8 +25,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -767,20 +765,6 @@ public class Blueprint implements IFakeLevelBlockGetter
         this.rotationMirror = this.rotationMirror.add(transformBy);
 
         cacheReset(false);
-    }
-
-    /**
-     * Rotate the structure depending on the direction it's facing.
-     *
-     * @param localRotation times to rotateWithMirror.
-     * @param localMirror   the mirror.
-     * @param world    the world.
-     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)} or use exact setter {@link #setRotationMirror(RotationMirror, Level)}
-     */
-    @Deprecated(since="1.20", forRemoval=true)
-    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
-    {
-        setRotationMirrorRelative(RotationMirror.of(localRotation, localMirror), world);
     }
 
     /**

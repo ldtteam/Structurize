@@ -13,6 +13,7 @@ import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -21,8 +22,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -333,8 +332,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
                                     packName,
                                     subpath.toString(),
                                     previewData.getPos(),
-                                    Rotation.NONE,
-                                    Mirror.NONE).sendToServer()));
+                                    RotationMirror.NONE).sendToServer()));
 
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {

@@ -9,7 +9,6 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -19,16 +18,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.server.command.EnumArgument;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -67,11 +64,6 @@ public class PasteFolderCommand extends AbstractCommand
     private static final String NO_PACK_MESSAGE = "com.structurize.command.paste.no.pack";
 
     /**
-     * The player name command argument.
-     */
-    private static final String PLAYER_NAME = "player";
-
-    /**
      * Position command argument.
      */
     private static final String POS = "pos";
@@ -89,12 +81,7 @@ public class PasteFolderCommand extends AbstractCommand
     /**
      * The rotation command argument.
      */
-    private static final String ROTATION = "rotation";
-
-    /**
-     * The mirror command argument.
-     */
-    private static final String MIRROR = "mirror";
+    private static final String ROT_MIR = "rotation_mirror";
 
     /**
      * The pretty command argument.
@@ -106,7 +93,7 @@ public class PasteFolderCommand extends AbstractCommand
      */
     private static final String PLOT_SIZE = "plotSize";
 
-    private static int execute(final CommandSourceStack source, final BlockPos pos, final String pack, final String tempPath, final Rotation rotation, final boolean mirrored, final boolean pretty, final int plotSize) throws CommandSyntaxException
+    private static int execute(final CommandSourceStack source, final BlockPos pos, final String pack, final String tempPath, final RotationMirror rotMir, final boolean pretty, final int plotSize) throws CommandSyntaxException
     {
         @Nullable final Level world = source.getLevel();
         if (source.getEntity() instanceof Player && !source.getPlayerOrException().isCreative())
@@ -125,8 +112,6 @@ public class PasteFolderCommand extends AbstractCommand
             source.sendFailure(Component.translatable(PLAYER_NOT_FOUND));
             return 0;
         }
-
-        final Mirror mirror = mirrored ? Mirror.FRONT_BACK : Mirror.NONE;
 
         final String[] split = tempPath.split("\\.");
         final StringBuilder builder = new StringBuilder();
@@ -189,28 +174,21 @@ public class PasteFolderCommand extends AbstractCommand
                 for (final Blueprint blueprint : perTypeList)
                 {
                     final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-                    blueprint.setRotationMirror(RotationMirror.of(rotation, mirror), world);
+                    blueprint.setRotationMirror(rotMir, world);
                     final BlockPos placementPos = pos.offset(xOffset, 0, zOffset).offset(blueprint.getPrimaryBlockOffset());
 
                     final IStructureHandler structure;
-                    if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)
+                    if (anchor.getBlock() instanceof final ISpecialCreativeHandlerAnchorBlock specialAnchor)
                     {
-                        if (!((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).setup((ServerPlayer) player, world, placementPos, blueprint, new PlacementSettings(mirror, rotation),
-                          pretty, packName, path))
+                        if (!specialAnchor.setup((ServerPlayer) player, world, placementPos, blueprint, rotMir, pretty, packName, path))
                         {
                             return;
                         }
-                        structure =
-                          ((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).getStructureHandler(world, placementPos, blueprint, new PlacementSettings(mirror, rotation),
-                            pretty);
+                        structure = specialAnchor.getStructureHandler(world, placementPos, blueprint, rotMir, pretty);
                     }
                     else
                     {
-                        structure = new CreativeStructureHandler(world,
-                          placementPos,
-                          blueprint,
-                          new PlacementSettings(mirror, rotation),
-                          pretty);
+                        structure = new CreativeStructureHandler(world, placementPos, blueprint, rotMir, pretty);
                     }
 
                     final StructurePlacer instantPlacer = new StructurePlacer(structure);
@@ -232,17 +210,7 @@ public class PasteFolderCommand extends AbstractCommand
         final String packName  = StringArgumentType.getString(context, PACK_NAME);
         final String path  = StringArgumentType.getString(context, FILE_PATH);
 
-        return execute(context.getSource(), pos, packName, path, Rotation.NONE, false, true, 34);
-    }
-
-    private static int onExecuteWithRotation(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
-    {
-        final BlockPos pos = BlockPosArgument.getSpawnablePos(context, POS);
-        final String packName  = StringArgumentType.getString(context, PACK_NAME);
-        final String path  = StringArgumentType.getString(context, FILE_PATH);
-        final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
-
-        return execute(context.getSource(), pos, packName, path, rotation, false, true, 34);
+        return execute(context.getSource(), pos, packName, path, RotationMirror.NONE, true, 34);
     }
 
     private static int onExecuteWithRotationAndMirror(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -250,10 +218,9 @@ public class PasteFolderCommand extends AbstractCommand
         final BlockPos pos = BlockPosArgument.getSpawnablePos(context, POS);
         final String packName  = StringArgumentType.getString(context, PACK_NAME);
         final String path  = StringArgumentType.getString(context, FILE_PATH);
-        final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
-        final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
+        final RotationMirror rotMir = context.getArgument(ROT_MIR, RotationMirror.class);
 
-        return execute(context.getSource(), pos, packName, path, rotation, mirror, true, 34);
+        return execute(context.getSource(), pos, packName, path, rotMir, true, 34);
     }
 
     private static int onExecuteWithPretty(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -261,11 +228,10 @@ public class PasteFolderCommand extends AbstractCommand
         final BlockPos pos = BlockPosArgument.getSpawnablePos(context, POS);
         final String packName  = StringArgumentType.getString(context, PACK_NAME);
         final String path  = StringArgumentType.getString(context, FILE_PATH);
-        final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
-        final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
+        final RotationMirror rotMir = context.getArgument(ROT_MIR, RotationMirror.class);
         final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
 
-        return execute(context.getSource(), pos, packName, path, rotation, mirror, pretty, 34);
+        return execute(context.getSource(), pos, packName, path, rotMir, pretty, 34);
     }
 
     private static int onExecuteWithFull(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
@@ -273,12 +239,11 @@ public class PasteFolderCommand extends AbstractCommand
         final BlockPos pos = BlockPosArgument.getSpawnablePos(context, POS);
         final String packName  = StringArgumentType.getString(context, PACK_NAME);
         final String path  = StringArgumentType.getString(context, FILE_PATH);
-        final Rotation rotation = Rotation.values()[IntegerArgumentType.getInteger(context, ROTATION)];
-        final boolean mirror = BoolArgumentType.getBool(context, MIRROR);
+        final RotationMirror rotMir = context.getArgument(ROT_MIR, RotationMirror.class);
         final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
         final int plotSize = IntegerArgumentType.getInteger(context, PLOT_SIZE);
 
-        return execute(context.getSource(), pos, packName, path, rotation, mirror, pretty, plotSize);
+        return execute(context.getSource(), pos, packName, path, rotMir, pretty, plotSize);
     }
 
     protected static LiteralArgumentBuilder<CommandSourceStack> build()
@@ -288,14 +253,11 @@ public class PasteFolderCommand extends AbstractCommand
             .then(newArgument(PACK_NAME, StringArgumentType.string())
               .then(newArgument(FILE_PATH, StringArgumentType.string())
                 .executes(PasteFolderCommand::onExecute)
-                .then(newArgument(ROTATION, IntegerArgumentType.integer(0, 3))
-                  .executes(PasteFolderCommand::onExecuteWithRotation)
-                  .then(newArgument(PLAYER_NAME, GameProfileArgument.gameProfile())
-                    .then(newArgument(MIRROR, BoolArgumentType.bool())
+                    .then(newArgument(ROT_MIR, EnumArgument.enumArgument(RotationMirror.class))
                       .executes(PasteFolderCommand::onExecuteWithRotationAndMirror)
                       .then(newArgument(PRETTY, BoolArgumentType.bool())
                         .executes(PasteFolderCommand::onExecuteWithPretty)
                               .then(newArgument(PLOT_SIZE, IntegerArgumentType.integer(16, 128))
-                                .executes(PasteFolderCommand::onExecuteWithFull)))))))));
+                                .executes(PasteFolderCommand::onExecuteWithFull)))))));
     }
 }

@@ -1,12 +1,10 @@
 package com.ldtteam.structurize.api.util;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.NotNull;
@@ -98,27 +96,6 @@ public final class BlockPosUtil
             throw new IllegalStateException("max-sqrt is to high! Failure to catch overflow with " + xDiff + " | " + yDiff + " | " + zDiff);
         }
         return result;
-    }
-
-    /**
-     * Get the rotation enum value from the amount of rotations.
-     *
-     * @param rotations the amount of rotations.
-     * @return the enum Rotation.
-     */
-    public static Rotation getRotationFromRotations(final int rotations)
-    {
-        switch (rotations)
-        {
-            case Constants.ROTATE_ONCE:
-                return Rotation.CLOCKWISE_90;
-            case Constants.ROTATE_TWICE:
-                return Rotation.CLOCKWISE_180;
-            case Constants.ROTATE_THREE_TIMES:
-                return Rotation.COUNTERCLOCKWISE_90;
-            default:
-                return Rotation.NONE;
-        }
     }
 
     /**

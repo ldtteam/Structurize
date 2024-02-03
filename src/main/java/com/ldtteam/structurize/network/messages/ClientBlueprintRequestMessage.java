@@ -5,11 +5,10 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
@@ -27,8 +26,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     public final String   structurePackId;
     public final String   blueprintPath;
     public final BlockPos pos;
-    public final Rotation rotation;
-    public final Mirror   mirror;
+    public final RotationMirror rotationMirror;
 
 
     /**
@@ -43,8 +41,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = buf.readUtf(32767);
         this.pos = buf.readBlockPos();
-        this.rotation = Rotation.values()[buf.readInt()];
-        this.mirror = Mirror.values()[buf.readInt()];
+        this.rotationMirror = RotationMirror.values()[buf.readInt()];
     }
 
     /**
@@ -61,8 +58,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotation = msg.rotation;
-        this.mirror = msg.mirror;
+        this.rotationMirror = msg.rotationMirror;
     }
 
     @Override
@@ -74,8 +70,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotation.ordinal());
-        buf.writeInt(this.mirror.ordinal());
+        buf.writeInt(this.rotationMirror.ordinal());
     }
 
     @Override

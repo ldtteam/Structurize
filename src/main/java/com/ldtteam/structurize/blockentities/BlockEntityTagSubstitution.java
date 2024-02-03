@@ -12,8 +12,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -341,21 +339,6 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
             blueprint.addBlockState(BlockPos.ZERO, getBlockState());
             blueprint.getTileEntities()[0][0][0] = getBlockEntityTag().isEmpty() ? null : getBlockEntityTag().copy();
             return blueprint;
-        }
-
-        @NotNull
-        @Deprecated(since="1.20", forRemoval=true)
-        public BlockEntityTagSubstitution.ReplacementBlock rotateWithMirror(@NotNull final BlockPos pos,
-                                                                            @NotNull final Rotation localRotation,
-                                                                            @NotNull final Mirror localMirror,
-                                                                            @NotNull final Level world)
-        {
-            final Blueprint blueprint = createBlueprint();
-            blueprint.rotateWithMirror(localRotation, localMirror, world);
-
-            final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);
-            final CompoundTag newBlockData = blueprint.getTileEntityData(pos, BlockPos.ZERO);
-            return new ReplacementBlock(newBlockState, newBlockData, this.getItemStack());
         }
 
         /**

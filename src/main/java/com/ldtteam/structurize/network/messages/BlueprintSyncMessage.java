@@ -4,11 +4,10 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.apache.commons.io.FilenameUtils;
 
@@ -27,8 +26,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     public       String structurePackId;
     public final String blueprintPath;
     public final BlockPos pos;
-    public final Rotation rotation;
-    public final Mirror   mirror;
+    public final RotationMirror rotationMirror;
 
     /**
      * Blueprint data future.
@@ -47,8 +45,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = FilenameUtils.normalize(buf.readUtf(32767));
         this.pos = buf.readBlockPos();
-        this.rotation = Rotation.values()[buf.readInt()];
-        this.mirror = Mirror.values()[buf.readInt()];
+        this.rotationMirror = RotationMirror.values()[buf.readInt()];
 
         this.blueprintData = buf.readByteArray();
     }
@@ -70,8 +67,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotation = msg.rotation;
-        this.mirror = msg.mirror;
+        this.rotationMirror = msg.rotationMirror;
         this.blueprintData = blueprintData;
     }
 
@@ -84,8 +80,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotation.ordinal());
-        buf.writeInt(this.mirror.ordinal());
+        buf.writeInt(this.rotationMirror.ordinal());
 
         buf.writeByteArray(this.blueprintData);
     }

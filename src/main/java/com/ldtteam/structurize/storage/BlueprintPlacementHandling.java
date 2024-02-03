@@ -15,7 +15,6 @@ import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
-import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.server.level.ServerPlayer;
@@ -79,34 +78,28 @@ public class BlueprintPlacementHandling
                         message.world,
                         message.player,
                         message.pos,
-                        new PlacementSettings(message.mirror, message.rotation));
+                        message.rotationMirror);
             }
             return;
         }
 
         Utils.playSuccessSound(message.player);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        blueprint.setRotationMirror(RotationMirror.of(message.rotation, message.mirror), message.world);
+        blueprint.setRotationMirror(message.rotationMirror, message.world);
 
         final IStructureHandler structure;
-        if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)
+        final boolean fancyPlacement = message.type == BuildToolPlacementMessage.HandlerType.Pretty;
+        if (anchor.getBlock() instanceof final ISpecialCreativeHandlerAnchorBlock specialAnchor)
         {
-           if (!((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).setup(message.player, message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
-              message.type == BuildToolPlacementMessage.HandlerType.Pretty, message.structurePackId, message.blueprintPath))
-           {
-               return;
-           }
-            structure =
-              ((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).getStructureHandler(message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
-                message.type == BuildToolPlacementMessage.HandlerType.Pretty);
+            if (!specialAnchor.setup(message.player, message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement, message.structurePackId, message.blueprintPath))
+            {
+                return;
+            }
+            structure = specialAnchor.getStructureHandler(message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement);
         }
         else
         {
-            structure = new CreativeStructureHandler(message.world,
-              message.pos,
-              blueprint,
-              new PlacementSettings(message.mirror, message.rotation),
-              message.type == BuildToolPlacementMessage.HandlerType.Pretty);
+            structure = new CreativeStructureHandler(message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement);
         }
 
         final StructurePlacer instantPlacer = new StructurePlacer(structure);

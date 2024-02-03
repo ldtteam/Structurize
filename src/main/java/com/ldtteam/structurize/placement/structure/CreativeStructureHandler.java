@@ -3,7 +3,7 @@ package com.ldtteam.structurize.placement.structure;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
@@ -30,12 +30,12 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param world the world it gets.
      * @param pos the position the anchor of the structure got placed.
      * @param blueprint the blueprint.
-     * @param settings the placement settings.
+     * @param rotMir the placement settings.
      * @param fancyPlacement if placement is fancy or complete.
      */
-    public CreativeStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final RotationMirror rotMir, final boolean fancyPlacement)
     {
-        super(world, pos, blueprint, settings);
+        super(world, pos, blueprint, rotMir);
         this.fancyPlacement = fancyPlacement;
     }
 
@@ -44,12 +44,12 @@ public class CreativeStructureHandler extends AbstractStructureHandler
      * @param world the world it gets.
      * @param pos the position the anchor of the structure got placed.
      * @param blueprint the blueprint.
-     * @param settings the placement settings.
+     * @param rotMir the placement settings.
      * @param fancyPlacement if placement is fancy or complete.
      */
-    public CreativeStructureHandler(final Level world, final BlockPos pos, final Future<Blueprint> blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeStructureHandler(final Level world, final BlockPos pos, final Future<Blueprint> blueprint, final RotationMirror rotMir, final boolean fancyPlacement)
     {
-        super(world, pos, blueprint, settings);
+        super(world, pos, blueprint, rotMir);
         this.fancyPlacement = fancyPlacement;
     }
 

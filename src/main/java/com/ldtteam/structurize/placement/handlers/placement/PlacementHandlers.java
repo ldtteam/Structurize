@@ -8,7 +8,7 @@ import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -269,7 +269,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -404,7 +404,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
@@ -532,7 +532,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (world.getBlockState(pos).getBlock() == blockState.getBlock())
             {
@@ -704,7 +704,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -761,7 +761,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
@@ -850,7 +850,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -907,7 +907,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete,
           final BlockPos centerPos,
-          final PlacementSettings settings)
+          final RotationMirror settings)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -984,17 +984,16 @@ public final class PlacementHandlers
       final CompoundTag tileEntityData,
       final Level world,
       final BlockPos pos,
-      final PlacementSettings settings)
+      final RotationMirror settings)
     {
         if (tileEntityData != null)
         {
             final BlockEntity newTile = BlockEntity.loadStatic(pos, world.getBlockState(pos), tileEntityData);
             if (newTile != null)
             {
-                if (newTile instanceof IRotatableBlockEntity)
+                if (newTile instanceof final IRotatableBlockEntity rotatable)
                 {
-                    ((IRotatableBlockEntity) newTile).rotate(settings.rotation);
-                    ((IRotatableBlockEntity) newTile).mirror(settings.mirror);
+                    rotatable.rotateAndMirror(settings);
                 }
 
                 final BlockEntity worldBlockEntity = world.getBlockEntity(pos);
@@ -1007,8 +1006,8 @@ public final class PlacementHandlers
                 {
                     world.setBlockEntity(newTile);
                 }
-                world.getBlockState(pos).rotate(world, pos, settings.rotation);
-                world.getBlockState(pos).mirror(settings.mirror);
+                world.getBlockState(pos).rotate(world, pos, settings.rotation());
+                world.getBlockState(pos).mirror(settings.mirror());
             }
         }
     }
@@ -1032,18 +1031,6 @@ public final class PlacementHandlers
             }
         }
         return Collections.emptyList();
-    }
-
-    /**
-     * Handles tileEntity placement.
-     *
-     * @param tileEntityData the data of the tile entity.
-     * @param world          the world.
-     * @param pos            the position.
-     */
-    public static void handleTileEntityPlacement(final CompoundTag tileEntityData, final Level world, final BlockPos pos)
-    {
-        handleTileEntityPlacement(tileEntityData, world, pos, new PlacementSettings());
     }
 
     /**

@@ -106,48 +106,6 @@ public final class BlockUtils
     }
 
     /**
-     * Updates the rotation of the structure depending on the input.
-     *
-     * @param rotation the rotation to be set.
-     * @return returns the Rotation object.
-     */
-    public static Rotation getRotation(final int rotation)
-    {
-        switch (rotation)
-        {
-            case 1:
-                return Rotation.CLOCKWISE_90;
-            case 2:
-                return Rotation.CLOCKWISE_180;
-            case 3:
-                return Rotation.COUNTERCLOCKWISE_90;
-            default:
-                return Rotation.NONE;
-        }
-    }
-
-    /**
-     * Gets a rotation from a block facing.
-     *
-     * @param facing the block facing.
-     * @return the int rotation.
-     */
-    public static int getRotationFromFacing(final Direction facing)
-    {
-        switch (facing)
-        {
-            case SOUTH:
-                return 2;
-            case EAST:
-                return 1;
-            case WEST:
-                return 3;
-            default:
-                return 0;
-        }
-    }
-
-    /**
      * Get the filler block at a certain location.
      * If block follows gravity laws return dirt.
      *

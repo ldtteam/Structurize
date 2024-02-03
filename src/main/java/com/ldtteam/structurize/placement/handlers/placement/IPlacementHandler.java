@@ -4,7 +4,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +70,7 @@ public interface IPlacementHandler
       final BlockPos pos,
       final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
-      final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
+      final boolean complete, final BlockPos centerPos, final RotationMirror settings)
     {
         return handle(world, pos, blockState, tileEntityData, complete, centerPos);
     }
@@ -93,7 +93,7 @@ public interface IPlacementHandler
       final BlockPos pos,
       final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
-      final boolean complete, final BlockPos centerPos, final PlacementSettings settings)
+      final boolean complete, final BlockPos centerPos, final RotationMirror settings)
     {
         return handle(world, pos, blockState, tileEntityData, complete, centerPos,settings);
     }

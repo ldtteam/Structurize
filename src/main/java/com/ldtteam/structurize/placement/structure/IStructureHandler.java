@@ -4,7 +4,7 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
@@ -76,7 +76,7 @@ public interface IStructureHandler
      * Getter for the placement settings.
      * @return the settings object.
      */
-    PlacementSettings getSettings();
+    RotationMirror getRotationMirror();
 
     /**
      * Get the inventory of the handler.
