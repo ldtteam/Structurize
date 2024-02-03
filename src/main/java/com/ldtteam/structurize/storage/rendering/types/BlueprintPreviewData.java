@@ -267,27 +267,6 @@ public class BlueprintPreviewData
     }
 
     /**
-     * Check if the blueprint rendered should refresh the cache.
-     * @return true if so.
-     * @deprecated no longer needed
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public boolean shouldRefresh()
-    {
-        return false;
-    }
-
-    /**
-     * Tell the structurize renderer to refresh the cache.
-     * @deprecated switch to {@link #syncChangesToServer()}
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public void scheduleRefresh()
-    {
-        syncChangesToServer();
-    }
-
-    /**
      * Check if this is an invalid preview data object.
      * @return true if so.
      */

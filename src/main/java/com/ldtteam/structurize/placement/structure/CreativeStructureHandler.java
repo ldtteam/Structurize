@@ -133,12 +133,6 @@ public class CreativeStructureHandler extends AbstractStructureHandler
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos worldPos)
-    {
-        return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos, null);
-    }
-
-    @Override
     public BlockState getSolidBlockForPos(final BlockPos worldPos, final Function<BlockPos, BlockState> virtualBlocks)
     {
         return BlockUtils.getSubstitutionBlockAtWorld(getWorld(), worldPos, virtualBlocks);

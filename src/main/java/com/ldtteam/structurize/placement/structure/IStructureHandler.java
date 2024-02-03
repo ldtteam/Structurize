@@ -219,14 +219,6 @@ public interface IStructureHandler
     void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems);
 
     /**
-     * Get the right solid block for the substitution block.
-     * @param worldPos the world pos.
-     * @return the right block (classically biome dependent).
-     */
-    @Deprecated(forRemoval = true, since = "1.18.2")
-    BlockState getSolidBlockForPos(BlockPos worldPos);
-
-    /**
      * Get the solid worldgen block for given pos while using data from handler.
      * 
      * @param  worldPos      the world pos.

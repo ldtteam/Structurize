@@ -107,20 +107,6 @@ public final class BlockUtils
 
     /**
      * Get the filler block at a certain location.
-     * If block follows gravity laws return dirt.
-     *
-     * @param world    the world the block is in.
-     * @param location the location it is at.
-     * @return the BlockState of the filler block.
-     */
-    @Deprecated(forRemoval = true, since="1.18.2")
-    public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location)
-    {
-        return Blocks.DIRT.defaultBlockState();
-    }
-
-    /**
-     * Get the filler block at a certain location.
      *
      * @param  level         the world the block is in.
      * @param  location      the location it is at.

@@ -857,18 +857,6 @@ public class Blueprint implements IFakeLevelBlockGetter
     }
 
     /**
-     * Set the render source of the blueprint.
-     * This will be included in the hash to differentiate.
-     * This is supposed to be used for static blueprints that are not moved around only.
-     * @param pos the source position.
-     * @deprecated ask Ray what to use :)
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public void setRenderSource(final BlockPos pos)
-    {
-    }
-
-    /**
      * Get blueprint info at position.
      * 
      * @param pos             the position
