@@ -1,21 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Notify server that client clicked or scrolled the middle mouse on a special item
  */
-public class ItemMiddleMouseMessage implements IMessage
+public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "item_middle_mouse", ItemMiddleMouseMessage::new);
+
     @Nullable private final BlockPos pos;
     private final double deltaX;
     private final double deltaY;
@@ -28,6 +32,7 @@ public class ItemMiddleMouseMessage implements IMessage
      */
     public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final boolean ctrlKey)
     {
+        super(TYPE);
         this.pos = pos;
         this.deltaX = 0;
         this.deltaY = 0;
@@ -42,6 +47,7 @@ public class ItemMiddleMouseMessage implements IMessage
      */
     public ItemMiddleMouseMessage(final double deltaX, final double deltaY, final boolean ctrlKey)
     {
+        super(TYPE);
         this.pos = null;
         this.deltaX = deltaX;
         this.deltaY = deltaY;
@@ -54,6 +60,7 @@ public class ItemMiddleMouseMessage implements IMessage
      */
     public ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
         this.deltaX = buf.readDouble();
         this.deltaY = buf.readDouble();
@@ -77,17 +84,9 @@ public class ItemMiddleMouseMessage implements IMessage
         buf.writeBoolean(this.ctrlKey);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        final ServerPlayer player = ctxIn.getSender();
         final ItemStack current = player.getInventory().getSelected();
 
         if (this.deltaX == 0 && this.deltaY == 0)

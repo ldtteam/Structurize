@@ -1,5 +1,8 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -8,16 +11,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Send build tool data to the server. Verify the data on the server side and then place the blueprint.
  * This also buffers the incoming messages, places one per tick and loads the file off-thread.
  */
-public class BuildToolPlacementMessage implements IMessage
+public class BuildToolPlacementMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "buildtool_placement", BuildToolPlacementMessage::new);
+
     /**
      * Identify the Client side handler.
      */
@@ -55,6 +58,7 @@ public class BuildToolPlacementMessage implements IMessage
      */
     public BuildToolPlacementMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.type = HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -85,6 +89,7 @@ public class BuildToolPlacementMessage implements IMessage
       final Rotation rotation,
       final Mirror mirror)
     {
+        super(TYPE);
         this.type = type;
         this.handlerId = handlerId;
 
@@ -101,6 +106,7 @@ public class BuildToolPlacementMessage implements IMessage
      */
     public BuildToolPlacementMessage(final BlueprintSyncMessage msg, final ServerPlayer player, final Level world)
     {
+        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
@@ -133,18 +139,11 @@ public class BuildToolPlacementMessage implements IMessage
         buf.writeInt(this.mirror.ordinal());
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        world = ctxIn.getSender().level();
-        player = ctxIn.getSender();
+        world = player.level();
+        this.player = player;
         BlueprintPlacementHandling.handlePlacement(this);
     }
 }

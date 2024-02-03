@@ -1,31 +1,58 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.structurize.Network;
+import com.ldtteam.common.language.LanguageHandler;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
+import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
-import com.ldtteam.common.language.LanguageHandler;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
 
 public class LifecycleSubscriber
 {
-    /**
-     * Called when mod is being initialized.
-     *
-     * @param event event
-     */
     @SubscribeEvent
-    public static void onModInit(final FMLCommonSetupEvent event)
+    public static void onNetworkRegistry(final RegisterPayloadHandlerEvent event)
     {
-        Network.getNetwork().registerCommonMessages();
+        final String modVersion = ModList.get().getModContainerById(Constants.MOD_ID).get().getModInfo().getVersion().toString();
+        final IPayloadRegistrar registry = event.registrar(Constants.MOD_ID).versioned(modVersion);
+
+        AbsorbBlockMessage.TYPE.register(registry);
+        AddRemoveTagMessage.TYPE.register(registry);
+        BlueprintSyncMessage.TYPE.register(registry);
+        BuildToolPlacementMessage.TYPE.register(registry);
+        BuildToolPlacementMessage.TYPE.register(registry);
+        ClientBlueprintRequestMessage.TYPE.register(registry);
+        FillTopPlaceholderMessage.TYPE.register(registry);
+        ItemMiddleMouseMessage.TYPE.register(registry);
+        NotifyClientAboutStructurePacksMessage.TYPE.register(registry);
+        NotifyServerAboutStructurePacksMessage.TYPE.register(registry);
+        OperationHistoryMessage.TYPE.register(registry);
+        RemoveBlockMessage.TYPE.register(registry);
+        RemoveEntityMessage.TYPE.register(registry);
+        ReplaceBlockMessage.TYPE.register(registry);
+        SaveScanMessage.TYPE.register(registry);
+        ScanOnServerMessage.TYPE.register(registry);
+        ScanToolTeleportMessage.TYPE.register(registry);
+        ServerUUIDMessage.TYPE.register(registry);
+        SetTagInTool.TYPE.register(registry);
+        ShowScanMessage.TYPE.register(registry);
+        SyncPreviewCacheToClient.TYPE.register(registry);
+        SyncPreviewCacheToServer.TYPE.register(registry);
+        SyncSettingsToServer.TYPE.register(registry);
+        TransferStructurePackToClient.TYPE.register(registry);
+        UndoRedoMessage.TYPE.register(registry);
+        UpdateClientRender.TYPE.register(registry);
+        UpdateScanToolMessage.TYPE.register(registry);
     }
 
     /**

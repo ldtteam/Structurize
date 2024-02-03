@@ -1,17 +1,19 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.List;
 import java.util.Locale;
@@ -19,8 +21,10 @@ import java.util.Locale;
 /**
  * Message to remove an entity from the world.
  */
-public class RemoveEntityMessage implements IMessage
+public class RemoveEntityMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "remove_entity", RemoveEntityMessage::new);
+
     /**
      * Position to scan from.
      */
@@ -41,6 +45,7 @@ public class RemoveEntityMessage implements IMessage
      */
     public RemoveEntityMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.entityName = buf.readUtf(32767);
@@ -54,6 +59,7 @@ public class RemoveEntityMessage implements IMessage
      */
     public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final String entityName)
     {
+        super(TYPE);
         this.from = pos1;
         this.to = pos2;
         this.entityName = entityName;
@@ -67,24 +73,16 @@ public class RemoveEntityMessage implements IMessage
         buf.writeUtf(entityName);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!ctxIn.getSender().isCreative())
+        if (!player.isCreative())
         {
             return;
         }
 
-        final Level world = ctxIn.getSender().level();
-        final ChangeStorage storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName), ctxIn.getSender().getUUID());
+        final Level world = player.level();
+        final ChangeStorage storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName), player.getUUID());
         for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
         {
             for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)

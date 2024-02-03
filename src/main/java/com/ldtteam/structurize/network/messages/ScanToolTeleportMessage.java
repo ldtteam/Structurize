@@ -1,21 +1,27 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ScanToolTeleportMessage implements IMessage
+public class ScanToolTeleportMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "scantool_teleport", ScanToolTeleportMessage::new);
+
     public ScanToolTeleportMessage()
     {
+        super(TYPE);
     }
 
     public ScanToolTeleportMessage(@NotNull final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
     }
 
     @Override
@@ -23,20 +29,13 @@ public class ScanToolTeleportMessage implements IMessage
     {
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        final ItemStack stack = ctxIn.getSender().getMainHandItem();
+        final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
         {
-            tool.onTeleport(ctxIn.getSender(), stack);
+            tool.onTeleport(player, stack);
         }
     }
 }

@@ -1,19 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.UUID;
 
 /**
  * Sync blueprint preview data to the client.
  */
-public class SyncPreviewCacheToClient implements IMessage
+public class SyncPreviewCacheToClient extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "sync_preview_cache_to_client", SyncPreviewCacheToClient::new);
+
     public static final String SHARED_PREFIX = "shared:";
 
     /**
@@ -31,6 +35,7 @@ public class SyncPreviewCacheToClient implements IMessage
      */
     public SyncPreviewCacheToClient(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.previewData = new BlueprintPreviewData(buf, false);
         this.playerUUID = buf.readUUID();
     }
@@ -40,6 +45,7 @@ public class SyncPreviewCacheToClient implements IMessage
      */
     public SyncPreviewCacheToClient(final BlueprintPreviewData previewData, final UUID playerUUID)
     {
+        super(TYPE);
         this.previewData = previewData;
         this.playerUUID = playerUUID;
     }
@@ -51,15 +57,8 @@ public class SyncPreviewCacheToClient implements IMessage
         buf.writeUUID(this.playerUUID);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final PlayPayloadContext context, final Player player)
     {
         final String uuid = SHARED_PREFIX + playerUUID.toString();
         if (previewData.isEmpty())

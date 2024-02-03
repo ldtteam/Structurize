@@ -1,24 +1,28 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.io.IOException;
 
 /**
  * Handles sendScanMessages.
  */
-public class SaveScanMessage implements IMessage
+public class SaveScanMessage extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "save_scan", SaveScanMessage::new);
+
     private static final String TAG_MILLIS    = "millies";
     public static final  String TAG_SCHEMATIC = "schematic";
 
@@ -30,6 +34,7 @@ public class SaveScanMessage implements IMessage
      */
     public SaveScanMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
@@ -55,6 +60,7 @@ public class SaveScanMessage implements IMessage
      */
     public SaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
     {
+        super(TYPE);
         this.fileName = fileName;
         this.compoundNBT = CompoundNBT;
     }
@@ -77,15 +83,8 @@ public class SaveScanMessage implements IMessage
         }
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final PlayPayloadContext context, final Player player)
     {
         if (compoundNBT != null)
         {

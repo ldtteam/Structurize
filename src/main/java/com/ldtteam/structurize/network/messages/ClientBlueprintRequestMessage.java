@@ -1,21 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Request a blueprint from the client.
  */
-public class ClientBlueprintRequestMessage implements IMessage
+public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "blueprint_request", ClientBlueprintRequestMessage::new);
+
     /**
      * Structure placement info.
      */
@@ -33,6 +37,7 @@ public class ClientBlueprintRequestMessage implements IMessage
      */
     public ClientBlueprintRequestMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -50,6 +55,7 @@ public class ClientBlueprintRequestMessage implements IMessage
      */
     public ClientBlueprintRequestMessage(final BuildToolPlacementMessage msg)
     {
+        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
@@ -73,15 +79,8 @@ public class ClientBlueprintRequestMessage implements IMessage
         buf.writeInt(this.mirror.ordinal());
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final PlayPayloadContext context, final Player player)
     {
         ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
             if (blueprintData != null)

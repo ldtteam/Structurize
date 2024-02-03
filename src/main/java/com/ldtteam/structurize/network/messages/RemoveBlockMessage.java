@@ -1,19 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Message to remove a block from the world.
  */
-public class RemoveBlockMessage implements IMessage
+public class RemoveBlockMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "remove_block", RemoveBlockMessage::new);
+
     /**
      * Position to scan from.
      */
@@ -34,6 +38,7 @@ public class RemoveBlockMessage implements IMessage
      */
     public RemoveBlockMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.block = buf.readItem();
@@ -47,6 +52,7 @@ public class RemoveBlockMessage implements IMessage
      */
     public RemoveBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack stack)
     {
+        super(TYPE);
         this.from = pos1;
         this.to = pos2;
         this.block = stack;
@@ -60,20 +66,13 @@ public class RemoveBlockMessage implements IMessage
         buf.writeItem(block);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!ctxIn.getSender().isCreative())
+        if (!player.isCreative())
         {
             return;
         }
-        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REMOVE_BLOCK, from, to, ctxIn.getSender(), block, ItemStack.EMPTY, 100));
+        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REMOVE_BLOCK, from, to, player, block, ItemStack.EMPTY, 100));
     }
 }

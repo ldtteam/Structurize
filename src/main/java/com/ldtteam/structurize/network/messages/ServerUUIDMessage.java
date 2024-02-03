@@ -1,18 +1,22 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.UUID;
 
 /**
  * Class handling the Server UUID Message.
  */
-public class ServerUUIDMessage implements IMessage
+public class ServerUUIDMessage extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "server_uuid", ServerUUIDMessage::new);
+
     private final UUID serverUUID;
 
     /**
@@ -20,11 +24,13 @@ public class ServerUUIDMessage implements IMessage
      */
     public ServerUUIDMessage()
     {
+        super(TYPE);
         this.serverUUID = Manager.getServerUUID();
     }
 
     public ServerUUIDMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.serverUUID = buf.readUUID();
     }
 
@@ -34,15 +40,8 @@ public class ServerUUIDMessage implements IMessage
         buf.writeUUID(Manager.getServerUUID());
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final PlayPayloadContext context, final Player player)
     {
         Manager.setServerUUID(serverUUID);
     }

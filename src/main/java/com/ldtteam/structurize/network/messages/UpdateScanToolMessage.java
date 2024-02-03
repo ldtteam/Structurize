@@ -1,20 +1,24 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Send the scan tool update message to the client.
  */
-public class UpdateScanToolMessage implements IMessage
+public class UpdateScanToolMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "update_scan_tool", UpdateScanToolMessage::new);
+
     /**
      * Data.
      */
@@ -25,6 +29,7 @@ public class UpdateScanToolMessage implements IMessage
      */
     public UpdateScanToolMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.tag = buf.readNbt();
     }
 
@@ -34,6 +39,7 @@ public class UpdateScanToolMessage implements IMessage
      */
     public UpdateScanToolMessage(@NotNull ScanToolData data)
     {
+        super(TYPE);
         this.tag = data.getInternalTag().copy();
     }
 
@@ -43,17 +49,10 @@ public class UpdateScanToolMessage implements IMessage
         buf.writeNbt(this.tag);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        final ItemStack stack = ctxIn.getSender().getMainHandItem();
+        final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
         {
             stack.setTag(this.tag);

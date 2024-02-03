@@ -1,11 +1,13 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +15,10 @@ import java.util.Map;
 /**
  * Notify the client about the structure packs on the server side.
  */
-public class NotifyClientAboutStructurePacksMessage implements IMessage
+public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "notify_client_about_structure_packs", NotifyClientAboutStructurePacksMessage::new);
+
     /**
      * List of server structure packs.
      * Contains String Name, and Integer version.
@@ -26,6 +30,7 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
      */
     public NotifyClientAboutStructurePacksMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         final int length = buf.readInt();
         for (int i = 0; i < length; i++)
         {
@@ -39,6 +44,7 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
      */
     public NotifyClientAboutStructurePacksMessage(final Map<String, StructurePackMeta> clientStructurePacks)
     {
+        super(TYPE);
         for (final StructurePackMeta pack : clientStructurePacks.values())
         {
             if (!pack.isImmutable())
@@ -59,19 +65,9 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
         }
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final Player player)
     {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!isLogicalServer)
-        {
-            ClientStructurePackLoader.onServerSyncAttempt(this.serverStructurePacks);
-        }
+        ClientStructurePackLoader.onServerSyncAttempt(this.serverStructurePacks);
     }
 }

@@ -1,20 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.WindowUndoRedo;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OperationHistoryMessage implements IMessage
+public class OperationHistoryMessage extends AbstractPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forBothSides(Constants.MOD_ID, "operation_history", OperationHistoryMessage::new);
+
     /**
      * List of operations and their IDs
      */
@@ -25,6 +30,7 @@ public class OperationHistoryMessage implements IMessage
      */
     public OperationHistoryMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         final int count = buf.readInt();
         operationIDs = new ArrayList<>();
         for (int i = 0; i < count; i++)
@@ -35,7 +41,7 @@ public class OperationHistoryMessage implements IMessage
 
     public OperationHistoryMessage()
     {
-
+        super(TYPE);
     }
 
     @Override
@@ -49,35 +55,22 @@ public class OperationHistoryMessage implements IMessage
         }
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onClientExecute(final PlayPayloadContext context, final Player player)
     {
-        return null;
+        WindowUndoRedo.lastOperations = operationIDs;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    protected void onServerExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        if (isLogicalServer)
+        final List<ChangeStorage> operations = Manager.getChangeStoragesForPlayer(player.getUUID());
+        operationIDs = new ArrayList<>();
+        for (final ChangeStorage storage : operations)
         {
-            if (ctxIn.getSender() == null)
-            {
-                return;
-            }
-
-            final List<ChangeStorage> operations = Manager.getChangeStoragesForPlayer(ctxIn.getSender().getUUID());
-            operationIDs = new ArrayList<>();
-            for (final ChangeStorage storage : operations)
-            {
-                operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
-            }
-
-            Network.getNetwork().sendToPlayer(this, ctxIn.getSender());
+            operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
         }
-        else
-        {
-            WindowUndoRedo.lastOperations = operationIDs;
-        }
+
+        Network.getNetwork().sendToPlayer(this, player);        
     }
 }

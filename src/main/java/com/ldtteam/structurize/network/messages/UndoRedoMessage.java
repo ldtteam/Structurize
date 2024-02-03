@@ -1,16 +1,20 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Message class which handles undoing a change to the world.
  */
-public class UndoRedoMessage implements IMessage
+public class UndoRedoMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "undo_redo", UndoRedoMessage::new);
+
     private final int     id;
     private final boolean undo;
 
@@ -19,12 +23,14 @@ public class UndoRedoMessage implements IMessage
      */
     public UndoRedoMessage(final int id, final boolean undo)
     {
+        super(TYPE);
         this.undo = undo;
         this.id = id;
     }
 
     public UndoRedoMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.id = buf.readInt();
         this.undo = buf.readBoolean();
     }
@@ -36,28 +42,21 @@ public class UndoRedoMessage implements IMessage
         buf.writeBoolean(undo);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!ctxIn.getSender().isCreative())
+        if (!player.isCreative())
         {
             return;
         }
 
         if (undo)
         {
-            Manager.undo(ctxIn.getSender(), id);
+            Manager.undo(player, id);
         }
         else
         {
-            Manager.redo(ctxIn.getSender(), id);
+            Manager.redo(player, id);
         }
     }
 }

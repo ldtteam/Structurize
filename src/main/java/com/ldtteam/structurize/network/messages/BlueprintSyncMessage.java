@@ -1,20 +1,24 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.apache.commons.io.FilenameUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Sends a blueprint from the client to the server.
  */
-public class BlueprintSyncMessage implements IMessage
+public class BlueprintSyncMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "blueprint_sync", BlueprintSyncMessage::new);
+
     /**
      * Structure placement info.
      */
@@ -36,6 +40,7 @@ public class BlueprintSyncMessage implements IMessage
      */
     public BlueprintSyncMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -58,6 +63,7 @@ public class BlueprintSyncMessage implements IMessage
       final ClientBlueprintRequestMessage msg,
       final byte[] blueprintData)
     {
+        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
@@ -84,16 +90,9 @@ public class BlueprintSyncMessage implements IMessage
         buf.writeByteArray(this.blueprintData);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
+        BlueprintPlacementHandling.handlePlacement(this, player);
     }
 }

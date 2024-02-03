@@ -1,21 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Optional;
 
 /**
  * Send the scan message for a player to the server.
  */
-public class ScanOnServerMessage implements IMessage
+public class ScanOnServerMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "scan_on_server", ScanOnServerMessage::new);
+
     /**
      * Scan data.
      */
@@ -31,6 +35,7 @@ public class ScanOnServerMessage implements IMessage
      */
     public ScanOnServerMessage(final FriendlyByteBuf buf)
     {
+        super(buf, TYPE);
         final String name = buf.readUtf(32767);
         final BlockPos from = buf.readBlockPos();
         final BlockPos to = buf.readBlockPos();
@@ -42,6 +47,7 @@ public class ScanOnServerMessage implements IMessage
 
     public ScanOnServerMessage(final ScanToolData.Slot slot, final boolean saveEntities)
     {
+        super(TYPE);
         this.slot = slot;
         this.saveEntities = saveEntities;
     }
@@ -58,16 +64,9 @@ public class ScanOnServerMessage implements IMessage
         buf.writeBoolean(saveEntities);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        ItemScanTool.saveStructure(ctxIn.getSender().getCommandSenderWorld(), ctxIn.getSender(), this.slot, saveEntities);
+        ItemScanTool.saveStructure(player.getCommandSenderWorld(), player, this.slot, saveEntities);
     }
 }
