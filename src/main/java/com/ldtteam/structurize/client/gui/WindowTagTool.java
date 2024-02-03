@@ -3,7 +3,6 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.items.ItemTagTool;
@@ -97,7 +96,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
         super.close();
         currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
         stack.getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, currentTag);
-        Network.getNetwork().sendToServer(new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)));
+        new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
     }
 
     /**
@@ -119,7 +118,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
             {
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
                 dataTE.removeTag(toRemove, tag);
-                Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, tag, toRemove, anchorPos));
+                new AddRemoveTagMessage(false, tag, toRemove, anchorPos).sendToServer();
             }
             updateResourceList();
         }

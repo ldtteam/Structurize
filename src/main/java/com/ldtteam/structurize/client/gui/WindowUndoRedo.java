@@ -4,7 +4,6 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.OperationHistoryMessage;
 import com.ldtteam.structurize.network.messages.UndoRedoMessage;
@@ -55,7 +54,7 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
     {
         final int index = operationsList.getListElementIndexByPane(button);
         final Tuple<String, Integer> operation = lastOperations.get(index);
-        Network.getNetwork().sendToServer(new UndoRedoMessage(operation.getB(), undo));
+        new UndoRedoMessage(operation.getB(), undo).sendToServer();
         close();
     }
 
@@ -126,6 +125,6 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
     {
         super.open();
         setVisible(true);
-        Network.getNetwork().sendToServer(new OperationHistoryMessage());
+        new OperationHistoryMessage().sendToServer();
     }
 }

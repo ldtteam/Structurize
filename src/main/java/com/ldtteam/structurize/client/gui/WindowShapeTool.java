@@ -4,7 +4,6 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
@@ -328,14 +327,14 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
             final CompoundTag compound = BlueprintUtil.writeBlueprintToNBT(previewData.getBlueprint());
             ClientFutureProcessor.queueBlueprint(
                     new ClientFutureProcessor.BlueprintProcessingData(StructurePacks.storeBlueprint(packName, compound, path), blueprint ->
-                            Network.getNetwork().sendToServer(new BuildToolPlacementMessage(
+                            new BuildToolPlacementMessage(
                                     type,
                                     id,
                                     packName,
                                     subpath.toString(),
                                     previewData.getPos(),
                                     Rotation.NONE,
-                                    Mirror.NONE))));
+                                    Mirror.NONE).sendToServer()));
 
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {

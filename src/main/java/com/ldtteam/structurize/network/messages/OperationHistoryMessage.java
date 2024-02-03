@@ -2,7 +2,6 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.gui.WindowUndoRedo;
 import com.ldtteam.structurize.management.Manager;
@@ -71,6 +70,6 @@ public class OperationHistoryMessage extends AbstractPlayMessage
             operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
         }
 
-        Network.getNetwork().sendToPlayer(this, player);        
+        this.sendToPlayer(player);        
     }
 }

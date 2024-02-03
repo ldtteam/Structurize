@@ -2,7 +2,6 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -160,7 +159,7 @@ public class ClientStructurePackLoader
                 }
 
                 loadingState = ClientLoadingState.SYNCING;
-                Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
+                new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToServer();
             }
             else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
             {
@@ -180,7 +179,7 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
-        Network.getNetwork().sendToServer(new SyncSettingsToServer());
+        new SyncSettingsToServer().sendToServer();
 
         if (serverStructurePacks.isEmpty())
         {

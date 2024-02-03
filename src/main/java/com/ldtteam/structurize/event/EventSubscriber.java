@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.ServerUUIDMessage;
@@ -54,7 +53,7 @@ public class EventSubscriber
     {
         if (event.getEntity() instanceof ServerPlayer serverPlayer)
         {
-            Network.getNetwork().sendToPlayer(new ServerUUIDMessage(), serverPlayer);
+            new ServerUUIDMessage().sendToPlayer(serverPlayer);
         }
     }
 

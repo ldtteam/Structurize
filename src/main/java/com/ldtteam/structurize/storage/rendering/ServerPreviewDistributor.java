@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.storage.rendering;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -44,7 +43,7 @@ public class ServerPreviewDistributor
                 player.isAlive() && // dont send to dead
                 registeredPlayers.getBoolean(player.getUUID())) // only those who want to see previews
             {
-                Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, player.getUUID()), player);
+                new SyncPreviewCacheToClient(renderingCache, player.getUUID()).sendToPlayer(player);
             }
         }
     }

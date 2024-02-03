@@ -2,7 +2,6 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractClientPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -85,7 +84,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
         ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
             if (blueprintData != null)
             {
-                Network.getNetwork().sendToServer(new BlueprintSyncMessage(this, blueprintData));
+                new BlueprintSyncMessage(this, blueprintData).sendToServer();
             }
         }));
     }

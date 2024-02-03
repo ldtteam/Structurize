@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
@@ -89,7 +88,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
 
             // sadly we can't use the default message since we want to pass an extra ItemStack...
             //   (and getCloneItemStack is client-side-only, somewhat strangely)
-            Network.getNetwork().sendToServer(new AbsorbBlockMessage(pos, pick));
+            new AbsorbBlockMessage(pos, pick).sendToServer();
         }
         return InteractionResult.FAIL;
     }

@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.common.config.AbstractConfiguration;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
@@ -49,7 +48,7 @@ public class ClientConfiguration extends AbstractConfiguration
         addWatcher(BlueprintHandler.getInstance()::clearCache, renderPlaceholdersNice, rendererLightLevel);
         addWatcher(displayShared, (oldValue, isSharingEnabled) -> {
             // notify server
-            Network.getNetwork().sendToServer(new SyncSettingsToServer());
+            new SyncSettingsToServer().sendToServer();
             if (!isSharingEnabled)
             {
                 RenderingCache.removeSharedPreviews();

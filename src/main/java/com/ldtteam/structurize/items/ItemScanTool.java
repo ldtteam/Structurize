@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
@@ -183,7 +182,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             }
         }
 
-        Network.getNetwork().sendToPlayer(new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName), (ServerPlayer) player);
+        new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName).sendToPlayer((ServerPlayer) player);
     }
 
     @Override
@@ -319,7 +318,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         action.accept(data);
         final ScanToolData.Slot slot = loadSlot(data, stack);
 
-        Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
+        new ShowScanMessage(slot.getBox()).sendToPlayer(player);
     }
 
     private void saveSlot(@NotNull final ScanToolData data,
@@ -423,7 +422,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
             data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchor)));
             final ScanToolData.Slot slot = loadSlot(data, stack);
-            Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
+            new ShowScanMessage(slot.getBox()).sendToPlayer(player);
 
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.ok", name), false);
             player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);

@@ -6,7 +6,6 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -258,7 +257,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                     Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.replaceblock.badpct"), false);
                 }
 
-                Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to, pctNum));
+                new ReplaceBlockMessage(pos1, pos2, from, to, pctNum).sendToServer();
             }
             else if (origin instanceof WindowShapeTool)
             {

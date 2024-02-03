@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.storage;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
@@ -161,7 +160,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()), player);
+            new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()).sendToPlayer(player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -202,7 +201,7 @@ public class ServerStructurePackLoader
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {
-                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol), player);
+                    new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol).sendToPlayer(player);
                 }
             }
         }
@@ -235,7 +234,7 @@ public class ServerStructurePackLoader
         }
 
         packsToSync.putAll(missingPacks);
-        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(packsToSync), player);
+        new NotifyClientAboutStructurePacksMessage(packsToSync).sendToPlayer(player);
 
         IOPool.execute(() -> {
             int index = 1;

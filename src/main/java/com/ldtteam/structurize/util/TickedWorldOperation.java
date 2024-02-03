@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
@@ -378,7 +377,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
             }
             currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
         }
-        Network.getNetwork().sendToEveryone(new UpdateClientRender(startPos, endPos));
+        new UpdateClientRender(startPos, endPos).sendToAllClients();
 
         return true;
     }

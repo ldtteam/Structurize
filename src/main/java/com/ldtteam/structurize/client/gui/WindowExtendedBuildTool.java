@@ -8,7 +8,6 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
@@ -299,7 +298,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         BlueprintPreviewData previewData = RenderingCache.removeBlueprint("blueprint");
         previewData.setBlueprint(null);
         previewData.setPos(BlockPos.ZERO);
-        Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(previewData));
+        new SyncPreviewCacheToServer(previewData).sendToServer();
 
 
         close();
@@ -328,14 +327,13 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
         if (previewData.getBlueprint() != null)
         {
-            Network.getNetwork()
-                    .sendToServer(new BuildToolPlacementMessage(type,
+            new BuildToolPlacementMessage(type,
                             id,
                             structurePack.getName(),
                             structurePack.getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
                             previewData.getPos(),
                             previewData.getRotationMirror().rotation(),
-                            previewData.getRotationMirror().mirror()));
+                            previewData.getRotationMirror().mirror()).sendToServer();
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
                 cancelClicked();

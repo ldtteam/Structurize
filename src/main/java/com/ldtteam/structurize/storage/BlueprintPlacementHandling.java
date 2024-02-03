@@ -2,7 +2,6 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
@@ -47,7 +46,7 @@ public class BlueprintPlacementHandling
     {
         if (!StructurePacks.hasPack(message.structurePackId))
         {
-            Network.getNetwork().sendToPlayer(new ClientBlueprintRequestMessage(message), message.player);
+            new ClientBlueprintRequestMessage(message).sendToPlayer(message.player);
         }
         else
         {

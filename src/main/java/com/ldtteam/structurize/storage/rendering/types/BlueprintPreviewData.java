@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
@@ -253,7 +252,7 @@ public class BlueprintPreviewData
     {
         if (serverSyncEnabled && Structurize.getConfig().getClient().sharePreviews.get() && (blueprint == null || blueprint.getName() != null))
         {
-            Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
+            new SyncPreviewCacheToServer(this).sendToServer();
         }
     }
 

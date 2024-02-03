@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
@@ -176,7 +175,7 @@ public class ClientEventSubscriber
         {
             if (tool.onTeleport(mc.player, mc.player.getMainHandItem()))
             {
-                Network.getNetwork().sendToServer(new ScanToolTeleportMessage());
+                new ScanToolTeleportMessage().sendToServer();
             }
         }
 
@@ -211,7 +210,7 @@ public class ClientEventSubscriber
                     case FAIL:
                         break;
                     default:
-                        Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
+                        new ItemMiddleMouseMessage(pos, ctrlKey).sendToServer();
                         break;
                 }
             }
@@ -242,7 +241,7 @@ public class ClientEventSubscriber
                     break;
                 default:
                     event.setCanceled(true);
-                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey));
+                    new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey).sendToServer();
                     break;
             }
         }
