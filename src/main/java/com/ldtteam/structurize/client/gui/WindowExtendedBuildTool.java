@@ -201,7 +201,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         selectionCallback.accept(this, selectedBlueprint);
     }
 
-    @SuppressWarnings("resource")
     private void init(final int groundstyle, final BlockPos pos)
     {
         this.groundstyle = groundstyle;
@@ -544,7 +543,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -678,7 +676,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -727,7 +724,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -775,7 +771,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {

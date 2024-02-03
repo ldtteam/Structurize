@@ -238,7 +238,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {

@@ -1,37 +1,37 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd"
         size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="false">
     <button id="switch" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.switchpack)" size="86 17" pos="5 5" textcolor="black" texthovercolor="gray"/>
 
-    <label id="tree" size="300 12" pos="100 5" color="white" />
+    <text id="tree" size="300 12" pos="100 5" color="white" />
 
     <layout source="structurize:gui/layoutmanipulation.xml"/>
 
     <list size="100 120" pos="5 50" id="alternatives" visible="false">
         <box size="100% 17" linewidth="0">
-            <button id="alternative" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
-            <label size="0 0" pos="0 0" id="id" visible="false"/>
+            <button id="alternative" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textcolor="black" texthovercolor="gray"/>
+            <text size="0 0" pos="0 0" id="id" visible="false"/>
         </box>
     </list>
 
     <list size="100 120" pos="5 50" id="levels" visible="false">
         <box size="100% 17" linewidth="0">
-            <button id="level" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray"/>
-            <label size="0 0" pos="0 0" id="id" visible="false"/>
+            <button id="level" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textcolor="black" texthovercolor="gray"/>
+            <text size="0 0" pos="0 0" id="id" visible="false"/>
         </box>
     </list>
 
     <list size="270 40" pos="100 160" id="subcategories" visible="false">
         <box size="100% 20" linewidth="0">
-            <button id="1" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textColor="black" texthovercolor="gray" visible="false"/>
-            <button id="2" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="87 0" textColor="black" texthovercolor="gray" visible="false"/>
-            <button id="3" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="174 0" textColor="black" texthovercolor="gray" visible="false"/>
+            <button id="1" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="0 0" textcolor="black" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="87 0" textcolor="black" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/button_medium.png" size="86 17" pos="174 0" textcolor="black" texthovercolor="gray" visible="false"/>
         </box>
     </list>
     <list size="270 40" pos="100 160" id="blueprints" visible="false">
         <box size="100% 20" linewidth="0">
-            <button id="1" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="0 0" textColor="white" texthovercolor="gray" visible="false"/>
-            <button id="2" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="87 0" textColor="white" texthovercolor="gray" visible="false"/>
-            <button id="3" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="174 0" textColor="white" texthovercolor="gray" visible="false"/>
+            <button id="1" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="0 0" textcolor="white" texthovercolor="gray" visible="false"/>
+            <button id="2" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="87 0" textcolor="white" texthovercolor="gray" visible="false"/>
+            <button id="3" source="structurize:textures/gui/buildtool/blueprint_medium.png" size="86 17" pos="174 0" textcolor="white" texthovercolor="gray" visible="false"/>
         </box>
     </list>
     <view size="180 20" pos="120 200" id="categories">
