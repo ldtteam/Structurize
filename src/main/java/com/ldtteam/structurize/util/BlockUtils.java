@@ -587,7 +587,7 @@ public final class BlockUtils
             // place
             if (sourceBlock instanceof final LiquidBlockContainer liquidContainer)
             {
-                if (liquidContainer.canPlaceLiquid(world, here, blockState, fluid))
+                if (liquidContainer.canPlaceLiquid(fakePlayer, world, here, blockState, fluid))
                 {
                     liquidContainer.placeLiquid(world, here, blockState, fluid.defaultFluidState());
                     bucket.checkExtraContent(null, world, stackToPlace, here);

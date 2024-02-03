@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.saveddata.SavedData.Factory;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import java.util.*;
@@ -28,6 +29,8 @@ import java.util.*;
  */
 public final class Manager
 {
+    private static final Factory<UUIDStorage> FACTORY = new Factory<>(UUIDStorage::new, UUIDStorage::new);
+
     /**
      * Indicate if a schematic have just been downloaded.
      * Client only
@@ -622,7 +625,7 @@ public final class Manager
     private static UUID generateOrRetrieveUUID()
     {
         final DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
-        final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage::new, UUIDStorage.DATA_NAME);
+        final UUIDStorage instance = storage.computeIfAbsent(FACTORY, UUIDStorage.DATA_NAME);
         if (serverUUID == null)
         {
             Manager.setServerUUID(UUID.randomUUID());
