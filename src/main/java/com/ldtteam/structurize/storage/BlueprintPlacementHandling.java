@@ -15,7 +15,6 @@ import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
-import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;

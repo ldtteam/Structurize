@@ -4,11 +4,13 @@ import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.*;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -60,7 +62,7 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void registerGeometry(final ModelEvent.RegisterGeometryLoaders event)
     {
-        event.register("overlaid", new OverlaidModelLoader());
+        event.register(new ResourceLocation(Constants.MOD_ID, "overlaid"), new OverlaidModelLoader());
     }
 
     @SubscribeEvent

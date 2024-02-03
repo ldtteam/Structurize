@@ -454,7 +454,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                             final ButtonImage confirm = new ButtonImage();
                             confirm.setPosition(10, 123);
                             confirm.setSize(64, 17);
-                            confirm.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
+                            confirm.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
                             confirm.setColors(Color.getByName("black"));
                             confirm.setTextAlignment(Alignment.MIDDLE);
                             confirm.setTextRenderBox(64, 17);
@@ -474,7 +474,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                             final ButtonImage cancel = new ButtonImage();
                             cancel.setPosition(103, 123);
                             cancel.setSize(64, 17);
-                            cancel.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
+                            cancel.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
                             cancel.setColors(Color.getByName("black"));
                             cancel.setTextAlignment(Alignment.MIDDLE);
                             cancel.setTextRenderBox(64, 17);
@@ -602,7 +602,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
 
         final String rotation = switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().rotation())
         {

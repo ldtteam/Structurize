@@ -361,17 +361,17 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     {
                         try
                         {
-                            img.setImage(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon.png")), false);
-                            img.setImageDisabled(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon_disabled.png")), false);
+                            img.setImage(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon.png")));
+                            img.setImageDisabled(OutOfJarResourceLocation.of(MOD_ID, category.packMeta.getPath().resolve(category.subPath).resolve("icon_disabled.png")));
                         }
                         catch (final Exception ex)
                         {
-                            img.setImage(new ResourceLocation(DEFAULT_ICON), false);
+                            img.setImage(new ResourceLocation(DEFAULT_ICON));
                         }
                     }
                     else
                     {
-                        img.setImage(new ResourceLocation(DEFAULT_ICON), false);
+                        img.setImage(new ResourceLocation(DEFAULT_ICON));
                     }
 
                     final String id = category.subPath;
@@ -785,14 +785,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
                     button.setText(Component.literal(""));
-                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"), false);
+                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
                 }
                 else
                 {
                     final String buttonId = depth + ":" + (hasAlternatives ? index - 1 : index);
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
-                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_medium.png"), false);
+                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_medium.png"));
                     button.setText(Component.literal("Level: " + (index + (hasAlternatives ? 0 : 1))));
                     button.setTextColor(ChatFormatting.BLACK.getColor());
                 }
@@ -811,7 +811,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
             img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"), false);
+            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
         }
         else if (buttonData.type == ButtonType.Blueprint)
@@ -869,7 +869,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 }
 
                 PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"));
                 isLocked = true;
             }
 
@@ -877,12 +877,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (hasMatch)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
-                  false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
             else if (!isLocked)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
         }
     }
