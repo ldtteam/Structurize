@@ -43,7 +43,6 @@ public class LifecycleSubscriber
         SaveScanMessage.TYPE.register(registry);
         ScanOnServerMessage.TYPE.register(registry);
         ScanToolTeleportMessage.TYPE.register(registry);
-        ServerUUIDMessage.TYPE.register(registry);
         SetTagInTool.TYPE.register(registry);
         ShowScanMessage.TYPE.register(registry);
         SyncPreviewCacheToClient.TYPE.register(registry);

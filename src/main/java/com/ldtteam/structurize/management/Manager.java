@@ -2,7 +2,6 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.Shape;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -18,9 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.saveddata.SavedData.Factory;
-import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import java.util.*;
 
 /**
@@ -28,8 +24,6 @@ import java.util.*;
  */
 public final class Manager
 {
-    private static final Factory<UUIDStorage> FACTORY = new Factory<>(UUIDStorage::new, UUIDStorage::new);
-
     /**
      * Indicate if a schematic have just been downloaded.
      * Client only
@@ -45,11 +39,6 @@ public final class Manager
      * List of scanTool operations.
      */
     private static final LinkedList<ITickedWorldOperation> scanToolOperationPool = new LinkedList<>();
-
-    /**
-     * Pseudo unique id for the server
-     */
-    private static volatile UUID serverUUID = null;
 
     private Manager()
     {
@@ -598,49 +587,6 @@ public final class Manager
         }
 
         player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
-    }
-
-    /**
-     * Get the Universal Unique ID for the server.
-     *
-     * @return the server Universal Unique ID for ther
-     */
-    public static UUID getServerUUID()
-    {
-        if (serverUUID == null)
-        {
-            return generateOrRetrieveUUID();
-        }
-        return serverUUID;
-    }
-
-    /**
-     * Generate or retrieve the UUID of the server.
-     *
-     * @return the UUID.
-     */
-    private static UUID generateOrRetrieveUUID()
-    {
-        final DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
-        final UUIDStorage instance = storage.computeIfAbsent(FACTORY, UUIDStorage.DATA_NAME);
-        if (serverUUID == null)
-        {
-            Manager.setServerUUID(UUID.randomUUID());
-            Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
-        }
-        storage.set(UUIDStorage.DATA_NAME, instance);
-
-        return serverUUID;
-    }
-
-    /**
-     * Set the server UUID.
-     *
-     * @param uuid the universal unique id
-     */
-    public static void setServerUUID(final UUID uuid)
-    {
-        serverUUID = uuid;
     }
 
     /**
