@@ -2,9 +2,9 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 
 /**
  * Class where blueprint placement is handled.

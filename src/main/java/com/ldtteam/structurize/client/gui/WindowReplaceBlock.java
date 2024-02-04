@@ -6,9 +6,9 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.ItemStorage;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -35,7 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * Window for the replace block GUI.

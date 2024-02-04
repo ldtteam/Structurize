@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;

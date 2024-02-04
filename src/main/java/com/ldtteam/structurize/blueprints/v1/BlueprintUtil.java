@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>

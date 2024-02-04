@@ -3,7 +3,7 @@ package com.ldtteam.structurize.client;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;

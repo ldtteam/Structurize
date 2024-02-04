@@ -4,8 +4,8 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.api.util.Shape;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Shape;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
@@ -13,7 +13,7 @@ import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -30,9 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.SHAPES_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.Constants.BLUEPRINT_FOLDER;
+import static com.ldtteam.structurize.api.constants.Constants.SHAPES_FOLDER;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * BuildTool window.

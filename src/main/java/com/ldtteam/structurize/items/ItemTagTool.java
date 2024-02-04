@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
 import net.minecraft.core.BlockPos;

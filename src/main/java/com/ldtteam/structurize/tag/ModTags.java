@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.NotNull;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 
 public class ModTags
 {

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.commands;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 import static com.ldtteam.structurize.blueprints.v1.BlueprintUtil.*;
 
 /**

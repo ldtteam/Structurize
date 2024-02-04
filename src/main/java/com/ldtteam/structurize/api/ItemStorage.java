@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.api;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;

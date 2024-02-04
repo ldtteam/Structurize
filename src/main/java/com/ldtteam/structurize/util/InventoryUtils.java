@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import java.util.ArrayList;

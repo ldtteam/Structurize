@@ -2,10 +2,10 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractClientPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;

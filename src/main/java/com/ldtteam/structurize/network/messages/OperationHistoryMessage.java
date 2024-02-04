@@ -2,7 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.gui.WindowUndoRedo;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;

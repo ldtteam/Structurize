@@ -5,8 +5,8 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.api.util.ItemStorage;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * Window for finishing a scan.

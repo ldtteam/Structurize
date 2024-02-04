@@ -2,8 +2,8 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

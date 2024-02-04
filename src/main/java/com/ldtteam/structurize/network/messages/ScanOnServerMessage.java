@@ -2,7 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;

@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;

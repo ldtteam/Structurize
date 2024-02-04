@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;

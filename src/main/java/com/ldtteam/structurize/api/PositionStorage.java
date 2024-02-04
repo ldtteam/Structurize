@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.api;
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;

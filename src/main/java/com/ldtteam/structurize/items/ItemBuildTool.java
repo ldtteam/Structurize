@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.client.Minecraft;
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
+import static com.ldtteam.structurize.api.constants.Constants.GROUNDSTYLE_RELATIVE;
 /**
 import net.minecraft.world.item.Item.Properties;
 

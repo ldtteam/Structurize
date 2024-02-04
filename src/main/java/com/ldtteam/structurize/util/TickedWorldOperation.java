@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;

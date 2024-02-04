@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.BlockPos;

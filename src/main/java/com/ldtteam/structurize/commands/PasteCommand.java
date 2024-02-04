@@ -7,7 +7,7 @@ import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;

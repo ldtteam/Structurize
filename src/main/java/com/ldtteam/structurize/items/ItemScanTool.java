@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.IScrollableItem;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.IScrollableItem;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
@@ -56,9 +56,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.util.constant.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
-import static com.ldtteam.structurize.api.util.constant.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**

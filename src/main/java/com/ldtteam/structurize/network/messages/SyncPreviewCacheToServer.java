@@ -2,7 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.network.FriendlyByteBuf;

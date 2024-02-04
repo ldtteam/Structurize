@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.common.fakelevel.IFakeLevelBlockGetter;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -13,7 +13,7 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

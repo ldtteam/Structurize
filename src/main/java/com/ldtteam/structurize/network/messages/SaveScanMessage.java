@@ -2,8 +2,8 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractClientPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;

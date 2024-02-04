@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.common.language.LanguageHandler;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;

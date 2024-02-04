@@ -2,7 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.network.FriendlyByteBuf;

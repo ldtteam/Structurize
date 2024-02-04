@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

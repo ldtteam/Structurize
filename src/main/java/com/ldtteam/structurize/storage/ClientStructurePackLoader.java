@@ -3,8 +3,8 @@ package com.ldtteam.structurize.storage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 
 /**
  * Client side structure pack discovery.

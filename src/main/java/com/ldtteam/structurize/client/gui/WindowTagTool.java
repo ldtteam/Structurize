@@ -3,7 +3,7 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;

@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.storage;
 
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
 import com.ldtteam.structurize.util.IOPool;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 
 /**
  * Here we load the structure packs on the server side.

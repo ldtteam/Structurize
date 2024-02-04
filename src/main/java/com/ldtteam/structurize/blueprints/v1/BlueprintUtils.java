@@ -2,7 +2,7 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.util.BlockEntityInfo;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.world.entity.Entity;

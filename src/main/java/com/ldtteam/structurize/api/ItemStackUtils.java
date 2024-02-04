@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.api;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

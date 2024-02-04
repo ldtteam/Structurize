@@ -4,7 +4,7 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.network.messages.OperationHistoryMessage;
 import com.ldtteam.structurize.network.messages.UndoRedoMessage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 import static com.ldtteam.structurize.client.gui.WindowScan.WHITE;
 
 public class WindowUndoRedo extends AbstractWindowSkeleton

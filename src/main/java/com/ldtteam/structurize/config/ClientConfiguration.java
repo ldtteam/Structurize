@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.common.config.AbstractConfiguration;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;

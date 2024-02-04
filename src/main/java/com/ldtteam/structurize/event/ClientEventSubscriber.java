@@ -2,10 +2,10 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.IScrollableItem;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.IScrollableItem;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;

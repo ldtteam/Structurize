@@ -11,9 +11,9 @@ import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.api.util.constant.Constants;
-import com.ldtteam.structurize.api.util.constant.TranslationConstants;
+import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.constants.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
@@ -40,9 +40,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
-import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
+import static com.ldtteam.structurize.api.constants.GUIConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * BuildTool window.

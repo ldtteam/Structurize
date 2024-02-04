@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.blocks;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;

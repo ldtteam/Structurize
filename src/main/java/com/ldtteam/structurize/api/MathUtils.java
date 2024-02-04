@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.api.util;
+package com.ldtteam.structurize.api;
 
 /**
  * Useful math stuff to use statically.

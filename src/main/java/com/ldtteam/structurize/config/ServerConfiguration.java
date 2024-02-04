@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.common.config.AbstractConfiguration;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.core.Direction;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.Builder;

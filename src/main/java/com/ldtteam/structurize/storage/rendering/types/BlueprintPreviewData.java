@@ -5,7 +5,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.api.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

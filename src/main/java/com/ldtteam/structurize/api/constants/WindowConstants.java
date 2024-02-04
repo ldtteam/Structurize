@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.api.util.constant;
+package com.ldtteam.structurize.api.constants;
 
 /**
  * Class which contains all constants required for windows.

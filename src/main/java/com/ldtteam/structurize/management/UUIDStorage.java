@@ -3,8 +3,8 @@ package com.ldtteam.structurize.management;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.saveddata.SavedData;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.TAG_UUID;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.NbtTagConstants.TAG_UUID;
 
 /**
  * The UUID storage class.

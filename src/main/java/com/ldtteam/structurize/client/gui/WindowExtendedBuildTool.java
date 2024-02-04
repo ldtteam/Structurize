@@ -8,7 +8,7 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
@@ -38,12 +38,12 @@ import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.INVISIBLE_TAG;
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.util.constant.GUIConstants.BUTTON_SWITCH_STYLE;
-import static com.ldtteam.structurize.api.util.constant.GUIConstants.DEFAULT_ICON;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_CONFIRM;
+import static com.ldtteam.structurize.api.constants.Constants.INVISIBLE_TAG;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.GUIConstants.BUTTON_SWITCH_STYLE;
+import static com.ldtteam.structurize.api.constants.GUIConstants.DEFAULT_ICON;
+import static com.ldtteam.structurize.api.constants.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
+import static com.ldtteam.structurize.api.constants.WindowConstants.BUTTON_CONFIRM;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
