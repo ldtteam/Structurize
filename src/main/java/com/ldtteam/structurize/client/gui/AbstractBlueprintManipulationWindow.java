@@ -1,21 +1,18 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.gson.internal.LazilyParsedNumber;
-import com.ldtteam.blockui.Alignment;
-import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.Gradient;
 import com.ldtteam.blockui.controls.Image;
-import com.ldtteam.blockui.controls.ImageRepeatable;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
 import com.ldtteam.blockui.controls.TextField.Filter;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
@@ -422,68 +419,24 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         if (setting == rendererTransparency && rendererTransparency.get() < 0)
                         {
                             // TODO: move to standalone ui
-                            final View confirmDialog = new View();
-                            confirmDialog.setPosition(70, 0);
-                            confirmDialog.setSize(177, 150);
-                            confirmDialog.setAlignment(Alignment.MIDDLE);
+                            final BOWindow confirmDialog = new BOWindow(new ResourceLocation(Constants.MOD_ID, "gui/windowbuildtool.xml"));
 
-                            final Gradient hidingLayer = new Gradient();
-                            hidingLayer.setGradientStart(0x10, 0x10, 0x10, 0xC0);
-                            hidingLayer.setGradientEnd(0x10, 0x10, 0x10, 0xD0);
-                            hidingLayer.setSize(getWindow().getWidth(), getWindow().getHeight());
-
-                            getWindow().addChild(hidingLayer);
-                            getWindow().addChild(confirmDialog);
-                            View.setFocus(null);
-
-                            final ImageRepeatable background = new ImageRepeatable();
-                            background.setSize(177, 150);
-                            background.setImageLoc(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_papper.png"));
-                            background.setImageSize(6, 7, 177, 231, 20, 20, 100, 100);
-                            confirmDialog.addChild(background);
-
-                            final Text text = new Text();
-                            text.setPosition(10, 8);
-                            text.setSize(157, 105);
-                            text.setColors(Color.getByName("black"));
-                            text.setTextAlignment(Alignment.TOP_MIDDLE);
-                            text.setText(Component.translatable("structurize.config.transparency.warning"));
-                            confirmDialog.addChild(text);
-
-                            final ButtonImage confirm = new ButtonImage();
-                            confirm.setPosition(10, 123);
-                            confirm.setSize(64, 17);
-                            confirm.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
-                            confirm.setColors(Color.getByName("black"));
-                            confirm.setTextAlignment(Alignment.MIDDLE);
-                            confirm.setTextRenderBox(64, 17);
-                            confirm.setText(Component.translatable("gui.yes"));
-                            confirm.setHandler(b -> {
+                            confirmDialog.findPaneOfTypeByID("confirm", ButtonImage.class).setHandler(b -> {
                                 final double newVal = newValue.doubleValue();
                                 Structurize.getConfig().set(rendererTransparency, newVal < 0 ? 1 : newVal);
                                 if (newVal < 0)
                                 {
                                     inputField.setText("1.0");
                                 }
-                                getWindow().removeChild(hidingLayer);
-                                getWindow().removeChild(confirmDialog);
+                                confirmDialog.close();
                             });
-                            confirmDialog.addChild(confirm);
                             
-                            final ButtonImage cancel = new ButtonImage();
-                            cancel.setPosition(103, 123);
-                            cancel.setSize(64, 17);
-                            cancel.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
-                            cancel.setColors(Color.getByName("black"));
-                            cancel.setTextAlignment(Alignment.MIDDLE);
-                            cancel.setTextRenderBox(64, 17);
-                            cancel.setText(Component.translatable("gui.cancel"));
-                            cancel.setHandler(b -> {
+                            confirmDialog.findPaneOfTypeByID("cancel", ButtonImage.class).setHandler(b -> {
                                 inputField.setText(Double.toString(rendererTransparency.get()));
-                                getWindow().removeChild(hidingLayer);
-                                getWindow().removeChild(confirmDialog);
+                                confirmDialog.close();
                             });
-                            confirmDialog.addChild(cancel);
+
+                            confirmDialog.openAsLayer();
                         }
                         else
                         {
