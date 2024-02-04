@@ -561,7 +561,7 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof final BucketPickup bucketBlock) || bucketBlock.pickupBlock(world, pos, state).isEmpty()) && block instanceof LiquidBlock)
+        if((!(block instanceof final BucketPickup bucketBlock) || bucketBlock.pickupBlock(null, world, pos, state).isEmpty()) && block instanceof LiquidBlock)
         {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.UPDATE_FLAG);
         }
