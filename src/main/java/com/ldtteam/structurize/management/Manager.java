@@ -8,7 +8,7 @@ import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.ITickedWorldOperation;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

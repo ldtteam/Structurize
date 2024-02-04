@@ -2,7 +2,7 @@ package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

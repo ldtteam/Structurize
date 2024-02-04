@@ -5,7 +5,7 @@ import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.server.level.ServerPlayer;

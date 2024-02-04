@@ -4,7 +4,7 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

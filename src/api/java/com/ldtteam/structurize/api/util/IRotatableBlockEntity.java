@@ -1,7 +1,5 @@
 package com.ldtteam.structurize.api.util;
 
-import com.ldtteam.structurize.util.RotationMirror;
-
 /**
  * BlockEntity rotation.
  */

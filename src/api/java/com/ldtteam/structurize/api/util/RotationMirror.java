@@ -1,4 +1,4 @@
-package com.ldtteam.structurize.util;
+package com.ldtteam.structurize.api.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Mirror;
