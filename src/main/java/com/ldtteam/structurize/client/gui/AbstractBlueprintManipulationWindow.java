@@ -419,7 +419,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         if (setting == rendererTransparency && rendererTransparency.get() < 0)
                         {
                             // TODO: move to standalone ui
-                            final BOWindow confirmDialog = new BOWindow(new ResourceLocation(Constants.MOD_ID, "gui/windowbuildtool.xml"));
+                            final BOWindow confirmDialog = new BOWindow(new ResourceLocation(Constants.MOD_ID, "gui/dialogconfirmtransparency.xml"));
 
                             confirmDialog.findPaneOfTypeByID("confirm", ButtonImage.class).setHandler(b -> {
                                 final double newVal = newValue.doubleValue();

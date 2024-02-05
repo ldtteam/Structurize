@@ -30,7 +30,6 @@ public class LifecycleSubscriber
         AddRemoveTagMessage.TYPE.register(registry);
         BlueprintSyncMessage.TYPE.register(registry);
         BuildToolPlacementMessage.TYPE.register(registry);
-        BuildToolPlacementMessage.TYPE.register(registry);
         ClientBlueprintRequestMessage.TYPE.register(registry);
         FillTopPlaceholderMessage.TYPE.register(registry);
         ItemMiddleMouseMessage.TYPE.register(registry);

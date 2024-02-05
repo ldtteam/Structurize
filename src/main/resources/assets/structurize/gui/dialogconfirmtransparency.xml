@@ -1,9 +1,9 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd"
     pause="true" lightbox="true">
     <view id="root_pos" pos="70 0" size="177 150" align="MIDDLE">
-        <image size="100% 100%" source="textures/gui/builderhut/builder_papper.png"/>
+        <image size="100% 100%" source="structurize:textures/gui/builderhut/builder_papper.png"/>
         <text pos="10 8" size="157 105" color="black" textalign="TOP_MIDDLE" text="$(structurize.config.transparency.warning)"/>
-        <button id="confirm" pos="10 123" size="64 17" color="black" textalign="MIDDLE" textbox="64 17" text="$(gui.yes)" source="textures/gui/builderhut/builder_button_small.png"/>
-        <button id="cancel" pos="103 123" size="64 17" color="black" textalign="MIDDLE" textbox="64 17" text="$(gui.cancel)" source="textures/gui/builderhut/builder_button_small.png"/>
+        <button id="confirm" pos="10 123" size="64 17" color="black" textalign="MIDDLE" textbox="64 17" text="$(gui.yes)" source="structurize:textures/gui/builderhut/builder_button_small.png"/>
+        <button id="cancel" pos="103 123" size="64 17" color="black" textalign="MIDDLE" textbox="64 17" text="$(gui.cancel)" source="structurize:textures/gui/builderhut/builder_button_small.png"/>
     </view>
 </window>

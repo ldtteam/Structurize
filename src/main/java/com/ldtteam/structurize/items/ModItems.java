@@ -32,6 +32,6 @@ public final class ModItems
         scanTool  = ITEMS.register("sceptersteel", (Supplier<ItemScanTool>) ItemScanTool::new);
         tagTool   = ITEMS.register("sceptertag", (Supplier<ItemTagTool>) ItemTagTool::new);
         caliper   = ITEMS.register("caliper", ItemCaliper::new);
-        blockTagSubstitution = ITEMS.register("blockTagSubstitution", ItemTagSubstitution::new);
+        blockTagSubstitution = ITEMS.register("blockTagSubstitution".toLowerCase(), ItemTagSubstitution::new);
     }
 }
