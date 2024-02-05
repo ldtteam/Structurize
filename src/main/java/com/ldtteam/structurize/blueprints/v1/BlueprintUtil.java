@@ -5,6 +5,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -92,7 +93,8 @@ public class BlueprintUtil
                 }
             }
 
-            final BlockEntity te = world.getBlockEntity(mutablePos);
+            final LevelChunk chunk = world.getChunkAt(mutablePos);
+            final BlockEntity te = chunk.getBlockEntities().containsKey(mutablePos) && !chunk.getBlockEntities().get(mutablePos).isRemoved() ? chunk.getBlockEntity(mutablePos) : world.getBlockEntity(mutablePos.immutable());
             if (te != null)
             {
                 CompoundTag teTag = te.saveWithFullMetadata();
