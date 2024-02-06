@@ -3,12 +3,12 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -48,8 +48,9 @@ public class RemoveEntityMessage implements IMessage
 
     /**
      * Create a message to remove an entity from the world.
-     * @param pos1 start coordinate.
-     * @param pos2 end coordinate.
+     *
+     * @param pos1       start coordinate.
+     * @param pos2       end coordinate.
      * @param entityName the entity to remove.
      */
     public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final String entityName)
@@ -74,7 +75,6 @@ public class RemoveEntityMessage implements IMessage
         return LogicalSide.SERVER;
     }
 
-
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
@@ -84,25 +84,18 @@ public class RemoveEntityMessage implements IMessage
         }
 
         final Level world = ctxIn.getSender().level();
-        final ChangeStorage storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName), ctxIn.getSender().getUUID());
-        for(int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
-        {
-            for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
-            {
-                for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
-                {
-                    final BlockPos here = new BlockPos(x, y, z);
-                    final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
-                    storage.addEntities(list);
+        final ChangeStorage storage =
+          new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName),
+            ctxIn.getSender().getUUID());
 
-                    for(final Entity entity: list)
-                    {
-                        if (entity.getName().getString().equals(entityName))
-                        {
-                            entity.remove(Entity.RemovalReason.DISCARDED);
-                        }
-                    }
-                }
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(from, to));
+        storage.addEntities(list);
+
+        for (final Entity entity : list)
+        {
+            if (entity.getName().getString().equals(entityName))
+            {
+                entity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
         Manager.addToUndoRedoCache(storage);
