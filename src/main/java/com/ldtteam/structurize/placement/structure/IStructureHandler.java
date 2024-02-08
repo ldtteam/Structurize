@@ -222,11 +222,10 @@ public interface IStructureHandler
      * Get the solid worldgen block for given pos while using data from handler.
      * 
      * @param  worldPos      the world pos.
-     * @param  virtualBlocks if null use level instead for getting surrounding block states, fnc may should return null if virtual
-     *                       block is not available
+     * @param  virtualBlocks blueprint blocks, fnc may return null if virtual block is not available (then use level instead for getting surrounding block states), pos argument is using world coords
      * @return               the solid worldgen block (classically biome dependent).
      */
-    BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable Function<BlockPos, BlockState> virtualBlocks);
+    BlockState getSolidBlockForPos(BlockPos worldPos, Function<BlockPos, @Nullable BlockState> virtualBlocks);
 
     /**
      * Check if the handler is ready.
