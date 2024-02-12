@@ -7,22 +7,32 @@ import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.ContainerPlacementHandler;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 
 public class ClientLifecycleSubscriber
 {
@@ -81,5 +91,19 @@ public class ClientLifecycleSubscriber
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {
         ModKeyMappings.register(event);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void registerCaps(final RegisterCapabilitiesEvent event)
+    {
+        final Set<Block> containerBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (final Block block : BuiltInRegistries.BLOCK)
+        {
+            if (event.isBlockRegistered(ItemHandler.BLOCK, block))
+            {
+                containerBlocks.add(block);
+            }
+        }
+        ContainerPlacementHandler.CONTAINERS = containerBlocks;
     }
 }

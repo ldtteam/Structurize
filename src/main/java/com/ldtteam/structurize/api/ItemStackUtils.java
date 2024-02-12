@@ -110,13 +110,13 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-            final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(null, null, provider.getBlockState(), provider, side);
+            final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, side);
             if (cap != null)
             {
                 handlerSet.add(cap);
             }
         }
-        final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(null, null, provider.getBlockState(), provider, null);
+        final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
         if (cap != null)
         {
             handlerSet.add(cap);

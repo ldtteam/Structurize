@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 
@@ -747,10 +748,12 @@ public final class PlacementHandlers
 
     public static class ContainerPlacementHandler implements IPlacementHandler
     {
+        public static Set<Block> CONTAINERS = Set.of();
+
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof BaseEntityBlock;
+            return CONTAINERS.contains(blockState.getBlock());
         }
 
         @Override
