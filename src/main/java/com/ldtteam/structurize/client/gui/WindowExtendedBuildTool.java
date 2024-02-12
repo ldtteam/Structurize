@@ -923,7 +923,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
             img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"), false);
+            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
             return;
         }

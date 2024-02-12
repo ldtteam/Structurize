@@ -58,9 +58,9 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
      * Construct from network.
      * @param buf buffer
      */
-    public ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf)
+    protected ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
         this.deltaX = buf.readDouble();
         this.deltaY = buf.readDouble();
@@ -68,7 +68,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         if (this.pos == null)
         {
@@ -85,7 +85,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final ItemStack current = player.getInventory().getSelected();
 

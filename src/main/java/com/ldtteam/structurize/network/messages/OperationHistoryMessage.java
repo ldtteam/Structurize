@@ -22,36 +22,30 @@ public class OperationHistoryMessage extends AbstractPlayMessage
     /**
      * List of operations and their IDs
      */
-    private List<Tuple<String, Integer>> operationIDs = new ArrayList<>();
+    private final List<Tuple<String, Integer>> operationIDs;
 
     /**
      * Empty constructor used when registering the
      */
-    public OperationHistoryMessage(final FriendlyByteBuf buf)
+    protected OperationHistoryMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
-        final int count = buf.readInt();
-        operationIDs = new ArrayList<>();
-        for (int i = 0; i < count; i++)
-        {
-            operationIDs.add(new Tuple<>(buf.readUtf(), buf.readInt()));
-        }
+        super(buf, type);
+        operationIDs = buf.readList(b -> new Tuple<>(b.readUtf(), b.readInt()));
     }
 
     public OperationHistoryMessage()
     {
         super(TYPE);
+        operationIDs = new ArrayList<>();
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
-        buf.writeInt(operationIDs.size());
-        for (final Tuple<String, Integer> operation : operationIDs)
-        {
-            buf.writeUtf(operation.getA());
-            buf.writeInt(operation.getB());
-        }
+        buf.writeCollection(operationIDs, (b, operation) -> {
+            b.writeUtf(operation.getA());
+            b.writeInt(operation.getB());
+        });
     }
 
     @Override
@@ -64,7 +58,6 @@ public class OperationHistoryMessage extends AbstractPlayMessage
     protected void onServerExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final List<ChangeStorage> operations = Manager.getChangeStoragesForPlayer(player.getUUID());
-        operationIDs = new ArrayList<>();
         for (final ChangeStorage storage : operations)
         {
             operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));

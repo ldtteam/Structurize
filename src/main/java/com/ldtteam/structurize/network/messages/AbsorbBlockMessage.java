@@ -36,9 +36,9 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * Deserialize
      * @param buf the network buffer
      */
-    public AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf)
+    protected AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.pos = buf.readBlockPos();
         this.stack = buf.readItem();
     }
@@ -48,14 +48,14 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * @param buf network data byte buffer
      */
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
         buf.writeItem(this.stack);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final ItemStack current = player.getInventory().getSelected();
 

@@ -31,14 +31,14 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     /**
      * Blueprint data future.
      */
-    public byte[] blueprintData;
+    public final byte[] blueprintData;
 
     /**
      * Buffer reading message constructor.
      */
-    public BlueprintSyncMessage(final FriendlyByteBuf buf)
+    protected BlueprintSyncMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -72,7 +72,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -86,7 +86,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         BlueprintPlacementHandling.handlePlacement(this, player);
     }

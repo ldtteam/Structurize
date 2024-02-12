@@ -28,22 +28,22 @@ public class UndoRedoMessage extends AbstractServerPlayMessage
         this.id = id;
     }
 
-    public UndoRedoMessage(final FriendlyByteBuf buf)
+    protected UndoRedoMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.id = buf.readInt();
         this.undo = buf.readBoolean();
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(id);
         buf.writeBoolean(undo);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

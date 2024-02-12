@@ -19,18 +19,18 @@ public class ScanToolTeleportMessage extends AbstractServerPlayMessage
         super(TYPE);
     }
 
-    public ScanToolTeleportMessage(@NotNull final FriendlyByteBuf buf)
+    protected ScanToolTeleportMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf)
+    protected void toBytes(FriendlyByteBuf buf)
     {
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)

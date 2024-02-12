@@ -54,9 +54,9 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    public BuildToolPlacementMessage(final FriendlyByteBuf buf)
+    protected BuildToolPlacementMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.type = HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -120,7 +120,7 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
      * @param buf The buffer being written to.
      */
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -132,7 +132,7 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         world = player.level();
         this.player = player;

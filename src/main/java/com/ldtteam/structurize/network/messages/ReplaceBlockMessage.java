@@ -46,9 +46,9 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public ReplaceBlockMessage(final FriendlyByteBuf buf)
+    protected ReplaceBlockMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.blockTo = buf.readItem();
@@ -74,7 +74,7 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -84,7 +84,7 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

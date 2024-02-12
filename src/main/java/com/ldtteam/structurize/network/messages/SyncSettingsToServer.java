@@ -21,9 +21,9 @@ public class SyncSettingsToServer extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    public SyncSettingsToServer(final FriendlyByteBuf buf)
+    protected SyncSettingsToServer(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.displayShared = buf.readBoolean();
     }
 
@@ -37,13 +37,13 @@ public class SyncSettingsToServer extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(displayShared);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         ServerPreviewDistributor.register(player, displayShared);
     }

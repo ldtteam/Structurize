@@ -33,9 +33,9 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     /**
      * Empty public constructor.
      */
-    public ScanOnServerMessage(final FriendlyByteBuf buf)
+    protected ScanOnServerMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         final String name = buf.readUtf(32767);
         final BlockPos from = buf.readBlockPos();
         final BlockPos to = buf.readBlockPos();
@@ -53,7 +53,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(slot.getName());
         buf.writeBlockPos(slot.getBox().getPos1());
@@ -65,7 +65,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         ItemScanTool.saveStructure(player.getCommandSenderWorld(), player, this.slot, saveEntities);
     }

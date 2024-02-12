@@ -30,17 +30,17 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
     /**
      * Fill parameters
      */
-    private double yStretch;
-    private double circleRadiusMult;
-    private int    heightOffset;
-    private int    minDistToBlocks;
+    private final double yStretch;
+    private final double circleRadiusMult;
+    private final int    heightOffset;
+    private final int    minDistToBlocks;
 
     /**
      * Empty constructor used when registering the message.
      */
-    public FillTopPlaceholderMessage(final FriendlyByteBuf buf)
+    protected FillTopPlaceholderMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.yStretch = buf.readDouble();
@@ -75,7 +75,7 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -86,7 +86,7 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

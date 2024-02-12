@@ -27,9 +27,9 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
     /**
      * Empty public constructor.
      */
-    public UpdateScanToolMessage(final FriendlyByteBuf buf)
+    protected UpdateScanToolMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.tag = buf.readNbt();
     }
 
@@ -44,13 +44,13 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeNbt(this.tag);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)

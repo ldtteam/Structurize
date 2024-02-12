@@ -29,9 +29,9 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     /**
      * Empty public constructor.
      */
-    public UpdateClientRender(final FriendlyByteBuf buf)
+    protected UpdateClientRender(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
     }
@@ -49,7 +49,7 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -57,7 +57,7 @@ public class UpdateClientRender extends AbstractClientPlayMessage
 
     @SuppressWarnings("resource")
     @Override
-    public void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         Minecraft.getInstance().levelRenderer.setBlocksDirty(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
     }

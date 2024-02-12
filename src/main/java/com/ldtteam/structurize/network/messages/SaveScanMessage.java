@@ -26,21 +26,23 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     private static final String TAG_MILLIS    = "millies";
     public static final  String TAG_SCHEMATIC = "schematic";
 
-    private CompoundTag compoundNBT;
-    private String      fileName;
+    private final CompoundTag compoundNBT;
+    private final String      fileName;
 
     /**
      * Public standard constructor.
      */
-    public SaveScanMessage(final FriendlyByteBuf buf)
+    protected SaveScanMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
+        CompoundTag tag = null;
+        String name = null;
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
             final CompoundTag wrapperCompound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
-            this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
-            this.fileName = wrapperCompound.getString(TAG_MILLIS);
+            tag = wrapperCompound.getCompound(TAG_SCHEMATIC);
+            name = wrapperCompound.getString(TAG_MILLIS);
         }
         catch (final RuntimeException e)
         {
@@ -50,6 +52,8 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         {
             Log.getLogger().info("Problem at retrieving structure on server.", e);
         }
+        this.compoundNBT = tag;
+        this.fileName = name;
     }
 
     /**
@@ -66,7 +70,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         final CompoundTag wrapperCompound = new CompoundTag();
         wrapperCompound.putString(TAG_MILLIS, fileName);
@@ -84,7 +88,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         if (compoundNBT != null)
         {

@@ -35,9 +35,9 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     /**
      * Public standard constructor.
      */
-    public TransferStructurePackToClient(final FriendlyByteBuf buf)
+    protected TransferStructurePackToClient(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.packname = buf.readUtf(32767);
         this.eol = buf.readBoolean();
         this.payload = Unpooled.wrappedBuffer(buf.readByteArray());
@@ -58,7 +58,7 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(this.packname);
         buf.writeBoolean(this.eol);
@@ -67,7 +67,7 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload, this.eol);
     }

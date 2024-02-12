@@ -21,12 +21,12 @@ public class AddRemoveTagMessage extends AbstractServerPlayMessage
     /**
      * Whether we add or remove a tag
      */
-    private boolean add = false;
+    private final boolean add;
 
     /**
      * The tag to use
      */
-    private String tag = "";
+    private final String tag;
 
     /**
      * THe te's position
@@ -41,9 +41,9 @@ public class AddRemoveTagMessage extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the
      */
-    public AddRemoveTagMessage(final FriendlyByteBuf buf)
+    protected AddRemoveTagMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.add = buf.readBoolean();
         this.tag = buf.readUtf(32767);
         this.anchorPos = buf.readBlockPos();
@@ -60,7 +60,7 @@ public class AddRemoveTagMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(add);
         buf.writeUtf(tag);
@@ -70,7 +70,7 @@ public class AddRemoveTagMessage extends AbstractServerPlayMessage
 
     @Override
 
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         final BlockEntity te = player.level().getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProviderBE)

@@ -36,9 +36,9 @@ public class ShowScanMessage extends AbstractClientPlayMessage
      * Construct from network
      * @param buf the buffer
      */
-    public ShowScanMessage(@NotNull final FriendlyByteBuf buf)
+    protected ShowScanMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         final BlockPos from = buf.readBlockPos();
         final BlockPos to = buf.readBlockPos();
         final BlockPos anchor = buf.readBoolean() ? buf.readBlockPos() : null;
@@ -47,7 +47,7 @@ public class ShowScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.box.getPos1());
         buf.writeBlockPos(this.box.getPos2());
@@ -63,7 +63,7 @@ public class ShowScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         RenderingCache.queue("scan", this.box);
     }

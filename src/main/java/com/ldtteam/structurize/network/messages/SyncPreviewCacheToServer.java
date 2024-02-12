@@ -24,9 +24,9 @@ public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    public SyncPreviewCacheToServer(final FriendlyByteBuf buf)
+    protected SyncPreviewCacheToServer(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.previewData = new BlueprintPreviewData(buf);
     }
 
@@ -40,13 +40,13 @@ public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         this.previewData.writeToBuf(buf);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         ServerPreviewDistributor.distribute(this.previewData, player);
     }

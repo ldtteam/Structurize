@@ -21,7 +21,7 @@ public class SetTagInTool extends AbstractServerPlayMessage
     /**
      * The tag to use
      */
-    private String tag = "";
+    private final String tag;
 
     /**
      * The tags blockpos
@@ -31,9 +31,9 @@ public class SetTagInTool extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the
      */
-    public SetTagInTool(final FriendlyByteBuf buf)
+    protected SetTagInTool(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.tag = buf.readUtf(32767);
         this.slot = buf.readInt();
     }
@@ -46,14 +46,14 @@ public class SetTagInTool extends AbstractServerPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(tag);
         buf.writeInt(slot);
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

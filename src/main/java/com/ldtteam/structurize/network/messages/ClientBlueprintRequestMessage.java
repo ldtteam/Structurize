@@ -32,9 +32,9 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    public ClientBlueprintRequestMessage(final FriendlyByteBuf buf)
+    protected ClientBlueprintRequestMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
-        super(buf, TYPE);
+        super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
@@ -62,7 +62,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -74,7 +74,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    public void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
             if (blueprintData != null)
