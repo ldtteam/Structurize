@@ -35,7 +35,6 @@ public final class ModBlocks
      * Utility shorthand to register blocks using the deferred registry
      * @param name the registry name of the block
      * @param block a factory / constructor to create the block on demand
-     * @param group the {@link CreativeModeTab} this belongs to (sets creative tab)
      * @param <B> the block subclass for the factory response
      * @return the block entry saved to the registry
      */
