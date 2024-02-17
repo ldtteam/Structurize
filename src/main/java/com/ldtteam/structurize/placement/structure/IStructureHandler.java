@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.placement.structure;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
@@ -76,7 +76,7 @@ public interface IStructureHandler
      * Getter for the placement settings.
      * @return the settings object.
      */
-    PlacementSettings getSettings();
+    RotationMirror getRotationMirror();
 
     /**
      * Get the inventory of the handler.
@@ -219,22 +219,13 @@ public interface IStructureHandler
     void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems);
 
     /**
-     * Get the right solid block for the substitution block.
-     * @param worldPos the world pos.
-     * @return the right block (classically biome dependent).
-     */
-    @Deprecated(forRemoval = true, since = "1.18.2")
-    BlockState getSolidBlockForPos(BlockPos worldPos);
-
-    /**
      * Get the solid worldgen block for given pos while using data from handler.
      * 
      * @param  worldPos      the world pos.
-     * @param  virtualBlocks if null use level instead for getting surrounding block states, fnc may should return null if virtual
-     *                       block is not available
+     * @param  virtualBlocks blueprint blocks, fnc may return null if virtual block is not available (then use level instead for getting surrounding block states), pos argument is using world coords
      * @return               the solid worldgen block (classically biome dependent).
      */
-    BlockState getSolidBlockForPos(BlockPos worldPos, @Nullable Function<BlockPos, BlockState> virtualBlocks);
+    BlockState getSolidBlockForPos(BlockPos worldPos, Function<BlockPos, @Nullable BlockState> virtualBlocks);
 
     /**
      * Check if the handler is ready.

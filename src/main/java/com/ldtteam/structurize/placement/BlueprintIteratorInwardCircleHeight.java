@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import net.minecraft.core.BlockPos;
 

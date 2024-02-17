@@ -1,12 +1,11 @@
 package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.IScrollableItem;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.IScrollableItem;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
@@ -34,14 +33,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
+import net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay;
+import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
+import net.neoforged.neoforge.event.TickEvent.Phase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -176,7 +175,7 @@ public class ClientEventSubscriber
         {
             if (tool.onTeleport(mc.player, mc.player.getMainHandItem()))
             {
-                Network.getNetwork().sendToServer(new ScanToolTeleportMessage());
+                new ScanToolTeleportMessage().sendToServer();
             }
         }
 
@@ -211,7 +210,7 @@ public class ClientEventSubscriber
                     case FAIL:
                         break;
                     default:
-                        Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(pos, ctrlKey));
+                        new ItemMiddleMouseMessage(pos, ctrlKey).sendToServer();
                         break;
                 }
             }
@@ -233,7 +232,7 @@ public class ClientEventSubscriber
         if (current.getItem() instanceof IScrollableItem scrollableItem)
         {
             final boolean ctrlKey = Screen.hasControlDown();
-            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta(), ctrlKey))
+            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey))
             {
                 case PASS:
                     break;
@@ -242,7 +241,7 @@ public class ClientEventSubscriber
                     break;
                 default:
                     event.setCanceled(true);
-                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta(), ctrlKey));
+                    new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey).sendToServer();
                     break;
             }
         }

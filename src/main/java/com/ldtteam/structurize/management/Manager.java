@@ -2,12 +2,12 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.api.Shape;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.ITickedWorldOperation;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,12 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraftforge.server.ServerLifecycleHooks;
-
 import java.util.*;
 
 /**
@@ -44,11 +39,6 @@ public final class Manager
      * List of scanTool operations.
      */
     private static final LinkedList<ITickedWorldOperation> scanToolOperationPool = new LinkedList<>();
-
-    /**
-     * Pseudo unique id for the server
-     */
-    private static volatile UUID serverUUID = null;
 
     private Manager()
     {
@@ -130,8 +120,7 @@ public final class Manager
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
      * @param player         the player.
-     * @param mirror         the mirror.
-     * @param rotation       the rotation.
+     * @param rotMir         the mirror and the rotation.
      */
     public static void pasteStructure(
       final ServerLevel server,
@@ -146,11 +135,10 @@ public final class Manager
       final ItemStack inputFillBlock,
       final boolean hollow,
       final ServerPlayer player,
-      final Mirror mirror,
-      final Rotation rotation)
+      final RotationMirror rotMir)
     {
         final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
-        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, true, player);
+        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotMir, true, player);
     }
 
     /**
@@ -599,49 +587,6 @@ public final class Manager
         }
 
         player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
-    }
-
-    /**
-     * Get the Universal Unique ID for the server.
-     *
-     * @return the server Universal Unique ID for ther
-     */
-    public static UUID getServerUUID()
-    {
-        if (serverUUID == null)
-        {
-            return generateOrRetrieveUUID();
-        }
-        return serverUUID;
-    }
-
-    /**
-     * Generate or retrieve the UUID of the server.
-     *
-     * @return the UUID.
-     */
-    private static UUID generateOrRetrieveUUID()
-    {
-        final DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
-        final UUIDStorage instance = storage.computeIfAbsent(UUIDStorage::new, UUIDStorage::new, UUIDStorage.DATA_NAME);
-        if (serverUUID == null)
-        {
-            Manager.setServerUUID(UUID.randomUUID());
-            Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
-        }
-        storage.set(UUIDStorage.DATA_NAME, instance);
-
-        return serverUUID;
-    }
-
-    /**
-     * Set the server UUID.
-     *
-     * @param uuid the universal unique id
-     */
-    public static void setServerUUID(final UUID uuid)
-    {
-        serverUUID = uuid;
     }
 
     /**

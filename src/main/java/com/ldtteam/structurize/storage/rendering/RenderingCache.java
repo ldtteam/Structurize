@@ -6,7 +6,6 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Rendering cache for boxes, blueprints, etc.

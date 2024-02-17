@@ -2,10 +2,9 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -16,12 +15,11 @@ import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModInfo;
-
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +32,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 
 /**
  * Client side structure pack discovery.
@@ -161,7 +159,7 @@ public class ClientStructurePackLoader
                 }
 
                 loadingState = ClientLoadingState.SYNCING;
-                Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
+                new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToServer();
             }
             else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
             {
@@ -181,7 +179,7 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
     {
-        Network.getNetwork().sendToServer(new SyncSettingsToServer());
+        new SyncSettingsToServer().sendToServer();
 
         if (serverStructurePacks.isEmpty())
         {

@@ -1,18 +1,22 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Transfer a zipped structure pack to the client.
  */
-public class TransferStructurePackToClient implements IMessage
+public class TransferStructurePackToClient extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "transfer_structure_pack_to_client", TransferStructurePackToClient::new);
+
     /**
      * Payload of the message (to transfer to client).
      */
@@ -31,8 +35,9 @@ public class TransferStructurePackToClient implements IMessage
     /**
      * Public standard constructor.
      */
-    public TransferStructurePackToClient(final FriendlyByteBuf buf)
+    protected TransferStructurePackToClient(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.packname = buf.readUtf(32767);
         this.eol = buf.readBoolean();
         this.payload = Unpooled.wrappedBuffer(buf.readByteArray());
@@ -46,13 +51,14 @@ public class TransferStructurePackToClient implements IMessage
      */
     public TransferStructurePackToClient(final String packName, final ByteBuf payload, final boolean eol)
     {
+        super(TYPE);
         this.packname = packName;
         this.payload = payload;
         this.eol = eol;
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeUtf(this.packname);
         buf.writeBoolean(this.eol);
@@ -60,19 +66,9 @@ public class TransferStructurePackToClient implements IMessage
         this.payload.release();
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!isLogicalServer)
-        {
-            ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload, this.eol);
-        }
+        ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload, this.eol);
     }
 }

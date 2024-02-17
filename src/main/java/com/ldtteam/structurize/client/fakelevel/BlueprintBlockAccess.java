@@ -1,10 +1,12 @@
 package com.ldtteam.structurize.client.fakelevel;
 
+import com.ldtteam.common.fakelevel.FakeLevel;
+import com.ldtteam.common.fakelevel.IFakeLevelLightProvider;
+import com.ldtteam.common.fakelevel.IFakeLevelLightProvider.ConfigBasedLightProvider;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.client.fakelevel.IFakeLevelLightProvider.ConfigBasedLightProvider;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -16,14 +18,14 @@ import net.minecraft.world.scores.Scoreboard;
 /**
  * Exists to separate blueprint specific rendering from FakeLevel.
  */
-public class BlueprintBlockAccess extends FakeLevel
+public class BlueprintBlockAccess extends FakeLevel<Blueprint>
 {
     public static final IFakeLevelLightProvider LIGHT_PROVIDER = new ConfigBasedLightProvider(Structurize.getConfig().getClient().rendererLightLevel);
     private static final Scoreboard SCOREBOARD = new Scoreboard();
 
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
-        super(blueprint, LIGHT_PROVIDER, SCOREBOARD, true);
+        super(blueprint, LIGHT_PROVIDER, Minecraft.getInstance().level, SCOREBOARD, true);
     }
 
     private static Level anyLevel()

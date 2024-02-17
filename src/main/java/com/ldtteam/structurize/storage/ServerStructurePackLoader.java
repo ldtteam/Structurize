@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.storage;
 
-import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
 import com.ldtteam.structurize.util.IOPool;
@@ -9,11 +8,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModInfo;
-
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -24,7 +22,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 
 /**
  * Here we load the structure packs on the server side.
@@ -162,7 +160,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()), player);
+            new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()).sendToPlayer(player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -203,7 +201,7 @@ public class ServerStructurePackLoader
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {
-                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol), player);
+                    new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol).sendToPlayer(player);
                 }
             }
         }
@@ -236,7 +234,7 @@ public class ServerStructurePackLoader
         }
 
         packsToSync.putAll(missingPacks);
-        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(packsToSync), player);
+        new NotifyClientAboutStructurePacksMessage(packsToSync).sendToPlayer(player);
 
         IOPool.execute(() -> {
             int index = 1;

@@ -15,8 +15,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
-import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+import static com.ldtteam.structurize.api.constants.NbtTagConstants.FIRST_POS_STRING;
+import static com.ldtteam.structurize.api.constants.NbtTagConstants.SECOND_POS_STRING;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -3,54 +3,63 @@ package com.ldtteam.structurize.event;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.*;
-import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
-import net.minecraft.client.Minecraft;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.ContainerPlacementHandler;
+import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 
 public class ClientLifecycleSubscriber
 {
-    /**
-     * Called when client app is initialized.
-     *
-     * @param event event
-     */
     @SubscribeEvent
     public static void onClientInit(final FMLClientSetupEvent event)
     {
-        final ResourceManager rm = Minecraft.getInstance().getResourceManager();
-        if (rm instanceof final ReloadableResourceManager resourceManager)
+        ClientStructurePackLoader.onClientLoading();
+    }
+
+    @SubscribeEvent
+    public static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
+    {
+        event.registerReloadListener(new SimplePreparableReloadListener<>()
         {
-            resourceManager.registerReloadListener(new SimplePreparableReloadListener<>()
+            @Override
+            protected Object prepare(final ResourceManager manager, final ProfilerFiller profiler)
             {
+                return new Object();
+            }
 
-                @Override
-                protected Object prepare(final ResourceManager manager, final ProfilerFiller profiler)
-                {
-                    return new Object();
-                }
-
-                @Override
-                protected void apply(final Object source, final ResourceManager manager, final ProfilerFiller profiler)
-                {
-                    Log.getLogger().debug("Clearing blueprint renderer cache.");
-                    BlueprintHandler.getInstance().clearCache();
-                }
-            });
-        }
+            @Override
+            protected void apply(final Object source, final ResourceManager manager, final ProfilerFiller profiler)
+            {
+                Log.getLogger().debug("Clearing blueprint renderer cache.");
+                BlueprintHandler.getInstance().clearCache();
+            }
+        });
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -63,7 +72,7 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void registerGeometry(final ModelEvent.RegisterGeometryLoaders event)
     {
-        event.register("overlaid", new OverlaidModelLoader());
+        event.register(new ResourceLocation(Constants.MOD_ID, "overlaid"), new OverlaidModelLoader());
     }
 
     @SubscribeEvent
@@ -84,15 +93,17 @@ public class ClientLifecycleSubscriber
         ModKeyMappings.register(event);
     }
 
-    @SubscribeEvent
-    public static void onConfigLoad(final ModConfigEvent.Loading event)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void registerCaps(final RegisterCapabilitiesEvent event)
     {
-        Structurize.getConfig().onConfigLoad(event.getConfig());
-    }
-
-    @SubscribeEvent
-    public static void onConfigEdit(final ModConfigEvent.Reloading event)
-    {
-        Structurize.getConfig().onConfigReload(event.getConfig());
+        final Set<Block> containerBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (final Block block : BuiltInRegistries.BLOCK)
+        {
+            if (event.isBlockRegistered(ItemHandler.BLOCK, block))
+            {
+                containerBlocks.add(block);
+            }
+        }
+        ContainerPlacementHandler.CONTAINERS = containerBlocks;
     }
 }

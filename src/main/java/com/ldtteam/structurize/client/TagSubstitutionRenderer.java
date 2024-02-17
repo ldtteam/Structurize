@@ -17,8 +17,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.ForgeRenderTypes;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.NeoForgeRenderTypes;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,7 +52,7 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
                        final int packedLight,
                        final int packedOverlay)
     {
-        final RenderType renderType = ForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
+        final RenderType renderType = NeoForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
 
         render(entity.getReplacement(), entity.getTilePos(), partialTick, poseStack, buffers, packedLight, packedOverlay, renderType);
     }
@@ -65,7 +65,7 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
                              final int packedLight,
                              final int packedOverlay)
     {
-        final RenderType renderType = ForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
+        final RenderType renderType = NeoForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
 
         if (stack.getItem() instanceof ItemTagSubstitution anchor)
         {

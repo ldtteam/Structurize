@@ -1,11 +1,8 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.constant.Constants;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-
+import com.ldtteam.structurize.api.constants.Constants;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 /**
@@ -15,45 +12,26 @@ public final class ModItems
 {
     private ModItems() { /* prevent construction */ }
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
-
-    public static DeferredRegister<Item> getRegistry()
-    {
-        return ITEMS;
-    }
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Constants.MOD_ID);
 
     /*
      *  Items
      */
 
-    public static final RegistryObject<ItemBuildTool> buildTool;
-    public static final RegistryObject<ItemShapeTool> shapeTool;
-    public static final RegistryObject<ItemScanTool>  scanTool;
-    public static final RegistryObject<ItemTagTool>   tagTool;
-    public static final RegistryObject<ItemCaliper>  caliper;
-    public static final RegistryObject<ItemTagSubstitution> blockTagSubstitution;
-
-    /**
-     * Utility method to register an item
-     * @param name the registry key for the item
-     * @param item a factory/constructor to produce the item on demand
-     * @param <I> any item subclass
-     * @return the item entry saved to the registry
-     */
-    public static <I extends Item> RegistryObject<I> register(String name, Supplier<I> item)
-    {
-        return ITEMS.register(name.toLowerCase(), item);
-    }
+    public static final DeferredItem<ItemBuildTool> buildTool;
+    public static final DeferredItem<ItemShapeTool> shapeTool;
+    public static final DeferredItem<ItemScanTool>  scanTool;
+    public static final DeferredItem<ItemTagTool>   tagTool;
+    public static final DeferredItem<ItemCaliper>  caliper;
+    public static final DeferredItem<ItemTagSubstitution> blockTagSubstitution;
 
     static
     {
-        final Item.Properties properties = new Item.Properties();
-
-        buildTool = register("sceptergold", () -> new ItemBuildTool(properties));
-        shapeTool = register("shapetool", () -> new ItemShapeTool(properties));
-        scanTool  = register("sceptersteel", ItemScanTool::new);
-        tagTool   = register("sceptertag", () -> new ItemTagTool());
-        caliper   = register("caliper", () -> new ItemCaliper(properties));
-        blockTagSubstitution = register("blockTagSubstitution", () -> new ItemTagSubstitution(properties));
+        buildTool = ITEMS.register("sceptergold", ItemBuildTool::new);
+        shapeTool = ITEMS.register("shapetool", ItemShapeTool::new);
+        scanTool  = ITEMS.register("sceptersteel", (Supplier<ItemScanTool>) ItemScanTool::new);
+        tagTool   = ITEMS.register("sceptertag", (Supplier<ItemTagTool>) ItemTagTool::new);
+        caliper   = ITEMS.register("caliper", ItemCaliper::new);
+        blockTagSubstitution = ITEMS.register("blockTagSubstitution".toLowerCase(), ItemTagSubstitution::new);
     }
 }

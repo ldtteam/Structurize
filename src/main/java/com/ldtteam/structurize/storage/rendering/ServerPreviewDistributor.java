@@ -1,14 +1,13 @@
 package com.ldtteam.structurize.storage.rendering;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import java.util.UUID;
 
 /**
@@ -44,7 +43,7 @@ public class ServerPreviewDistributor
                 player.isAlive() && // dont send to dead
                 registeredPlayers.getBoolean(player.getUUID())) // only those who want to see previews
             {
-                Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, player.getUUID()), player);
+                new SyncPreviewCacheToClient(renderingCache, player.getUUID()).sendToPlayer(player);
             }
         }
     }

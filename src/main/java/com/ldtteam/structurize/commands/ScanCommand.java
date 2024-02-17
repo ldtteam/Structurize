@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.commands;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 
 /**
  * Command for opening WindowScanTool or scanning a structure into a file

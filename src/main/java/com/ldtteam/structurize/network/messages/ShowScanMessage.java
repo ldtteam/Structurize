@@ -1,21 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractClientPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 /**
  * Tells the client to update their scan render box.
  */
-public class ShowScanMessage implements IMessage
+public class ShowScanMessage extends AbstractClientPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "show_scan", ShowScanMessage::new);
+
     private final BoxPreviewData box;
 
     /**
@@ -24,6 +28,7 @@ public class ShowScanMessage implements IMessage
      */
     public ShowScanMessage(@NotNull final BoxPreviewData box)
     {
+        super(TYPE);
         this.box = box;
     }
 
@@ -31,8 +36,9 @@ public class ShowScanMessage implements IMessage
      * Construct from network
      * @param buf the buffer
      */
-    public ShowScanMessage(@NotNull final FriendlyByteBuf buf)
+    protected ShowScanMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         final BlockPos from = buf.readBlockPos();
         final BlockPos to = buf.readBlockPos();
         final BlockPos anchor = buf.readBoolean() ? buf.readBlockPos() : null;
@@ -41,7 +47,7 @@ public class ShowScanMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.box.getPos1());
         buf.writeBlockPos(this.box.getPos2());
@@ -56,15 +62,8 @@ public class ShowScanMessage implements IMessage
         }
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.CLIENT;
-    }
-
-    @Override
-    public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    protected void onExecute(final PlayPayloadContext context, final Player player)
     {
         RenderingCache.queue("scan", this.box);
     }

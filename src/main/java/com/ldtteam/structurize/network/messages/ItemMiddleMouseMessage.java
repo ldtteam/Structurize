@@ -1,23 +1,28 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.IScrollableItem;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Notify server that client clicked or scrolled the middle mouse on a special item
  */
-public class ItemMiddleMouseMessage implements IMessage
+public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "item_middle_mouse", ItemMiddleMouseMessage::new);
+
     @Nullable private final BlockPos pos;
-    private final double delta;
+    private final double deltaX;
+    private final double deltaY;
     private final boolean ctrlKey;
 
     /**
@@ -27,20 +32,25 @@ public class ItemMiddleMouseMessage implements IMessage
      */
     public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final boolean ctrlKey)
     {
+        super(TYPE);
         this.pos = pos;
-        this.delta = 0;
+        this.deltaX = 0;
+        this.deltaY = 0;
         this.ctrlKey = ctrlKey;
     }
 
     /**
      * Construct message for a middle mouse shift-scroll event.
-     * @param delta the scroll delta; negative is upwards
+     * @param deltaX the scroll delta; negative is upwards
+     * @param deltaY the scroll delta; negative is upwards
      * @param ctrlKey ctrl key is held
      */
-    public ItemMiddleMouseMessage(final double delta, final boolean ctrlKey)
+    public ItemMiddleMouseMessage(final double deltaX, final double deltaY, final boolean ctrlKey)
     {
+        super(TYPE);
         this.pos = null;
-        this.delta = delta;
+        this.deltaX = deltaX;
+        this.deltaY = deltaY;
         this.ctrlKey = ctrlKey;
     }
 
@@ -48,15 +58,17 @@ public class ItemMiddleMouseMessage implements IMessage
      * Construct from network.
      * @param buf buffer
      */
-    public ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf)
+    protected ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
-        this.delta = buf.readDouble();
+        this.deltaX = buf.readDouble();
+        this.deltaY = buf.readDouble();
         this.ctrlKey = buf.readBoolean();
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         if (this.pos == null)
         {
@@ -67,24 +79,17 @@ public class ItemMiddleMouseMessage implements IMessage
             buf.writeBoolean(true);
             buf.writeBlockPos(this.pos);
         }
-        buf.writeDouble(this.delta);
+        buf.writeDouble(this.deltaX);
+        buf.writeDouble(this.deltaY);
         buf.writeBoolean(this.ctrlKey);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        final ServerPlayer player = ctxIn.getSender();
         final ItemStack current = player.getInventory().getSelected();
 
-        if (this.delta == 0)
+        if (this.deltaX == 0 && this.deltaY == 0)
         {
             if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
             {
@@ -95,7 +100,7 @@ public class ItemMiddleMouseMessage implements IMessage
         {
             if (current.getItem() instanceof IScrollableItem scrollableItem)
             {
-                scrollableItem.onMouseScroll(player, current, this.delta, this.ctrlKey);
+                scrollableItem.onMouseScroll(player, current, this.deltaX, this.deltaY, this.ctrlKey);
             }
         }
     }

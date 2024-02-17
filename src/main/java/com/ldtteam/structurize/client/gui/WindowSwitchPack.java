@@ -8,7 +8,7 @@ import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.IOPool;
@@ -22,8 +22,8 @@ import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * Window class for the style picker.

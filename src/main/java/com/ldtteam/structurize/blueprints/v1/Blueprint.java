@@ -1,19 +1,19 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.common.fakelevel.IFakeLevelBlockGetter;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blueprints.FacingFixer;
-import com.ldtteam.structurize.client.fakelevel.IFakeLevelBlockGetter;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -25,8 +25,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -196,7 +194,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the X-Axis (without rotation and/or mirroring)
      */
-    public short getSizeX()
+    public int getSizeX()
     {
         return this.sizeX;
     }
@@ -212,7 +210,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the Z-Axis (without rotation and/or mirroring)
      */
-    public short getSizeZ()
+    public int getSizeZ()
     {
         return this.sizeZ;
     }
@@ -770,20 +768,6 @@ public class Blueprint implements IFakeLevelBlockGetter
     }
 
     /**
-     * Rotate the structure depending on the direction it's facing.
-     *
-     * @param localRotation times to rotateWithMirror.
-     * @param localMirror   the mirror.
-     * @param world    the world.
-     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)} or use exact setter {@link #setRotationMirror(RotationMirror, Level)}
-     */
-    @Deprecated(since="1.20", forRemoval=true)
-    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
-    {
-        setRotationMirrorRelative(RotationMirror.of(localRotation, localMirror), world);
-    }
-
-    /**
      * Transform an entity and rotate it.
      *
      * @param entityInfo the entity nbt.
@@ -870,18 +854,6 @@ public class Blueprint implements IFakeLevelBlockGetter
                  && tileEntities.length == other.tileEntities.length
                  && getVolume() == other.getVolume();
         // rot/mir intentionally not incluced
-    }
-
-    /**
-     * Set the render source of the blueprint.
-     * This will be included in the hash to differentiate.
-     * This is supposed to be used for static blueprints that are not moved around only.
-     * @param pos the source position.
-     * @deprecated ask Ray what to use :)
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public void setRenderSource(final BlockPos pos)
-    {
     }
 
     /**

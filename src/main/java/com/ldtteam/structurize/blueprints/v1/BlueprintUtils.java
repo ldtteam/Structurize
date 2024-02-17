@@ -2,7 +2,7 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.util.BlockEntityInfo;
 import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;

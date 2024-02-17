@@ -1,19 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.TickedWorldOperation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Message to replace a block from the world with another one.
  */
-public class ReplaceBlockMessage implements IMessage
+public class ReplaceBlockMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "replace_block", ReplaceBlockMessage::new);
+
     /**
      * Position to scan from.
      */
@@ -42,8 +46,9 @@ public class ReplaceBlockMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public ReplaceBlockMessage(final FriendlyByteBuf buf)
+    protected ReplaceBlockMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.blockTo = buf.readItem();
@@ -60,6 +65,7 @@ public class ReplaceBlockMessage implements IMessage
      */
     public ReplaceBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack blockFrom, final ItemStack blockTo, final int pct)
     {
+        super(TYPE);
         this.from = pos1;
         this.to = pos2;
         this.blockFrom = blockFrom;
@@ -68,7 +74,7 @@ public class ReplaceBlockMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -77,21 +83,14 @@ public class ReplaceBlockMessage implements IMessage
         buf.writeInt(pct);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        if (!ctxIn.getSender().isCreative())
+        if (!player.isCreative())
         {
             return;
         }
 
-        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REPLACE_BLOCK, from, to, ctxIn.getSender(), blockFrom, blockTo, pct));
+        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REPLACE_BLOCK, from, to, player, blockFrom, blockTo, pct));
     }
 }

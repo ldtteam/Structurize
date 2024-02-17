@@ -3,15 +3,12 @@ package com.ldtteam.structurize.placement;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.PlacementSettings;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -29,10 +26,10 @@ public class StructurePlacementUtils
      * @param rotation the rotation.
      * @param mirror   the mirror.
      */
-    public static void unloadStructure(final Level world, final BlockPos startPos, final Blueprint blueprint, final Rotation rotation, final Mirror mirror)
+    public static void unloadStructure(final Level world, final BlockPos startPos, final Blueprint blueprint, final RotationMirror rotMir)
     {
-        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, blueprint, new PlacementSettings(mirror, rotation), false);
-        structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror), world);
+        final IStructureHandler structure = new CreativeStructureHandler(world, startPos, blueprint, rotMir, false);
+        structure.getBluePrint().setRotationMirror(rotMir, world);
 
         final StructurePlacer placer = new StructurePlacer(structure);
         placer.executeStructureStep(world, null, new BlockPos(0, 0, 0), StructurePlacer.Operation.BLOCK_REMOVAL,
@@ -46,26 +43,24 @@ public class StructurePlacementUtils
      * @param worldObj the world to load it in
      * @param blueprint the structures blueprint
      * @param pos      coordinates
-     * @param rotation the rotation.
-     * @param mirror   the mirror used.
+     * @param rotMir   the rotation and the mirror used.
      * @param fancyPlacement if fancy or complete.
      * @param player   the placing player.
      */
     public static void loadAndPlaceStructureWithRotation(
       final Level worldObj, final Blueprint blueprint,
-      final BlockPos pos, final Rotation rotation,
-      final Mirror mirror,
+      final BlockPos pos, final RotationMirror rotMir,
       final boolean fancyPlacement,
       final ServerPlayer player)
     {
         try
         {
-            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, new PlacementSettings(mirror, rotation), fancyPlacement);
+            final IStructureHandler structure = new CreativeStructureHandler(worldObj, pos, blueprint, rotMir, fancyPlacement);
             if (fancyPlacement)
             {
                 structure.fancyPlacement();
             }
-            structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror), worldObj);
+            structure.getBluePrint().setRotationMirror(rotMir, worldObj);
 
             final StructurePlacer instantPlacer = new StructurePlacer(structure);
             Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));

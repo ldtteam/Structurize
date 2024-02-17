@@ -19,12 +19,10 @@ public class ItemCaliper extends AbstractItemWithPosSelector
 
     /**
      * Caliper constructor. Sets max stack to 1, like other tools.
-     * 
-     * @param properties
      */
-    public ItemCaliper(final Properties properties)
+    public ItemCaliper()
     {
-        super(properties.stacksTo(1));
+        super(new Properties().stacksTo(1));
     }
 
     @Override

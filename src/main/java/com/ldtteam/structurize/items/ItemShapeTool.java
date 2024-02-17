@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.client.gui.WindowShapeTool;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -14,11 +14,10 @@ public class ItemShapeTool extends AbstractItemStructurize
 {
     /**
      * Sets the name, creative tab, and registers the item.
-     * @param properties the properties
      */
-    public ItemShapeTool(final Properties properties)
+    public ItemShapeTool()
     {
-        super("shapetool", properties.stacksTo(1));
+        super("shapetool", new Properties().stacksTo(1));
     }
 
     @Override
@@ -27,7 +26,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openShapeToolWindow(context.getClickedPos().relative(context.getClickedFace()));
+            new WindowShapeTool(context.getClickedPos().relative(context.getClickedFace())).open();
         }
 
         return InteractionResult.SUCCESS;
@@ -40,7 +39,7 @@ public class ItemShapeTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            Structurize.proxy.openShapeToolWindow(null);
+            new WindowShapeTool(null).open();
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);

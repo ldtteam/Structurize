@@ -22,11 +22,6 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
     private BlockPos startPos;
 
     /**
-     * The current position to start iterating.
-     */
-    private BlockPos currentPos;
-
-    /**
      * The end position.
      */
     private final BlockPos endPos;
@@ -58,7 +53,6 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
       final double yStretch, final double circleRadiusMult, final int heightOffset, final int minDistToBlocks)
     {
         this.startPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
-        this.currentPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
         this.yStretch = yStretch;
         this.circleRadiusMult = circleRadiusMult;
         this.heightOffset = heightOffset;

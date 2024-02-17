@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.constants.Constants.GROUNDLEVEL_TAG;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**

@@ -4,9 +4,8 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.Shape;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Shape;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
@@ -14,13 +13,15 @@ import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -29,9 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.BLUEPRINT_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.Constants.SHAPES_FOLDER;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.Constants.BLUEPRINT_FOLDER;
+import static com.ldtteam.structurize.api.constants.Constants.SHAPES_FOLDER;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * BuildTool window.
@@ -73,7 +74,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     /**
      * List of section.
      */
-    private final List<String> sections = new ArrayList<>();
+    private final List<Tuple<Shape, MutableComponent>> sections = new ArrayList<>();
 
     /**
      * Drop down list for section.
@@ -179,7 +180,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, frequency + 1));
 
         sections.clear();
-        sections.addAll(Arrays.stream(Shape.values()).map(Enum::name).toList());
+        Arrays.stream(Shape.values()).map(s -> new Tuple<>(s, Component.translatable("structurize.shapetool.shape." + s.name().toLowerCase()))).forEach(sections::add);        
 
         sectionsDropDownList = findPaneOfTypeByID(DROPDOWN_STYLE_ID, DropDownList.class);
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
@@ -287,9 +288,9 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         }
 
         @Override
-        public String getLabel(final int index)
+        public MutableComponent getLabel(final int index)
         {
-            return sections.get(index);
+            return sections.get(index).getB();
         }
     }
 
@@ -325,14 +326,13 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
             final CompoundTag compound = BlueprintUtil.writeBlueprintToNBT(previewData.getBlueprint());
             ClientFutureProcessor.queueBlueprint(
                     new ClientFutureProcessor.BlueprintProcessingData(StructurePacks.storeBlueprint(packName, compound, path), blueprint ->
-                            Network.getNetwork().sendToServer(new BuildToolPlacementMessage(
+                            new BuildToolPlacementMessage(
                                     type,
                                     id,
                                     packName,
                                     subpath.toString(),
                                     previewData.getPos(),
-                                    Rotation.NONE,
-                                    Mirror.NONE))));
+                                    RotationMirror.NONE).sendToServer()));
 
             if (type == BuildToolPlacementMessage.HandlerType.Survival)
             {
@@ -425,7 +425,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     {
         if (list == sectionsDropDownList)
         {
-            updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()));
+            updateStyle(sections.get(sectionsDropDownList.getSelectedIndex()).getA());
         }
     }
 
@@ -434,11 +434,11 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      *
      * @param s the style to use.
      */
-    private void updateStyle(final String s)
+    private void updateStyle(final Shape newShape)
     {
-        if (Shape.valueOf(sections.get(sectionsDropDownList.getSelectedIndex())) != shape)
+        if (newShape != shape)
         {
-            shape = Shape.valueOf(s);
+            shape = newShape;
             genShape();
         }
         disableInputIfNecessary();

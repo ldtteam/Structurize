@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -51,11 +52,9 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.GameData;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
-
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -81,7 +80,7 @@ public final class BlockUtils
         (block, iBlockState) -> BlockUtils.isWater(block.defaultBlockState()),
         (block, iBlockState) -> block instanceof LeavesBlock,
         (block, iBlockState) -> block instanceof DoublePlantBlock,
-        (block, iBlockState) -> block.equals(Blocks.GRASS),
+        (block, iBlockState) -> block.equals(Blocks.GRASS_BLOCK),
         (block, iBlockState) -> block instanceof DoorBlock && iBlockState != null && iBlockState.getValue(BooleanProperty.create("upper")));
 
     /**
@@ -99,68 +98,11 @@ public final class BlockUtils
     {
         if (trueSolidBlocks.isEmpty())
         {
-            ForgeRegistries.BLOCKS.getValues()
-                .stream()
+            BuiltInRegistries.BLOCK.stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
                 .filter(block -> !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
         }
-    }
-
-    /**
-     * Updates the rotation of the structure depending on the input.
-     *
-     * @param rotation the rotation to be set.
-     * @return returns the Rotation object.
-     */
-    public static Rotation getRotation(final int rotation)
-    {
-        switch (rotation)
-        {
-            case 1:
-                return Rotation.CLOCKWISE_90;
-            case 2:
-                return Rotation.CLOCKWISE_180;
-            case 3:
-                return Rotation.COUNTERCLOCKWISE_90;
-            default:
-                return Rotation.NONE;
-        }
-    }
-
-    /**
-     * Gets a rotation from a block facing.
-     *
-     * @param facing the block facing.
-     * @return the int rotation.
-     */
-    public static int getRotationFromFacing(final Direction facing)
-    {
-        switch (facing)
-        {
-            case SOUTH:
-                return 2;
-            case EAST:
-                return 1;
-            case WEST:
-                return 3;
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * Get the filler block at a certain location.
-     * If block follows gravity laws return dirt.
-     *
-     * @param world    the world the block is in.
-     * @param location the location it is at.
-     * @return the BlockState of the filler block.
-     */
-    @Deprecated(forRemoval = true, since="1.18.2")
-    public static BlockState getSubstitutionBlockAtWorld(final Level world, final BlockPos location)
-    {
-        return Blocks.DIRT.defaultBlockState();
     }
 
     /**
@@ -589,7 +531,7 @@ public final class BlockUtils
             // place
             if (sourceBlock instanceof final LiquidBlockContainer liquidContainer)
             {
-                if (liquidContainer.canPlaceLiquid(world, here, blockState, fluid))
+                if (liquidContainer.canPlaceLiquid(fakePlayer, world, here, blockState, fluid))
                 {
                     liquidContainer.placeLiquid(world, here, blockState, fluid.defaultFluidState());
                     bucket.checkExtraContent(null, world, stackToPlace, here);
@@ -619,7 +561,7 @@ public final class BlockUtils
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        if((!(block instanceof final BucketPickup bucketBlock) || bucketBlock.pickupBlock(world, pos, state).isEmpty()) && block instanceof LiquidBlock)
+        if((!(block instanceof final BucketPickup bucketBlock) || bucketBlock.pickupBlock(null, world, pos, state).isEmpty()) && block instanceof LiquidBlock)
         {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.UPDATE_FLAG);
         }

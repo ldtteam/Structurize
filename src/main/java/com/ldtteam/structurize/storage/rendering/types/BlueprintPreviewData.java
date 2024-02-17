@@ -1,21 +1,18 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.util.PlacementSettings;
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
@@ -253,7 +250,7 @@ public class BlueprintPreviewData
     {
         if (serverSyncEnabled && Structurize.getConfig().getClient().sharePreviews.get() && (blueprint == null || blueprint.getName() != null))
         {
-            Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
+            new SyncPreviewCacheToServer(this).sendToServer();
         }
     }
 
@@ -270,66 +267,12 @@ public class BlueprintPreviewData
     }
 
     /**
-     * Check if the blueprint rendered should refresh the cache.
-     * @return true if so.
-     * @deprecated no longer needed
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public boolean shouldRefresh()
-    {
-        return false;
-    }
-
-    /**
-     * Tell the structurize renderer to refresh the cache.
-     * @deprecated switch to {@link #syncChangesToServer()}
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public void scheduleRefresh()
-    {
-        syncChangesToServer();
-    }
-
-    /**
-     * Get the placement settings for this instance.
-     * @return the placement settings with mirror and rotation.
-     * @deprecated see {@link #getRotationMirror()}
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public PlacementSettings getPlacementSettings()
-    {
-        return new PlacementSettings(rotationMirror.mirror(), rotationMirror.rotation());
-    }
-
-    /**
      * Check if this is an invalid preview data object.
      * @return true if so.
      */
     public boolean isEmpty()
     {
         return blueprintFuture == null && blueprint == null;
-    }
-
-    /**
-     * Get the rotation of the preview.
-     * @return the rotation.
-     * @deprecated see {@link #getRotationMirror()}
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public Rotation getRotation()
-    {
-        return rotationMirror.rotation();
-    }
-
-    /**
-     * Get the mirror of the preview.
-     * @return the mirror.
-     * @deprecated see {@link #getRotationMirror()}
-     */
-    @Deprecated(since = "1.20", forRemoval = true)
-    public Mirror getMirror()
-    {
-        return rotationMirror.mirror();
     }
 
     /**

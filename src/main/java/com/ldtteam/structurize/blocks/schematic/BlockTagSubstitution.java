@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +29,7 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
     @NotNull
     @Override
     @SuppressWarnings("deprecation")
-    public ItemStack getCloneItemStack(@NotNull final BlockGetter level,
+    public ItemStack getCloneItemStack(@NotNull final LevelReader level,
         @NotNull final BlockPos pos,
         @NotNull final BlockState blockState)
     {
@@ -36,7 +37,7 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player)
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player)
     {
         return cloneItemStack(super.getCloneItemStack(state, target, level, pos, player), level, pos);
     }

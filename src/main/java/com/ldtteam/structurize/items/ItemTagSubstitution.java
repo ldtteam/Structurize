@@ -1,8 +1,7 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -13,6 +12,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,9 +27,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -38,9 +37,9 @@ import java.util.function.Consumer;
 
 public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem
 {
-    public ItemTagSubstitution(@NotNull final Properties properties)
+    public ItemTagSubstitution()
     {
-        super(ModBlocks.blockTagSubstitution.get(), properties);
+        super(ModBlocks.blockTagSubstitution.get(), new Properties());
     }
 
     @Override
@@ -89,7 +88,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
 
             // sadly we can't use the default message since we want to pass an extra ItemStack...
             //   (and getCloneItemStack is client-side-only, somewhat strangely)
-            Network.getNetwork().sendToServer(new AbsorbBlockMessage(pos, pick));
+            new AbsorbBlockMessage(pos, pick).sendToServer();
         }
         return InteractionResult.FAIL;
     }
@@ -135,9 +134,8 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     {
         if (blockentity == null) return true;
 
-        final ITag<BlockEntityType<?>> tag = ForgeRegistries.BLOCK_ENTITY_TYPES.tags()
-                .getTag(ModTags.SUBSTITUTION_ABSORB_WHITELIST);
-        return tag.contains(blockentity.getType());
+        final HolderSet.Named<BlockEntityType<?>> tag = BuiltInRegistries.BLOCK_ENTITY_TYPE.getTag(ModTags.SUBSTITUTION_ABSORB_WHITELIST).get();
+        return tag.contains(blockentity.getType().builtInRegistryHolder());
     }
 
     /**
