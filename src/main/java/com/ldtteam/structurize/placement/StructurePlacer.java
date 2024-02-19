@@ -505,9 +505,9 @@ public class StructurePlacer
                 if (iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState().getFluidState().isEmpty())
                 {
                     final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
-                    final FluidState fluidState = world.getFluidState(worldPos);
                     final BlockState worldState = world.getBlockState(worldPos);
-                    if (!fluidState.isEmpty() || worldState.liquid())
+                    final FluidState fluidState = worldState.getFluidState();
+                    if (!fluidState.isEmpty())
                     {
 
                         Block block = worldState.getBlock();
