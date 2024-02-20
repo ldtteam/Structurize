@@ -502,7 +502,8 @@ public class StructurePlacer
             for (int z = 0; z < iterator.size.getZ(); z++)
             {
                 final BlockPos localPos = new BlockPos(x,yLayer, z);
-                if (iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState().getFluidState().isEmpty())
+                final BlockState localState = iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState();
+                if (localState.getFluidState().isEmpty() && localState.getBlock() != ModBlocks.blockSubstitution.get() && localState.getBlock() != ModBlocks.blockFluidSubstitution.get())
                 {
                     final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
                     final BlockState worldState = world.getBlockState(worldPos);
