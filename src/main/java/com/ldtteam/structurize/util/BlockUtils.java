@@ -713,23 +713,16 @@ public final class BlockUtils
      */
     public static BlockState copyFirstCommonBlockStateProperties(final BlockState target, final BlockState propertiesOrigin)
     {
-        final BlockState sameClass = copyBlockStateProperties(target.getBlock(), propertiesOrigin);
-        if (sameClass != null)
+        BlockState newState = target;
+        for (final Property property : propertiesOrigin.getProperties())
         {
-            return sameClass;
+            if (target.hasProperty(property))
+            {
+                newState = newState.setValue(property, propertiesOrigin.getValue(property));
+            }
         }
 
-        final Class<?> firstCommonClass = JavaUtils.getFirstCommonSuperClass(target.getBlock().getClass(), propertiesOrigin.getBlock().getClass());
-        if (firstCommonClass == Block.class || !Block.class.isAssignableFrom(firstCommonClass))
-        {
-            return null;
-        }
-
-        // It would be the best to get properties of firstCommonClass but since defaultstate is non-static and created in top level block classes
-        // it's literally impossible to get them
-        final Collection<Property<?>> properties = new ArrayList<>(target.getProperties());
-        properties.retainAll(propertiesOrigin.getProperties());
-        return unsafeCopyBlockStateProperties(target, propertiesOrigin, properties);
+        return newState;
     }
 
     /**
