@@ -689,19 +689,6 @@ public final class BlockUtils
                 .withParameter(LootContextParams.TOOL, stack));
     }
 
-    /**
-     * Copies property values from propertiesOrigin into new blockstate made from target block.
-     *
-     * @param target           properties destination
-     * @param propertiesOrigin properties source
-     * @return blockState of target block with properties of propertiesOrigin or null if both blocks are not the same class
-     */
-    public static BlockState copyBlockStateProperties(final Block target, final BlockState propertiesOrigin)
-    {
-        return target.getClass().equals(propertiesOrigin.getBlock().getClass())
-            ? unsafeCopyBlockStateProperties(target.defaultBlockState(), propertiesOrigin, propertiesOrigin.getProperties())
-            : null;
-    }
 
     /**
      * Copies property values from propertiesOrigin into new blockstate made from target Block.
@@ -724,29 +711,6 @@ public final class BlockUtils
 
         return newState;
     }
-
-    /**
-     * Copies property values from properties using propertiesOrigin into new blockstate made from target Block.
-     *
-     * @param target           properties destination
-     * @param propertiesOrigin properties source
-     * @param properties       which properties to copy
-     * @return blockState of target with given properties of propertiesOrigin
-     * @throws IllegalArgumentException if target does not accept any of properties
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static BlockState unsafeCopyBlockStateProperties(final BlockState target,
-        final BlockState propertiesOrigin,
-        final Collection<Property<?>> properties)
-    {
-        BlockState blockState = target;
-        for (final Property property : properties)
-        {
-            blockState = blockState.setValue(property, propertiesOrigin.getValue(property));
-        }
-        return blockState;
-    }
-
 
     private static class OurWorldGenRegion extends WorldGenRegion
     {
