@@ -26,6 +26,7 @@ public class ServerPreviewDistributor
     {
         if (event.getEntity().level().isClientSide)
         {
+            RenderingCache.clear();
             return;
         }
         registeredPlayers.removeBoolean(event.getEntity().getUUID());
@@ -51,8 +52,8 @@ public class ServerPreviewDistributor
 
     /**
      * Register a player with their settings.
-     * @param uuid the player uuid.
-     * @param settings the player settings.
+     * @param player the player.
+     * @param displayShared if displayed is shared or not.
      */
     public static void register(final ServerPlayer player, final boolean displayShared)
     {
