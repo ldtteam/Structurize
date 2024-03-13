@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.items;
 
+import com.ldtteam.structurize.api.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
@@ -108,6 +109,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         if (context.getLevel().isClientSide())
         {
             context.getPlayer().displayClientMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            Utils.playSuccessSound(context.getPlayer());
         }
         context.getItemInHand().getOrCreateTag().put(NBT_END_POS, NbtUtils.writeBlockPos(pos));
         return InteractionResult.SUCCESS;
@@ -128,6 +130,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         itemstack.getOrCreateTag().put(NBT_START_POS, NbtUtils.writeBlockPos(pos));
         if (player.getCommandSenderWorld().isClientSide())
         {
+            Utils.playSuccessSound(player);
             player.displayClientMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         return false;
