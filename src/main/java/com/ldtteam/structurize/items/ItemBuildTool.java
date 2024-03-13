@@ -54,11 +54,6 @@ public class ItemBuildTool extends AbstractItemStructurize
 
     private static void openBuildToolWindow(final BlockPos pos, final int groundstyle)
     {
-        if (pos == null && RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() == null)
-        {
-            return;
-        }
-
         if (Minecraft.getInstance().screen != null)
         {
             return;

@@ -88,10 +88,17 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         super(resourceId);
         this.groundstyle = groundstyle;
         this.bluePrintId = blueprintId;
-
-        if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).getPos() == null)
+        BlockPos localPos = pos;
+        if (localPos == null)
         {
-            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).setPos(pos);
+            localPos = mc.player.blockPosition().relative(mc.player.getDirection(), 10);
+        }
+
+        final BlockPos oldPos = RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).getPos();
+
+        if (localPos != null && oldPos == null)
+        {
+            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).setPos(localPos);
             adjustToGroundOffset();
         }
 
@@ -113,7 +120,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
         updateRotationState();
 
-        findPaneOfTypeByID("tip", Text.class).setVisible(pos != null);
+        findPaneOfTypeByID("tip", Text.class).setVisible(oldPos == null);
         initSettings();
     }
 
