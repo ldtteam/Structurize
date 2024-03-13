@@ -1,16 +1,18 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
-
-import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
+import static com.ldtteam.structurize.api.constants.Constants.GROUNDSTYLE_RELATIVE;
 /**
 import net.minecraft.world.item.Item.Properties;
 
@@ -20,11 +22,10 @@ public class ItemBuildTool extends AbstractItemStructurize
 {
     /**
      * Instantiates the buildTool on load.
-     * @param properties the properties.
      */
-    public ItemBuildTool(final Properties properties)
+    public ItemBuildTool()
     {
-        super("sceptergold", properties.stacksTo(1));
+        super("sceptergold", new Properties().stacksTo(1));
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE);
+            openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE);
         }
         return InteractionResult.SUCCESS;
     }
@@ -45,10 +46,20 @@ public class ItemBuildTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            Structurize.proxy.openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
+            openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+    }
+
+    private static void openBuildToolWindow(final BlockPos pos, final int groundstyle)
+    {
+        if (Minecraft.getInstance().screen != null)
+        {
+            return;
+        }
+
+        new WindowExtendedBuildTool(pos, groundstyle, null, WindowExtendedBuildTool.BLOCK_BLUEPRINT_REQUIREMENT).open();
     }
 
     @Override

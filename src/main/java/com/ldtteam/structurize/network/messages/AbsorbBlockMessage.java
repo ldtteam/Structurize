@@ -1,20 +1,22 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemTagSubstitution;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Sent client to server to request that the currently held item should "absorb" a new replacement block.
  */
-public class AbsorbBlockMessage implements IMessage
+public class AbsorbBlockMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "absorb_block", AbsorbBlockMessage::new);
     private final BlockPos pos;
     private final ItemStack stack;
 
@@ -25,6 +27,7 @@ public class AbsorbBlockMessage implements IMessage
      */
     public AbsorbBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack)
     {
+        super(TYPE);
         this.pos = pos;
         this.stack = stack;
     }
@@ -33,8 +36,9 @@ public class AbsorbBlockMessage implements IMessage
      * Deserialize
      * @param buf the network buffer
      */
-    public AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf)
+    protected AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.pos = buf.readBlockPos();
         this.stack = buf.readItem();
     }
@@ -44,23 +48,15 @@ public class AbsorbBlockMessage implements IMessage
      * @param buf network data byte buffer
      */
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
-        buf.writeItemStack(this.stack, false);
-    }
-
-    @Nullable
-    @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.SERVER;
+        buf.writeItem(this.stack);
     }
 
     @Override
-    public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        final ServerPlayer player = ctxIn.getSender();
         final ItemStack current = player.getInventory().getSelected();
 
         if (current.getItem() instanceof ItemTagSubstitution anchor)

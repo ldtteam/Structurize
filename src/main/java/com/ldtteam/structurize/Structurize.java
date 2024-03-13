@@ -2,19 +2,18 @@ package com.ldtteam.structurize;
 
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.blueprints.v1.DataVersion;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.config.ClientConfiguration;
+import com.ldtteam.structurize.config.ServerConfiguration;
+import com.ldtteam.common.config.Configurations;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.config.Configuration;
 import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.proxy.ClientProxy;
-import com.ldtteam.structurize.proxy.IProxy;
-import com.ldtteam.structurize.proxy.ServerProxy;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
@@ -22,15 +21,12 @@ import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import net.minecraft.util.datafix.DataFixers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Mod main class.
@@ -40,47 +36,41 @@ import org.jetbrains.annotations.NotNull;
 public class Structurize
 {
     /**
-     * The proxy.
-     */
-    public static final IProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
-
-    /**
      * The config instance.
      */
-    private static Configuration config;
+    private static Configurations<ClientConfiguration, ServerConfiguration, ?> config;
 
     /**
      * Mod init, registers events to their respective busses
      */
-    public Structurize()
+    public Structurize(final FMLModContainer modContainer, final Dist dist)
     {
-        config = new Configuration(ModLoadingContext.get().getActiveContainer());
+        final IEventBus modBus = modContainer.getEventBus();
+        final IEventBus forgeBus = NeoForge.EVENT_BUS;
+        
+        config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, null);
 
-        ModBlocks.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModItems.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModBlockEntities.getRegistry().register(FMLJavaModLoadingContext.get().getModEventBus());
-        ModItemGroups.TAB_REG.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModBlocks.BLOCKS.register(modBus);
+        ModItems.ITEMS.register(modBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modBus);
+        ModItemGroups.TAB_REG.register(modBus);
 
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(LifecycleSubscriber.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventSubscriber.class);
+        modBus.register(LifecycleSubscriber.class);
+        forgeBus.register(EventSubscriber.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            ClientStructurePackLoader.onClientLoading();
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientStructurePackLoader.class);
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientFutureProcessor.class);
-            Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ClientLifecycleSubscriber.class);
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventSubscriber.class);
-        });
+        if (FMLEnvironment.dist.isClient())
+        {
+            modBus.register(ClientLifecycleSubscriber.class);
+            forgeBus.register(ClientEventSubscriber.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER,  () -> ServerStructurePackLoader::onServerStarting);
+            forgeBus.register(ClientStructurePackLoader.class);
+            forgeBus.register(ClientFutureProcessor.class);
+        }
 
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerStructurePackLoader.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerPreviewDistributor.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ServerFutureProcessor.class);
+        forgeBus.register(ServerStructurePackLoader.class);
+        forgeBus.register(ServerFutureProcessor.class);
 
-
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this.getClass());
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ModItemGroups.class);
+        forgeBus.register(ServerPreviewDistributor.class);
 
         if (DataFixerUtils.isVanillaDF)
         {
@@ -103,23 +93,11 @@ public class Structurize
     }
 
     /**
-     * Event handler for forge pre init event.
-     *
-     * @param event the forge pre init event.
-     */
-    @SubscribeEvent
-    public static void preInit(@NotNull final FMLCommonSetupEvent event)
-    {
-        Network.getNetwork().registerCommonMessages();
-    }
-
-
-    /**
      * Get the config handler.
      *
      * @return the config handler.
      */
-    public static Configuration getConfig()
+    public static Configurations<ClientConfiguration, ServerConfiguration, ?> getConfig()
     {
         return config;
     }

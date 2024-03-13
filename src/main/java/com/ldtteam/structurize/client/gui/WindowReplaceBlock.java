@@ -6,10 +6,9 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.ItemStorage;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -28,15 +27,15 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * Window for the replace block GUI.
@@ -182,7 +181,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
     private void updateResources()
     {
         allItems.clear();
-        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(BuiltInRegistries.ITEM.iterator(), Spliterator.ORDERED), false)
                                                .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
                                                                                                                           && ((BucketItem) item).getFluid() != Fluids.EMPTY))
                                                .map(s -> new ItemStorage(new ItemStack(s)))
@@ -258,7 +257,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
                     Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.replaceblock.badpct"), false);
                 }
 
-                Network.getNetwork().sendToServer(new ReplaceBlockMessage(pos1, pos2, from, to, pctNum));
+                new ReplaceBlockMessage(pos1, pos2, from, to, pctNum).sendToServer();
             }
             else if (origin instanceof WindowShapeTool)
             {

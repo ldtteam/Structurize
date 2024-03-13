@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,8 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
@@ -31,7 +30,7 @@ import java.util.function.Function;
 
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -75,7 +74,7 @@ public class BlueprintUtil
         for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.offset(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
-            String modName = ForgeRegistries.BLOCKS.getKey(state.getBlock()).getNamespace();
+            String modName = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),
               z = (short) (mutablePos.getZ() - pos.getZ());
@@ -204,9 +203,9 @@ public class BlueprintUtil
         // Set Blueprint Version
         tag.putByte("version", (byte) 1);
         // Set Blueprint Size
-        tag.putShort("size_x", schem.getSizeX());
+        tag.putShort("size_x", (short) schem.getSizeX());
         tag.putShort("size_y", schem.getSizeY());
-        tag.putShort("size_z", schem.getSizeZ());
+        tag.putShort("size_z", (short) schem.getSizeZ());
 
         // Create Pallete
         final BlockState[] palette = schem.getPalette();
@@ -635,7 +634,7 @@ public class BlueprintUtil
      * @param sizeZ        Sturcture size on the Z-Axis
      * @return An 1 Dimensional int array
      */
-    private static int[] convertBlocksToSaveData(short[][][] multDimArray, short sizeX, short sizeY, short sizeZ)
+    private static int[] convertBlocksToSaveData(short[][][] multDimArray, int sizeX, int sizeY, int sizeZ)
     {
         // Converting 3 Dimensional Array to One DImensional
         short[] oneDimArray = new short[sizeX * sizeY * sizeZ];

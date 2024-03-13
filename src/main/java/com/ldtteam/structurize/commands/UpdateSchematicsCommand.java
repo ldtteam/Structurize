@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.commands;
 
-import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -15,7 +15,7 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
 import static com.ldtteam.structurize.blueprints.v1.BlueprintUtil.*;
 
 /**
@@ -106,7 +106,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 return;
             }
 
-            CompoundTag blueprint = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
+            CompoundTag blueprint = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)), NbtAccounter.unlimitedHeap());
             if (blueprint == null || blueprint.isEmpty())
             {
                 return;
@@ -221,7 +221,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
     {
         try
         {
-            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)));
+            final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)), NbtAccounter.unlimitedHeap());
             return readBlueprintFromNBT(compoundNBT);
         }
         catch (Exception e)

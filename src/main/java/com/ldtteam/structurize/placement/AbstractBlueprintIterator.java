@@ -4,8 +4,7 @@ import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.TriPredicate;
-
+import net.neoforged.neoforge.common.util.TriPredicate;
 import java.util.Collections;
 import java.util.function.Supplier;
 

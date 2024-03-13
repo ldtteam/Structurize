@@ -1,26 +1,22 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.gson.internal.LazilyParsedNumber;
-import com.ldtteam.blockui.Alignment;
-import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.Gradient;
 import com.ldtteam.blockui.controls.Image;
-import com.ldtteam.blockui.controls.ImageRepeatable;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
 import com.ldtteam.blockui.controls.TextField.Filter;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Utils;
-import com.ldtteam.structurize.api.util.constant.TranslationConstants;
+import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.constants.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
-import com.ldtteam.structurize.config.AbstractConfiguration;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
@@ -36,17 +32,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
-import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
+import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.*;
-import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.Constants.*;
+import static com.ldtteam.structurize.api.constants.GUIConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * BuildTool window.
@@ -92,10 +88,17 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         super(resourceId);
         this.groundstyle = groundstyle;
         this.bluePrintId = blueprintId;
-
-        if (pos != null && RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).getPos() == null)
+        BlockPos localPos = pos;
+        if (localPos == null)
         {
-            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).setPos(pos);
+            localPos = mc.player.blockPosition().relative(mc.player.getDirection(), 10);
+        }
+
+        final BlockPos oldPos = RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).getPos();
+
+        if (localPos != null && oldPos == null)
+        {
+            RenderingCache.getOrCreateBlueprintPreviewData(blueprintId).setPos(localPos);
             adjustToGroundOffset();
         }
 
@@ -117,7 +120,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
         updateRotationState();
 
-        findPaneOfTypeByID("tip", Text.class).setVisible(pos != null);
+        findPaneOfTypeByID("tip", Text.class).setVisible(oldPos == null);
         initSettings();
     }
 
@@ -149,7 +152,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         {
             if (!Minecraft.getInstance().player.isCreative())
             {
-                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings());
+                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getRotationMirror());
                 if (handlers.isEmpty())
                 {
                     Utils.playErrorSound(Minecraft.getInstance().player);
@@ -216,7 +219,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId);
         if (previewData.getBlueprint() != null)
         {
-            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings()))
+            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getRotationMirror()))
             {
                 categories.add(new Tuple<>(handler.getDisplayName(), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handler.getId())));
             }
@@ -239,7 +242,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
-            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -357,7 +359,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             }
 
             label.setText(Component.translatable(nameTKey));
-            PaneBuilders.singleLineTooltip(Component.translatable(nameTKey + AbstractConfiguration.COMMENT_SUFFIX), rowPane);
+            PaneBuilders.singleLineTooltip(Component.literal(settingSpec.getComment()), rowPane);
 
             final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
             final TextFieldVanilla inputField = rowPane.findPaneOfTypeByID("set_input", TextFieldVanilla.class);
@@ -377,7 +379,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
                 });
             }
-            else if (setting.get() instanceof final Number value)
+            else if (setting.get() instanceof Number)
             {
                 final ConfigValue<Number> typedSetting = (ConfigValue<Number>) setting;
 
@@ -424,68 +426,24 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         if (setting == rendererTransparency && rendererTransparency.get() < 0)
                         {
                             // TODO: move to standalone ui
-                            final View confirmDialog = new View();
-                            confirmDialog.setPosition(70, 0);
-                            confirmDialog.setSize(177, 150);
-                            confirmDialog.setAlignment(Alignment.MIDDLE);
+                            final BOWindow confirmDialog = new BOWindow(new ResourceLocation(Constants.MOD_ID, "gui/dialogconfirmtransparency.xml"));
 
-                            final Gradient hidingLayer = new Gradient();
-                            hidingLayer.setGradientStart(0x10, 0x10, 0x10, 0xC0);
-                            hidingLayer.setGradientEnd(0x10, 0x10, 0x10, 0xD0);
-                            hidingLayer.setSize(getWindow().getWidth(), getWindow().getHeight());
-
-                            getWindow().addChild(hidingLayer);
-                            getWindow().addChild(confirmDialog);
-                            View.setFocus(null);
-
-                            final ImageRepeatable background = new ImageRepeatable();
-                            background.setSize(177, 150);
-                            background.setImageLoc(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_papper.png"));
-                            background.setImageSize(6, 7, 177, 231, 20, 20, 100, 100);
-                            confirmDialog.addChild(background);
-
-                            final Text text = new Text();
-                            text.setPosition(10, 8);
-                            text.setSize(157, 105);
-                            text.setColors(Color.getByName("black"));
-                            text.setTextAlignment(Alignment.TOP_MIDDLE);
-                            text.setText(Component.translatable("structurize.config.transparency.warning"));
-                            confirmDialog.addChild(text);
-
-                            final ButtonImage confirm = new ButtonImage();
-                            confirm.setPosition(10, 123);
-                            confirm.setSize(64, 17);
-                            confirm.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
-                            confirm.setColors(Color.getByName("black"));
-                            confirm.setTextAlignment(Alignment.MIDDLE);
-                            confirm.setTextRenderBox(64, 17);
-                            confirm.setText(Component.translatable("gui.yes"));
-                            confirm.setHandler(b -> {
+                            confirmDialog.findPaneOfTypeByID("confirm", ButtonImage.class).setHandler(b -> {
                                 final double newVal = newValue.doubleValue();
                                 Structurize.getConfig().set(rendererTransparency, newVal < 0 ? 1 : newVal);
                                 if (newVal < 0)
                                 {
                                     inputField.setText("1.0");
                                 }
-                                getWindow().removeChild(hidingLayer);
-                                getWindow().removeChild(confirmDialog);
+                                confirmDialog.close();
                             });
-                            confirmDialog.addChild(confirm);
                             
-                            final ButtonImage cancel = new ButtonImage();
-                            cancel.setPosition(103, 123);
-                            cancel.setSize(64, 17);
-                            cancel.setImage(new ResourceLocation(MOD_ID, "textures/gui/builderhut/builder_button_small.png"), false);
-                            cancel.setColors(Color.getByName("black"));
-                            cancel.setTextAlignment(Alignment.MIDDLE);
-                            cancel.setTextRenderBox(64, 17);
-                            cancel.setText(Component.translatable("gui.cancel"));
-                            cancel.setHandler(b -> {
+                            confirmDialog.findPaneOfTypeByID("cancel", ButtonImage.class).setHandler(b -> {
                                 inputField.setText(Double.toString(rendererTransparency.get()));
-                                getWindow().removeChild(hidingLayer);
-                                getWindow().removeChild(confirmDialog);
+                                confirmDialog.close();
                             });
-                            confirmDialog.addChild(cancel);
+
+                            confirmDialog.openAsLayer();
                         }
                         else
                         {
@@ -603,7 +561,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))), false);
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
 
         final String rotation = switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().rotation())
         {

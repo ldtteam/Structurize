@@ -20,26 +20,26 @@ Allows you to:
  - and many other nice things a great builder would love to have!
 '''
 [[dependencies.structurize]]
-    modId="forge"
-    mandatory=true
+    modId="neoforge"
+    type="required"
     versionRange="${forgeRange}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="${minecraftRange}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
     modId="blockui"
-    mandatory=true
+    type="required"
     versionRange="${blockUiRange}"
-    ordering="NONE"
-    side="CLIENT"
+    ordering="AFTER"
+    side="BOTH"
 [[dependencies.structurize]]
     modId="domum_ornamentum"
-    mandatory=true
+    type="required"
     versionRange="${domumOrnamentumRange}"
     ordering="AFTER"
     side="BOTH"

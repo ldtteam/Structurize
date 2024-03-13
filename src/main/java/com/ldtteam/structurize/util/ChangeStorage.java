@@ -92,7 +92,7 @@ public class ChangeStorage
             }
         }
 
-        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AABB(from, to));
+        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(from, to));
         removedEntities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 

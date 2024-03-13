@@ -2,12 +2,13 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.ManualBarrier;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
@@ -416,7 +417,7 @@ public class StructurePacks
     {
         try
         {
-            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)));
+            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)), NbtAccounter.unlimitedHeap());
             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
             if (blueprint == null) return null;
 
@@ -499,7 +500,7 @@ public class StructurePacks
                     {
                         try
                         {
-                            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)));
+                            final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)), NbtAccounter.unlimitedHeap());
                             final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
                             if (blueprint != null)
                             {

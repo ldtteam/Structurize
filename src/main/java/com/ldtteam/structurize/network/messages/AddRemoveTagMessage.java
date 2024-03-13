@@ -1,28 +1,32 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Messages for adding or removing a tag
  */
-public class AddRemoveTagMessage implements IMessage
+public class AddRemoveTagMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "add_remove_tag", AddRemoveTagMessage::new);
+
     /**
      * Whether we add or remove a tag
      */
-    private boolean add = false;
+    private final boolean add;
 
     /**
      * The tag to use
      */
-    private String tag = "";
+    private final String tag;
 
     /**
      * THe te's position
@@ -37,8 +41,9 @@ public class AddRemoveTagMessage implements IMessage
     /**
      * Empty constructor used when registering the
      */
-    public AddRemoveTagMessage(final FriendlyByteBuf buf)
+    protected AddRemoveTagMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.add = buf.readBoolean();
         this.tag = buf.readUtf(32767);
         this.anchorPos = buf.readBlockPos();
@@ -47,6 +52,7 @@ public class AddRemoveTagMessage implements IMessage
 
     public AddRemoveTagMessage(final boolean add, final String tag, final BlockPos tagPos, final BlockPos anchorPos)
     {
+        super(TYPE);
         this.anchorPos = anchorPos;
         this.tagPos = tagPos;
         this.add = add;
@@ -54,7 +60,7 @@ public class AddRemoveTagMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(add);
         buf.writeUtf(tag);
@@ -62,22 +68,11 @@ public class AddRemoveTagMessage implements IMessage
         buf.writeBlockPos(tagPos);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
-    {
-        return LogicalSide.SERVER;
-    }
 
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        if (ctxIn.getSender() == null)
-        {
-            return;
-        }
-
-        final BlockEntity te = ctxIn.getSender().level().getBlockEntity(anchorPos);
+        final BlockEntity te = player.level().getBlockEntity(anchorPos);
         if (te instanceof IBlueprintDataProviderBE)
         {
             final IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;

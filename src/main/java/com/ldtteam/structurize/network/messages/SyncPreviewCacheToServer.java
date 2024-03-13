@@ -1,17 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
  * Sync blueprint preview data to the server.
  */
-public class SyncPreviewCacheToServer implements IMessage
+public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "sync_preview_cache_to_server", SyncPreviewCacheToServer::new);
+
     /**
      * The preview data.
      */
@@ -20,8 +24,9 @@ public class SyncPreviewCacheToServer implements IMessage
     /**
      * Buffer reading message constructor.
      */
-    public SyncPreviewCacheToServer(final FriendlyByteBuf buf)
+    protected SyncPreviewCacheToServer(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.previewData = new BlueprintPreviewData(buf);
     }
 
@@ -30,25 +35,19 @@ public class SyncPreviewCacheToServer implements IMessage
      */
     public SyncPreviewCacheToServer(final BlueprintPreviewData previewData)
     {
+        super(TYPE);
         this.previewData = previewData;
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         this.previewData.writeToBuf(buf);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        ServerPreviewDistributor.distribute(this.previewData, ctxIn.getSender());
+        ServerPreviewDistributor.distribute(this.previewData, player);
     }
 }

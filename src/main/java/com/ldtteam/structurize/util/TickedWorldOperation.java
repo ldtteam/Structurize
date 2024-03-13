@@ -1,8 +1,7 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
@@ -21,7 +20,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraftforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -378,7 +377,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
             }
             currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
         }
-        Network.getNetwork().sendToEveryone(new UpdateClientRender(startPos, endPos));
+        new UpdateClientRender(startPos, endPos).sendToAllClients();
 
         return true;
     }

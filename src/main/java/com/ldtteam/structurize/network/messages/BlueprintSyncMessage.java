@@ -1,20 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.common.network.AbstractServerPlayMessage;
+import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.apache.commons.io.FilenameUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Sends a blueprint from the client to the server.
  */
-public class BlueprintSyncMessage implements IMessage
+public class BlueprintSyncMessage extends AbstractServerPlayMessage
 {
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "blueprint_sync", BlueprintSyncMessage::new);
+
     /**
      * Structure placement info.
      */
@@ -23,27 +26,26 @@ public class BlueprintSyncMessage implements IMessage
     public       String structurePackId;
     public final String blueprintPath;
     public final BlockPos pos;
-    public final Rotation rotation;
-    public final Mirror   mirror;
+    public final RotationMirror rotationMirror;
 
     /**
      * Blueprint data future.
      */
-    public byte[] blueprintData;
+    public final byte[] blueprintData;
 
     /**
      * Buffer reading message constructor.
      */
-    public BlueprintSyncMessage(final FriendlyByteBuf buf)
+    protected BlueprintSyncMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
     {
+        super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = FilenameUtils.normalize(buf.readUtf(32767));
         this.pos = buf.readBlockPos();
-        this.rotation = Rotation.values()[buf.readInt()];
-        this.mirror = Mirror.values()[buf.readInt()];
+        this.rotationMirror = RotationMirror.values()[buf.readInt()];
 
         this.blueprintData = buf.readByteArray();
     }
@@ -58,19 +60,19 @@ public class BlueprintSyncMessage implements IMessage
       final ClientBlueprintRequestMessage msg,
       final byte[] blueprintData)
     {
+        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotation = msg.rotation;
-        this.mirror = msg.mirror;
+        this.rotationMirror = msg.rotationMirror;
         this.blueprintData = blueprintData;
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -78,22 +80,14 @@ public class BlueprintSyncMessage implements IMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotation.ordinal());
-        buf.writeInt(this.mirror.ordinal());
+        buf.writeInt(this.rotationMirror.ordinal());
 
         buf.writeByteArray(this.blueprintData);
     }
 
-    @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
     {
-        return LogicalSide.SERVER;
-    }
-
-    @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
-    {
-        BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
+        BlueprintPlacementHandling.handlePlacement(this, player);
     }
 }

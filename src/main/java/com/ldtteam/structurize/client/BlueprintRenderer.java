@@ -26,13 +26,13 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -43,6 +43,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
@@ -60,8 +61,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL20C;
@@ -90,7 +91,7 @@ public class BlueprintRenderer implements AutoCloseable
         .stream()
         .collect(Collectors.toMap((type) -> type, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
     // TODO: remove when forge events
-    private static final RenderBuffers renderBuffers = new RenderBuffers();
+    private static final RenderBuffers renderBuffers = new RenderBuffers(0);
     private static boolean hasWarnedExceptions = false;
 
     private final BlueprintBlockAccess blockAccess;
@@ -145,7 +146,8 @@ public class BlueprintRenderer implements AutoCloseable
         blockAccess.setEntities(entities);
 
         final PoseStack matrixStack = new PoseStack();
-        final ChunkBufferBuilderPack newBuffers = new OurChunkBufferBuilderPack();
+        final SectionBufferBuilderPack newBuffers = renderBuffers.fixedBufferPack();
+        RenderType.chunkBufferLayers().forEach(type -> newBuffers.builder(type).begin(type.mode(), type.format()));
         final RenderType[] blockRenderTypes = RenderType.chunkBufferLayers().toArray(RenderType[]::new);
 
         for (final BlockInfo blockInfo : blueprint.getBlockInfoAsList())
@@ -323,8 +325,9 @@ public class BlueprintRenderer implements AutoCloseable
         final long gameTime = mc.level.getGameTime();
         final PoseStack matrixStack = ctx.getPoseStack();
         final float partialTicks = ctx.getPartialTick();
+        final ProfilerFiller profiler = mc.getProfiler();
 
-        mc.getProfiler().push("struct_render_init");
+        profiler.push("struct_render_init");
         
         // make sure instances are synced
         updateBlueprint(previewData);
@@ -336,8 +339,8 @@ public class BlueprintRenderer implements AutoCloseable
             init(previewData.getBlueprint(), suppressedExceptions);
         }
 
-        mc.getProfiler().popPush("struct_render_prepare");
-        final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
+        profiler.popPush("struct_render_prepare");
+        final Vec3 viewPosition = ctx.getCamera().getPosition();
         final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(anchorPos).subtract(viewPosition);
         final Vector3f realRenderRootVecf = realRenderRootVecd.toVector3f();
 
@@ -375,7 +378,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         if (ctx.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
         {
-            FogRenderer.setupFog(mc.gameRenderer.getMainCamera(),
+            FogRenderer.setupFog(ctx.getCamera(),
                 FogRenderer.FogMode.FOG_TERRAIN,
                 Math.max(mc.gameRenderer.getRenderDistance(), 32.0F),
                 mc.level.effects().isFoggyAt(Mth.floor(viewPosition.x()), Mth.floor(viewPosition.y()))
@@ -383,7 +386,7 @@ public class BlueprintRenderer implements AutoCloseable
                 partialTicks);
         }
 
-        mc.getProfiler().popPush("struct_render_blocks");
+        profiler.popPush("struct_render_blocks");
         renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
@@ -391,14 +394,14 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
         renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf, previewData);
 
-        mc.getProfiler().popPush("struct_render_entities");
+        profiler.popPush("struct_render_entities");
         final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
 
         // Entities
 
         matrixStack.pushPose();
         matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
-        for (Entity entity : entities)
+        for (final Entity entity : entities)
         {
             if (!mc.getEntityRenderDispatcher()
                 .shouldRender(entity,
@@ -426,8 +429,7 @@ public class BlueprintRenderer implements AutoCloseable
             bypassMainFrustum |= entity.noCulling;
             try
             {
-                mc.getEntityRenderDispatcher()
-                  .render(entity,
+                mc.getEntityRenderDispatcher().render(entity,
                     entity.getX(),
                     entity.getY(),
                     entity.getZ(),
@@ -445,7 +447,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
         matrixStack.popPose();
 
-        mc.getProfiler().popPush("struct_render_entities_finish");
+        profiler.popPush("struct_render_entities_finish");
         renderBufferSource.endLastBatch();
         renderBufferSource.endBatch(RenderType.entitySolid(InventoryMenu.BLOCK_ATLAS));
         renderBufferSource.endBatch(RenderType.entityCutout(InventoryMenu.BLOCK_ATLAS));
@@ -454,7 +456,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Block entities
 
-        mc.getProfiler().popPush("struct_render_blockentities");
+        profiler.popPush("struct_render_blockentities");
         for (final BlockEntity tileEntity : tileEntities)
         {
             final BlockEntityRenderer<BlockEntity> renderer = mc.getBlockEntityRenderDispatcher().getRenderer(tileEntity);
@@ -491,7 +493,9 @@ public class BlueprintRenderer implements AutoCloseable
                 else if (tileEntity instanceof final SkullBlockEntity skull)
                 {
                     final BlockState bs = blockAccess.getBlockState(tePos);
-                    if (bs.getBlock() instanceof SkullBlock && bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD))
+                    if (bs.getBlock() instanceof SkullBlock && (bs.is(Blocks.DRAGON_HEAD) || bs.is(Blocks.DRAGON_WALL_HEAD) ||
+                        bs.is(Blocks.PIGLIN_HEAD) ||
+                        bs.is(Blocks.PIGLIN_WALL_HEAD)))
                     {
                         SkullBlockEntity.animation(blockAccess, tePos, bs, skull);
                     }
@@ -504,7 +508,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
 
             bypassMainFrustum |= renderer.shouldRenderOffScreen(tileEntity);
-            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()) && !renderer.shouldRenderOffScreen(tileEntity))
+            if (!blueprintLocalFrustum.isVisible(renderer.getRenderBoundingBox(tileEntity)) && !renderer.shouldRenderOffScreen(tileEntity))
             {
                 continue;
             }
@@ -516,7 +520,7 @@ public class BlueprintRenderer implements AutoCloseable
             matrixStack.popPose();
         }
 
-        mc.getProfiler().popPush("struct_render_blockentities_finish");
+        profiler.popPush("struct_render_blockentities_finish");
         renderBufferSource.endBatch(RenderType.solid());
         renderBufferSource.endBatch(RenderType.endPortal());
         renderBufferSource.endBatch(RenderType.endGateway());
@@ -543,7 +547,7 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch(RenderType.waterMask());
         renderBuffers.crumblingBufferSource().endBatch(); // not used now
 
-        mc.getProfiler().popPush("struct_render_blocks2");
+        profiler.popPush("struct_render_blocks2");
         renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf, previewData);
 
         renderBufferSource.endBatch(RenderType.lines());
@@ -564,7 +568,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getEntityRenderDispatcher().prepare(dispLevel, dispCamera, ePickEntity);
 
         lastGameTime = gameTime;
-        mc.getProfiler().pop();
+        profiler.pop();
 
         return suppressedExceptions;
     }
@@ -680,20 +684,6 @@ public class BlueprintRenderer implements AutoCloseable
 
         VertexBuffer.unbind();
         layerRenderType.clearRenderState();
-    }
-
-    private static class OurChunkBufferBuilderPack extends ChunkBufferBuilderPack
-    {
-        @Override
-        public BufferBuilder builder(RenderType renderType)
-        {
-            final BufferBuilder buffer = super.builder(renderType);
-            if (!buffer.building())
-            {
-                buffer.begin(renderType.mode(), renderType.format());
-            }
-            return buffer;
-        }
     }
 
     /**

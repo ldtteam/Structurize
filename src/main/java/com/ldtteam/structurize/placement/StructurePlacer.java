@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -360,7 +360,7 @@ public class StructurePlacer
 
                 this.handler.prePlacementLogic(worldPos, localState, requiredItems);
 
-                final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(getHandler().getBluePrint(), world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
+                final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(getHandler().getBluePrint(), world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getRotationMirror());
                 if (result == IPlacementHandler.ActionProcessingResult.DENY)
                 {
                     placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);

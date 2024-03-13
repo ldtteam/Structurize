@@ -5,9 +5,8 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.api.util.ItemStorage;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -37,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.WindowConstants.*;
 
 /**
  * Window for finishing a scan.
@@ -182,7 +181,7 @@ public class WindowScan extends AbstractWindowSkeleton
             double circleRadiusMult = Double.parseDouble(findPaneOfTypeByID(INPUT_RADIUS, TextField.class).getText());
             int heightOffset = Integer.parseInt(findPaneOfTypeByID(INPUT_HEIGHT_OFFSET, TextField.class).getText());
             int minDistToBlocks = Integer.parseInt(findPaneOfTypeByID(INPUT_BLOCKDIST, TextField.class).getText());
-            Network.getNetwork().sendToServer(new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(), data.getCurrentSlotData().getBox().getPos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks));
+            new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(), data.getCurrentSlotData().getBox().getPos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks).sendToServer();
         }
         catch (Exception e)
         {
@@ -214,7 +213,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final int row = entityList.getListElementIndexByPane(button);
         final Entity entity = new ArrayList<>(entities.values()).get(row);
-        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getString()));
+        new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getString()).sendToServer();
         entities.remove(entity.getName().getString());
         updateEntitylist();
     }
@@ -232,7 +231,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = resourceList.getListElementIndexByPane(button);
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
         final ItemStack stack = tempRes.get(row).getItemStack();
-        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
+        new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack).sendToServer();
         final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
         resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         updateResourceList();
@@ -251,7 +250,7 @@ public class WindowScan extends AbstractWindowSkeleton
         for (final ItemStorage tempRes : new ArrayList<>(resources.values()))
         {
             final ItemStack stack = tempRes.getItemStack();
-            Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
+            new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack).sendToServer();
             final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
             resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         }
@@ -343,7 +342,7 @@ public class WindowScan extends AbstractWindowSkeleton
         updateBounds();
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
-        Network.getNetwork().sendToServer(new ScanOnServerMessage(slot, true));
+        new ScanOnServerMessage(slot, true).sendToServer();
         RenderingCache.removeBox("scan");
         close();
     }
@@ -421,7 +420,7 @@ public class WindowScan extends AbstractWindowSkeleton
         data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
 
         RenderingCache.queue("scan", slot.getBox());
-        Network.getNetwork().sendToServer(new UpdateScanToolMessage(data));
+        new UpdateScanToolMessage(data).sendToServer();
     }
 
     /**

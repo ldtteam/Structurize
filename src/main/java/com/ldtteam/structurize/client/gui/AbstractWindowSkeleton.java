@@ -2,7 +2,7 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.Log;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
