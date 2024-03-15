@@ -10,19 +10,17 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
-import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -39,13 +37,11 @@ import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.INVISIBLE_TAG;
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.util.constant.GUIConstants.BUTTON_SWITCH_STYLE;
 import static com.ldtteam.structurize.api.util.constant.GUIConstants.DEFAULT_ICON;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_CONFIRM;
-import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * BuildTool window.
@@ -431,7 +427,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                                 nextDepthMeta.put(id, StructurePacks.getCategoriesFuture(structurePack.getName(), id));
                             }
                         }
-                        updateFolders(subCats);
+                        updateFolders(subCats, null);
                         nextDepth = "";
                     }
                 }
@@ -488,7 +484,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      *
      * @param inputCategories the categories to render now.
      */
-    public void updateFolders(final List<StructurePacks.Category> inputCategories)
+    public void updateFolders(final List<StructurePacks.Category> inputCategories, final String prevCat)
     {
         folderList.enable();
         folderList.show();
@@ -507,6 +503,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 parentCat = nextDepth.replace("/" + currentCat, "");
             }
             categories.add(new ButtonData(ButtonType.Back, parentCat));
+        }
+        else if (prevCat != null)
+        {
+            categories.add(new ButtonData(ButtonType.Back, prevCat));
         }
 
         for (final StructurePacks.Category category : inputCategories)
@@ -595,28 +595,27 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         for (final Blueprint blueprint : inputBluePrints)
         {
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-            if (!Minecraft.getInstance().player.isCreative() && isInvisible(blueprint))
+            if (!Minecraft.getInstance().player.isCreative() && BlueprintTagUtils.isInvisible(blueprint))
             {
                 continue;
             }
 
-            if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock)
+            final String name;
+            if (anchor.getBlock() instanceof ILeveledBlueprintAnchorBlock leveledAnchor)
             {
                 final int level =
-                  ((ILeveledBlueprintAnchorBlock) anchor.getBlock()).getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
+                  leveledAnchor.getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
                     blueprint.getPrimaryBlockOffset()));
-                final String name = blueprint.getFileName().replace(Integer.toString(level), "");
-                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
-                blueprintList.add(blueprint);
-                blueprintMapping.put(name, blueprintList);
+                name = getCustomName(blueprint, blueprint.getFileName().replace(Integer.toString(level), ""));
             }
             else
             {
-                final String name = blueprint.getFileName();
-                final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
-                blueprintList.add(blueprint);
-                blueprintMapping.put(name, blueprintList);
+                name = getCustomName(blueprint, blueprint.getFileName());
             }
+
+            final List<Blueprint> blueprintList = blueprintMapping.getOrDefault(name, new ArrayList<>());
+            blueprintList.add(blueprint);
+            blueprintMapping.put(name, blueprintList);
         }
 
         final Map<String, Map<String, List<Blueprint>>> altBlueprintMapping = new LinkedHashMap<>();
@@ -625,20 +624,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             final Blueprint blueprint = entry.getValue().get(0);
             final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
+            final String name;
             if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
             {
-                final String name = anchor.getBlock().getDescriptionId();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
-                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
-                altBlueprintMapping.put(name, tempLeveledBlueprints);
+                name = anchor.getBlock().getDescriptionId();
             }
             else
             {
-                final String name = blueprint.getFileName();
-                final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
-                tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
-                altBlueprintMapping.put(name, tempLeveledBlueprints);
+                name = entry.getKey();
             }
+
+            final Map<String, List<Blueprint>> tempLeveledBlueprints = altBlueprintMapping.getOrDefault(name, new LinkedHashMap<>());
+            tempLeveledBlueprints.put(entry.getKey(), entry.getValue());
+            altBlueprintMapping.put(name, tempLeveledBlueprints);
         }
 
         currentBluePrintMappingAtDepthCache.put(depth, altBlueprintMapping);
@@ -836,14 +834,15 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             final BlockState anchor = firstBlueprint.getBlockState(firstBlueprint.getPrimaryBlockOffset());
             final List<MutableComponent> toolTip = new ArrayList<>();
-            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock)
+            if (anchor.getBlock() instanceof INamedBlueprintAnchorBlock namedBlock)
             {
-                img.setText(((INamedBlueprintAnchorBlock) anchor.getBlock()).getBlueprintDisplayName());
-                toolTip.addAll(((INamedBlueprintAnchorBlock) anchor.getBlock()).getDesc());
+                img.setText(namedBlock.getBlueprintDisplayName());
+                toolTip.addAll(namedBlock.getDesc());
             }
             else
             {
-                img.setText(Component.literal(id.split("/")[id.split("/").length - 1]));
+                final String name = getCustomName(firstBlueprint, firstBlueprint.getFileName());
+                img.setText(Component.literal(name));
             }
             img.setVisible(true);
 
@@ -861,7 +860,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
 
             boolean hasAlts = blueprintMap.values().size() > 1;
-            boolean isInvis = isInvisible(firstBlueprint);
+            boolean isInvis = BlueprintTagUtils.isInvisible(firstBlueprint);
             boolean isLocked = false;
 
             if (availableBlueprintPredicate != null && !availableBlueprintPredicate.test(firstBlueprint))
@@ -891,34 +890,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     }
 
     /**
-     * A blueprint may hide itself from the build tool list in one of two ways:
-     * 1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
-     * 2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     * Determine the display names of the given blueprint.
      *
-     * @param blueprint the blueprint to check
-     * @return true if this blueprint should be hidden from normal players
+     * @param blueprint   the blueprint
+     * @param defaultName the name to use if the blueprint doesn't have a custom name
+     * @return            its custom name, or a default name
      */
-    private boolean isInvisible(final Blueprint blueprint)
+    private String getCustomName(final Blueprint blueprint, final String defaultName)
     {
-        final BlockInfo anchor = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset());
-        if (anchor.getState().getBlock() instanceof IInvisibleBlueprintAnchorBlock invis &&
-              !invis.isVisible(anchor.getTileEntityData()))
-        {
-            return true;
-        }
+        final Map<BlockPos, List<String>> tagPosMap = BlueprintTagUtils.getBlueprintTags(blueprint);
+        final Optional<String> nameTag = tagPosMap.getOrDefault(BlockPos.ZERO, new ArrayList<>()).stream()
+                .filter(t -> t.startsWith("name=")).findFirst();
 
-        assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
-        if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-        {
-            final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
-            final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
-            if (anchorTags.contains(INVISIBLE_TAG))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return nameTag.map(s -> s.substring(5)).orElse(defaultName);
     }
 
     private void handleSubCat(final ButtonData buttonData, final Pane rowPane, final int index)
@@ -961,7 +945,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         if (button.getID().contains("back:"))
         {
             nextDepth = button.getID().split(":").length == 1 ? "" : button.getID().split(":")[1];
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             if (depth.isEmpty())
@@ -978,7 +962,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else if (nextDepthMeta.containsKey(button.getID()))
         {
             nextDepth = button.getID();
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
@@ -999,7 +983,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         else if (blueprintsAtDepth.containsKey(button.getID()))
         {
             nextDepth = button.getID();
-            updateFolders(Collections.emptyList());
+            updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
             depth = nextDepth;
             findPaneOfTypeByID("tree", Text.class).setText(Component.literal(structurePack.getName() + "/" + nextDepth).setStyle(Style.EMPTY.withBold(true)));
@@ -1137,7 +1121,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             Log.getLogger().error("Invalid blueprint name at depth: " + categoryId);
         }
-        updateFolders(Collections.emptyList());
+        updateFolders(Collections.emptyList(), split[0]);
     }
 
     private void setBlueprint(Blueprint blueprint)
