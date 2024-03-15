@@ -223,25 +223,27 @@ public class TickedWorldOperation implements ITickedWorldOperation
                 switch (structurePhase)
                 {
                     case 0:
-                        //water
-                        result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.WATER_REMOVAL,
-                          () -> placer.getIterator().decrement((info, pos, handler) -> info.getBlockInfo().getState().canOcclude()), false);
-
-                        currentPos = result.getIteratorPos();
-                        break;
-                    case 1:
                         //structure
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
                           () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.canBlockFloatInAir(info.getBlockInfo().getState())), false);
 
                         currentPos = result.getIteratorPos();
                         break;
-                    case 2:
+                    case 1:
                         // weak solid
                         result = placer.executeStructureStep(world, storage, currentPos, StructurePlacer.Operation.BLOCK_PLACEMENT,
                           () -> placer.getIterator().increment((info, pos, handler) -> !BlockUtils.isWeakSolidBlock(info.getBlockInfo().getState())), false);
 
                         currentPos = result.getIteratorPos();
+                        break;
+                    case 2:
+                        //water
+                        result = placer.clearWaterStep(world, currentPos);
+                        currentPos = result.getIteratorPos();
+                        if (result.getBlockResult().getResult() == BlockPlacementResult.Result.FINISHED)
+                        {
+                            currentPos = placer.getIterator().getProgressPos();
+                        }
                         break;
                     case 3:
                         // not solid
