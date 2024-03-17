@@ -263,6 +263,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
                     {
                         structurePhase = 0;
                         currentPos = null;
+                        placer.getHandler().onCompletion();
                     }
                 }
 
