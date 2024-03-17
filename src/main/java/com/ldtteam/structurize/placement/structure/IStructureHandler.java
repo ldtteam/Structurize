@@ -241,4 +241,9 @@ public interface IStructureHandler
      * @return true if so.
      */
     boolean isReady();
+
+    /**
+     * Possible on complete hooks after placement.
+     */
+    default void onCompletion() {};
 }
