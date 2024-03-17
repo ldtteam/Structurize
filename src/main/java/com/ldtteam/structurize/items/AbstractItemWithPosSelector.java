@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
