@@ -7,10 +7,13 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
@@ -38,7 +41,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     /**
      * The entity to remove from the world.
      */
-    private final String entityName;
+    private final ResourceLocation entityName;
 
     /**
      * Empty constructor used when registering the message.
@@ -48,7 +51,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
         super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.entityName = buf.readUtf(32767);
+        this.entityName = buf.readResourceLocation();
     }
 
     /**
@@ -57,7 +60,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
      * @param pos2 end coordinate.
      * @param entityName the entity to remove.
      */
-    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final String entityName)
+    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final ResourceLocation entityName)
     {
         super(TYPE);
         this.from = pos1;
@@ -70,7 +73,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeUtf(entityName);
+        buf.writeResourceLocation(entityName);
     }
 
     @Override
@@ -80,6 +83,8 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
         {
             return;
         }
+
+        final EntityType type = BuiltInRegistries.ENTITY_TYPE.get(entityName);
 
         final Level world = player.level();
         final ChangeStorage storage = new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName), player.getUUID());
@@ -95,7 +100,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
 
                     for(final Entity entity: list)
                     {
-                        if (entity.getName().getString().equals(entityName))
+                        if (entity.getType() == type)
                         {
                             entity.remove(Entity.RemovalReason.DISCARDED);
                         }
