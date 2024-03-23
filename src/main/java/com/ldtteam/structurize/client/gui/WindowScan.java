@@ -443,7 +443,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1(), slot.getBox().getPos2()));
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1().getCenter(), slot.getBox().getPos2().getCenter()));
 
         for (final Entity entity : list)
         {
@@ -462,20 +462,6 @@ public class WindowScan extends AbstractWindowSkeleton
         {
             final BlockState blockState = world.getBlockState(here);
             final BlockEntity tileEntity = world.getBlockEntity(here);
-            final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(here));
-
-            for (final Entity entity : list)
-            {
-                // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
-                // and drops a lead, so we should alert builders that it exists in the scan
-                if (!entities.containsKey(entity.getName().getString())
-                        && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
-                        && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                            || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
-                {
-                    entities.put(entity.getName().getString(), entity);
-                }
-            }
 
             @Nullable final Block block = blockState.getBlock();
             if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
@@ -537,8 +523,8 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         if (filter.isEmpty()
-                || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+              || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+              || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
             resources.put(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode, resource);
         }
