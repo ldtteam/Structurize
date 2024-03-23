@@ -15,6 +15,8 @@ import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ScanToolData;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -64,7 +66,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Map<String, Entity> entities = new HashMap<>();
+    private final Object2IntMap<Entity> entities = new Object2IntOpenHashMap<>();
 
     /**
      * White color.
@@ -212,9 +214,9 @@ public class WindowScan extends AbstractWindowSkeleton
         final int z2 = Integer.parseInt(pos2z.getText());
 
         final int row = entityList.getListElementIndexByPane(button);
-        final Entity entity = new ArrayList<>(entities.values()).get(row);
+        final Entity entity = new ArrayList<>(entities.keySet()).get(row);
         new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getString()).sendToServer();
-        entities.remove(entity.getName().getString());
+        entities.removeInt(entity);
         updateEntitylist();
     }
 
@@ -441,6 +443,21 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1(), slot.getBox().getPos2()));
+
+        for (final Entity entity : list)
+        {
+            // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
+            // and drops a lead, so we should alert builders that it exists in the scan
+            if (!entities.containsKey(entity.getName().getString())
+                  && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                  && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                             || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
+            {
+                entities.mergeInt(entity, 1, Integer::sum);
+            }
+        }
+
         for (final BlockPos here : BlockPos.betweenClosed(slot.getBox().getPos1(), slot.getBox().getPos2()))
         {
             final BlockState blockState = world.getBlockState(here);
@@ -531,7 +548,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         entityList.enable();
         entityList.show();
-        final List<Entity> tempEntities = new ArrayList<>(entities.values());
+        final List<Entity> tempEntities = new ArrayList<>(entities.keySet());
 
         //Creates a dataProvider for the unemployed resourceList.
         entityList.setDataProvider(new ScrollingList.DataProvider()
@@ -569,6 +586,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 {
                     entityIcon = new ItemStack(Items.MINECART);
                 }
+                rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(entities.getInt(entity))));
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getName());
                 if (!Minecraft.getInstance().player.isCreative())

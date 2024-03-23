@@ -49,6 +49,7 @@
             <text id="resourceName" size="172 12" pos="19 1" color="white" wrap="true"/>
             <button label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeEntity" pos="19 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+            <label id="resourceQuantity" size="30 12" pos="160 1" color="white" textalign="MIDDLE_RIGHT"/>
         </box>
     </list>
 

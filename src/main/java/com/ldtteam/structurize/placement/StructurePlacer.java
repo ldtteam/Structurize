@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import static net.minecraft.world.level.block.Block.dropResources;
 
 /**
  * Structure placement class that will actually execute the placement of a structure.
@@ -477,6 +480,62 @@ public class StructurePlacer
         }
 
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
+    }
+
+    /**
+     * Clear water of a y layer.
+     * @param world world to clear it from.
+     * @param inputPos current progress pos.
+     * @return progress report.
+     */
+    public StructurePhasePlacementResult clearWaterStep(final Level world, final BlockPos inputPos)
+    {
+        int yLayer = inputPos.getY() == -1 ? iterator.size.getY() - 1 : inputPos.getY();
+        for (int x = 0; x < iterator.size.getX(); x++)
+        {
+            for (int z = 0; z < iterator.size.getZ(); z++)
+            {
+                final BlockPos localPos = new BlockPos(x,yLayer, z);
+                if (iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState().getFluidState().isEmpty())
+                {
+                    final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
+                    final BlockState worldState = world.getBlockState(worldPos);
+                    final FluidState fluidState = worldState.getFluidState();
+                    if (!fluidState.isEmpty())
+                    {
+
+                        Block block = worldState.getBlock();
+                        if (block instanceof BucketPickup) {
+                            BucketPickup bucketpickup = (BucketPickup)block;
+                            if (!bucketpickup.pickupBlock(world, worldPos, worldState).isEmpty()) {
+                                continue;
+                            }
+                        }
+
+                        if (worldState.getBlock() instanceof LiquidBlock) {
+                            world.setBlock(worldPos, Blocks.AIR.defaultBlockState(), 3);
+                        } else {
+                            if (!worldState.is(Blocks.KELP) && !worldState.is(Blocks.KELP_PLANT) && !worldState.is(Blocks.SEAGRASS) && !worldState.is(Blocks.TALL_SEAGRASS)) {
+                                continue;
+                            }
+
+                            BlockEntity blockentity = worldState.hasBlockEntity() ? world.getBlockEntity(worldPos) : null;
+                            dropResources(worldState, world, worldPos, blockentity);
+                            world.setBlock(worldPos, Blocks.AIR.defaultBlockState(), 3);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        final BlockPos progressPos = new BlockPos(0, yLayer, 0);
+        if (yLayer <= 0)
+        {
+            return new StructurePhasePlacementResult(progressPos.below(), new BlockPlacementResult(handler.getProgressPosInWorld(progressPos), BlockPlacementResult.Result.FINISHED));
+        }
+
+        return new StructurePhasePlacementResult(progressPos.below(), new BlockPlacementResult(handler.getProgressPosInWorld(progressPos.below()), BlockPlacementResult.Result.SUCCESS));
     }
 
     /**
