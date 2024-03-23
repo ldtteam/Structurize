@@ -155,7 +155,7 @@ object Release : Project({
     params {
         text("env.crowdinKey", "credentialsJSON:57fbe4f4-13dd-4c72-b6b3-3cc1e3a8240e", label = "Crowdin key", description = "The API key for crowdin to pull translations", allowEmpty = true)
         param("Default.Branch", "version/%Current Minecraft Version%")
-        param("VCS.Branches", "+:refs/heads/version/(*)")
+        param("VCS.Branches", "+:refs/heads/release/(*)")
         param("env.CURSERELEASETYPE", "release")
         param("env.Version.Suffix", "-RELEASE")
     }
