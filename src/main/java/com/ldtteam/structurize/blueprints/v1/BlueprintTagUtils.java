@@ -2,14 +2,20 @@ package com.ldtteam.structurize.blueprints.v1;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 
+import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
+import com.ldtteam.structurize.util.BlockInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.ldtteam.structurize.api.constants.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.constants.Constants.INVISIBLE_TAG;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
@@ -18,27 +24,64 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 public class BlueprintTagUtils
 {
     /**
+     * Gets the tag map from the given blueprint.
+     *
+     * @param blueprint the blueprint
+     * @return          the tag map, relative to the anchor block
+     */
+    public static Map<BlockPos, List<String>> getBlueprintTags(final Blueprint blueprint)
+    {
+        final BlockPos anchorPos = blueprint.getPrimaryBlockOffset();
+        final CompoundTag nbt = blueprint.getBlockInfoAsMap().get(anchorPos).getTileEntityData();
+
+        if (nbt != null)
+        {
+            return IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
+        }
+
+        return new HashMap<>();
+    }
+
+    /**
+     * A blueprint may hide itself from the build tool list in one of two ways:
+     * 1. the anchor block implements IInvisibleBlueprintAnchorBlock and returns true when asked
+     * 2. the anchor block implements IBlueprintDataProviderBE and is directly tagged "invisible"
+     *
+     * @param blueprint the blueprint to check
+     * @return true if this blueprint should be hidden from normal players
+     */
+    public static boolean isInvisible(final Blueprint blueprint)
+    {
+        final BlockInfo anchor = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset());
+        if (anchor.getState().getBlock() instanceof IInvisibleBlueprintAnchorBlock invis &&
+                !invis.isVisible(anchor.getTileEntityData()))
+        {
+            return true;
+        }
+
+        final List<String> anchorTags = getBlueprintTags(blueprint).computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+        return anchorTags.contains(INVISIBLE_TAG);
+    }
+
+    /**
      * Get the first pos for the given tag
      *
      * @param blueprint rotated/mirrored blueprint
      * @param tagName   tag name
      * @return found position or null
      */
+    @Nullable
     public static BlockPos getFirstPosForTag(final Blueprint blueprint, final String tagName)
     {
-        final BlockPos anchorPos = blueprint.getPrimaryBlockOffset();
-        final CompoundTag nbt = blueprint.getBlockInfoAsMap().get(anchorPos).getTileEntityData();
-        if (nbt != null)
+        final Map<BlockPos, List<String>> tagPosMap = getBlueprintTags(blueprint);
+
+        for (final Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
         {
-            final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
-            for (final Map.Entry<BlockPos, List<String>> entry : tagPosMap.entrySet())
+            for (final String tag : entry.getValue())
             {
-                for (final String tag : entry.getValue())
+                if (tag.equals(tagName))
                 {
-                    if (tag.equals(tagName))
-                    {
-                        return entry.getKey();
-                    }
+                    return entry.getKey();
                 }
             }
         }
