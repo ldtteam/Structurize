@@ -508,7 +508,7 @@ public class StructurePlacer
                         Block block = worldState.getBlock();
                         if (block instanceof BucketPickup) {
                             BucketPickup bucketpickup = (BucketPickup)block;
-                            if (!bucketpickup.pickupBlock(world, worldPos, worldState).isEmpty()) {
+                            if (!bucketpickup.pickupBlock(null, world, worldPos, worldState).isEmpty()) {
                                 continue;
                             }
                         }
