@@ -67,7 +67,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Object2IntMap<Entity> entities = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<EntityType> entities = new Object2IntOpenHashMap<>();
 
     /**
      * White color.
@@ -215,8 +215,8 @@ public class WindowScan extends AbstractWindowSkeleton
         final int z2 = Integer.parseInt(pos2z.getText());
 
         final int row = entityList.getListElementIndexByPane(button);
-        final Entity entity = new ArrayList<>(entities.keySet()).get(row);
-        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), entity.getName().getString()));
+        final EntityType entity = new ArrayList<>(entities.keySet()).get(row);
+        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), EntityType.getKey(entity)));
         entities.removeInt(entity);
         updateEntitylist();
     }
@@ -455,7 +455,7 @@ public class WindowScan extends AbstractWindowSkeleton
                   && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                              || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
             {
-                entities.mergeInt(entity, 1, Integer::sum);
+                entities.mergeInt(entity.getType(), 1, Integer::sum);
             }
         }
 
@@ -535,7 +535,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         entityList.enable();
         entityList.show();
-        final List<Entity> tempEntities = new ArrayList<>(entities.keySet());
+        final List<EntityType> tempEntities = new ArrayList<>(entities.keySet());
 
         //Creates a dataProvider for the unemployed resourceList.
         entityList.setDataProvider(new ScrollingList.DataProvider()
@@ -559,23 +559,23 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final Entity entity = tempEntities.get(index);
-                ItemStack entityIcon = entity.getPickResult();
-                if (entity instanceof GlowItemFrame)
+                final EntityType entity = tempEntities.get(index);
+                ItemStack entityIcon = entity.create(Minecraft.getInstance().level).getPickResult();
+                if (entity == EntityType.GLOW_ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
                 }
-                else if (entity instanceof ItemFrame)
+                else if (entity == EntityType.ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.ITEM_FRAME);
                 }
-                else if (entity instanceof AbstractMinecart)
+                else if (entity == EntityType.MINECART)
                 {
                     entityIcon = new ItemStack(Items.MINECART);
                 }
                 rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(entities.getInt(entity))));
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getName());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getDescription());
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();

@@ -17,6 +17,7 @@
 # gradle
 /build
 /.gradle
+/runs
 
 # other
 /.vscode

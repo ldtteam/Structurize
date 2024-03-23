@@ -4,9 +4,12 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fml.LogicalSide;
@@ -34,7 +37,7 @@ public class RemoveEntityMessage implements IMessage
     /**
      * The entity to remove from the world.
      */
-    private final String entityName;
+    private final ResourceLocation entityName;
 
     /**
      * Empty constructor used when registering the message.
@@ -43,7 +46,7 @@ public class RemoveEntityMessage implements IMessage
     {
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.entityName = buf.readUtf(32767);
+        this.entityName = buf.readResourceLocation();
     }
 
     /**
@@ -53,7 +56,7 @@ public class RemoveEntityMessage implements IMessage
      * @param pos2       end coordinate.
      * @param entityName the entity to remove.
      */
-    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final String entityName)
+    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final ResourceLocation entityName)
     {
         this.from = pos1;
         this.to = pos2;
@@ -65,7 +68,7 @@ public class RemoveEntityMessage implements IMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeUtf(entityName);
+        buf.writeResourceLocation(entityName);
     }
 
     @Nullable
@@ -83,6 +86,7 @@ public class RemoveEntityMessage implements IMessage
             return;
         }
 
+        final EntityType type = BuiltInRegistries.ENTITY_TYPE.get(entityName);
         final Level world = ctxIn.getSender().level();
         final ChangeStorage storage =
           new ChangeStorage(Component.translatable("com.ldtteam.structurize." + TickedWorldOperation.OperationType.REMOVE_ENTITY.toString().toLowerCase(Locale.US), entityName),
@@ -93,7 +97,7 @@ public class RemoveEntityMessage implements IMessage
 
         for (final Entity entity : list)
         {
-            if (entity.getName().getString().equals(entityName))
+            if (entity.getType() == type)
             {
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
