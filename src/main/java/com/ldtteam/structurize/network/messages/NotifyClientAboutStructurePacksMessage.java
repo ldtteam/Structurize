@@ -19,7 +19,7 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
      * List of server structure packs.
      * Contains String Name, and Integer version.
      */
-    final Map<String, Integer> serverStructurePacks = new HashMap<>();
+    private final Map<String, Double> serverStructurePacks = new HashMap<>();
 
     /**
      * Public standard constructor.
@@ -29,7 +29,7 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
         final int length = buf.readInt();
         for (int i = 0; i < length; i++)
         {
-            this.serverStructurePacks.put(buf.readUtf(32767), buf.readInt());
+            this.serverStructurePacks.put(buf.readUtf(32767), buf.readDouble());
         }
     }
 
@@ -52,10 +52,10 @@ public class NotifyClientAboutStructurePacksMessage implements IMessage
     public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.serverStructurePacks.size());
-        for (final Map.Entry<String, Integer> packInfo : this.serverStructurePacks.entrySet())
+        for (final Map.Entry<String, Double> packInfo : this.serverStructurePacks.entrySet())
         {
             buf.writeUtf(packInfo.getKey());
-            buf.writeInt(packInfo.getValue());
+            buf.writeDouble(packInfo.getValue());
         }
     }
 

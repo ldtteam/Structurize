@@ -179,7 +179,7 @@ public class ClientStructurePackLoader
      *
      * @param serverStructurePacks the server structure packs.
      */
-    public static void onServerSyncAttempt(final Map<String, Integer> serverStructurePacks)
+    public static void onServerSyncAttempt(final Map<String, Double> serverStructurePacks)
     {
         Network.getNetwork().sendToServer(new SyncSettingsToServer());
 
@@ -205,7 +205,7 @@ public class ClientStructurePackLoader
         {
             if (!pack.isImmutable())
             {
-                final int version = serverStructurePacks.getOrDefault(pack.getName(), -1);
+                final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
                 if (version == -1)
                 {
                     if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())

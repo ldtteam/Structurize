@@ -50,7 +50,7 @@ public class ServerStructurePackLoader
     /**
      * Map of the client sync requests that have to be handled yet.
      */
-    private static Map<UUID, Map<String, Integer>> clientSyncRequests = new HashMap<>();
+    private static Map<UUID, Map<String, Double>> clientSyncRequests = new HashMap<>();
 
     /**
      * Set after the client finished loading the schematics.
@@ -158,7 +158,7 @@ public class ServerStructurePackLoader
      * Called on client sync attempt.
      * @param clientStructurePacks the client structure packs.
      */
-    public static void onClientSyncAttempt(final Map<String, Integer> clientStructurePacks, final ServerPlayer player)
+    public static void onClientSyncAttempt(final Map<String, Double> clientStructurePacks, final ServerPlayer player)
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
@@ -185,7 +185,7 @@ public class ServerStructurePackLoader
             if (event.level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
                 loadingState = ServerLoadingState.FINISHED_SYNCING;
-                for (final Map.Entry<UUID, Map<String, Integer>> entry : clientSyncRequests.entrySet())
+                for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
                 {
                     final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(entry.getKey());
                     if (player != null)
@@ -214,7 +214,7 @@ public class ServerStructurePackLoader
      * @param clientStructurePacks the client structure packs.
      * @param player the player.
      */
-    private static void handleClientUpdate(final Map<String, Integer> clientStructurePacks, final ServerPlayer player)
+    private static void handleClientUpdate(final Map<String, Double> clientStructurePacks, final ServerPlayer player)
     {
         final UUID uuid = player.getUUID();
         final Map<String, StructurePackMeta> missingPacks = new HashMap<>();
@@ -224,7 +224,7 @@ public class ServerStructurePackLoader
         {
             if (!pack.isImmutable())
             {
-                if (clientStructurePacks.getOrDefault(pack.getName(), -1) != pack.getVersion())
+                if (clientStructurePacks.getOrDefault(pack.getName(), -1.0) != pack.getVersion())
                 {
                     missingPacks.put(pack.getName(), pack);
                 }
