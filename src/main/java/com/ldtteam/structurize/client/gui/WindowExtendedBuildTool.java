@@ -605,7 +605,8 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final int level =
                   leveledAnchor.getLevel(blueprint.getTileEntityData(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
                     blueprint.getPrimaryBlockOffset()));
-                name = getCustomName(blueprint, blueprint.getFileName().replace(Integer.toString(level), ""));
+                final String tempName = getCustomName(blueprint, blueprint.getFileName().replace(Integer.toString(level), ""));
+                name = tempName.isEmpty() ? getCustomName(blueprint, blueprint.getFileName()) : tempName;
             }
             else
             {
