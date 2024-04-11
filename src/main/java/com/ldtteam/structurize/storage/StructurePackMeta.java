@@ -56,7 +56,7 @@ public class StructurePackMeta
     /**
      * The pack version.
      */
-    private final int version;
+    private final double version;
 
     /**
      * This is a flag that tells us if we can update the pack from the remote server. Jar structure packs cannot be updated (for obvious reasons).
@@ -89,7 +89,7 @@ public class StructurePackMeta
             mods.add(modsArray.get(i).getAsString());
         }
         this.rootPath = rootPath;
-        this.version = json.get("version").getAsInt();
+        this.version = json.get("version").getAsDouble();
         this.packFormat  = json.get("pack-format").getAsInt();
         this.owner = owner;
     }
@@ -134,7 +134,7 @@ public class StructurePackMeta
      *
      * @return the pack version.
      */
-    public int getVersion()
+    public double getVersion()
     {
         return this.version;
     }

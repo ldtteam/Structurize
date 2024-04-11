@@ -844,6 +844,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             {
                 final String name = getCustomName(firstBlueprint, firstBlueprint.getFileName());
                 img.setText(Component.literal(name));
+                toolTip.add(Component.literal(name));
             }
             img.setVisible(true);
 
