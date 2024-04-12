@@ -24,7 +24,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
      * List of client structure packs.
      * Contains String Name, and Integer version.
      */
-    private final Map<String, Integer> clientStructurePacks = new HashMap<>();
+    private final Map<String, Double> clientStructurePacks = new HashMap<>();
 
     /**
      * Public standard constructor.
@@ -35,7 +35,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
         final int length = buf.readInt();
         for (int i = 0; i < length; i++)
         {
-            this.clientStructurePacks.put(buf.readUtf(32767), buf.readInt());
+            this.clientStructurePacks.put(buf.readUtf(32767), buf.readDouble());
         }
     }
 
@@ -59,10 +59,10 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
     protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.clientStructurePacks.size());
-        for (final Map.Entry<String, Integer> packInfo : this.clientStructurePacks.entrySet())
+        for (final Map.Entry<String, Double> packInfo : this.clientStructurePacks.entrySet())
         {
             buf.writeUtf(packInfo.getKey());
-            buf.writeInt(packInfo.getValue());
+            buf.writeDouble(packInfo.getValue());
         }
     }
 

@@ -51,6 +51,9 @@ import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -150,12 +153,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return;
         }
 
-        final long currentMillis = System.currentTimeMillis();
-        final String currentMillisString = Long.toString(currentMillis);
         String fileName;
         if (slot.getName().isEmpty())
         {
-            fileName = Component.translatable("item.sceptersteel.scanformat", "", currentMillisString).getString();
+            fileName = Component.translatable("item.sceptersteel.scanformat", new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))).getString();
         }
         else
         {

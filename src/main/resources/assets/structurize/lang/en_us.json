@@ -108,7 +108,7 @@
   "item.sceptersteel.point2": "Point two saved: %d %d %d.",
   "item.sceptersteel.samepoint": "That was the same point!",
   "item.sceptersteel.scanfailure": "Scan failed to save",
-  "item.sceptersteel.scanformat": "SCAN_%s-%s",
+  "item.sceptersteel.scanformat": "SCAN_%s",
   "item.sceptersteel.scansuccess": "Scan successfully saved as %s",
   "item.sceptersteel.toobig": "Schematic too big, max allowed volume is %d blocks",
   "item.structurize.caliper": "Calipers",
