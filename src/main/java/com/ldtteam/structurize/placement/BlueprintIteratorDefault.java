@@ -23,24 +23,50 @@ public class BlueprintIteratorDefault extends AbstractBlueprintIterator
      *
      * @return false if the all the block have been incremented through.
      */
+    @Override
     public Result increment()
+    {
+        return iterate(true);
+    }
+
+    private Result iterate(boolean up)
     {
         if (this.progressPos.equals(NULL_POS))
         {
-            this.progressPos.set(-1, 0, 0);
+            this.progressPos.set(-1, up ? 0 : this.size.getY() -1, 0);
         }
 
-        this.progressPos.set(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() >= this.size.getX())
+        if (progressPos.getZ() % 2 == 0)
         {
-            this.progressPos.set(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
-            if (this.progressPos.getZ() >= this.size.getZ())
+            this.progressPos.set(this.progressPos.getX() + 1, this.progressPos.getY(), this.progressPos.getZ());
+            if (this.progressPos.getX() >= this.size.getX())
             {
-                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() + 1, 0);
-                if (this.progressPos.getY() >= this.size.getY())
+                this.progressPos.set(this.size.getX() - 1, this.progressPos.getY(), this.progressPos.getZ() + 1);
+                if (this.progressPos.getZ() >= this.size.getZ())
                 {
-                    this.reset();
-                    return Result.AT_END;
+                    this.progressPos.set(0, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
+                    if ((up && this.progressPos.getY() >= this.size.getY()) || (!up && this.progressPos.getY() <= -1))
+                    {
+                        this.reset();
+                        return Result.AT_END;
+                    }
+                }
+            }
+        }
+        else
+        {
+            this.progressPos.set(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
+            if (this.progressPos.getX() <= -1)
+            {
+                this.progressPos.set(0, this.progressPos.getY(), this.progressPos.getZ() + 1);
+                if (this.progressPos.getZ() >= this.size.getZ())
+                {
+                    this.progressPos.set(0, up ? this.progressPos.getY() + 1 : this.progressPos.getY() - 1, 0);
+                    if ((up && this.progressPos.getY() >= this.size.getY()) || (!up && this.progressPos.getY() <= -1))
+                    {
+                        this.reset();
+                        return Result.AT_END;
+                    }
                 }
             }
         }
@@ -48,33 +74,9 @@ public class BlueprintIteratorDefault extends AbstractBlueprintIterator
         return Result.NEW_BLOCK;
     }
 
-    /**
-     * Decrement progressPos.
-     *
-     * @return false if progressPos can't be decremented any more.
-     */
+    @Override
     public Result decrement()
     {
-        if (this.progressPos.equals(NULL_POS))
-        {
-            this.progressPos.set(this.size.getX(), this.size.getY() - 1, this.size.getZ() - 1);
-        }
-
-        this.progressPos.set(this.progressPos.getX() - 1, this.progressPos.getY(), this.progressPos.getZ());
-        if (this.progressPos.getX() <= -1)
-        {
-            this.progressPos.set(this.size.getX() - 1, this.progressPos.getY(), this.progressPos.getZ() - 1);
-            if (this.progressPos.getZ() <= -1)
-            {
-                this.progressPos.set(this.progressPos.getX(), this.progressPos.getY() - 1, this.size.getZ() - 1);
-                if (this.progressPos.getY() <= -1)
-                {
-                    this.reset();
-                    return Result.AT_END;
-                }
-            }
-        }
-
-        return Result.NEW_BLOCK;
+       return iterate(false);
     }
 }
