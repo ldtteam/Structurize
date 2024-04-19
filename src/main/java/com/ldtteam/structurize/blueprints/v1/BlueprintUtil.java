@@ -3,6 +3,7 @@ package com.ldtteam.structurize.blueprints.v1;
 import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -74,6 +75,10 @@ public class BlueprintUtil
         for (final BlockPos mutablePos : BlockPos.betweenClosed(pos, pos.offset(sizeX - 1, sizeY - 1, sizeZ - 1)))
         {
             BlockState state = world.getBlockState(mutablePos);
+            if (state.is(ModTags.BLUEPRINT_BLACKLIST))
+            {
+                continue;
+            }
             String modName = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),

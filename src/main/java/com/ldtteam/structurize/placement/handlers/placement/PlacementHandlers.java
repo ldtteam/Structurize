@@ -7,6 +7,7 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
@@ -49,6 +50,7 @@ public final class PlacementHandlers
     static
     {
         handlers.add(new AirPlacementHandler());
+        handlers.add(new BlackListedBlockPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
         handlers.add(new BlockGrassPathPlacementHandler());
@@ -972,6 +974,39 @@ public final class PlacementHandlers
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
+        }
+    }
+
+    public static class BlackListedBlockPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+        {
+            return blockState.is(ModTags.BLUEPRINT_BLACKLIST);
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
+          @Nullable final CompoundTag tileEntityData,
+          final boolean complete,
+          final BlockPos centerPos)
+        {
+
+            return ActionProcessingResult.PASS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+          final Level world,
+          final BlockPos pos,
+          final BlockState blockState,
+          @Nullable final CompoundTag tileEntityData,
+          final boolean complete)
+        {
+            return Collections.emptyList();
         }
     }
 
