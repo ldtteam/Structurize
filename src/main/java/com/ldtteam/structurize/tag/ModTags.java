@@ -24,6 +24,8 @@ public class ModTags
     public static final TagKey<Block> WEAK_SOLID_BLOCKS = modTag(Registries.BLOCK, "weak_solid_blocks");
     public static final TagKey<Block> UNSUITABLE_SOLID_FOR_PLACEHOLDER = modTag(Registries.BLOCK, "unsuitable_solid_for_placeholder");
 
+    public static final TagKey<Block> BLUEPRINT_BLACKLIST = modTag(Registries.BLOCK, "blueprint_blacklist");
+
     public static final TagKey<EntityType<?>> PREVIEW_TICKING_ENTITIES = modTag(Registries.ENTITY_TYPE, "tickable_preview_entities");
 
     private static <T> TagKey<T> modTag(final ResourceKey<Registry<T>> registry, @NotNull final String name)

@@ -44,5 +44,7 @@ public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block>
             .forEach(weakSolidTag::add);
 
         this.tag(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER).addTag(BlockTags.LEAVES);
+
+        this.tag(ModTags.BLUEPRINT_BLACKLIST);
     }
 }
