@@ -151,6 +151,12 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
     }
 
     @Override
+    public BlockPos getSize()
+    {
+        return size;
+    }
+
+    @Override
     public BlockPos getProgressPos()
     {
         return progressPos.immutable();

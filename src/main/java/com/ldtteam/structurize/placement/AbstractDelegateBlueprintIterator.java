@@ -81,6 +81,12 @@ public abstract class AbstractDelegateBlueprintIterator implements IBlueprintIte
     }
 
     @Override
+    public BlockPos getSize()
+    {
+        return delegate.getSize();
+    }
+
+    @Override
     public BlockPos getProgressPos()
     {
         return delegate.getProgressPos();

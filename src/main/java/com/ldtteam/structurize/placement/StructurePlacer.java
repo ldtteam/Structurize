@@ -44,7 +44,7 @@ public class StructurePlacer
     /**
      * The structure iterator.
      */
-    protected final AbstractBlueprintIterator iterator;
+    protected final IBlueprintIterator iterator;
 
     /**
      * The handler.
@@ -74,6 +74,18 @@ public class StructurePlacer
     }
 
     /**
+     * Create a new structure placer
+     * @param handler the structure handler
+     * @param iterator The iterator to use. It will be reset before it is used
+     */
+    public StructurePlacer(final IStructureHandler handler, final IBlueprintIterator iterator)
+    {
+        this.handler = handler;
+        this.iterator = iterator;
+        iterator.reset();
+    }
+
+    /**
      * Execute structure placement.
      * @param world the world.
      * @param storage the change storage.
@@ -88,7 +100,7 @@ public class StructurePlacer
       final ChangeStorage storage,
       final BlockPos inputPos,
       final Operation operation,
-      final Supplier<AbstractBlueprintIterator.Result> iterateFunction,
+      final Supplier<IBlueprintIterator.Result> iterateFunction,
       final boolean includeEntities)
     {
         final List<ItemStack> requiredItems = new ArrayList<>();
@@ -100,11 +112,11 @@ public class StructurePlacer
 
         iterator.setProgressPos(new BlockPos(inputPos.getX(), inputPos.getY(), inputPos.getZ()));
 
-        AbstractBlueprintIterator.Result iterationResult = iterateFunction.get();
+        IBlueprintIterator.Result iterationResult = iterateFunction.get();
         BlockPos lastPos = inputPos;
         int count = 0;
 
-        while (iterationResult == AbstractBlueprintIterator.Result.NEW_BLOCK)
+        while (iterationResult == IBlueprintIterator.Result.NEW_BLOCK)
         {
             final BlockPos localPos = iterator.getProgressPos();
             final BlockPos worldPos = handler.getProgressPosInWorld(localPos);
@@ -182,7 +194,7 @@ public class StructurePlacer
             }
         }
 
-        if (iterationResult == AbstractBlueprintIterator.Result.AT_END)
+        if (iterationResult == IBlueprintIterator.Result.AT_END)
         {
             iterator.reset();
             return new StructurePhasePlacementResult(iterator.getProgressPos(),
@@ -496,10 +508,11 @@ public class StructurePlacer
      */
     public StructurePhasePlacementResult clearWaterStep(final Level world, final BlockPos inputPos)
     {
-        int yLayer = inputPos.getY() == -1 ? iterator.size.getY() - 1 : inputPos.getY();
-        for (int x = 0; x < iterator.size.getX(); x++)
+        final BlockPos size = iterator.getSize();
+        int yLayer = inputPos.getY() == -1 ? size.getY() - 1 : inputPos.getY();
+        for (int x = 0; x < size.getX(); x++)
         {
-            for (int z = 0; z < iterator.size.getZ(); z++)
+            for (int z = 0; z < size.getZ(); z++)
             {
                 final BlockPos localPos = new BlockPos(x,yLayer, z);
                 final BlockState localState = iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState();
@@ -664,7 +677,7 @@ public class StructurePlacer
      * Get the iterator instance.
      * @return the BlueprintIterator.
      */
-    public AbstractBlueprintIterator getIterator()
+    public IBlueprintIterator getIterator()
     {
         return iterator;
     }

@@ -76,6 +76,12 @@ public interface IBlueprintIterator
     BlockPos getProgressPos();
 
     /**
+     * Get the size of the blueprint which is iterated over
+     * @return the size
+     */
+    BlockPos getSize();
+
+    /**
      * The different results when advancing the structure.
      */
     enum Result
