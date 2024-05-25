@@ -76,8 +76,8 @@ public abstract class AbstractStructureIterator extends AbstractBlueprintIterato
         }
     }
 
-    @Override
-    public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
+        @Override
+        public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
     {
         return structureHandler.getBluePrint().getBluePrintPositionInfo(localPos, includeEntities);
     }
