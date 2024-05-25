@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 /**
  * Iterator which walks the structure from outside in , in a clockwise rotation
  */
-public class BlueprintIteratorInwardCircleHeight extends AbstractBlueprintIterator
+public class BlueprintIteratorInwardCircleHeight extends AbstractStructureIterator
 {
     private final BlockPos topRightCorner;
     private final int      height;

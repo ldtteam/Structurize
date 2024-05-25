@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * A hilbert space-filling curve, generalised to any dimensions.
  */
-public class BlueprintIteratorHilbert extends AbstractBlueprintIterator
+public class BlueprintIteratorHilbert extends AbstractStructureIterator
 {
     /**
      * Ordered list of positions for each layer.

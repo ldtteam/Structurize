@@ -12,7 +12,7 @@ import java.util.Random;
  * Random blueprint iterator.
  * Creates a seeded list of positions and iterates it.
  */
-public class BlueprintIteratorRandom extends AbstractBlueprintIterator
+public class BlueprintIteratorRandom extends AbstractStructureIterator
 {
     /**
      * Random ordered list of positions.

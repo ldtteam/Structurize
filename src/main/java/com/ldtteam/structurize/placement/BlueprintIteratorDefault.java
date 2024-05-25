@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
  * This is the default blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public class BlueprintIteratorDefault extends AbstractBlueprintIterator
+public class BlueprintIteratorDefault extends AbstractStructureIterator
 {
     /**
      * Initialize the blueprint iterator with the structure handler.

@@ -65,6 +65,11 @@ public interface IBlueprintIterator
     void setRemoving();
 
     /**
+     * Return whether the iterator is in removal mode
+     * @return whether the iterator is in removal mode
+     */
+    boolean isRemoving();
+    /**
      * Reset the progressPos.
      */
     void reset();
