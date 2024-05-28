@@ -10,11 +10,57 @@ import java.util.Collections;
 import java.util.function.Supplier;
 
 /**
- * Common base class of the (more concrete) AbstractStructureIterator and (based on a different BlueprintIterator) AbstractDelegateBlueprintIterator,
- * to share the increment and decrement with skipCondition logic
+ * This is the blueprint iterator.
+ * It's a helper class used to track the progress of one iteration over the structure.
  */
 public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 {
+
+    /**
+     * The Structure position we are at. Defaulted to NULL_POS.
+     */
+    protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
+
+    /**
+     * The size of the structure.
+     */
+    protected final BlockPos size;
+
+    /**
+     * The structure handler.
+     */
+    private final IStructureHandler structureHandler;
+
+    /**
+     * If entity info is required.
+     */
+    private boolean includeEntities;
+
+    /**
+     * If structure removal step.
+     */
+    private boolean isRemoving;
+
+    /**
+     * Initialize the blueprint iterator with the structure handler.
+     * @param structureHandler the structure handler.
+     */
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler)
+    {
+        this(structureHandler, new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ()));
+    }
+
+    /**
+     * Initialize the blueprint iterator with the structure handler.
+     * @param size the size.
+     * @param structureHandler the structure handler.
+     */
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
+    {
+        this.structureHandler = structureHandler;
+        this.size = size;
+    }
+
     @Override
     public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
@@ -29,22 +75,19 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 
     /**
      * Execute a supplier function to avoid duplicate code for increment and decrement functions.
-     *
      * @param skipCondition the skipCondition.
-     * @param function      the supplier function.
+     * @param function the supplier function.
      * @return the Result.
      */
     private Result iterateWithCondition(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition, final Supplier<Result> function)
     {
         int count = 0;
-        final IStructureHandler structureHandler = getStructureHandler();
         do
         {
-            if (function.get() == Result.AT_END)
+            if(function.get() == Result.AT_END)
             {
                 return Result.AT_END;
             }
-            final BlockPos progressPos = getProgressPos();
             final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
             final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
 
@@ -52,11 +95,7 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
             {
                 continue;
             }
-            else if (!isRemoving() && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(),
-              structureHandler.getWorld().getBlockState(worldPos),
-              structureHandler::replaceWithSolidBlock,
-              structureHandler.fancyPlacement(),
-              structureHandler::shouldBlocksBeConsideredEqual,
+            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
               info.getBlockInfo().getTileEntityData(),
               info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
             {
@@ -70,11 +109,58 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
         return Result.CONFIG_LIMIT;
     }
 
-    /**
-     * Get the structure handler used with this iterator
-     * @return the structure handler
-     */
-    protected abstract IStructureHandler getStructureHandler();
+    @Override
+    public void setProgressPos(final BlockPos localPosition)
+    {
+        if (localPosition.equals(NULL_POS))
+        {
+            this.progressPos.set(localPosition);
+        }
+        else
+        {
+            this.progressPos.set(localPosition.getX() % size.getX(),
+              localPosition.getY() % size.getY(),
+              localPosition.getZ() % size.getZ());
+        }
+    }
+
+        @Override
+        public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
+    {
+        return structureHandler.getBluePrint().getBluePrintPositionInfo(localPos, includeEntities);
+    }
+
+    @Override
+    public void includeEntities()
+    {
+        this.includeEntities = true;
+    }
+
+    @Override
+    public void setRemoving()
+    {
+        this.isRemoving = true;
+    }
+
+    @Override
+    public void reset()
+    {
+        progressPos.set(NULL_POS);
+        includeEntities = false;
+        isRemoving = false;
+    }
+
+    @Override
+    public BlockPos getSize()
+    {
+        return size;
+    }
+
+    @Override
+    public BlockPos getProgressPos()
+    {
+        return progressPos.immutable();
+    }
 
     /**
      * The different results when advancing the structure.
