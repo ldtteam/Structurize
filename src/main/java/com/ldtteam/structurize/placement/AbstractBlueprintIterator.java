@@ -92,6 +92,7 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
             {
                 return Result.AT_END;
             }
+            final BlockPos progressPos = getProgressPos();
             final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
             final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
 
@@ -99,7 +100,7 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
             {
                 continue;
             }
-            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
+            else if (!isRemoving() && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
               info.getBlockInfo().getTileEntityData(),
               info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
             {
@@ -144,6 +145,12 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
     public void setRemoving()
     {
         this.isRemoving = true;
+    }
+
+    @Override
+    public boolean isRemoving()
+    {
+        return isRemoving;
     }
 
     @Override

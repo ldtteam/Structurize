@@ -61,6 +61,12 @@ public interface IBlueprintIterator
     void setRemoving();
 
     /**
+     * Retrieve whether we're removing blocks at the moment
+     * @return Whether we are removing blocks at the moment
+     */
+    boolean isRemoving();
+
+    /**
      * Reset the progressPos.
      */
     void reset();
