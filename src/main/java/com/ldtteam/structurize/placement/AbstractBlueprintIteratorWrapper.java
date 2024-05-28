@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.TriPredicate;
  * This is a base class for BlueprintIterators based on a delegated iterator
  * All methods are implemented through the delegate. Subclasses are expected to override one or multiple of the methods, to override logic
  */
-public abstract class AbstractDelegateBlueprintIterator implements IBlueprintIterator
+public abstract class AbstractBlueprintIteratorWrapper extends AbstractBlueprintIterator
 {
 
     /**
@@ -21,15 +21,10 @@ public abstract class AbstractDelegateBlueprintIterator implements IBlueprintIte
      * Initialise the blueprint iterator with a delegate blueprint iterator
      * @param delegate The delegate blueprint iterator
      */
-    public AbstractDelegateBlueprintIterator(IBlueprintIterator delegate)
+    public AbstractBlueprintIteratorWrapper(AbstractBlueprintIterator delegate)
     {
+        super(delegate.getStructureHandler(), delegate.size);
         this.delegate = delegate;
-    }
-
-    @Override
-    public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
-    {
-        return delegate.increment(skipCondition);
     }
 
     @Override
@@ -42,12 +37,6 @@ public abstract class AbstractDelegateBlueprintIterator implements IBlueprintIte
     public Result decrement()
     {
         return delegate.decrement();
-    }
-
-    @Override
-    public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
-    {
-        return delegate.decrement(skipCondition);
     }
 
     @Override

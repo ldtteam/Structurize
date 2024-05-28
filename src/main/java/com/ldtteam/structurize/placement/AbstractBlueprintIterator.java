@@ -162,6 +162,11 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
         return progressPos.immutable();
     }
 
+    protected IStructureHandler getStructureHandler()
+    {
+        return structureHandler;
+    }
+
     /**
      * The different results when advancing the structure.
      */
