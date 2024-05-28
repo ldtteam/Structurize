@@ -9,8 +9,13 @@ import net.minecraftforge.common.util.TriPredicate;
 import java.util.Collections;
 import java.util.function.Supplier;
 
+/**
+ * Common base class of the (more concrete) AbstractStructureIterator and (based on a different BlueprintIterator) AbstractDelegateBlueprintIterator,
+ * to share the increment and decrement with skipCondition logic
+ */
 public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 {
+    @Override
     public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
         return iterateWithCondition(skipCondition, this::increment);
@@ -65,5 +70,19 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
         return Result.CONFIG_LIMIT;
     }
 
+    /**
+     * Get the structure handler used with this iterator
+     * @return the structure handler
+     */
     protected abstract IStructureHandler getStructureHandler();
+
+    /**
+     * The different results when advancing the structure.
+     */
+    public enum Result
+    {
+        NEW_BLOCK,
+        AT_END,
+        CONFIG_LIMIT
+    }
 }

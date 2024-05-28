@@ -17,28 +17,28 @@ public interface IBlueprintIterator
      * @param skipCondition the skipCondition.
      * @return Result of increment.
      */
-    Result increment(TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition);
+    AbstractBlueprintIterator.Result increment(TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition);
 
     /**
      * Increment method, create in implementation.
      *
      * @return increment the structure position (y++).
      */
-    Result increment();
+    AbstractBlueprintIterator.Result increment();
 
     /**
      * Decrement method, create in implementation.
      *
      * @return decrement the structure position (y--).
      */
-    Result decrement();
+    AbstractBlueprintIterator.Result decrement();
 
     /**
      * Decrement the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
      * @param skipCondition the skipCondition.
      * @return Result of decrement.
      */
-    Result decrement(TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition);
+    AbstractBlueprintIterator.Result decrement(TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition);
 
     /**
      * Change the current progressPos. Used when loading progress.
@@ -85,14 +85,4 @@ public interface IBlueprintIterator
      * @return the size
      */
     BlockPos getSize();
-
-    /**
-     * The different results when advancing the structure.
-     */
-    enum Result
-    {
-        NEW_BLOCK,
-        AT_END,
-        CONFIG_LIMIT
-    }
 }
