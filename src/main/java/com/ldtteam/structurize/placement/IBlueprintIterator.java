@@ -7,10 +7,6 @@ import net.minecraftforge.common.util.TriPredicate;
 
 public interface IBlueprintIterator
 {
-    /**
-     * The position we use as our uninitialized value.
-     */
-    BlockPos NULL_POS = new BlockPos(-1, -1, -1);
 
     /**
      * Increment the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).

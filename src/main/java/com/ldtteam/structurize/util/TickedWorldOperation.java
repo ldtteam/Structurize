@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static com.ldtteam.structurize.placement.IBlueprintIterator.NULL_POS;
+import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.

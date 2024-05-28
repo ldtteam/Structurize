@@ -17,6 +17,10 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 {
 
     /**
+     * The position we use as our uninitialized value.
+     */
+    public static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
+    /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
     protected final BlockPos.MutableBlockPos progressPos = new BlockPos.MutableBlockPos(-1, -1, -1);
