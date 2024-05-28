@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * This is the blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public abstract class AbstractStructureIterator extends AbstractBlueprintIterator
+public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 {
 
     /**
@@ -45,7 +45,7 @@ public abstract class AbstractStructureIterator extends AbstractBlueprintIterato
      * Initialize the blueprint iterator with the structure handler.
      * @param structureHandler the structure handler.
      */
-    public AbstractStructureIterator(final IStructureHandler structureHandler)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler)
     {
         this(structureHandler, new BlockPos(structureHandler.getBluePrint().getSizeX(), structureHandler.getBluePrint().getSizeY(), structureHandler.getBluePrint().getSizeZ()));
     }
@@ -55,10 +55,58 @@ public abstract class AbstractStructureIterator extends AbstractBlueprintIterato
      * @param size the size.
      * @param structureHandler the structure handler.
      */
-    public AbstractStructureIterator(final IStructureHandler structureHandler, final BlockPos size)
+    public AbstractBlueprintIterator(final IStructureHandler structureHandler, final BlockPos size)
     {
         this.structureHandler = structureHandler;
         this.size = size;
+    }
+
+    @Override
+    public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
+    {
+        return iterateWithCondition(skipCondition, this::increment);
+    }
+
+    @Override
+    public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
+    {
+        return iterateWithCondition(skipCondition, this::decrement);
+    }
+
+    /**
+     * Execute a supplier function to avoid duplicate code for increment and decrement functions.
+     * @param skipCondition the skipCondition.
+     * @param function the supplier function.
+     * @return the Result.
+     */
+    private Result iterateWithCondition(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition, final Supplier<Result> function)
+    {
+        int count = 0;
+        do
+        {
+            if(function.get() == Result.AT_END)
+            {
+                return Result.AT_END;
+            }
+            final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
+            final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
+
+            if (skipCondition.test(info, worldPos, structureHandler))
+            {
+                continue;
+            }
+            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
+              info.getBlockInfo().getTileEntityData(),
+              info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
+            {
+                structureHandler.triggerSuccess(progressPos, Collections.emptyList(), false);
+                continue;
+            }
+            return Result.NEW_BLOCK;
+        }
+        while (count++ < structureHandler.getMaxBlocksCheckedPerCall());
+
+        return Result.CONFIG_LIMIT;
     }
 
     @Override
@@ -95,12 +143,6 @@ public abstract class AbstractStructureIterator extends AbstractBlueprintIterato
     }
 
     @Override
-    public boolean isRemoving()
-    {
-        return isRemoving;
-    }
-
-    @Override
     public void reset()
     {
         progressPos.set(NULL_POS);
@@ -118,11 +160,5 @@ public abstract class AbstractStructureIterator extends AbstractBlueprintIterato
     public BlockPos getProgressPos()
     {
         return progressPos.immutable();
-    }
-
-    @Override
-    protected IStructureHandler getStructureHandler()
-    {
-        return structureHandler;
     }
 }

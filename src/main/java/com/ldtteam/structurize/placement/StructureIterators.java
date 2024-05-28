@@ -16,7 +16,7 @@ public class StructureIterators
     /**
      * The list of producers.
      */
-    private static final Map<String, Function<IStructureHandler, AbstractStructureIterator>> iteratorProducers = new HashMap<>();
+    private static final Map<String, Function<IStructureHandler, AbstractBlueprintIterator>> iteratorProducers = new HashMap<>();
 
     /*
      * Pre-existing iterators.
@@ -38,7 +38,7 @@ public class StructureIterators
      * @param id       the id of the producer.
      * @param producer the producer.
      */
-    public static void registerIterator(final String id, final Function<IStructureHandler, AbstractStructureIterator> producer)
+    public static void registerIterator(final String id, final Function<IStructureHandler, AbstractBlueprintIterator> producer)
     {
         iteratorProducers.put(id, producer);
     }
@@ -59,9 +59,9 @@ public class StructureIterators
      * @param handler the handler.
      * @return the instance of the iterator.
      */
-    public static AbstractStructureIterator getIterator(final String id, final IStructureHandler handler)
+    public static AbstractBlueprintIterator getIterator(final String id, final IStructureHandler handler)
     {
-        final Function<IStructureHandler, AbstractStructureIterator> iterator = iteratorProducers.get(id);
+        final Function<IStructureHandler, AbstractBlueprintIterator> iterator = iteratorProducers.get(id);
         if (iterator == null)
         {
             return new BlueprintIteratorDefault(handler);

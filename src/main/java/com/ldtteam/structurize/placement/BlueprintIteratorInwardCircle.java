@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 /**
  * Iterator which walks the structure from outside in , in a clockwise rotation
  */
-public class BlueprintIteratorInwardCircle extends AbstractStructureIterator
+public class BlueprintIteratorInwardCircle extends AbstractBlueprintIterator
 {
     /**
      * Tracking current state.
