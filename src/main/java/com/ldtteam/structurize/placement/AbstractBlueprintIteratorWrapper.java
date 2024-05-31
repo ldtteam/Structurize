@@ -58,6 +58,12 @@ public abstract class AbstractBlueprintIteratorWrapper extends AbstractBlueprint
     }
 
     @Override
+    public boolean hasEntities()
+    {
+        return delegate.hasEntities();
+    }
+
+    @Override
     public void setRemoving()
     {
         delegate.setRemoving();

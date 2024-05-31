@@ -142,6 +142,12 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
     }
 
     @Override
+    public boolean hasEntities()
+    {
+        return includeEntities;
+    }
+
+    @Override
     public void setRemoving()
     {
         this.isRemoving = true;

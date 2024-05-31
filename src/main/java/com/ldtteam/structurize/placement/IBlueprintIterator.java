@@ -56,6 +56,12 @@ public interface IBlueprintIterator
     void includeEntities();
 
     /**
+     * Retrieve whether the iterator is taking entities into account as well
+     * @return whether the iterator is taking entities into account as well
+     */
+    boolean hasEntities();
+
+    /**
      * Set the iterator to removal mode.
      */
     void setRemoving();
