@@ -862,7 +862,16 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
 
             boolean hasAlts = blueprintMap.values().size() > 1;
-            boolean isInvis = BlueprintTagUtils.isInvisible(firstBlueprint);
+            boolean allInvis = true;
+
+            for (final List<Blueprint> blueprints : blueprintMap.values())
+            {
+                if (!BlueprintTagUtils.isInvisible(blueprints.get(0)))
+                {
+                    allInvis = false;
+                }
+            }
+            
             boolean isLocked = false;
 
             if (availableBlueprintPredicate != null && !availableBlueprintPredicate.test(firstBlueprint))
@@ -881,12 +890,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (hasMatch)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
                   false);
             }
             else if (!isLocked)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
         }
     }
