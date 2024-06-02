@@ -847,31 +847,24 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 toolTip.add(Component.literal(name));
             }
             img.setVisible(true);
-
-            boolean hasMatch = false;
+            boolean allInvis = true;
+            boolean isCurrentlySelected = false;
             for (final List<Blueprint> blueprints : blueprintMap.values())
             {
                 for (final Blueprint blueprint : blueprints)
                 {
                     if (blueprint.equals(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint()))
                     {
-                        hasMatch = true;
-                        break;
+                        isCurrentlySelected = true;
                     }
                 }
-            }
-
-            boolean hasAlts = blueprintMap.values().size() > 1;
-            boolean allInvis = true;
-
-            for (final List<Blueprint> blueprints : blueprintMap.values())
-            {
                 if (!BlueprintTagUtils.isInvisible(blueprints.get(0)))
                 {
                     allInvis = false;
                 }
             }
-            
+
+            boolean hasAlts = blueprintMap.values().size() > 1;
             boolean isLocked = false;
 
             if (availableBlueprintPredicate != null && !availableBlueprintPredicate.test(firstBlueprint))
@@ -888,7 +881,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
-            if (hasMatch)
+            if (isCurrentlySelected)
             {
                 img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
                   false);
