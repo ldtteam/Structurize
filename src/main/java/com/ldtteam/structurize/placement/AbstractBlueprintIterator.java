@@ -93,6 +93,7 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
                 return Result.AT_END;
             }
             final BlockPos progressPos = getProgressPos();
+            final IStructureHandler structureHandler = this.getStructureHandler();
             final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
             final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
 
