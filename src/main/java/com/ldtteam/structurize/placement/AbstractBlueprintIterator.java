@@ -13,13 +13,13 @@ import java.util.function.Supplier;
  * This is the blueprint iterator.
  * It's a helper class used to track the progress of one iteration over the structure.
  */
-public abstract class AbstractBlueprintIterator
+public abstract class AbstractBlueprintIterator implements IBlueprintIterator
 {
+
     /**
      * The position we use as our uninitialized value.
      */
     public static final BlockPos NULL_POS = new BlockPos(-1, -1, -1);
-
     /**
      * The Structure position we are at. Defaulted to NULL_POS.
      */
@@ -65,33 +65,13 @@ public abstract class AbstractBlueprintIterator
         this.size = size;
     }
 
-    /**
-     * Increment the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
-     * @param skipCondition the skipCondition.
-     * @return Result of increment.
-     */
+    @Override
     public Result increment(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
         return iterateWithCondition(skipCondition, this::increment);
     }
 
-    /**
-     * Increment method, create in implementation.
-     * @return increment the structure position (y++).
-     */
-    public abstract Result increment();
-
-    /**
-     * Decrement method, create in implementation.
-     * @return decrement the structure position (y--).
-     */
-    public abstract Result decrement();
-
-    /**
-     * Decrement the structure with a certain skipCondition (jump over blocks that fulfill skipCondition).
-     * @param skipCondition the skipCondition.
-     * @return Result of decrement.
-     */
+    @Override
     public Result decrement(final TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> skipCondition)
     {
         return iterateWithCondition(skipCondition, this::decrement);
@@ -112,6 +92,8 @@ public abstract class AbstractBlueprintIterator
             {
                 return Result.AT_END;
             }
+            final BlockPos progressPos = getProgressPos();
+            final IStructureHandler structureHandler = this.getStructureHandler();
             final BlockPos worldPos = structureHandler.getProgressPosInWorld(progressPos);
             final BlueprintPositionInfo info = getBluePrintPositionInfo(progressPos);
 
@@ -119,7 +101,7 @@ public abstract class AbstractBlueprintIterator
             {
                 continue;
             }
-            else if (!isRemoving && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
+            else if (!isRemoving() && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
               info.getBlockInfo().getTileEntityData(),
               info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
             {
@@ -133,11 +115,7 @@ public abstract class AbstractBlueprintIterator
         return Result.CONFIG_LIMIT;
     }
 
-    /**
-     * Change the current progressPos. Used when loading progress.
-     *
-     * @param localPosition new progressPos.
-     */
+    @Override
     public void setProgressPos(final BlockPos localPosition)
     {
         if (localPosition.equals(NULL_POS))
@@ -152,35 +130,37 @@ public abstract class AbstractBlueprintIterator
         }
     }
 
-    /**
-     * Get the blueprint info from the position.
-     * @param localPos the position.
-     * @return the info object.
-     */
+        @Override
         public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
     {
         return structureHandler.getBluePrint().getBluePrintPositionInfo(localPos, includeEntities);
     }
 
-    /**
-     * Set the iterator to include entities.
-     */
+    @Override
     public void includeEntities()
     {
         this.includeEntities = true;
     }
 
-    /**
-     * Set the iterator to removal mode.
-     */
+    @Override
+    public boolean hasEntities()
+    {
+        return includeEntities;
+    }
+
+    @Override
     public void setRemoving()
     {
         this.isRemoving = true;
     }
 
-    /**
-     * Reset the progressPos.
-     */
+    @Override
+    public boolean isRemoving()
+    {
+        return isRemoving;
+    }
+
+    @Override
     public void reset()
     {
         progressPos.set(NULL_POS);
@@ -188,13 +168,21 @@ public abstract class AbstractBlueprintIterator
         isRemoving = false;
     }
 
-    /**
-     * Get the progress pos of the iterator.
-     * @return the progress pos.
-     */
+    @Override
+    public BlockPos getSize()
+    {
+        return size;
+    }
+
+    @Override
     public BlockPos getProgressPos()
     {
         return progressPos.immutable();
+    }
+
+    protected IStructureHandler getStructureHandler()
+    {
+        return structureHandler;
     }
 
     /**

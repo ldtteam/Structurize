@@ -74,6 +74,18 @@ public class StructurePlacer
     }
 
     /**
+     * Create a new structure placer
+     * @param handler the structure handler
+     * @param iterator The iterator to use. It will be reset before it is used
+     */
+    public StructurePlacer(final IStructureHandler handler, final AbstractBlueprintIterator iterator)
+    {
+        this.handler = handler;
+        this.iterator = iterator;
+        iterator.reset();
+    }
+
+    /**
      * Execute structure placement.
      * @param world the world.
      * @param storage the change storage.
@@ -496,10 +508,11 @@ public class StructurePlacer
      */
     public StructurePhasePlacementResult clearWaterStep(final Level world, final BlockPos inputPos)
     {
-        int yLayer = inputPos.getY() == -1 ? iterator.size.getY() - 1 : inputPos.getY();
-        for (int x = 0; x < iterator.size.getX(); x++)
+        final BlockPos size = iterator.getSize();
+        int yLayer = inputPos.getY() == -1 ? size.getY() - 1 : inputPos.getY();
+        for (int x = 0; x < size.getX(); x++)
         {
-            for (int z = 0; z < iterator.size.getZ(); z++)
+            for (int z = 0; z < size.getZ(); z++)
             {
                 final BlockPos localPos = new BlockPos(x,yLayer, z);
                 final BlockState localState = iterator.getBluePrintPositionInfo(localPos).getBlockInfo().getState();
