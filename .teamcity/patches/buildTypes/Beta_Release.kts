@@ -2,6 +2,8 @@ package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.ScheduleTrigger
+import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.schedule
 import jetbrains.buildServer.configs.kotlin.v2019_2.ui.*
 
 /*
@@ -40,5 +42,17 @@ changeBuildType(RelativeId("Beta_Release")) {
             "Unexpected build steps order: $stepsOrder"
         }
         stepsOrder = arrayListOf("RUNNER_9")
+    }
+
+    triggers {
+        add {
+            schedule {
+                id = "TRIGGER_14"
+                schedulingPolicy = weekly {
+                    dayOfWeek = ScheduleTrigger.DAY.Saturday
+                }
+                triggerBuild = always()
+            }
+        }
     }
 }
