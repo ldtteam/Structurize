@@ -79,7 +79,9 @@ public abstract class AreaOperation extends BaseOperation
                         return false;
                     }
                 }
+                currentPos = new BlockPos(x, y, startPos.getZ());
             }
+            currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
         }
 
         Network.getNetwork().sendToEveryone(new UpdateClientRender(startPos, endPos));

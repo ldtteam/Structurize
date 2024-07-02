@@ -76,7 +76,8 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
     }
 
     @Override
-    public @NotNull ChangeStorage getChangeStorage()
+    @NotNull
+    public ChangeStorage getChangeStorage()
     {
         return this.storage;
     }
