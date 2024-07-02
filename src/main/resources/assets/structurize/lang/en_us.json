@@ -201,12 +201,14 @@
   "com.ldtteam.structurize.iterators.random.tooltip": "Places Blocks in the x/z Plane in a Random Order",
 
   "structurize.preview_renderer.exception": "An error happened during blueprint preview rendering. If you do not mind, please submit latest.log to our issue tracker. Thanks!",
-  "structurize.preview_renderer.cannot_render": "Unrecoverable error occured during rendering blueprint \"%s\". If you do not mind, please submit latest.log to our issue tracker. Thanks!",
+  "structurize.preview_renderer.cannot_render": "Unrecoverable error occurred during rendering blueprint \"%s\". If you do not mind, please submit latest.log to our issue tracker. Thanks!",
   "com.ldtteam.structurize.remove_block": "Remove Block %s",
+  "com.ldtteam.structurize.remove_blocks": "Remove Filtered Blocks",
   "com.ldtteam.structurize.replace_block": "Replace Block %s with %s",
   "com.ldtteam.structurize.remove_entity": "Remove Entity %s",
   "com.ldtteam.structurize.place_structure": "Place Structure %s",
   "com.ldtteam.structurize.undo": "Undo %s",
+  "com.ldtteam.structurize.redo": "Redo %s",
   "structurize.gui.undoredo.redoop": "Redo",
   "structurize.gui.undoredo.undoop": "Undo",
   "com.ldtteam.structurize.gui.scantool.remove_filtered": "Remove Filtered"

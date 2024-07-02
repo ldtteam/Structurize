@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.operations.PlaceStructureOperation;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
-import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Mirror;
@@ -68,7 +68,7 @@ public class StructurePlacementUtils
             structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror), worldObj);
 
             final StructurePlacer instantPlacer = new StructurePlacer(structure);
-            Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
+            Manager.addToQueue(new PlaceStructureOperation(instantPlacer, player));
         }
         catch (final IllegalStateException e)
         {

@@ -8,7 +8,6 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.OperationHistoryMessage;
 import com.ldtteam.structurize.network.messages.UndoRedoMessage;
-import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
@@ -92,7 +91,6 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
             @Override
-            @SuppressWarnings("resource")
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final Tuple<String, Integer> resource = lastOperations.get(index);
@@ -100,7 +98,7 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
                 resourceLabel.setText(Component.literal(resource.getA()));
                 resourceLabel.setColors(WHITE);
 
-                if (resource.getA().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
+                if (resource.getA().indexOf("undo") == 0)
                 {
                     rowPane.findPaneOfTypeByID("redo", Button.class).hide();
                 }

@@ -12,13 +12,13 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.BlueprintSyncMessage;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.network.messages.ClientBlueprintRequestMessage;
+import com.ldtteam.structurize.operations.PlaceStructureOperation;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
-import com.ldtteam.structurize.util.TickedWorldOperation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
@@ -111,7 +111,7 @@ public class BlueprintPlacementHandling
         }
 
         final StructurePlacer instantPlacer = new StructurePlacer(structure);
-        Manager.addToQueue(new TickedWorldOperation(instantPlacer, message.player));
+        Manager.addToQueue(new PlaceStructureOperation(instantPlacer, message.player));
     }
 
     /**
