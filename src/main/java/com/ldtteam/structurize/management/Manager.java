@@ -25,6 +25,8 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
+import static com.ldtteam.structurize.operations.UndoOperation.UNDO_PREFIX;
+
 /**
  * Singleton class that links colonies to minecraft.
  */
@@ -557,7 +559,7 @@ public final class Manager
 
                 player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
                 addToQueue(new UndoOperation(player, storage));
-                if (storage.getOperation().toString().indexOf("undo") == 0)
+                if (storage.getOperation().toString().indexOf(UNDO_PREFIX) == 0)
                 {
                     iterator.remove();
                 }

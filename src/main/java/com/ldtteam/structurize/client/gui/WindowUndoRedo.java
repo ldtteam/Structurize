@@ -18,6 +18,7 @@ import java.util.List;
 
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 import static com.ldtteam.structurize.client.gui.WindowScan.WHITE;
+import static com.ldtteam.structurize.operations.UndoOperation.UNDO_PREFIX;
 
 public class WindowUndoRedo extends AbstractWindowSkeleton
 {
@@ -98,7 +99,7 @@ public class WindowUndoRedo extends AbstractWindowSkeleton
                 resourceLabel.setText(Component.literal(resource.getA()));
                 resourceLabel.setColors(WHITE);
 
-                if (resource.getA().indexOf("undo") == 0)
+                if (resource.getA().indexOf(UNDO_PREFIX) == 0)
                 {
                     rowPane.findPaneOfTypeByID("redo", Button.class).hide();
                 }

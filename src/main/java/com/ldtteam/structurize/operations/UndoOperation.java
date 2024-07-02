@@ -13,6 +13,11 @@ import java.util.UUID;
 public class UndoOperation extends BaseOperation
 {
     /**
+     * Prefix used in text search to check if it's an undo operation
+     */
+    public static final String UNDO_PREFIX = "undo";
+
+    /**
      * The change to undo.
      */
     private final ChangeStorage undoStorage;
@@ -26,7 +31,7 @@ public class UndoOperation extends BaseOperation
     public UndoOperation(final Player player, final ChangeStorage undoStorage)
     {
         super(new ChangeStorage(Component.translatable("com.ldtteam.structurize.undo", undoStorage.getOperation()), player != null ? player.getUUID() : UUID.randomUUID()));
-        if (undoStorage.getOperation().toString().indexOf("undo") != 0)
+        if (undoStorage.getOperation().toString().indexOf(UNDO_PREFIX) != 0)
         {
             this.undoStorage = undoStorage;
             this.undoStorage.resetUnRedo();
