@@ -843,22 +843,24 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 toolTip.add(Component.literal(name));
             }
             img.setVisible(true);
-
-            boolean hasMatch = false;
+            boolean allInvis = true;
+            boolean isCurrentlySelected = false;
             for (final List<Blueprint> blueprints : blueprintMap.values())
             {
                 for (final Blueprint blueprint : blueprints)
                 {
                     if (blueprint.equals(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint()))
                     {
-                        hasMatch = true;
-                        break;
+                        isCurrentlySelected = true;
                     }
+                }
+                if (!BlueprintTagUtils.isInvisible(blueprints.get(0)))
+                {
+                    allInvis = false;
                 }
             }
 
             boolean hasAlts = blueprintMap.values().size() > 1;
-            boolean isInvis = BlueprintTagUtils.isInvisible(firstBlueprint);
             boolean isLocked = false;
 
             if (availableBlueprintPredicate != null && !availableBlueprintPredicate.test(firstBlueprint))
@@ -875,13 +877,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
 
-            if (hasMatch)
+            if (isCurrentlySelected)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
+                  false);
             }
             else if (!isLocked)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (isInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
             }
         }
     }
