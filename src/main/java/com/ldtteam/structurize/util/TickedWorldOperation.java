@@ -35,7 +35,7 @@ import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_P
  *
  * @deprecated Superseded by {@link com.ldtteam.structurize.operations.PlaceStructureOperation}
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class TickedWorldOperation implements ITickedWorldOperation
 {
     /**
