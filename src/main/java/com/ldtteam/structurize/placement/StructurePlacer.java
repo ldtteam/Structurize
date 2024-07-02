@@ -12,13 +12,17 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -438,6 +442,11 @@ public class StructurePlacer
                             }
 
                             if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
+                            {
+                                continue;
+                            }
+
+                            if (entity instanceof Display.TextDisplay && (!handler.isCreative() || handler.fancyPlacement()))
                             {
                                 continue;
                             }

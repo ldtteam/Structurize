@@ -443,7 +443,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1().getCenter(), slot.getBox().getPos2().getCenter()));
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1(), slot.getBox().getPos2()));
 
         for (final Entity entity : list)
         {
