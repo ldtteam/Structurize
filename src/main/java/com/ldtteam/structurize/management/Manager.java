@@ -557,10 +557,10 @@ public final class Manager
 
                 player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
                 addToQueue(new UndoOperation(player, storage));
-                //if (storage.getOperation().toString().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
-                //{
-                //    iterator.remove();
-                //}
+                if (storage.getOperation().toString().indexOf("undo") == 0)
+                {
+                    iterator.remove();
+                }
                 return;
             }
         }
