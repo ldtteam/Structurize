@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+
 /**
  * Operation for placing structures.
  */
@@ -47,6 +49,7 @@ public class PlaceStructureOperation extends BaseOperation
         super(new ChangeStorage(Component.translatable("com.ldtteam.structurize.place_structure", placer.getHandler().getBluePrint().getName()),
           player != null ? player.getUUID() : UUID.randomUUID()));
         this.placer = placer;
+        this.currentPos = NULL_POS;
     }
 
     @Override
