@@ -2,7 +2,10 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.Shape;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.operations.RedoOperation;
+import com.ldtteam.structurize.operations.UndoOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
@@ -19,6 +22,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import java.util.*;
 
+import static com.ldtteam.structurize.operations.UndoOperation.UNDO_PREFIX;
+
 /**
  * Singleton class that links colonies to minecraft.
  */
@@ -33,7 +38,7 @@ public final class Manager
     /**
      * List of the last changes to the world.
      */
-    private static Map<UUID, List<ChangeStorage>> changeQueue = new HashMap<>();
+    private static final Map<UUID, List<ChangeStorage>> changeQueue = new HashMap<>();
 
     /**
      * List of scanTool operations.
@@ -58,7 +63,7 @@ public final class Manager
             if (operation != null && operation.apply(world))
             {
                 scanToolOperationPool.pop();
-                if (!operation.isUndoRedo())
+                if (!(operation instanceof UndoOperation || operation instanceof RedoOperation))
                 {
                     addToUndoRedoCache(operation.getChangeStorage());
                 }
@@ -543,8 +548,8 @@ public final class Manager
                 }
 
                 player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
-                addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.UNDO));
-                if (storage.getOperation().toString().indexOf(TickedWorldOperation.OperationType.UNDO.toString()) == 0)
+                addToQueue(new UndoOperation(player, storage));
+                if (storage.getOperation().toString().indexOf(UNDO_PREFIX) == 0)
                 {
                     iterator.remove();
                 }
@@ -581,7 +586,7 @@ public final class Manager
                 }
 
                 player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.add", storage.getOperation()), false);
-                addToQueue(new TickedWorldOperation(storage, player, TickedWorldOperation.OperationType.REDO));
+                addToQueue(new RedoOperation(player, storage));
                 return;
             }
         }

@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import net.minecraft.server.level.ServerLevel;
+import org.jetbrains.annotations.NotNull;
 
 public interface ITickedWorldOperation
 {
@@ -17,12 +18,6 @@ public interface ITickedWorldOperation
      *
      * @return the ChangeStorage object.
      */
+    @NotNull
     ChangeStorage getChangeStorage();
-
-    /**
-     * Check if operation is an undo already.
-     *
-     * @return true if so.
-     */
-    boolean isUndoRedo();
 }

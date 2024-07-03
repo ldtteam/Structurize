@@ -4,12 +4,17 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.TickedWorldOperation;
+import com.ldtteam.structurize.operations.RemoveBlockOperation;
+import com.ldtteam.structurize.operations.RemoveFilteredOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Message to remove a block from the world.
@@ -29,9 +34,9 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
     private final BlockPos to;
 
     /**
-     * The block to remove from the world.
+     * The blocks to remove from the world.
      */
-    private final ItemStack block;
+    private final List<ItemStack> blocks;
 
     /**
      * Empty constructor used when registering the message.
@@ -41,21 +46,39 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
         super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.block = buf.readItem();
+        this.blocks = new ArrayList<>();
+        final int blockCount = buf.readInt();
+        for (int i = 0; i < blockCount; i++)
+        {
+            this.blocks.add(buf.readItem());
+        }
     }
 
     /**
      * Create a message to remove a block from the world.
-     * @param pos1 start coordinate.
-     * @param pos2 end coordinate.
+     *
+     * @param pos1  start coordinate.
+     * @param pos2  end coordinate.
      * @param stack the block to remove.
      */
     public RemoveBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack stack)
     {
+        this(pos1, pos2, List.of(stack));
+    }
+
+    /**
+     * Create a message to remove a block from the world.
+     *
+     * @param pos1   start coordinate.
+     * @param pos2   end coordinate.
+     * @param stacks the blocks to remove.
+     */
+    public RemoveBlockMessage(final BlockPos pos1, final BlockPos pos2, final List<ItemStack> stacks)
+    {
         super(TYPE);
         this.from = pos1;
         this.to = pos2;
-        this.block = stack;
+        this.blocks = stacks;
     }
 
     @Override
@@ -63,7 +86,11 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeItem(block);
+        buf.writeInt(blocks.size());
+        for (final ItemStack block : blocks)
+        {
+            buf.writeItem(block);
+        }
     }
 
     @Override
@@ -73,6 +100,16 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
         {
             return;
         }
-        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REMOVE_BLOCK, from, to, player, block, ItemStack.EMPTY, 100));
+
+        if (blocks.size() > 1)
+        {
+            Manager.addToQueue(new RemoveFilteredOperation(ctxIn.getSender(), from, to, blocks));
+            return;
+        }
+
+        if (!blocks.isEmpty())
+        {
+            Manager.addToQueue(new RemoveBlockOperation(ctxIn.getSender(), from, to, blocks.get(0)));
+        }
     }
 }
