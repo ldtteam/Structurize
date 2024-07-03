@@ -4,6 +4,7 @@ import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
+import com.ldtteam.structurize.operations.PlaceStructureOperation;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
@@ -11,7 +12,6 @@ import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
-import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -214,7 +214,7 @@ public class PasteFolderCommand extends AbstractCommand
                     }
 
                     final StructurePlacer instantPlacer = new StructurePlacer(structure);
-                    Manager.addToQueue(new TickedWorldOperation(instantPlacer, player));
+                    Manager.addToQueue(new PlaceStructureOperation(instantPlacer, player));
                     zOffset+=plotSize;
                 }
                 xOffset+=plotSize;

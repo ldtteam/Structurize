@@ -1,9 +1,12 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
+import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -523,6 +526,51 @@ public final class BlockUtils
         }
 
         return new ItemStack(blockState.getBlock(), 1);
+    }
+
+    /**
+     * Check if a block is matching against the in-world block.
+     *
+     * @param block    the input block.
+     * @param world    the level to check in.
+     * @param position the position to check at.
+     * @return true if so.
+     */
+    public static boolean doBlocksMatch(final ItemStack block, final ServerLevel world, final BlockPos position)
+    {
+        final BlockState blockState = world.getBlockState(position);
+        final BlockEntity tileEntity = world.getBlockEntity(position);
+        boolean isMatch = false;
+        boolean handled = false;
+
+        if (block.getItem() == Items.AIR && blockState.isAir())
+        {
+            isMatch = true;
+        }
+        else
+        {
+            for (final IPlacementHandler handler : PlacementHandlers.handlers)
+            {
+                if (handler.canHandle(world, BlockPos.ZERO, blockState))
+                {
+                    final List<ItemStack> itemList =
+                      handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                    if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
+                    {
+                        isMatch = true;
+                    }
+                    handled = true;
+                    break;
+                }
+            }
+
+            if (!handled && ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), block))
+            {
+                isMatch = true;
+            }
+        }
+
+        return isMatch;
     }
 
     /**

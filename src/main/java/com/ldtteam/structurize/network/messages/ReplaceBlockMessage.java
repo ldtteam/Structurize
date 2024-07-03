@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.TickedWorldOperation;
+import com.ldtteam.structurize.operations.ReplaceBlockOperation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
@@ -92,6 +92,6 @@ public class ReplaceBlockMessage implements IMessage
             return;
         }
 
-        Manager.addToQueue(new TickedWorldOperation(TickedWorldOperation.OperationType.REPLACE_BLOCK, from, to, ctxIn.getSender(), blockFrom, blockTo, pct));
+        Manager.addToQueue(new ReplaceBlockOperation(ctxIn.getSender(), from, to, blockFrom, blockTo, pct));
     }
 }

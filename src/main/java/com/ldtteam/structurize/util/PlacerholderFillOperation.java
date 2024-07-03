@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -75,15 +76,10 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
     }
 
     @Override
+    @NotNull
     public ChangeStorage getChangeStorage()
     {
         return this.storage;
-    }
-
-    @Override
-    public boolean isUndoRedo()
-    {
-        return false;
     }
 
     /**

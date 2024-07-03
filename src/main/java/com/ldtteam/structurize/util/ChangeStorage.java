@@ -8,7 +8,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -66,34 +65,6 @@ public class ChangeStorage
         this.player = player;
         this.id = storageIDs++;
         this.operation = operation;
-    }
-
-    /**
-     * Inititate the change storage with the world to calc the positions.
-     *
-     * @param world the world.
-     * @param from  the first position.
-     * @param to    the second position.
-     */
-    public ChangeStorage(final Level world, final BlockPos from, final BlockPos to, final Component operation)
-    {
-        player = UUID.randomUUID();
-        this.id = storageIDs++;
-        this.operation = operation;
-        for (int x = Math.min(from.getX(), to.getX()); x <= Math.max(from.getX(), to.getX()); x++)
-        {
-            for (int y = Math.min(from.getY(), to.getY()); y <= Math.max(from.getY(), to.getY()); y++)
-            {
-                for (int z = Math.min(from.getZ(), to.getZ()); z <= Math.max(from.getZ(), to.getZ()); z++)
-                {
-                    final BlockPos place = new BlockPos(x, y, z);
-                    blocks.put(place, new BlockChangeData().withPreState(world.getBlockState(place)).withPreTE(world.getBlockEntity(place)));
-                }
-            }
-        }
-
-        final List<Entity> tempEntities = world.getEntitiesOfClass(Entity.class, new AABB(from, to));
-        removedEntities.addAll(tempEntities.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
     }
 
     /**

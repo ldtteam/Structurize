@@ -23,9 +23,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.GlowItemFrame;
-import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -250,13 +247,16 @@ public class WindowScan extends AbstractWindowSkeleton
         final int y2 = Integer.parseInt(pos2y.getText());
         final int z2 = Integer.parseInt(pos2z.getText());
 
+        final List<ItemStack> blocks = new ArrayList<>();
         for (final ItemStorage tempRes : new ArrayList<>(resources.values()))
         {
             final ItemStack stack = tempRes.getItemStack();
-            Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
+            blocks.add(stack);
             final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
             resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         }
+
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), blocks));
         updateResourceList();
     }
 

@@ -32,7 +32,10 @@ import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_P
 
 /**
  * Contains an operation, as remove block, replace block, place structure, etc.
+ *
+ * @deprecated Superseded by {@link com.ldtteam.structurize.operations.PlaceStructureOperation}
  */
+@Deprecated(forRemoval = true)
 public class TickedWorldOperation implements ITickedWorldOperation
 {
     /**
@@ -390,11 +393,5 @@ public class TickedWorldOperation implements ITickedWorldOperation
     public ChangeStorage getChangeStorage()
     {
         return this.storage;
-    }
-
-    @Override
-    public boolean isUndoRedo()
-    {
-        return operation == OperationType.UNDO || operation == OperationType.REDO;
     }
 }
