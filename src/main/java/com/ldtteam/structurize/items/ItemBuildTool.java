@@ -2,7 +2,6 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;

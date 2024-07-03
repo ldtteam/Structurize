@@ -4,14 +4,11 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
-import com.ldtteam.structurize.util.TickedWorldOperation;
 import com.ldtteam.structurize.operations.ReplaceBlockOperation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 /**
@@ -94,6 +91,6 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
             return;
         }
 
-        Manager.addToQueue(new ReplaceBlockOperation(ctxIn.getSender(), from, to, blockFrom, blockTo, pct));
+        Manager.addToQueue(new ReplaceBlockOperation(player, from, to, blockFrom, blockTo, pct));
     }
 }

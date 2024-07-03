@@ -2,8 +2,6 @@ package com.ldtteam.structurize.management;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.Shape;
 import com.ldtteam.structurize.operations.RedoOperation;
 import com.ldtteam.structurize.operations.UndoOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
@@ -11,7 +9,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.ITickedWorldOperation;
 import com.ldtteam.structurize.api.RotationMirror;
-import com.ldtteam.structurize.util.TickedWorldOperation;
+import com.ldtteam.structurize.api.Shape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;

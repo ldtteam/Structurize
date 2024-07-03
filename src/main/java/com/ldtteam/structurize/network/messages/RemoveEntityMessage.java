@@ -7,16 +7,11 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.RemoveEntityOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to remove an entity from the world.
@@ -82,10 +77,10 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
             return;
         }
 
-        final EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(entityName);
+        final EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(entityName);
         if (type != null)
         {
-            Manager.addToQueue(new RemoveEntityOperation(ctxIn.getSender(), from, to, type));
+            Manager.addToQueue(new RemoveEntityOperation(player, from, to, type));
         }
     }
 }

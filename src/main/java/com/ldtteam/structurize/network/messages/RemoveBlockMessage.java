@@ -11,7 +11,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,13 +102,13 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
 
         if (blocks.size() > 1)
         {
-            Manager.addToQueue(new RemoveFilteredOperation(ctxIn.getSender(), from, to, blocks));
+            Manager.addToQueue(new RemoveFilteredOperation(player, from, to, blocks));
             return;
         }
 
         if (!blocks.isEmpty())
         {
-            Manager.addToQueue(new RemoveBlockOperation(ctxIn.getSender(), from, to, blocks.get(0)));
+            Manager.addToQueue(new RemoveBlockOperation(player, from, to, blocks.get(0)));
         }
     }
 }

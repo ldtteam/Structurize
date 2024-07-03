@@ -63,7 +63,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Object2IntMap<EntityType> entities = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<EntityType<?>> entities = new Object2IntOpenHashMap<>();
 
     /**
      * White color.
@@ -211,7 +211,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int z2 = Integer.parseInt(pos2z.getText());
 
         final int row = entityList.getListElementIndexByPane(button);
-        final EntityType entity = new ArrayList<>(entities.keySet()).get(row);
+        final EntityType<?> entity = new ArrayList<>(entities.keySet()).get(row);
         new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), EntityType.getKey(entity)).sendToServer();
         entities.removeInt(entity);
         updateEntitylist();
@@ -255,7 +255,7 @@ public class WindowScan extends AbstractWindowSkeleton
             resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         }
 
-        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), blocks));
+        new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), blocks).sendToServer();
         updateResourceList();
     }
 
@@ -443,13 +443,13 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1(), slot.getBox().getPos2()));
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(slot.getBox().getPos1(), slot.getBox().getPos2()));
 
         for (final Entity entity : list)
         {
             // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
             // and drops a lead, so we should alert builders that it exists in the scan
-            if (!entities.containsKey(entity.getName().getString())
+            if (!entities.containsKey(entity.getType())
                   && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
                   && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                              || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
@@ -534,7 +534,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         entityList.enable();
         entityList.show();
-        final List<EntityType> tempEntities = new ArrayList<>(entities.keySet());
+        final List<EntityType<?>> tempEntities = new ArrayList<>(entities.keySet());
 
         //Creates a dataProvider for the unemployed resourceList.
         entityList.setDataProvider(new ScrollingList.DataProvider()
@@ -558,7 +558,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final EntityType entity = tempEntities.get(index);
+                final EntityType<?> entity = tempEntities.get(index);
                 ItemStack entityIcon = entity.create(Minecraft.getInstance().level).getPickResult();
                 if (entity == EntityType.GLOW_ITEM_FRAME)
                 {

@@ -9,8 +9,6 @@ import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
-import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
@@ -38,13 +36,11 @@ import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.api.constants.Constants.INVISIBLE_TAG;
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.constants.GUIConstants.BUTTON_SWITCH_STYLE;
 import static com.ldtteam.structurize.api.constants.GUIConstants.DEFAULT_ICON;
 import static com.ldtteam.structurize.api.constants.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
 import static com.ldtteam.structurize.api.constants.WindowConstants.BUTTON_CONFIRM;
-import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * BuildTool window.
@@ -879,12 +875,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (isCurrentlySelected)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"),
-                  false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
             else if (!isLocked)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"), false);
+                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
         }
     }
