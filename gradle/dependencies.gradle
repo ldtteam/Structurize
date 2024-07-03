@@ -6,8 +6,7 @@ repositories {
 dependencies {
     implementation "com.ldtteam:blockui:${project.blockUiVersion}"
 
-    implementation "com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal"
-    runtimeOnly "com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal"
+    implementation "com.ldtteam:domum-ornamentum:${project.domumOrnamentumVersion}"
 
     implementation (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}:universal")) {
         transitive = false

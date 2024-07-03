@@ -1,1 +1,1 @@
-apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/0a7c0a7d2d4e9a2c2a5efb520094af500a8050e9/gradle/mod.gradle'
+apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/ng7/gradle/mod.gradle'
