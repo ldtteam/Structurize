@@ -23,10 +23,10 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,6 +142,8 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      */
     private final Predicate<Blueprint> availableBlueprintPredicate;
 
+    private final HolderLookup.Provider provider;
+
     /**
      * Type of button.
      */
@@ -154,9 +156,10 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
     public WindowExtendedBuildTool(
       final BlockPos pos,
-      final int groundstyle)
+      final int groundstyle,
+      final HolderLookup.Provider provider)
     {
-        this(pos, groundstyle, null, BLOCK_BLUEPRINT_REQUIREMENT);
+        this(pos, groundstyle, null, BLOCK_BLUEPRINT_REQUIREMENT, provider);
     }
 
     /**
@@ -174,11 +177,13 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
       final BlockPos pos,
       final int groundstyle,
       @Nullable final BiConsumer<WindowExtendedBuildTool, Blueprint> selectionCallback,
-      @Nullable final Predicate<Blueprint> availableBlueprintPredicate)
+      @Nullable final Predicate<Blueprint> availableBlueprintPredicate,
+      final HolderLookup.Provider provider)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle, "blueprint");
         this.selectionCallback = selectionCallback;
         this.availableBlueprintPredicate = availableBlueprintPredicate;
+        this.provider = provider;
         this.init(groundstyle, pos);
     }
 
@@ -284,7 +289,8 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
           groundstyle,
           selectionCallback,
-          availableBlueprintPredicate)).open();
+          availableBlueprintPredicate,
+          provider)).open();
     }
 
     @Override
@@ -379,7 +385,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
                     if (category.isTerminal)
                     {
-                        blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(structurePack.getName(), id));
+                        blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(structurePack.getName(), id, provider));
                     }
                     else
                     {
@@ -407,7 +413,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     if (subCats.isEmpty())
                     {
                         nextDepthMeta.remove(nextDepth);
-                        blueprintsAtDepth.put(nextDepth, StructurePacks.getBlueprintsFuture(id, nextDepth));
+                        blueprintsAtDepth.put(nextDepth, StructurePacks.getBlueprintsFuture(id, nextDepth, provider));
                     }
                     else
                     {
@@ -416,7 +422,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                             final String id = subCat.subPath;
                             if (subCat.isTerminal)
                             {
-                                blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(structurePack.getName(), id));
+                                blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(structurePack.getName(), id, provider));
                             }
                             else
                             {

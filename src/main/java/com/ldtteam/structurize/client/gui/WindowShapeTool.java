@@ -16,6 +16,7 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -119,6 +120,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private String shapeequation = "";
 
+    private final HolderLookup.Provider provider;
+
     /**
      * Creates a window inputShape tool.
      * This requires X, Y and Z coordinates.
@@ -127,9 +130,10 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      *
      * @param pos coordinate.
      */
-    public WindowShapeTool(@Nullable final BlockPos pos)
+    public WindowShapeTool(@Nullable final BlockPos pos, final HolderLookup.Provider provider)
     {
         super(Constants.MOD_ID + SHAPE_TOOL_RESOURCE_SUFFIX, pos,0, "shapes");
+        this.provider = provider;
         this.init(pos, false);
         //todo placement handler support as well
     }
@@ -203,7 +207,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     /**
      * Generate the inputShape depending on the variables on the client.
      */
-    private static void genShape()
+    private void genShape()
     {
         RenderingCache.getOrCreateBlueprintPreviewData("shapes").setBlueprint(Manager.getStructureFromFormula(
           width,
@@ -214,7 +218,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
           shape,
           mainBlock,
           secondaryBlock,
-          hollow));
+          hollow,
+          provider));
     }
 
     private void disableInputIfNecessary()
@@ -325,7 +330,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
 
             final CompoundTag compound = BlueprintUtil.writeBlueprintToNBT(previewData.getBlueprint());
             ClientFutureProcessor.queueBlueprint(
-                    new ClientFutureProcessor.BlueprintProcessingData(StructurePacks.storeBlueprint(packName, compound, path), blueprint ->
+                    new ClientFutureProcessor.BlueprintProcessingData(StructurePacks.storeBlueprint(packName, compound, path, provider), blueprint ->
                             new BuildToolPlacementMessage(
                                     type,
                                     id,

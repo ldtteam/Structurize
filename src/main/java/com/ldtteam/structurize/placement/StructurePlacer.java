@@ -256,7 +256,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(compound);
+                            entity.deserializeNBT(world.registryAccess(), compound);
 
                             entity.setUUID(UUID.randomUUID());
                             Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
@@ -331,7 +331,7 @@ public class StructurePlacer
         }
         if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
         {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
+            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
             {
                 localState = tagEntity.getReplacement().getBlockState();
                 tileEntityData = tagEntity.getReplacement().getBlockEntityTag();
@@ -434,7 +434,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(compound);
+                            entity.deserializeNBT(world.registryAccess(), compound);
 
                             entity.setUUID(UUID.randomUUID());
                             Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
@@ -601,7 +601,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(compound);
+                            entity.deserializeNBT(world.registryAccess(), compound);
 
                             final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
@@ -642,7 +642,7 @@ public class StructurePlacer
         }
         if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
         {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
+            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
             {
                 localState = tagEntity.getReplacement().getBlockState();
                 tileEntityData = tagEntity.getReplacement().getBlockEntityTag();

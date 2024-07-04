@@ -48,7 +48,7 @@ public class BlueprintPlacementHandling
         }
         else
         {
-            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath),
+            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath, message.world.registryAccess()),
               message.world, (blueprint) -> process(blueprint, message)));
         }
     }
@@ -164,7 +164,7 @@ public class BlueprintPlacementHandling
                 Log.getLogger().error("Failed to save blueprint file for client blueprint: " + blueprintSyncMessage.blueprintPath, e);
             }
 
-            return StructurePacks.getBlueprint(packId, blueprintPath);
+            return StructurePacks.getBlueprint(packId, blueprintPath, player.level().registryAccess());
         }), player.level(), blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level()))));
     }
 }

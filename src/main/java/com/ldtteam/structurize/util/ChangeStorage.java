@@ -7,11 +7,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Change storage to store changes to an area to be able to undo them.
@@ -94,9 +94,9 @@ public class ChangeStorage
      *
      * @param list the list of entities.
      */
-    public void addEntities(final List<Entity> list)
+    public void addEntities(final List<Entity> list, final HolderLookup.Provider provider)
     {
-        removedEntities.addAll(list.stream().map(Entity::serializeNBT).collect(Collectors.toList()));
+        list.stream().map(entity -> entity.serializeNBT(provider)).forEach(removedEntities::add);
     }
 
     /**
@@ -165,7 +165,7 @@ public class ChangeStorage
                 final Entity entity = type.get().create(world);
                 if (entity != null)
                 {
-                    entity.deserializeNBT(data);
+                    entity.deserializeNBT(world.registryAccess(), data);
                     world.addFreshEntity(entity);
                     if (undoStorage != null)
                     {

@@ -9,6 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.util.datafix.fixes.References;
@@ -55,7 +56,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         {
             try (final Stream<Path> paths = Files.list(gameFolder.resolve("input")))
             {
-                paths.forEach(element -> update(element, gameFolder.resolve("input"), gameFolder.resolve("output")));
+                paths.forEach(element -> update(element, gameFolder.resolve("input"), gameFolder.resolve("output"), command.getSource().registryAccess()));
             }
         }
         catch (IOException e)
@@ -67,7 +68,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         return 1;
     }
 
-    private static void update(final Path input, final Path globalInputFolder, final Path globalOutputFolder)
+    private static void update(final Path input, final Path globalInputFolder, final Path globalOutputFolder, final HolderLookup.Provider provider)
     {
         if (Files.isDirectory(input))
         {
@@ -75,7 +76,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             {
                 try (final Stream<Path> paths = Files.list(input))
                 {
-                    paths.forEach(element -> update(element, globalInputFolder, globalOutputFolder));
+                    paths.forEach(element -> update(element, globalInputFolder, globalOutputFolder, provider));
                 }
             }
             catch (IOException e)
@@ -93,7 +94,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
 
             if (input.toString().endsWith(".blueprint"))
             {
-                final CompoundTag bluePrintCompound = writeBlueprintToNBT(fixBluePrints(input));
+                final CompoundTag bluePrintCompound = writeBlueprintToNBT(fixBluePrints(input, provider));
                 try (final OutputStream outputstream = new BufferedOutputStream(Files.newOutputStream(output)))
                 {
                     NbtIo.writeCompressed(bluePrintCompound, outputstream);
@@ -217,12 +218,12 @@ public class UpdateSchematicsCommand extends AbstractCommand
         }
     }
 
-    private static Blueprint fixBluePrints(final Path input)
+    private static Blueprint fixBluePrints(final Path input, final HolderLookup.Provider provider)
     {
         try
         {
             final CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(input)), NbtAccounter.unlimitedHeap());
-            return readBlueprintFromNBT(compoundNBT);
+            return readBlueprintFromNBT(compoundNBT, provider);
         }
         catch (Exception e)
         {
@@ -231,7 +232,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
         return null;
     }
 
-    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag)
+    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag, final HolderLookup.Provider provider)
     {
         final CompoundTag tag = nbtTag;
         byte version = tag.getByte("version");
@@ -283,7 +284,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
                 fixCross1343(palette, blocks, tileEntities, entities);
             }
 
-            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods)
+            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods, provider)
                                       .setMissingMods(missingMods.toArray(new String[0]));
 
             schem.setEntities(entities);

@@ -4,14 +4,15 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     /**
      * Replacement block.
      */
-    private ReplacementBlock replacement = new ReplacementBlock(new CompoundTag());
+    private ReplacementBlock replacement = new ReplacementBlock();
 
     public BlockEntityTagSubstitution(final BlockPos pos, final BlockState state)
     {
@@ -119,19 +120,19 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     }
 
     @Override
-    public void load( @NotNull final CompoundTag compound)
+    public void loadAdditional( @NotNull final CompoundTag compound, final HolderLookup.Provider provider)
     {
-        super.load(compound);
+        super.loadAdditional(compound, provider);
         IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
-        this.replacement = new ReplacementBlock(compound);
+        this.replacement = new ReplacementBlock(compound, provider);
     }
 
     @Override
-    public void saveAdditional(@NotNull final CompoundTag compound)
+    public void saveAdditional(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
     {
-        super.saveAdditional(compound);
+        super.saveAdditional(compound, provider);
         writeSchematicDataToNBT(compound);
-        this.replacement.write(compound);
+        this.replacement.write(compound, provider);
     }
 
     @Override
@@ -166,17 +167,11 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
 
     @NotNull
     @Override
-    public CompoundTag getUpdateTag()
+    public CompoundTag getUpdateTag(final HolderLookup.Provider provider)
     {
         final CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
+        this.saveAdditional(tag, provider);
         return tag;
-    }
-
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        this.load(packet.getTag());
     }
 
     /**
@@ -198,13 +193,12 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * @param blockentity the block entity, if any
          * @param itemstack the item stack
          */
+        @Deprecated(forRemoval = true, since = "1.21")
         public ReplacementBlock(@NotNull final BlockState blockstate,
                                 @Nullable final BlockEntity blockentity,
                                 @NotNull final ItemStack itemstack)
         {
-            this.blockstate = blockstate;
-            this.blockentitytag = blockentity == null ? new CompoundTag() : blockentity.saveWithFullMetadata();
-            this.itemstack = itemstack;
+            throw new UnsupportedOperationException("Use compound tag ctor");
         }
 
         /**
@@ -226,12 +220,22 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * Construct from tag
          * @param tag the tag to load
          */
-        public ReplacementBlock(@NotNull CompoundTag tag)
+        public ReplacementBlock(@NotNull CompoundTag tag, final HolderLookup.Provider provider)
         {
             final CompoundTag replacement = tag.getCompound(TAG_REPLACEMENT);
             this.blockstate = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), replacement.getCompound("b"));
             this.blockentitytag = replacement.getCompound("e");
-            this.itemstack = replacement.contains("i") ? ItemStack.of(replacement.getCompound("i")) : ItemStack.EMPTY;
+            this.itemstack = replacement.contains("i") ? ItemStack.parseOptional(provider, replacement.getCompound("i")) : ItemStack.EMPTY;
+        }
+
+        /**
+         * Empty instance
+         */
+        public ReplacementBlock()
+        {
+            this.blockstate = Blocks.AIR.defaultBlockState();
+            this.blockentitytag = new CompoundTag();
+            this.itemstack = ItemStack.EMPTY;
         }
 
         /**
@@ -275,11 +279,11 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * @return the new or cached entity, or null if there isn't one
          */
         @Nullable
-        public BlockEntity getBlockEntity(final BlockPos pos)
+        public BlockEntity getBlockEntity(final BlockPos pos, final HolderLookup.Provider provider)
         {
             if (this.cachedBlockentity == null)
             {
-                this.cachedBlockentity = createBlockEntity(pos);
+                this.cachedBlockentity = createBlockEntity(pos, provider);
             }
             return this.cachedBlockentity;
         }
@@ -290,11 +294,11 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * @return the new entity, or null if there isn't one
          */
         @Nullable
-        public BlockEntity createBlockEntity(final BlockPos pos)
+        public BlockEntity createBlockEntity(final BlockPos pos, final HolderLookup.Provider provider)
         {
             return this.blockentitytag.isEmpty()
                     ? null
-                    : BlockEntity.loadStatic(pos, this.blockstate, this.blockentitytag);
+                    : BlockEntity.loadStatic(pos, this.blockstate, this.blockentitytag, provider);
         }
 
         /**
@@ -303,7 +307,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * @return the target tag, for convenience
          */
         @NotNull
-        public CompoundTag write(@NotNull CompoundTag tag)
+        public CompoundTag write(@NotNull CompoundTag tag, final HolderLookup.Provider provider)
         {
             if (isEmpty())
             {
@@ -321,7 +325,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
                 {
                     replacement.put("e", this.blockentitytag);
                 }
-                replacement.put("i", this.itemstack.save(new CompoundTag()));
+                replacement.put("i", this.itemstack.save(provider));
 
                 tag.put(TAG_REPLACEMENT, replacement);
             }
@@ -333,9 +337,9 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          * @return the blueprint
          */
         @NotNull
-        public Blueprint createBlueprint()
+        public Blueprint createBlueprint(final HolderLookup.Provider provider)
         {
-            final Blueprint blueprint = new Blueprint((short) 1, (short) 1, (short) 1);
+            final Blueprint blueprint = new Blueprint((short) 1, (short) 1, (short) 1, provider);
             blueprint.addBlockState(BlockPos.ZERO, getBlockState());
             blueprint.getTileEntities()[0][0][0] = getBlockEntityTag().isEmpty() ? null : getBlockEntityTag().copy();
             return blueprint;
@@ -352,7 +356,7 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
          */
         public ReplacementBlock rotateWithMirror(final BlockPos pos, final RotationMirror rotationMirror, final Level level)
         {
-            final Blueprint blueprint = createBlueprint();
+            final Blueprint blueprint = createBlueprint(level.registryAccess());
             blueprint.setRotationMirrorRelative(rotationMirror, level);
 
             final BlockState newBlockState = blueprint.getBlockState(BlockPos.ZERO);

@@ -335,7 +335,7 @@ public class ClientStructurePackLoader
      * @param compound compound to store.
      * @param fileName milli seconds for fileName.
      */
-    public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
+    public static void handleSaveScanMessage(final CompoundTag compound, final String fileName, final HolderLookup.Provider provider)
     {
         final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
         StructurePacks.selectedPack = StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName());
@@ -343,7 +343,7 @@ public class ClientStructurePackLoader
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
             .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
-            .resolve(SCANS_FOLDER).resolve(fileName)));
+            .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
     }

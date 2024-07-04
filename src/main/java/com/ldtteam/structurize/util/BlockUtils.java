@@ -455,7 +455,7 @@ public final class BlockUtils
                 if (handler.canHandle(world, BlockPos.ZERO, blockState))
                 {
                     final List<ItemStack> itemList =
-                      handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                      handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
                     if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
                     {
                         isMatch = true;

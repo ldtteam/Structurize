@@ -12,7 +12,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -23,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -31,7 +35,6 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -124,10 +127,10 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         }
         else
         {
-            replacement = new BlockEntityTagSubstitution.ReplacementBlock(blockstate, blockentity, absorbItem);
+            replacement = new BlockEntityTagSubstitution.ReplacementBlock(blockstate, blockentity.saveWithoutMetadata(player.level().registryAccess()), absorbItem);
         }
 
-        setBlockEntityData(stack, ModBlockEntities.TAG_SUBSTITUTION.get(), replacement.write(new CompoundTag()));
+        setBlockEntityData(stack, ModBlockEntities.TAG_SUBSTITUTION.get(), replacement.write(new CompoundTag(), player.level().registryAccess()));
     }
 
     private boolean isAllowed(@Nullable final BlockEntity blockentity)
@@ -144,16 +147,17 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
      * @return the replacement block data (without loading blockentity)
      */
     @NotNull
-    public BlockEntityTagSubstitution.ReplacementBlock getAbsorbedBlock(@NotNull ItemStack stack)
+    public BlockEntityTagSubstitution.ReplacementBlock getAbsorbedBlock(@NotNull ItemStack stack, HolderLookup.Provider provider)
     {
-        final CompoundTag tag = Objects.requireNonNullElse(getBlockEntityData(stack), new CompoundTag());
-        return new BlockEntityTagSubstitution.ReplacementBlock(tag);
+        final CompoundTag tag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).getUnsafe();
+        return new BlockEntityTagSubstitution.ReplacementBlock(tag, provider);
     }
 
     @Override
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
-        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack);
+        // TODO: use real registry access
+        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
         if (!absorbed.isEmpty())
         {
             return Component.empty()
@@ -169,7 +173,8 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @Override
     public Optional<TooltipComponent> getTooltipImage(@NotNull final ItemStack stack)
     {
-        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack);
+        // TODO: use real registry access
+        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
         final ItemStack absorbedItem = absorbed.getItemStack();
 
         if (!absorbedItem.isEmpty())

@@ -7,6 +7,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.ManualBarrier;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -136,9 +137,9 @@ public class StructurePacks
      * @param subPath the path of the specific blueprint in the pack.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
+    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath));
+        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, provider));
     }
 
     /**
@@ -169,9 +170,9 @@ public class StructurePacks
      * @param subPath the path of the set of blueprints (usually a folder).
      * @return the blueprints list (might be empty).
      */
-    public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath)
+    public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprints(structurePackId, subPath));
+        return IOPool.submit(() -> getBlueprints(structurePackId, subPath, provider));
     }
 
     /**
@@ -191,9 +192,9 @@ public class StructurePacks
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path)
+    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path));
+        return IOPool.submit(() -> getBlueprint(packName, path, provider));
     }
 
     /**
@@ -201,9 +202,9 @@ public class StructurePacks
      * @param blueprintPredicate the predicate to define the blueprint we're looking for.
      * @return the blueprint future.
      */
-    public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
+    public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> findBlueprint(structurePackId, blueprintPredicate));
+        return IOPool.submit(() -> findBlueprint(structurePackId, blueprintPredicate, provider));
     }
 
     /**
@@ -213,9 +214,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError)
+    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, suppressError));
+        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, suppressError, provider));
     }
 
 
@@ -226,9 +227,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError)
+    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path, suppressError));
+        return IOPool.submit(() -> getBlueprint(packName, path, suppressError, provider));
     }
 
     // ------------------------- Synchronous Calls ------------------------- //
@@ -240,9 +241,9 @@ public class StructurePacks
      * @return the blueprint or null.
      */
     @Nullable
-    public static Blueprint getBlueprint(final String structurePackId, final String subPath)
+    public static Blueprint getBlueprint(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
-        return getBlueprint(structurePackId, subPath, false);
+        return getBlueprint(structurePackId, subPath, false, provider);
     }
 
     /**
@@ -251,9 +252,9 @@ public class StructurePacks
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Blueprint getBlueprint(final String pack, final Path path)
+    public static Blueprint getBlueprint(final String pack, final Path path, final HolderLookup.Provider provider)
     {
-        return getBlueprint(pack, path, false);
+        return getBlueprint(pack, path, false, provider);
     }
 
     /**
@@ -319,7 +320,7 @@ public class StructurePacks
      * @param blueprintPredicate matches the blueprint.
      * @return the blueprint or null.
      */
-    public static Blueprint findBlueprint(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
+    public static Blueprint findBlueprint(final String structurePackId, final Predicate<Blueprint> blueprintPredicate, final HolderLookup.Provider provider)
     {
         if (!waitUntilFinishedLoading())
         {
@@ -332,7 +333,7 @@ public class StructurePacks
             return null;
         }
 
-        return findBlueprint(packMeta.getName(), packMeta.getPath(), blueprintPredicate);
+        return findBlueprint(packMeta.getName(), packMeta.getPath(), blueprintPredicate, provider);
     }
 
     /**
@@ -343,7 +344,7 @@ public class StructurePacks
      * @param blueprintPredicate matches the blueprint.
      * @return the path of the file or null.
      */
-    public static Blueprint findBlueprint(final String pack, final Path subPath, final Predicate<Blueprint> blueprintPredicate)
+    public static Blueprint findBlueprint(final String pack, final Path subPath, final Predicate<Blueprint> blueprintPredicate, final HolderLookup.Provider provider)
     {
         if (!waitUntilFinishedLoading())
         {
@@ -357,7 +358,7 @@ public class StructurePacks
                 return paths.map(file -> {
                     if (!Files.isDirectory(file) && file.toString().endsWith("blueprint"))
                     {
-                        final Blueprint blueprint = getBlueprint(pack, file);
+                        final Blueprint blueprint = getBlueprint(pack, file, provider);
                         if (blueprintPredicate.test(blueprint))
                         {
                             blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
@@ -367,7 +368,7 @@ public class StructurePacks
                     }
                     else if (Files.isDirectory(file))
                     {
-                        return findBlueprint(pack, file, blueprintPredicate);
+                        return findBlueprint(pack, file, blueprintPredicate, provider);
                     }
                     return  null;
                 }).filter(Objects::nonNull).findFirst().orElse(null);
@@ -388,7 +389,7 @@ public class StructurePacks
      * @return the blueprint or null.
      */
     @Nullable
-    public static Blueprint getBlueprint(final String structurePackId, final String subPath, final boolean suppressError)
+    public static Blueprint getBlueprint(final String structurePackId, final String subPath, final boolean suppressError, final HolderLookup.Provider provider)
     {
         if (!waitUntilFinishedLoading())
         {
@@ -403,7 +404,7 @@ public class StructurePacks
 
         //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
 
-        return getBlueprint(structurePackId, packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)), suppressError);
+        return getBlueprint(structurePackId, packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)), suppressError, provider);
     }
 
     /**
@@ -413,12 +414,12 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint.
      */
-    public static Blueprint getBlueprint(final String pack, final Path path, final boolean suppressError)
+    public static Blueprint getBlueprint(final String pack, final Path path, final boolean suppressError, final HolderLookup.Provider provider)
     {
         try
         {
             final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(path)), NbtAccounter.unlimitedHeap());
-            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt, provider);
             if (blueprint == null) return null;
 
             blueprint.setFileName(path.getFileName().toString().replace(".blueprint", ""));
@@ -474,7 +475,7 @@ public class StructurePacks
      * @param subPath the folder containing the blueprints.
      * @return the list of blueprints or empty
      */
-    public static List<Blueprint> getBlueprints(final String structurePackId, final String subPath)
+    public static List<Blueprint> getBlueprints(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
         if (!waitUntilFinishedLoading())
         {
@@ -501,7 +502,7 @@ public class StructurePacks
                         try
                         {
                             final CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(Files.readAllBytes(file)), NbtAccounter.unlimitedHeap());
-                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt, provider);
                             if (blueprint != null)
                             {
                                 blueprint.setFileName(file.getFileName().toString().replace(".blueprint", ""));
@@ -680,7 +681,7 @@ public class StructurePacks
      * @param compoundTag compound to store.
      * @param path path to store it at.
      */
-    public static Future<Blueprint> storeBlueprint(final String packName, final CompoundTag compoundTag, final Path path)
+    public static Future<Blueprint> storeBlueprint(final String packName, final CompoundTag compoundTag, final Path path, final HolderLookup.Provider provider)
     {
         return IOPool.submit(() ->
         {
@@ -694,7 +695,7 @@ public class StructurePacks
                 Log.getLogger().warn("Exception while trying to scan.", e);
                 return null;
             }
-            return StructurePacks.getBlueprint(packName, path);
+            return StructurePacks.getBlueprint(packName, path, provider);
         });
     }
 

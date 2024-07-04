@@ -8,6 +8,7 @@ import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Rotation;
@@ -108,15 +109,23 @@ public class BlueprintPreviewData
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
         this.blueprintPath = byteBuf.readUtf(32767);
+        rotationMirror = RotationMirror.values()[byteBuf.readByte()];
+    }
+
+    /**
+     * Prepares blueprint if possible
+     */
+    public BlueprintPreviewData prepareBlueprint(final HolderLookup.Provider provider)
+    {
         if (StructurePacks.hasPack(packName))
         {
-            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath);
+            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath, provider);
         }
         else
         {
             blueprintFuture = null;
         }
-        rotationMirror = RotationMirror.values()[byteBuf.readByte()];
+        return this;
     }
 
     /**

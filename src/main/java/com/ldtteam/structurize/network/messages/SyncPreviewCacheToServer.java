@@ -48,6 +48,6 @@ public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
-        ServerPreviewDistributor.distribute(this.previewData, player);
+        ServerPreviewDistributor.distribute(this.previewData.prepareBlueprint(player.level().registryAccess()), player);
     }
 }

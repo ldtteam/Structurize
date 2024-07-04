@@ -60,6 +60,8 @@ public class SyncPreviewCacheToClient extends AbstractClientPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final Player player)
     {
+        previewData.prepareBlueprint(player.level().registryAccess());
+
         final String uuid = SHARED_PREFIX + playerUUID.toString();
         if (previewData.isEmpty())
         {

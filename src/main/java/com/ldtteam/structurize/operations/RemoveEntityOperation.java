@@ -53,7 +53,7 @@ public class RemoveEntityOperation extends BaseOperation
     public boolean apply(final ServerLevel world)
     {
         final List<Entity> list = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(startPos, endPos));
-        storage.addEntities(list);
+        storage.addEntities(list, world.registryAccess());
 
         int count = 0;
         for (final Entity entity : list)

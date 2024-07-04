@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public final class BlueprintUtils
             .filter(BlockInfo::hasTileEntityData)
             .map(blockInfo -> {
                 @Nullable
-                final BlockEntity be = constructTileEntity(blockInfo, beLevel);
+                final BlockEntity be = constructTileEntity(blockInfo, beLevel, blueprint.getRegistryAccess());
                 if (be != null)
                 {
                     teModelData.put(blockInfo.getPos(), be.getModelData());
@@ -71,13 +72,13 @@ public final class BlueprintUtils
         return blueprint.getEntitiesAsList()
             .stream()
             .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
-            .map(entityInfo -> constructEntity(entityInfo, entityLevel))
+            .map(entityInfo -> constructEntity(entityInfo, entityLevel, blueprint.getRegistryAccess()))
             .filter(Objects::nonNull)
             .toList();
     }
 
     @Nullable
-    public static BlockEntity constructTileEntity(final BlockInfo info, final Level beLevel)
+    public static BlockEntity constructTileEntity(final BlockInfo info, final Level beLevel, final HolderLookup.Provider provider)
     {
         if (info == null || info.getTileEntityData() == null) return null;
 
@@ -91,7 +92,7 @@ public final class BlueprintUtils
             compound.putInt("z", info.getPos().getZ());
 
             final BlockState blockState = info.getState();
-            final BlockEntity entity = BlockEntity.loadStatic(info.getPos(), Objects.requireNonNull(blockState), compound);
+            final BlockEntity entity = BlockEntity.loadStatic(info.getPos(), Objects.requireNonNull(blockState), compound, provider);
 
             if (entity != null)
             {
@@ -116,7 +117,7 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static Entity constructEntity(@Nullable final CompoundTag info, final Level entityLevel)
+    private static Entity constructEntity(@Nullable final CompoundTag info, final Level entityLevel, final HolderLookup.Provider provider)
     {
         if (info == null) return null;
 
@@ -133,7 +134,7 @@ public final class BlueprintUtils
     
                 if (entity != null)
                 {
-                    entity.deserializeNBT(compound);
+                    entity.deserializeNBT(provider, compound);
 
                     // prevent ticking rotations
                     entity.setOldPosAndRot();

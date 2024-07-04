@@ -26,7 +26,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            new WindowShapeTool(context.getClickedPos().relative(context.getClickedFace())).open();
+            new WindowShapeTool(context.getClickedPos().relative(context.getClickedFace()), context.getLevel().registryAccess()).open();
         }
 
         return InteractionResult.SUCCESS;
@@ -39,7 +39,7 @@ public class ItemShapeTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            new WindowShapeTool(null).open();
+            new WindowShapeTool(null, worldIn.registryAccess()).open();
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);

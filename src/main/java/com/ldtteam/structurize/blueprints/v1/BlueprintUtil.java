@@ -17,6 +17,7 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -101,7 +102,7 @@ public class BlueprintUtil
             final BlockEntity te = chunk.getBlockEntities().containsKey(mutablePos) && !chunk.getBlockEntities().get(mutablePos).isRemoved() ? chunk.getBlockEntity(mutablePos) : world.getBlockEntity(mutablePos.immutable());
             if (te != null)
             {
-                CompoundTag teTag = te.saveWithFullMetadata();
+                CompoundTag teTag = te.saveWithFullMetadata(world.registryAccess());
                 teTag.putShort("x", x);
                 teTag.putShort("y", y);
                 teTag.putShort("z", z);
@@ -133,7 +134,7 @@ public class BlueprintUtil
             }
 
             final Vec3 oldPos = entity.position();
-            final CompoundTag entityTag = entity.serializeNBT();
+            final CompoundTag entityTag = entity.serializeNBT(world.registryAccess());
 
             final ListTag posList = new ListTag();
             posList.add(DoubleTag.valueOf(oldPos.x - pos.getX()));
@@ -152,7 +153,7 @@ public class BlueprintUtil
             entitiesTag.add(entityTag);
         }
 
-        final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods);
+        final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) pallete.size(), pallete, structure, tes, requiredMods, world.registryAccess());
         schem.setEntities(entitiesTag.toArray(new CompoundTag[0]));
 
         if (anchorPos.isPresent())
@@ -533,7 +534,7 @@ public class BlueprintUtil
      * @param nbtTag The CompoundNBT containing the Blueprint Data
      * @return A desserialized Blueprint
      */
-    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag)
+    public static Blueprint readBlueprintFromNBT(final CompoundTag nbtTag, final HolderLookup.Provider provider)
     {
         final CompoundTag tag = nbtTag;
         byte version = tag.getByte("version");
@@ -576,7 +577,7 @@ public class BlueprintUtil
                 fixCross1343(palette, blocks, tileEntities, entities);
             }
 
-            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods)
+            final Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (short) palette.size(), palette, blocks, tileEntities, requiredMods, provider)
                                       .setMissingMods(missingMods.toArray(new String[0]));
 
             schem.setEntities(entities);

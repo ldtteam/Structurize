@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,11 +41,11 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
         return cloneItemStack(super.getCloneItemStack(state, target, level, pos, player), level, pos);
     }
 
-    private ItemStack cloneItemStack(final ItemStack stack, BlockGetter level, BlockPos pos)
+    private ItemStack cloneItemStack(final ItemStack stack, LevelReader level, BlockPos pos)
     {
         if (level.getBlockEntity(pos) instanceof final BlockEntityTagSubstitution entity)
         {
-            entity.saveToItem(stack);
+            entity.saveToItem(stack, level.registryAccess());
         }
         return stack;
     }

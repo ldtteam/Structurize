@@ -143,7 +143,7 @@ public class PasteFolderCommand extends AbstractCommand
             return 0;
         }
 
-        ServerFutureProcessor.queueBlueprintList(new ServerFutureProcessor.BlueprintListProcessingData(StructurePacks.getBlueprintsFuture(packName, path), world, (list) -> {
+        ServerFutureProcessor.queueBlueprintList(new ServerFutureProcessor.BlueprintListProcessingData(StructurePacks.getBlueprintsFuture(packName, path, source.registryAccess()), world, (list) -> {
 
             final Map<String, List<Blueprint>> blueprintMapping = new LinkedHashMap<>();
             for (Blueprint blueprint : list)

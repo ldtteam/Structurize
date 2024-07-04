@@ -93,7 +93,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     {
         if (compoundNBT != null)
         {
-            ClientStructurePackLoader.handleSaveScanMessage(compoundNBT, fileName);
+            ClientStructurePackLoader.handleSaveScanMessage(compoundNBT, fileName, player.level().registryAccess());
         }
     }
 }

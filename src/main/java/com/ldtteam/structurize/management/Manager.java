@@ -11,6 +11,7 @@ import com.ldtteam.structurize.util.ITickedWorldOperation;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.api.Shape;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -138,9 +139,10 @@ public final class Manager
       final ItemStack inputFillBlock,
       final boolean hollow,
       final ServerPlayer player,
-      final RotationMirror rotMir)
+      final RotationMirror rotMir,
+      final HolderLookup.Provider provider)
     {
-        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
+        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow, provider);
         StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotMir, true, player);
     }
 
@@ -166,7 +168,9 @@ public final class Manager
       final String equation,
       final Shape shape,
       final ItemStack inputBlock,
-      final ItemStack inputFillBlock, final boolean hollow)
+      final ItemStack inputFillBlock,
+      final boolean hollow,
+      final HolderLookup.Provider provider)
     {
         final Blueprint blueprint;
         final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock, Blocks.GOLD_BLOCK.defaultBlockState());
@@ -174,35 +178,35 @@ public final class Manager
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {
-            blueprint = generateSphere(height / 2, mainBlock, fillBlock, hollow, shape);
+            blueprint = generateSphere(height / 2, mainBlock, fillBlock, hollow, shape, provider);
         }
         else if (shape == Shape.CUBE)
         {
-            blueprint = generateCube(height, width, length, mainBlock, fillBlock, hollow);
+            blueprint = generateCube(height, width, length, mainBlock, fillBlock, hollow, provider);
         }
         else if (shape == Shape.WAVE)
         {
-            blueprint = generateWave(height, width, length, frequency, mainBlock, true);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, true, provider);
         }
         else if (shape == Shape.WAVE_3D)
         {
-            blueprint = generateWave(height, width, length, frequency, mainBlock, false);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, false, provider);
         }
         else if (shape == Shape.CYLINDER)
         {
-            blueprint = generateCylinder(height, width, mainBlock, fillBlock, hollow);
+            blueprint = generateCylinder(height, width, mainBlock, fillBlock, hollow, provider);
         }
         else if (shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
         {
-            blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape);
+            blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape, provider);
         }
         else if (shape == Shape.CONE)
         {
-            blueprint = generateCone(height, width, mainBlock, fillBlock, hollow, shape);
+            blueprint = generateCone(height, width, mainBlock, fillBlock, hollow, shape, provider);
         }
         else
         {
-            blueprint = generateRandomShape(height, width, length, equation, mainBlock);
+            blueprint = generateRandomShape(height, width, length, equation, mainBlock, provider);
         }
         return blueprint;
     }
@@ -212,7 +216,8 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape)
+      final Shape shape,
+      final HolderLookup.Provider provider)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final int hHeight = height / 2;
@@ -247,7 +252,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short) height);
+        final Blueprint blueprint = new Blueprint((short) height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short) height, provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -258,7 +263,8 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape)
+      final Shape shape,
+      final HolderLookup.Provider provider)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final Map<BlockPos, BlockState> posList = new HashMap<>();
@@ -283,7 +289,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2), provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -304,7 +310,8 @@ public final class Manager
       final int length,
       final BlockState block,
       final BlockState fillBlock,
-      final boolean hollow)
+      final boolean hollow,
+      final HolderLookup.Provider provider)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y < height; y++)
@@ -324,7 +331,7 @@ public final class Manager
                 }
             }
         }
-        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length);
+        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length, provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -343,7 +350,8 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape)
+      final Shape shape,
+      final HolderLookup.Provider provider)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y <= height + 1; y++)
@@ -375,7 +383,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) ((height + 2) * 2), (short) ((height + 2) * 2), (short) ((height + 2) * 2));
+        final Blueprint blueprint = new Blueprint((short) ((height + 2) * 2), (short) ((height + 2) * 2), (short) ((height + 2) * 2), provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -394,7 +402,8 @@ public final class Manager
       final int width,
       final BlockState block,
       final BlockState fillBlock,
-      final boolean hollow)
+      final boolean hollow,
+      final HolderLookup.Provider provider)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < width; x++)
@@ -417,7 +426,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2), provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -436,7 +445,8 @@ public final class Manager
       final int length,
       final int frequency,
       final BlockState block,
-      final boolean flat)
+      final boolean flat,
+      final HolderLookup.Provider provider)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < length; x++)
@@ -454,7 +464,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1));
+        final Blueprint blueprint = new Blueprint((short) length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1), provider);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -469,7 +479,7 @@ public final class Manager
      * @param block    the block.
      * @return the created blueprint
      */
-    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block)
+    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block, final HolderLookup.Provider provider)
     {
         /*Expression e = new Expression(equation);
         final Argument argumentX = new Argument("x = 0");

@@ -72,7 +72,7 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
             this.context.getBlockRenderDispatcher().renderSingleBlock(anchor.getBlock().defaultBlockState(),
                     poseStack, buffers, packedLight, packedOverlay, ModelData.EMPTY, renderType);
 
-            render(anchor.getAbsorbedBlock(stack), BlockPos.ZERO, 0, poseStack, buffers, packedLight, packedOverlay, renderType);
+            render(anchor.getAbsorbedBlock(stack, context.getBlockEntityRenderDispatcher().level.registryAccess()), BlockPos.ZERO, 0, poseStack, buffers, packedLight, packedOverlay, renderType);
         }
     }
 
@@ -93,11 +93,11 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
 
             final BlockRenderDispatcher dispatcher = this.context.getBlockRenderDispatcher();
 
-            final BlockEntity replacementEntity = replacement.getBlockEntity(pos);
+            final BlockEntity replacementEntity = replacement.getBlockEntity(pos, context.getBlockEntityRenderDispatcher().level.registryAccess());
             if (replacementEntity != null)
             {
                 // seems a little silly to create a blueprint, but the entityDispatcher won't render without a level...
-                final Blueprint blueprint = replacement.createBlueprint();
+                final Blueprint blueprint = replacement.createBlueprint(context.getBlockEntityRenderDispatcher().level.registryAccess());
                 final BlueprintBlockAccess blockAccess = new BlueprintBlockAccess(blueprint);
                 replacementEntity.setLevel(blockAccess);
 

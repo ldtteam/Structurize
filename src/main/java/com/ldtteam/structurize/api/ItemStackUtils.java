@@ -2,6 +2,7 @@ package com.ldtteam.structurize.api;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -46,7 +47,7 @@ public final class ItemStackUtils
      * @param state the block.
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final HolderLookup.Provider provider)
     {
         if (state.getBlock() instanceof BaseEntityBlock && compound.contains("Items"))
         {
@@ -54,11 +55,11 @@ public final class ItemStackUtils
             // can't generate an IItemHandler for us, so we need to read the contents manually.
             // this could be removed if we always get a "real" BE from a world, but we're called both from a
             // real world and from a schematic non-world, and the latter still breaks.
-            return getItemStacksFromNbt(compound);
+            return getItemStacksFromNbt(compound, provider);
         }
 
         BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
-        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound);
+        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, provider);
         if (tileEntity == null)
         {
             return Collections.emptyList();
@@ -81,7 +82,7 @@ public final class ItemStackUtils
     }
 
     @NotNull
-    private static List<ItemStack> getItemStacksFromNbt(@NotNull final CompoundTag compound)
+    private static List<ItemStack> getItemStacksFromNbt(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
     {
         final List<ItemStack> items = new ArrayList<>();
         final ListTag listtag = compound.getList("Items", Tag.TAG_COMPOUND);
@@ -89,7 +90,7 @@ public final class ItemStackUtils
         for (int i = 0; i < listtag.size(); ++i)
         {
             final CompoundTag compoundtag = listtag.getCompound(i);
-            final ItemStack stack = ItemStack.of(compoundtag);
+            final ItemStack stack = ItemStack.parseOptional(provider, compoundtag);
             if (!stack.isEmpty())
             {
                 items.add(stack);

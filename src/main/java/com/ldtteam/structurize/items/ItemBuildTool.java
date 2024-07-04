@@ -4,6 +4,7 @@ import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -33,7 +34,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     {
         if (context.getLevel().isClientSide)
         {
-            openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE);
+            openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE, context.getLevel().registryAccess());
         }
         return InteractionResult.SUCCESS;
     }
@@ -45,20 +46,20 @@ public class ItemBuildTool extends AbstractItemStructurize
 
         if (worldIn.isClientSide)
         {
-            openBuildToolWindow(null, GROUNDSTYLE_RELATIVE);
+            openBuildToolWindow(null, GROUNDSTYLE_RELATIVE, worldIn.registryAccess());
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
-    private static void openBuildToolWindow(final BlockPos pos, final int groundstyle)
+    private static void openBuildToolWindow(final BlockPos pos, final int groundstyle, final HolderLookup.Provider provider)
     {
         if (Minecraft.getInstance().screen != null)
         {
             return;
         }
 
-        new WindowExtendedBuildTool(pos, groundstyle, null, WindowExtendedBuildTool.BLOCK_BLUEPRINT_REQUIREMENT).open();
+        new WindowExtendedBuildTool(pos, groundstyle, null, WindowExtendedBuildTool.BLOCK_BLUEPRINT_REQUIREMENT, provider).open();
     }
 
     @Override

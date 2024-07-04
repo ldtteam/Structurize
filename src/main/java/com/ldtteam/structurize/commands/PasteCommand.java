@@ -137,7 +137,7 @@ public class PasteCommand extends AbstractCommand
             return 0;
         }
 
-        final Blueprint blueprint = StructurePacks.getBlueprint(packName, path + ".blueprint", true);
+        final Blueprint blueprint = StructurePacks.getBlueprint(packName, path + ".blueprint", true, source.registryAccess());
         if (blueprint == null)
         {
             source.sendFailure(Component.translatable(NO_BLUEPRINT_MESSAGE));

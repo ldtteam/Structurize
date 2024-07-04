@@ -475,7 +475,7 @@ public class WindowScan extends AbstractWindowSkeleton
                 {
                     if (handler.canHandle(world, BlockPos.ZERO, blockState))
                     {
-                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
                         for (final ItemStack stack : itemList)
                         {
                             addNeededResource(stack, 1);
