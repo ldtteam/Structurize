@@ -1,16 +1,14 @@
 package com.ldtteam.structurize.tag;
 
+import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.NotNull;
-
-import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 
 public class ModTags
 {
@@ -30,6 +28,6 @@ public class ModTags
 
     private static <T> TagKey<T> modTag(final ResourceKey<Registry<T>> registry, @NotNull final String name)
     {
-        return TagKey.create(registry, new ResourceLocation(MOD_ID, name));
+        return TagKey.create(registry, Constants.resLocStruct(name));
     }
 }

@@ -6,7 +6,6 @@ import com.ldtteam.structurize.blocks.schematic.BlockSolidSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockSubstitution;
 import com.ldtteam.structurize.blocks.schematic.BlockTagSubstitution;
 import com.ldtteam.structurize.items.ModItems;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -23,7 +22,7 @@ public final class ModBlocks
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
-    public static final TagKey<Block> NULL_PLACEMENT = BlockTags.create(new ResourceLocation("structurize:null_placement"));
+    public static final TagKey<Block> NULL_PLACEMENT = BlockTags.create(Constants.resLocStruct("null_placement"));
 
     public static final DeferredBlock<BlockSubstitution>      blockSubstitution;
     public static final DeferredBlock<BlockSolidSubstitution> blockSolidSubstitution;

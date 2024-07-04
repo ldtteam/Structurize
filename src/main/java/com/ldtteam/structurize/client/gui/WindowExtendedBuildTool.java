@@ -9,6 +9,7 @@ import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
@@ -367,12 +368,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                         }
                         catch (final Exception ex)
                         {
-                            img.setImage(new ResourceLocation(DEFAULT_ICON));
+                            img.setImage(Constants.resLocStruct(DEFAULT_ICON));
                         }
                     }
                     else
                     {
-                        img.setImage(new ResourceLocation(DEFAULT_ICON));
+                        img.setImage(Constants.resLocStruct(DEFAULT_ICON));
                     }
 
                     final String id = category.subPath;
@@ -785,14 +786,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
                     button.setText(Component.literal(""));
-                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
+                    button.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
                 }
                 else
                 {
                     final String buttonId = depth + ":" + (hasAlternatives ? index - 1 : index);
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
-                    button.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_medium.png"));
+                    button.setImage(Constants.resLocStruct("textures/gui/buildtool/button_medium.png"));
                     button.setText(Component.literal("Level: " + (index + (hasAlternatives ? 0 : 1))));
                     button.setTextColor(ChatFormatting.BLACK.getColor());
                 }
@@ -811,7 +812,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
             img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
+            img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
         }
         else if (buttonData.type == ButtonType.Blueprint)
@@ -873,7 +874,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 }
 
                 PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"));
                 isLocked = true;
             }
 
@@ -881,11 +882,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (isCurrentlySelected)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
             else if (!isLocked)
             {
-                img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
         }
     }
@@ -917,7 +918,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             }
             img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(new ResourceLocation(MOD_ID, "textures/gui/buildtool/back_medium.png"));
+            img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
             return;
         }

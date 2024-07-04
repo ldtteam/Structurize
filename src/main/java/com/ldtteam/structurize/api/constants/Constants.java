@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.api.constants;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -34,6 +35,11 @@ public final class Constants
      * Local standard.
      */
     public static final String LOCAL = "Local";
+
+    public static ResourceLocation resLocStruct(final String path)
+    {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
 
     /**
      * Private constructor to hide implicit public one.

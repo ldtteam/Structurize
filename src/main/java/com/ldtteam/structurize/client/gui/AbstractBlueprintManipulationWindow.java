@@ -28,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -426,7 +425,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         if (setting == rendererTransparency && rendererTransparency.get() < 0)
                         {
                             // TODO: move to standalone ui
-                            final BOWindow confirmDialog = new BOWindow(new ResourceLocation(Constants.MOD_ID, "gui/dialogconfirmtransparency.xml"));
+                            final BOWindow confirmDialog = new BOWindow(Constants.resLocStruct("gui/dialogconfirmtransparency.xml"));
 
                             confirmDialog.findPaneOfTypeByID("confirm", ButtonImage.class).setHandler(b -> {
                                 final double newVal = newValue.doubleValue();
@@ -561,7 +560,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(Constants.resLocStruct(String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
 
         final String rotation = switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().rotation())
         {
@@ -570,7 +569,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             case COUNTERCLOCKWISE_90 -> "left_green";
             case NONE -> "up_green";
         };
-        findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(new ResourceLocation(MOD_ID, String.format(RES_STRING, rotation)), false);
+        findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(Constants.resLocStruct(String.format(RES_STRING, rotation)), false);
     }
 
     /**

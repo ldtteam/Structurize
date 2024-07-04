@@ -8,7 +8,7 @@ public class GUIConstants
     /**
      * Default fallback icon.
      */
-    public static final String DEFAULT_ICON = "structurize:textures/gui/buildtool/default.png";
+    public static final String DEFAULT_ICON = "textures/gui/buildtool/default.png";
 
     /**
      * Pre resource string.

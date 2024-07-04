@@ -13,7 +13,6 @@ import com.ldtteam.structurize.util.WorldRenderMacros;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -74,7 +73,7 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void registerGeometry(final ModelEvent.RegisterGeometryLoaders event)
     {
-        event.register(new ResourceLocation(Constants.MOD_ID, "overlaid"), new OverlaidModelLoader());
+        event.register(Constants.resLocStruct("overlaid"), new OverlaidModelLoader());
     }
 
     @SubscribeEvent

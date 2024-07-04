@@ -18,7 +18,7 @@ public class OverlaidModelLoader implements IGeometryLoader<OverlaidGeometry>
                                  @NotNull JsonDeserializationContext deserializationContext) throws JsonParseException
     {
         final String parent = jsonObject.get("parent").getAsString();
-        final ResourceLocation parentLocation = new ResourceLocation(parent);
+        final ResourceLocation parentLocation = ResourceLocation.parse(parent);
 
         return new OverlaidGeometry(parentLocation);
     }
