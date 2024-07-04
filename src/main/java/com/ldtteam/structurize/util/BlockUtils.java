@@ -15,7 +15,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -39,17 +38,12 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.ImposterProtoChunk;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -168,7 +162,7 @@ public final class BlockUtils
                 final SurfaceRules.Context ctx = new SurfaceRules.Context(serverLevel.getChunkSource().randomState().surfaceSystem(),
                     serverLevel.getChunkSource().randomState(),
                     chunk,
-                    chunk.getOrCreateNoiseChunk(c -> createNoiseBiome(serverLevel, chunkGenerator, c)),
+                    chunk.getOrCreateNoiseChunk(c -> {throw new IllegalStateException("How is this chunk not having noise? " + c.getPos() + "|" + c.getPersistedStatus());}),
                     serverLevel.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registries.BIOME),
                     new WorldGenerationContext(chunkGenerator, serverLevel));
@@ -232,41 +226,6 @@ public final class BlockUtils
         }
 
         return null;
-    }
-
-    private static NoiseChunk createNoiseBiome(
-        final ServerLevel serverLevel,
-        final NoiseBasedChunkGenerator chunkGenerator,
-        final ChunkAccess chunk)
-    {
-        final int chunkX = chunk.getPos().x;
-        final int chunkZ = chunk.getPos().z;
-        final int chunkRange = ChunkStatus.SURFACE.getRange();
-        final List<ChunkAccess> surroundingChunks = new ArrayList<>(4 * chunkRange * (chunkRange + 1) + 1);
-
-        for (int z = -chunkRange; z <= chunkRange; z++)
-        {
-            for (int x = -chunkRange; x <= chunkRange; x++)
-            {
-                ChunkAccess surroundingChunk = serverLevel.getChunk(chunkX + x, chunkZ + z, ChunkStatus.SURFACE);
-   
-                if (surroundingChunk instanceof ImposterProtoChunk imposterProtoChunk)
-                {
-                    surroundingChunk = new ImposterProtoChunk(imposterProtoChunk.getWrapped(), true);
-                }
-                else if (surroundingChunk instanceof LevelChunk levelChunk)
-                {
-                    surroundingChunk = new ImposterProtoChunk(levelChunk, true);
-                }
-   
-                surroundingChunks.add(surroundingChunk);
-            }
-        }
-        final WorldGenRegion worldGenRegion = new OurWorldGenRegion(serverLevel, surroundingChunks);
-        return chunkGenerator.createNoiseChunk(chunk,
-            serverLevel.structureManager().forWorldGenRegion(worldGenRegion),
-            Blender.of(worldGenRegion),
-            serverLevel.getChunkSource().randomState());
     }
 
     /**
@@ -700,44 +659,6 @@ public final class BlockUtils
         }
 
         return newState;
-    }
-
-    private static class OurWorldGenRegion extends WorldGenRegion
-    {
-        private OurWorldGenRegion(ServerLevel p_143484_, List<ChunkAccess> p_143485_)
-        {
-            super(p_143484_, p_143485_, null, -1);
-        }
-
-        @Override
-        public boolean destroyBlock(BlockPos p_9550_, boolean p_9551_, @Nullable Entity p_9552_, int p_9553_)
-        {
-            return false;
-        }
-
-        @Override
-        public boolean ensureCanWrite(BlockPos p_181031_)
-        {
-            return false;
-        }
-
-        @Override
-        public boolean setBlock(BlockPos p_9539_, BlockState p_9540_, int p_9541_, int p_9542_)
-        {
-            return false;
-        }
-
-        @Override
-        public boolean addFreshEntity(Entity p_9580_)
-        {
-            return false;
-        }
-
-        @Override
-        public boolean removeBlock(BlockPos p_9547_, boolean p_9548_)
-        {
-            return false;
-        }
     }
 
     /**
