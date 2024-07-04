@@ -49,7 +49,7 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
         final int blockCount = buf.readInt();
         for (int i = 0; i < blockCount; i++)
         {
-            this.blocks.add(buf.readItem());
+            this.blocks.add(ItemStack.STREAM_CODEC.decode(buf));
         }
     }
 
@@ -88,7 +88,7 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
         buf.writeInt(blocks.size());
         for (final ItemStack block : blocks)
         {
-            buf.writeItem(block);
+            ItemStack.STREAM_CODEC.encode(buf, block);
         }
     }
 

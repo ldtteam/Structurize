@@ -231,7 +231,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
         final ItemStack stack = tempRes.get(row).getItemStack();
         new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack).sendToServer();
-        final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
+        final int hashCode = stack.getComponents().isEmpty() ? stack.getComponents().hashCode() : 0;
         resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         updateResourceList();
     }
@@ -251,7 +251,7 @@ public class WindowScan extends AbstractWindowSkeleton
         {
             final ItemStack stack = tempRes.getItemStack();
             blocks.add(stack);
-            final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
+            final int hashCode = stack.getComponents().isEmpty() ? stack.getComponents().hashCode() : 0;
             resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
         }
 
@@ -510,7 +510,7 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
+        final int hashCode = res.getComponents().isEmpty() ? res.getComponents().hashCode() : 0;
         ItemStorage resource = resources.get(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode);
         if (resource == null)
         {

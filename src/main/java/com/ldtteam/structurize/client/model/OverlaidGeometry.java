@@ -27,11 +27,10 @@ public class OverlaidGeometry implements IUnbakedGeometry<OverlaidGeometry>
       final ModelBaker baker,
       final Function<Material, TextureAtlasSprite> spriteGetter,
       final ModelState modelState,
-      final ItemOverrides overrides,
-      final ResourceLocation modelLocation)
+      final ItemOverrides overrides)
     {
         UnbakedModel unbaked = baker.getModel(overlayModelId);
-        BakedModel baked = unbaked.bake(baker, spriteGetter, modelState, overlayModelId);
+        BakedModel baked = unbaked.bake(baker, spriteGetter, modelState);
 
         if (baked == null)
         {

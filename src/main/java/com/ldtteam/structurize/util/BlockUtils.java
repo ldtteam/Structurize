@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -14,11 +14,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.BlockItem;
@@ -324,13 +324,9 @@ public final class BlockUtils
             {
                 return false;
             }
-            else if (worldEntity instanceof MateriallyTexturedBlockEntity)
+            else if (worldEntity instanceof final MateriallyTexturedBlockEntity mtbe)
             {
-                CompoundTag tag = tileEntityData.copy();
-                tag.putInt("x", worldEntity.getBlockPos().getX());
-                tag.putInt("y", worldEntity.getBlockPos().getY());
-                tag.putInt("z", worldEntity.getBlockPos().getZ());
-                return Utils.nbtContains(tag, worldEntity.saveWithFullMetadata());
+                return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, tileEntityData).getOrThrow().getFirst());
             }
             return true;
         }
@@ -396,13 +392,13 @@ public final class BlockUtils
         {
             return Blocks.AIR.defaultBlockState();
         }
-        else if (stack.getItem() instanceof BucketItem)
+        else if (stack.getItem() instanceof final BucketItem bucket)
         {
-            return ((BucketItem) stack.getItem()).getFluid().defaultFluidState().createLegacyBlock();
+            return bucket.content.defaultFluidState().createLegacyBlock();
         }
-        else if (stack.getItem() instanceof BlockItem)
+        else if (stack.getItem() instanceof final BlockItem blockItem)
         {
-            return ((BlockItem) stack.getItem()).getBlock().defaultBlockState();
+            return blockItem.getBlock().defaultBlockState();
         }
 
         return def;
@@ -418,7 +414,7 @@ public final class BlockUtils
     {
         if (blockState.getBlock() instanceof final LiquidBlock liquid)
         {
-            return new ItemStack(liquid.getFluid().getBucket(), 1);
+            return new ItemStack(liquid.fluid.getBucket(), 1);
         }
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
@@ -533,7 +529,7 @@ public final class BlockUtils
         {
             final Block sourceBlock = blockState.getBlock();
             final BucketItem bucket = (BucketItem) item;
-            final Fluid fluid = bucket.getFluid();
+            final Fluid fluid = bucket.content;
 
             // place
             if (sourceBlock instanceof final LiquidBlockContainer liquidContainer)
@@ -666,9 +662,9 @@ public final class BlockUtils
      */
     public static boolean canBlockFloatInAir(final BlockState blockState)
     {
-        if (blockState.getBlock() instanceof final LeavesBlock leaves)
+        if (blockState.getBlock() instanceof LeavesBlock)
         {
-            return !leaves.isRandomlyTicking(blockState);
+            return !blockState.isRandomlyTicking();
         }
         return trueSolidBlocks.contains(blockState.getBlock());
     }
@@ -694,9 +690,9 @@ public final class BlockUtils
      */
     public static boolean isWeakSolidBlock(final BlockState blockState)
     {
-        if (blockState.getBlock() instanceof final LeavesBlock leaves)
+        if (blockState.getBlock() instanceof LeavesBlock)
         {
-            return leaves.isRandomlyTicking(blockState);
+            return blockState.isRandomlyTicking();
         }
 
         final Block block = blockState.getBlock();
@@ -712,7 +708,7 @@ public final class BlockUtils
         }
         try
         {
-            return block.canSurvive(block.defaultBlockState(), null, null);
+            return block.defaultBlockState().canSurvive(null, null);
         }
         catch (final Exception e)
         {

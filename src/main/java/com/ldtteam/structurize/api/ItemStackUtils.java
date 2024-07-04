@@ -3,6 +3,9 @@ package com.ldtteam.structurize.api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -166,9 +169,9 @@ public final class ItemStackUtils
         if (entity != null)
         {
             final List<ItemStack> request = new ArrayList<>();
-            if (entity instanceof ItemFrame)
+            if (entity instanceof final ItemFrame itemFrame)
             {
-                final ItemStack stack = ((ItemFrame) entity).getItem();
+                final ItemStack stack = itemFrame.getItem();
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     stack.setCount(1);
@@ -176,7 +179,7 @@ public final class ItemStackUtils
                 }
                 request.add(new ItemStack(Items.ITEM_FRAME, 1));
             }
-            else if (entity instanceof ArmorStand)
+            else if (entity instanceof final ArmorStand armorStand)
             {
                 request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
                     @Override
@@ -185,8 +188,8 @@ public final class ItemStackUtils
                         return Type.ENTITY;
                     }
                 }));
-                entity.getArmorSlots().forEach(request::add);
-                entity.getHandSlots().forEach(request::add);
+                armorStand.getArmorSlots().forEach(request::add);
+                armorStand.getHandSlots().forEach(request::add);
             }
             else if (entity instanceof ContainerEntity containerEntity)
             {
@@ -272,29 +275,28 @@ public final class ItemStackUtils
             }
 
             // Then sort on NBT
-            if (itemStack1.hasTag() && itemStack2.hasTag())
+            if (!itemStack1.getComponents().isEmpty() && !itemStack2.getComponents().isEmpty())
             {
-                CompoundTag nbt1 = itemStack1.getTag();
-                CompoundTag nbt2 = itemStack2.getTag();
+                final DataComponentMap nbt1 = itemStack1.getComponents();
+                final DataComponentMap nbt2 = itemStack2.getComponents();
 
-                for(String key :nbt1.getAllKeys())
+                for(final DataComponentType<?> key : nbt1.keySet())
                 {
-                    if(!matchDamage && key.equals("Damage"))
+                    if(!matchDamage && key == DataComponents.DAMAGE)
                     {
                         continue;
                     }
-                    if(!nbt2.contains(key) || !nbt1.get(key).equals(nbt2.get(key)))
+                    if(!nbt2.has(key) || !nbt1.get(key).equals(nbt2.get(key)))
                     {
                         return false;
                     }
                 }
 
-                return nbt1.getAllKeys().size() == nbt2.getAllKeys().size();
+                return nbt1.keySet().size() == nbt2.keySet().size();
             }
             else
             {
-                return (!itemStack1.hasTag() || itemStack1.getTag().isEmpty())
-                         && (!itemStack2.hasTag() || itemStack2.getTag().isEmpty());
+                return itemStack1.getComponents().isEmpty() == itemStack2.getComponents().isEmpty();
             }
         }
         return false;

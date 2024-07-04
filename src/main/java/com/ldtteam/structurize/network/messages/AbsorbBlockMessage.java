@@ -40,7 +40,7 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
     {
         super(buf, type);
         this.pos = buf.readBlockPos();
-        this.stack = buf.readItem();
+        this.stack = ItemStack.STREAM_CODEC.decode(buf);
     }
 
     /**
@@ -51,7 +51,7 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
     protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
-        buf.writeItem(this.stack);
+        ItemStack.STREAM_CODEC.encode(buf, this.stack);
     }
 
     @Override

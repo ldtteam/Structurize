@@ -183,7 +183,7 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
         allItems.clear();
         allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(BuiltInRegistries.ITEM.iterator(), Spliterator.ORDERED), false)
                                                .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                                                                                                                          && ((BucketItem) item).getFluid() != Fluids.EMPTY))
+                                                                                                                          && ((BucketItem) item).content != Fluids.EMPTY))
                                                .map(s -> new ItemStorage(new ItemStack(s)))
                                                .collect(Collectors.toList())));
 
