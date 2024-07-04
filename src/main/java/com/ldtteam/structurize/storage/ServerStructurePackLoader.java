@@ -10,7 +10,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.File;
 import java.io.IOException;
@@ -176,16 +176,16 @@ public class ServerStructurePackLoader
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.LevelTickEvent event)
+    public static void onWorldTick(final LevelTickEvent.Post event)
     {
-        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide())
+        if (!event.getLevel().isClientSide())
         {
-            if (event.level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+            if (event.getLevel().getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
                 loadingState = ServerLoadingState.FINISHED_SYNCING;
                 for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
                 {
-                    final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(entry.getKey());
+                    final ServerPlayer player = (ServerPlayer) event.getLevel().getPlayerByUUID(entry.getKey());
                     if (player != null)
                     {
                         handleClientUpdate(entry.getValue(), player);
@@ -197,7 +197,7 @@ public class ServerStructurePackLoader
             if (!messageSendTasks.isEmpty())
             {
                 final PackagedPack packData = messageSendTasks.poll();
-                final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(packData.player);
+                final ServerPlayer player = (ServerPlayer) event.getLevel().getPlayerByUUID(packData.player);
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {

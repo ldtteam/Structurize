@@ -13,12 +13,13 @@ import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.*;
 import java.nio.file.Files;
@@ -141,34 +142,31 @@ public class ClientStructurePackLoader
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onWorldTick(final TickEvent.ClientTickEvent event)
+    public static void onWorldTick(final ClientTickEvent.Pre event)
     {
-        if (event.phase == TickEvent.Phase.START)
+        if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
         {
-            if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
+            if (Minecraft.getInstance().isSingleplayer())
             {
-                if (Minecraft.getInstance().isSingleplayer())
+                loadingState = ClientLoadingState.FINISHED_SYNCING;
+                StructurePacks.setFinishedLoading();
+                if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
                 {
-                    loadingState = ClientLoadingState.FINISHED_SYNCING;
-                    StructurePacks.setFinishedLoading();
-                    if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-                    {
-                        StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
-                    }
-                    return;
+                    StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
                 }
+                return;
+            }
 
-                loadingState = ClientLoadingState.SYNCING;
-                new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToServer();
-            }
-            else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
-            {
-                Log.getLogger().warn("Client logged off. Resetting Pack Meta and Reloading State");
-                loadingState = ClientLoadingState.LOADING;
-                StructurePacks.clearPacks();
-                RenderingCache.clear();
-                onClientLoading();
-            }
+            loadingState = ClientLoadingState.SYNCING;
+            new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToServer();
+        }
+        else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
+        {
+            Log.getLogger().warn("Client logged off. Resetting Pack Meta and Reloading State");
+            loadingState = ClientLoadingState.LOADING;
+            StructurePacks.clearPacks();
+            RenderingCache.clear();
+            onClientLoading();
         }
     }
 

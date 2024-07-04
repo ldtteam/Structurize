@@ -4,13 +4,11 @@ import com.ldtteam.structurize.commands.EntryPoint;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.IOPool;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.event.TickEvent.Phase;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,19 +38,12 @@ public class EventSubscriber
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.LevelTickEvent event)
+    public static void onWorldTick(final LevelTickEvent.Pre event)
     {
-        if (event.level instanceof ServerLevel serverLevel)
+        BlockUtils.checkOrInit();
+        if (event.getLevel() instanceof ServerLevel serverLevel)
         {
-            if (event.phase == Phase.START)
-            {
-                BlockUtils.checkOrInit();
-                Manager.onWorldTick(serverLevel);
-            }
-        }
-        else if (event.level instanceof ClientLevel)
-        {
-            BlockUtils.checkOrInit();
+            Manager.onWorldTick(serverLevel);
         }
     }
 

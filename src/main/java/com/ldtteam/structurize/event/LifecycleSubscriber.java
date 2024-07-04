@@ -14,17 +14,17 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
 
 public class LifecycleSubscriber
 {
     @SubscribeEvent
-    public static void onNetworkRegistry(final RegisterPayloadHandlerEvent event)
+    public static void onNetworkRegistry(final RegisterPayloadHandlersEvent event)
     {
         final String modVersion = ModList.get().getModContainerById(Constants.MOD_ID).get().getModInfo().getVersion().toString();
-        final IPayloadRegistrar registry = event.registrar(Constants.MOD_ID).versioned(modVersion);
+        final PayloadRegistrar registry = event.registrar(Constants.MOD_ID).versioned(modVersion);
 
         AbsorbBlockMessage.TYPE.register(registry);
         AddRemoveTagMessage.TYPE.register(registry);

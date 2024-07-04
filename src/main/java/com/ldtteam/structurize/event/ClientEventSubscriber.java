@@ -34,13 +34,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
-import net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay;
-import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
-import net.neoforged.neoforge.event.TickEvent.Phase;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -49,9 +48,9 @@ import java.util.Map;
 public class ClientEventSubscriber
 {
     @SubscribeEvent
-    public static void renderWorldLastEvent(final RenderGuiOverlayEvent.Pre event)
+    public static void renderWorldLastEvent(final RenderGuiLayerEvent.Pre event)
     {
-        if ((event.getOverlay() == VanillaGuiOverlay.PLAYER_HEALTH.type() || event.getOverlay() == VanillaGuiOverlay.FOOD_LEVEL.type()) && Minecraft.getInstance().screen instanceof BOScreen &&
+        if ((event.getName().equals(VanillaGuiLayers.PLAYER_HEALTH) || event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) && Minecraft.getInstance().screen instanceof BOScreen &&
               ((BOScreen) Minecraft.getInstance().screen).getWindow() instanceof WindowExtendedBuildTool)
         {
              event.setCanceled(true);
@@ -75,10 +74,10 @@ public class ClientEventSubscriber
             return;
         }
 
-        final PoseStack matrixStack = event.getPoseStack();
-        final MultiBufferSource.BufferSource bufferSource = WorldRenderMacros.getBufferSource();
-
         final Minecraft mc = Minecraft.getInstance();
+        final PoseStack matrixStack = event.getPoseStack();
+        final MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        
         final Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
         matrixStack.pushPose();
         matrixStack.translate(-viewPosition.x(), -viewPosition.y(), -viewPosition.z());
@@ -153,13 +152,8 @@ public class ClientEventSubscriber
      * @param event the catched event.
      */
     @SubscribeEvent
-    public static void onClientTickEvent(final ClientTickEvent event)
+    public static void onClientTickEvent(final ClientTickEvent.Post event)
     {
-        if (event.phase != Phase.END)
-        {
-            return;
-        }
-
         final Minecraft mc = Minecraft.getInstance();
         mc.getProfiler().push("structurize");
 
@@ -183,10 +177,8 @@ public class ClientEventSubscriber
     }
 
     @SubscribeEvent
-    public static void onPreClientTickEvent(@NotNull final ClientTickEvent event)
+    public static void onPreClientTickEvent(@NotNull final ClientTickEvent.Pre event)
     {
-        if (event.phase != Phase.START) return;
-
         final Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null || mc.level == null) return;
 
