@@ -6,9 +6,9 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -36,7 +36,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected BlueprintSyncMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected BlueprintSyncMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
@@ -72,7 +72,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -86,7 +86,7 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         BlueprintPlacementHandling.handlePlacement(this, player);
     }

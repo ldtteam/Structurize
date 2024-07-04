@@ -6,10 +6,10 @@ import com.ldtteam.structurize.api.IScrollableItem;
 import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
      * Construct from network.
      * @param buf buffer
      */
-    protected ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ItemMiddleMouseMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
@@ -68,7 +68,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         if (this.pos == null)
         {
@@ -85,7 +85,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         final ItemStack current = player.getInventory().getSelected();
 

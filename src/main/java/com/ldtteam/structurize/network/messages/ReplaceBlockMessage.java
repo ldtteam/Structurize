@@ -6,10 +6,10 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.ReplaceBlockOperation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message to replace a block from the world with another one.
@@ -46,7 +46,7 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the message.
      */
-    protected ReplaceBlockMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ReplaceBlockMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.from = buf.readBlockPos();
@@ -74,7 +74,7 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -84,7 +84,7 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

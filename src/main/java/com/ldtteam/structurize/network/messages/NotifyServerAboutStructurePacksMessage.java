@@ -5,9 +5,9 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import com.ldtteam.structurize.storage.StructurePackMeta;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
     /**
      * Public standard constructor.
      */
-    protected NotifyServerAboutStructurePacksMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected NotifyServerAboutStructurePacksMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         final int length = buf.readInt();
@@ -56,7 +56,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(this.clientStructurePacks.size());
         for (final Map.Entry<String, Double> packInfo : this.clientStructurePacks.entrySet())
@@ -67,7 +67,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         ServerStructurePackLoader.onClientSyncAttempt(this.clientStructurePacks, player);
     }

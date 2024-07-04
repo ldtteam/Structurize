@@ -4,9 +4,9 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message class which handles undoing a change to the world.
@@ -28,7 +28,7 @@ public class UndoRedoMessage extends AbstractServerPlayMessage
         this.id = id;
     }
 
-    protected UndoRedoMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected UndoRedoMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.id = buf.readInt();
@@ -36,14 +36,14 @@ public class UndoRedoMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(id);
         buf.writeBoolean(undo);
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

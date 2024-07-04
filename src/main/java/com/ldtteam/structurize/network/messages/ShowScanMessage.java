@@ -6,9 +6,9 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class ShowScanMessage extends AbstractClientPlayMessage
      * Construct from network
      * @param buf the buffer
      */
-    protected ShowScanMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ShowScanMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         final BlockPos from = buf.readBlockPos();
@@ -47,7 +47,7 @@ public class ShowScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.box.getPos1());
         buf.writeBlockPos(this.box.getPos2());
@@ -63,7 +63,7 @@ public class ShowScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         RenderingCache.queue("scan", this.box);
     }

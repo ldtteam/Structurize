@@ -7,9 +7,9 @@ import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     /**
      * Empty public constructor.
      */
-    protected ScanOnServerMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ScanOnServerMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         final String name = buf.readUtf(32767);
@@ -53,7 +53,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeUtf(slot.getName());
         buf.writeBlockPos(slot.getBox().getPos1());
@@ -65,7 +65,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         ItemScanTool.saveStructure(player.getCommandSenderWorld(), player, this.slot, saveEntities);
     }

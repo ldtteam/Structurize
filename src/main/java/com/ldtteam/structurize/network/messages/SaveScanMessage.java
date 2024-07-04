@@ -11,8 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.io.IOException;
 
@@ -32,7 +33,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     /**
      * Public standard constructor.
      */
-    protected SaveScanMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected SaveScanMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
@@ -70,7 +71,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         final CompoundTag wrapperCompound = new CompoundTag();
         wrapperCompound.putString(TAG_MILLIS, fileName);
@@ -88,7 +89,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         if (compoundNBT != null)
         {

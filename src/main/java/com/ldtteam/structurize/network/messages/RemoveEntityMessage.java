@@ -7,11 +7,11 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.RemoveEntityOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message to remove an entity from the world.
@@ -38,7 +38,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the message.
      */
-    protected RemoveEntityMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected RemoveEntityMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.from = buf.readBlockPos();
@@ -62,7 +62,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -70,7 +70,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         if (!player.isCreative())
         {

@@ -7,9 +7,9 @@ import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Request a blueprint from the client.
@@ -32,7 +32,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected ClientBlueprintRequestMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ClientBlueprintRequestMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
@@ -62,7 +62,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -74,7 +74,7 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
             if (blueprintData != null)

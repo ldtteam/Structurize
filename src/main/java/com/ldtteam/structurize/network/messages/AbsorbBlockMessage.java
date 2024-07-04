@@ -5,10 +5,10 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemTagSubstitution;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,7 +36,7 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * Deserialize
      * @param buf the network buffer
      */
-    protected AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected AbsorbBlockMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.pos = buf.readBlockPos();
@@ -48,14 +48,14 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * @param buf network data byte buffer
      */
     @Override
-    protected void toBytes(@NotNull final FriendlyByteBuf buf)
+    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
         buf.writeItem(this.stack);
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         final ItemStack current = player.getInventory().getSelected();
 

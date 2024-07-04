@@ -5,9 +5,9 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Sync player settings to server.
@@ -21,7 +21,7 @@ public class SyncSettingsToServer extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected SyncSettingsToServer(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected SyncSettingsToServer(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.displayShared = buf.readBoolean();
@@ -37,13 +37,13 @@ public class SyncSettingsToServer extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeBoolean(displayShared);
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         ServerPreviewDistributor.register(player, displayShared);
     }

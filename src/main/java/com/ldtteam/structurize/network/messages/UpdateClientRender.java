@@ -5,9 +5,9 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Send the scan tool update message to the client.
@@ -29,7 +29,7 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     /**
      * Empty public constructor.
      */
-    protected UpdateClientRender(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected UpdateClientRender(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.from = buf.readBlockPos();
@@ -49,7 +49,7 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -57,7 +57,7 @@ public class UpdateClientRender extends AbstractClientPlayMessage
 
     @SuppressWarnings("resource")
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         Minecraft.getInstance().levelRenderer.setBlocksDirty(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
     }

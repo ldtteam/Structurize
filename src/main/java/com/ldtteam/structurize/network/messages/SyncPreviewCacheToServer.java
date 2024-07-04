@@ -5,9 +5,9 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Sync blueprint preview data to the server.
@@ -24,7 +24,7 @@ public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected SyncPreviewCacheToServer(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected SyncPreviewCacheToServer(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.previewData = new BlueprintPreviewData(buf);
@@ -40,13 +40,13 @@ public class SyncPreviewCacheToServer extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         this.previewData.writeToBuf(buf);
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         ServerPreviewDistributor.distribute(this.previewData, player);
     }

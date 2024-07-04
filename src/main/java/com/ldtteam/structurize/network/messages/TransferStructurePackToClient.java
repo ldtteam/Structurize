@@ -6,9 +6,9 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Transfer a zipped structure pack to the client.
@@ -35,7 +35,7 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     /**
      * Public standard constructor.
      */
-    protected TransferStructurePackToClient(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected TransferStructurePackToClient(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.packname = buf.readUtf(32767);
@@ -58,7 +58,7 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeUtf(this.packname);
         buf.writeBoolean(this.eol);
@@ -67,7 +67,7 @@ public class TransferStructurePackToClient extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         ClientStructurePackLoader.onStructurePackTransfer(this.packname, this.payload, this.eol);
     }

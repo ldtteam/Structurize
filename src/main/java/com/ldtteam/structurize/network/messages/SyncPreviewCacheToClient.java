@@ -5,9 +5,9 @@ import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
 
@@ -33,7 +33,7 @@ public class SyncPreviewCacheToClient extends AbstractClientPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected SyncPreviewCacheToClient(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected SyncPreviewCacheToClient(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.previewData = new BlueprintPreviewData(buf, false);
@@ -51,14 +51,14 @@ public class SyncPreviewCacheToClient extends AbstractClientPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         this.previewData.writeToBuf(buf);
         buf.writeUUID(this.playerUUID);
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final Player player)
+    protected void onExecute(final IPayloadContext context, final Player player)
     {
         final String uuid = SHARED_PREFIX + playerUUID.toString();
         if (previewData.isEmpty())

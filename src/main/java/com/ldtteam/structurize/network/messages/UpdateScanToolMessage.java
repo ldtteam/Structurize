@@ -6,11 +6,11 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.util.ScanToolData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Send the scan tool update message to the client.
@@ -27,7 +27,7 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
     /**
      * Empty public constructor.
      */
-    protected UpdateScanToolMessage(final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected UpdateScanToolMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.tag = buf.readNbt();
@@ -44,13 +44,13 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeNbt(this.tag);
     }
+    protected void toBytes(final RegistryFriendlyByteBuf buf)
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)

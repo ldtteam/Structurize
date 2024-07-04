@@ -4,10 +4,10 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 public class ScanToolTeleportMessage extends AbstractServerPlayMessage
@@ -19,18 +19,18 @@ public class ScanToolTeleportMessage extends AbstractServerPlayMessage
         super(TYPE);
     }
 
-    protected ScanToolTeleportMessage(@NotNull final FriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected ScanToolTeleportMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
     }
 
     @Override
-    protected void toBytes(FriendlyByteBuf buf)
+    protected void toBytes(RegistryFriendlyByteBuf buf)
     {
     }
 
     @Override
-    protected void onExecute(final PlayPayloadContext context, final ServerPlayer player)
+    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
