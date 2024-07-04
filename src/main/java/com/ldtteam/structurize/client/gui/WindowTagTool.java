@@ -5,7 +5,7 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
-import com.ldtteam.structurize.items.ItemTagTool;
+import com.ldtteam.structurize.items.ItemTagTool.TagData;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -95,7 +95,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     {
         super.close();
         currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
-        stack.getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, currentTag);
+        stack.update(TagData.TYPE, TagData.EMPTY, tags -> tags.setCurrentTag(currentTag));
         new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
     }
 

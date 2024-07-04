@@ -1,22 +1,25 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.common.codec.Codecs;
+import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import java.util.Arrays;
 
 /**
  * Data representing a set of scans in the scan tool.
- * This is deliberately lazy and accesses only the parts of the tag you actually ask for.
  */
 public class ScanToolData
 {
@@ -25,28 +28,39 @@ public class ScanToolData
      */
     public static final int NUM_SLOTS = 10;
 
-    private static final String NBT_SLOTS = MOD_ID + ":slots";
-    private static final String NBT_CURRENT = MOD_ID + ":cur";
+    public static final Codec<ScanToolData> CODEC = RecordCodecBuilder.create(builder -> builder
+        .group(Codecs.forArray(Slot.CODEC, Slot[]::new, NUM_SLOTS).fieldOf("slots").forGetter(data -> data.slots),
+            Codec.intRange(0, NUM_SLOTS - 1).fieldOf("current_slot").forGetter(ScanToolData::getCurrentSlotId))
+        .apply(builder, ScanToolData::new));
 
-    private final CompoundTag tag;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ScanToolData> STREAM_CODEC =
+        StreamCodec.composite(Codecs.streamForArray(Slot.STREAM_CODEC, Slot[]::new, NUM_SLOTS),
+            data -> data.slots,
+            ByteBufCodecs.VAR_INT,
+            ScanToolData::getCurrentSlotId,
+            ScanToolData::new);
 
-    /**
-     * Load from a tag
-     * @param tag the tag
-     */
-    public ScanToolData(@NotNull CompoundTag tag)
+    public static DeferredHolder<DataComponentType<?>, DataComponentType<ScanToolData>> TYPE;
+
+    private final Slot[] slots;
+    private int currentSlot = 1;
+
+    // public mutable fields
+
+    public BlockPos anchorPos;
+    public BlockPos commandPos;
+    public String structureName;
+    public ResourceLocation dimentionKey;
+
+    private ScanToolData(final Slot[] slots, final int currentSlot)
     {
-        this.tag = tag;
+        this.slots = slots.length != NUM_SLOTS ? Arrays.copyOf(slots, NUM_SLOTS) : slots;
+        this.currentSlot = currentSlot;
     }
 
-    /**
-     * Gets the internal tag used to store data.  Don't fiddle with this.
-     * @return the tag
-     */
-    @NotNull
-    public CompoundTag getInternalTag()
+    private ScanToolData()
     {
-        return this.tag;
+        this.slots = new Slot[NUM_SLOTS];
     }
 
     /**
@@ -56,19 +70,17 @@ public class ScanToolData
     public int getCurrentSlotId()
     {
         // the default slot is #1 so that we can treat slot 0 as if it were slot 10 (but we still call it slot 0)
-        return this.tag.contains(NBT_CURRENT) ?  Math.max(0, Math.min(NUM_SLOTS - 1, this.tag.getInt(NBT_CURRENT))) : 1;
+        return currentSlot;
     }
 
     /**
      * Gets the currently selected slot
      * @return the slot data for the current slot
      */
-    @NotNull
+    @Nullable
     public Slot getCurrentSlotData()
     {
-        final int current = getCurrentSlotId();
-        final ListTag slots = tag.getList(NBT_SLOTS, Tag.TAG_COMPOUND);
-        return new Slot(Objects.requireNonNullElse(current < slots.size() ? slots.getCompound(current) : null,new CompoundTag()));
+        return slots[currentSlot];
     }
 
     /**
@@ -77,11 +89,7 @@ public class ScanToolData
      */
     public void setCurrentSlotData(@Nullable final Slot data)
     {
-        final int current = getCurrentSlotId();
-        final ListTag slots = tag.getList(NBT_SLOTS, Tag.TAG_COMPOUND);
-        while (current >= slots.size()) slots.add(new CompoundTag());
-        slots.set(current, data == null ? new CompoundTag() : data.write(new CompoundTag()));
-        tag.put(NBT_SLOTS, slots);
+        slots[currentSlot] = data;
     }
 
     /**
@@ -106,82 +114,48 @@ public class ScanToolData
      */
     public void moveTo(final int slot)
     {
-        this.tag.putInt(NBT_CURRENT, slot);
+        currentSlot = slot;
     }
 
+    public static ScanToolData getOrCreate(final ItemStack itemStack)
+    {
+        ScanToolData data = itemStack.get(ModDataComponents.SCAN_TOOL);
+        if (data == null)
+        {
+            data = new ScanToolData();
+            itemStack.set(ModDataComponents.SCAN_TOOL, data);
+        }
+        return data;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        // because neo
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        // because neo
+        return super.hashCode();
+    }
 
     /**
      * Data for one scan slot
      */
-    public static class Slot
+    public record Slot(@NotNull String getName, @NotNull BoxPreviewData getBox)
     {
-        private final String name;
-        private final BoxPreviewData box;
-
-        /**
-         * Construct directly
-         * @param name the schematic name
-         * @param box the schematic box
-         */
-        public Slot(@NotNull final String name,
-                    @NotNull final BoxPreviewData box)
-        {
-            this.name = name;
-            this.box = box;
-        }
-
-        /**
-         * Load from tag
-         * @param tag the tag
-         */
-        public Slot(@NotNull final CompoundTag tag)
-        {
-            final BlockPos corner1 = NbtUtils.readBlockPos(tag.getCompound("c1"));
-            final BlockPos corner2 = NbtUtils.readBlockPos(tag.getCompound("c2"));
-            final Optional<BlockPos> anchor = tag.contains("a")
-                    ? Optional.of(NbtUtils.readBlockPos(tag.getCompound("a")))
-                    : Optional.empty();
-            this.box = new BoxPreviewData(corner1, corner2, anchor);
-
-            this.name = tag.getString("n");
-        }
-
-        /**
-         * Serialize
-         * @param tag target tag
-         * @return the same tag (for convenience)
-         */
-        public CompoundTag write(@NotNull final CompoundTag tag)
-        {
-            tag.put("c1", NbtUtils.writeBlockPos(this.box.getPos1()));
-            tag.put("c2", NbtUtils.writeBlockPos(this.box.getPos2()));
-            if (this.box.getAnchor().isPresent())
-            {
-                tag.put("a", NbtUtils.writeBlockPos(this.box.getAnchor().get()));
-            }
-            else
-            {
-                tag.remove("a");
-            }
-            tag.putString("n", this.name);
-            return tag;
-        }
+        public static final Codec<Slot> CODEC = RecordCodecBuilder.create(builder -> builder
+            .group(Codec.STRING.fieldOf("name").forGetter(Slot::getName), BoxPreviewData.CODEC.fieldOf("box").forGetter(Slot::getBox))
+            .apply(builder, Slot::new));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Slot> STREAM_CODEC =
+            StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Slot::getName, BoxPreviewData.STREAM_CODEC, Slot::getBox, Slot::new);
 
         public boolean isEmpty()
         {
-            return this.name.isEmpty();
-        }
-
-        @NotNull
-        public BoxPreviewData getBox()
-        {
-            return this.box;
-        }
-
-        @NotNull
-        public String getName()
-        {
-            return this.name;
+            return this.getName.isEmpty();
         }
     }
 }

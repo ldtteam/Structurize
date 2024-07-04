@@ -1,6 +1,11 @@
 package com.ldtteam.structurize.api;
 
+import com.ldtteam.common.codec.Codecs;
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -19,6 +24,9 @@ public enum RotationMirror
     MIR_R90(Rotation.CLOCKWISE_90, Mirror.FRONT_BACK),
     MIR_R180(Rotation.CLOCKWISE_180, Mirror.FRONT_BACK),
     MIR_R270(Rotation.COUNTERCLOCKWISE_90, Mirror.FRONT_BACK);
+
+    public static final Codec<RotationMirror> CODEC = Codecs.forEnum(RotationMirror.class);
+    public static final StreamCodec<ByteBuf, RotationMirror> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(ordinal -> RotationMirror.values()[ordinal], RotationMirror::ordinal);
 
     public static final RotationMirror[] MIRRORED = {MIR_NONE, MIR_R90, MIR_R180, MIR_R270};
     public static final RotationMirror[] NOT_MIRRORED = {NONE, R90, R180, R270};

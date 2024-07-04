@@ -1,11 +1,15 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,18 +20,18 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 /**
  * Item for tagging positions with tags
  */
 public class ItemTagTool extends AbstractItemWithPosSelector
 {
-    public static final String TAG_ANCHOR_POS         = "anchorpostag";
-    public static final String TAG_CURRENT_TAG        = "currenttag";
-
     /**
      * Creates default scan tool item.
      */
@@ -57,50 +61,17 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     {
         if (worldIn.isClientSide)
         {
-            final BlockPos anchorPos = getAnchorPos(itemStack);
-            if (anchorPos == null)
+            final TagData tagData = itemStack.getOrDefault(TagData.TYPE, TagData.EMPTY);
+            if (!tagData.hasAnchorPos())
             {
                 playerIn.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"), false);
                 return InteractionResult.FAIL;
             }
 
-            final WindowTagTool window = new WindowTagTool(getCurrentTag(itemStack), anchorPos, worldIn, itemStack);
+            final WindowTagTool window = new WindowTagTool(tagData.currentTagOrEmpty(), tagData.anchorPos(), worldIn, itemStack);
             window.open();
         }
         return InteractionResult.SUCCESS;
-    }
-
-    /**
-     * Get the anchor pos from nbt
-     *
-     * @param stack stack to use
-     * @return pos of anchor
-     */
-    private BlockPos getAnchorPos(final ItemStack stack)
-    {
-        final CompoundTag itemCompound = stack.getOrCreateTag();
-
-        if (itemCompound.contains(TAG_ANCHOR_POS))
-        {
-            return BlockPosUtil.readFromNBT(itemCompound, TAG_ANCHOR_POS);
-        }
-
-        return null;
-    }
-
-    /**
-     * Getsthe current tag from nbt
-     *
-     * @param stack stack to use
-     * @return tag string
-     */
-    private String getCurrentTag(final ItemStack stack)
-    {
-        if (stack.getOrCreateTag().contains(TAG_CURRENT_TAG))
-        {
-            return stack.getOrCreateTag().getString(TAG_CURRENT_TAG);
-        }
-        return "";
     }
 
     @Override
@@ -130,7 +101,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             BlockEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
             if (te instanceof IBlueprintDataProviderBE)
             {
-                BlockPosUtil.writeToNBT(context.getItemInHand().getOrCreateTag(), TAG_ANCHOR_POS, context.getClickedPos());
+                context.getItemInHand().update(TagData.TYPE, TagData.EMPTY, tags -> tags.setAnchorPos(context.getClickedPos()));
                 if (context.getLevel().isClientSide())
                 {
                     context.getPlayer().displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchorsaved"), false);
@@ -159,38 +130,39 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             return false;
         }
 
-        BlockPos anchorPos = getAnchorPos(stack);
-        String currentTag = getCurrentTag(stack);
+        final TagData tagData = stack.getOrDefault(TagData.TYPE, TagData.EMPTY);
 
-        if (anchorPos == null)
+        if (!tagData.hasAnchorPos())
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"), false);
             return false;
         }
 
-        if (currentTag.isEmpty())
+        if (!tagData.hasCurrentTag())
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.notag"), false);
             return false;
         }
 
         // Apply tag to item
+        final BlockPos anchorPos = tagData.anchorPos();
+        final String currentTag = tagData.currentTag();
         BlockPos relativePos = pos.subtract(anchorPos);
 
-        final BlockEntity te = worldIn.getBlockEntity(anchorPos);
-        if (!(te instanceof IBlueprintDataProviderBE))
+        final BlockEntity te = worldIn.getBlockEntity(tagData.anchorPos());
+        if (!(te instanceof final IBlueprintDataProviderBE blueprintBe))
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"), false);
-            stack.getOrCreateTag().remove(TAG_ANCHOR_POS);
+            stack.update(TagData.TYPE, TagData.EMPTY, tags -> tags.setAnchorPos(null));
             return false;
         }
 
         // add/remove tags
-        Map<BlockPos, List<String>> tagPosMap = ((IBlueprintDataProviderBE) te).getPositionedTags();
+        Map<BlockPos, List<String>> tagPosMap = blueprintBe.getPositionedTags();
 
         if (!tagPosMap.containsKey(relativePos) || !tagPosMap.get(relativePos).contains(currentTag))
         {
-            ((IBlueprintDataProviderBE) te).addTag(relativePos, currentTag);
+            blueprintBe.addTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.addtag",
@@ -200,7 +172,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         }
         else
         {
-            ((IBlueprintDataProviderBE) te).removeTag(relativePos, currentTag);
+            blueprintBe.removeTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.removed",
@@ -210,5 +182,58 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         }
 
         return false;
+    }
+
+    /**
+     * Data components for storing start and end pos
+     */
+    public record TagData(@Nullable BlockPos anchorPos, @Nullable String currentTag)
+    {
+        public static DeferredHolder<DataComponentType<?>, DataComponentType<TagData>> TYPE = null;        
+        public static final TagData EMPTY = new TagData(null, null);
+
+        public static final Codec<TagData> CODEC = RecordCodecBuilder.create(
+            builder -> builder
+                .group(BlockPos.CODEC.optionalFieldOf("anchor_pos_tag", null).forGetter(TagData::anchorPos),
+                    Codec.STRING.optionalFieldOf("current_tag", null).forGetter(TagData::currentTag))
+                .apply(builder, TagData::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, TagData> STREAM_CODEC =
+            StreamCodec.composite(BlockPos.STREAM_CODEC,
+                TagData::anchorPos,
+                ByteBufCodecs.STRING_UTF8,
+                TagData::currentTag,
+                TagData::new);
+
+        public boolean hasAnchorPos()
+        {
+            return anchorPos != null;
+        }
+
+        public boolean hasCurrentTag()
+        {
+            return currentTag != null && !currentTag.isEmpty();
+        }
+
+        public String currentTagOrEmpty()
+        {
+            return currentTag == null ? "" : currentTag;
+        }
+
+        /**
+         * For use with {@link ItemStack#update(DataComponentType, Object, UnaryOperator)}
+         */
+        public TagData setAnchorPos(final BlockPos pos)
+        {
+            return new TagData(pos, currentTag);
+        }
+
+        /**
+         * For use with {@link ItemStack#update(DataComponentType, Object, UnaryOperator)}
+         */
+        public TagData setCurrentTag(final String currentTag)
+        {
+            return new TagData(anchorPos, currentTag.isEmpty() ? null : currentTag);
+        }
     }
 }

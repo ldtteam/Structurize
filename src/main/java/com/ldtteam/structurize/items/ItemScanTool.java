@@ -29,15 +29,12 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -70,10 +67,6 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
-    private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
-    private static final String NBT_NAME = "structurize:name";
-    private static final String NBT_COMMAND_POS = "structurize:cmd_pos";
-    private static final String NBT_DIMENSION = "structurize:dim";
 
     /**
      * Creates default scan tool item.
@@ -96,7 +89,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     @Override
     public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
     {
-        final ScanToolData data = new ScanToolData(itemStack.getOrCreateTag());
+        final ScanToolData data = ScanToolData.getOrCreate(itemStack);
         saveSlot(data, itemStack, playerIn);
 
         if (!worldIn.isClientSide)
@@ -222,7 +215,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                 {
                     RenderingCache.queue("scan", new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(), ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(), Optional.of(pos)));
                 }
-                setBounds(itemstack, start, end);
+                itemstack.update(PosSelection.TYPE, PosSelection.EMPTY, data -> data.setSelection(start, end));
             }
         }
 
@@ -232,13 +225,13 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack,
-                                @Nullable Level world,
+                                @Nullable TooltipContext world,
                                 @NotNull List<Component> tooltip,
                                 @NotNull TooltipFlag flags)
     {
         super.appendHoverText(stack, world, tooltip, flags);
 
-        if (stack.hasTag())
+        if (stack.has(ScanToolData.TYPE))
         {
             tooltip.add(getCurrentSlotDescription(stack));
         }
@@ -255,9 +248,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
     private Component getCurrentSlotDescription(@NotNull final ItemStack stack)
     {
-        final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
+        final ScanToolData data = ScanToolData.getOrCreate(stack);
         MutableComponent desc = Component.empty()
-                .append(Component.literal(String.valueOf(data.getCurrentSlotId())).withStyle(ChatFormatting.GRAY));
+                .append(Component.literal(Integer.toString(data.getCurrentSlotId())).withStyle(ChatFormatting.GRAY));
 
         final String name = getStructureName(stack);
         if (!name.isEmpty())
@@ -314,7 +307,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                             @NotNull final ItemStack stack,
                             @NotNull final Consumer<ScanToolData> action)
     {
-        final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
+        final ScanToolData data = ScanToolData.getOrCreate(stack);
         saveSlot(data, stack, player);
         action.accept(data);
         final ScanToolData.Slot slot = loadSlot(data, stack);
@@ -337,7 +330,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         // this seems a little silly at first, duplicating this info outside the slot storage.
         // but it preserves compatibility with AbstractItemWithPosSelector.
         setStructureName(stack, slot.getName());
-        setBounds(stack, slot.getBox().getPos1(), slot.getBox().getPos2());
+        stack.update(PosSelection.TYPE, PosSelection.EMPTY, data1 -> data1.setSelection(slot.getBox().getPos1(), slot.getBox().getPos2()));
         setAnchorPos(stack, slot.getBox().getAnchor().orElse(null));
 
         return slot;
@@ -417,10 +410,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                 name = StringArgumentType.getString(cmdContext, ScanCommand.FILE_NAME);
             }
 
-            stack.getOrCreateTag().put(NBT_COMMAND_POS, NbtUtils.writeBlockPos(command.getBlockPos()));
-            stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
+            final ScanToolData data = ScanToolData.getOrCreate(stack);
+            data.commandPos = command.getBlockPos();
+            data.dimentionKey = command.getLevel().dimension().location();
 
-            final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
             data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchor)));
             final ScanToolData.Slot slot = loadSlot(data, stack);
             new ShowScanMessage(slot.getBox()).sendToPlayer(player);
@@ -446,7 +439,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                                      @NotNull final CommandBlockEntity command,
                                      final boolean ctrlKey)
     {
-        final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
+        final ScanToolData data = ScanToolData.getOrCreate(stack);
         saveSlot(data, stack, player);
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
@@ -491,8 +484,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final String cmd = ScanCommand.format(slot);
         command.getCommandBlock().setCommand(cmd);
 
-        stack.getOrCreateTag().put(NBT_COMMAND_POS, NbtUtils.writeBlockPos(command.getBlockPos()));
-        stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
+        data.commandPos = command.getBlockPos();
+        data.dimentionKey = command.getLevel().dimension().location();
 
         player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.getName()), false);
         player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -511,7 +504,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return false;
         }
 
-        if (stack.getTag() == null || !stack.getTag().contains(NBT_COMMAND_POS))
+        final ScanToolData data = ScanToolData.getOrCreate(stack);
+        if (data.commandPos == null)
         {
             if (player.level().isClientSide())
             {
@@ -521,7 +515,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return false;
         }
 
-        if (!player.level().dimension().location().toString().equals(stack.getTag().getString(NBT_DIMENSION)))
+        if (!player.level().dimension().location().equals(data.dimentionKey))
         {
             if (player.level().isClientSide())
             {
@@ -531,10 +525,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return false;
         }
 
-        final ScanToolData data = new ScanToolData(stack.getTag());
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        if (slot.getBox().getPos1().equals(BlockPos.ZERO) && slot.getBox().getPos2().equals(BlockPos.ZERO))
+        if (slot == null)
         {
             if (player.level().isClientSide())
             {
@@ -544,7 +537,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return false;
         }
 
-        final BlockPos commandPos = NbtUtils.readBlockPos(stack.getOrCreateTag().getCompound(NBT_COMMAND_POS)).above();
+        final BlockPos commandPos = data.commandPos.above();
         final BlockPos buildPos = getTeleportPos(slot.getBox());
         final Level level = player.level();
 
@@ -631,9 +624,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      */
     public static BoxPreviewData getBox(@NotNull final ItemStack tool, @NotNull final Player player)
     {
-        final Tuple<BlockPos, BlockPos> bounds = getBounds(tool);
-        Optional<BlockPos> anchor = Optional.ofNullable(getAnchorPos(tool));
-        if (anchor.isPresent() && !BlockPosUtil.isInbetween(anchor.get(), bounds.getA(), bounds.getB()))
+        final PosSelection tag = tool.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
+        Optional<BlockPos> anchor = Optional.ofNullable(ScanToolData.getOrCreate(tool).anchorPos);
+        if (anchor.isPresent() && !BlockPosUtil.isInbetween(anchor.get(), tag.startPos(), tag.endPos()))
         {
             if (player.level().isClientSide())
             {
@@ -641,7 +634,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             }
             anchor = Optional.empty();
         }
-        return new BoxPreviewData(bounds.getA(), bounds.getB(), anchor);
+        return new BoxPreviewData(tag.startPos(), tag.endPos(), anchor);
     }
 
     /**
@@ -649,17 +642,11 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param tool The tool stack (assumed already been validated)
      * @param anchor The new anchor position (or null to clear)
      */
+    @Deprecated(forRemoval = true, since = "1.21")
     public static void setAnchorPos(@NotNull final ItemStack tool,
                                     @Nullable final BlockPos anchor)
     {
-        if (anchor == null)
-        {
-            tool.getOrCreateTag().remove(NBT_ANCHOR_POS);
-        }
-        else
-        {
-            tool.getOrCreateTag().put(NBT_ANCHOR_POS, NbtUtils.writeBlockPos(anchor));
-        }
+        ScanToolData.getOrCreate(tool).anchorPos = anchor;
     }
 
     /**
@@ -668,10 +655,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @return the anchor position or null
      */
     @Nullable
+    @Deprecated(forRemoval = true, since = "1.21")
     public static BlockPos getAnchorPos(@NotNull final ItemStack tool)
     {
-        final CompoundTag tag = tool.getOrCreateTag();
-        return tag.contains(NBT_ANCHOR_POS) ? NbtUtils.readBlockPos(tag.getCompound(NBT_ANCHOR_POS)) : null;
+        return ScanToolData.getOrCreate(tool).anchorPos;
     }
 
     /**
@@ -679,16 +666,17 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param tool The tool stack (assumed already validated)
      * @param name The structure name (or null/empty to clear)
      */
+    @Deprecated(forRemoval = true, since = "1.21")
     public static void setStructureName(@NotNull final ItemStack tool,
                                         @Nullable final String name)
     {
         if (name == null || name.isEmpty())
         {
-            tool.getOrCreateTag().remove(NBT_NAME);
+            ScanToolData.getOrCreate(tool).structureName = null;
         }
         else
         {
-            tool.getOrCreateTag().putString(NBT_NAME, name);
+            ScanToolData.getOrCreate(tool).structureName = name;
         }
     }
 
@@ -697,8 +685,9 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param tool The tool stack (assumed already validated)
      * @return The structure name (or empty string)
      */
+    @Deprecated(forRemoval = true, since = "1.21")
     public static String getStructureName(@NotNull final ItemStack tool)
     {
-        return tool.getOrCreateTag().getString(NBT_NAME);
+        return ScanToolData.getOrCreate(tool).structureName;
     }
 }

@@ -2,7 +2,6 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.IScrollableItem;
 import com.ldtteam.structurize.api.constants.Constants;
@@ -13,8 +12,7 @@ import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.BlueprintRenderer.TransparencyHack;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemScanTool;
-import com.ldtteam.structurize.items.ItemTagTool;
-import com.ldtteam.structurize.items.ModItems;
+import com.ldtteam.structurize.items.ItemTagTool.TagData;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
@@ -119,11 +117,12 @@ public class ClientEventSubscriber
 
         final Player player = mc.player;
         final ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (itemStack.getItem() == ModItems.tagTool.get() && itemStack.getOrCreateTag().contains(ItemTagTool.TAG_ANCHOR_POS))
+        final TagData tags = itemStack.get(TagData.TYPE);
+        if (tags != null && tags.hasAnchorPos())
         {
             mc.getProfiler().push("struct_tags");
 
-            final BlockPos tagAnchor = BlockPosUtil.readFromNBT(itemStack.getTag(), ItemTagTool.TAG_ANCHOR_POS);
+            final BlockPos tagAnchor = tags.anchorPos();
             final BlockEntity te = player.level().getBlockEntity(tagAnchor);
 
             if (te instanceof IBlueprintDataProviderBE)

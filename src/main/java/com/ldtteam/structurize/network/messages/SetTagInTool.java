@@ -3,8 +3,8 @@ package com.ldtteam.structurize.network.messages;
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
-import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
+import com.ldtteam.structurize.items.ItemTagTool.TagData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -64,7 +64,7 @@ public class SetTagInTool extends AbstractServerPlayMessage
         final ItemStack stack = player.getInventory().getItem(slot);
         if (stack.getItem() == ModItems.tagTool.get())
         {
-            stack.getOrCreateTag().putString(ItemTagTool.TAG_CURRENT_TAG, tag);
+            stack.update(TagData.TYPE, TagData.EMPTY, tags -> tags.setCurrentTag(tag));
         }
     }
 }

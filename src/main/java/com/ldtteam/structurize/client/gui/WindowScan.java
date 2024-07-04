@@ -422,7 +422,7 @@ public class WindowScan extends AbstractWindowSkeleton
         data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
 
         RenderingCache.queue("scan", slot.getBox());
-        new UpdateScanToolMessage(data).sendToServer();
+        new UpdateScanToolMessage().sendToServer();
     }
 
     /**
