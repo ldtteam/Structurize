@@ -8,8 +8,8 @@ import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Rotation;
 import net.neoforged.api.distmarker.Dist;
@@ -92,7 +92,7 @@ public class BlueprintPreviewData
      * Create blueprint preview data from byteBuf.
      * @param byteBuf the buffer data.
      */
-    public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
+    public BlueprintPreviewData(final RegistryFriendlyByteBuf byteBuf)
     {
         this(byteBuf, true);
     }
@@ -102,30 +102,22 @@ public class BlueprintPreviewData
      * @param byteBuf the buffer data.
      * @param serverSyncEnabled if false then wont send sync preview messages to server
      */
-    public BlueprintPreviewData(final FriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
+    public BlueprintPreviewData(final RegistryFriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
     {
         this.serverSyncEnabled = serverSyncEnabled;
 
         pos = byteBuf.readBlockPos();
         this.packName = byteBuf.readUtf(32767);
         this.blueprintPath = byteBuf.readUtf(32767);
-        rotationMirror = RotationMirror.values()[byteBuf.readByte()];
-    }
-
-    /**
-     * Prepares blueprint if possible
-     */
-    public BlueprintPreviewData prepareBlueprint(final HolderLookup.Provider provider)
-    {
         if (StructurePacks.hasPack(packName))
         {
-            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath, provider);
+            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath, byteBuf.registryAccess());
         }
         else
         {
             blueprintFuture = null;
         }
-        return this;
+        rotationMirror = RotationMirror.values()[byteBuf.readByte()];
     }
 
     /**
