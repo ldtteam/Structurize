@@ -29,13 +29,12 @@ public class EntityTagProvider extends IntrinsicHolderTagsProvider<EntityType<?>
     @Override
     protected void addTags(final Provider provider)
     {
-        // 1.20.2 tick: armorstand, endcrystal, minecartfurnace, display
-
         tag(ModTags.PREVIEW_TICKING_ENTITIES).add(EntityType.ARMOR_STAND)
             .add(EntityType.END_CRYSTAL)
             .add(EntityType.BLOCK_DISPLAY)
             .add(EntityType.ITEM_DISPLAY)
             .add(EntityType.TEXT_DISPLAY)
-            .add(EntityType.FURNACE_MINECART);
+            .add(EntityType.FURNACE_MINECART)
+            .add(EntityType.OMINOUS_ITEM_SPAWNER);
     }
 }

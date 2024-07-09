@@ -3,7 +3,7 @@ package com.ldtteam.structurize.client.gui;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.api.constants.Constants;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -22,7 +22,7 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
      */
     public AbstractWindowSkeleton(final String resource)
     {
-        super(Constants.resLocStruct(resource));
+        super(ResourceLocation.parse(resource));
         buttons = new HashMap<>();
     }
 

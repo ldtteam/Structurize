@@ -2,6 +2,7 @@ package com.ldtteam.structurize;
 
 import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.ldtteam.structurize.blueprints.v1.DataVersion;
+import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.config.ClientConfiguration;
 import com.ldtteam.structurize.config.ServerConfiguration;
 import com.ldtteam.common.config.Configurations;
@@ -50,6 +51,7 @@ public class Structurize
         
         config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, null);
 
+        ModDataComponents.REGISTRY.register(modBus);
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);

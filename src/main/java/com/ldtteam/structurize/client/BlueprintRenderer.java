@@ -54,12 +54,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.level.block.TrialSpawnerBlock;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
+import net.minecraft.world.level.block.entity.vault.VaultBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.HitResult;
@@ -320,6 +323,8 @@ public class BlueprintRenderer implements AutoCloseable
         final PoseStack matrixStack = ctx.getPoseStack();
         final DeltaTracker deltaTracker = ctx.getPartialTick();
         final ProfilerFiller profiler = mc.getProfiler();
+        final Matrix4f mvMatrix = ctx.getModelViewMatrix();
+        final Matrix4f pMatrix = ctx.getProjectionMatrix();
 
         profiler.push("struct_render_init");
         
@@ -370,8 +375,6 @@ public class BlueprintRenderer implements AutoCloseable
         matrixStack.pushPose();
         // move back to camera, everything must go into offsets cuz fog
         matrixStack.translate(viewPosition.x(), viewPosition.y(), viewPosition.z());
-        final Matrix4f mvMatrix = matrixStack.last().pose();
-        final Matrix4f pMatrix = ctx.getProjectionMatrix();
 
         if (mc.level.effects().constantAmbientLight())
         {
@@ -514,6 +517,14 @@ public class BlueprintRenderer implements AutoCloseable
                     // uses sound and applies buffs, but we dont want any of this since we're preview
                     BeaconBlockEntity.tick(blockAccess, tePos, blockAccess.getBlockState(tePos), beacon);
                 }
+                else if (tileEntity instanceof final VaultBlockEntity vault)
+                {
+                    VaultBlockEntity.Client.tick(mc.level, anchorPos.offset(tePos), blockAccess.getBlockState(tePos), vault.getClientData(), vault.getSharedData());
+                }
+                else if (tileEntity instanceof final TrialSpawnerBlockEntity trialSpawner)
+                {
+                    trialSpawner.getTrialSpawner().tickClient(mc.level, anchorPos.offset(tePos), blockAccess.getBlockState(tePos).getOptionalValue(TrialSpawnerBlock.OMINOUS).orElse(false));
+                }
             }
 
             bypassMainFrustum |= renderer.shouldRenderOffScreen(tileEntity);
@@ -628,7 +639,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         if (uniform != null)
         {
-            uniform.set(0, 0, 0);
+            uniform.set(0f, 0, 0);
         }
 
         shaderinstance.clear();
