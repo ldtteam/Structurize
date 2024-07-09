@@ -4,14 +4,10 @@ import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-
-import java.util.Optional;
 
 /**
  * Send the scan message for a player to the server.
@@ -36,12 +32,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     protected ScanOnServerMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        final String name = buf.readUtf(32767);
-        final BlockPos from = buf.readBlockPos();
-        final BlockPos to = buf.readBlockPos();
-        final Optional<BlockPos> anchorPos = buf.readBoolean() ? Optional.of(buf.readBlockPos()) : Optional.empty();
-
-        this.slot = new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchorPos));
+        this.slot = ScanToolData.Slot.STREAM_CODEC.decode(buf);
         this.saveEntities = buf.readBoolean();
     }
 
@@ -55,12 +46,7 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeUtf(slot.getName());
-        buf.writeBlockPos(slot.getBox().getPos1());
-        buf.writeBlockPos(slot.getBox().getPos2());
-        buf.writeBoolean(slot.getBox().getAnchor().isPresent());
-        slot.getBox().getAnchor().ifPresent(buf::writeBlockPos);
-
+        ScanToolData.Slot.STREAM_CODEC.encode(buf, slot);
         buf.writeBoolean(saveEntities);
     }
 

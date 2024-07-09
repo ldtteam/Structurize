@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,9 +21,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract item mechanic for pos selecting
@@ -40,7 +41,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      */
     public AbstractItemWithPosSelector(final Properties properties)
     {
-        super(properties);
+        super(properties.component(PosSelection.TYPE, PosSelection.EMPTY));
     }
 
     /**
@@ -71,7 +72,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         final ItemStack itemstack = playerIn.getItemInHand(handIn);
         final PosSelection compound = itemstack.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
 
-        if (!compound.hasStartPos())
+        if (compound.startPos().isEmpty())
         {
             if (worldIn.isClientSide())
             {
@@ -80,7 +81,7 @@ public abstract class AbstractItemWithPosSelector extends Item
             return InteractionResultHolder.fail(itemstack);
         }
 
-        if (!compound.hasEndPos())
+        if (compound.endPos().isEmpty())
         {
             if (worldIn.isClientSide())
             {
@@ -91,8 +92,8 @@ public abstract class AbstractItemWithPosSelector extends Item
 
         return new InteractionResultHolder<>(
             onAirRightClick(
-                compound.startPos(),
-                compound.endPos(),
+                compound.startPos().get(),
+                compound.endPos().get(),
                 worldIn,
                 playerIn,
                 itemstack),
@@ -171,43 +172,36 @@ public abstract class AbstractItemWithPosSelector extends Item
     public static Tuple<BlockPos, BlockPos> getBounds(@NotNull final ItemStack tool)
     {
         final PosSelection tag = tool.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
-        return new Tuple<>(tag.startPos(), tag.endPos());
+        return new Tuple<>(tag.startPos().orElse(null), tag.endPos().orElse(null));
     }
 
     /**
      * Data components for storing start and end pos
      */
-    public record PosSelection(@Nullable BlockPos startPos, @Nullable BlockPos endPos)
+    public record PosSelection(Optional<BlockPos> startPos, Optional<BlockPos> endPos)
     {
         public static DeferredHolder<DataComponentType<?>, DataComponentType<PosSelection>> TYPE = null;        
-        public static final PosSelection EMPTY = new PosSelection(null, null);
+        public static final PosSelection EMPTY = new PosSelection(Optional.empty(), Optional.empty());
 
         public static final Codec<PosSelection> CODEC = RecordCodecBuilder.create(
             builder -> builder
-                .group(BlockPos.CODEC.optionalFieldOf("start_pos", null).forGetter(PosSelection::startPos),
-                    BlockPos.CODEC.optionalFieldOf("end_pos", null).forGetter(PosSelection::endPos))
+                .group(BlockPos.CODEC.optionalFieldOf("start_pos").forGetter(PosSelection::startPos),
+                    BlockPos.CODEC.optionalFieldOf("end_pos").forGetter(PosSelection::endPos))
                 .apply(builder, PosSelection::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, PosSelection> STREAM_CODEC =
-            StreamCodec.composite(BlockPos.STREAM_CODEC,
+            StreamCodec.composite(ByteBufCodecs.optional(BlockPos.STREAM_CODEC),
                 PosSelection::startPos,
-                BlockPos.STREAM_CODEC,
+                ByteBufCodecs.optional(BlockPos.STREAM_CODEC),
                 PosSelection::endPos,
                 PosSelection::new);
 
-        public boolean hasStartPos()
-        {
-            return startPos != null;
-        }
-
-        public boolean hasEndPos()
-        {
-            return endPos != null;
-        }
-
+        /**
+         * @return true if both start and end positions are set
+         */
         public boolean hasSelection()
         {
-            return hasStartPos() && hasEndPos();
+            return startPos.isPresent() && endPos.isPresent();
         }
 
         /**
@@ -215,7 +209,7 @@ public abstract class AbstractItemWithPosSelector extends Item
          */
         public PosSelection setStartPos(final BlockPos pos)
         {
-            return new PosSelection(pos, endPos);
+            return new PosSelection(Optional.ofNullable(pos), endPos);
         }
 
         /**
@@ -223,7 +217,7 @@ public abstract class AbstractItemWithPosSelector extends Item
          */
         public PosSelection setEndpos(final BlockPos pos)
         {
-            return new PosSelection(startPos, pos);
+            return new PosSelection(startPos, Optional.ofNullable(pos));
         }
 
         /**
@@ -231,7 +225,7 @@ public abstract class AbstractItemWithPosSelector extends Item
          */
         public PosSelection setSelection(final BlockPos startPos, final BlockPos endPos)
         {
-            return new PosSelection(startPos, endPos);
+            return new PosSelection(Optional.ofNullable(startPos), Optional.ofNullable(endPos));
         }
     }
 }

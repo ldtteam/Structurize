@@ -199,21 +199,21 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         }
 
         final BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
+        if (te instanceof final IBlueprintDataProviderBE bpProvider && !bpProvider.getSchematicName().isEmpty())
         {
             if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
             {
                 RenderingCache.getBoxPreviewData("scan").setAnchor(Optional.of(pos));
             }
 
-            final BlockPos start = ((IBlueprintDataProviderBE) te).getInWorldCorners().getA();
-            final BlockPos end = ((IBlueprintDataProviderBE) te).getInWorldCorners().getB();
+            final BlockPos start = bpProvider.getInWorldCorners().getA();
+            final BlockPos end = bpProvider.getInWorldCorners().getB();
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
                 if (worldIn.isClientSide)
                 {
-                    RenderingCache.queue("scan", new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(), ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(), Optional.of(pos)));
+                    RenderingCache.queue("scan", new BoxPreviewData(bpProvider.getInWorldCorners().getA(), bpProvider.getInWorldCorners().getB(), Optional.of(pos)));
                 }
                 itemstack.update(PosSelection.TYPE, PosSelection.EMPTY, data -> data.setSelection(start, end));
             }
@@ -252,11 +252,10 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         MutableComponent desc = Component.empty()
                 .append(Component.literal(Integer.toString(data.getCurrentSlotId())).withStyle(ChatFormatting.GRAY));
 
-        final String name = getStructureName(stack);
-        if (!name.isEmpty())
+        if (data.hasStructureName())
         {
             desc = desc.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(name));
+                    .append(Component.literal(data.structureName));
         }
 
         return desc;
@@ -319,7 +318,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                           @NotNull final ItemStack stack,
                           @NotNull final Player player)
     {
-        data.setCurrentSlotData(new ScanToolData.Slot(getStructureName(stack), getBox(stack, player)));
+        final BoxPreviewData box = getBox(stack, player);
+        data.setCurrentSlotData(box == null ? null : new ScanToolData.Slot(getStructureName(stack), box));
     }
 
     public ScanToolData.Slot loadSlot(@NotNull final ScanToolData data,
@@ -412,7 +412,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
             final ScanToolData data = ScanToolData.getOrCreate(stack);
             data.commandPos = command.getBlockPos();
-            data.dimentionKey = command.getLevel().dimension().location();
+            data.dimensionKey = command.getLevel().dimension().location();
 
             data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchor)));
             final ScanToolData.Slot slot = loadSlot(data, stack);
@@ -485,7 +485,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         command.getCommandBlock().setCommand(cmd);
 
         data.commandPos = command.getBlockPos();
-        data.dimentionKey = command.getLevel().dimension().location();
+        data.dimensionKey = command.getLevel().dimension().location();
 
         player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.getName()), false);
         player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -515,7 +515,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             return false;
         }
 
-        if (!player.level().dimension().location().equals(data.dimentionKey))
+        if (!player.level().dimension().location().equals(data.dimensionKey))
         {
             if (player.level().isClientSide())
             {
@@ -622,11 +622,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      * @param player The player who will be notified if it has a bad anchor position
      * @return the box
      */
+    @Nullable
     public static BoxPreviewData getBox(@NotNull final ItemStack tool, @NotNull final Player player)
     {
         final PosSelection tag = tool.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
+        if (!tag.hasSelection())
+        {
+            return null;
+        }
         Optional<BlockPos> anchor = Optional.ofNullable(ScanToolData.getOrCreate(tool).anchorPos);
-        if (anchor.isPresent() && !BlockPosUtil.isInbetween(anchor.get(), tag.startPos(), tag.endPos()))
+        if (anchor.isPresent() && !BlockPosUtil.isInbetween(anchor.get(), tag.startPos().get(), tag.endPos().get()))
         {
             if (player.level().isClientSide())
             {
@@ -634,7 +639,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             }
             anchor = Optional.empty();
         }
-        return new BoxPreviewData(tag.startPos(), tag.endPos(), anchor);
+        return new BoxPreviewData(tag.startPos().get(), tag.endPos().get(), anchor);
     }
 
     /**
@@ -672,7 +677,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     {
         if (name == null || name.isEmpty())
         {
-            ScanToolData.getOrCreate(tool).structureName = null;
+            ScanToolData.getOrCreate(tool).structureName = "";
         }
         else
         {

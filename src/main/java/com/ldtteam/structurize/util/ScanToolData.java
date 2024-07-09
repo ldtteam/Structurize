@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Data representing a set of scans in the scan tool.
@@ -30,14 +31,26 @@ public class ScanToolData
 
     public static final Codec<ScanToolData> CODEC = RecordCodecBuilder.create(builder -> builder
         .group(Codecs.forArray(Slot.CODEC, Slot[]::new, NUM_SLOTS).fieldOf("slots").forGetter(data -> data.slots),
-            Codec.intRange(0, NUM_SLOTS - 1).fieldOf("current_slot").forGetter(ScanToolData::getCurrentSlotId))
-        .apply(builder, ScanToolData::new));
+            Codec.intRange(0, NUM_SLOTS - 1).fieldOf("current_slot").forGetter(ScanToolData::getCurrentSlotId),
+            Codecs.wrapNullableField(BlockPos.CODEC, "anchor_pos", data -> data.anchorPos),
+            Codecs.wrapNullableField(BlockPos.CODEC, "commands_pos", data -> data.commandPos),
+            Codec.STRING.fieldOf("structure_name").forGetter(data -> data.structureName),
+            Codecs.wrapNullableField(ResourceLocation.CODEC, "dimension_key", data -> data.dimensionKey))
+        .apply(builder, (a, b, c, d, e, f) -> new ScanToolData(a, b, c.orElse(null), d.orElse(null), e, f.orElse(null))));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ScanToolData> STREAM_CODEC =
         StreamCodec.composite(Codecs.streamForArray(Slot.STREAM_CODEC, Slot[]::new, NUM_SLOTS),
             data -> data.slots,
             ByteBufCodecs.VAR_INT,
             ScanToolData::getCurrentSlotId,
+            Codecs.wrapNullable(BlockPos.STREAM_CODEC),
+            data -> data.anchorPos,
+            Codecs.wrapNullable(BlockPos.STREAM_CODEC),
+            data -> data.commandPos,
+            Codecs.wrapNullable(ByteBufCodecs.STRING_UTF8),
+            data -> data.structureName,
+            Codecs.wrapNullable(ResourceLocation.STREAM_CODEC),
+            data -> data.dimensionKey,
             ScanToolData::new);
 
     public static DeferredHolder<DataComponentType<?>, DataComponentType<ScanToolData>> TYPE;
@@ -47,20 +60,52 @@ public class ScanToolData
 
     // public mutable fields
 
+    @Nullable
     public BlockPos anchorPos;
+    @Nullable
     public BlockPos commandPos;
-    public String structureName;
-    public ResourceLocation dimentionKey;
+    public String structureName = "";
+    @Nullable
+    public ResourceLocation dimensionKey;
 
-    private ScanToolData(final Slot[] slots, final int currentSlot)
+    private ScanToolData(final Slot[] slots,
+        final int currentSlot,
+        final BlockPos anchorPos,
+        final BlockPos commandPos,
+        final String structureName,
+        final ResourceLocation dimensionKey)
     {
-        this.slots = slots.length != NUM_SLOTS ? Arrays.copyOf(slots, NUM_SLOTS) : slots;
+        this.slots = validateSlots(slots);
         this.currentSlot = currentSlot;
+        this.anchorPos = anchorPos;
+        this.commandPos = commandPos;
+        this.structureName = structureName;
+        this.dimensionKey = dimensionKey;
     }
 
     private ScanToolData()
     {
-        this.slots = new Slot[NUM_SLOTS];
+        this.slots = validateSlots(new Slot[NUM_SLOTS]);
+    }
+
+    /**
+     * @return array with proper length and non-null values
+     */
+    private Slot[] validateSlots(Slot[] slots)
+    {
+        if (slots.length != NUM_SLOTS)
+        {
+            slots = Arrays.copyOf(slots, NUM_SLOTS);
+        }
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            if (slots[i] == null)
+            {
+                slots[i] = Slot.EMPTY;
+            }
+        }
+        return slots;
     }
 
     /**
@@ -89,7 +134,7 @@ public class ScanToolData
      */
     public void setCurrentSlotData(@Nullable final Slot data)
     {
-        slots[currentSlot] = data;
+        slots[currentSlot] = data == null ? Slot.EMPTY : data;
     }
 
     /**
@@ -117,6 +162,26 @@ public class ScanToolData
         currentSlot = slot;
     }
 
+    public boolean hasAnchorPos()
+    {
+        return anchorPos != null;
+    }
+
+    public boolean hasCommandPos()
+    {
+        return commandPos != null;
+    }
+
+    public boolean hasStructureName()
+    {
+        return structureName != null && !structureName.isEmpty();
+    }
+
+    public boolean hasDimensionKey()
+    {
+        return dimensionKey != null;
+    }
+
     public static ScanToolData getOrCreate(final ItemStack itemStack)
     {
         ScanToolData data = itemStack.get(ModDataComponents.SCAN_TOOL);
@@ -129,10 +194,10 @@ public class ScanToolData
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         // because neo
-        return super.equals(obj);
+        return this == obj;
     }
 
     @Override
@@ -147,11 +212,19 @@ public class ScanToolData
      */
     public record Slot(@NotNull String getName, @NotNull BoxPreviewData getBox)
     {
-        public static final Codec<Slot> CODEC = RecordCodecBuilder.create(builder -> builder
-            .group(Codec.STRING.fieldOf("name").forGetter(Slot::getName), BoxPreviewData.CODEC.fieldOf("box").forGetter(Slot::getBox))
-            .apply(builder, Slot::new));
-        public static final StreamCodec<RegistryFriendlyByteBuf, Slot> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Slot::getName, BoxPreviewData.STREAM_CODEC, Slot::getBox, Slot::new);
+        // TODO: reevaluate emptiness and nullness of slots (so we dont need to use BlockPos.ZERO and empty instances)
+        // TODO: reevaluate all network messages regarding scan tool (so it matches how data comps are synced)
+        public static final Slot EMPTY = new Slot("", new BoxPreviewData(BlockPos.ZERO, BlockPos.ZERO, Optional.empty()));
+        
+        public static final Codec<Slot> CODEC = Codecs
+            .withEmpty(RecordCodecBuilder.create(builder -> builder
+                    .group(Codec.STRING.fieldOf("name").forGetter(Slot::getName),
+                        BoxPreviewData.CODEC.fieldOf("box").forGetter(Slot::getBox))
+                    .apply(builder, Slot::new)),
+                EMPTY);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Slot> STREAM_CODEC = Codecs.streamWithEmpty(
+            StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Slot::getName, BoxPreviewData.STREAM_CODEC, Slot::getBox, Slot::new),
+            EMPTY);
 
         public boolean isEmpty()
         {
