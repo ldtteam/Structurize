@@ -17,26 +17,34 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
 {
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "update_scan_tool", UpdateScanToolMessage::new);
 
+    private final ScanToolData data;
+
     /**
      * Empty public constructor.
      */
     protected UpdateScanToolMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
+
+        this.data = ScanToolData.STREAM_CODEC.decode(buf);
     }
 
     /**
      * Update the scan tool.
      * @param data the new data
      */
-    public UpdateScanToolMessage()
+    public UpdateScanToolMessage(final ScanToolData data)
     {
         super(TYPE);
+
+        this.data = data;
     }
 
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
-    {}
+    {
+        ScanToolData.STREAM_CODEC.encode(buf, this.data);
+    }
 
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
@@ -44,7 +52,8 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
         {
-            tool.loadSlot(ScanToolData.getOrCreate(stack), stack);
+            // normally you should sanity check client data more, but there's nothing particularly abuse-prone here
+            tool.loadSlot(ScanToolData.update(stack, old -> this.data), stack);
         }
     }
 }

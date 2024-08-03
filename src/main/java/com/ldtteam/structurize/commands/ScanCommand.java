@@ -176,18 +176,18 @@ public class ScanCommand extends AbstractCommand
     @NotNull
     public static String format(@NotNull final ScanToolData.Slot slot)
     {
-        final String name = slot.getName().chars().anyMatch(c -> !StringReader.isAllowedInUnquotedString((char)c))
-                ? StringTag.quoteAndEscape(slot.getName()) : slot.getName();
+        final String name = slot.name().chars().anyMatch(c -> !StringReader.isAllowedInUnquotedString((char)c))
+                ? StringTag.quoteAndEscape(slot.name()) : slot.name();
 
         final StringBuilder builder = new StringBuilder();
         builder.append(String.format("/%s %s %s %s @p %s", MOD_ID, NAME,
-                BlockPosUtil.format(slot.getBox().getPos1()),
-                BlockPosUtil.format(slot.getBox().getPos2()),
+                BlockPosUtil.format(slot.box().pos1()),
+                BlockPosUtil.format(slot.box().pos2()),
                 name));
-        if (slot.getBox().getAnchor().isPresent() && BlockPosUtil.isInbetween(slot.getBox().getAnchor().get(), slot.getBox().getPos1(), slot.getBox().getPos2()))
+        if (slot.box().anchor().isPresent() && BlockPosUtil.isInbetween(slot.box().anchor().get(), slot.box().pos1(), slot.box().pos2()))
         {
             builder.append(' ');
-            builder.append(BlockPosUtil.format(slot.getBox().getAnchor().get()));
+            builder.append(BlockPosUtil.format(slot.box().anchor().get()));
         }
         return builder.toString();
     }

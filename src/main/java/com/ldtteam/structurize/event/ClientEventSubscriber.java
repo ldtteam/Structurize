@@ -108,8 +108,8 @@ public class ClientEventSubscriber
             mc.getProfiler().push("struct_box");
 
             // Used to render a red box around a scan's Primary offset (primary block)
-            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, previewData.getPos1(), previewData.getPos2(), 0.02f);
-            previewData.getAnchor().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
+            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, previewData.pos1(), previewData.pos2(), 0.02f);
+            previewData.anchor().ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
 
             mc.getProfiler().pop();
         }
