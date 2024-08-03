@@ -73,7 +73,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * The scan tool data.
      */
-    private final ScanToolData data;
+    private ScanToolData data;
 
     /**
      * Filter for the block and entity lists.
@@ -180,7 +180,7 @@ public class WindowScan extends AbstractWindowSkeleton
             double circleRadiusMult = Double.parseDouble(findPaneOfTypeByID(INPUT_RADIUS, TextField.class).getText());
             int heightOffset = Integer.parseInt(findPaneOfTypeByID(INPUT_HEIGHT_OFFSET, TextField.class).getText());
             int minDistToBlocks = Integer.parseInt(findPaneOfTypeByID(INPUT_BLOCKDIST, TextField.class).getText());
-            new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(), data.getCurrentSlotData().getBox().getPos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks).sendToServer();
+            new FillTopPlaceholderMessage(data.currentSlot().box().pos1(), data.currentSlot().box().pos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks).sendToServer();
         }
         catch (Exception e)
         {
@@ -343,8 +343,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         updateBounds();
 
-        final ScanToolData.Slot slot = data.getCurrentSlotData();
-        new ScanOnServerMessage(slot, true).sendToServer();
+        new ScanOnServerMessage(data.currentSlot(), true).sendToServer();
         RenderingCache.removeBox("scan");
         close();
     }
@@ -355,7 +354,7 @@ public class WindowScan extends AbstractWindowSkeleton
         if (ch >= '0' && ch <= '9')
         {
             updateBounds();
-            data.moveTo(ch - '0');
+            data = data.moveTo(ch - '0');
             loadSlot();
             updateResources();
             return true;
@@ -366,27 +365,27 @@ public class WindowScan extends AbstractWindowSkeleton
 
     private void loadSlot()
     {
-        slotId.setText(String.valueOf(data.getCurrentSlotId()));
-        final ScanToolData.Slot slot = data.getCurrentSlotData();
+        slotId.setText(String.valueOf(data.currentSlotId()));
+        final ScanToolData.Slot slot = data.currentSlot();
 
-        pos1x.setText(String.valueOf(slot.getBox().getPos1().getX()));
-        pos1y.setText(String.valueOf(slot.getBox().getPos1().getY()));
-        pos1z.setText(String.valueOf(slot.getBox().getPos1().getZ()));
+        pos1x.setText(String.valueOf(slot.box().pos1().getX()));
+        pos1y.setText(String.valueOf(slot.box().pos1().getY()));
+        pos1z.setText(String.valueOf(slot.box().pos1().getZ()));
 
-        pos2x.setText(String.valueOf(slot.getBox().getPos2().getX()));
-        pos2y.setText(String.valueOf(slot.getBox().getPos2().getY()));
-        pos2z.setText(String.valueOf(slot.getBox().getPos2().getZ()));
+        pos2x.setText(String.valueOf(slot.box().pos2().getX()));
+        pos2y.setText(String.valueOf(slot.box().pos2().getY()));
+        pos2z.setText(String.valueOf(slot.box().pos2().getZ()));
 
-        RenderingCache.queue("scan", slot.getBox());
+        RenderingCache.queue("scan", slot.box());
 
         findPaneOfTypeByID(NAME_LABEL, TextField.class).setText("");
-        if (!slot.getName().isEmpty())
+        if (!slot.name().isEmpty())
         {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(slot.getName());
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(slot.name());
         }
-        else if (slot.getBox().getAnchor().isPresent())
+        else if (slot.box().anchor().isPresent())
         {
-            final BlockEntity tile = Minecraft.getInstance().player.level().getBlockEntity(slot.getBox().getAnchor().get());
+            final BlockEntity tile = Minecraft.getInstance().player.level().getBlockEntity(slot.box().anchor().get());
             if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
             {
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());
@@ -418,11 +417,10 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
-        final ScanToolData.Slot slot = data.getCurrentSlotData();
-        data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
+        data = data.withCurrentSlot(new ScanToolData.Slot(name, data.currentSlot().box().withCorners(pos1, pos2)));
 
-        RenderingCache.queue("scan", slot.getBox());
-        new UpdateScanToolMessage().sendToServer();
+        RenderingCache.queue("scan", data.currentSlot().box());
+        new UpdateScanToolMessage(data).sendToServer();
     }
 
     /**
@@ -441,9 +439,8 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        final ScanToolData.Slot slot = data.getCurrentSlotData();
-
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(slot.getBox().getPos1(), slot.getBox().getPos2()));
+        final BoxPreviewData box = data.currentSlot().box();
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(box.pos1(), box.pos2()));
 
         for (final Entity entity : list)
         {
@@ -458,7 +455,7 @@ public class WindowScan extends AbstractWindowSkeleton
             }
         }
 
-        for (final BlockPos here : BlockPos.betweenClosed(slot.getBox().getPos1(), slot.getBox().getPos2()))
+        for (final BlockPos here : BlockPos.betweenClosed(box.pos1(), box.pos2()))
         {
             final BlockState blockState = world.getBlockState(here);
             final BlockEntity tileEntity = world.getBlockEntity(here);
