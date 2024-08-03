@@ -658,7 +658,7 @@ public final class BlockUtils
     }
 
     /**
-     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive(BlockState, LevelReader, BlockPos)} ()} always return true)
+     * @return true iff block can exist without any support (cannot decay, {@link Block#canSurvive(BlockState, LevelReader, BlockPos)} always return true)
      */
     public static boolean canBlockFloatInAir(final BlockState blockState)
     {
