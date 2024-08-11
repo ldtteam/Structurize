@@ -117,8 +117,8 @@ public class ClientEventSubscriber
 
         final Player player = mc.player;
         final ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        final TagData tags = itemStack.get(TagData.TYPE);
-        if (tags != null && tags.anchorPos().isPresent())
+        final TagData tags = TagData.readFromItemStack(itemStack);
+        if (tags.anchorPos().isPresent())
         {
             mc.getProfiler().push("struct_tags");
 

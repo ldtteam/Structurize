@@ -22,13 +22,6 @@ public class ModDataComponents
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ScanToolData>> SCAN_TOOL =
         savedSynced("scan_tool", ScanToolData.CODEC, ScanToolData.STREAM_CODEC);
 
-    static
-    {
-        PosSelection.TYPE = POS_SELECTION;
-        TagData.TYPE = TAGS_DATA;
-        ScanToolData.TYPE = SCAN_TOOL;
-    }
-
     private static <D> DeferredHolder<DataComponentType<?>, DataComponentType<D>> savedSynced(final String name,
         final Codec<D> codec,
         final StreamCodec<RegistryFriendlyByteBuf, D> streamCodec)

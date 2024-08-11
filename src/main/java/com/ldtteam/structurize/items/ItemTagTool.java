@@ -2,6 +2,7 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
+import com.ldtteam.structurize.component.ModDataComponents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,10 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      */
     public ItemTagTool()
     {
-        this(new Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON).component(TagData.TYPE, TagData.EMPTY));
+        this(new Properties().durability(0)
+            .setNoRepair()
+            .rarity(Rarity.UNCOMMON)
+            .component(ModDataComponents.TAGS_DATA, TagData.EMPTY));
     }
 
     /**
@@ -61,7 +64,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     {
         if (worldIn.isClientSide)
         {
-            final TagData tagData = itemStack.getOrDefault(TagData.TYPE, TagData.EMPTY);
+            final TagData tagData = TagData.readFromItemStack(itemStack);
             if (tagData.anchorPos().isEmpty())
             {
                 playerIn.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"), false);
@@ -101,7 +104,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             BlockEntity te = context.getLevel().getBlockEntity(context.getClickedPos());
             if (te instanceof IBlueprintDataProviderBE)
             {
-                context.getItemInHand().update(TagData.TYPE, TagData.EMPTY, tags -> tags.setAnchorPos(context.getClickedPos()));
+                TagData.updateItemStack(context.getItemInHand(), tags -> tags.setAnchorPos(context.getClickedPos()));
                 if (context.getLevel().isClientSide())
                 {
                     context.getPlayer().displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchorsaved"), false);
@@ -130,7 +133,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             return false;
         }
 
-        final TagData tagData = stack.getOrDefault(TagData.TYPE, TagData.EMPTY);
+        final TagData tagData = TagData.readFromItemStack(stack);
 
         if (tagData.anchorPos().isEmpty())
         {
@@ -153,7 +156,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         if (!(te instanceof final IBlueprintDataProviderBE blueprintBe))
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"), false);
-            stack.update(TagData.TYPE, TagData.EMPTY, tags -> tags.setAnchorPos(null));
+            TagData.updateItemStack(stack, tags -> tags.setAnchorPos(null));
             return false;
         }
 
@@ -188,8 +191,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      * Data components for storing start and end pos
      */
     public record TagData(Optional<BlockPos> anchorPos, Optional<String> currentTag)
-    {
-        public static DeferredHolder<DataComponentType<?>, DataComponentType<TagData>> TYPE = null;        
+    {     
         public static final TagData EMPTY = new TagData(Optional.empty(), Optional.empty());
 
         public static final Codec<TagData> CODEC = RecordCodecBuilder.create(
@@ -219,6 +221,32 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         public TagData setCurrentTag(final String currentTag)
         {
             return new TagData(anchorPos, Optional.ofNullable(currentTag.isEmpty() ? null : currentTag));
+        }
+
+        /**
+         * Writes this tagData into given itemStack.
+         * 
+         * @see BlockEntity#saveToItem(ItemStack, net.minecraft.core.HolderLookup.Provider)
+         */
+        public void writeToItemStack(final ItemStack itemStack)
+        {
+            itemStack.set(ModDataComponents.TAGS_DATA, this);
+        }
+    
+        /**
+         * @return tagData stored in given itemStack (or empty instance)
+         */
+        public static TagData readFromItemStack(final ItemStack itemStack)
+        {
+            return itemStack.getOrDefault(ModDataComponents.TAGS_DATA, TagData.EMPTY);
+        }
+    
+        /**
+         * Performs updating of tagData in given itemStack
+         */
+        public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<TagData> updater)
+        {
+            updater.apply(readFromItemStack(itemStack)).writeToItemStack(itemStack);
         }
     }
 }

@@ -134,7 +134,8 @@ public class BlueprintUtil
             }
 
             final Vec3 oldPos = entity.position();
-            final CompoundTag entityTag = entity.serializeNBT(world.registryAccess());
+            final CompoundTag entityTag = new CompoundTag();
+            entity.save(entityTag);
 
             final ListTag posList = new ListTag();
             posList.add(DoubleTag.valueOf(oldPos.x - pos.getX()));

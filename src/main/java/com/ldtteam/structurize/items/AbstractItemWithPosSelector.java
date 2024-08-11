@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.Utils;
+import com.ldtteam.structurize.component.ModDataComponents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -9,7 +10,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +41,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      */
     public AbstractItemWithPosSelector(final Properties properties)
     {
-        super(properties.component(PosSelection.TYPE, PosSelection.EMPTY));
+        super(properties.component(ModDataComponents.POS_SELECTION, PosSelection.EMPTY));
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         final ItemStack itemstack = playerIn.getItemInHand(handIn);
-        final PosSelection compound = itemstack.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
+        final PosSelection compound = PosSelection.readFromItemStack(itemstack);
 
         if (compound.startPos().isEmpty())
         {
@@ -113,7 +113,7 @@ public abstract class AbstractItemWithPosSelector extends Item
             context.getPlayer().displayClientMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
             Utils.playSuccessSound(context.getPlayer());
         }
-        context.getItemInHand().update(PosSelection.TYPE, PosSelection.EMPTY, data -> data.setEndpos(pos));
+        PosSelection.updateItemStack(context.getItemInHand(), data -> data.setEndpos(pos));
         return InteractionResult.SUCCESS;
     }
 
@@ -129,7 +129,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             itemstack = player.getOffhandItem();
         }
-        itemstack.update(PosSelection.TYPE, PosSelection.EMPTY, data -> data.setStartPos(pos));
+        PosSelection.updateItemStack(itemstack, data -> data.setStartPos(pos));
         if (player.getCommandSenderWorld().isClientSide())
         {
             Utils.playSuccessSound(player);
@@ -159,7 +159,7 @@ public abstract class AbstractItemWithPosSelector extends Item
                                  @NotNull final BlockPos start,
                                  @NotNull final BlockPos end)
     {
-        tool.update(PosSelection.TYPE, PosSelection.EMPTY, data -> data.setSelection(start, end));
+        PosSelection.updateItemStack(tool, data -> data.setSelection(start, end));
     }
 
     /**
@@ -171,7 +171,7 @@ public abstract class AbstractItemWithPosSelector extends Item
     @Deprecated(forRemoval = true, since = "1.21")
     public static Tuple<BlockPos, BlockPos> getBounds(@NotNull final ItemStack tool)
     {
-        final PosSelection tag = tool.getOrDefault(PosSelection.TYPE, PosSelection.EMPTY);
+        final PosSelection tag = PosSelection.readFromItemStack(tool);
         return new Tuple<>(tag.startPos().orElse(null), tag.endPos().orElse(null));
     }
 
@@ -179,8 +179,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      * Data components for storing start and end pos
      */
     public record PosSelection(Optional<BlockPos> startPos, Optional<BlockPos> endPos)
-    {
-        public static DeferredHolder<DataComponentType<?>, DataComponentType<PosSelection>> TYPE = null;        
+    { 
         public static final PosSelection EMPTY = new PosSelection(Optional.empty(), Optional.empty());
 
         public static final Codec<PosSelection> CODEC = RecordCodecBuilder.create(
@@ -226,6 +225,32 @@ public abstract class AbstractItemWithPosSelector extends Item
         public PosSelection setSelection(final BlockPos startPos, final BlockPos endPos)
         {
             return new PosSelection(Optional.ofNullable(startPos), Optional.ofNullable(endPos));
+        }
+
+        /**
+         * Writes this posSelection into given itemStack.
+         * 
+         * @see BlockEntity#saveToItem(ItemStack, net.minecraft.core.HolderLookup.Provider)
+         */
+        public void writeToItemStack(final ItemStack itemStack)
+        {
+            itemStack.set(ModDataComponents.POS_SELECTION, this);
+        }
+    
+        /**
+         * @return posSelection stored in given itemStack (or empty instance)
+         */
+        public static PosSelection readFromItemStack(final ItemStack itemStack)
+        {
+            return itemStack.getOrDefault(ModDataComponents.POS_SELECTION, PosSelection.EMPTY);
+        }
+    
+        /**
+         * Performs updating of posSelection in given itemStack
+         */
+        public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<PosSelection> updater)
+        {
+            updater.apply(readFromItemStack(itemStack)).writeToItemStack(itemStack);
         }
     }
 }

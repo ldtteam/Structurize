@@ -646,15 +646,20 @@ public final class BlockUtils
     public static BlockState copyFirstCommonBlockStateProperties(final BlockState target, final BlockState propertiesOrigin)
     {
         BlockState newState = target;
-        for (final Property property : propertiesOrigin.getProperties())
+        for (final Property<?> property : propertiesOrigin.getProperties())
         {
             if (target.hasProperty(property))
             {
-                newState = newState.setValue(property, propertiesOrigin.getValue(property));
+                newState = copyProperty(propertiesOrigin, newState, property);
             }
         }
 
         return newState;
+    }
+
+    private static <T extends Comparable<T>> BlockState copyProperty(final BlockState from, final BlockState to, final Property<T> property)
+    {
+        return to.setValue(property, from.getValue(property));
     }
 
     /**

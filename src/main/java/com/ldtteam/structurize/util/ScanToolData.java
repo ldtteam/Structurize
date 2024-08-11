@@ -1,11 +1,10 @@
 package com.ldtteam.structurize.util;
 
-import com.google.common.collect.ImmutableList;
+import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -14,7 +13,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,28 +42,23 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
             Codec.intRange(0, NUM_SLOTS - 1).fieldOf("current_slot").forGetter(ScanToolData::currentSlotId),
             BlockPos.CODEC.optionalFieldOf("commands_pos").forGetter(data -> Optional.ofNullable(data.commandPos)),
             Level.RESOURCE_KEY_CODEC.optionalFieldOf("dimension_key").forGetter(data -> Optional.ofNullable(data.dimension)))
-        .apply(builder, ScanToolData::new));
+        .apply(builder, ScanToolData::fromCodec));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ScanToolData> STREAM_CODEC =
         StreamCodec.composite(Slot.STREAM_CODEC.apply(ByteBufCodecs.list()), data -> data.slots,
             ByteBufCodecs.VAR_INT, ScanToolData::currentSlotId,
             ByteBufCodecs.optional(BlockPos.STREAM_CODEC), data -> Optional.ofNullable(data.commandPos),
             ByteBufCodecs.optional(ResourceKey.streamCodec(Registries.DIMENSION)), data -> Optional.ofNullable(data.dimension),
-            ScanToolData::new);
+            ScanToolData::fromCodec);
 
-    public static DeferredHolder<DataComponentType<?>, DataComponentType<ScanToolData>> TYPE;
+    public static ScanToolData EMPTY = new ScanToolData(List.of(), 1, null, null);
 
-    private ScanToolData(final List<Slot> slots,
+    private static ScanToolData fromCodec(final List<Slot> slots,
         final int currentSlotId,
         final Optional<BlockPos> commandPos,
         final Optional<ResourceKey<Level>> dimension)
     {
-        this(new ArrayList<>(slots), currentSlotId, commandPos.orElse(null), dimension.orElse(null));
-    }
-
-    public ScanToolData()
-    {
-        this(new ArrayList<>(), 1, (BlockPos) null, null);
+        return new ScanToolData(slots, currentSlotId, commandPos.orElse(null), dimension.orElse(null));
     }
 
     public ScanToolData(final List<Slot> slots,
@@ -151,11 +144,20 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
     /**
      * Gets the {@link ScanToolData} from an {@link ItemStack}.
      * @param stack the stack to query.
-     * @return the associated data.
+     * @return the associated data or immutable empty instance.
      */
-    public static ScanToolData get(final ItemStack stack)
+    public static ScanToolData readFromItemStack(final ItemStack stack)
     {
-        return stack.getOrDefault(TYPE, new ScanToolData());
+        return stack.getOrDefault(ModDataComponents.SCAN_TOOL, EMPTY);
+    }
+
+    /**
+     * Writes the {@link ScanToolData} into an {@link ItemStack}.
+     * @param itemStack the stack to save into.
+     */
+    public void writeToItemStack(final ItemStack itemStack)
+    {
+        itemStack.set(ModDataComponents.SCAN_TOOL, this);
     }
 
     /**
@@ -164,10 +166,11 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
      * @param updater the update actions to apply.
      * @return the updated data (also stored on the stack).
      */
-    public static ScanToolData update(final ItemStack stack, final UnaryOperator<ScanToolData> updater)
+    public static ScanToolData updateItemStack(final ItemStack stack, final UnaryOperator<ScanToolData> updater)
     {
-        stack.update(TYPE, new ScanToolData(), updater);
-        return stack.get(TYPE);
+        final ScanToolData data = updater.apply(readFromItemStack(stack));
+        data.writeToItemStack(stack);
+        return data;
     }
 
     /**

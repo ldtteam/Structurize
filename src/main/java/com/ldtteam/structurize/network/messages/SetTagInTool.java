@@ -64,7 +64,7 @@ public class SetTagInTool extends AbstractServerPlayMessage
         final ItemStack stack = player.getInventory().getItem(slot);
         if (stack.getItem() == ModItems.tagTool.get())
         {
-            stack.update(TagData.TYPE, TagData.EMPTY, tags -> tags.setCurrentTag(tag));
+            TagData.updateItemStack(stack, tags -> tags.setCurrentTag(tag));
         }
     }
 }

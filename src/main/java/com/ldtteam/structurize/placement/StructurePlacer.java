@@ -256,7 +256,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(world.registryAccess(), compound);
+                            entity.load(compound);
 
                             entity.setUUID(UUID.randomUUID());
                             Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
@@ -434,7 +434,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(world.registryAccess(), compound);
+                            entity.load(compound);
 
                             entity.setUUID(UUID.randomUUID());
                             Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
@@ -601,7 +601,7 @@ public class StructurePlacer
                         final Entity entity = type.get().create(world);
                         if (entity != null)
                         {
-                            entity.deserializeNBT(world.registryAccess(), compound);
+                            entity.load(compound);
 
                             final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
