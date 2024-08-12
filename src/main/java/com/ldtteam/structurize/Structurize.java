@@ -82,7 +82,7 @@ public class Structurize
             }
             else if (!FMLEnvironment.production && DataVersion.CURRENT == DataVersion.UPCOMING)
             {
-                throw new RuntimeException("Missing some newest data versions. Please update com/ldtteam/structures/blueprints/v1/DataVersion");
+                throw new RuntimeException("Missing some newest data versions. Please update src/main/java/com/ldtteam/structurize/blueprints/v1/DataVersion.java");
             }
         }
         else
