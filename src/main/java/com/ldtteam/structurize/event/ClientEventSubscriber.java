@@ -70,13 +70,11 @@ public class ClientEventSubscriber
         final double alpha = Structurize.getConfig().getClient().rendererTransparency.get();
         final boolean isAlphaApplied = alpha < 0 || alpha > TransparencyHack.THRESHOLD;
 
-        if (isAlphaApplied)
-        {
-            final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
-            mvMatrix.pushMatrix();
-            mvMatrix.mul(event.getModelViewMatrix());
-            RenderSystem.applyModelViewMatrix();
-        }
+        final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
+        mvMatrix.pushMatrix();
+        mvMatrix.identity();
+        mvMatrix.mul(event.getModelViewMatrix());
+        RenderSystem.applyModelViewMatrix();
 
         final Minecraft mc = Minecraft.getInstance();
         final PoseStack matrixStack = event.getPoseStack();
@@ -99,11 +97,8 @@ public class ClientEventSubscriber
 
         bufferSource.endBatch();
 
-        if (isAlphaApplied)
-        {
-            RenderSystem.getModelViewStack().popMatrix();
-            RenderSystem.applyModelViewMatrix();
-        }
+        RenderSystem.getModelViewStack().popMatrix();
+        RenderSystem.applyModelViewMatrix();
     }
     private static void renderBlueprints(final RenderLevelStageEvent event,
         final Minecraft mc,
@@ -132,12 +127,12 @@ public class ClientEventSubscriber
                         matrixStack,
                         BlockPos.ZERO,
                         new BlockPos(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
-                        0.02f);
+                        0.025f);
                     WorldRenderMacros.renderRedGlintLineBox(bufferSource,
                         matrixStack,
                         blueprint.getPrimaryBlockOffset(),
                         blueprint.getPrimaryBlockOffset(),
-                        0.02f);
+                        0.025f);
 
                     matrixStack.popPose();
                 }
@@ -163,8 +158,8 @@ public class ClientEventSubscriber
             matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
 
             // Used to render a red box around a scan's Primary offset (primary block)
-            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, BlockPos.ZERO, previewData.pos2().subtract(root), 0.02f);
-            previewData.anchor().map(pos -> pos.subtract(root)).ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.02f));
+            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, BlockPos.ZERO, previewData.pos2().subtract(root), 0.025f);
+            previewData.anchor().map(pos -> pos.subtract(root)).ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.025f));
 
             matrixStack.popPose();
 
@@ -198,11 +193,11 @@ public class ClientEventSubscriber
                 for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
                 {
                     final BlockPos pos = entry.getKey().subtract(tagAnchor);
-                    WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, pos, pos, 0.02f);
+                    WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, pos, pos, 0.025f);
                     WorldRenderMacros.renderDebugText(pos, entry.getKey(), entry.getValue(), matrixStack, true, 3, bufferSource);
                 }
             }
-            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, BlockPos.ZERO, BlockPos.ZERO, 0.02f);
+            WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, BlockPos.ZERO, BlockPos.ZERO, 0.025f);
 
             matrixStack.popPose();
 
