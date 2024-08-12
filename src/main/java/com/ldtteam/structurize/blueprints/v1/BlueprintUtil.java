@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.SharedConstants;
@@ -142,15 +142,14 @@ public class BlueprintUtil
             posList.add(DoubleTag.valueOf(oldPos.y - pos.getY()));
             posList.add(DoubleTag.valueOf(oldPos.z - pos.getZ()));
 
-            BlockPos entityPos = entity.blockPosition();
-            if (entity instanceof HangingEntity)
+            if (entity instanceof final BlockAttachedEntity attachedEntity)
             {
-                entityPos = ((HangingEntity) entity).getPos();
+                final BlockPos entityPos = attachedEntity.getPos();
+                entityTag.put("TileX", IntTag.valueOf(entityPos.getX() - pos.getX()));
+                entityTag.put("TileY", IntTag.valueOf(entityPos.getY() - pos.getY()));
+                entityTag.put("TileZ", IntTag.valueOf(entityPos.getZ() - pos.getZ()));
             }
             entityTag.put("Pos", posList);
-            entityTag.put("TileX", IntTag.valueOf(entityPos.getX() - pos.getX()));
-            entityTag.put("TileY", IntTag.valueOf(entityPos.getY() - pos.getY()));
-            entityTag.put("TileZ", IntTag.valueOf(entityPos.getZ() - pos.getZ()));
             entitiesTag.add(entityTag);
         }
 
