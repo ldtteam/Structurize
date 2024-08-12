@@ -100,6 +100,7 @@ public class ClientEventSubscriber
         RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
     }
+
     private static void renderBlueprints(final RenderLevelStageEvent event,
         final Minecraft mc,
         final PoseStack matrixStack,
@@ -115,27 +116,25 @@ public class ClientEventSubscriber
                 mc.getProfiler().push("struct_render");
 
                 final BlockPos pos = previewData.getPos();
+                final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(pos.subtract(blueprint.getPrimaryBlockOffset())).subtract(viewPosition);
 
                 BlueprintHandler.getInstance().draw(previewData, pos, event);
 
-                { // shift for box rendering
-                    final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(pos.subtract(blueprint.getPrimaryBlockOffset())).subtract(viewPosition);
-                    matrixStack.pushPose();
-                    matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
+                matrixStack.pushPose();
+                matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
 
-                    WorldRenderMacros.renderWhiteLineBox(bufferSource,
-                        matrixStack,
-                        BlockPos.ZERO,
-                        new BlockPos(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
-                        0.025f);
-                    WorldRenderMacros.renderRedGlintLineBox(bufferSource,
-                        matrixStack,
-                        blueprint.getPrimaryBlockOffset(),
-                        blueprint.getPrimaryBlockOffset(),
-                        0.025f);
+                WorldRenderMacros.renderWhiteLineBox(bufferSource,
+                    matrixStack,
+                    BlockPos.ZERO,
+                    new BlockPos(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1),
+                    0.025f);
+                WorldRenderMacros.renderRedGlintLineBox(bufferSource,
+                    matrixStack,
+                    blueprint.getPrimaryBlockOffset(),
+                    blueprint.getPrimaryBlockOffset(),
+                    0.025f);
 
-                    matrixStack.popPose();
-                }
+                matrixStack.popPose();
 
                 mc.getProfiler().pop();
             }
@@ -186,9 +185,9 @@ public class ClientEventSubscriber
             matrixStack.pushPose();
             matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
 
-            if (te instanceof IBlueprintDataProviderBE)
+            if (te instanceof final IBlueprintDataProviderBE blueprintProvider)
             {
-                final Map<BlockPos, List<String>> tagPosList = ((IBlueprintDataProviderBE) te).getWorldTagPosMap();
+                final Map<BlockPos, List<String>> tagPosList = blueprintProvider.getWorldTagPosMap();
 
                 for (final Map.Entry<BlockPos, List<String>> entry : tagPosList.entrySet())
                 {

@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -156,8 +157,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @Override
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
-        // TODO: use real registry access
-        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, ServerLifecycleHooks.getCurrentServer().registryAccess());
         if (!absorbed.isEmpty())
         {
             return Component.empty()
@@ -173,8 +173,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @Override
     public Optional<TooltipComponent> getTooltipImage(@NotNull final ItemStack stack)
     {
-        // TODO: use real registry access
-        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+        final BlockEntityTagSubstitution.ReplacementBlock absorbed = getAbsorbedBlock(stack, ServerLifecycleHooks.getCurrentServer().registryAccess());
         final ItemStack absorbedItem = absorbed.getItemStack();
 
         if (!absorbedItem.isEmpty())
