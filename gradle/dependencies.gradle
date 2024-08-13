@@ -1,8 +1,3 @@
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     implementation "com.ldtteam:blockui:${project.blockUiVersion}"
 

@@ -1154,4 +1154,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             this.data = data;
         }
     }
+
+    public static void clearStaticData()
+    {
+        nextDepthMeta.clear();
+        blueprintsAtDepth.clear();
+        currentBluePrintMappingAtDepthCache.clear();
+    }
 }

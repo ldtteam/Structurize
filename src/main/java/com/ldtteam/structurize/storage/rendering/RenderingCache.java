@@ -122,6 +122,7 @@ public class RenderingCache
     /**
      * @return true when should use light level from {@link #getOurLightLevel()}
      */
+    @Deprecated(forRemoval = true, since = "1.21.1")
     public static boolean forceLightLevel()
     {
         return Structurize.getConfig().getClient().rendererLightLevel.get() >= 0;
@@ -130,6 +131,7 @@ public class RenderingCache
     /**
      * @return static light level
      */
+    @Deprecated(forRemoval = true, since = "1.21.1")
     public static int getOurLightLevel()
     {
         return Structurize.getConfig().getClient().rendererLightLevel.get();

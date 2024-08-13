@@ -6,7 +6,6 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.client.fakelevel.BlueprintBlockAccess;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockInfo;
@@ -32,7 +31,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
@@ -372,10 +370,6 @@ public class BlueprintRenderer implements AutoCloseable
 
         // missing chunk system! else done?
 
-        matrixStack.pushPose();
-        // move back to camera, everything must go into offsets cuz fog
-        matrixStack.translate(viewPosition.x(), viewPosition.y(), viewPosition.z());
-
         if (mc.level.effects().constantAmbientLight())
         {
             Lighting.setupNetherLevel();
@@ -384,7 +378,6 @@ public class BlueprintRenderer implements AutoCloseable
         {
             Lighting.setupLevel();
         }
-        final int lightTexture = LightTexture.pack(RenderingCache.getOurLightLevel(), RenderingCache.getOurLightLevel());
 
         // Render blocks
 
@@ -449,7 +442,7 @@ public class BlueprintRenderer implements AutoCloseable
                     partialTicks,
                     matrixStack,
                     renderBufferSource,
-                    lightTexture);
+                    mc.getEntityRenderDispatcher().getPackedLightCoords(entity, partialTicks));
             }
             catch (final ClassCastException e)
             {
@@ -571,8 +564,6 @@ public class BlueprintRenderer implements AutoCloseable
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
         renderBlockLayer(RenderType.tripwire(), mvMatrix, pMatrix, realRenderRootVecf, previewData, mc);
-
-        matrixStack.popPose();
 
         RenderSystem.applyModelViewMatrix(); // ensure no polution
         Lighting.setupLevel();

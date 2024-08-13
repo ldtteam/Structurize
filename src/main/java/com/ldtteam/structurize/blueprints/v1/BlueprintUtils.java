@@ -72,7 +72,7 @@ public final class BlueprintUtils
         return blueprint.getEntitiesAsList()
             .stream()
             .map(entityInfo -> BlueprintEntityInfoTransformHandler.getInstance().Transform(entityInfo))
-            .map(entityInfo -> constructEntity(entityInfo, entityLevel, blueprint.getRegistryAccess()))
+            .map(entityInfo -> constructEntity(entityInfo, entityLevel))
             .filter(Objects::nonNull)
             .toList();
     }
@@ -117,7 +117,7 @@ public final class BlueprintUtils
     }
 
     @Nullable
-    private static Entity constructEntity(@Nullable final CompoundTag info, final Level entityLevel, final HolderLookup.Provider provider)
+    private static Entity constructEntity(@Nullable final CompoundTag info, final Level entityLevel)
     {
         if (info == null) return null;
 
@@ -134,7 +134,7 @@ public final class BlueprintUtils
     
                 if (entity != null)
                 {
-                    entity.deserializeNBT(provider, compound);
+                    entity.load(compound);
 
                     // prevent ticking rotations
                     entity.setOldPosAndRot();

@@ -96,7 +96,11 @@ public class ChangeStorage
      */
     public void addEntities(final List<Entity> list, final HolderLookup.Provider provider)
     {
-        list.stream().map(entity -> entity.serializeNBT(provider)).forEach(removedEntities::add);
+        list.stream().map(entity -> {
+            final CompoundTag tag = new CompoundTag();
+            entity.save(tag);
+            return tag;
+        }).forEach(removedEntities::add);
     }
 
     /**
@@ -165,7 +169,7 @@ public class ChangeStorage
                 final Entity entity = type.get().create(world);
                 if (entity != null)
                 {
-                    entity.deserializeNBT(world.registryAccess(), data);
+                    entity.load(data);
                     world.addFreshEntity(entity);
                     if (undoStorage != null)
                     {

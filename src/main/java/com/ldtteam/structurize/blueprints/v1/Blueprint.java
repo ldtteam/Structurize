@@ -759,7 +759,7 @@ public class Blueprint implements IFakeLevelBlockGetter
             final CompoundTag entitiesCompound = entities[i];
             if (entitiesCompound != null)
             {
-                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, level, new BlockPos(minX, minY, minZ), transformBy, registryAccess);
+                newEntities[i] = transformEntityInfoWithSettings(entitiesCompound, level, new BlockPos(minX, minY, minZ), transformBy);
             }
         }
 
@@ -789,8 +789,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     private static CompoundTag transformEntityInfoWithSettings(final CompoundTag entityInfo,
         final Level world,
         final BlockPos pos,
-        final RotationMirror rotationMirror,
-        final HolderLookup.Provider provider)
+        final RotationMirror rotationMirror)
     {
         final Optional<EntityType<?>> type = EntityType.by(entityInfo);
         if (type.isPresent())
@@ -801,7 +800,7 @@ public class Blueprint implements IFakeLevelBlockGetter
             {
                 try
                 {
-                    finalEntity.deserializeNBT(provider, entityInfo);
+                    finalEntity.load(entityInfo);
 
                     final Vec3 entityVec = rotationMirror
                         .applyToPos(
@@ -811,7 +810,9 @@ public class Blueprint implements IFakeLevelBlockGetter
                     finalEntity.setYRot(finalEntity.rotate(rotationMirror.rotation()));
                     finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, finalEntity.getYRot(), finalEntity.getXRot());
 
-                    return finalEntity.serializeNBT(provider);
+                    final CompoundTag newEntityInfo = new CompoundTag();
+                    finalEntity.save(newEntityInfo);
+                    return newEntityInfo;
                 }
                 catch (final Exception ex)
                 {

@@ -913,8 +913,30 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
-    @SuppressWarnings("resource")
     public static void renderDebugText(final BlockPos pos,
+        final List<String> text,
+        final PoseStack matrixStack,
+        final boolean forceWhite,
+        final int mergeEveryXListElements,
+        final MultiBufferSource buffer)
+    {
+        renderDebugText(pos, pos, text, matrixStack, forceWhite, mergeEveryXListElements, buffer);
+    }
+
+    /**
+     * Renders the given list of strings, 3 elements a row.
+     *
+     * @param renderPos               position to render at
+     * @param worldPos                (logic) position in world
+     * @param text                    text list
+     * @param matrixStack             stack to use
+     * @param buffer                  render buffer
+     * @param forceWhite              force white for no depth rendering
+     * @param mergeEveryXListElements merge every X elements of text list using a tostring call
+     */
+    @SuppressWarnings("resource")
+    public static void renderDebugText(final BlockPos renderPos,
+        final BlockPos worldPos,
         final List<String> text,
         final PoseStack matrixStack,
         final boolean forceWhite,
@@ -928,14 +950,14 @@ public class WorldRenderMacros extends UiRenderMacros
 
         final EntityRenderDispatcher erm = Minecraft.getInstance().getEntityRenderDispatcher();
         final int cap = text.size();
-        if (cap > 0 && erm.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
+        if (cap > 0 && erm.distanceToSqr(worldPos.getX(), worldPos.getY(), worldPos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
             final Font fontrenderer = Minecraft.getInstance().font;
 
             matrixStack.pushPose();
-            matrixStack.translate(pos.getX() + 0.5d, pos.getY() + 0.75d, pos.getZ() + 0.5d);
+            matrixStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.75d, renderPos.getZ() + 0.5d);
             matrixStack.mulPose(erm.cameraOrientation());
-            matrixStack.scale(-0.014f, -0.014f, 0.014f);
+            matrixStack.scale(0.014f, -0.014f, 0.014f);
             matrixStack.translate(0.0d, 18.0d, 0.0d);
 
             final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
@@ -956,7 +978,7 @@ public class WorldRenderMacros extends UiRenderMacros
                     false,
                     rawPosMatrix,
                     buffer,
-                  Font.DisplayMode.SEE_THROUGH,
+                    Font.DisplayMode.SEE_THROUGH,
                     alphaMask,
                     0x00f000f0);
                 if (!forceWhite)

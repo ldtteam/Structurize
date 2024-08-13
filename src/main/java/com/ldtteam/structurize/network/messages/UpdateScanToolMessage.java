@@ -53,7 +53,7 @@ public class UpdateScanToolMessage extends AbstractServerPlayMessage
         if (stack.getItem() instanceof ItemScanTool tool)
         {
             // normally you should sanity check client data more, but there's nothing particularly abuse-prone here
-            tool.loadSlot(ScanToolData.update(stack, old -> this.data), stack);
+            tool.loadSlot(ScanToolData.updateItemStack(stack, old -> this.data), stack);
         }
     }
 }

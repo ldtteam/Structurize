@@ -16,9 +16,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.BlockItem;
@@ -38,12 +41,19 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ImposterProtoChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkPyramid;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -162,7 +172,7 @@ public final class BlockUtils
                 final SurfaceRules.Context ctx = new SurfaceRules.Context(serverLevel.getChunkSource().randomState().surfaceSystem(),
                     serverLevel.getChunkSource().randomState(),
                     chunk,
-                    chunk.getOrCreateNoiseChunk(c -> {throw new IllegalStateException("How is this chunk not having noise? " + c.getPos() + "|" + c.getPersistedStatus());}),
+                    chunk.getOrCreateNoiseChunk(c -> createNoiseBiome(serverLevel, chunkGenerator, c)),
                     serverLevel.getBiomeManager()::getBiome,
                     serverLevel.registryAccess().registryOrThrow(Registries.BIOME),
                     new WorldGenerationContext(chunkGenerator, serverLevel));
@@ -226,6 +236,19 @@ public final class BlockUtils
         }
 
         return null;
+    }
+
+    private static NoiseChunk createNoiseBiome(
+        final ServerLevel serverLevel,
+        final NoiseBasedChunkGenerator chunkGenerator,
+        final ChunkAccess chunk)
+    {
+        final WorldGenRegion worldGenRegion = new OurWorldGenRegion(serverLevel, ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.SURFACE), chunk);
+
+        return chunkGenerator.createNoiseChunk(chunk,
+            serverLevel.structureManager().forWorldGenRegion(worldGenRegion),
+            Blender.of(worldGenRegion),
+            serverLevel.getChunkSource().randomState());
     }
 
     /**
@@ -646,15 +669,92 @@ public final class BlockUtils
     public static BlockState copyFirstCommonBlockStateProperties(final BlockState target, final BlockState propertiesOrigin)
     {
         BlockState newState = target;
-        for (final Property property : propertiesOrigin.getProperties())
+        for (final Property<?> property : propertiesOrigin.getProperties())
         {
             if (target.hasProperty(property))
             {
-                newState = newState.setValue(property, propertiesOrigin.getValue(property));
+                newState = copyProperty(propertiesOrigin, newState, property);
             }
         }
 
         return newState;
+    }
+
+    private static <T extends Comparable<T>> BlockState copyProperty(final BlockState from, final BlockState to, final Property<T> property)
+    {
+        return to.setValue(property, from.getValue(property));
+    }
+    
+    private static class OurWorldGenRegion extends WorldGenRegion
+    {
+        private final StaticCache2D<ChunkAccess> chunks;
+        private final ServerLevel level;
+
+        private OurWorldGenRegion(final ServerLevel level, final ChunkStep step, final ChunkAccess chunk)
+        {
+            super(level, null, step, chunk);
+            final int chunkX = chunk.getPos().x;
+            final int chunkZ = chunk.getPos().z;
+            final int chunkRange = step.accumulatedDependencies().getRadius();
+            
+            this.level = level;
+            chunks = StaticCache2D.create(chunkX, chunkZ, chunkRange, (x, z) -> {
+                ChunkAccess surroundingChunk = level.getChunk(x, z, ChunkStatus.SURFACE);
+
+                if (surroundingChunk instanceof final ImposterProtoChunk imposterProtoChunk)
+                {
+                    surroundingChunk = new ImposterProtoChunk(imposterProtoChunk.getWrapped(), true);
+                }
+                else if (surroundingChunk instanceof final LevelChunk levelChunk)
+                {
+                    surroundingChunk = new ImposterProtoChunk(levelChunk, true);
+                }
+
+                return surroundingChunk;
+            });
+        }
+
+        @Override
+        public boolean destroyBlock(BlockPos p_9550_, boolean p_9551_, @Nullable Entity p_9552_, int p_9553_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean ensureCanWrite(BlockPos p_181031_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean setBlock(BlockPos p_9539_, BlockState p_9540_, int p_9541_, int p_9542_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean addFreshEntity(Entity p_9580_)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean removeBlock(BlockPos p_9547_, boolean p_9548_)
+        {
+            return false;
+        }
+
+        @Override
+        public ChunkAccess getChunk(int p_9514_, int p_9515_, ChunkStatus p_331853_, boolean p_9517_)
+        {
+            return chunks.get(p_9514_, p_9515_);
+        }
+
+        @Override
+        public boolean hasChunk(int p_9574_, int p_9575_)
+        {
+            return level.hasChunk(p_9574_, p_9575_);
+        }
     }
 
     /**

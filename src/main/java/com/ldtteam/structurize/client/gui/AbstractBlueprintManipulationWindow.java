@@ -13,7 +13,6 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.constants.Constants;
-import com.ldtteam.structurize.api.constants.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
 import com.ldtteam.structurize.client.ModKeyMappings;
@@ -338,17 +337,9 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
         settingsList.setDataProvider(settings::size, (index, rowPane) -> {
             final ConfigValue<?> setting = settings.get(index);
-            final Optional<ValueSpec> optional = Structurize.getConfig().getSpecFromValue(setting);
+            final ValueSpec settingSpec = setting.getSpec();
             final Text label = rowPane.findPaneOfTypeByID("label", Text.class);
 
-            if (optional.isEmpty())
-            {
-                // config resolution failed (crashes in dev already, display error in production)
-                label.setText(Component.translatable(TranslationConstants.NO_VALUE_SPEC));
-                return;
-            }
-
-            final ValueSpec settingSpec = optional.get();
             final String nameTKey = settingSpec.getTranslationKey();
 
             if (label.getText() != null && label.getText().getContents() instanceof final TranslatableContents tkey && tkey.getKey().equals(nameTKey))
