@@ -90,6 +90,7 @@ public class FakeLevel extends Level
     protected final boolean overrideBeLevel;
 
     protected final FakeChunkSource chunkSource;
+    protected final FakeLevelLightEngine lightEngine;
     protected FakeLevelEntityGetterAdapter levelEntityGetter = FakeLevelEntityGetterAdapter.EMPTY;
     // TODO: this is currently manually filled by class user - ideally if not filled yet this should get constructed from levelSource manually
     protected Map<BlockPos, BlockEntity> blockEntities = Collections.emptyMap();
@@ -124,6 +125,7 @@ public class FakeLevel extends Level
         this.scoreboard = scoreboard == null ? clientLevel().getScoreboard() : scoreboard;
         this.overrideBeLevel = overrideBeLevel;
         this.chunkSource = new FakeChunkSource(this);
+        this.lightEngine = new FakeLevelLightEngine(this);
     }
 
     // ========================================
@@ -346,6 +348,12 @@ public class FakeLevel extends Level
     }
 
     @Override
+    public LevelLightEngine getLightEngine()
+    {
+        return lightEngine;
+    }
+
+    @Override
     public String gatherChunkSourceStats()
     {
         return "Fake level for: " + levelSource;
@@ -402,13 +410,6 @@ public class FakeLevel extends Level
     // ========================================
     // ======= NOOP UNSAFE NULL METHODS =======
     // ========================================
-
-    @Override
-    public LevelLightEngine getLightEngine()
-    {
-        // TODO: noop
-        throw new UnsupportedOperationException("Structurize fake level - if you really need light engine please make issue on our GitHub");
-    }
 
     @Override
     public Explosion explode(@javax.annotation.Nullable Entity p_256233_,
