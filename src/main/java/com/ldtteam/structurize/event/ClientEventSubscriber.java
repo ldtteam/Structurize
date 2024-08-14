@@ -68,7 +68,7 @@ public class ClientEventSubscriber
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
         final double alpha = Structurize.getConfig().getClient().rendererTransparency.get();
-        final boolean isAlphaApplied = alpha < 0 || alpha > TransparencyHack.THRESHOLD;
+        final boolean isAlphaApplied = alpha > 0 && alpha < TransparencyHack.THRESHOLD;
 
         final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
         mvMatrix.pushMatrix();
