@@ -304,6 +304,8 @@ public class BlueprintRenderer implements AutoCloseable
         final long gameTime = mc.level.getGameTime();
         final PoseStack matrixStack = ctx.getPoseStack();
         final float partialTicks = ctx.getPartialTick();
+        final Matrix4f mvMatrix = matrixStack.last().pose();
+        final Matrix4f pMatrix = ctx.getProjectionMatrix();
 
         mc.getProfiler().push("struct_render_init");
         
@@ -345,12 +347,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // missing chunk system! else done?
 
-        matrixStack.pushPose();
-        // move back to camera, everything must go into offsets cuz fog
-        matrixStack.translate(viewPosition.x(), viewPosition.y(), viewPosition.z());
-        final Matrix4f mvMatrix = matrixStack.last().pose();
         Lighting.setupLevel(mvMatrix);
-        final int lightTexture = LightTexture.pack(RenderingCache.getOurLightLevel(), RenderingCache.getOurLightLevel());
 
         // Render blocks
 
@@ -365,12 +362,12 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         mc.getProfiler().popPush("struct_render_blocks");
-        renderBlockLayer(RenderType.solid(), mvMatrix, realRenderRootVecf, previewData);
+        renderBlockLayer(RenderType.solid(), mvMatrix, pMatrix, realRenderRootVecf, previewData);
         // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0);
-        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, realRenderRootVecf, previewData);
+        renderBlockLayer(RenderType.cutoutMipped(), mvMatrix, pMatrix, realRenderRootVecf, previewData);
         mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).restoreLastBlurMipmap();
-        renderBlockLayer(RenderType.cutout(), mvMatrix, realRenderRootVecf, previewData);
+        renderBlockLayer(RenderType.cutout(), mvMatrix, pMatrix, realRenderRootVecf, previewData);
 
         mc.getProfiler().popPush("struct_render_entities");
         final MultiBufferSource.BufferSource renderBufferSource = renderBuffers.bufferSource();
@@ -416,7 +413,7 @@ public class BlueprintRenderer implements AutoCloseable
                     partialTicks,
                     matrixStack,
                     renderBufferSource,
-                    lightTexture);
+                    mc.getEntityRenderDispatcher().getPackedLightCoords(entity, partialTicks));
             }
             catch (final ClassCastException e)
             {
@@ -525,13 +522,11 @@ public class BlueprintRenderer implements AutoCloseable
         renderBuffers.crumblingBufferSource().endBatch(); // not used now
 
         mc.getProfiler().popPush("struct_render_blocks2");
-        renderBlockLayer(RenderType.translucent(), mvMatrix, realRenderRootVecf, previewData);
+        renderBlockLayer(RenderType.translucent(), mvMatrix, pMatrix, realRenderRootVecf, previewData);
 
         renderBufferSource.endBatch(RenderType.lines());
         renderBufferSource.endBatch();
-        renderBlockLayer(RenderType.tripwire(), mvMatrix, realRenderRootVecf, previewData);
-
-        matrixStack.popPose();
+        renderBlockLayer(RenderType.tripwire(), mvMatrix, pMatrix, realRenderRootVecf, previewData);
 
         RenderSystem.applyModelViewMatrix(); // ensure no polution
         Lighting.setupLevel(matrixStack.last().pose());
@@ -568,7 +563,7 @@ public class BlueprintRenderer implements AutoCloseable
         clearVertexBuffers();
     }
 
-    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Vector3f realRenderRootPos, final BlueprintPreviewData previewData)
+    private void renderBlockLayer(final RenderType layerRenderType, final Matrix4f mvMatrix, final Matrix4f pMatrix, final Vector3f realRenderRootPos, final BlueprintPreviewData previewData)
     {
         final VertexBuffer vertexBuffer = vertexBuffers.get(layerRenderType);
         if (vertexBuffer == null)
@@ -592,7 +587,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         if (shaderinstance.PROJECTION_MATRIX != null)
         {
-            shaderinstance.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
+            shaderinstance.PROJECTION_MATRIX.set(pMatrix);
         }
 
         if (shaderinstance.COLOR_MODULATOR != null)
