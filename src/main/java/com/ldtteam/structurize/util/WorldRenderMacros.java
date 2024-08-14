@@ -972,10 +972,9 @@ public class WorldRenderMacros extends UiRenderMacros
             final Font fontrenderer = Minecraft.getInstance().font;
 
             matrixStack.pushPose();
-            matrixStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.75d, renderPos.getZ() + 0.5d);
+            matrixStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.6d, renderPos.getZ() + 0.5d);
             matrixStack.mulPose(erm.cameraOrientation());
             matrixStack.scale(-0.014f, -0.014f, 0.014f);
-            matrixStack.translate(0.0d, 18.0d, 0.0d);
 
             final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
