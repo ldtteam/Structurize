@@ -230,6 +230,10 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = resourceList.getListElementIndexByPane(button);
         final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
         final ItemStack stack = tempRes.get(row).getItemStack();
+        if (stack.isEmpty())
+        {
+            return;
+        }
         new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack).sendToServer();
         final int hashCode = stack.getComponents().isEmpty() ? stack.getComponents().hashCode() : 0;
         resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
@@ -250,6 +254,10 @@ public class WindowScan extends AbstractWindowSkeleton
         for (final ItemStorage tempRes : new ArrayList<>(resources.values()))
         {
             final ItemStack stack = tempRes.getItemStack();
+            if (stack.isEmpty())
+            {
+                continue;
+            }
             blocks.add(stack);
             final int hashCode = stack.getComponents().isEmpty() ? stack.getComponents().hashCode() : 0;
             resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
