@@ -68,6 +68,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.ldtteam.domumornamentum.util.Constants.BLOCK_ENTITY_TEXTURE_DATA;
+
 /**
  * Utility class for all Block type checking.
  */
@@ -349,7 +351,7 @@ public final class BlockUtils
             }
             else if (worldEntity instanceof final MateriallyTexturedBlockEntity mtbe)
             {
-                return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, tileEntityData).getOrThrow().getFirst());
+                return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, tileEntityData.get(BLOCK_ENTITY_TEXTURE_DATA)).getOrThrow().getFirst());
             }
             return true;
         }
