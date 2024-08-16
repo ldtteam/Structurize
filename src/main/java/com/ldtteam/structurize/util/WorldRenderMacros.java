@@ -1,103 +1,188 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.blockui.UiRenderMacros;
+import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.RenderStateShard.DepthTestStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
-import java.util.LinkedList;
-import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
+import org.lwjgl.opengl.GL30C;
 
-public class WorldRenderMacros extends UiRenderMacros
+import java.util.Collection;
+import java.util.List;
+
+public abstract class WorldRenderMacros
 {
-    private static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = 8 * 8 * 16;
+    // 4 chunks squared
+    public static final int MAX_DEBUG_TEXT_RENDER_DIST_SQUARED = Mth.square(4 * 16);
     public static final RenderType LINES = RenderTypes.LINES;
     public static final RenderType LINES_WITH_WIDTH = RenderTypes.LINES_WITH_WIDTH;
+    public static final RenderType LINES_WITH_WIDTH_DEPTH_INVERT = RenderTypes.LINES_WITH_WIDTH_DEPTH_INVERT;
     public static final RenderType GLINT_LINES = RenderTypes.GLINT_LINES;
     public static final RenderType GLINT_LINES_WITH_WIDTH = RenderTypes.GLINT_LINES_WITH_WIDTH;
     public static final RenderType COLORED_TRIANGLES = RenderTypes.COLORED_TRIANGLES;
     public static final RenderType COLORED_TRIANGLES_NC_ND = RenderTypes.COLORED_TRIANGLES_NC_ND;
+    public static final Stage STAGE_FOR_LINES = Stage.AFTER_ENTITIES;
+    public static final float DEFAULT_LINE_WIDTH = 0.025f;
 
-    private static final LinkedList<RenderType> buffers = new LinkedList<>();
+    public Minecraft mc;
+    public RenderLevelStageEvent event;
+    public LocalPlayer clientPlayer;
+    public BufferSource bufferSource;
+    public PoseStack poseStack;
+    public DeltaTracker deltaTracker;
+    public ClientLevel clientLevel;
+    public ItemStack mainHandItem;
+    public Vec3 cameraPosition;
+    /**
+     * In chunks
+     */
+    public int clientRenderDist;
 
     /**
-     * Put type at the first position.
-     *
-     * @param bufferType type to put in
+     * Call this from event handler
+     * 
+     * @param event
      */
-    public static void putBufferHead(final RenderType bufferType)
+    public void renderWorldLastEvent(final RenderLevelStageEvent e)
     {
-        buffers.addFirst(bufferType);
-    }
-
-    /**
-     * Put type at the last position.
-     *
-     * @param bufferType type to put in
-     */
-    public static void putBufferTail(final RenderType bufferType)
-    {
-        buffers.addLast(bufferType);
-    }
-
-    /**
-     * Put type before the given buffer or if not found then at first position.
-     *
-     * @param bufferType type to put in
-     * @param putBefore  search for type to put before
-     */
-    public static void putBufferBefore(final RenderType bufferType, final RenderType putBefore)
-    {
-        buffers.add(Math.max(0, buffers.indexOf(putBefore)), bufferType);
-    }
-
-    /**
-     * Put type after the given buffer or if not found then at last position.
-     *
-     * @param bufferType type to put in
-     * @param putAfter   search for type to put after
-     */
-    public static void putBufferAfter(final RenderType bufferType, final RenderType putAfter)
-    {
-        final int index = buffers.indexOf(putAfter);
-        if (index == -1)
+        mc = Minecraft.getInstance();
+        event = e;
+        clientPlayer = mc.player;
+        if (clientPlayer == null) // server login phase
         {
-            buffers.add(bufferType);
+            return;
         }
-        else
-        {
-            buffers.add(index + 1, bufferType);
-        }
+
+        bufferSource = mc.renderBuffers().bufferSource();
+        poseStack = event.getPoseStack();
+        deltaTracker = event.getPartialTick();
+        clientLevel = mc.level;
+        mainHandItem = clientPlayer.getMainHandItem();
+        cameraPosition = event.getCamera().getPosition();
+        clientRenderDist = mc.options.renderDistance().get();
+
+        final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
+        mvMatrix.pushMatrix();
+        mvMatrix.identity();
+        mvMatrix.mul(event.getModelViewMatrix());
+        RenderSystem.applyModelViewMatrix();
+
+        renderWithinContext(event.getStage());
+
+        RenderSystem.getModelViewStack().popMatrix();
+        RenderSystem.applyModelViewMatrix();
     }
 
-    static
+    /**
+     * This is called with properly prepared context. Do here what you want
+     * 
+     * @param stage render world stage
+     */
+    protected abstract void renderWithinContext(Stage stage);
+
+    /**
+     * Moved pose context to camera and given pos
+     * 
+     * @see #popPose()
+     */
+    public final void pushPoseCameraToPos(final BlockPos pos)
     {
-        putBufferTail(WorldRenderMacros.COLORED_TRIANGLES);
-        putBufferTail(WorldRenderMacros.LINES);
-        putBufferTail(WorldRenderMacros.LINES_WITH_WIDTH);
-        putBufferTail(WorldRenderMacros.GLINT_LINES);
-        putBufferTail(WorldRenderMacros.GLINT_LINES_WITH_WIDTH);
-        putBufferTail(WorldRenderMacros.COLORED_TRIANGLES_NC_ND);
+        poseStack.pushPose();
+        poseStack.translate(pos.getX() - cameraPosition.x(), pos.getY() - cameraPosition.y(), pos.getZ() - cameraPosition.z());
     }
 
-    public static void registerBuffer(final RegisterRenderBuffersEvent event)
+    public final void popPose()
     {
-        buffers.forEach(event::registerRenderBuffer);
+        poseStack.popPose();
+    }
+
+    public void pushShaderMvMatrixFromPose()
+    {
+        final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
+        mvMatrix.pushMatrix();
+        mvMatrix.mul(poseStack.last().pose());
+        RenderSystem.applyModelViewMatrix();
+    }
+
+    public void popShaderMvMatrix()
+    {
+        RenderSystem.getModelViewStack().popMatrix();
+        RenderSystem.applyModelViewMatrix();
+    }
+
+    /**
+     * @return true if given aabb can be in any way seen by camera
+     */
+    public final boolean isVisible(final AABB aabb)
+    {
+        return event.getFrustum().isVisible(aabb);
+    }
+
+    /**
+     * @return true if given pos can be in any way seen by camera
+     */
+    public final boolean isVisible(final BlockPos pos)
+    {
+        return isVisible(pos, pos);
+    }
+    
+    /**
+     * @return true if given box can be in any way seen by camera
+     */
+    public final boolean isVisible(final BlockPos posA, final BlockPos posB)
+    {
+        return event.getFrustum()
+            .cubeInFrustum(Math.min(posA.getX(), posB.getX()),
+                Math.min(posA.getY(), posB.getY()),
+                Math.min(posA.getZ(), posB.getZ()),
+                Math.max(posA.getX(), posB.getX()) + 1,
+                Math.max(posA.getY(), posB.getY()) + 1,
+                Math.max(posA.getZ(), posB.getZ()) + 1);
+    }
+
+    /**
+     * Draw a blueprint at given pos.
+     *
+     * @param previewData the blueprint and context to draw.
+     * @param pos         position to render at
+     */
+    public final void renderBlueprint(final BlueprintPreviewData blueprint, final BlockPos pos)
+    {
+        BlueprintHandler.getInstance().draw(blueprint, pos, event);
+    }
+
+    /**
+     * Draw a blueprint at list of given pos.
+     *
+     * @param previewData the blueprint and context to draw.
+     * @param points      list of positions to render at
+     */
+    public final void renderBlueprint(final BlueprintPreviewData blueprint, final Collection<BlockPos> points)
+    {
+        BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, event);
     }
 
     /**
@@ -106,13 +191,9 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA The first Position
      * @param posB The second Position
      */
-    public static void renderBlackLineBox(final BufferSource buffer,
-        final PoseStack ps,
-        final BlockPos posA,
-        final BlockPos posB,
-        final float lineWidth)
+    public final void renderBlackLineBox(final BlockPos posA, final BlockPos posB, final float lineWidth)
     {
-        renderLineBox(buffer.getBuffer(LINES_WITH_WIDTH), ps, posA, posB, 0x00, 0x00, 0x00, 0xff, lineWidth);
+        renderLineBox(LINES_WITH_WIDTH, posA, posB, 0x00, 0x00, 0x00, 0xff, lineWidth);
     }
 
     /**
@@ -121,13 +202,9 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA The first Position
      * @param posB The second Position
      */
-    public static void renderRedGlintLineBox(final BufferSource buffer,
-        final PoseStack ps,
-        final BlockPos posA,
-        final BlockPos posB,
-        final float lineWidth)
+    public final void renderRedGlintLineBox(final BlockPos posA, final BlockPos posB, final float lineWidth)
     {
-        renderLineBox(buffer.getBuffer(GLINT_LINES_WITH_WIDTH), ps, posA, posB, 0xff, 0x0, 0x0, 0xff, lineWidth);
+        renderLineBox(GLINT_LINES_WITH_WIDTH, posA, posB, 0xff, 0x0, 0x0, 0xff, lineWidth);
     }
 
     /**
@@ -136,13 +213,9 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA The first Position
      * @param posB The second Position
      */
-    public static void renderWhiteLineBox(final BufferSource buffer,
-        final PoseStack ps,
-        final BlockPos posA,
-        final BlockPos posB,
-        final float lineWidth)
+    public final void renderWhiteLineBox(final BlockPos posA, final BlockPos posB, final float lineWidth)
     {
-        renderLineBox(buffer.getBuffer(LINES_WITH_WIDTH), ps, posA, posB, 0xff, 0xff, 0xff, 0xff, lineWidth);
+        renderLineBox(LINES_WITH_WIDTH, posA, posB, 0xff, 0xff, 0xff, 0xff, lineWidth);
     }
 
     /**
@@ -150,14 +223,9 @@ public class WorldRenderMacros extends UiRenderMacros
      *
      * @param aabb the box
      */
-    public static void renderLineAABB(final VertexConsumer buffer,
-        final PoseStack ps,
-        final AABB aabb,
-        final int argbColor,
-        final float lineWidth)
+    public final void renderLineAABB(final RenderType renderType, final AABB aabb, final int argbColor, final float lineWidth)
     {
-        renderLineAABB(buffer,
-            ps,
+        renderLineAABB(renderType,
             aabb,
             (argbColor >> 16) & 0xff,
             (argbColor >> 8) & 0xff,
@@ -171,8 +239,7 @@ public class WorldRenderMacros extends UiRenderMacros
      *
      * @param aabb the box
      */
-    public static void renderLineAABB(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderLineAABB(final RenderType renderType,
         final AABB aabb,
         final int red,
         final int green,
@@ -180,8 +247,7 @@ public class WorldRenderMacros extends UiRenderMacros
         final int alpha,
         final float lineWidth)
     {
-        renderLineBox(buffer,
-            ps,
+        renderLineBox(renderType,
             (float) aabb.minX,
             (float) aabb.minY,
             (float) aabb.minZ,
@@ -200,14 +266,12 @@ public class WorldRenderMacros extends UiRenderMacros
      *
      * @param pos The Position
      */
-    public static void renderLineBox(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderLineBox(final RenderType renderType,
         final BlockPos pos,
         final int argbColor,
         final float lineWidth)
     {
-        renderLineBox(buffer,
-            ps,
+        renderLineBox(renderType,
             pos,
             pos,
             (argbColor >> 16) & 0xff,
@@ -223,15 +287,13 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA The first Position
      * @param posB The second Position
      */
-    public static void renderLineBox(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderLineBox(final RenderType renderType,
         final BlockPos posA,
         final BlockPos posB,
         final int argbColor,
         final float lineWidth)
     {
-        renderLineBox(buffer,
-            ps,
+        renderLineBox(renderType,
             posA,
             posB,
             (argbColor >> 16) & 0xff,
@@ -247,8 +309,7 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA First position
      * @param posB Second position
      */
-    public static void renderLineBox(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderLineBox(final RenderType renderType,
         final BlockPos posA,
         final BlockPos posB,
         final int red,
@@ -257,8 +318,7 @@ public class WorldRenderMacros extends UiRenderMacros
         final int alpha,
         final float lineWidth)
     {
-        renderLineBox(buffer,
-            ps,
+        renderLineBox(renderType,
             Math.min(posA.getX(), posB.getX()),
             Math.min(posA.getY(), posB.getY()),
             Math.min(posA.getZ(), posB.getZ()),
@@ -278,8 +338,7 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param posA First position
      * @param posB Second position
      */
-    public static void renderLineBox(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderLineBox(final RenderType renderType,
         float minX,
         float minY,
         float minZ,
@@ -312,12 +371,11 @@ public class WorldRenderMacros extends UiRenderMacros
         final float maxY2 = maxY - lineWidth;
         final float maxZ2 = maxZ - lineWidth;
 
-        final Matrix4f m = ps.last().pose();
-        populateRenderLineBox(minX, minY, minZ, minX2, minY2, minZ2, maxX, maxY, maxZ, maxX2, maxY2, maxZ2, red, green, blue, alpha, m, buffer);
+        populateRenderLineBox(minX, minY, minZ, minX2, minY2, minZ2, maxX, maxY, maxZ, maxX2, maxY2, maxZ2, red, green, blue, alpha, poseStack.last().pose(), bufferSource.getBuffer(renderType));
     }
 
     // TODO: ebo this, does vanilla have any ebo things?
-    public static void populateRenderLineBox(final float minX,
+    protected final void populateRenderLineBox(final float minX,
         final float minY,
         final float minZ,
         final float minX2,
@@ -745,14 +803,12 @@ public class WorldRenderMacros extends UiRenderMacros
         buf.addVertex(m, minX, maxY, maxZ).setColor(red, green, blue, alpha);
     }
 
-    public static void renderBox(final BufferSource buffer,
-        final PoseStack ps,
+    public final void renderBox(final RenderType renderType,
         final BlockPos posA,
         final BlockPos posB,
         final int argbColor)
     {
-        renderBox(buffer.getBuffer(COLORED_TRIANGLES),
-            ps,
+        renderBox(renderType,
             posA,
             posB,
             (argbColor >> 16) & 0xff,
@@ -761,8 +817,7 @@ public class WorldRenderMacros extends UiRenderMacros
             (argbColor >> 24) & 0xff);
     }
 
-    public static void renderBox(final VertexConsumer buffer,
-        final PoseStack ps,
+    public final void renderBox(final RenderType renderType,
         final BlockPos posA,
         final BlockPos posB,
         final int red,
@@ -783,11 +838,10 @@ public class WorldRenderMacros extends UiRenderMacros
         final float maxY = Math.max(posA.getY(), posB.getY()) + 1;
         final float maxZ = Math.max(posA.getZ(), posB.getZ()) + 1;
 
-        final Matrix4f m = ps.last().pose();
-        populateCuboid(minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha, m, buffer);
+        populateCuboid(minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha, poseStack.last().pose(), bufferSource.getBuffer(renderType));
     }
 
-    public static void populateCuboid(final float minX,
+    protected final void populateCuboid(final float minX,
         final float minY,
         final float minZ,
         final float maxX,
@@ -855,9 +909,7 @@ public class WorldRenderMacros extends UiRenderMacros
         buf.addVertex(m, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
     }
 
-    public static void renderFillRectangle(final BufferSource buffer,
-        final PoseStack ps,
-        final int x,
+    public final void renderFillRectangle(final int x,
         final int y,
         final int z,
         final int w,
@@ -873,11 +925,11 @@ public class WorldRenderMacros extends UiRenderMacros
             (argbColor >> 8) & 0xff,
             argbColor & 0xff,
             (argbColor >> 24) & 0xff,
-            buffer.getBuffer(COLORED_TRIANGLES_NC_ND),
-            ps.last().pose());
+            bufferSource.getBuffer(COLORED_TRIANGLES_NC_ND),
+            poseStack.last().pose());
     }
 
-    public static void populateRectangle(final int x,
+    protected final void populateRectangle(final int x,
         final int y,
         final int z,
         final int w,
@@ -913,14 +965,12 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
-    public static void renderDebugText(final BlockPos pos,
+    public final void renderDebugText(final BlockPos pos,
         final List<String> text,
-        final PoseStack matrixStack,
         final boolean forceWhite,
-        final int mergeEveryXListElements,
-        final MultiBufferSource buffer)
+        final int mergeEveryXListElements)
     {
-        renderDebugText(pos, pos, text, matrixStack, forceWhite, mergeEveryXListElements, buffer);
+        renderDebugText(pos, pos, text, forceWhite, mergeEveryXListElements);
     }
 
     /**
@@ -935,13 +985,11 @@ public class WorldRenderMacros extends UiRenderMacros
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
     @SuppressWarnings("resource")
-    public static void renderDebugText(final BlockPos renderPos,
+    public final void renderDebugText(final BlockPos renderPos,
         final BlockPos worldPos,
         final List<String> text,
-        final PoseStack matrixStack,
         final boolean forceWhite,
-        final int mergeEveryXListElements,
-        final MultiBufferSource buffer)
+        final int mergeEveryXListElements)
     {
         if (mergeEveryXListElements < 1)
         {
@@ -954,15 +1002,15 @@ public class WorldRenderMacros extends UiRenderMacros
         {
             final Font fontrenderer = Minecraft.getInstance().font;
 
-            matrixStack.pushPose();
-            matrixStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.6d, renderPos.getZ() + 0.5d);
-            matrixStack.mulPose(erm.cameraOrientation());
-            matrixStack.scale(0.014f, -0.014f, 0.014f);
+            poseStack.pushPose();
+            poseStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.6d, renderPos.getZ() + 0.5d);
+            poseStack.mulPose(erm.cameraOrientation());
+            poseStack.scale(0.014f, -0.014f, 0.014f);
 
             final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
-            final Matrix4f rawPosMatrix = matrixStack.last().pose();
+            final Matrix4f rawPosMatrix = poseStack.last().pose();
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
@@ -976,22 +1024,22 @@ public class WorldRenderMacros extends UiRenderMacros
                     forceWhite ? 0xffffffff : 0x20ffffff,
                     false,
                     rawPosMatrix,
-                    buffer,
+                    bufferSource,
                     Font.DisplayMode.SEE_THROUGH,
                     alphaMask,
                     0x00f000f0);
                 if (!forceWhite)
                 {
-                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
+                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, bufferSource, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
                 }
-                matrixStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
+                poseStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
             }
 
-            matrixStack.popPose();
+            poseStack.popPose();
         }
     }
 
-    private static final class RenderTypes extends RenderType
+    public static final class RenderTypes extends RenderType
     {
         private RenderTypes(final String nameIn,
             final VertexFormat formatIn,
@@ -1016,7 +1064,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
                 .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(NO_DEPTH_TEST)
+                .setDepthTestState(NeverDepthTestStateShard.NEVER_DEPTH_TEST)
                 .setCullState(NO_CULL)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
@@ -1086,6 +1134,26 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setWriteMaskState(COLOR_DEPTH_WRITE)
                 .createCompositeState(false));
 
+        private static final RenderType LINES_WITH_WIDTH_DEPTH_INVERT = create("structurize_lines_with_width_depth_invert",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLES,
+            1 << 12,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                .setTextureState(NO_TEXTURE)
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(GREATER_DEPTH_TEST)
+                .setCullState(CULL)
+                .setLightmapState(NO_LIGHTMAP)
+                .setOverlayState(NO_OVERLAY)
+                .setLayeringState(NO_LAYERING)
+                .setOutputState(MAIN_TARGET)
+                .setTexturingState(DEFAULT_TEXTURING)
+                .setWriteMaskState(COLOR_WRITE)
+                .createCompositeState(false));
+
         private static final RenderType COLORED_TRIANGLES = create("structurize_colored_triangles",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.TRIANGLES,
@@ -1116,7 +1184,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(NO_DEPTH_TEST)
+                .setDepthTestState(NeverDepthTestStateShard.NEVER_DEPTH_TEST)
                 .setCullState(NO_CULL)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
@@ -1125,19 +1193,71 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTexturingState(DEFAULT_TEXTURING)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
-    }
-    
-    public static class AlwaysDepthTestStateShard extends DepthTestStateShard
-    {
-        public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
 
-        private AlwaysDepthTestStateShard()
+        /**
+         * Register our buffers
+         */
+        public static void registerBuffer(final RegisterRenderBuffersEvent event)
         {
-            super("true_always", -1);
-            setupState = () -> {
-                RenderSystem.enableDepthTest();
-                RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            };
+            event.registerRenderBuffer(LINES);
+            event.registerRenderBuffer(LINES_WITH_WIDTH);
+            event.registerRenderBuffer(LINES_WITH_WIDTH_DEPTH_INVERT);
+            event.registerRenderBuffer(GLINT_LINES);
+            event.registerRenderBuffer(GLINT_LINES_WITH_WIDTH);
+            event.registerRenderBuffer(COLORED_TRIANGLES);
+            event.registerRenderBuffer(COLORED_TRIANGLES_NC_ND);
+        }
+    
+        /**
+         * Managed by structurize, ends above buffers in context similar to {@link RenderType#LINES}
+         */
+        public static void finishBuffer(final RenderLevelStageEvent event)
+        {
+            final MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+            final Stage stage = event.getStage();
+
+            if (stage == Stage.AFTER_BLOCK_ENTITIES)
+            {
+                bufferSource.endBatch(LINES_WITH_WIDTH_DEPTH_INVERT);
+
+                bufferSource.endBatch(COLORED_TRIANGLES);
+                bufferSource.endBatch(COLORED_TRIANGLES_NC_ND);
+
+                bufferSource.endBatch(LINES);
+                bufferSource.endBatch(LINES_WITH_WIDTH);
+
+                // fallthrough into levelRenderer master endBatch
+                // bufferSource.endBatch(GLINT_LINES);
+                // bufferSource.endBatch(GLINT_LINES_WITH_WIDTH);
+            }
+        }
+
+        public static class NeverDepthTestStateShard extends DepthTestStateShard
+        {
+            public static final DepthTestStateShard NEVER_DEPTH_TEST = new NeverDepthTestStateShard();
+
+            private NeverDepthTestStateShard()
+            {
+                super("true_never", -1);
+                setupState = () -> {
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.depthFunc(GL30C.GL_NEVER);
+                };
+            }
+        }
+
+        public static class AlwaysDepthTestStateShard extends DepthTestStateShard
+        {
+            public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
+
+            private AlwaysDepthTestStateShard()
+            {
+                super("true_always", -1);
+                setupState = () -> {
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.depthFunc(GL30C.GL_ALWAYS);
+                };
+            }
         }
     }
 }

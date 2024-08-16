@@ -6,6 +6,7 @@ import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.config.ClientConfiguration;
 import com.ldtteam.structurize.config.ServerConfiguration;
 import com.ldtteam.common.config.Configurations;
+import com.ldtteam.common.language.LanguageHandler;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -48,7 +49,8 @@ public class Structurize
     {
         final IEventBus modBus = modContainer.getEventBus();
         final IEventBus forgeBus = NeoForge.EVENT_BUS;
-        
+
+        LanguageHandler.loadLangPath("assets/structurize/lang/%s.json");
         config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, null);
 
         ModDataComponents.REGISTRY.register(modBus);

@@ -24,7 +24,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportType;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -90,7 +90,7 @@ public class BlueprintRenderer implements AutoCloseable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlueprintRenderer.class);
 
-    private final RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
+    private static final RenderBuffers renderBuffers = new RenderBuffers(0);
     private static boolean hasWarnedExceptions = false;
 
     private final BlueprintBlockAccess blockAccess;
@@ -144,7 +144,7 @@ public class BlueprintRenderer implements AutoCloseable
         blockAccess.setEntities(entities);
 
         final PoseStack matrixStack = new PoseStack();
-        matrixStack.translate(0.01, 0.01, 0.01);
+        matrixStack.translate(0.001, 0.001, 0.001);
 
         final ChunkOffsetBufferBuilderWrapper fluidBufferWrapper = new ChunkOffsetBufferBuilderWrapper();
         final Map<RenderType, BufferBuilder> chunkBuffers = new Reference2ObjectArrayMap<>(RenderType.chunkBufferLayers().size());
@@ -268,9 +268,7 @@ public class BlueprintRenderer implements AutoCloseable
 
                     if (e.getValue() instanceof final ReportedException reportedException)
                     {
-                        previewData.getBlueprint()
-                            .describeSelfInCrashReport(reportedException.getReport().addCategory("Rendering blueprint"));
-                        LOGGER.error(reportedException.getReport().getDetails());
+                        printCrashReport(reportedException.getReport(), previewData);
                         crashReported = true;
                     }
                     else
@@ -281,23 +279,24 @@ public class BlueprintRenderer implements AutoCloseable
 
                 if (!crashReported && !isEmpty)
                 {
-                    final CrashReport crashReport = CrashReport.forThrowable(new Exception(), "Summary");
-                    previewData.getBlueprint().describeSelfInCrashReport(crashReport.addCategory("Rendering blueprint"));
-                    LOGGER.error(crashReport.getDetails());
+                    printCrashReport(CrashReport.forThrowable(new Exception(), "Small exception, rendering partially"), previewData);
                 }
             }
         }
         catch (final Exception e)
         {
-            final CrashReport crashReport = CrashReport.forThrowable(e, "Rendering blueprint");
-            final CrashReportCategory category = crashReport.addCategory("Blueprint:");
-            previewData.getBlueprint().describeSelfInCrashReport(category);
-            LOGGER.error(crashReport.getDetails());
+            printCrashReport(CrashReport.forThrowable(e, "Fatal exception, cannot render"), previewData);
 
             crashingObjects = null;
             Minecraft.getInstance().player.sendSystemMessage(
                 Component.translatable("structurize.preview_renderer.cannot_render", previewData.getBlueprint().getName()));
         }
+    }
+
+    private static void printCrashReport(final CrashReport report, final BlueprintPreviewData previewData)
+    {
+        previewData.getBlueprint().describeSelfInCrashReport(report.addCategory("Blueprint"));
+        LOGGER.error(report.getFriendlyReport(new ReportType("Problem during blueprint rendering", ReportType.TEST.nuggets())));
     }
 
     /**

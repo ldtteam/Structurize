@@ -111,6 +111,6 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void registerGlobablRenderBuffers(final RegisterRenderBuffersEvent event)
     {
-        WorldRenderMacros.registerBuffer(event);
+        WorldRenderMacros.RenderTypes.registerBuffer(event);
     }
 }

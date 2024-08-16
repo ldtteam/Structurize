@@ -8,7 +8,7 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -106,7 +106,7 @@ public final class BlueprintHandler
      * @param ctx         rendering event
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
-        final List<BlockPos> points,
+        final Collection<BlockPos> points,
         final RenderLevelStageEvent ctx)
     {
         if (points.isEmpty() || previewData == null || previewData.getBlueprint() == null)
