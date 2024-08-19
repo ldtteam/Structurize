@@ -1,5 +1,7 @@
+[![Structurize CurseForge](https://img.shields.io/curseforge/dt/298744?logo=curseforge&color=F16436&label=Structurize)](https://www.curseforge.com/minecraft/mc-mods/structurize)
+[![Release 1.20.1](https://img.shields.io/github/actions/workflow/status/ldtteam/minecolonies/release.yml?branch=version%2Fmain&label=Build%201.20.1&event=push)](https://github.com/ldtteam/Structurize/actions/workflows/release.yml?query=branch%3Aversion%2Fmain+event%3Apush)
+[![Release 1.21.1](https://img.shields.io/github/actions/workflow/status/ldtteam/minecolonies/release.yml?branch=version%2F1.21&label=Build%201.21.1&event=push)](https://github.com/ldtteam/Structurize/actions/workflows/release.yml?query=branch%3Aversion%2F1.21+event%3Apush)
 [![CLA assistant](https://cla-assistant.io/readme/badge/ldtteam/structurize)](https://cla-assistant.io/ldtteam/structurize)
-[![Build Status](https://buildsystem.ldtteam.com/app/rest/builds/buildType:LetSDevTogether_Structurize_Alpha_Release/statusIcon)](http://buildsystem.ldtteam.com/)
 [![Crowdin](https://badges.crowdin.net/structurize/localized.svg)](https://crowdin.com/project/structurize)
 
 ![structurize logo](structurize.png)
