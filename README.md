@@ -1,5 +1,6 @@
 [![CLA assistant](https://cla-assistant.io/readme/badge/ldtteam/structurize)](https://cla-assistant.io/ldtteam/structurize)
-[![Build Status](https://buildsystem.ldtteam.com/app/rest/builds/buildType:LetSDevTogether_Structurize_Alpha_Release/statusIcon)](http://buildsystem.ldtteam.com/)
+[![Release 1.20.1](https://github.com/ldtteam/Structurize/actions/workflows/release_1_20_1.yml/badge.svg?branch=version%2Fmain&event=push)](https://github.com/ldtteam/Structurize/actions/workflows/release_1_20_1.yml)
+[![Release 1.21.1](https://github.com/ldtteam/Structurize/actions/workflows/release_1_21_1.yml/badge.svg?branch=version%2F1.21&event=push)](https://github.com/ldtteam/Structurize/actions/workflows/release_1_21_1.yml)
 [![Crowdin](https://badges.crowdin.net/structurize/localized.svg)](https://crowdin.com/project/structurize)
 
 ![structurize logo](structurize.png)
