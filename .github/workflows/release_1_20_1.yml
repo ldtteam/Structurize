@@ -1,11 +1,11 @@
-name: Release
+name: Release 1.20.1
 
 on:
   push:
     branches: [
-      "version/*",
-      "release/*",
-      "testing/*",
+      "version/main",
+      "release/main",
+      "testing/main",
     ]
 
 permissions:
