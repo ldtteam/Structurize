@@ -10,10 +10,10 @@
       "tag": "minecraft:stone_crafting_materials"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     }
   },
   "result": {
-    "item": "structurize:sceptergold"
+    "id": "structurize:sceptergold"
   }
 }

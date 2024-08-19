@@ -2,22 +2,22 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     " WS",
-    "WUW",
+    "WIW",
     "SW "
   ],
   "key": {
     "W": {
       "tag": "minecraft:logs"
     },
-    "U": {
-      "item": "minecraft:bucket"
+    "I": {
+      "item": "minecraft:iron_ingot"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     }
   },
   "result": {
-    "item": "structurize:blockfluidsubstitution",
+    "id": "structurize:blocksolidsubstitution",
     "count": 32
   }
 }

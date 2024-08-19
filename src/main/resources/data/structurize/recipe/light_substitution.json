@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " WS",
-    "WIW",
-    "SW "
+    "WS ",
+    "SIS",
+    " SW"
   ],
   "key": {
     "W": {
@@ -13,11 +13,11 @@
       "item": "minecraft:iron_ingot"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     }
   },
   "result": {
-    "item": "structurize:blocksolidsubstitution",
+    "id": "structurize:blocksubstitution",
     "count": 32
   }
 }

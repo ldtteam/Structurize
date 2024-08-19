@@ -7,20 +7,20 @@
   ],
   "key": {
     "I": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     },
     "C": {
       "tag": "minecraft:coals"
     },
     "N": {
-      "tag": "forge:nuggets/iron"
+      "tag": "c:nuggets/iron"
     }
   },
   "result": {
-    "item": "structurize:caliper",
+    "id": "structurize:caliper",
     "count": 1
   }
 }

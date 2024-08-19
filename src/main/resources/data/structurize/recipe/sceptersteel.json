@@ -10,10 +10,10 @@
       "item": "minecraft:iron_ingot"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     }
   },
   "result": {
-    "item": "structurize:sceptersteel"
+    "id": "structurize:sceptersteel"
   }
 }

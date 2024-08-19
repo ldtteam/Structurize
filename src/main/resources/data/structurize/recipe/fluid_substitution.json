@@ -1,23 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "WS ",
-    "SIS",
-    " SW"
+    " WS",
+    "WUW",
+    "SW "
   ],
   "key": {
     "W": {
       "tag": "minecraft:logs"
     },
-    "I": {
-      "item": "minecraft:iron_ingot"
+    "U": {
+      "item": "minecraft:bucket"
     },
     "S": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     }
   },
   "result": {
-    "item": "structurize:blocksubstitution",
+    "id": "structurize:blockfluidsubstitution",
     "count": 32
   }
 }
