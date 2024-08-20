@@ -349,7 +349,7 @@ public final class BlockUtils
             {
                 return false;
             }
-            else if (worldEntity instanceof final MateriallyTexturedBlockEntity mtbe)
+            else if (worldEntity instanceof final MateriallyTexturedBlockEntity mtbe && tileEntityData.contains(BLOCK_ENTITY_TEXTURE_DATA))
             {
                 return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, tileEntityData.get(BLOCK_ENTITY_TEXTURE_DATA)).getOrThrow().getFirst());
             }
