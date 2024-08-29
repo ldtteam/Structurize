@@ -7,6 +7,7 @@ import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 import java.util.List;
@@ -70,6 +71,20 @@ public final class BlueprintHandler
      * @param ctx         rendering event
      */
     public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    {
+        final Vec3 viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        ctx.getPoseStack().pushPose();
+        ctx.getPoseStack().translate(viewPosition.x(), viewPosition.y(), viewPosition.z());
+
+        internalBackportDraw(previewData, pos, ctx);
+        
+        ctx.getPoseStack().popPose();
+    }
+
+    /**
+     * DO NOT USE IN MCOL
+     */
+    public void internalBackportDraw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
     {
         if (previewData == null || previewData.getBlueprint() == null)
         {

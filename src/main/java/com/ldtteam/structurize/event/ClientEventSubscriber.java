@@ -110,7 +110,7 @@ public class ClientEventSubscriber
                 final BlockPos pos = previewData.getPos();
                 final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(pos.subtract(blueprint.getPrimaryBlockOffset())).subtract(viewPosition);
 
-                BlueprintHandler.getInstance().draw(previewData, pos, event);
+                BlueprintHandler.getInstance().internalBackportDraw(previewData, pos, event);
 
                 matrixStack.pushPose();
                 matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
