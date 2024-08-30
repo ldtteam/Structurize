@@ -134,10 +134,14 @@ public final class BlueprintHandler
 
         final BlueprintRenderer renderer = rendererCache.getUnchecked(previewData.getRenderKey());
 
+        final Vec3 viewPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        ctx.getPoseStack().pushPose();
+        ctx.getPoseStack().translate(viewPosition.x(), viewPosition.y(), viewPosition.z());
         for (final BlockPos coord : points)
         {
             renderer.draw(previewData, coord, ctx);
         }
+        ctx.getPoseStack().popPose();
 
         Minecraft.getInstance().getProfiler().pop();
     }
