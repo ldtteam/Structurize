@@ -34,12 +34,12 @@ Allows you to:
 [[dependencies.structurize]]
     modId="blockui"
     type="required"
-    versionRange="${blockUiRange}"
+    versionRange="[${blockUiVersion}, )"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.structurize]]
     modId="domum_ornamentum"
     type="required"
-    versionRange="${domumOrnamentumRange}"
+    versionRange="[${domumOrnamentumVersion}, )"
     ordering="AFTER"
     side="BOTH"
