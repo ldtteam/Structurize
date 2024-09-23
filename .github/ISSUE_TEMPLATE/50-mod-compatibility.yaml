@@ -19,7 +19,7 @@ body:
         [List of all MineColonies versions](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)
       options:
         - label: |
-            I am running the latest **alpha** version of Structurize for my Minecraft version.
+            I am running the latest **beta/release** version of Structurize for my Minecraft version.
             I am also running the latest versions of other mods that are part of my problem.
           required: true
   - type: checkboxes
@@ -32,7 +32,7 @@ body:
     id: mc_version
     attributes:
       label: Minecraft Version
-      options: ["1.18", "1.19", "1.20"]
+      options: ["1.20", "1.21"]
     validations:
       required: true
   - type: input

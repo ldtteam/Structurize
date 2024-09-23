@@ -1,28 +1,27 @@
-name: Optifine/Shaders Compatibility
-description: If the structure preview has a problem with OptiFine/shaders
+name: Shader mods/Shaders Compatibility
+description: If the structure preview has a problem with a shader mod or shaders
 labels: ["Compatibility: Optifine / Shaders"]
 assignees: Nightenom
 body:
   - type: checkboxes
     attributes:
-      label: Is there an existing OptiFine issue for this?
-      description: Please search to see if an issue already exists for the OptiFine bug you encountered.
+      label: Is there an existing shader issue for this?
+      description: Please search to see if an issue already exists for the shader bug you encountered.
       options:
         - label: I have searched the existing issues.
           required: true
   - type: checkboxes
     attributes:
-      label: Are you using the latest Structurize, OptiFine and shader Version?
+      label: Are you using the latest Structurize and shader Version?
       description: |
         Please check to see if any newer version fixes the issue you're experiencing.
         Please note that we support latest **stable** version of OptiFine, bugs encountered in previews may remain open till next stable version.
-        [List of all OptiFine versions](https://optifine.net/downloads)
         [List of all Structurize versions](https://www.curseforge.com/minecraft/mc-mods/structurize/files/all)
         [List of all BlockUI versions](https://www.curseforge.com/minecraft/mc-mods/blockui/files/all)
         [List of all MineColonies versions](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)
       options:
         - label: |
-            I am running the latest **alpha** version of Structurize for my Minecraft version.
+            I am running the latest **beta/release** version of Structurize for my Minecraft version.
             I am also running the latest versions of other mods and shaders that are part of my problem.
           required: true
   - type: checkboxes
@@ -35,7 +34,7 @@ body:
     id: mc_version
     attributes:
       label: Minecraft Version
-      options: ["1.18", "1.19", "1.20"]
+      options: ["1.20", "1.21"]
     validations:
       required: true
   - type: input
@@ -47,9 +46,8 @@ body:
       required: true
   - type: input
     attributes:
-      label: OptiFine Version
-      description: Exact OptiFine version either from file name or in-game mod list.
-      placeholder: HD U H4
+      label: Shader mod Version
+      description: Exact shader mod version either from file name or in-game mod list.
     validations:
       required: true
   - type: textarea
