@@ -1,28 +1,26 @@
 package com.ldtteam.structurize.api;
 
+import com.ldtteam.common.fakelevel.FakeLevel;
+import com.ldtteam.common.fakelevel.SingleBlockFakeLevelGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -33,6 +31,8 @@ import java.util.stream.Collectors;
  */
 public final class ItemStackUtils
 {
+    private static FakeLevel<SingleBlockFakeLevelGetter> itemHandlerFakeLevel = null;
+
     /**
      * Private constructor to hide the implicit one.
      */
@@ -48,26 +48,27 @@ public final class ItemStackUtils
      *
      * @param compound the tileEntity stored in a compound.
      * @param state the block.
+     * @param level real vanilla instance for fakeLevel
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final HolderLookup.Provider provider)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final Level level)
     {
-        if (state.getBlock() instanceof BaseEntityBlock && compound.contains("Items"))
-        {
-            // because we're constructing the BlockEntity out-of-world below, chests (and perhaps a few others)
-            // can't generate an IItemHandler for us, so we need to read the contents manually.
-            // this could be removed if we always get a "real" BE from a world, but we're called both from a
-            // real world and from a schematic non-world, and the latter still breaks.
-            return getItemStacksFromNbt(compound, provider);
-        }
-
-        BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
-        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, provider);
+        final BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, level.registryAccess());
         if (tileEntity == null)
         {
             return Collections.emptyList();
         }
 
+        if (itemHandlerFakeLevel == null)
+        {
+            itemHandlerFakeLevel = SingleBlockFakeLevelGetter.createSimpleInstance(level);
+        }
+        SingleBlockFakeLevelGetter.prepare(itemHandlerFakeLevel, state, tileEntity, level);
+
+        // TODO: this is generally very unstable, see vanilla WorldlyContainer#getSlotsForFace that is source for sided caps
+        // we need something that properly iterates over all slots without duplications
+        // code consuming this should also consider multi block entities like double chest
         final List<ItemStack> items = new ArrayList<>();
         for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
         {
@@ -81,24 +82,7 @@ public final class ItemStackUtils
             }
         }
 
-        return items;
-    }
-
-    @NotNull
-    private static List<ItemStack> getItemStacksFromNbt(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
-    {
-        final List<ItemStack> items = new ArrayList<>();
-        final ListTag listtag = compound.getList("Items", Tag.TAG_COMPOUND);
-
-        for (int i = 0; i < listtag.size(); ++i)
-        {
-            final CompoundTag compoundtag = listtag.getCompound(i);
-            final ItemStack stack = ItemStack.parseOptional(provider, compoundtag);
-            if (!stack.isEmpty())
-            {
-                items.add(stack);
-            }
-        }
+        SingleBlockFakeLevelGetter.unset(itemHandlerFakeLevel, tileEntity);
 
         return items;
     }
