@@ -11,10 +11,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer.Continuation;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -30,10 +33,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -57,6 +62,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * As much as general fake level. Features:
@@ -86,13 +93,15 @@ public class FakeLevel extends Level
 {
     protected IFakeLevelBlockGetter levelSource;
     protected final IFakeLevelLightProvider lightProvider;
+    protected Level realLevel;
     protected final Scoreboard scoreboard;
     protected final boolean overrideBeLevel;
 
     protected final FakeChunkSource chunkSource;
     protected final FakeLevelLightEngine lightEngine;
     protected FakeLevelEntityGetterAdapter levelEntityGetter = FakeLevelEntityGetterAdapter.EMPTY;
-    // TODO: this is currently manually filled by class user - ideally if not filled yet this should get constructed from levelSource manually
+    // TODO: this is currently manually filled by class user - ideally if not filled yet this should get constructed from levelSource
+    // manually
     protected Map<BlockPos, BlockEntity> blockEntities = Collections.emptyMap();
 
     /**
@@ -100,32 +109,42 @@ public class FakeLevel extends Level
      */
     protected BlockPos worldPos = BlockPos.ZERO;
 
+    // chunk cache
+    int lastX, lastZ;
+    ChunkAccess lastChunk = null;
+
     /**
-     * @param levelSource data source, also try to set block entities/entities collections
-     * @param lightProvider light source
-     * @param scoreboard if null client level is used instead
+     * @param levelSource     data source, also try to set block entities/entities collections
+     * @param lightProvider   light source
+     * @param scoreboard      if null client level is used instead
      * @param overrideBeLevel if true all block entities will have set level to this instance
-     * 
      * @see #setBlockEntities(Map) for better block entity handling, if set then levelSource BE getter is not used
      * @see #setEntities(Collection) only way to add entities into fake level
+     * @see #setRealLevel(Level) if you want to reuse this instance
      */
-    public FakeLevel(final IFakeLevelBlockGetter levelSource, final IFakeLevelLightProvider lightProvider, @Nullable final Scoreboard scoreboard, final boolean overrideBeLevel)
+    public FakeLevel(final IFakeLevelBlockGetter levelSource,
+        final IFakeLevelLightProvider lightProvider,
+        @Nullable final Scoreboard scoreboard,
+        final boolean overrideBeLevel)
     {
         super(new FakeLevelData(clientLevel().getLevelData(), lightProvider),
             clientLevel().dimension(),
             clientLevel().registryAccess(),
             clientLevel().dimensionTypeRegistration(),
-            () -> clientLevel().getProfiler(),
-            true,
+            clientLevel().getProfilerSupplier(),
+            clientLevel().isClientSide(),
             false,
             0,
             0);
         this.levelSource = levelSource;
         this.lightProvider = lightProvider;
-        this.scoreboard = scoreboard == null ? clientLevel().getScoreboard() : scoreboard;
+        this.realLevel = clientLevel();
+        this.scoreboard = scoreboard;
         this.overrideBeLevel = overrideBeLevel;
         this.chunkSource = new FakeChunkSource(this);
         this.lightEngine = new FakeLevelLightEngine(this);
+
+        setRealLevel(clientLevel());
     }
 
     // ========================================
@@ -136,6 +155,27 @@ public class FakeLevel extends Level
     protected static ClientLevel clientLevel()
     {
         return Minecraft.getInstance().level;
+    }
+
+    public void setRealLevel(final Level realLevel)
+    {
+        if (Objects.equals(this.realLevel, realLevel))
+        {
+            return;
+        }
+
+        if (realLevel != null && realLevel.isClientSide != this.isClientSide)
+        {
+            throw new IllegalArgumentException("Received wrong sided realLevel - fakeLevel.isClientSide = " + this.isClientSide);
+        }
+
+        this.realLevel = realLevel;
+        ((FakeLevelData) this.getLevelData()).vanillaLevelData = realLevel == null ? null : realLevel.getLevelData();
+    }
+
+    public Level realLevel()
+    {
+        return realLevel;
     }
 
     /**
@@ -172,7 +212,7 @@ public class FakeLevel extends Level
 
     /**
      * For better block entity handling in chunk methods. If set then {@link IFakeLevelBlockGetter#getBlockEntity(BlockPos)
-     * levelSource.getBlockEntity(BlockPos)} is not used
+     * levelSource.getBlockEntity(BlockPos)} is not used. Reset with empty collection
      * 
      * @param blockEntities all block entities, should be data equivalent to levelSource
      */
@@ -182,11 +222,64 @@ public class FakeLevel extends Level
     }
 
     /**
-     * @param entities all entities, their level should be this fake level instance
+     * @param entities all entities, their level should be this fake level instance. Reset with empty collection
      */
     public void setEntities(final Collection<? extends Entity> entities)
     {
-        levelEntityGetter = FakeLevelEntityGetterAdapter.ofEntities(entities);
+        levelEntityGetter = entities.isEmpty() ? FakeLevelEntityGetterAdapter.EMPTY : FakeLevelEntityGetterAdapter.ofEntities(entities);
+    }
+
+    // ========================================
+    // ======= CTOR REAL LEVEL REDIRECTS ======
+    // ========================================
+    // Note: must have null check because super ctor
+
+    @Override
+    public ResourceKey<Level> dimension()
+    {
+        return realLevel() != null ? realLevel().dimension() : super.dimension();
+    }
+
+    @Override
+    public RegistryAccess registryAccess()
+    {
+        return realLevel() != null ? realLevel().registryAccess() : super.registryAccess();
+    }
+
+    @Override
+    public DamageSources damageSources()
+    {
+        return realLevel() != null ? realLevel().damageSources() : super.damageSources();
+    }
+
+    @Override
+    public ProfilerFiller getProfiler()
+    {
+        return realLevel() != null ? realLevel().getProfiler() : super.getProfiler();
+    }
+
+    @Override
+    public Supplier<ProfilerFiller> getProfilerSupplier()
+    {
+        return realLevel() != null ? realLevel().getProfilerSupplier() : super.getProfilerSupplier();
+    }
+
+    @Override
+    public DimensionType dimensionType()
+    {
+        return realLevel() != null ? realLevel().dimensionType() : super.dimensionType();
+    }
+
+    @Override
+    public Holder<DimensionType> dimensionTypeRegistration()
+    {
+        return realLevel() != null ? realLevel().dimensionTypeRegistration() : super.dimensionTypeRegistration();
+    }
+
+    @Override
+    public WorldBorder getWorldBorder()
+    {
+        return realLevel() != null ? realLevel().getWorldBorder() : super.getWorldBorder();
     }
 
     // ========================================
@@ -221,6 +314,10 @@ public class FakeLevel extends Level
     @Override
     public ChunkAccess getChunk(int x, int z, ChunkStatus requiredStatus, boolean nonnull)
     {
+        if (lastX == x && lastZ == z && lastChunk != null)
+        {
+            return lastChunk;
+        }
         return nonnull || hasChunk(x, z) ? new FakeChunk(this, x, z) : null;
     }
 
@@ -230,27 +327,28 @@ public class FakeLevel extends Level
         final int posX = SectionPos.sectionToBlockCoord(chunkX);
         final int posZ = SectionPos.sectionToBlockCoord(chunkZ);
         return levelSource.getMinX() <= posX && posX < levelSource.getMaxX() &&
-            levelSource.getMinZ() <= posZ && posZ < levelSource.getMaxZ();
+            levelSource.getMinZ() <= posZ &&
+            posZ < levelSource.getMaxZ();
     }
 
     @Override
     public int getBrightness(final LightLayer lightType, final BlockPos pos)
     {
         return lightProvider.forceOwnLightLevel() ? lightProvider.getBrightness(lightType, pos) :
-            clientLevel().getBrightness(lightType, worldPos.offset(pos));
+            realLevel().getBrightness(lightType, worldPos.offset(pos));
     }
 
     @Override
     public int getRawBrightness(BlockPos pos, int amount)
     {
         return lightProvider.forceOwnLightLevel() ? lightProvider.getRawBrightness(pos, amount) :
-            clientLevel().getRawBrightness(worldPos.offset(pos), amount);
+            realLevel().getRawBrightness(worldPos.offset(pos), amount);
     }
 
     @Override
     public int getSkyDarken()
     {
-        return lightProvider.forceOwnLightLevel() ? lightProvider.getSkyDarken() : clientLevel().getSkyDarken();
+        return lightProvider.forceOwnLightLevel() ? lightProvider.getSkyDarken() : realLevel().getSkyDarken();
     }
 
     @Override
@@ -262,7 +360,7 @@ public class FakeLevel extends Level
     @Override
     public Scoreboard getScoreboard()
     {
-        return scoreboard;
+        return scoreboard == null ? realLevel().getScoreboard() : scoreboard;
     }
 
     @Override
@@ -362,49 +460,43 @@ public class FakeLevel extends Level
     @Override
     public float getShade(Direction p_104703_, boolean p_104704_)
     {
-        return clientLevel().getShade(p_104703_, p_104704_);
+        return realLevel().getShade(p_104703_, p_104704_);
     }
 
     @Override
     public Holder<Biome> getBiome(BlockPos pos)
     {
-        return clientLevel().getBiome(worldPos.offset(pos));
+        return realLevel().getBiome(worldPos.offset(pos));
     }
 
     @Override
     public BiomeManager getBiomeManager()
     {
-        return clientLevel().getBiomeManager();
+        return realLevel().getBiomeManager();
     }
 
     @Override
     public RecipeManager getRecipeManager()
     {
-        return clientLevel().getRecipeManager();
-    }
-
-    @Override
-    public RegistryAccess registryAccess()
-    {
-        return clientLevel().registryAccess();
+        return realLevel().getRecipeManager();
     }
 
     @Override
     public FeatureFlagSet enabledFeatures()
     {
-        return clientLevel().enabledFeatures();
+        return realLevel().enabledFeatures();
     }
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z)
     {
-        return clientLevel().getUncachedNoiseBiome(x, y, z);
+        return realLevel().getUncachedNoiseBiome(x, y, z);
     }
 
     @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z)
     {
-        return clientLevel().getNoiseBiome(x, y, z);
+        return realLevel().getNoiseBiome(x, y, z);
     }
 
     // ========================================
@@ -803,33 +895,9 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public DamageSources damageSources()
-    {
-        return super.damageSources();
-    }
-
-    @Override
-    public ResourceKey<Level> dimension()
-    {
-        return super.dimension();
-    }
-
-    @Override
-    public DimensionType dimensionType()
-    {
-        return super.dimensionType();
-    }
-
-    @Override
     public ResourceKey<DimensionType> dimensionTypeId()
     {
         return super.dimensionTypeId();
-    }
-
-    @Override
-    public Holder<DimensionType> dimensionTypeRegistration()
-    {
-        return super.dimensionTypeRegistration();
     }
 
     @Override
@@ -980,18 +1048,6 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public ProfilerFiller getProfiler()
-    {
-        return super.getProfiler();
-    }
-
-    @Override
-    public Supplier<ProfilerFiller> getProfilerSupplier()
-    {
-        return super.getProfilerSupplier();
-    }
-
-    @Override
     public RandomSource getRandom()
     {
         return super.getRandom();
@@ -1020,12 +1076,6 @@ public class FakeLevel extends Level
     public float getSunAngle(float p_46491_)
     {
         return super.getSunAngle(p_46491_);
-    }
-
-    @Override
-    public WorldBorder getWorldBorder()
-    {
-        return super.getWorldBorder();
     }
 
     @Override

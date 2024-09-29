@@ -10,7 +10,7 @@ import net.minecraft.world.level.storage.WritableLevelData;
  */
 public class FakeLevelData implements WritableLevelData
 {
-    protected final LevelData vanillaLevelData;
+    protected LevelData vanillaLevelData;
     protected final IFakeLevelLightProvider lightProvider;
 
     protected FakeLevelData(final LevelData vanillaLevelData, final IFakeLevelLightProvider lightProvider)
