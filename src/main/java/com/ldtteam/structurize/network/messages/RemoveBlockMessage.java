@@ -88,7 +88,7 @@ public class RemoveBlockMessage extends AbstractServerPlayMessage
         buf.writeInt(blocks.size());
         for (final ItemStack block : blocks)
         {
-            ItemStack.STREAM_CODEC.encode(buf, block);
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, block);
         }
     }
 

@@ -78,8 +78,8 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        ItemStack.STREAM_CODEC.encode(buf, blockTo);
-        ItemStack.STREAM_CODEC.encode(buf, blockFrom);
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, blockTo);
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, blockFrom);
         buf.writeInt(pct);
     }
 
