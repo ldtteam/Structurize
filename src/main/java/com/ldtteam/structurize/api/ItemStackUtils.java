@@ -1,30 +1,28 @@
 package com.ldtteam.structurize.api;
 
+import com.ldtteam.common.fakelevel.SingleBlockFakeLevel.SidedSingleBlockFakeLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +31,8 @@ import java.util.stream.Collectors;
  */
 public final class ItemStackUtils
 {
+    private static final SidedSingleBlockFakeLevel itemHandlerFakeLevel = new SidedSingleBlockFakeLevel();
+
     /**
      * Private constructor to hide the implicit one.
      */
@@ -48,69 +48,62 @@ public final class ItemStackUtils
      *
      * @param compound the tileEntity stored in a compound.
      * @param state the block.
+     * @param level real vanilla instance for fakeLevel
      * @return the list of itemstacks.
      */
-    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final HolderLookup.Provider provider)
+    public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final Level level)
     {
-        if (state.getBlock() instanceof BaseEntityBlock && compound.contains("Items"))
-        {
-            // because we're constructing the BlockEntity out-of-world below, chests (and perhaps a few others)
-            // can't generate an IItemHandler for us, so we need to read the contents manually.
-            // this could be removed if we always get a "real" BE from a world, but we're called both from a
-            // real world and from a schematic non-world, and the latter still breaks.
-            return getItemStacksFromNbt(compound, provider);
-        }
-
-        BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
-        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, provider);
+        final BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+        final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, level.registryAccess());
         if (tileEntity == null)
         {
             return Collections.emptyList();
         }
 
-        final List<ItemStack> items = new ArrayList<>();
-        for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
-        {
-            for (int slot = 0; slot < handler.getSlots(); slot++)
+        return itemHandlerFakeLevel.get(level).useFakeLevelContext(state, tileEntity, level, fakeLevel -> {
+            final List<ItemStack> items = new ArrayList<>();
+            for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
             {
-                final ItemStack stack = handler.getStackInSlot(slot);
-                if (!ItemStackUtils.isEmpty(stack))
+                for (int slot = 0; slot < handler.getSlots(); slot++)
                 {
-                    items.add(stack);
+                    final ItemStack stack = handler.getStackInSlot(slot).copy();
+                    if (!ItemStackUtils.isEmpty(stack))
+                    {
+                        items.add(stack);
+                    }
                 }
             }
-        }
-
-        return items;
-    }
-
-    @NotNull
-    private static List<ItemStack> getItemStacksFromNbt(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
-    {
-        final List<ItemStack> items = new ArrayList<>();
-        final ListTag listtag = compound.getList("Items", Tag.TAG_COMPOUND);
-
-        for (int i = 0; i < listtag.size(); ++i)
-        {
-            final CompoundTag compoundtag = listtag.getCompound(i);
-            final ItemStack stack = ItemStack.parseOptional(provider, compoundtag);
-            if (!stack.isEmpty())
-            {
-                items.add(stack);
-            }
-        }
-
-        return items;
+            return items;
+        });
     }
 
     /**
-     * Method to get all the IItemHandlers from a given Provider.
+     * Method to get sensible item handlers from blockEntity. Tries to provide whole deduplicated content. However this assumption is
+     * weak. There still might be content (in returned set) that is not present at all or duplicated.
      *
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
     public static Set<IItemHandler> getItemHandlersFromProvider(final BlockEntity provider)
     {
+        if (provider instanceof final IItemHandler itemHandler)
+        {
+            // be is itemHandler itself = easy
+            return Set.of(itemHandler);
+        }
+        if (provider instanceof final Container container)
+        {
+            // be is vanilla container = itemHandler cap might return SidedInvWrapper with partial inv view
+            return Set.of(new InvWrapper(container));
+        }
+
+        final IItemHandler unsidedItemHandler = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
+        if (unsidedItemHandler != null)
+        {
+            // weak assumption of unsided being partial view only
+            return Set.of(unsidedItemHandler);
+        }
+
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
@@ -120,11 +113,7 @@ public final class ItemStackUtils
                 handlerSet.add(cap);
             }
         }
-        final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
-        if (cap != null)
-        {
-            handlerSet.add(cap);
-        }
+        // weakest assumption of sided itemHandler having disjoint sides
         return handlerSet;
     }
 
