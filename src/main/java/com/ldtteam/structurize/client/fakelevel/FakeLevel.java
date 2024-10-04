@@ -127,7 +127,7 @@ public class FakeLevel extends Level
         @Nullable final Scoreboard scoreboard,
         final boolean overrideBeLevel)
     {
-        super(new FakeLevelData(clientLevel().getLevelData(), lightProvider),
+        super(new FakeLevelData(clientLevel()::getLevelData, lightProvider),
             clientLevel().dimension(),
             clientLevel().registryAccess(),
             clientLevel().dimensionTypeRegistration(),
@@ -145,6 +145,7 @@ public class FakeLevel extends Level
         this.lightEngine = new FakeLevelLightEngine(this);
 
         setRealLevel(clientLevel());
+        ((FakeLevelData) getLevelData()).vanillaLevelData = realLevel()::getLevelData;
     }
 
     // ========================================
@@ -170,7 +171,6 @@ public class FakeLevel extends Level
         }
 
         this.realLevel = realLevel;
-        ((FakeLevelData) this.getLevelData()).vanillaLevelData = realLevel == null ? null : realLevel.getLevelData();
     }
 
     public Level realLevel()
