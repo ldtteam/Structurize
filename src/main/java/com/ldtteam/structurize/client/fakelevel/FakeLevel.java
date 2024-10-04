@@ -145,7 +145,7 @@ public class FakeLevel extends Level
         this.lightEngine = new FakeLevelLightEngine(this);
 
         setRealLevel(clientLevel());
-        ((FakeLevelData) getLevelData()).vanillaLevelData = realLevel()::getLevelData;
+        ((FakeLevelData) getLevelData()).vanillaLevelData = () -> realLevel().getLevelData();
     }
 
     // ========================================
