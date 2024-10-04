@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.api;
 
-import com.ldtteam.common.fakelevel.FakeLevel;
-import com.ldtteam.common.fakelevel.SingleBlockFakeLevelGetter;
+import com.ldtteam.common.fakelevel.SingleBlockFakeLevel.SidedSingleBlockFakeLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -21,8 +21,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public final class ItemStackUtils
 {
-    private static FakeLevel<SingleBlockFakeLevelGetter> itemHandlerFakeLevel = null;
+    private static final SidedSingleBlockFakeLevel itemHandlerFakeLevel = new SidedSingleBlockFakeLevel();
 
     /**
      * Private constructor to hide the implicit one.
@@ -60,41 +60,50 @@ public final class ItemStackUtils
             return Collections.emptyList();
         }
 
-        if (itemHandlerFakeLevel == null)
-        {
-            itemHandlerFakeLevel = SingleBlockFakeLevelGetter.createSimpleInstance(level);
-        }
-        SingleBlockFakeLevelGetter.prepare(itemHandlerFakeLevel, state, tileEntity, level);
-
-        // TODO: this is generally very unstable, see vanilla WorldlyContainer#getSlotsForFace that is source for sided caps
-        // we need something that properly iterates over all slots without duplications
-        // code consuming this should also consider multi block entities like double chest
-        final List<ItemStack> items = new ArrayList<>();
-        for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
-        {
-            for (int slot = 0; slot < handler.getSlots(); slot++)
+        return itemHandlerFakeLevel.get(level).useFakeLevelContext(state, tileEntity, level, fakeLevel -> {
+            final List<ItemStack> items = new ArrayList<>();
+            for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
             {
-                final ItemStack stack = handler.getStackInSlot(slot);
-                if (!ItemStackUtils.isEmpty(stack))
+                for (int slot = 0; slot < handler.getSlots(); slot++)
                 {
-                    items.add(stack);
+                    final ItemStack stack = handler.getStackInSlot(slot).copy();
+                    if (!ItemStackUtils.isEmpty(stack))
+                    {
+                        items.add(stack);
+                    }
                 }
             }
-        }
-
-        SingleBlockFakeLevelGetter.unset(itemHandlerFakeLevel, tileEntity);
-
-        return items;
+            return items;
+        });
     }
 
     /**
-     * Method to get all the IItemHandlers from a given Provider.
+     * Method to get sensible item handlers from blockEntity. Tries to provide whole deduplicated content. However this assumption is
+     * weak. There still might be content (in returned set) that is not present at all or duplicated.
      *
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
     public static Set<IItemHandler> getItemHandlersFromProvider(final BlockEntity provider)
     {
+        if (provider instanceof final IItemHandler itemHandler)
+        {
+            // be is itemHandler itself = easy
+            return Set.of(itemHandler);
+        }
+        if (provider instanceof final Container container)
+        {
+            // be is vanilla container = itemHandler cap might return SidedInvWrapper with partial inv view
+            return Set.of(new InvWrapper(container));
+        }
+
+        final IItemHandler unsidedItemHandler = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
+        if (unsidedItemHandler != null)
+        {
+            // weak assumption of unsided being partial view only
+            return Set.of(unsidedItemHandler);
+        }
+
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
@@ -104,11 +113,7 @@ public final class ItemStackUtils
                 handlerSet.add(cap);
             }
         }
-        final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
-        if (cap != null)
-        {
-            handlerSet.add(cap);
-        }
+        // weakest assumption of sided itemHandler having disjoint sides
         return handlerSet;
     }
 
