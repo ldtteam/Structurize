@@ -91,6 +91,10 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
             return;
         }
 
+        poseStack.pushPose();
+        poseStack.scale(0.995f, 0.995f, 0.995f);
+        poseStack.translate(0.0025f, 0.0025f, 0.0025f);
+
         if (replacement.hasBlockEntity())
         {
             final BlockEntityRenderDispatcher entityDispatcher = this.context.getBlockEntityRenderDispatcher();
@@ -99,14 +103,28 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
             {
                 renderLevel = new SingleBlockFakeLevel(realLevel);
             }
-    
+
             renderLevel.withFakeLevelContext(replacement.blockState(),
                 BlockEntity.loadStatic(BlockPos.ZERO, replacement.blockState(), replacement.serializedBE().get(), realLevel.registryAccess()),
                 realLevel,
-                fakeLevel -> entityDispatcher.render(renderLevel.getLevelSource().blockEntity, partialTick, poseStack, buffers));
+                fakeLevel -> {
+                    context.getBlockRenderDispatcher()
+                        .renderSingleBlock(replacement.blockState(),
+                            poseStack,
+                            buffers,
+                            packedLight,
+                            packedOverlay,
+                            renderLevel.getLevelSource().blockEntity.getModelData(),
+                            renderType);
+                    entityDispatcher.render(renderLevel.getLevelSource().blockEntity, partialTick, poseStack, buffers);
+                });
+        }
+        else
+        {
+            context.getBlockRenderDispatcher()
+                .renderSingleBlock(replacement.blockState(), poseStack, buffers, packedLight, packedOverlay, ModelData.EMPTY, renderType);
         }
 
-        final BlockRenderDispatcher dispatcher = this.context.getBlockRenderDispatcher();
-        dispatcher.renderSingleBlock(replacement.blockState(), poseStack, buffers, packedLight, packedOverlay, ModelData.EMPTY, renderType);
+        poseStack.popPose();
     }
 }

@@ -45,6 +45,14 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
             CapturedBlock::itemStack,
             CapturedBlock::new);
 
+    /**
+     * Serializes given BE.
+     *
+     * @param blockState  state of captured block
+     * @param blockEntity related blockEntity data if needed
+     * @param provider    registry access
+     * @param itemStack   itemStack representing both block and blockEntity
+     */
     public CapturedBlock(final BlockState blockState,
         @Nullable final BlockEntity blockEntity,
         final HolderLookup.Provider provider,
@@ -53,6 +61,10 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
         this(blockState, blockEntity == null ? Optional.empty() : Optional.of(blockEntity.saveWithId(provider)), itemStack);
     }
 
+    /**
+     * @param rotationMirror relative rotation and mirror
+     * @param level          registry access
+     */
     public CapturedBlock applyRotationMirror(final RotationMirror rotationMirror, final Level level)
     {
         if (serializedBE.isEmpty())

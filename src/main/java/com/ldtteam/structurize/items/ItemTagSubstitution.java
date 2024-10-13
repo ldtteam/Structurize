@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -65,7 +64,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         {
             if (!player.level().isClientSide())
             {
-                clearAbsorbedBlock(stack);
+                CapturedBlock.EMPTY.writeToItemStack(stack);
             }
             return InteractionResult.SUCCESS;
         }
@@ -76,7 +75,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
             // this way lies madness, and/or Sparta...
             if (!player.level().isClientSide())
             {
-                clearAbsorbedBlock(stack);
+                CapturedBlock.EMPTY.writeToItemStack(stack);
             }
             return InteractionResult.SUCCESS;
         }
@@ -96,11 +95,6 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     private ItemStack getPickedBlock(@NotNull Player player, @NotNull BlockPos pos, @NotNull BlockState blockstate)
     {
         return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.level(), pos, player);
-    }
-
-    private void clearAbsorbedBlock(@NotNull ItemStack stack)
-    {
-        CapturedBlock.EMPTY.writeToItemStack(stack);
     }
 
     public void onAbsorbBlock(@NotNull final ServerPlayer player,
@@ -123,7 +117,6 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         }
         else
         {
-            // replacement = new BlockEntityTagSubstitution.ReplacementBlock(blockstate, blockentity.saveWithoutMetadata(player.level().registryAccess()), absorbItem);
             replacement = new CapturedBlock(blockstate, blockentity, player.level().registryAccess(), absorbItem);
         }
 
@@ -165,12 +158,5 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         }
 
         return super.getTooltipImage(stack);
-    }
-
-    @Nullable
-    @Override
-    protected BlockState getPlacementState(@NotNull final BlockPlaceContext context)
-    {
-        return super.getPlacementState(context);
     }
 }

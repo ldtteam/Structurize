@@ -8,11 +8,14 @@ import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +28,10 @@ import java.util.*;
 public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProviderBE
 {
     public static final String CAPTURED_BLOCK_TAG = "captured_block";
+    /**
+     * Up to 1.21.1
+     */
+    public static final String CAPTURED_BLOCK_TAG_OLD = "replacement";
 
     /**
      * The schematic name of the block.
@@ -124,31 +131,49 @@ public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprin
     public void loadAdditional( @NotNull final CompoundTag compound, final HolderLookup.Provider provider)
     {
         super.loadAdditional(compound, provider);
-        final DynamicOps<Tag> dynamicops = provider.createSerializationContext(NbtOps.INSTANCE);
+        final DynamicOps<Tag> dynamicOps = provider.createSerializationContext(NbtOps.INSTANCE);
 
         IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
-        replacement = deserializeReplacement(compound, dynamicops);
+        if (compound.contains(CAPTURED_BLOCK_TAG_OLD, Tag.TAG_COMPOUND))
+        {
+            final CompoundTag oldNbt = compound.getCompound(CAPTURED_BLOCK_TAG_OLD);
+            replacement = new CapturedBlock(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), oldNbt.getCompound("b")),
+                Optional.of(oldNbt.getCompound("e")),
+                oldNbt.contains("i") ? ItemStack.parseOptional(provider, oldNbt.getCompound("i")) : ItemStack.EMPTY);
+        }
+        else
+        {
+            replacement = deserializeReplacement(compound, dynamicOps);
+        }
     }
 
-    public static CapturedBlock deserializeReplacement(final CompoundTag compound, final DynamicOps<Tag> dynamicops)
+    public static CapturedBlock deserializeReplacement(final CompoundTag compound, final DynamicOps<Tag> dynamicOps)
     {
-        return CapturedBlock.CODEC.parse(dynamicops, compound.get(CAPTURED_BLOCK_TAG)).resultOrPartial(Log.getLogger()::error).orElse(CapturedBlock.EMPTY);
+        if (compound.getCompound(CAPTURED_BLOCK_TAG).isEmpty())
+        {
+            return CapturedBlock.EMPTY;
+        }
+        return CapturedBlock.CODEC.parse(dynamicOps, compound.get(CAPTURED_BLOCK_TAG)).resultOrPartial(error -> {
+            Log.getLogger()
+                .error("Parsing {} with data {}: {}", ModBlockEntities.TAG_SUBSTITUTION.getRegisteredName(), compound, error);
+            Log.getLogger().error("", new RuntimeException());
+        }).orElse(CapturedBlock.EMPTY);
     }
 
     @Override
     public void saveAdditional(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
     {
         super.saveAdditional(compound, provider);
-        final DynamicOps<Tag> dynamicops = provider.createSerializationContext(NbtOps.INSTANCE);
+        final DynamicOps<Tag> dynamicOps = provider.createSerializationContext(NbtOps.INSTANCE);
         writeSchematicDataToNBT(compound);
 
         // this is still needed even with data components as of 1.21
-        serializeReplacement(compound, dynamicops, replacement);
+        serializeReplacement(compound, dynamicOps, replacement);
     }
 
-    public static void serializeReplacement(final CompoundTag compound, final DynamicOps<Tag> dynamicops, final CapturedBlock replacement)
+    public static void serializeReplacement(final CompoundTag compound, final DynamicOps<Tag> dynamicOps, final CapturedBlock replacement)
     {
-        compound.put(CAPTURED_BLOCK_TAG, CapturedBlock.CODEC.encodeStart(dynamicops, replacement).getOrThrow());
+        compound.put(CAPTURED_BLOCK_TAG, CapturedBlock.CODEC.encodeStart(dynamicOps, replacement).getOrThrow());
     }
 
     @Override

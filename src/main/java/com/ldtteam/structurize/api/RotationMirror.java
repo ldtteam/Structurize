@@ -205,7 +205,7 @@ public enum RotationMirror
      * @param pos        where the given blockState is in given level
      * @return transformed blockState using this rot+mir
      */
-    public BlockState applyToBlockState(BlockState blockState, Level level, BlockPos pos)
+    public BlockState applyToBlockState(BlockState blockState, final Level level, final BlockPos pos)
     {
         if (isMirrored())
         {
