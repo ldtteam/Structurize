@@ -4,14 +4,12 @@ import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.client.TagSubstitutionRenderer;
 import com.ldtteam.structurize.component.CapturedBlock;
 import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.network.messages.AbsorbBlockMessage;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,31 +24,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem
 {
     public ItemTagSubstitution()
     {
         super(ModBlocks.blockTagSubstitution.get(), new Properties().component(ModDataComponents.CAPTURED_BLOCK, CapturedBlock.EMPTY));
-    }
-
-    @Override
-    public void initializeClient(@NotNull final Consumer<IClientItemExtensions> consumer)
-    {
-        consumer.accept(new IClientItemExtensions()
-        {
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer()
-            {
-                return TagSubstitutionRenderer.getInstance();
-            }
-        });
     }
 
     @NotNull
