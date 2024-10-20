@@ -9,8 +9,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
@@ -249,16 +249,14 @@ public final class ItemStackUtils
         else if (entity instanceof final ItemFrame itemFrame)
         {
             final ItemStack stack = itemFrame.getItem();
-            if (!ItemStackUtils.isEmpty(stack))
-            {
-                stack.setCount(1);
-                entityContent.add(stack);
-            }
+            entityContent.add(stack);
+            deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), entityContent::add);
         }
-        else if (entity instanceof final ArmorStand armorStand)
+        else if (entity instanceof final ItemEntity itemEntity)
         {
-            armorStand.getArmorSlots().forEach(entityContent::add);
-            armorStand.getHandSlots().forEach(entityContent::add);
+            final ItemStack stack = itemEntity.getItem();
+            entityContent.add(stack);
+            deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), entityContent::add);
         }
         else // sided item handler
         {
