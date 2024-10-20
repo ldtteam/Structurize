@@ -13,18 +13,17 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import net.minecraft.world.phys.EntityHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 /**
  * Utility methods for the inventories.
@@ -44,37 +43,55 @@ public final class ItemStackUtils
     }
 
     /**
-     * Get itemStack of tileEntityData. Retrieve the data from the tileEntity.
+     * Get itemStack of tileEntityData. Retrieve the data from the tileEntity. Including recursive content, eg. shulkers
      *
      * @param compound the tileEntity stored in a compound.
      * @param state the block.
      * @param level real vanilla instance for fakeLevel
      * @return the list of itemstacks.
+     * @see #getListOfStackForEntity(Entity, BlockPos)
      */
     public static List<ItemStack> getItemStacksOfTileEntity(final CompoundTag compound, final BlockState state, final Level level)
     {
+        if (compound == null)
+        {
+            return List.of();
+        }
+
         final BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
         final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, level.registryAccess());
         if (tileEntity == null)
         {
-            return Collections.emptyList();
+            return List.of();
         }
 
         return itemHandlerFakeLevel.get(level).useFakeLevelContext(state, tileEntity, level, fakeLevel -> {
             final List<ItemStack> items = new ArrayList<>();
-            for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
-            {
-                for (int slot = 0; slot < handler.getSlots(); slot++)
-                {
-                    final ItemStack stack = handler.getStackInSlot(slot).copy();
-                    if (!ItemStackUtils.isEmpty(stack))
-                    {
-                        items.add(stack);
-                    }
-                }
-            }
+            getItemHandlersFromProvider(tileEntity).forEach(itemHandler -> deepExtractItemHandler(itemHandler, items::add));
             return items;
         });
+    }
+
+    /**
+     * @param handler root itemHandler to extract
+     * @param sink where to put content of all found itemStacks, incl. recursive contents
+     */
+    public static void deepExtractItemHandler(@Nullable final IItemHandler handler, final Consumer<ItemStack> sink)
+    {
+        if (handler == null)
+        {
+            return;
+        }
+
+        for (int slot = 0; slot < handler.getSlots(); slot++)
+        {
+            final ItemStack stack = handler.getStackInSlot(slot).copy();
+            if (!ItemStackUtils.isEmpty(stack))
+            {
+                sink.accept(stack);
+                    deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), sink);
+            }
+        }
     }
 
     /**
@@ -84,8 +101,12 @@ public final class ItemStackUtils
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
-    public static Set<IItemHandler> getItemHandlersFromProvider(final BlockEntity provider)
+    public static Set<IItemHandler> getItemHandlersFromProvider(@Nullable final BlockEntity provider)
     {
+        if (provider == null)
+        {
+            return Set.of();
+        }
         if (provider instanceof final IItemHandler itemHandler)
         {
             // be is itemHandler itself = easy
@@ -97,7 +118,7 @@ public final class ItemStackUtils
             return Set.of(new InvWrapper(container));
         }
 
-        final IItemHandler unsidedItemHandler = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
+        final IItemHandler unsidedItemHandler = ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
         if (unsidedItemHandler != null)
         {
             // weak assumption of unsided being partial view only
@@ -107,7 +128,7 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-            final IItemHandler cap = Capabilities.ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, side);
+            final IItemHandler cap = ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, side);
             if (cap != null)
             {
                 handlerSet.add(cap);
@@ -147,54 +168,117 @@ public final class ItemStackUtils
     }
 
     /**
-     * Get the list of required resources for entities.
-     *
-     * @param entity the entity object.
-     * @param pos the placer pos..
-     * @return a list of stacks.
+     * @deprecated {@link #getListOfStackForEntity(Entity)}
      */
+    @Deprecated(forRemoval = true, since = "1.21.1")
     public static List<ItemStack> getListOfStackForEntity(final Entity entity, final BlockPos pos)
     {
-        if (entity != null)
-        {
-            final List<ItemStack> request = new ArrayList<>();
-            if (entity instanceof final ItemFrame itemFrame)
-            {
-                final ItemStack stack = itemFrame.getItem();
-                if (!ItemStackUtils.isEmpty(stack))
-                {
-                    stack.setCount(1);
-                    request.add(stack);
-                }
-                request.add(new ItemStack(Items.ITEM_FRAME, 1));
-            }
-            else if (entity instanceof final ArmorStand armorStand)
-            {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                    @Override
-                    public Type getType()
-                    {
-                        return Type.ENTITY;
-                    }
-                }));
-                armorStand.getArmorSlots().forEach(request::add);
-                armorStand.getHandSlots().forEach(request::add);
-            }
-            else if (entity instanceof ContainerEntity containerEntity)
-            {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                    @Override
-                    public Type getType()
-                    {
-                        return Type.ENTITY;
-                    }
-                }));
-                request.addAll(containerEntity.getItemStacks());
-            }
+        return getListOfStackForEntity(entity);
+    }
 
-            return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());
+    /**
+     * Get the list of required resources for entities + entity spawning item. Same implementation as blockEntity logic. Including recursive content, eg. shulkers 
+     *
+     * @param entity the entity object.
+     * @return a list of stacks.
+     * @see #getItemStacksOfTileEntity(BlockEntity)
+     */
+    public static List<ItemStack> getListOfStackForEntity(final Entity entity)
+    {
+        if (entity == null)
+        {
+            return List.of();
         }
-        return Collections.emptyList();
+
+        final List<ItemStack> request = new ArrayList<>();
+
+        // process entity itself
+        final ItemStack spawnItem = getEntitySpawningItem(entity);
+        if (spawnItem != null && !(spawnItem.getItem() instanceof SpawnEggItem))
+        {
+            request.add(spawnItem);
+        }
+
+        request.addAll(getItemStacksOfEntity(entity));
+
+        return request.stream().filter(stack -> !stack.isEmpty()).toList();
+    }
+
+    /**
+     * Get the list of required resources for entities. Same implementation as blockEntity logic. Including recursive content, eg. shulkers 
+     *
+     * @param entity the entity object.
+     * @return a list of stacks.
+     * @see #getItemStacksOfTileEntity(BlockEntity)
+     */
+    public static List<ItemStack> getItemStacksOfEntity(final Entity entity)
+    {
+        final List<ItemStack> entityContent = new ArrayList<>();
+
+        // if entity has unsided itemHandler then done
+        IItemHandler itemHandler = null;
+        if (entity instanceof final IItemHandler iitemHandler)
+        {
+            itemHandler = iitemHandler;
+        }
+        if (itemHandler == null)
+        {
+            itemHandler = entity.getCapability(ItemHandler.ENTITY);
+        }
+        if (itemHandler == null)
+        {
+            itemHandler = entity.getCapability(ItemHandler.ENTITY_AUTOMATION, null);
+        }
+
+        if (itemHandler != null)
+        {
+            deepExtractItemHandler(itemHandler, entityContent::add);
+        }
+        // some vanilla entities "have inventory" but not forge cap yet
+        else if (entity instanceof final ItemFrame itemFrame)
+        {
+            final ItemStack stack = itemFrame.getItem();
+            if (!ItemStackUtils.isEmpty(stack))
+            {
+                stack.setCount(1);
+                entityContent.add(stack);
+            }
+        }
+        else if (entity instanceof final ArmorStand armorStand)
+        {
+            armorStand.getArmorSlots().forEach(entityContent::add);
+            armorStand.getHandSlots().forEach(entityContent::add);
+        }
+        else if (entity instanceof final ContainerEntity containerEntity)
+        {
+            entityContent.addAll(containerEntity.getItemStacks());
+        }
+        else // sided item handler
+        {
+            for (final Direction side : Direction.values())
+            {
+                final IItemHandler cap = entity.getCapability(ItemHandler.ENTITY_AUTOMATION, side);
+                if (cap != null)
+                {
+                    deepExtractItemHandler(cap, entityContent::add);
+                }
+            }
+        }
+
+        return entityContent;
+    }
+
+    /**
+     * @return item that should spawn given entity
+     */
+    @Nullable
+    public static ItemStack getEntitySpawningItem(final Entity entity)
+    {
+        if (entity instanceof final ItemFrame itemFrame)
+        {
+            return itemFrame.getFrameItemStack();
+        }
+        return entity.getPickedResult(new EntityHitResult(entity));
     }
 
     /**
