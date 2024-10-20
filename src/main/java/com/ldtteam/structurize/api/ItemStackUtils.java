@@ -11,7 +11,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
@@ -199,6 +198,7 @@ public final class ItemStackUtils
             request.add(spawnItem);
         }
 
+        // process entity contents
         request.addAll(getItemStacksOfEntity(entity));
 
         return request.stream().filter(stack -> !stack.isEmpty()).toList();
@@ -213,13 +213,23 @@ public final class ItemStackUtils
      */
     public static List<ItemStack> getItemStacksOfEntity(final Entity entity)
     {
+        if (entity == null)
+        {
+            return List.of();
+        }
+
         final List<ItemStack> entityContent = new ArrayList<>();
 
-        // if entity has unsided itemHandler then done
         IItemHandler itemHandler = null;
         if (entity instanceof final IItemHandler iitemHandler)
         {
+            // entity is itemHandler itself = easy
             itemHandler = iitemHandler;
+        }
+        else if (entity instanceof final Container container)
+        {
+            // entity is vanilla container = itemHandler cap might return SidedInvWrapper with partial inv view
+            itemHandler = new InvWrapper(container);
         }
         if (itemHandler == null)
         {
@@ -227,6 +237,7 @@ public final class ItemStackUtils
         }
         if (itemHandler == null)
         {
+            // weak assumption of unsided being partial view only
             itemHandler = entity.getCapability(ItemHandler.ENTITY_AUTOMATION, null);
         }
 
@@ -248,10 +259,6 @@ public final class ItemStackUtils
         {
             armorStand.getArmorSlots().forEach(entityContent::add);
             armorStand.getHandSlots().forEach(entityContent::add);
-        }
-        else if (entity instanceof final ContainerEntity containerEntity)
-        {
-            entityContent.addAll(containerEntity.getItemStacks());
         }
         else // sided item handler
         {

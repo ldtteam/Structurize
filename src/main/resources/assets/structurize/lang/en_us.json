@@ -223,7 +223,7 @@
   "structurize.gui.undoredo.undoop": "Undo",
   "com.ldtteam.structurize.gui.scantool.remove_filtered": "Remove Filtered",
   "structurize.gui.content.blocks": "Blocks",
-  "structurize.gui.content.blocks_content": "Blocks internal content",
+  "structurize.gui.content.blocks_content": "Block contents",
   "structurize.gui.content.entities": "Entities",
-  "structurize.gui.content.entities_content": "Entities internal content"
+  "structurize.gui.content.entities_content": "Entity contents"
 }
