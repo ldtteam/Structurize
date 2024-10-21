@@ -16,6 +16,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -31,21 +33,24 @@ import java.util.Map;
  */
 public class WindowBlockGetterContents extends BOWindow
 {
-    public WindowBlockGetterContents(final Blueprint blockGetter, final Collection<Entity> boundedEntities)
+    public WindowBlockGetterContents(final Blueprint blueprint, final Level realLevel, final Collection<Entity> boundedEntities)
     {
-        this(blockGetter,
-            new BlockPos(blockGetter.getMinX(), blockGetter.getMinBuildHeight(), blockGetter.getMinZ()),
-            new BlockPos(blockGetter.getMaxX() - 1, blockGetter.getMaxBuildHeight() - 1, blockGetter.getMaxZ() - 1),
+        this(blueprint,
+            realLevel,
+            new BlockPos(blueprint.getMinX(), blueprint.getMinBuildHeight(), blueprint.getMinZ()),
+            new BlockPos(blueprint.getMaxX() - 1, blueprint.getMaxBuildHeight() - 1, blueprint.getMaxZ() - 1),
             boundedEntities);
     }
 
     /**
      * @param blockGetter     level
+     * @param realLevel       vanilla level instance in case of blockGetter not being one
      * @param start           inclusive from
      * @param end             inclusive to
      * @param boundedEntities entities bounded by [start, end] parameters
      */
-    public WindowBlockGetterContents(final Blueprint blockGetter,
+    public WindowBlockGetterContents(final BlockGetter blockGetter,
+        @Nullable final Level realLevel,
         final BlockPos start,
         final BlockPos end,
         final Collection<Entity> boundedEntities)
@@ -66,8 +71,18 @@ public class WindowBlockGetterContents extends BOWindow
             addAmountToMap(blocks, BlockToItemHelper.getItemStack(blockState, blockEntity, Minecraft.getInstance().player));
 
             // blockentity content
-            ItemStackUtils.getItemHandlersFromProvider(blockEntity)
-                .forEach(i -> ItemStackUtils.deepExtractItemHandler(i, stack -> addAmountToMap(blockItemHandlers, stack)));
+            if (blockEntity != null && blockEntity.getLevel() == null)
+            {
+                ItemStackUtils.ITEM_HANDLER_FAKE_LEVEL.get(realLevel).withFakeLevelContext(blockState, blockEntity, realLevel, level -> {
+                    ItemStackUtils.getItemHandlersFromProvider(blockEntity, pos, blockState)
+                        .forEach(i -> ItemStackUtils.deepExtractItemHandler(i, stack -> addAmountToMap(blockItemHandlers, stack)));
+                });
+            }
+            else
+            {
+                ItemStackUtils.getItemHandlersFromProvider(blockEntity, pos, blockState)
+                    .forEach(i -> ItemStackUtils.deepExtractItemHandler(i, stack -> addAmountToMap(blockItemHandlers, stack)));
+            }
         }
 
         for (final Entity entity : boundedEntities)

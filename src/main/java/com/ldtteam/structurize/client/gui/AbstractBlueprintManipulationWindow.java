@@ -548,7 +548,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     private void openContents()
     {
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId);
-        new WindowBlockGetterContents(previewData.getBlueprint(), BlueprintHandler.getInstance().getOptionalEntitiesForBlueprint(previewData)).openAsLayer();
+        new WindowBlockGetterContents(previewData.getBlueprint(), Minecraft.getInstance().level, BlueprintHandler.getInstance().getOptionalEntitiesForBlueprint(previewData)).openAsLayer();
     }
 
     /*

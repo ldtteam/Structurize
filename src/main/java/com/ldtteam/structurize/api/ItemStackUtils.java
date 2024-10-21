@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  */
 public final class ItemStackUtils
 {
-    private static final SidedSingleBlockFakeLevel itemHandlerFakeLevel = new SidedSingleBlockFakeLevel();
+    public static final SidedSingleBlockFakeLevel ITEM_HANDLER_FAKE_LEVEL = new SidedSingleBlockFakeLevel();
 
     /**
      * Private constructor to hide the implicit one.
@@ -64,9 +64,9 @@ public final class ItemStackUtils
             return List.of();
         }
 
-        return itemHandlerFakeLevel.get(level).useFakeLevelContext(state, tileEntity, level, fakeLevel -> {
+        return ITEM_HANDLER_FAKE_LEVEL.get(level).useFakeLevelContext(state, tileEntity, level, fakeLevel -> {
             final List<ItemStack> items = new ArrayList<>();
-            getItemHandlersFromProvider(tileEntity).forEach(itemHandler -> deepExtractItemHandler(itemHandler, items::add));
+            getItemHandlersFromProvider(tileEntity, blockpos, state).forEach(itemHandler -> deepExtractItemHandler(itemHandler, items::add));
             return items;
         });
     }
@@ -100,7 +100,7 @@ public final class ItemStackUtils
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
-    public static Set<IItemHandler> getItemHandlersFromProvider(@Nullable final BlockEntity provider)
+    public static Set<IItemHandler> getItemHandlersFromProvider(@Nullable final BlockEntity provider, final BlockPos pos, final BlockState state)
     {
         if (provider == null)
         {
@@ -117,7 +117,7 @@ public final class ItemStackUtils
             return Set.of(new InvWrapper(container));
         }
 
-        final IItemHandler unsidedItemHandler = ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, null);
+        final IItemHandler unsidedItemHandler = provider.getLevel().getCapability(ItemHandler.BLOCK, pos, state, provider, null);
         if (unsidedItemHandler != null)
         {
             // weak assumption of unsided being partial view only
@@ -127,7 +127,7 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-            final IItemHandler cap = ItemHandler.BLOCK.getCapability(provider.getLevel(), provider.getBlockPos(), provider.getBlockState(), provider, side);
+            final IItemHandler cap = provider.getLevel().getCapability(ItemHandler.BLOCK, pos, state, provider, side);
             if (cap != null)
             {
                 handlerSet.add(cap);
