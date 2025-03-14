@@ -367,9 +367,13 @@ public class StructurePlacer
                             entity.load(compound);
 
                             entity.setUUID(UUID.randomUUID());
-                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z, entity.getYRot(), entity.getXRot());
-
+                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            Vec3 moveToPos = posInWorld;
+                            if (entity instanceof HangingEntity hang)
+                            {
+                                moveToPos = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
+                            }
+                            entity.moveTo(moveToPos.x, moveToPos.y, moveToPos.z, entity.getYRot(), entity.getXRot());
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
@@ -392,7 +396,7 @@ public class StructurePlacer
                             }
 
                             List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity);
-                            if (!handler.isCreative())
+                            if (!handler.isCreative() || simulate)
                             {
                                 if (requiredItems == null)
                                 {
@@ -400,7 +404,7 @@ public class StructurePlacer
                                     continue;
                                 }
 
-                                if (!this.handler.hasRequiredItems(requiredItems))
+                                if (simulate || !this.handler.hasRequiredItems(requiredItems))
                                 {
                                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                                 }
