@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
@@ -137,9 +138,9 @@ public class StructurePacks
      * @param subPath the path of the specific blueprint in the pack.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, provider));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(structurePackId, subPath, provider), IOPool.getExecutor());
     }
 
     /**
@@ -148,9 +149,9 @@ public class StructurePacks
      * @param subPath the path of the specific blueprint in the pack.
      * @return the blueprint data future (might contain null).
      */
-    public static Future<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getBlueprintData(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getBlueprintData(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -159,9 +160,9 @@ public class StructurePacks
      * @param name the filename.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Path> findBlueprintFuture(final String structurePackId, final String name)
+    public static CompletableFuture<Path> findBlueprintFuture(final String structurePackId, final String name)
     {
-        return IOPool.submit(() -> findBlueprint(structurePackId, name));
+        return CompletableFuture.supplyAsync(() -> findBlueprint(structurePackId, name), IOPool.getExecutor());
     }
 
     /**
@@ -170,9 +171,9 @@ public class StructurePacks
      * @param subPath the path of the set of blueprints (usually a folder).
      * @return the blueprints list (might be empty).
      */
-    public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
+    public static CompletableFuture<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprints(structurePackId, subPath, provider));
+        return CompletableFuture.supplyAsync(() -> getBlueprints(structurePackId, subPath, provider), IOPool.getExecutor());
     }
 
     /**
@@ -181,9 +182,9 @@ public class StructurePacks
      * @param subPath the sub-path.
      * @return the list of categories.
      */
-    public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getCategories(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getCategories(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -192,9 +193,9 @@ public class StructurePacks
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final HolderLookup.Provider provider)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String packName, final Path path, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path, provider));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(packName, path, provider), IOPool.getExecutor());
     }
 
     /**
@@ -202,9 +203,9 @@ public class StructurePacks
      * @param blueprintPredicate the predicate to define the blueprint we're looking for.
      * @return the blueprint future.
      */
-    public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate, final HolderLookup.Provider provider)
+    public static CompletableFuture<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> findBlueprint(structurePackId, blueprintPredicate, provider));
+        return CompletableFuture.supplyAsync(() -> findBlueprint(structurePackId, blueprintPredicate, provider), IOPool.getExecutor());
     }
 
     /**
@@ -214,9 +215,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError, final HolderLookup.Provider provider)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, suppressError, provider));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(structurePackId, subPath, suppressError, provider), IOPool.getExecutor());
     }
 
 
@@ -227,9 +228,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError, final HolderLookup.Provider provider)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError, final HolderLookup.Provider provider)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path, suppressError, provider));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(packName, path, suppressError, provider), IOPool.getExecutor());
     }
 
     // ------------------------- Synchronous Calls ------------------------- //
