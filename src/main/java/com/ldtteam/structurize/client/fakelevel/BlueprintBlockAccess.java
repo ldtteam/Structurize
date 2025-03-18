@@ -5,6 +5,7 @@ import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.fakelevel.IFakeLevelLightProvider.ConfigBasedLightProvider;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -40,7 +41,12 @@ public class BlueprintBlockAccess extends FakeLevel
 
     public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos)
     {
-        if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
+        return prepareBlockStateForRendering(state, pos, null);
+    }
+
+    public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos, final BlueprintPreviewData previewData)
+    {
+        if (previewData == null && Structurize.getConfig().getClient().renderPlaceholdersNice.get() || (previewData != null && previewData.getRenderBlocksNice()))
         {
             if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
