@@ -396,6 +396,11 @@ public class BlueprintPreviewData
         return serverSyncEnabled;
     }
 
+    public void setRenderBlocksNice(final boolean renderNice)
+    {
+        renderBlocksNice = renderNice;
+    }
+
     public boolean getRenderBlocksNice()
     {
         return renderBlocksNice;
