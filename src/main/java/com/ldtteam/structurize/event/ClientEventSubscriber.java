@@ -4,22 +4,22 @@ import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
-import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.BlueprintRenderer.TransparencyHack;
+import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
-import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -69,7 +69,20 @@ public class ClientEventSubscriber
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
         final double alpha = Structurize.getConfig().getClient().rendererTransparency.get();
-        final boolean isAlphaApplied = alpha > 0 && alpha < TransparencyHack.THRESHOLD;
+        boolean isAlphaApplied = alpha > 0 && alpha < TransparencyHack.THRESHOLD;
+
+        if (!isAlphaApplied)
+        {
+            for (final BlueprintPreviewData previewData : RenderingCache.getBlueprintsToRender())
+            {
+                final float previewAlpha = previewData.getOverridePreviewTransparency();
+                if (previewAlpha > 0 && previewAlpha < TransparencyHack.THRESHOLD)
+                {
+                    isAlphaApplied = true;
+                    break;
+                }
+            }
+        }
 
         final PoseStack matrixStack = event.getPoseStack();
         final MultiBufferSource.BufferSource bufferSource = WorldRenderMacros.getBufferSource();
