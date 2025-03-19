@@ -46,7 +46,7 @@ public class BlueprintBlockAccess extends FakeLevel
 
     public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos, final BlueprintPreviewData previewData)
     {
-        if (previewData == null && Structurize.getConfig().getClient().renderPlaceholdersNice.get() || (previewData != null && previewData.getRenderBlocksNice()))
+        if (previewData == null ? Structurize.getConfig().getClient().renderPlaceholdersNice.get() : previewData.getRenderBlocksNice())
         {
             if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {

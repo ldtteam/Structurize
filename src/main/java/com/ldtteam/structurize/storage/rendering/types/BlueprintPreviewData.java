@@ -396,11 +396,20 @@ public class BlueprintPreviewData
         return serverSyncEnabled;
     }
 
+    /**
+     * Sets whether substitution blocks should render nice
+     *
+     * @param renderNice
+     */
     public void setRenderBlocksNice(final boolean renderNice)
     {
         renderBlocksNice = renderNice;
     }
 
+    /**
+     * Whether substitution blocks render nice
+     * @return
+     */
     public boolean getRenderBlocksNice()
     {
         return renderBlocksNice;
