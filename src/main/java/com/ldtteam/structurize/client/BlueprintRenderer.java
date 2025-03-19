@@ -689,6 +689,10 @@ public class BlueprintRenderer implements AutoCloseable
                 return;
             }
 
+            if (overrideValue < 0 || overrideValue > THRESHOLD)
+            {
+                return;
+            }
             final float alpha = Mth.clamp(overrideValue, 0, 1);
             applied = true;
 
