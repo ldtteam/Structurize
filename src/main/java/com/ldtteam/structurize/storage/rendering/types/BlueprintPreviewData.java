@@ -70,7 +70,7 @@ public class BlueprintPreviewData
     /**
      * What value should be used for transparency if enabled
      */
-    private float overridePreviewTransparency = (float) Structurize.getConfig().getClient().rendererTransparency.get().doubleValue();
+    private float overridePreviewTransparency = -1;
 
     /**
      * Setting for whether blocks render nice or not

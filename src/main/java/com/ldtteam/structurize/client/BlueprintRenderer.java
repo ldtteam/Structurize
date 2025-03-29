@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -689,11 +690,17 @@ public class BlueprintRenderer implements AutoCloseable
                 return;
             }
 
-            if (overrideValue < 0 || overrideValue > THRESHOLD)
+            float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            if (overrideValue != -1)
+            {
+                alpha = overrideValue;
+            }
+
+            if (alpha < 0 || alpha > THRESHOLD)
             {
                 return;
             }
-            final float alpha = Mth.clamp(overrideValue, 0, 1);
+
             applied = true;
 
             RenderSystem.enableBlend();
