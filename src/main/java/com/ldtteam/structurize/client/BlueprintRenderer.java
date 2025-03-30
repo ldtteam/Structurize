@@ -693,7 +693,7 @@ public class BlueprintRenderer implements AutoCloseable
             float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
             if (overrideValue != -1)
             {
-                alpha = overrideValue;
+                alpha = Mth.clamp(overrideValue, 0, 1);
             }
 
             if (alpha < 0 || alpha > THRESHOLD)
