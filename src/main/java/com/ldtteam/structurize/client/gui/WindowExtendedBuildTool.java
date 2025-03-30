@@ -782,7 +782,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             {
                 if (blueprints.get(index) == null)
                 {
-                    final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":back";
+                    final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":$back";
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
                     button.setText(Component.literal(""));
@@ -808,9 +808,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             if (img == null)
             {
-                img = rowPane.findPaneOfTypeByID("back:" + buttonData.data, ButtonImage.class);
+                img = rowPane.findPaneOfTypeByID("$back:" + buttonData.data, ButtonImage.class);
             }
-            img.setID("back:" + buttonData.data);
+            img.setID("$back:" + buttonData.data);
             img.setVisible(true);
             img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
@@ -914,9 +914,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             if (img == null)
             {
-                img = rowPane.findPaneOfTypeByID("back:" + buttonData.data, ButtonImage.class);
+                img = rowPane.findPaneOfTypeByID("$back:" + buttonData.data, ButtonImage.class);
             }
-            img.setID("back:" + buttonData.data);
+            img.setID("$back:" + buttonData.data);
             img.setVisible(true);
             img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
@@ -944,7 +944,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     public void onButtonClicked(final Button button)
     {
         boolean handled = false;
-        if (button.getID().contains("back:"))
+        if (button.getID().contains("$back:"))
         {
             nextDepth = button.getID().split(":").length == 1 ? "" : button.getID().split(":")[1];
             updateFolders(Collections.emptyList(), null);
@@ -1010,7 +1010,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 pane.enable();
             }
 
-            currentBlueprintCat = button.getID().replace(":back", "");
+            currentBlueprintCat = button.getID().replace(":$back", "");
             handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
@@ -1022,7 +1022,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 pane.enable();
             }
 
-            currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":back", "");
+            currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":$back", "");
             handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
