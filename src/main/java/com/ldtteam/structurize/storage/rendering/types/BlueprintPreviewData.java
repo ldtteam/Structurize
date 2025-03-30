@@ -77,6 +77,11 @@ public class BlueprintPreviewData
     private BlockState solidSubstitutionOverride = null;
 
     /**
+     * Setting for whether blocks render nice or not
+     */
+    private boolean renderBlocksNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
+    /**
      * Default constructor to create a new setup.
      */
     public BlueprintPreviewData()
@@ -342,6 +347,26 @@ public class BlueprintPreviewData
     }
 
     /**
+     * Sets whether substitution blocks should render nice
+     *
+     * @param renderNice
+     */
+    public void setRenderBlocksNice(final boolean renderNice)
+    {
+        renderBlocksNice = renderNice;
+    }
+
+    /**
+     * Whether substitution blocks render nice
+     *
+     * @return
+     */
+    public boolean getRenderBlocksNice()
+    {
+        return renderBlocksNice;
+    }
+
+    /**
      * Overrides client config for preview transparency if already enabled, else does nothing.
      *
      * @param overridePreviewTransparency -1 (or any negative) for keep config, 0 = transparent to 1 = opaque
@@ -353,7 +378,7 @@ public class BlueprintPreviewData
 
     public float getOverridePreviewTransparency()
     {
-        return overridePreviewTransparency;
+        return 0.6f;
     }
 
     /**

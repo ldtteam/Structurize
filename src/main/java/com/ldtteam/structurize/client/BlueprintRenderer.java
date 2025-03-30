@@ -105,8 +105,9 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
-    private void init(final Blueprint blueprint, final Map<Object, Exception> suppressedExceptions, final BlueprintPreviewData previewData)
+    private void init(final BlueprintPreviewData previewData, final Map<Object, Exception> suppressedExceptions)
     {
+        final Blueprint blueprint = previewData.getBlueprint();
         final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
         final RandomSource random = RandomSource.create();
 
@@ -130,7 +131,7 @@ public class BlueprintRenderer implements AutoCloseable
             final BlockPos blockPos = blockInfo.getPos();
             BlockState state = blockInfo.getState();
             // specially handle blockTagSub here cuz of block entity changes
-            if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockTagSubstitution.get())
+            if (previewData.getRenderBlocksNice() && state.getBlock() == ModBlocks.blockTagSubstitution.get())
             {
                 if (tileEntitiesMap.remove(blockPos) instanceof final BlockEntityTagSubstitution tagTE)
                 {
@@ -150,7 +151,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
             else
             {
-                state = blockAccess.prepareBlockStateForRendering(state, blockPos);
+                state = blockAccess.prepareBlockStateForRendering(state, blockPos, previewData);
             }
 
             final FluidState fluidState = state.getFluidState();
@@ -309,7 +310,7 @@ public class BlueprintRenderer implements AutoCloseable
         // init
         if (vertexBuffers == null)
         {
-            init(previewData.getBlueprint(), suppressedExceptions, previewData);
+            init(previewData, suppressedExceptions);
         }
 
         profiler.popPush("struct_render_prepare");
@@ -634,11 +635,15 @@ public class BlueprintRenderer implements AutoCloseable
             }
 
             float alpha = Structurize.getConfig().getClient().rendererTransparency.get().floatValue();
+            if (overrideValue != -1)
+            {
+                alpha = Mth.clamp(overrideValue, 0, 1);
+            }
+
             if (alpha < 0 || alpha > THRESHOLD)
             {
                 return;
             }
-            alpha = overrideValue < 0 ? alpha : Mth.clamp(overrideValue, 0, 1);
 
             applied = true;
 
