@@ -75,7 +75,7 @@ public class BlueprintPreviewData
     /**
      * Setting for whether blocks render nice or not
      */
-    private boolean renderBlocksNice = Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+    private boolean renderBlocksNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
 
     /**
      * Default constructor to create a new setup.
