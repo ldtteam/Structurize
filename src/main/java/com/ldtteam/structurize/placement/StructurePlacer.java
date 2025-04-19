@@ -5,6 +5,8 @@ import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.placement.handlers.entity.EntityHandlers;
+import com.ldtteam.structurize.placement.handlers.entity.IEntityHandler;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
@@ -356,7 +358,7 @@ public class StructurePlacer
             {
                 try
                 {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
@@ -367,51 +369,28 @@ public class StructurePlacer
                             entity.load(compound);
 
                             entity.setUUID(UUID.randomUUID());
-                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            Vec3 moveToPos = posInWorld;
-                            if (entity instanceof HangingEntity hang)
+
+                            IEntityHandler.ActionProcessingResult finalResult = IEntityHandler.ActionProcessingResult.DENY;
+                            List<ItemStack> requiredItems = List.of();
+                            for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                             {
-                                moveToPos = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
-                            }
-                            entity.moveTo(moveToPos.x, moveToPos.y, moveToPos.z, entity.getYRot(), entity.getXRot());
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
-                            boolean foundEntity = false;
-                            for (Entity worldEntity: list)
-                            {
-                                if (worldEntity.position().equals(posInWorld))
+                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
+                                if (result != IEntityHandler.ActionProcessingResult.PASS)
                                 {
-                                    foundEntity = true;
+                                    finalResult = result;
+                                    requiredItems = entityHandler.getRequiredItems(entity).stream()
+                                            .filter(stack -> !stack.isEmpty()).toList();
                                     break;
                                 }
                             }
-
-                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
+                            if (finalResult != IEntityHandler.ActionProcessingResult.SUCCESS)
                             {
                                 continue;
                             }
 
-                            if (entity instanceof Display.TextDisplay && (!handler.isCreative() || handler.fancyPlacement()))
+                            if (!handler.isCreative() && !handler.hasRequiredItems(requiredItems))
                             {
-                                continue;
-                            }
-
-                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity);
-                            if (!handler.isCreative() || simulate)
-                            {
-                                if (requiredItems == null)
-                                {
-                                    // Only handle entities we explicitly know how to handle.
-                                    continue;
-                                }
-
-                                if (simulate || !this.handler.hasRequiredItems(requiredItems))
-                                {
-                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-                                }
-                            }
-                            else if (requiredItems == null)
-                            {
-                                requiredItems = new ArrayList<>();
+                                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                             }
 
                             if (!simulate)

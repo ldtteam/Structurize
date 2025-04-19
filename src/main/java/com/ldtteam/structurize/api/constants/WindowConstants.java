@@ -241,6 +241,7 @@ public final class WindowConstants
     public static final String RESOURCE_QUANTITY_MISSING = "resourceQuantity";
     public static final String RESOURCE_ICON_FILL        = "resourceIconFill";
     public static final String RESOURCE_ICON_MAIN        = "resourceIconMain";
+    public static final String RESOURCE_STATUS           = "resourceStatus";
 
     /**
      * Name of the input range field.

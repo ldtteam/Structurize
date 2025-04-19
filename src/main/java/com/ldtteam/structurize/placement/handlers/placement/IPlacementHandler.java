@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Handler for all kinds of placements.
+ * Handler for block placements.
  */
 public interface IPlacementHandler
 {
