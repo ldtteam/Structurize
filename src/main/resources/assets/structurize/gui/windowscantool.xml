@@ -50,6 +50,11 @@
             <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove)" id="removeEntity" pos="19 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
             <label id="resourceQuantity" size="30 12" pos="160 1" color="white" textalign="MIDDLE_RIGHT"/>
+            <itemicon id="resourceIcon1" size="16 16" pos="110 13"/>
+            <itemicon id="resourceIcon2" size="16 16" pos="126 13"/>
+            <itemicon id="resourceIcon3" size="16 16" pos="142 13"/>
+            <itemicon id="resourceIcon4" size="16 16" pos="158 13"/>
+            <image id="resourceStatus" size="16 16" pos="174 13"/>
         </box>
     </list>
 
@@ -65,6 +70,6 @@
     <label id="chestwarning" size="140 11" pos="140 75" textscale="0.5" visible="false"
            label="$(com.ldtteam.structurize.gui.scantool.chests)"/>
 
-    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove_filtered)" id="removefiltered" pos="80 83" size="86 17"
+    <buttonimage label="$(com.ldtteam.structurize.gui.scantool.remove_filtered)" id="removefiltered" pos="29 223" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black" visible="false"/>
 </window>

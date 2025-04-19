@@ -10,6 +10,8 @@ import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.placement.handlers.entity.EntityHandlers;
+import com.ldtteam.structurize.placement.handlers.entity.IEntityHandler;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -21,6 +23,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +38,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
@@ -51,6 +56,9 @@ public class WindowScan extends AbstractWindowSkeleton
     /** chest warning message */
     private static final String CHEST_WARNING = "chestwarning";
 
+    private static final ResourceLocation STATUS_HANDLED = new ResourceLocation(MOD_ID, "textures/gui/buildtool/green_icon.png");
+    private static final ResourceLocation STATUS_UNHANDLED = new ResourceLocation(MOD_ID, "textures/gui/buildtool/red_icon.png");
+
     /**
      * Id of clicking enter.
      */
@@ -64,7 +72,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Object2IntMap<EntityType> entities = new Object2IntOpenHashMap<>();
+    private final Map<EntityType<?>, List<Entity>> entities = new HashMap<>();
 
     /**
      * White color.
@@ -118,7 +126,7 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     public WindowScan(@NotNull final ScanToolData data)
     {
-        super(Constants.MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
+        super(MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
         this.data = data;
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::discardClicked);
@@ -214,7 +222,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final int row = entityList.getListElementIndexByPane(button);
         final EntityType entity = new ArrayList<>(entities.keySet()).get(row);
         Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), EntityType.getKey(entity)));
-        entities.removeInt(entity);
+        entities.remove(entity);
         updateEntitylist();
     }
 
@@ -444,7 +452,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, new AABB(slot.getBox().getPos1(), slot.getBox().getPos2()));
+        final List<Entity> list = world.getEntitiesOfClass(Entity.class, slot.getBox().getAABB());
 
         for (final Entity entity : list)
         {
@@ -455,7 +463,7 @@ public class WindowScan extends AbstractWindowSkeleton
                   && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                              || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
             {
-                entities.mergeInt(entity.getType(), 1, Integer::sum);
+                entities.computeIfAbsent(entity.getType(), k -> new ArrayList<>()).add(entity);
             }
         }
 
@@ -479,7 +487,7 @@ public class WindowScan extends AbstractWindowSkeleton
                         final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
                         for (final ItemStack stack : itemList)
                         {
-                            addNeededResource(stack, 1);
+                            addNeededResource(stack, stack.getCount());
                         }
                         handled = true;
                         break;
@@ -535,7 +543,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         entityList.enable();
         entityList.show();
-        final List<EntityType> tempEntities = new ArrayList<>(entities.keySet());
+        final List<List<Entity>> tempEntities = entities.values().stream().toList();
 
         //Creates a dataProvider for the unemployed resourceList.
         entityList.setDataProvider(new ScrollingList.DataProvider()
@@ -559,23 +567,38 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final EntityType entity = tempEntities.get(index);
-                ItemStack entityIcon = entity.create(Minecraft.getInstance().level).getPickResult();
-                if (entity == EntityType.GLOW_ITEM_FRAME)
+                final List<Entity> entities = tempEntities.get(index);
+                boolean handled = false;
+                EntityType<?> entityType = entities.get(0).getType();
+                Entity tempEntity = entityType.create(entities.get(0).level());
+                ItemStack entityIcon = tempEntity.getPickResult();
+                List<ItemStorage> requiredItems = List.of();
+                for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                 {
-                    entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
+                    if (entityHandler.canHandle(entities.get(0)))
+                    {
+                        handled = entityHandler.canPlace(entities.get(0), false, true);
+                        entityIcon = entityHandler.getIcon(tempEntity);
+
+                        // unique items in descending order of required count
+                        requiredItems = entities.stream()
+                                .flatMap(e -> entityHandler.getRequiredItems(e).stream())
+                                .filter(s -> !s.isEmpty()).map(ItemStorage::new)
+                                .collect(Collectors.toMap(s -> s, s -> s, (s1, s2) -> new ItemStorage(s1.getItemStack(), s1.getAmount() + s2.getAmount(), false)))
+                                .values().stream().sorted(Comparator.comparingInt(ItemStorage::getAmount).reversed())
+                                .toList();
+                        break;
+                    }
                 }
-                else if (entity == EntityType.ITEM_FRAME)
-                {
-                    entityIcon = new ItemStack(Items.ITEM_FRAME);
-                }
-                else if (entity == EntityType.MINECART)
-                {
-                    entityIcon = new ItemStack(Items.MINECART);
-                }
-                rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(entities.getInt(entity))));
+                rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(entities.size())));
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
-                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entity.getDescription());
+                rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entityType.getDescription());
+                for (int i = 1; i <= 4; ++i)
+                {
+                    rowPane.findPaneOfTypeByID(RESOURCE_ICON + i, ItemIcon.class)
+                            .setItem(i <= requiredItems.size() ? requiredItems.get(i - 1).getItemStack() : ItemStack.EMPTY);
+                }
+                rowPane.findPaneOfTypeByID(RESOURCE_STATUS, Image.class).setImage(handled ? STATUS_HANDLED : STATUS_UNHANDLED, true);
                 if (!Minecraft.getInstance().player.isCreative())
                 {
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_ENTITY, Button.class).hide();
