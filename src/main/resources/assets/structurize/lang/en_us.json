@@ -132,6 +132,8 @@
   "structurize.config.maxoperationspertick.comment": "Max world operations per tick (max blocks to place, remove, or replace).",
   "structurize.config.render_placeholders_nice": "Render placeholders as target blocks",
   "structurize.config.render_placeholders_nice.comment": "If disabled show placeholders as normal blocks, if enabled render: any (light) -> nothing, fluid (blue) -> dimension default fluid, solid (brown) -> worldgen block, tag (transparent) -> content block. Fluid and solid only work in singleplayer/for LAN owner, else it's just best guess. Currently without auto-updating",
+  "structurize.config.scan_tool_scrolling": "Scan Tool Scrolling",
+  "structurize.config.scan_tool_scrolling.comment": "Sneak+scroll on the hotbar switches scan tool slots",
   "structurize.config.see_shared_previews": "See previews from others",
   "structurize.config.see_shared_previews.comment": "Once enabled you will see previews from other players within sensible distance",
   "structurize.config.share_previews": "Share previews to others",

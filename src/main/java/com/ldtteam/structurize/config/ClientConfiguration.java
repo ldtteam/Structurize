@@ -25,6 +25,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public final BooleanValue displayShared;
     public final IntValue rendererLightLevel;
     public final DoubleValue rendererTransparency;
+    public final BooleanValue scanToolScrolling;
 
     /**
      * Builds client configuration.
@@ -58,7 +59,12 @@ public class ClientConfiguration extends AbstractConfiguration
             }
         });
 
-        finishCategory(builder);
+        finishCategory(builder);    // blueprint.renderer
+        finishCategory(builder);    // blueprint
+
+        createCategory(builder, "gameplay");
+        scanToolScrolling = defineBoolean(builder, "scan_tool_scrolling", true);
+        finishCategory(builder);    // gameplay
     }
 
     /**
