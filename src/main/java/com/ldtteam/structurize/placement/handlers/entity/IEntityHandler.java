@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -88,13 +89,7 @@ public interface IEntityHandler
      */
     default List<ItemStack> getRequiredItems(final Entity entity)
     {
-        return List.of(entity.getPickedResult(new HitResult(entity.position()) {
-            @Override
-            public Type getType()
-            {
-                return Type.ENTITY;
-            }
-        }));
+        return List.of(entity.getPickedResult(new EntityHitResult(entity)));
     }
 
     /**
