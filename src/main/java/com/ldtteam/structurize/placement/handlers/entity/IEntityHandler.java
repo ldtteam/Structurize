@@ -43,13 +43,13 @@ public interface IEntityHandler
     /**
      * Gets the adjusted position in the world for the given entity.
      *
-     * @param entity the entity.
-     * @param pos    the anchor position in world.
-     * @return       the adjusted entity position.
+     * @param entity  the entity.
+     * @param zeroPos the blueprint zero position in world.
+     * @return        the adjusted entity position.
      */
-    default Vec3 adjustPosition(final Entity entity, final BlockPos pos)
+    default Vec3 adjustPosition(final Entity entity, final BlockPos zeroPos)
     {
-        return entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+        return entity.position().add(zeroPos.getX(), zeroPos.getY(), zeroPos.getZ());
     }
 
     /**
@@ -57,14 +57,15 @@ public interface IEntityHandler
      *
      * @param handler the actor placing the entity.
      * @param entity  the entity being placed.
+     * @param zeroPos the blueprint zero position in world.
      * @return SUCCESS, DENY, or PASS.
      */
-    default ActionProcessingResult checkPlacement(final IStructureHandler handler, final Entity entity, final BlockPos pos)
+    default ActionProcessingResult checkPlacement(final IStructureHandler handler, final Entity entity, final BlockPos zeroPos)
     {
         if (!canHandle(entity)) return ActionProcessingResult.PASS;
         if (!canPlace(entity, handler.isCreative(), handler.fancyPlacement())) return ActionProcessingResult.DENY;
 
-        Vec3 posInWorld = adjustPosition(entity, pos);
+        Vec3 posInWorld = adjustPosition(entity, zeroPos);
         entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z);
 
         final List<? extends Entity> list = entity.level().getEntitiesOfClass(entity.getClass(), AABB.unitCubeFromLowerCorner(posInWorld));

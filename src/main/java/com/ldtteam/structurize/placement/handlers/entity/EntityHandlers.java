@@ -157,10 +157,10 @@ public final class EntityHandlers
         }
 
         @Override
-        public Vec3 adjustPosition(final Entity entity, final BlockPos pos)
+        public Vec3 adjustPosition(final Entity entity, final BlockPos zeroPos)
         {
             final HangingEntity hang = (HangingEntity) entity;
-            return IEntityHandler.super.adjustPosition(entity, pos)
+            return IEntityHandler.super.adjustPosition(entity, zeroPos)
                     .subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
         }
     }

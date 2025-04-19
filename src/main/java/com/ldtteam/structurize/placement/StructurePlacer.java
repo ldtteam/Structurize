@@ -352,7 +352,7 @@ public class StructurePlacer
             {
                 try
                 {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
@@ -368,7 +368,7 @@ public class StructurePlacer
                             List<ItemStack> requiredItems = List.of();
                             for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                             {
-                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, pos);
+                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
                                 if (result != IEntityHandler.ActionProcessingResult.PASS)
                                 {
                                     finalResult = result;
@@ -496,7 +496,7 @@ public class StructurePlacer
             {
                 try
                 {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
@@ -508,10 +508,14 @@ public class StructurePlacer
 
                             for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                             {
-                                if (entityHandler.checkPlacement(handler, entity, pos) == IEntityHandler.ActionProcessingResult.SUCCESS)
+                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
+                                if (result == IEntityHandler.ActionProcessingResult.SUCCESS)
                                 {
                                     requiredItems.addAll(entityHandler.getRequiredItems(entity).stream()
                                             .filter(stack -> !stack.isEmpty()).toList());
+                                }
+                                if (result != IEntityHandler.ActionProcessingResult.PASS)
+                                {
                                     break;
                                 }
                             }
