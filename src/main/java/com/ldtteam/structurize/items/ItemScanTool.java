@@ -281,7 +281,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             // treat pick in air like mouse scrolling (just in case someone doesn't have a wheel)
             final double delta = player.isShiftKeyDown() ? -1 : 1;
-            return onMouseScroll(player, stack, delta, ctrlKey);
+            return switchSlot(player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
         }
 
         if (player.level().getBlockEntity(pos) instanceof CommandBlockEntity command)
@@ -300,26 +300,31 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                                            final double delta,
                                            final boolean ctrlKey)
     {
+        if (!player.level().isClientSide() || Structurize.getConfig().getClient().scanToolScrolling.get())
+        {
+            return switchSlot(player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    @NotNull
+    private InteractionResult switchSlot(@NotNull final Player player,
+                                         @NotNull final ItemStack stack,
+                                         @NotNull final Consumer<ScanToolData> action)
+    {
         if (player.level().isClientSide())
         {
             return InteractionResult.SUCCESS;
         }
 
-        switchSlot((ServerPlayer) player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
-
-        return InteractionResult.SUCCESS;
-    }
-
-    private void switchSlot(@NotNull final ServerPlayer player,
-                            @NotNull final ItemStack stack,
-                            @NotNull final Consumer<ScanToolData> action)
-    {
         final ScanToolData data = new ScanToolData(stack.getOrCreateTag());
         saveSlot(data, stack, player);
         action.accept(data);
         final ScanToolData.Slot slot = loadSlot(data, stack);
 
-        Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
+        Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), (ServerPlayer) player);
+        return InteractionResult.SUCCESS;
     }
 
     private void saveSlot(@NotNull final ScanToolData data,
