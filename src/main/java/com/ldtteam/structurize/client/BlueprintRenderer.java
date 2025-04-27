@@ -117,6 +117,11 @@ public class BlueprintRenderer implements AutoCloseable
         blockAccess.setBlockEntities(tileEntitiesMap);
         blockAccess.setEntities(entities);
 
+        if (previewData.getSolidSubstitutionOverride() != null)
+        {
+            blockAccess.setSolidSubstitutionOverride(previewData.getSolidSubstitutionOverride());
+        }
+
         final PoseStack matrixStack = new PoseStack();
         matrixStack.translate(0.001, 0.001, 0.001);
 
@@ -146,11 +151,6 @@ public class BlueprintRenderer implements AutoCloseable
                 {
                     state = Blocks.AIR.defaultBlockState();
                 }
-            }
-            else if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockSolidSubstitution.get()
-                && previewData.getSolidSubstitutionOverride() != null)
-            {
-                state = previewData.getSolidSubstitutionOverride();
             }
             else
             {
