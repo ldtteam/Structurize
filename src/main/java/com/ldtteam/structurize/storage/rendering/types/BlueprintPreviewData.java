@@ -1,18 +1,17 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -70,11 +69,6 @@ public class BlueprintPreviewData
      * What value should be used for transparency if enabled
      */
     private float overridePreviewTransparency = -1;
-
-    /**
-     * Override blockstate for solid placeholders
-     */
-    private BlockState solidSubstitutionOverride = null;
 
     /**
      * Default constructor to create a new setup.
@@ -354,25 +348,5 @@ public class BlueprintPreviewData
     public float getOverridePreviewTransparency()
     {
         return overridePreviewTransparency;
-    }
-
-    /**
-     * Get the solid placeholder blockstate override
-     *
-     * @return
-     */
-    public BlockState getSolidSubstitutionOverride()
-    {
-        return solidSubstitutionOverride;
-    }
-
-    /**
-     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
-     *
-     * @return
-     */
-    public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
-    {
-        this.solidSubstitutionOverride = solidSubstitutionOverride;
     }
 }
