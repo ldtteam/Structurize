@@ -116,11 +116,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         blockAccess.setBlockEntities(tileEntitiesMap);
         blockAccess.setEntities(entities);
-
-        if (previewData.getSolidSubstitutionOverride() != null)
-        {
-            blockAccess.setSolidSubstitutionOverride(previewData.getSolidSubstitutionOverride());
-        }
+        blockAccess.setSolidSubstitutionOverride(previewData.getSolidSubstitutionOverride());
 
         final PoseStack matrixStack = new PoseStack();
         matrixStack.translate(0.001, 0.001, 0.001);
@@ -195,6 +191,8 @@ public class BlueprintRenderer implements AutoCloseable
                 suppressedExceptions.put(blockInfo, e);
             }
         }
+
+        blockAccess.setSolidSubstitutionOverride(null);
 
         clearVertexBuffers();
         vertexBuffers = new Reference2ObjectArrayMap<>(RenderType.chunkBufferLayers().size());
