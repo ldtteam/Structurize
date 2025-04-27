@@ -17,12 +17,8 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportType;
@@ -30,13 +26,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -49,18 +39,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SkullBlock;
-import net.minecraft.world.level.block.TrialSpawnerBlock;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.CampfireBlockEntity;
-import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
-import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.entity.vault.VaultBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -74,13 +54,7 @@ import org.lwjgl.opengl.GL20C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The renderer for blueprint.
@@ -131,7 +105,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
     }
 
-    private void init(final Blueprint blueprint, final Map<Object, Exception> suppressedExceptions)
+    private void init(final Blueprint blueprint, final Map<Object, Exception> suppressedExceptions, final BlueprintPreviewData previewData)
     {
         final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
         final RandomSource random = RandomSource.create();
@@ -142,6 +116,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         blockAccess.setBlockEntities(tileEntitiesMap);
         blockAccess.setEntities(entities);
+        blockAccess.setSolidSubstitutionOverride(previewData.getSolidSubstitutionOverride());
 
         final PoseStack matrixStack = new PoseStack();
         matrixStack.translate(0.001, 0.001, 0.001);
@@ -172,11 +147,6 @@ public class BlueprintRenderer implements AutoCloseable
                 {
                     state = Blocks.AIR.defaultBlockState();
                 }
-            }
-            else if (Structurize.getConfig().getClient().renderPlaceholdersNice.get() && state.getBlock() == ModBlocks.blockSolidSubstitution.get()
-                && previewData.getSolidSubstitutionOverride() != null)
-            {
-                state = previewData.getSolidSubstitutionOverride();
             }
             else
             {
@@ -221,6 +191,8 @@ public class BlueprintRenderer implements AutoCloseable
                 suppressedExceptions.put(blockInfo, e);
             }
         }
+
+        blockAccess.setSolidSubstitutionOverride(null);
 
         clearVertexBuffers();
         vertexBuffers = new Reference2ObjectArrayMap<>(RenderType.chunkBufferLayers().size());
@@ -337,7 +309,7 @@ public class BlueprintRenderer implements AutoCloseable
         // init
         if (vertexBuffers == null)
         {
-            init(previewData.getBlueprint(), suppressedExceptions);
+            init(previewData.getBlueprint(), suppressedExceptions, previewData);
         }
 
         profiler.popPush("struct_render_prepare");
