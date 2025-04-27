@@ -23,6 +23,11 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
     public static final IFakeLevelLightProvider LIGHT_PROVIDER = new ConfigBasedLightProvider(Structurize.getConfig().getClient().rendererLightLevel);
     private static final Scoreboard SCOREBOARD = new Scoreboard();
 
+    /**
+     * Override blockstate for solid placeholders
+     */
+    private BlockState solidSubstitutionOverride = null;
+
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
         super(blueprint, LIGHT_PROVIDER, Minecraft.getInstance().level, SCOREBOARD, true);
@@ -46,6 +51,10 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
         {
             if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
+                if (solidSubstitutionOverride != null)
+                {
+                    return solidSubstitutionOverride;
+                }
                 return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), levelSource.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
             }
             else if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
@@ -67,5 +76,15 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
         }
 
         return state;
+    }
+
+    /**
+     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
+     *
+     * @return
+     */
+    public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
+    {
+        this.solidSubstitutionOverride = solidSubstitutionOverride;
     }
 }
