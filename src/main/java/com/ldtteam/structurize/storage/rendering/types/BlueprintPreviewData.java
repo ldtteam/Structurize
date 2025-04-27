@@ -14,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -76,6 +77,11 @@ public class BlueprintPreviewData
      * Setting for whether blocks render nice or not
      */
     private boolean renderBlocksNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
+    /**
+     * Override blockstate for solid placeholders
+     */
+    private BlockState solidSubstitutionOverride = null;
 
     /**
      * Default constructor to create a new setup.
@@ -428,5 +434,25 @@ public class BlueprintPreviewData
     public float getOverridePreviewTransparency()
     {
         return overridePreviewTransparency;
+    }
+
+    /**
+     * Get the solid placeholder blockstate override
+     *
+     * @return
+     */
+    public BlockState getSolidSubstitutionOverride()
+    {
+        return solidSubstitutionOverride;
+    }
+
+    /**
+     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
+     *
+     * @return
+     */
+    public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
+    {
+        this.solidSubstitutionOverride = solidSubstitutionOverride;
     }
 }
