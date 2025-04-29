@@ -358,7 +358,6 @@ public class BlueprintPreviewData
 
     /**
      * Whether substitution blocks render nice
-     *
      * @return
      */
     public boolean getRenderBlocksNice()
@@ -378,7 +377,7 @@ public class BlueprintPreviewData
 
     public float getOverridePreviewTransparency()
     {
-        return 0.6f;
+        return overridePreviewTransparency;
     }
 
     /**
