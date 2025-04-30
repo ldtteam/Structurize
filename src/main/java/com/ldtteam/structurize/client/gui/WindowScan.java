@@ -593,10 +593,10 @@ public class WindowScan extends AbstractWindowSkeleton
                 rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(entities.size())));
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(entityIcon);
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(entityType.getDescription());
-                for (int i = 1; i <= 4; ++i)
+                for (int i = 0; i < 4; ++i)
                 {
-                    rowPane.findPaneOfTypeByID(RESOURCE_ICON + i, ItemIcon.class)
-                            .setItem(i <= requiredItems.size() ? requiredItems.get(i - 1).getItemStack() : ItemStack.EMPTY);
+                    rowPane.findPaneOfTypeByID(RESOURCE_ICON + (i + 1), ItemIcon.class)
+                            .setItem(i < requiredItems.size() ? requiredItems.get(i).getItemStack() : ItemStack.EMPTY);
                 }
                 rowPane.findPaneOfTypeByID(RESOURCE_STATUS, Image.class).setImage(handled ? STATUS_HANDLED : STATUS_UNHANDLED, true);
                 if (!Minecraft.getInstance().player.isCreative())
