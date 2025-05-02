@@ -246,7 +246,7 @@ public final class PlacementHandlers
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
-                BlockState supportBlockState = Blocks.DIRT instanceof Fallable ? Blocks.COBBLESTONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
+                BlockState supportBlockState = Blocks.DIRT instanceof Fallable ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 {
                     posBelow = posBelow.below();
