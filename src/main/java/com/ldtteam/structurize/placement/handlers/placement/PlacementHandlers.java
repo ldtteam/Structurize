@@ -23,7 +23,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -243,19 +246,29 @@ public final class PlacementHandlers
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
-                BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
+                BlockState supportBlockState = Blocks.DIRT instanceof Fallable ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 {
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world, posBelow, possibleSupport))
+                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world,
+                        posBelow,
+                        possibleSupport))
                     {
                         supportBlockState = possibleSupport;
                         break;
                     }
                 }
-                itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
+
+                if (canHandle(world, pos, supportBlockState))
+                {
+                    Log.getLogger().warn("Unable to use: " + supportBlockState + " as support for a falling block, it is either a falling black itself or made fallable");
+                }
+                else
+                {
+                    itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
+                }
             }
             return itemList;
         }
