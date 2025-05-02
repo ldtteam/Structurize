@@ -7,11 +7,7 @@ import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
-import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
-import net.neoforged.neoforge.common.ModConfigSpec.Builder;
-import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
-import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
-import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
+import net.neoforged.neoforge.common.ModConfigSpec.*;
 
 /**
  * Mod client configuration.
@@ -26,6 +22,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public final BooleanValue displayShared;
     public final IntValue rendererLightLevel;
     public final DoubleValue rendererTransparency;
+    public final BooleanValue scanToolScrolling;
 
     /**
      * Builds client configuration.
@@ -61,6 +58,10 @@ public class ClientConfiguration extends AbstractConfiguration
             }
         });
 
+        finishCategory();
+
+        createCategory("gameplay");
+        scanToolScrolling = defineBoolean("scan_tool_scrolling", true);
         finishCategory();
     }
 
