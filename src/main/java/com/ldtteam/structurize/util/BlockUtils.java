@@ -23,13 +23,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.AirItem;
-import net.minecraft.world.item.BedItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
@@ -49,12 +43,7 @@ import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseChunk;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.SurfaceRules;
-import net.minecraft.world.level.levelgen.WorldGenerationContext;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -64,6 +53,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -111,7 +101,8 @@ public final class BlockUtils
         {
             BuiltInRegistries.BLOCK.stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
-                .filter(block -> !block.defaultBlockState().canBeReplaced() && block.hasCollision && !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
+                .filter(block -> !block.defaultBlockState().canBeReplaced() && block.hasCollision && !(block instanceof Fallable) && !block.defaultBlockState().isAir()
+                    && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
         }
     }
@@ -697,7 +688,7 @@ public final class BlockUtils
     {
         return to.setValue(property, from.getValue(property));
     }
-    
+
     private static class OurWorldGenRegion extends WorldGenRegion
     {
         private final StaticCache2D<ChunkAccess> chunks;
@@ -709,7 +700,7 @@ public final class BlockUtils
             final int chunkX = chunk.getPos().x;
             final int chunkZ = chunk.getPos().z;
             final int chunkRange = step.accumulatedDependencies().getRadius();
-            
+
             this.level = level;
             chunks = StaticCache2D.create(chunkX, chunkZ, chunkRange, (x, z) -> {
                 ChunkAccess surroundingChunk = level.getChunk(x, z, ChunkStatus.SURFACE);
