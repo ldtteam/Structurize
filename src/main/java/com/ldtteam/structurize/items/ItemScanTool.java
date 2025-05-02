@@ -2,8 +2,8 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.BlockPosUtil;
-import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.IScrollableItem;
+import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -38,7 +38,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -54,7 +56,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
@@ -278,7 +280,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             // treat pick in air like mouse scrolling (just in case someone doesn't have a wheel)
             final double delta = player.isShiftKeyDown() ? -1 : 1;
-            return onMouseScroll(player, stack, 0, delta, ctrlKey);
+            return switchSlot(player, stack, delta < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
         }
 
         if (player.level().getBlockEntity(pos) instanceof CommandBlockEntity command)
@@ -298,24 +300,31 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                                            final double deltaY,
                                            final boolean ctrlKey)
     {
+        if (!player.level().isClientSide() || Structurize.getConfig().getClient().scanToolScrolling.get())
+        {
+            return switchSlot(player, stack, deltaY < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    @NotNull
+    private InteractionResult switchSlot(
+        @NotNull final Player player,
+        @NotNull final ItemStack stack,
+        @NotNull final Consumer<ScanToolData> action)
+    {
         if (player.level().isClientSide())
         {
             return InteractionResult.SUCCESS;
         }
 
-        switchSlot((ServerPlayer) player, stack, deltaY < 0 ? ScanToolData::prevSlot : ScanToolData::nextSlot);
-
-        return InteractionResult.SUCCESS;
-    }
-
-    private void switchSlot(@NotNull final ServerPlayer player,
-                            @NotNull final ItemStack stack,
-                            @NotNull final UnaryOperator<ScanToolData> action)
-    {
-        final ScanToolData data = ScanToolData.updateItemStack(stack, d -> action.apply(saveSlot(d, stack, player)));
+        final ScanToolData data = ScanToolData.updateItemStack(stack, d -> saveSlot(d, stack, player));
+        action.accept(data);
         final ScanToolData.Slot slot = loadSlot(data, stack);
 
-        new ShowScanMessage(slot.box()).sendToPlayer(player);
+        new ShowScanMessage(slot.box()).sendToPlayer((ServerPlayer) player);
+        return InteractionResult.SUCCESS;
     }
 
     private ScanToolData saveSlot(@NotNull final ScanToolData data,
