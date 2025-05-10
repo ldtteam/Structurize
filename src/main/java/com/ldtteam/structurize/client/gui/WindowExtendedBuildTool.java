@@ -948,6 +948,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         boolean handled = false;
         if (button.getID().contains("back:"))
         {
+            // When leaving the current folder, the alternatives should also disable then.
+            alternativesList.hide();
+            alternativesList.disable();
+            levelsList.hide();
+            levelsList.disable();
+
             nextDepth = button.getID().split(":").length == 1 ? "" : button.getID().split(":")[1];
             updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
@@ -965,6 +971,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         }
         else if (nextDepthMeta.containsKey(button.getID()))
         {
+            // When leaving the current folder, the alternatives should also disable then.
+            alternativesList.hide();
+            alternativesList.disable();
+            levelsList.hide();
+            levelsList.disable();
+            
             nextDepth = button.getID();
             updateFolders(Collections.emptyList(), null);
             updateBlueprints(Collections.emptyList(), "");
