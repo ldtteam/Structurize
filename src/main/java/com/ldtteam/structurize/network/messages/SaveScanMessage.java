@@ -41,7 +41,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         String name = null;
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
-            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
+            final CompoundTag wrapperCompound = NbtIo.read(stream, NbtAccounter.unlimitedHeap());
             tag = wrapperCompound.getCompound(TAG_SCHEMATIC);
             name = wrapperCompound.getString(TAG_MILLIS);
         }
@@ -80,7 +80,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))
         {
-            NbtIo.writeCompressed(wrapperCompound, stream);
+            NbtIo.write(wrapperCompound, stream);
         }
         catch (final IOException e)
         {
