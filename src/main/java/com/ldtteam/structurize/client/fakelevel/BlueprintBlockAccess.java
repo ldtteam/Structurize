@@ -85,8 +85,6 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
 
     /**
      * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
-     *
-     * @return
      */
     public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
     {
@@ -94,9 +92,7 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
     }
 
     /**
-     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
-     *
-     * @return
+     * Set the render nice override for placeholders, only updates when the renderer is recalculated
      */
     public void setRenderBlocksNiceOverride(final boolean renderNice)
     {
