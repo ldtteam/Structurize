@@ -195,7 +195,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         blockAccess.setSolidSubstitutionOverride(null);
-        blockAccess.setRenderBlocksNiceOverride(Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get());
+        blockAccess.setRenderBlocksNiceOverride(Structurize.getConfig().getClient().renderPlaceholdersNice.get());
 
         clearVertexBuffers();
         vertexBuffers = new Reference2ObjectArrayMap<>(RenderType.chunkBufferLayers().size());
