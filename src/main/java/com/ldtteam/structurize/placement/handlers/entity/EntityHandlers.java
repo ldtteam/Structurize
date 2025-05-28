@@ -138,10 +138,10 @@ public final class EntityHandlers
         @Override
         public List<ItemStack> getRequiredItems(final Entity entity)
         {
-            final List<ItemStack> request = new ArrayList<>();
-            request.add(((ItemFrame) entity).getItem().copyWithCount(1));
-            request.add(new ItemStack(Items.ITEM_FRAME));
-            return request;
+            final ItemFrame frameEntity = (ItemFrame) entity;
+            final ItemStack frame = frameEntity.getFrameItemStack().copyWithCount(1);
+            final ItemStack item = frameEntity.getItem().copyWithCount(1);
+            return List.of(frame, item);
         }
     }
 
