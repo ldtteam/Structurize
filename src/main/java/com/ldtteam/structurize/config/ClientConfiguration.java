@@ -33,7 +33,8 @@ public class ClientConfiguration extends AbstractConfiguration
     {
         super(builder, Constants.MOD_ID);
 
-        createCategory("blueprint.renderer");
+        createCategory("blueprint");
+        createCategory("renderer");
         // if you add anything to this category, also add it #collectPreviewRendererSettings()
         
         renderPlaceholdersNice = defineBoolean("render_placeholders_nice", false);
@@ -58,7 +59,8 @@ public class ClientConfiguration extends AbstractConfiguration
             }
         });
 
-        finishCategory();
+        finishCategory();   // renderer
+        finishCategory();   // blueprint
 
         createCategory("gameplay");
         scanToolScrolling = defineBoolean("scan_tool_scrolling", true);
