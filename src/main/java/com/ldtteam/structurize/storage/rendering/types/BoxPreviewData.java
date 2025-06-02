@@ -1,6 +1,8 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -32,22 +34,37 @@ public class BoxPreviewData
         this.anchor = anchor;
     }
 
+    @NotNull
     public BlockPos getPos1()
     {
         return pos1;
     }
 
+    @NotNull
     public BlockPos getPos2()
     {
         return pos2;
     }
 
+    @NotNull
+    public BoundingBox getBounds()
+    {
+        return BoundingBox.fromCorners(pos1, pos2);
+    }
+
+    @NotNull
+    public AABB getAABB()
+    {
+        return AABB.of(getBounds());
+    }
+
+    @NotNull
     public Optional<BlockPos> getAnchor()
     {
         return anchor;
     }
 
-    public void setAnchor(final Optional<BlockPos> anchor)
+    public void setAnchor(final @NotNull Optional<BlockPos> anchor)
     {
         this.anchor = anchor;
     }

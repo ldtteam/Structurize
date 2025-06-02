@@ -148,57 +148,6 @@ public final class ItemStackUtils
     }
 
     /**
-     * Get the list of required resources for entities.
-     *
-     * @param entity the entity object.
-     * @param pos the placer pos..
-     * @return a list of stacks.
-     */
-    public static List<ItemStack> getListOfStackForEntity(final Entity entity, final BlockPos pos)
-    {
-        if (entity != null)
-        {
-            final List<ItemStack> request = new ArrayList<>();
-            if (entity instanceof ItemFrame)
-            {
-                final ItemStack stack = ((ItemFrame) entity).getItem();
-                if (!ItemStackUtils.isEmpty(stack))
-                {
-                    stack.setCount(1);
-                    request.add(stack);
-                }
-                request.add(new ItemStack(Items.ITEM_FRAME, 1));
-            }
-            else if (entity instanceof ArmorStand)
-            {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                    @Override
-                    public Type getType()
-                    {
-                        return Type.ENTITY;
-                    }
-                }));
-                entity.getArmorSlots().forEach(request::add);
-                entity.getHandSlots().forEach(request::add);
-            }
-            else if (entity instanceof ContainerEntity containerEntity)
-            {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
-                    @Override
-                    public Type getType()
-                    {
-                        return Type.ENTITY;
-                    }
-                }));
-                request.addAll(containerEntity.getItemStacks());
-            }
-
-            return request.stream().filter(stack -> !stack.isEmpty()).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
-    }
-
-    /**
      * Method to compare to stacks, ignoring their stacksize.
      *
      * @param itemStack1 The left stack to compare.

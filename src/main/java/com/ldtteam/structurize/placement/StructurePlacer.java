@@ -5,6 +5,8 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.placement.handlers.entity.EntityHandlers;
+import com.ldtteam.structurize.placement.handlers.entity.IEntityHandler;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
@@ -237,81 +239,10 @@ public class StructurePlacer
         }
 
         // todo remove entity placement from here in the future.
-        for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
+        BlockPlacementResult entityResult = handleEntitySpawn(world, worldPos, localPos, storage);
+        if (entityResult.getResult() != BlockPlacementResult.Result.SUCCESS)
         {
-            if (compound != null)
-            {
-                try
-                {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
-
-                    final Optional<EntityType<?>> type = EntityType.by(compound);
-                    if (type.isPresent())
-                    {
-                        final Entity entity = type.get().create(world);
-                        if (entity != null)
-                        {
-                            entity.deserializeNBT(compound);
-
-                            entity.setUUID(UUID.randomUUID());
-                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            if (entity instanceof HangingEntity hang)
-                            {
-                                posInWorld = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
-                            }
-                            entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z, entity.getYRot(), entity.getXRot());
-
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
-                            boolean foundEntity = false;
-                            for (Entity worldEntity: list)
-                            {
-                                if (worldEntity.position().equals(posInWorld))
-                                {
-                                    foundEntity = true;
-                                    break;
-                                }
-                            }
-
-                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
-                            {
-                                continue;
-                            }
-
-                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
-                            if (!handler.isCreative())
-                            {
-                                if (requiredItems == null)
-                                {
-                                    // Only handle entities we explicitly know how to handle.
-                                    continue;
-                                }
-
-                                if (!this.handler.hasRequiredItems(requiredItems))
-                                {
-                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-                                }
-                            }
-                            else if (requiredItems == null)
-                            {
-                                requiredItems = new ArrayList<>();
-                            }
-
-                            world.addFreshEntity(entity);
-                            if (storage != null)
-                            {
-                                storage.addToBeKilledEntity(entity);
-                            }
-                            
-                            this.handler.consume(requiredItems);
-                            this.handler.triggerEntitySuccess(localPos, requiredItems, true);
-                        }
-                    }
-                }
-                catch (final RuntimeException e)
-                {
-                    Log.getLogger().info("Couldn't restore entity", e);
-                }
-            }
+            return entityResult;
         }
 
         BlockEntity worldEntity = null;
@@ -421,7 +352,7 @@ public class StructurePlacer
             {
                 try
                 {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
@@ -432,51 +363,28 @@ public class StructurePlacer
                             entity.deserializeNBT(compound);
 
                             entity.setUUID(UUID.randomUUID());
-                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            if (entity instanceof HangingEntity hang)
-                            {
-                                posInWorld = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
-                            }
-                            entity.moveTo(posInWorld.x, posInWorld.y, posInWorld.z, entity.getYRot(), entity.getXRot());
 
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
-                            boolean foundEntity = false;
-                            for (Entity worldEntity: list)
+                            IEntityHandler.ActionProcessingResult finalResult = IEntityHandler.ActionProcessingResult.DENY;
+                            List<ItemStack> requiredItems = List.of();
+                            for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                             {
-                                if (worldEntity.position().equals(posInWorld))
+                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
+                                if (result != IEntityHandler.ActionProcessingResult.PASS)
                                 {
-                                    foundEntity = true;
+                                    finalResult = result;
+                                    requiredItems = entityHandler.getRequiredItems(entity).stream()
+                                            .filter(stack -> !stack.isEmpty()).toList();
                                     break;
                                 }
                             }
-
-                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
+                            if (finalResult != IEntityHandler.ActionProcessingResult.SUCCESS)
                             {
                                 continue;
                             }
 
-                            if (entity instanceof Display.TextDisplay && (!handler.isCreative() || handler.fancyPlacement()))
+                            if (!handler.isCreative() && !handler.hasRequiredItems(requiredItems))
                             {
-                                continue;
-                            }
-
-                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
-                            if (!handler.isCreative())
-                            {
-                                if (requiredItems == null)
-                                {
-                                    // Only handle entities we explicitly know how to handle.
-                                    continue;
-                                }
-
-                                if (!this.handler.hasRequiredItems(requiredItems))
-                                {
-                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-                                }
-                            }
-                            else if (requiredItems == null)
-                            {
-                                requiredItems = new ArrayList<>();
+                                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                             }
 
                             world.addFreshEntity(entity);
@@ -588,7 +496,7 @@ public class StructurePlacer
             {
                 try
                 {
-                    final BlockPos pos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
                     final Optional<EntityType<?>> type = EntityType.by(compound);
                     if (type.isPresent())
@@ -598,24 +506,19 @@ public class StructurePlacer
                         {
                             entity.deserializeNBT(compound);
 
-                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
-                            boolean foundEntity = false;
-                            for (Entity worldEntity: list)
+                            for (final IEntityHandler entityHandler : EntityHandlers.handlers)
                             {
-                                if (worldEntity.position().equals(posInWorld))
+                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
+                                if (result == IEntityHandler.ActionProcessingResult.SUCCESS)
                                 {
-                                    foundEntity = true;
+                                    requiredItems.addAll(entityHandler.getRequiredItems(entity).stream()
+                                            .filter(stack -> !stack.isEmpty()).toList());
+                                }
+                                if (result != IEntityHandler.ActionProcessingResult.PASS)
+                                {
                                     break;
                                 }
                             }
-
-                            if (foundEntity)
-                            {
-                                continue;
-                            }
-
-                            requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
                         }
                     }
                 }
