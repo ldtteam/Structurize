@@ -124,6 +124,7 @@ public class BlueprintRenderer implements AutoCloseable
         blockAccess.setBlockEntities(tileEntitiesMap);
         blockAccess.setEntities(entities);
         blockAccess.setSolidSubstitutionOverride(previewData.getSolidSubstitutionOverride());
+        blockAccess.setRenderBlocksNiceOverride(previewData.getRenderBlocksNice());
 
         final PoseStack matrixStack = new PoseStack();
         matrixStack.translate(0.01, 0.01, 0.01);
@@ -155,7 +156,7 @@ public class BlueprintRenderer implements AutoCloseable
             }
             else
             {
-                state = blockAccess.prepareBlockStateForRendering(state, blockPos, previewData);
+                state = blockAccess.prepareBlockStateForRendering(state, blockPos);
             }
 
             final FluidState fluidState = state.getFluidState();
@@ -199,6 +200,7 @@ public class BlueprintRenderer implements AutoCloseable
         }
 
         blockAccess.setSolidSubstitutionOverride(null);
+        blockAccess.setRenderBlocksNiceOverride(Structurize.getConfig().getClient().renderPlaceholdersNice.get());
 
         vertexBuffers = blockVertexBuffersFactory.get();
         for (final RenderType renderType : blockRenderTypes)
