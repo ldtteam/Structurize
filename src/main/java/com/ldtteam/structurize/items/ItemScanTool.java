@@ -57,6 +57,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
@@ -312,15 +313,14 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     private InteractionResult switchSlot(
         @NotNull final Player player,
         @NotNull final ItemStack stack,
-        @NotNull final Consumer<ScanToolData> action)
+        @NotNull final UnaryOperator<ScanToolData> action)
     {
         if (player.level().isClientSide())
         {
             return InteractionResult.SUCCESS;
         }
 
-        final ScanToolData data = ScanToolData.updateItemStack(stack, d -> saveSlot(d, stack, player));
-        action.accept(data);
+        final ScanToolData data = ScanToolData.updateItemStack(stack, d -> action.apply(saveSlot(d, stack, player)));
         final ScanToolData.Slot slot = loadSlot(data, stack);
 
         new ShowScanMessage(slot.box()).sendToPlayer((ServerPlayer) player);
