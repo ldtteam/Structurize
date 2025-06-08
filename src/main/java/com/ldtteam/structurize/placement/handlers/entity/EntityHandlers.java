@@ -1,16 +1,14 @@
 package com.ldtteam.structurize.placement.handlers.entity;
 
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,9 +24,9 @@ public final class EntityHandlers
     static
     {
         handlers.add(new MobEntityHandler());
-        handlers.add(new TextDisplayHandler());
+        handlers.add(new DisplayHandler());
         handlers.add(new ItemFrameHandler());
-        handlers.add(new HangingEntityHandler());
+        handlers.add(new BlockAttachedEntityHandler());
         handlers.add(new ArmorStandHandler());
         handlers.add(new ContainerEntityHandler());
 
@@ -93,20 +91,25 @@ public final class EntityHandlers
         @Override
         public List<ItemStack> getRequiredItems(final Entity entity)
         {
-            final SpawnEggItem egg = SpawnEggItem.byId(entity.getType());
-            return egg == null ? List.of() : List.of(new ItemStack(egg));
+            final List<ItemStack> content = new ArrayList<>(IEntityHandler.super.getRequiredItems(entity));
+            final SpawnEggItem egg = SpawnEggItem.byId(entity.getType()); // TODO: 1.22 remove this here and move it to mcol
+            if (egg != null)
+            {
+                content.add(new ItemStack(egg));
+            }
+            return content;
         }
     }
 
     /**
      * Handler for text displays.
      */
-    public static class TextDisplayHandler implements IEntityHandler
+    public static class DisplayHandler implements IEntityHandler
     {
         @Override
         public boolean canHandle(final Entity entity)
         {
-            return entity instanceof Display.TextDisplay;
+            return entity instanceof Display;
         }
 
         @Override
@@ -125,39 +128,30 @@ public final class EntityHandlers
     /**
      * Handler for item frames.
      */
-    public static class ItemFrameHandler extends HangingEntityHandler
+    public static class ItemFrameHandler extends BlockAttachedEntityHandler
     {
         @Override
         public boolean canHandle(final Entity entity)
         {
             return entity instanceof ItemFrame;
         }
-
-        @Override
-        public List<ItemStack> getRequiredItems(final Entity entity)
-        {
-            final ItemFrame frameEntity = (ItemFrame) entity;
-            final ItemStack frame = frameEntity.getFrameItemStack().copyWithCount(1);
-            final ItemStack item = frameEntity.getItem().copyWithCount(1);
-            return List.of(frame, item);
-        }
     }
 
     /**
      * Handler for hanging entities (e.g. paintings).
      */
-    public static class HangingEntityHandler implements IEntityHandler
+    public static class BlockAttachedEntityHandler implements IEntityHandler
     {
         @Override
         public boolean canHandle(final Entity entity)
         {
-            return entity instanceof HangingEntity;
+            return entity instanceof BlockAttachedEntity;
         }
 
         @Override
         public Vec3 adjustPosition(final Entity entity, final BlockPos zeroPos)
         {
-            final HangingEntity hang = (HangingEntity) entity;
+            final BlockAttachedEntity hang = (BlockAttachedEntity) entity;
             return IEntityHandler.super.adjustPosition(entity, zeroPos)
                     .subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
         }
@@ -173,16 +167,6 @@ public final class EntityHandlers
         {
             return entity instanceof ArmorStand;
         }
-
-        @Override
-        public List<ItemStack> getRequiredItems(final Entity entity)
-        {
-            final ArmorStand stand = (ArmorStand) entity;
-            final List<ItemStack> request = new ArrayList<>(IEntityHandler.super.getRequiredItems(entity));
-            stand.getArmorSlots().forEach(request::add);
-            stand.getHandSlots().forEach(request::add);
-            return request;
-        }
     }
 
     /**
@@ -194,14 +178,6 @@ public final class EntityHandlers
         public boolean canHandle(final Entity entity)
         {
             return entity instanceof ContainerEntity;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(final Entity entity)
-        {
-            final List<ItemStack> request = new ArrayList<>(IEntityHandler.super.getRequiredItems(entity));
-            request.addAll(((ContainerEntity) entity).getItemStacks());
-            return request;
         }
     }
 

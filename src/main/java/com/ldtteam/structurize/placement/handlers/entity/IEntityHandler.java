@@ -1,15 +1,11 @@
 package com.ldtteam.structurize.placement.handlers.entity;
 
-import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -55,7 +51,7 @@ public interface IEntityHandler
     }
 
     /**
-     * Check if the entity should be placed.
+     * Check if the entity should be placed. Can be used to modify the entity before notifying both level and {@link Entity#onAddedToLevel()}
      *
      * @param handler the actor placing the entity.
      * @param entity  the entity being placed.
@@ -90,7 +86,7 @@ public interface IEntityHandler
      */
     default List<ItemStack> getRequiredItems(final Entity entity)
     {
-        return List.of(Objects.requireNonNullElse(entity.getPickedResult(new EntityHitResult(entity)), ItemStack.EMPTY));
+        return ItemStackUtils.getItemStacksOfEntity(entity);
     }
 
     /**
@@ -101,7 +97,7 @@ public interface IEntityHandler
      */
     default ItemStack getIcon(final Entity entity)
     {
-        return Objects.requireNonNullElse(entity.getPickResult(), ItemStack.EMPTY);
+        return Objects.requireNonNullElse(ItemStackUtils.getEntitySpawningItem(entity), ItemStack.EMPTY);
     }
 
     /**

@@ -193,7 +193,7 @@ public final class ItemStackUtils
 
         // process entity itself
         final ItemStack spawnItem = getEntitySpawningItem(entity);
-        if (spawnItem != null && !(spawnItem.getItem() instanceof SpawnEggItem))
+        if (spawnItem != null && !(spawnItem.getItem() instanceof SpawnEggItem)) // TODO: 1.22 remove this here and move it to mcol
         {
             request.add(spawnItem);
         }

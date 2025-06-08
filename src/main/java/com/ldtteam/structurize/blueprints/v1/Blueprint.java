@@ -25,7 +25,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
+import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -801,13 +802,28 @@ public class Blueprint implements IFakeLevelBlockGetter
                 {
                     finalEntity.load(entityInfo);
 
-                    final Vec3 entityVec = rotationMirror
-                        .applyToPos(
-                            finalEntity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : finalEntity.position())
-                        .add(Vec3.atLowerCornerOf(pos));
+                    Vec3 source = finalEntity.position();
+                    if (finalEntity instanceof BlockAttachedEntity attachedEntity)
+                    {
+                        source = Vec3.atCenterOf(attachedEntity.getPos());
+                    }
+                    if (finalEntity instanceof Painting painting)
+                    {
+                        source = paitingToMiddle(painting);
+                    }
+
+                    Vec3 target = rotationMirror.applyToPos(source).add(Vec3.atLowerCornerOf(pos));
+
                     finalEntity.setYRot(finalEntity.mirror(rotationMirror.mirror()));
                     finalEntity.setYRot(finalEntity.rotate(rotationMirror.rotation()));
-                    finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, finalEntity.getYRot(), finalEntity.getXRot());
+                    finalEntity.moveTo(target.x, target.y, target.z, finalEntity.getYRot(), finalEntity.getXRot());
+
+                    if (finalEntity instanceof Painting painting)
+                    {
+                        // first we need painting to be at correct state (aabb, direction etc.), then we can fix it
+                        target = paitingFromMiddle(painting, target);
+                        finalEntity.moveTo(target.x, target.y, target.z, finalEntity.getYRot(), finalEntity.getXRot());
+                    }
 
                     final CompoundTag newEntityInfo = new CompoundTag();
                     finalEntity.save(newEntityInfo);
@@ -821,6 +837,16 @@ public class Blueprint implements IFakeLevelBlockGetter
             }
         }
         return null;
+    }
+
+    private static Vec3 paitingToMiddle(Painting painting)
+    {
+        return painting.getBoundingBox().getCenter();
+    }
+
+    private static Vec3 paitingFromMiddle(Painting painting, Vec3 middle)
+    {
+        return middle.add(Vec3.atLowerCornerOf(painting.getPos()).subtract(painting.getBoundingBox().getCenter()));
     }
 
     private int getVolume()
