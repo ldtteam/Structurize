@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
@@ -14,11 +13,8 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
@@ -31,8 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -350,66 +344,66 @@ public class StructurePlacer
       final BlockPos worldPos,
       final BlockPos localPos,
       final ChangeStorage storage,
-      final boolean simulate)
+        final boolean simulate)
     {
+        final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+
+        nextEntity:
         for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
-            if (compound != null)
+            try
             {
-                try
+                final Optional<EntityType<?>> type = compound == null ? Optional.empty() : EntityType.by(compound);
+                if (type.isEmpty())
                 {
-                    final BlockPos zeroPos = this.handler.getWorldPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+                    continue;
+                }
 
-                    final Optional<EntityType<?>> type = EntityType.by(compound);
-                    if (type.isPresent())
+                final Entity entity = type.get().create(world);
+                if (entity == null)
+                {
+                    continue;
+                }
+
+                entity.load(compound);
+
+                entity.setUUID(UUID.randomUUID());
+
+                List<ItemStack> requiredItems = List.of();
+                nextHandler:
+                for (final IEntityHandler entityHandler : EntityHandlers.handlers)
+                {
+                    switch (entityHandler.checkPlacement(handler, entity, zeroPos))
                     {
-                        final Entity entity = type.get().create(world);
-                        if (entity != null)
-                        {
-                            entity.load(compound);
-
-                            entity.setUUID(UUID.randomUUID());
-
-                            IEntityHandler.ActionProcessingResult finalResult = IEntityHandler.ActionProcessingResult.DENY;
-                            List<ItemStack> requiredItems = List.of();
-                            for (final IEntityHandler entityHandler : EntityHandlers.handlers)
-                            {
-                                final IEntityHandler.ActionProcessingResult result = entityHandler.checkPlacement(handler, entity, zeroPos);
-                                if (result != IEntityHandler.ActionProcessingResult.PASS)
-                                {
-                                    finalResult = result;
-                                    requiredItems = entityHandler.getRequiredItems(entity).stream()
-                                            .filter(stack -> !stack.isEmpty()).toList();
-                                    break;
-                                }
-                            }
-                            if (finalResult != IEntityHandler.ActionProcessingResult.SUCCESS)
-                            {
-                                continue;
-                            }
-
-                            if (!handler.isCreative() && !handler.hasRequiredItems(requiredItems))
-                            {
-                                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
-                            }
-
-                            if (!simulate)
-                            {
-                                world.addFreshEntity(entity);
-                                this.handler.consume(requiredItems);
-                                this.handler.triggerEntitySuccess(localPos, requiredItems, true);
-                            }
-                            if (storage != null)
-                            {
-                                storage.addToBeKilledEntity(entity);
-                            }
-                        }
+                        case DENY:
+                            continue nextEntity;
+                        case PASS:
+                            continue nextHandler;
+                        case SUCCESS:
+                            requiredItems = entityHandler.getRequiredItems(entity).stream().filter(stack -> !stack.isEmpty()).toList();
+                            break nextHandler;
                     }
                 }
-                catch (final RuntimeException e)
+
+                if (!handler.isCreative() && !handler.hasRequiredItems(requiredItems))
                 {
-                    Log.getLogger().info("Couldn't restore entity", e);
+                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                 }
+
+                if (!simulate)
+                {
+                    world.addFreshEntity(entity);
+                    this.handler.consume(requiredItems);
+                    this.handler.triggerEntitySuccess(localPos, requiredItems, true);
+                }
+                if (storage != null)
+                {
+                    storage.addToBeKilledEntity(entity);
+                }
+            }
+            catch (final RuntimeException e)
+            {
+                Log.getLogger().info("Couldn't restore entity", e);
             }
         }
 
