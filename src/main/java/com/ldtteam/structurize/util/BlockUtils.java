@@ -460,7 +460,6 @@ public final class BlockUtils
         final BlockState blockState = world.getBlockState(position);
         final BlockEntity tileEntity = world.getBlockEntity(position);
         boolean isMatch = false;
-        boolean handled = false;
 
         if (block.getItem() == Items.AIR && blockState.isAir())
         {
@@ -468,22 +467,17 @@ public final class BlockUtils
         }
         else
         {
-            for (final IPlacementHandler handler : PlacementHandlers.handlers)
+            final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
+            if (handler != null)
             {
-                if (handler.canHandle(world, BlockPos.ZERO, blockState))
+                final List<ItemStack> itemList =
+                  handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
+                if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
                 {
-                    final List<ItemStack> itemList =
-                      handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
-                    if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
-                    {
-                        isMatch = true;
-                    }
-                    handled = true;
-                    break;
+                    isMatch = true;
                 }
             }
-
-            if (!handled && ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), block))
+            else if (ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), block))
             {
                 isMatch = true;
             }
