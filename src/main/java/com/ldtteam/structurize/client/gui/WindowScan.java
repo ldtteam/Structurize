@@ -471,22 +471,16 @@ public class WindowScan extends AbstractWindowSkeleton
             }
             else
             {
-                boolean handled = false;
-                for (final IPlacementHandler handler : PlacementHandlers.handlers)
+                final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
+                if (handler != null)
                 {
-                    if (handler.canHandle(world, BlockPos.ZERO, blockState))
+                    final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                    for (final ItemStack stack : itemList)
                     {
-                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                        for (final ItemStack stack : itemList)
-                        {
-                            addNeededResource(stack, 1);
-                        }
-                        handled = true;
-                        break;
+                        addNeededResource(stack, 1);
                     }
                 }
-
-                if (!handled)
+                else
                 {
                     addNeededResource(BlockUtils.getItemStackFromBlockState(blockState), 1);
                 }

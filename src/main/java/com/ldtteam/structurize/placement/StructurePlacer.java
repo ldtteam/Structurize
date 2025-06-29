@@ -342,62 +342,64 @@ public class StructurePlacer
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
         }
 
-        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
+        final IPlacementHandler removalHandler = PlacementHandlers.getHandler(world, worldPos, worldState);
+        final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, worldPos, localState);
+
+        if (placementHandler != null)
         {
-            if (placementHandler.canHandle(world, worldPos, localState))
+            final List<ItemStack> requiredItems = new ArrayList<>();
+
+            if (!sameBlockInWorld && !this.handler.isCreative())
             {
-                final List<ItemStack> requiredItems = new ArrayList<>();
-
-                if (!sameBlockInWorld && !this.handler.isCreative())
+                for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
                 {
-                    for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
+                    if (!stack.isEmpty() && !this.handler.isStackFree(stack))
                     {
-                        if (!stack.isEmpty() && !this.handler.isStackFree(stack))
-                        {
-                            requiredItems.add(stack);
-                        }
-                    }
-
-                    if (!this.handler.hasRequiredItems(requiredItems))
-                    {
-                        return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+                        requiredItems.add(stack);
                     }
                 }
 
-                if (!(worldState.getBlock() instanceof AirBlock))
+                if (!this.handler.hasRequiredItems(requiredItems))
                 {
-                    if (!sameBlockInWorld
-                          && !worldState.isAir()
-                          && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
-                    {
-                        placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
-                    }
+                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                 }
+            }
 
-                this.handler.prePlacementLogic(worldPos, localState, requiredItems);
-
-                final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(getHandler().getBluePrint(), world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
-                if (result == IPlacementHandler.ActionProcessingResult.DENY)
+            if (!(worldState.getBlock() instanceof AirBlock))
+            {
+                if (!sameBlockInWorld
+                        && removalHandler != null
+                        && !worldState.isAir()
+                        && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
                 {
-                    placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
-                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
+                    removalHandler.handleRemoval(handler, world, worldPos, tileEntityData);
                 }
+            }
 
-                this.handler.triggerSuccess(localPos, requiredItems, true);
+            this.handler.prePlacementLogic(worldPos, localState, requiredItems);
 
-                if (result == IPlacementHandler.ActionProcessingResult.PASS)
-                {
-                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
-                }
+            final IPlacementHandler.ActionProcessingResult result = placementHandler.handle(getHandler().getBluePrint(), world, worldPos, localState, tileEntityData, !this.handler.fancyPlacement(), this.handler.getWorldPos(), this.handler.getSettings());
+            if (result == IPlacementHandler.ActionProcessingResult.DENY)
+            {
+                placementHandler.handleRemoval(handler, world, worldPos, tileEntityData);
+                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
+            }
 
-                if (!this.handler.isCreative() && !sameBlockInWorld)
-                {
-                    this.handler.consume(requiredItems);
-                }
+            this.handler.triggerSuccess(localPos, requiredItems, true);
 
+            if (result == IPlacementHandler.ActionProcessingResult.PASS)
+            {
                 return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
             }
+
+            if (!this.handler.isCreative() && !sameBlockInWorld)
+            {
+                this.handler.consume(requiredItems);
+            }
+
+            return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
         }
+
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.FAIL);
     }
 
@@ -653,22 +655,20 @@ public class StructurePlacer
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
         }
 
-        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
+        final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, worldPos, localState);
+        if (placementHandler != null)
         {
-            if (placementHandler.canHandle(world, worldPos, localState))
+            if (!sameBlockInWorld)
             {
-                if (!sameBlockInWorld)
+                for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
                 {
-                    for (final ItemStack stack : placementHandler.getRequiredItems(world, worldPos, localState, tileEntityData, false))
+                    if (!stack.isEmpty() && !this.handler.isStackFree(stack))
                     {
-                        if (!stack.isEmpty() && !this.handler.isStackFree(stack))
-                        {
-                            requiredItems.add(stack);
-                        }
+                        requiredItems.add(stack);
                     }
                 }
-                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
             }
+            return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
         }
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
     }
