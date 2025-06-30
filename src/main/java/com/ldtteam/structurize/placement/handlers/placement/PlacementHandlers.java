@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -104,12 +103,11 @@ public final class PlacementHandlers
      * @param world     the world.
      * @param worldPos  the world position.
      * @param newState  the blockstate being placed or removed.
-     * @return          the appropriate handler, or null.
+     * @return          the appropriate handler.
      */
-    @Nullable
-    public static IPlacementHandler getHandler(@NotNull final Level world,
-                                               @NotNull final BlockPos worldPos,
-                                               @NotNull final BlockState newState)
+    public static IPlacementHandler getHandler(final Level world,
+                                               final BlockPos worldPos,
+                                               final BlockState newState)
     {
         for (final IPlacementHandler placementHandler : handlers)
         {
@@ -119,7 +117,8 @@ public final class PlacementHandlers
             }
         }
 
-        return null;
+        Log.getLogger().error("Unable to find any PlacementHandler for {}; this should be impossible.", newState.toString());
+        return new GeneralBlockPlacementHandler();
     }
 
     /**
@@ -1102,11 +1101,7 @@ public final class PlacementHandlers
     public static List<ItemStack> getRequiredItemsForState(final Level world, final BlockPos pos, final BlockState state, final CompoundTag data, final boolean complete)
     {
         final IPlacementHandler placementHandler = getHandler(world, pos, state);
-        if (placementHandler != null)
-        {
-            return placementHandler.getRequiredItems(world, pos, state, data, complete);
-        }
-        return Collections.emptyList();
+        return placementHandler.getRequiredItems(world, pos, state, data, complete);
     }
 
     /**

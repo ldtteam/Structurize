@@ -309,16 +309,9 @@ public class TickedWorldOperation implements ITickedWorldOperation
                     else
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
-                        if (handler != null)
-                        {
-                            final List<ItemStack> itemList =
-                              handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                            if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
-                            {
-                                isMatch = true;
-                            }
-                        }
-                        else if (ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), firstBlock))
+                        final List<ItemStack> itemList =
+                          handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
                         {
                             isMatch = true;
                         }
