@@ -2,14 +2,8 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.blockui.UiRenderMacros;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
+import com.mojang.blaze3d.vertex.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,12 +13,14 @@ import net.minecraft.client.renderer.RenderStateShard.DepthTestStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
-import java.util.LinkedList;
-import java.util.List;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.phys.AABB;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
@@ -976,7 +972,7 @@ public class WorldRenderMacros extends UiRenderMacros
             matrixStack.mulPose(erm.cameraOrientation());
             matrixStack.scale(-0.014f, -0.014f, 0.014f);
 
-            final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+            final float backgroundTextOpacity = 0f;
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
             final Matrix4f rawPosMatrix = matrixStack.last().pose();
@@ -1093,7 +1089,7 @@ public class WorldRenderMacros extends UiRenderMacros
                 .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setDepthTestState(AlwaysDepthTestStateShard.ALWAYS_DEPTH_TEST)
                 .setCullState(CULL)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
