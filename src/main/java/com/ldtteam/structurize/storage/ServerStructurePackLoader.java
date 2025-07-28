@@ -178,16 +178,16 @@ public class ServerStructurePackLoader
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.LevelTickEvent event)
+    public static void onWorldTick(final TickEvent.ServerTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide())
+        if (event.phase == TickEvent.Phase.END)
         {
-            if (event.level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+            if (event.getServer().getTickCount() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
                 loadingState = ServerLoadingState.FINISHED_SYNCING;
                 for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
                 {
-                    final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(entry.getKey());
+                    final ServerPlayer player = event.getServer().getPlayerList().getPlayer(entry.getKey());
                     if (player != null)
                     {
                         handleClientUpdate(entry.getValue(), player);
@@ -199,7 +199,7 @@ public class ServerStructurePackLoader
             if (!messageSendTasks.isEmpty())
             {
                 final PackagedPack packData = messageSendTasks.poll();
-                final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(packData.player);
+                final ServerPlayer player = event.getServer().getPlayerList().getPlayer(packData.player);
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {
