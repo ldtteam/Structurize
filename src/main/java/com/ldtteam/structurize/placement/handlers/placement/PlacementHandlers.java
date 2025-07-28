@@ -99,6 +99,29 @@ public final class PlacementHandlers
     }
 
     /**
+     * Finds the appropriate {@link IPlacementHandler} for the given location.
+     * @param world     the world.
+     * @param worldPos  the world position.
+     * @param newState  the blockstate being placed or removed.
+     * @return          the appropriate handler.
+     */
+    public static IPlacementHandler getHandler(final Level world,
+                                               final BlockPos worldPos,
+                                               final BlockState newState)
+    {
+        for (final IPlacementHandler placementHandler : handlers)
+        {
+            if (placementHandler.canHandle(world, worldPos, newState))
+            {
+                return placementHandler;
+            }
+        }
+
+        Log.getLogger().error("Unable to find any PlacementHandler for {}; this should be impossible.", newState.toString());
+        return new GeneralBlockPlacementHandler();
+    }
+
+    /**
      * Private constructor to hide implicit one.
      */
     private PlacementHandlers()
@@ -1077,14 +1100,8 @@ public final class PlacementHandlers
      */
     public static List<ItemStack> getRequiredItemsForState(final Level world, final BlockPos pos, final BlockState state, final CompoundTag data, final boolean complete)
     {
-        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
-        {
-            if (placementHandler.canHandle(world, pos, state))
-            {
-                return placementHandler.getRequiredItems(world, pos, state, data, complete);
-            }
-        }
-        return Collections.emptyList();
+        final IPlacementHandler placementHandler = getHandler(world, pos, state);
+        return placementHandler.getRequiredItems(world, pos, state, data, complete);
     }
 
     /**

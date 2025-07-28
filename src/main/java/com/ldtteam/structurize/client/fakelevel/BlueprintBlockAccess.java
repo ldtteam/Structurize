@@ -5,7 +5,6 @@ import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.fakelevel.IFakeLevelLightProvider.ConfigBasedLightProvider;
-import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -27,6 +26,11 @@ public class BlueprintBlockAccess extends FakeLevel
      */
     private BlockState solidSubstitutionOverride = null;
 
+    /**
+     * Override for rendering placeholders nicely
+     */
+    private boolean renderNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
         super(blueprint, LIGHT_PROVIDER, SCOREBOARD, true);
@@ -46,12 +50,7 @@ public class BlueprintBlockAccess extends FakeLevel
 
     public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos)
     {
-        return prepareBlockStateForRendering(state, pos, null);
-    }
-
-    public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos, final BlueprintPreviewData previewData)
-    {
-        if (previewData == null ? Structurize.getConfig().getClient().renderPlaceholdersNice.get() : previewData.getRenderBlocksNice())
+        if (renderNice)
         {
             if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
@@ -84,11 +83,17 @@ public class BlueprintBlockAccess extends FakeLevel
 
     /**
      * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
-     *
-     * @return
      */
     public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
     {
         this.solidSubstitutionOverride = solidSubstitutionOverride;
+    }
+
+    /**
+     * Set the render nice override for placeholders, only updates when the renderer is recalculated
+     */
+    public void setRenderBlocksNiceOverride(final boolean renderNice)
+    {
+        this.renderNice = renderNice;
     }
 }
