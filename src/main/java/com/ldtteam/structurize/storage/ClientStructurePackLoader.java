@@ -355,11 +355,11 @@ public class ClientStructurePackLoader
     {
         final Collection<StructurePackMeta> coll = StructurePacks.getPackMetas();
         int num = (int) (Math.random() * coll.size());
-        for(StructurePackMeta t: coll)
+        for (StructurePackMeta packMeta : coll)
         {
             if (--num < 0)
             {
-                return t;
+                return packMeta;
             }
         }
         return null;
