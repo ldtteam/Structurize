@@ -42,6 +42,7 @@ import static com.ldtteam.structurize.api.util.constant.GUIConstants.BUTTON_SWIT
 import static com.ldtteam.structurize.api.util.constant.GUIConstants.DEFAULT_ICON;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_CONFIRM;
+import static com.ldtteam.structurize.storage.ClientStructurePackLoader.getRandomPack;
 
 /**
  * BuildTool window.
@@ -210,7 +211,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 return;
             }
 
-            StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+            StructurePacks.selectedPack = getRandomPack();
         }
 
         if (structurePack != null && !structurePack.getName().equals(StructurePacks.selectedPack.getName()))
