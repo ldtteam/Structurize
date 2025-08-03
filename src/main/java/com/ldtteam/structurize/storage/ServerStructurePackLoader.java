@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.File;
 import java.io.IOException;
@@ -176,33 +177,30 @@ public class ServerStructurePackLoader
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final LevelTickEvent.Post event)
+    public static void onWorldTick(final ServerTickEvent.Post event)
     {
-        if (!event.getLevel().isClientSide())
+        if (event.getServer().getTickCount() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
         {
-            if (event.getLevel().getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+            loadingState = ServerLoadingState.FINISHED_SYNCING;
+            for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
             {
-                loadingState = ServerLoadingState.FINISHED_SYNCING;
-                for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
-                {
-                    final ServerPlayer player = (ServerPlayer) event.getLevel().getPlayerByUUID(entry.getKey());
-                    if (player != null)
-                    {
-                        handleClientUpdate(entry.getValue(), player);
-                    }
-                }
-                clientSyncRequests.clear();
-            }
-
-            if (!messageSendTasks.isEmpty())
-            {
-                final PackagedPack packData = messageSendTasks.poll();
-                final ServerPlayer player = (ServerPlayer) event.getLevel().getPlayerByUUID(packData.player);
-                // If the player logged off, we can just skip.
+                final ServerPlayer player = event.getServer().getPlayerList().getPlayer(entry.getKey());
                 if (player != null)
                 {
-                    new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol).sendToPlayer(player);
+                    handleClientUpdate(entry.getValue(), player);
                 }
+            }
+            clientSyncRequests.clear();
+        }
+
+        if (!messageSendTasks.isEmpty())
+        {
+            final PackagedPack packData = messageSendTasks.poll();
+            final ServerPlayer player = event.getServer().getPlayerList().getPlayer(packData.player);
+            // If the player logged off, we can just skip.
+            if (player != null)
+            {
+                new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol).sendToPlayer(player);
             }
         }
     }
